@@ -1,12 +1,9 @@
-﻿using CourageScores.Models.Dtos.Game;
-using CourageScores.Models.Dtos.Team;
-
-namespace CourageScores.Models.Dtos;
+﻿namespace CourageScores.Models.Cosmos;
 
 /// <summary>
 /// A record of a season within the league
 /// </summary>
-public class SeasonDto : AuditedDto
+public class Season : AuditedEntity
 {
     /// <summary>
     /// When the season starts
@@ -21,15 +18,15 @@ public class SeasonDto : AuditedDto
     /// <summary>
     /// The divisions applicable to this season
     /// </summary>
-    public DivisionDto[] Divisions { get; set; } = null!;
+    public Division[] Divisions { get; set; } = null!;
 
     /// <summary>
     /// The teams playing within the season (and which division they are attributed to)
     /// </summary>
-    public TeamDto[] Teams { get; set; } = null!;
+    public Team.Team[] Teams { get; set; } = null!;
 
     /// <summary>
     /// The games that have, or are yet to be, played in this season
     /// </summary>
-    public GameDto[] Games { get; set; } = null!;
+    public Game.Game[] Games { get; set; } = null!;
 }

@@ -1,10 +1,10 @@
-﻿using CourageScores.Models.Dtos.Team;
+﻿using CourageScores.Models.Cosmos.Team;
 
 namespace CourageScores.Repository;
 
 public interface ITeamRepository
 {
-    Task<TeamDto?> Get(Guid id, CancellationToken token);
-    IAsyncEnumerable<TeamDto> GetAll(CancellationToken token);
-    IAsyncEnumerable<TeamDto> GetSome(string where, CancellationToken token);
+    Task<Team?> Get(Guid id, CancellationToken token);
+    IAsyncEnumerable<Team> GetAll(CancellationToken token);
+    IAsyncEnumerable<Team> GetSome(string where, CancellationToken token);
 }

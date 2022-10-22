@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace CourageScores.Models.Dtos;
+namespace CourageScores.Models.Cosmos;
 
-public class CosmosEntity
+public abstract class CosmosEntity
 {
     /// <summary>
     /// The id for the entity
@@ -13,6 +13,5 @@ public class CosmosEntity
     /// <summary>
     /// The version the entities data
     /// </summary>
-    [JsonProperty("id")] // required to ensure the id property matches the partition key in Cosmos
     public int Version { get; set; }
 }

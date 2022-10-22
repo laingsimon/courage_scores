@@ -1,6 +1,5 @@
-﻿using System.Net;
-using System.Runtime.CompilerServices;
-using CourageScores.Models.Dtos;
+﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Cosmos;
 using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Repository;

@@ -1,6 +1,6 @@
-namespace CourageScores.Models.Dtos;
+namespace CourageScores.Models.Cosmos;
 
-public abstract class AuditedDto : CosmosDto
+public abstract class AuditedEntity : CosmosEntity
 {
     /// <summary>
     /// When was this entity created
