@@ -1,15 +1,12 @@
-﻿namespace CourageScores.Models.Dtos.Team;
+﻿using Newtonsoft.Json;
+
+namespace CourageScores.Models.Dtos.Team;
 
 /// <summary>
 /// A record of a team and its players, where 'home' is for them, etc.
 /// </summary>
 public class TeamDto : AuditedDto
 {
-    /// <summary>
-    /// The id for the team
-    /// </summary>
-    public Guid Id { get; set; }
-
     /// <summary>
     /// The name of the team
     /// </summary>

@@ -10,14 +10,9 @@ namespace CourageScores.Models.Dtos.Game;
 public class GameDto : AuditedDto
 {
     /// <summary>
-    /// The id of the game
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// The id of the division
     /// </summary>
-    public Guid Division { get; set; }
+    public Guid DivisionId { get; set; }
 
     /// <summary>
     /// The date (and time)

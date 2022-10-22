@@ -8,7 +8,7 @@ public class TeamPlayerDto : AuditedDto
     /// <summary>
     /// The id of the player
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid PlayerId { get; set; }
 
     /// <summary>
     /// The name of the player

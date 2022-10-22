@@ -8,11 +8,6 @@
 public class DivisionDto : AuditedDto
 {
     /// <summary>
-    /// The id of the division
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// The name for the division
     /// </summary>
     public string Name { get; set; } = null!;

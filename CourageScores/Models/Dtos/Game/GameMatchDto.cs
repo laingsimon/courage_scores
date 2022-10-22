@@ -10,11 +10,6 @@ namespace CourageScores.Models.Dtos.Game;
 public class GameMatchDto : AuditedDto
 {
     /// <summary>
-    /// The id of the match
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// The number of legs, typically 3 or 5
     /// </summary>
     public int? NumberOfLegs { get; set; }

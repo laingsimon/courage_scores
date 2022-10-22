@@ -9,11 +9,6 @@ namespace CourageScores.Models.Dtos;
 public class SeasonDto : AuditedDto
 {
     /// <summary>
-    /// The id for the season
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// When the season starts
     /// </summary>
     public DateTime StartDate { get; set; }

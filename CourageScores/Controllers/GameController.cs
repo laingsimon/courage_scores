@@ -7,12 +7,12 @@ namespace CourageScores.Controllers;
 public class GameController : Controller
 {
     [HttpGet("/api/Game/{id}")]
-    public async Task<GameDto> GetGame(Guid id)
+    public Task<GameDto> GetGame(Guid id)
     {
-        return new GameDto
+        return Task.FromResult(new GameDto
         {
             Id = id,
-            Division = Guid.Empty,
+            DivisionId = Guid.Empty,
             Address = "The riv",
             Away = new GameTeamDto
             {
@@ -71,6 +71,6 @@ public class GameController : Controller
                     }
                 }
             }
-        };
+        });
     }
 }

@@ -6,8 +6,8 @@ namespace CourageScores.Controllers;
 public class StatusController : Controller
 {
     [HttpGet("/api/Status")]
-    public async Task<string> Status()
+    public Task<string> Status()
     {
-        return "OK";
+        return Task.FromResult("OK");
     }
 }

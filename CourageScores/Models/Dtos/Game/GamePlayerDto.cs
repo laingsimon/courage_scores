@@ -10,11 +10,6 @@ namespace CourageScores.Models.Dtos.Game;
 public class GamePlayerDto : AuditedDto
 {
     /// <summary>
-    /// The id of the player
-    /// </summary>
-    public Guid Id { get; set; }
-
-    /// <summary>
     /// The name of the player
     /// </summary>
     public string Name { get; set; } = null!;

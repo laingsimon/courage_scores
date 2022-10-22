@@ -1,75 +1,26 @@
 ﻿using CourageScores.Models.Dtos.Team;
+using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Repository;
 
-public class TeamRepository : ITeamRepository
+public class TeamRepository : CosmosDbRepository<TeamDto>, ITeamRepository
 {
-    private static readonly BaseDataRepository<TeamDto> Data = new BaseDataRepository<TeamDto>(t => t.Id);
+    public TeamRepository(Database database)
+        :base(database)
+    { }
 
-    static TeamRepository()
+    public async Task<TeamDto?> Get(Guid id, CancellationToken token)
     {
-        var team = new TeamDto
-        {
-            Address = "The riv",
-            Id = Guid.NewGuid(),
-            Name = "Riverside",
-            Seasons = new[]
-            {
-                new TeamSeasonDto
-                {
-                    SeasonId = Guid.NewGuid(),
-                    Players = new[]
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Colbs",
-                            Captain = true,
-                        },
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Donk",
-                        },
-                    }
-                },
-                new TeamSeasonDto
-                {
-                    SeasonId = Guid.NewGuid(),
-                    Players = new[]
-                    {
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Colbs",
-                            Captain = true,
-                        },
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Donk",
-                        },
-                        new TeamPlayerDto
-                        {
-                            Id = Guid.NewGuid(),
-                            Name = "Simon",
-                        },
-                    }
-                },
-            },
-            DivisionId = Guid.NewGuid(),
-        };
-
-        Data.Create(team).Wait();
+        return await GetItem(id, token);
     }
 
-    public async Task<TeamDto> Get(Guid id)
+    public IAsyncEnumerable<TeamDto> GetAll(CancellationToken token)
     {
-        return await Data.Get(id);
+        return Query(null, token);
     }
 
-    public IAsyncEnumerable<TeamDto> GetAll()
+    public IAsyncEnumerable<TeamDto> GetSome(string where, CancellationToken token)
     {
-        return Data.GetAll();
+        return Query($"select * from teamdto t {where}", token);
     }
 }
