@@ -1,0 +1,81 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy'
+        require: false
+        type: boolean
+        default: false
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: true
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: Test with dotnet
+        run: dotnet test --configuration Release
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+#       - name: App Settings Variable Substitution
+#         uses: microsoft/variable-substitution@v1
+#         with:
+#           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
+#         env:
+#           GOOGLEAUTH__CLIENTID: ${{ secrets.GOOGLEOAUTHID }}
+#           GOOGLEAUTH__SECRET: ${{ secrets.GOOGLEOAUTHSECRET }}
+#           COSMOSDB__ENDPOINT: ${{ secrets.COSMOSDBURL }}
+#           COSMOSDB__KEY: ${{ secrets.COSMOSDBKEY }}
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: .net-app
+          path: ${{env.DOTNET_ROOT}}/myapp
+
+  deploy:
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: .net-app
+
+      - name: Resolve environment variables
+        shell: bash
+        run: |
+          echo "branch_name=$(echo "$GITHUB_REF_NAME" | sed -r 's/\//_/g')" >> $GITHUB_ENV
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        if: ${{ env.branch_name == 'main' || github.event.inputs.deploy == 'true' }}
+        with:
+          app-name: 'CourageScores'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_A911F862B117489DA06BBFD036FFA6D5 }}
+          package: .

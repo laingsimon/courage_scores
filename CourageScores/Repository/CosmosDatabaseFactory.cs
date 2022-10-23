@@ -16,7 +16,7 @@ public class CosmosDatabaseFactory : ICosmosDatabaseFactory
         var section = _configuration.GetSection("CosmosDb");
 
         var databaseName = section["DatabaseName"];
-        var account = section["Account"];
+        var account = section["Endpoint"];
         var key = section["Key"];
         var client = new CosmosClient(account, key);
         var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
