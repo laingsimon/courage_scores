@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 
@@ -31,5 +32,16 @@ public class TeamService : ITeamService
         {
             yield return _teamAdapter.Adapt(team);
         }
+    }
+
+    public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
+    {
+        var createdTeam = await _teamRepository.UpsertTeam(_teamAdapter.Adapt(team), token);
+
+        return new ActionResultDto<TeamDto>
+        {
+            Result = _teamAdapter.Adapt(createdTeam),
+            Success = true,
+        };
     }
 }

@@ -15,9 +15,9 @@ public abstract class CosmosDbRepository<T> where T : CosmosEntity
         _container = database.CreateContainerIfNotExistsAsync(_tableName, "/id").Result;
     }
 
-    protected async Task CreateItem(T item, CancellationToken token)
+    protected async Task UpsertItem(T item, CancellationToken token)
     {
-        await _container.CreateItemAsync(item, new PartitionKey(item.Id.ToString()), cancellationToken: token);
+        await _container.UpsertItemAsync(item, new PartitionKey(item.Id.ToString()), cancellationToken: token);
     }
 
     protected async IAsyncEnumerable<T> Query(string? query, [EnumeratorCancellation] CancellationToken token)

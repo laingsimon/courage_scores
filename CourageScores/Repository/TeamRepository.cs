@@ -23,4 +23,10 @@ public class TeamRepository : CosmosDbRepository<Team>, ITeamRepository
     {
         return Query($"select * from teamdto t {where}", token);
     }
+
+    public async Task<Team> UpsertTeam(Team team, CancellationToken token)
+    {
+        await UpsertItem(team, token);
+        return await Get(team.Id, token) ?? throw new InvalidOperationException("Team does not exist");
+    }
 }
