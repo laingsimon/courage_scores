@@ -18,6 +18,7 @@ public static class DependencyInjectionExtensions
     {
         services.AddSingleton<ICosmosDatabaseFactory, CosmosDatabaseFactory>();
         services.AddSingleton(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
+        services.AddHttpContextAccessor();
 
         AddServices(services);
         AddRepositories(services);
@@ -27,11 +28,13 @@ public static class DependencyInjectionExtensions
     private static void AddServices(IServiceCollection services)
     {
         services.AddScoped<ITeamService, TeamService>();
+        services.AddScoped<IIdentityService, IdentityService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
     {
         services.AddSingleton<ITeamRepository, TeamRepository>();
+        services.AddSingleton<IUserRepository, UserRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)

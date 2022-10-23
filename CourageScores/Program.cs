@@ -1,11 +1,29 @@
 using System.Reflection;
 using CourageScores;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    })
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/api/Account/Login"; // Must be lowercase
+    })
+    .AddGoogle(options =>
+    {
+        var googleAuth = configuration.GetSection("GoogleAuth");
+        options.ClientId = googleAuth["ClientId"];
+        options.ClientSecret = googleAuth["Secret"];
+    });
 
 // Add services to the container.
-
 builder.Services.AddControllersWithViews();
+
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -26,13 +44,20 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllerRoute(
+        name: "default",
+        pattern: "{controller}/{action=Index}/{id?}");
+});
 
-app.MapFallbackToFile("index.html");;
+// app.MapFallbackToFile("index.html");
 
 app.Run();

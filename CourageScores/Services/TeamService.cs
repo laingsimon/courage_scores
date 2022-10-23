@@ -11,11 +11,13 @@ public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
     private readonly IAdapter<Team, TeamDto> _teamAdapter;
+    private readonly IIdentityService _identityService;
 
-    public TeamService(ITeamRepository teamRepository, IAdapter<Team, TeamDto> teamAdapter)
+    public TeamService(ITeamRepository teamRepository, IAdapter<Team, TeamDto> teamAdapter, IIdentityService identityService)
     {
         _teamRepository = teamRepository;
         _teamAdapter = teamAdapter;
+        _identityService = identityService;
     }
 
     public async Task<TeamDto?> GetTeam(Guid id, CancellationToken token)
@@ -36,6 +38,18 @@ public class TeamService : ITeamService
 
     public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
     {
+        var identity = await _identityService.GetUser();
+        if (identity?.Admin != true)
+        {
+            return new ActionResultDto<TeamDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not an admin"
+                }
+            };
+        }
         var createdTeam = await _teamRepository.UpsertTeam(_teamAdapter.Adapt(team), token);
 
         return new ActionResultDto<TeamDto>
