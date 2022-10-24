@@ -1,0 +1,53 @@
+using CourageScores.Models.Cosmos;
+using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Identity;
+using CourageScores.Services;
+using Microsoft.Extensions.Internal;
+
+namespace CourageScores.Models.Adapters;
+
+public class AuditingAdapter<T, TDto> : IAuditingAdapter<T, TDto>
+    where T : AuditedEntity
+    where TDto : AuditedDto
+{
+    private readonly IAdapter<T, TDto> _adapter;
+    private readonly ISystemClock _clock;
+    private readonly Lazy<UserDto?> _user;
+
+    public AuditingAdapter(IAdapter<T, TDto> adapter, ISystemClock clock, IIdentityService identityService)
+    {
+        _adapter = adapter;
+        _clock = clock;
+        _user = new Lazy<UserDto?>(() => identityService.GetUser().Result);
+    }
+
+    public TDto Adapt(T model)
+    {
+        return _adapter.Adapt(model);
+    }
+
+    public T Adapt(TDto dto)
+    {
+        var adapted = _adapter.Adapt(dto);
+        var user = _user.Value;
+        if (user != null)
+        {
+            adapted.Editor = user.Name;
+
+            if (string.IsNullOrEmpty(adapted.Author))
+            {
+                // upon creation of an entity
+                adapted.Author = user.Name;
+            }
+        }
+
+        adapted.Updated = _clock.UtcNow.UtcDateTime;
+        if (adapted.Created == default)
+        {
+            // upon creation of an entity
+            adapted.Created = _clock.UtcNow.UtcDateTime;
+        }
+
+        return adapted;
+    }
+}

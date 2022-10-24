@@ -10,10 +10,10 @@ namespace CourageScores.Services;
 public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
-    private readonly IAdapter<Team, TeamDto> _teamAdapter;
+    private readonly IAuditingAdapter<Team, TeamDto> _teamAdapter;
     private readonly IIdentityService _identityService;
 
-    public TeamService(ITeamRepository teamRepository, IAdapter<Team, TeamDto> teamAdapter, IIdentityService identityService)
+    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Team, TeamDto> teamAdapter, IIdentityService identityService)
     {
         _teamRepository = teamRepository;
         _teamAdapter = teamAdapter;

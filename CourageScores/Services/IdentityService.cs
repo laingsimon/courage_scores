@@ -9,6 +9,8 @@ public class IdentityService : IIdentityService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IUserRepository _userRepository;
+    private UserDto? _user;
+    private bool _userResolved;
 
     public IdentityService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
     {
@@ -17,6 +19,18 @@ public class IdentityService : IIdentityService
     }
 
     public async Task<UserDto?> GetUser()
+    {
+        if (_userResolved)
+        {
+            return _user;
+        }
+
+        _user = await GetUserInternal();
+        _userResolved = true;
+        return _user;
+    }
+
+    private async Task<UserDto?> GetUserInternal()
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)

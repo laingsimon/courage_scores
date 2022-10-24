@@ -9,6 +9,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
+using Microsoft.Extensions.Internal;
 
 namespace CourageScores;
 
@@ -16,9 +17,10 @@ public static class DependencyInjectionExtensions
 {
     public static void RegisterServices(this IServiceCollection services)
     {
-        services.AddSingleton<ICosmosDatabaseFactory, CosmosDatabaseFactory>();
-        services.AddSingleton(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
+        services.AddScoped<ICosmosDatabaseFactory, CosmosDatabaseFactory>();
+        services.AddScoped(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
         services.AddHttpContextAccessor();
+        services.AddSingleton<ISystemClock, SystemClock>();
 
         AddServices(services);
         AddRepositories(services);
@@ -33,24 +35,33 @@ public static class DependencyInjectionExtensions
 
     private static void AddRepositories(IServiceCollection services)
     {
-        services.AddSingleton<ITeamRepository, TeamRepository>();
-        services.AddSingleton<IUserRepository, UserRepository>();
+        services.AddScoped<ITeamRepository, TeamRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)
     {
-        services.AddSingleton<IAdapter<Game, GameDto>, GameAdapter>();
-        services.AddSingleton<IAdapter<GameMatch, GameMatchDto>, GameMatchAdapter>();
-        services.AddSingleton<IAdapter<GamePlayer, GamePlayerDto>, GamePlayerAdapter>();
-        services.AddSingleton<IAdapter<GameTeam, GameTeamDto>, GameTeamAdapter>();
-        services.AddSingleton<IAdapter<NotablePlayer, NotablePlayerDto>, NotablePlayerAdapter>();
+        AddAdapter<Game, GameDto, GameAdapter>(services);
+        AddAdapter<GameMatch, GameMatchDto, GameMatchAdapter>(services);
+        AddAdapter<GamePlayer, GamePlayerDto, GamePlayerAdapter>(services);
+        AddAdapter<GameTeam, GameTeamDto, GameTeamAdapter>(services);
+        AddAdapter<NotablePlayer, NotablePlayerDto, NotablePlayerAdapter>(services);
 
-        services.AddSingleton<IAdapter<Team, TeamDto>, TeamAdapter>();
-        services.AddSingleton<IAdapter<TeamPlayer, TeamPlayerDto>, TeamPlayerAdapter>();
-        services.AddSingleton<IAdapter<TeamSeason, TeamSeasonDto>, TeamSeasonAdapter>();
+        AddAdapter<Team, TeamDto, TeamAdapter>(services);
+        AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);
+        AddAdapter<TeamSeason, TeamSeasonDto, TeamSeasonAdapter>(services);
 
-        services.AddSingleton<IAdapter<Division, DivisionDto>, DivisionAdapter>();
-        services.AddSingleton<IAdapter<League, LeagueDto>, LeagueAdapter>();
-        services.AddSingleton<IAdapter<Season, SeasonDto>, SeasonAdapter>();
+        AddAdapter<Division, DivisionDto, DivisionAdapter>(services);
+        AddAdapter<League, LeagueDto, LeagueAdapter>(services);
+        AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
+    }
+
+    private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
+        where TModel: AuditedEntity
+        where TDto: AuditedDto
+        where TAdapter: class, IAdapter<TModel, TDto>
+    {
+        services.AddSingleton<IAdapter<TModel, TDto>, TAdapter>();
+        services.AddScoped<IAuditingAdapter<TModel, TDto>, AuditingAdapter<TModel, TDto>>();
     }
 }
