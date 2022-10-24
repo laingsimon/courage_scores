@@ -20,11 +20,7 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
     {
         return new GameMatchDto
         {
-            Author = model.Author,
-            Created = model.Created,
-            Editor = model.Editor,
             Id = model.Id,
-            Updated = model.Updated,
             AwayPlayers = model.AwayPlayers.Select(_gamePlayerAdapter.Adapt).ToArray(),
             AwayScore = model.AwayScore,
             HomePlayers = model.HomePlayers.Select(_gamePlayerAdapter.Adapt).ToArray(),
@@ -33,18 +29,14 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             Over100Checkouts = model.Over100Checkouts.Select(_notablePlayerAdapter.Adapt).ToArray(),
             StartingScore = model.StartingScore,
             NumberOfLegs = model.NumberOfLegs,
-        };
+        }.AddAuditProperties(model);
     }
 
     public GameMatch Adapt(GameMatchDto dto)
     {
         return new GameMatch
         {
-            Author = dto.Author,
-            Created = dto.Created,
-            Editor = dto.Editor,
             Id = dto.Id,
-            Updated = dto.Updated,
             AwayPlayers = dto.AwayPlayers.Select(_gamePlayerAdapter.Adapt).ToArray(),
             AwayScore = dto.AwayScore,
             HomePlayers = dto.HomePlayers.Select(_gamePlayerAdapter.Adapt).ToArray(),
@@ -53,6 +45,6 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             Over100Checkouts = dto.Over100Checkouts.Select(_notablePlayerAdapter.Adapt).ToArray(),
             StartingScore = dto.StartingScore,
             NumberOfLegs = dto.NumberOfLegs,
-        };
+        }.AddAuditProperties(dto);
     }
 }

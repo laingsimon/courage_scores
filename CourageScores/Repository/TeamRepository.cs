@@ -29,4 +29,9 @@ public class TeamRepository : CosmosDbRepository<Team>, ITeamRepository
         await UpsertItem(team, token);
         return await Get(team.Id, token) ?? throw new InvalidOperationException("Team does not exist");
     }
+
+    public async Task DeleteTeam(Guid id, CancellationToken token)
+    {
+        await DeleteItem(id, token);
+    }
 }

@@ -50,4 +50,15 @@ public class AuditingAdapter<T, TDto> : IAuditingAdapter<T, TDto>
 
         return adapted;
     }
+
+    public void SetDeleted(T model)
+    {
+        var user = _user.Value;
+        if (user != null)
+        {
+            model.Remover = user.Name;
+        }
+
+        model.Deleted = _clock.UtcNow.UtcDateTime;
+    }
 }

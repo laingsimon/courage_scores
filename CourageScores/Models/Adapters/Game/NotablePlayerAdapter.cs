@@ -9,27 +9,19 @@ public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
     {
         return new NotablePlayerDto
         {
-            Author = model.Author,
-            Created = model.Created,
-            Editor = model.Editor,
             Id = model.Id,
             Name = model.Name,
             Notes = model.Notes,
-            Updated = model.Updated,
-        };
+        }.AddAuditProperties(model);
     }
 
     public NotablePlayer Adapt(NotablePlayerDto dto)
     {
         return new NotablePlayer
         {
-            Author = dto.Author,
-            Created = dto.Created,
-            Editor = dto.Editor,
             Id = dto.Id,
             Name = dto.Name,
             Notes = dto.Notes,
-            Updated = dto.Updated,
-        };
+        }.AddAuditProperties(dto);
     }
 }

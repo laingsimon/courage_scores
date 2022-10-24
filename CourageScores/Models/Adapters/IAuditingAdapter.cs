@@ -7,4 +7,5 @@ public interface IAuditingAdapter<T, TDto> : IAdapter<T, TDto>
     where T : AuditedEntity
     where TDto : AuditedDto
 {
+    void SetDeleted(T model);
 }

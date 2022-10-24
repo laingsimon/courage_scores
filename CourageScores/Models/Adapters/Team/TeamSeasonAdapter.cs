@@ -16,27 +16,19 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
     {
         return new TeamSeasonDto
         {
-            Author = model.Author,
-            Created = model.Created,
-            Editor = model.Editor,
             Id = model.Id,
             Players = model.Players.Select(_playerAdapter.Adapt).ToArray(),
-            Updated = model.Updated,
             SeasonId = model.SeasonId,
-        };
+        }.AddAuditProperties(model);
     }
 
     public TeamSeason Adapt(TeamSeasonDto dto)
     {
         return new TeamSeason
         {
-            Author = dto.Author,
-            Created = dto.Created,
-            Editor = dto.Editor,
             Id = dto.Id,
             Players = dto.Players.Select(_playerAdapter.Adapt).ToArray(),
-            Updated = dto.Updated,
             SeasonId = dto.SeasonId,
-        };
+        }.AddAuditProperties(dto);
     }
 }

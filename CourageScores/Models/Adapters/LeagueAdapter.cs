@@ -20,27 +20,19 @@ public class LeagueAdapter : IAdapter<League, LeagueDto>
     {
         return new LeagueDto
         {
-            Author = model.Author,
-            Created = model.Created,
             Divisions = model.Divisions.Select(_divisionAdapter.Adapt).ToArray(),
-            Editor = model.Editor,
             Id = model.Id,
             Seasons = model.Seasons.Select(_seasonAdapter.Adapt).ToArray(),
-            Updated = model.Updated,
-        };
+        }.AddAuditProperties(model);
     }
 
     public League Adapt(LeagueDto dto)
     {
         return new League
         {
-            Author = dto.Author,
-            Created = dto.Created,
             Divisions = dto.Divisions.Select(_divisionAdapter.Adapt).ToArray(),
-            Editor = dto.Editor,
             Id = dto.Id,
             Seasons = dto.Seasons.Select(_seasonAdapter.Adapt).ToArray(),
-            Updated = dto.Updated,
-        };
+        }.AddAuditProperties(dto);
     }
 }

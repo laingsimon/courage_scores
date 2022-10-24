@@ -9,25 +9,17 @@ public class GamePlayerAdapter : IAdapter<GamePlayer, GamePlayerDto>
     {
         return new GamePlayerDto
         {
-            Author = model.Author,
-            Created = model.Created,
-            Editor = model.Editor,
             Id = model.Id,
             Name = model.Name,
-            Updated = model.Updated,
-        };
+        }.AddAuditProperties(model);
     }
 
     public GamePlayer Adapt(GamePlayerDto dto)
     {
         return new GamePlayer
         {
-            Author = dto.Author,
-            Created = dto.Created,
-            Editor = dto.Editor,
             Id = dto.Id,
             Name = dto.Name,
-            Updated = dto.Updated,
-        };
+        }.AddAuditProperties(dto);
     }
 }

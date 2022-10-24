@@ -21,4 +21,14 @@ public abstract class AuditedDto : CosmosDto
     /// Who last modified this entity
     /// </summary>
     public string Editor { get; set; } = null!;
+
+    /// <summary>
+    /// When was this entity deleted
+    /// </summary>
+    public DateTime? Deleted { get; set; }
+
+    /// <summary>
+    /// Who deleted this entity
+    /// </summary>
+    public string? Remover { get; set; }
 }

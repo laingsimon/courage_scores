@@ -58,4 +58,47 @@ public class TeamService : ITeamService
             Success = true,
         };
     }
+
+    public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token)
+    {
+        var identity = await _identityService.GetUser();
+        if (identity?.Admin != true)
+        {
+            return new ActionResultDto<TeamDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not an admin"
+                }
+            };
+        }
+
+        var team = await _teamRepository.Get(id, token);
+
+        if (team == null)
+        {
+            return new ActionResultDto<TeamDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Team not found"
+                }
+            };
+        }
+
+        _teamAdapter.SetDeleted(team);
+        await _teamRepository.UpsertTeam(team, token);
+
+        return new ActionResultDto<TeamDto>
+        {
+            Result = _teamAdapter.Adapt(team),
+            Success = true,
+            Messages =
+            {
+                "Team deleted"
+            }
+        };
+    }
 }

@@ -9,4 +9,5 @@ public interface ITeamRepository
     IAsyncEnumerable<Team> GetAll(CancellationToken token);
     IAsyncEnumerable<Team> GetSome(string where, CancellationToken token);
     Task<Team> UpsertTeam(Team team, CancellationToken token);
+    Task DeleteTeam(Guid id, CancellationToken token);
 }

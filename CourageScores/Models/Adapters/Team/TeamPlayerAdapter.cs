@@ -9,28 +9,20 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
     {
         return new TeamPlayerDto
         {
-            Author = model.Author,
             Captain = model.Captain,
-            Created = model.Created,
-            Editor = model.Editor,
             Id = model.Id,
             Name = model.Name,
-            Updated = model.Updated,
             PlayerId = model.PlayerId,
-        };
+        }.AddAuditProperties(model);
     }
 
     public TeamPlayer Adapt(TeamPlayerDto dto)
     {
         return new TeamPlayer
         {
-            Author = dto.Author,
             Captain = dto.Captain,
-            Created = dto.Created,
-            Editor = dto.Editor,
             Id = dto.Id,
             Name = dto.Name,
-            Updated = dto.Updated,
             PlayerId = dto.PlayerId,
         };
     }

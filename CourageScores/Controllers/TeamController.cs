@@ -32,4 +32,10 @@ public class TeamController : Controller
     {
         return await _teamService.UpsertTeam(team, token);
     }
+
+    [HttpDelete("/api/Team/{id}")]
+    public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token)
+    {
+        return await _teamService.DeleteTeam(id, token);
+    }
 }

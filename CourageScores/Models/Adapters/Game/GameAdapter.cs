@@ -21,34 +21,26 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
         return new GameDto
         {
             Address = model.Address,
-            Author = model.Author,
             Away = _gameTeamAdapter.Adapt(model.Away),
-            Created = model.Created,
             Date = model.Date,
-            Editor = model.Editor,
             Home = _gameTeamAdapter.Adapt(model.Home),
             Id = model.Id,
             Matches = model.Matches.Select(_gameMatchAdapter.Adapt).ToArray(),
-            Updated = model.Updated,
             DivisionId = model.DivisionId,
-        };
+        }.AddAuditProperties(model);
     }
 
-    public Cosmos.Game.Game Adapt(GameDto model)
+    public Cosmos.Game.Game Adapt(GameDto dto)
     {
         return new Cosmos.Game.Game
         {
-            Address = model.Address,
-            Author = model.Author,
-            Away = _gameTeamAdapter.Adapt(model.Away),
-            Created = model.Created,
-            Date = model.Date,
-            Editor = model.Editor,
-            Home = _gameTeamAdapter.Adapt(model.Home),
-            Id = model.Id,
-            Matches = model.Matches.Select(_gameMatchAdapter.Adapt).ToArray(),
-            Updated = model.Updated,
-            DivisionId = model.DivisionId,
-        };
+            Address = dto.Address,
+            Away = _gameTeamAdapter.Adapt(dto.Away),
+            Date = dto.Date,
+            Home = _gameTeamAdapter.Adapt(dto.Home),
+            Id = dto.Id,
+            Matches = dto.Matches.Select(_gameMatchAdapter.Adapt).ToArray(),
+            DivisionId = dto.DivisionId,
+        }.AddAuditProperties(dto);
     }
 }

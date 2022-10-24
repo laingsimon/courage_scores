@@ -17,15 +17,11 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
         return new TeamDto
         {
             Address = model.Address,
-            Author = model.Author,
-            Created = model.Created,
-            Editor = model.Editor,
             Id = model.Id,
             Name = model.Name,
             Seasons = model.Seasons.Select(_seasonAdapter.Adapt).ToArray(),
-            Updated = model.Updated,
             DivisionId = model.DivisionId,
-        };
+        }.AddAuditProperties(model);
     }
 
     public Cosmos.Team.Team Adapt(TeamDto dto)
@@ -33,14 +29,10 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
         return new Cosmos.Team.Team
         {
             Address = dto.Address,
-            Author = dto.Author,
-            Created = dto.Created,
-            Editor = dto.Editor,
             Id = dto.Id,
             Name = dto.Name,
             Seasons = dto.Seasons.Select(_seasonAdapter.Adapt).ToArray(),
-            Updated = dto.Updated,
             DivisionId = dto.DivisionId,
-        };
+        }.AddAuditProperties(dto);
     }
 }

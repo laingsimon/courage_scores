@@ -130,6 +130,83 @@ public class TeamServiceTests
         Assert.That(result.Result, Is.SameAs(updatedDto));
     }
 
+    [Test]
+    public async Task DeleteTeam_WhenNotLoggedIn_ReturnsUnsuccessful()
+    {
+        var id = Guid.NewGuid();
+        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
+
+        var result = await _service.DeleteTeam(id, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not an admin" }));
+        Assert.That(result.Result, Is.Null);
+        _teamRepository.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task DeleteTeam_WhenNotAnAdmin_ReturnsUnsuccessful()
+    {
+        var id = Guid.NewGuid();
+        var user = new UserDto
+        {
+            Admin = false
+        };
+        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+
+        var result = await _service.DeleteTeam(id, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not an admin" }));
+        Assert.That(result.Result, Is.Null);
+        _teamRepository.VerifyNoOtherCalls();
+    }
+
+    [Test]
+    public async Task DeleteTeam_WhenTeamNotFound_ReturnsUnsuccessful()
+    {
+        var id = Guid.NewGuid();
+        var user = new UserDto
+        {
+            Admin = true
+        };
+        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
+
+        var result = await _service.DeleteTeam(id, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Team not found" }));
+        Assert.That(result.Result, Is.Null);
+    }
+
+    [Test]
+    public async Task DeleteTeam_WhenAnAdmin_UpdatesTeam()
+    {
+        var id = Guid.NewGuid();
+        var deletedTeamDto = new TeamDto();
+        var user = new UserDto
+        {
+            Admin = true
+        };
+        var team = new Team();
+        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => team);
+        _teamAdapter.Setup(a => a.Adapt(team)).Returns(deletedTeamDto);
+
+        var result = await _service.DeleteTeam(id, _token);
+
+        _teamRepository.Verify(r => r.UpsertTeam(team, _token));
+        _teamAdapter.Verify(a => a.SetDeleted(team));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.SameAs(deletedTeamDto));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Team deleted" }));
+    }
+
 #pragma warning disable CS1998
     private static async IAsyncEnumerable<T> AsyncEnumerable<T>(params T[] items)
 #pragma warning restore CS1998
