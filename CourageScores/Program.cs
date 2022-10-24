@@ -50,6 +50,14 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors(cors =>
+{
+    cors.WithOrigins("https://localhost:44426");
+    cors.AllowAnyMethod();
+    cors.AllowAnyHeader();
+    cors.AllowCredentials();
+});
+
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllerRoute(
@@ -57,6 +65,6 @@ app.UseEndpoints(endpoints =>
         pattern: "{controller}/{action=Index}/{id?}");
 });
 
-// app.MapFallbackToFile("index.html");
+app.MapFallbackToFile("index.html");
 
 app.Run();
