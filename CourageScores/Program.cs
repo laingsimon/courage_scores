@@ -16,9 +16,8 @@ builder.Services
     })
     .AddGoogle(options =>
     {
-        var googleAuth = configuration.GetSection("GoogleAuth");
-        options.ClientId = googleAuth["ClientId"];
-        options.ClientSecret = googleAuth["Secret"];
+        options.ClientId = configuration["GoogleAuth_ClientId"];
+        options.ClientSecret = configuration["GoogleAuth_Secret"];
     });
 
 // Add services to the container.

@@ -36,15 +36,15 @@ jobs:
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
-#       - name: App Settings Variable Substitution
-#         uses: microsoft/variable-substitution@v1
-#         with:
-#           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
-#         env:
-#           GOOGLEAUTH__CLIENTID: ${{ secrets.GOOGLEOAUTHID }}
-#           GOOGLEAUTH__SECRET: ${{ secrets.GOOGLEOAUTHSECRET }}
-#           COSMOSDB__ENDPOINT: ${{ secrets.COSMOSDBURL }}
-#           COSMOSDB__KEY: ${{ secrets.COSMOSDBKEY }}
+      - name: App Settings Variable Substitution
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
+        env:
+          GoogleAuth_ClientId: ${{ secrets.GOOGLEOAUTHID }}
+          GoogleAuth_Secret: ${{ secrets.GOOGLEOAUTHSECRET }}
+          CosmosDb_Endpoint: ${{ secrets.COSMOSDBURL }}
+          CosmosDb_Key: ${{ secrets.COSMOSDBKEY }}
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
