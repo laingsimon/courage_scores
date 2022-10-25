@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Team;
 
@@ -10,13 +11,13 @@ public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
     private readonly IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> _teamAdapter;
-    private readonly IUserService _userService;
+    private readonly IAccessService _accessService;
 
-    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> teamAdapter, IUserService userService)
+    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> teamAdapter, IAccessService accessService)
     {
         _teamRepository = teamRepository;
         _teamAdapter = teamAdapter;
-        _userService = userService;
+        _accessService = accessService;
     }
 
     public async Task<TeamDto?> GetTeam(Guid id, CancellationToken token)
@@ -37,8 +38,7 @@ public class TeamService : ITeamService
 
     public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
     {
-        var identity = await _userService.GetUser();
-        if (identity?.Admin != true)
+        if (!await _accessService.CanEditTeam(team))
         {
             return new ActionResultDto<TeamDto>
             {
@@ -60,19 +60,6 @@ public class TeamService : ITeamService
 
     public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token)
     {
-        var identity = await _userService.GetUser();
-        if (identity?.Admin != true)
-        {
-            return new ActionResultDto<TeamDto>
-            {
-                Success = false,
-                Warnings =
-                {
-                    "Not an admin"
-                }
-            };
-        }
-
         var team = await _teamRepository.Get(id, token);
 
         if (team == null)
@@ -83,6 +70,18 @@ public class TeamService : ITeamService
                 Warnings =
                 {
                     "Team not found"
+                }
+            };
+        }
+
+        if (!await _accessService.CanDeleteTeam(team))
+        {
+            return new ActionResultDto<TeamDto>
+            {
+                Success = false,
+                Warnings =
+                {
+                    "Not an admin"
                 }
             };
         }

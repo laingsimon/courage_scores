@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;

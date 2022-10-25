@@ -1,14 +1,18 @@
 ﻿using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
+using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 
@@ -32,6 +36,7 @@ public static class DependencyInjectionExtensions
     {
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IAccessService, AccessService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -42,6 +47,9 @@ public static class DependencyInjectionExtensions
 
     private static void AddAdapters(IServiceCollection services)
     {
+        services.AddSingleton<ISimpleAdapter<User, UserDto>, UserAdapter>();
+        services.AddSingleton<ISimpleAdapter<Access, AccessDto>, AccessAdapter>();
+
         AddAdapter<Game, GameDto, GameAdapter>(services);
         AddAdapter<GameMatch, GameMatchDto, GameMatchAdapter>(services);
         AddAdapter<GamePlayer, GamePlayerDto, GamePlayerAdapter>(services);

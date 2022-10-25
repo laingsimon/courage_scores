@@ -1,6 +1,6 @@
 ﻿using CourageScores.Models.Dtos.Identity;
 
-namespace CourageScores.Services;
+namespace CourageScores.Services.Identity;
 
 public interface IUserService
 {

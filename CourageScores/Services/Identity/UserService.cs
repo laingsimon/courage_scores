@@ -1,36 +1,41 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
-namespace CourageScores.Services;
+namespace CourageScores.Services.Identity;
 
 public class UserService : IUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IUserRepository _userRepository;
-    private UserDto? _user;
+    private readonly ISimpleAdapter<User, UserDto> _userAdapter;
+    private User? _user;
     private bool _userResolved;
 
-    public UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
+    public UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository, ISimpleAdapter<User, UserDto> userAdapter)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
+        _userAdapter = userAdapter;
     }
 
     public async Task<UserDto?> GetUser()
     {
-        if (_userResolved)
+        if (!_userResolved)
         {
-            return _user;
+            _user = await GetUserInternal();
+            _userResolved = true;
         }
 
-        _user = await GetUserInternal();
-        _userResolved = true;
-        return _user;
+        return _user != null
+            ? _userAdapter.Adapt(_user)
+            : null;
     }
 
-    private async Task<UserDto?> GetUserInternal()
+    private async Task<User?> GetUserInternal()
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
@@ -49,18 +54,21 @@ public class UserService : IUserService
         var claims = identity.Claims.ToDictionary(c => c.Type, c => c.Value);
         var emailAddress = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"];
 
-        return new UserDto
+        var user = new User
         {
             EmailAddress = emailAddress,
             Name = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"],
-            GivenName = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"],
-            Admin = await IsAdmin(emailAddress),
+            GivenName = claims["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname"]
         };
-    }
 
-    private async Task<bool> IsAdmin(string emailAddress)
-    {
-        var user = await _userRepository.GetUser(emailAddress);
-        return user?.Admin == true;
+        var existingUser = await _userRepository.GetUser(emailAddress);
+        if (existingUser != null)
+        {
+            user.Access = existingUser.Access;
+        }
+
+        await _userRepository.UpsertUser(user);
+
+        return user;
     }
 }

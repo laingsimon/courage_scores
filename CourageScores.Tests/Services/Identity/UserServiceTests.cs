@@ -1,15 +1,18 @@
 using System.Security.Claims;
 using System.Security.Principal;
+using CourageScores.Models.Adapters;
+using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
-using CourageScores.Services;
+using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 
-namespace CourageScores.Tests.Services;
+namespace CourageScores.Tests.Services.Identity;
 
 [TestFixture]
 public class IdentityServiceTests
@@ -21,6 +24,7 @@ public class IdentityServiceTests
     private HttpContext? _httpContext;
     private Mock<IAuthenticationService> _authenticationService;
     private Mock<IServiceProvider> _httpContextServices;
+    private ISimpleAdapter<User, UserDto> _userAdapter;
 #pragma warning restore CS8618
 
     [SetUp]
@@ -29,7 +33,8 @@ public class IdentityServiceTests
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userRepository = new Mock<IUserRepository>();
         _authenticationService = new Mock<IAuthenticationService>();
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object);
+        _userAdapter = new UserAdapter(new AccessAdapter());
+        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter);
         _httpContextServices = new Mock<IServiceProvider>();
 
         _httpContextServices
@@ -67,6 +72,26 @@ public class IdentityServiceTests
     }
 
     [Test]
+    public async Task GetUser_WhenIdentityAuthenticated_UpdatesUser()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+
+        await _service.GetUser();
+
+        _userRepository.Verify(r => r.UpsertUser(It.IsAny<User>()));
+    }
+
+    [Test]
     public async Task GetUser_WhenIdentityAuthenticated_ReturnsUser()
     {
         _httpContext = new DefaultHttpContext
@@ -87,7 +112,7 @@ public class IdentityServiceTests
         Assert.That(result!.Name, Is.EqualTo("Simon Laing"));
         Assert.That(result.GivenName, Is.EqualTo("Simon"));
         Assert.That(result.EmailAddress, Is.EqualTo("email@somewhere.com"));
-        Assert.That(result.Admin, Is.False);
+        Assert.That(result.Access, Is.Null);
     }
 
     [Test]
@@ -101,15 +126,16 @@ public class IdentityServiceTests
         identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
         identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        var user = new User();
         _authenticationService
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => new User { Admin = false });
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
 
         var result = await _service.GetUser();
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Admin, Is.False);
+        Assert.That(result!.Access, Is.Null);
     }
 
     [Test]
@@ -123,14 +149,22 @@ public class IdentityServiceTests
         identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
         identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        var user = new User
+        {
+            Access = new Access
+            {
+                LeagueAdmin = true,
+            }
+        };
         _authenticationService
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => new User { Admin = true });
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
 
         var result = await _service.GetUser();
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Admin, Is.True);
+        Assert.That(result!.Access, Is.Not.Null);
+        Assert.That(result.Access!.LeagueAdmin, Is.True);
     }
 }

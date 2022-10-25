@@ -1,22 +1,20 @@
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos.Team;
-using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
-using CourageScores.Services;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
 
-namespace CourageScores.Tests.Services;
+namespace CourageScores.Tests.Services.Team;
 
 [TestFixture]
 public class TeamServiceTests
 {
 #pragma warning disable CS8618
     private Mock<ITeamRepository> _teamRepository;
-    private Mock<IAuditingAdapter<Team, TeamDto>> _teamAdapter;
-    private Mock<IUserService> _identityService;
+    private Mock<IAuditingAdapter<CourageScores.Models.Cosmos.Team.Team, TeamDto>> _teamAdapter;
+    private Mock<IAccessService> _accessService;
     private TeamService _service;
     private CancellationToken _token;
 #pragma warning restore CS8618
@@ -26,10 +24,10 @@ public class TeamServiceTests
     {
         _token = CancellationToken.None;
         _teamRepository = new Mock<ITeamRepository>();
-        _teamAdapter = new Mock<IAuditingAdapter<Team, TeamDto>>();
-        _identityService = new Mock<IUserService>();
+        _teamAdapter = new Mock<IAuditingAdapter<CourageScores.Models.Cosmos.Team.Team, TeamDto>>();
+        _accessService = new Mock<IAccessService>();
 
-        _service = new TeamService(_teamRepository.Object, _teamAdapter.Object, _identityService.Object);
+        _service = new TeamService(_teamRepository.Object, _teamAdapter.Object, _accessService.Object);
     }
 
     [Test]
@@ -47,7 +45,7 @@ public class TeamServiceTests
     public async Task GetTeam_WhenTeamFound_AdaptsAndReturnsTeam()
     {
         var id = Guid.NewGuid();
-        var team = new Team();
+        var team = new CourageScores.Models.Cosmos.Team.Team();
         var teamDto = new TeamDto();
         _teamRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => team);
         _teamAdapter.Setup(a => a.Adapt(team)).Returns(teamDto);
@@ -62,7 +60,7 @@ public class TeamServiceTests
     [Test]
     public async Task GetAllTeams_WhenTeamsFound_AdaptsAllTeams()
     {
-        var team = new Team();
+        var team = new CourageScores.Models.Cosmos.Team.Team();
         var teamDto = new TeamDto();
         _teamRepository.Setup(r => r.GetAll(_token)).Returns(() => AsyncEnumerable(team));
         _teamAdapter.Setup(a => a.Adapt(team)).Returns(teamDto);
@@ -79,27 +77,10 @@ public class TeamServiceTests
     }
 
     [Test]
-    public async Task UpsertTeam_WhenNotLoggedIn_ReturnsUnsuccessful()
-    {
-        var teamDto = new TeamDto();
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
-
-        var result = await _service.UpsertTeam(teamDto, _token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Success, Is.False);
-        _teamRepository.VerifyNoOtherCalls();
-    }
-
-    [Test]
     public async Task UpsertTeam_WhenNotAnAdmin_ReturnsUnsuccessful()
     {
         var teamDto = new TeamDto();
-        var user = new UserDto
-        {
-            Admin = false
-        };
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _accessService.Setup(s => s.CanEditTeam(teamDto)).ReturnsAsync(() => false);
 
         var result = await _service.UpsertTeam(teamDto, _token);
 
@@ -113,67 +94,24 @@ public class TeamServiceTests
     {
         var teamDto = new TeamDto();
         var updatedDto = new TeamDto();
-        var user = new UserDto
-        {
-            Admin = true
-        };
-        var team = new Team();
+        var team = new CourageScores.Models.Cosmos.Team.Team();
         _teamAdapter.Setup(a => a.Adapt(teamDto)).Returns(team);
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _accessService.Setup(s => s.CanEditTeam(teamDto)).ReturnsAsync(() => true);
         _teamAdapter.Setup(a => a.Adapt(team)).Returns(updatedDto);
         _teamRepository.Setup(r => r.UpsertTeam(team, _token)).ReturnsAsync(() => team);
 
         var result = await _service.UpsertTeam(teamDto, _token);
 
-        _teamRepository.Verify(r => r.UpsertTeam(It.IsAny<Team>(), _token));
+        _teamRepository.Verify(r => r.UpsertTeam(It.IsAny<CourageScores.Models.Cosmos.Team.Team>(), _token));
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(updatedDto));
     }
 
     [Test]
-    public async Task DeleteTeam_WhenNotLoggedIn_ReturnsUnsuccessful()
-    {
-        var id = Guid.NewGuid();
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
-
-        var result = await _service.DeleteTeam(id, _token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not an admin" }));
-        Assert.That(result.Result, Is.Null);
-        _teamRepository.VerifyNoOtherCalls();
-    }
-
-    [Test]
-    public async Task DeleteTeam_WhenNotAnAdmin_ReturnsUnsuccessful()
-    {
-        var id = Guid.NewGuid();
-        var user = new UserDto
-        {
-            Admin = false
-        };
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-
-        var result = await _service.DeleteTeam(id, _token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not an admin" }));
-        Assert.That(result.Result, Is.Null);
-        _teamRepository.VerifyNoOtherCalls();
-    }
-
-    [Test]
     public async Task DeleteTeam_WhenTeamNotFound_ReturnsUnsuccessful()
     {
         var id = Guid.NewGuid();
-        var user = new UserDto
-        {
-            Admin = true
-        };
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
         _teamRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
         var result = await _service.DeleteTeam(id, _token);
@@ -185,16 +123,29 @@ public class TeamServiceTests
     }
 
     [Test]
+    public async Task DeleteTeam_WhenNotAnAdmin_ReturnsUnsuccessful()
+    {
+        var id = Guid.NewGuid();
+        var team = new CourageScores.Models.Cosmos.Team.Team();
+        _teamRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => team);
+        _accessService.Setup(s => s.CanDeleteTeam(team)).ReturnsAsync(() => false);
+
+        var result = await _service.DeleteTeam(id, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not an admin" }));
+        Assert.That(result.Result, Is.Null);
+        _teamRepository.VerifyNoOtherCalls();
+    }
+
+    [Test]
     public async Task DeleteTeam_WhenAnAdmin_UpdatesTeam()
     {
         var id = Guid.NewGuid();
         var deletedTeamDto = new TeamDto();
-        var user = new UserDto
-        {
-            Admin = true
-        };
-        var team = new Team();
-        _identityService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        var team = new CourageScores.Models.Cosmos.Team.Team();
+        _accessService.Setup(s => s.CanDeleteTeam(team)).ReturnsAsync(() => true);
         _teamRepository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => team);
         _teamAdapter.Setup(a => a.Adapt(team)).Returns(deletedTeamDto);
 

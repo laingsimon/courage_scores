@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
+using CourageScores.Services.Identity;
 using Microsoft.Extensions.Internal;
 using Moq;
 using NUnit.Framework;
