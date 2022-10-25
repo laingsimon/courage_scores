@@ -21,15 +21,20 @@ public class SeasonDto : AuditedDto
     /// <summary>
     /// The divisions applicable to this season
     /// </summary>
-    public DivisionDto[] Divisions { get; set; } = null!;
+    public List<DivisionDto> Divisions { get; set; } = null!;
 
     /// <summary>
     /// The teams playing within the season (and which division they are attributed to)
     /// </summary>
-    public TeamDto[] Teams { get; set; } = null!;
+    public List<TeamDto> Teams { get; set; } = null!;
 
     /// <summary>
     /// The games that have, or are yet to be, played in this season
     /// </summary>
-    public GameDto[] Games { get; set; } = null!;
+    public List<GameDto> Games { get; set; } = null!;
+
+    /// <summary>
+    /// The name of this season
+    /// </summary>
+    public string Name { get; set; } = null!;
 }

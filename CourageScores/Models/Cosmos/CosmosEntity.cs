@@ -13,5 +13,5 @@ public abstract class CosmosEntity
     /// <summary>
     /// The version the entities data
     /// </summary>
-    public int Version { get; set; }
+    public int Version { get; set; } = 1;
 }

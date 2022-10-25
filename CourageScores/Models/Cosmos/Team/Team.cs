@@ -23,5 +23,5 @@ public class Team : AuditedEntity
     /// <summary>
     /// The seasons in which this team have played
     /// </summary>
-    public TeamSeason[] Seasons { get; set; } = null!;
+    public List<TeamSeason> Seasons { get; set; } = null!;
 }

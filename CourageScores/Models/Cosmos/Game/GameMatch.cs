@@ -22,12 +22,12 @@ public class GameMatch : AuditedEntity
     /// <summary>
     /// Who played from the home team
     /// </summary>
-    public GamePlayer[] HomePlayers { get; set; } = null!;
+    public List<GamePlayer> HomePlayers { get; set; } = null!;
 
     /// <summary>
     /// Who played from the away team
     /// </summary>
-    public GamePlayer[] AwayPlayers { get; set; } = null!;
+    public List<GamePlayer> AwayPlayers { get; set; } = null!;
 
     /// <summary>
     /// What was the home score
@@ -42,10 +42,10 @@ public class GameMatch : AuditedEntity
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
-    public GamePlayer[] OneEighties { get; set; } = null!;
+    public List<GamePlayer> OneEighties { get; set; } = null!;
 
     /// <summary>
     /// Who checked out with more than 100
     /// </summary>
-    public NotablePlayer[] Over100Checkouts { get; set; } = null!;
+    public List<NotablePlayer> Over100Checkouts { get; set; } = null!;
 }

@@ -9,4 +9,5 @@ public interface ITeamService
     IAsyncEnumerable<TeamDto> GetAllTeams(CancellationToken token);
     Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token);
     Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token);
+    Task<ActionResultDto<TeamDto>> UpdateTeam<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Team.Team, TOut> updateCommand, CancellationToken token);
 }

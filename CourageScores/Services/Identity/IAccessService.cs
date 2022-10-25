@@ -5,5 +5,6 @@ namespace CourageScores.Services.Identity;
 public interface IAccessService
 {
     Task<bool> CanEditTeam(TeamDto team);
+    Task<bool> CanEditTeam(Models.Cosmos.Team.Team team);
     Task<bool> CanDeleteTeam(Models.Cosmos.Team.Team team);
 }

@@ -25,5 +25,5 @@ public class TeamDto : AuditedDto
     /// <summary>
     /// The seasons in which this team have played
     /// </summary>
-    public TeamSeasonDto[] Seasons { get; set; } = null!;
+    public List<TeamSeasonDto> Seasons { get; set; } = null!;
 }

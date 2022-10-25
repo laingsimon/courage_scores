@@ -27,14 +27,14 @@ public class GameController : Controller
                 ManOfTheMatch = Guid.NewGuid(),
             },
             Date = DateTime.Today,
-            Matches = new[]
+            Matches = new List<GameMatchDto>
             {
                 new GameMatchDto
                 {
                     Id = Guid.NewGuid(),
                     NumberOfLegs = 5,
                     StartingScore = 501,
-                    AwayPlayers = new[]
+                    AwayPlayers = new List<GamePlayerDto>
                     {
                         new GamePlayerDto
                         {
@@ -42,7 +42,7 @@ public class GameController : Controller
                             Name = "Ash"
                         }
                     },
-                    HomePlayers = new[]
+                    HomePlayers = new List<GamePlayerDto>
                     {
                         new GamePlayerDto
                         {
@@ -52,7 +52,7 @@ public class GameController : Controller
                     },
                     AwayScore = 2,
                     HomeScore = 3,
-                    OneEighties = new[]
+                    OneEighties = new List<GamePlayerDto>
                     {
                         new GamePlayerDto
                         {
@@ -60,7 +60,7 @@ public class GameController : Controller
                             Name = "Ask"
                         }
                     },
-                    Over100Checkouts = new[]
+                    Over100Checkouts = new List<NotablePlayerDto>
                     {
                         new NotablePlayerDto
                         {

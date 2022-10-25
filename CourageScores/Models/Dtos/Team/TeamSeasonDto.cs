@@ -13,5 +13,5 @@ public class TeamSeasonDto : AuditedDto
     /// <summary>
     /// The players that played for the team during the season
     /// </summary>
-    public TeamPlayerDto[] Players { get; set; } = null!;
+    public List<TeamPlayerDto> Players { get; set; } = null!;
 }

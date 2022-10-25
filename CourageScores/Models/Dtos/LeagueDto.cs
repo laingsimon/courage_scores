@@ -8,10 +8,10 @@ public class LeagueDto : AuditedDto
     /// <summary>
     /// The divisions that have been defined within the league
     /// </summary>
-    public DivisionDto[] Divisions { get; set; } = null!;
+    public List<DivisionDto> Divisions { get; set; } = null!;
 
     /// <summary>
     /// The seasons that have been defined within the league
     /// </summary>
-    public SeasonDto[] Seasons { get; set; } = null!;
+    public List<SeasonDto> Seasons { get; set; } = null!;
 }

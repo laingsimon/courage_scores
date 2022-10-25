@@ -6,12 +6,17 @@
 public class League : AuditedEntity
 {
     /// <summary>
+    /// The name of the league
+    /// </summary>
+    public string Name { get; set; } = null!;
+
+    /// <summary>
     /// The divisions that have been defined within the league
     /// </summary>
-    public Division[] Divisions { get; set; } = null!;
+    public List<Division> Divisions { get; set; } = null!;
 
     /// <summary>
     /// The seasons that have been defined within the league
     /// </summary>
-    public Season[] Seasons { get; set; } = null!;
+    public List<Season> Seasons { get; set; } = null!;
 }

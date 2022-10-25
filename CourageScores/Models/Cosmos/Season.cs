@@ -18,15 +18,20 @@ public class Season : AuditedEntity
     /// <summary>
     /// The divisions applicable to this season
     /// </summary>
-    public Division[] Divisions { get; set; } = null!;
+    public List<Division> Divisions { get; set; } = null!;
 
     /// <summary>
     /// The teams playing within the season (and which division they are attributed to)
     /// </summary>
-    public Team.Team[] Teams { get; set; } = null!;
+    public List<Team.Team> Teams { get; set; } = null!;
 
     /// <summary>
     /// The games that have, or are yet to be, played in this season
     /// </summary>
-    public Game.Game[] Games { get; set; } = null!;
+    public List<Game.Game> Games { get; set; } = null!;
+
+    /// <summary>
+    /// The name of this season
+    /// </summary>
+    public string Name { get; set; } = null!;
 }

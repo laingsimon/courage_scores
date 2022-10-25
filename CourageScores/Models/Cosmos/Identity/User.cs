@@ -6,9 +6,9 @@ namespace CourageScores.Models.Cosmos.Identity;
 [SuppressMessage("ReSharper", "AutoPropertyCanBeMadeGetOnly.Global")]
 public class User : AuditedEntity
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-    public string GivenName { get; set; }
+    public string GivenName { get; set; } = null!;
 
     public string EmailAddress { get; set; } = null!;
 

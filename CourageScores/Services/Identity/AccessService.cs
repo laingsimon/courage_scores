@@ -17,6 +17,12 @@ public class AccessService : IAccessService
         return user?.Access?.TeamAdmin == true;
     }
 
+    public async Task<bool> CanEditTeam(Models.Cosmos.Team.Team team)
+    {
+        var user = await _userService.GetUser();
+        return user?.Access?.TeamAdmin == true;
+    }
+
     public async Task<bool> CanDeleteTeam(Models.Cosmos.Team.Team team)
     {
         var user = await _userService.GetUser();

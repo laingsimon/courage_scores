@@ -11,6 +11,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
+using CourageScores.Repository.Team;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
@@ -26,6 +27,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
         services.AddHttpContextAccessor();
         services.AddSingleton<ISystemClock, SystemClock>();
+        services.AddSingleton<IAuditingHelper, AuditingHelper>();
+        services.AddSingleton<ICommandFactory, CommandFactory>();
 
         AddServices(services);
         AddRepositories(services);
@@ -37,12 +40,14 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAccessService, AccessService>();
+        services.AddScoped<ISeasonService, SeasonService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
     {
         services.AddScoped<ITeamRepository, TeamRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<ISeasonRepository, SeasonRepository>();
     }
 
     private static void AddAdapters(IServiceCollection services)
@@ -71,6 +76,5 @@ public static class DependencyInjectionExtensions
         where TAdapter: class, IAdapter<TModel, TDto>
     {
         services.AddSingleton<IAdapter<TModel, TDto>, TAdapter>();
-        services.AddScoped<IAuditingAdapter<TModel, TDto>, AuditingAdapter<TModel, TDto>>();
     }
 }

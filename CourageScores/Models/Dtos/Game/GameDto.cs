@@ -37,5 +37,5 @@ public class GameDto : AuditedDto
     /// <summary>
     /// The matches that were played
     /// </summary>
-    public GameMatchDto[] Matches { get; set; } = null!;
+    public List<GameMatchDto> Matches { get; set; } = null!;
 }
