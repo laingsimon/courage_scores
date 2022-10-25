@@ -17,7 +17,7 @@ public class AuditingAdapterTests
     {
         var adapter = new Mock<IAdapter<Model, Dto>>();
         var clock = new Mock<ISystemClock>();
-        var identityService = new Mock<IIdentityService>();
+        var identityService = new Mock<IUserService>();
         var auditingAdapter = new AuditingAdapter<Model, Dto>(adapter.Object, clock.Object, identityService.Object);
         var model = new Model();
         var dto = new Dto();
@@ -33,7 +33,7 @@ public class AuditingAdapterTests
     {
         var adapter = new Mock<IAdapter<Model, Dto>>();
         var clock = new Mock<ISystemClock>();
-        var identityService = new Mock<IIdentityService>();
+        var identityService = new Mock<IUserService>();
         var auditingAdapter = new AuditingAdapter<Model, Dto>(adapter.Object, clock.Object, identityService.Object);
         var model = new Model();
         var dto = new Dto();
@@ -49,7 +49,7 @@ public class AuditingAdapterTests
     {
         var adapter = new Mock<IAdapter<Model, Dto>>();
         var clock = new Mock<ISystemClock>();
-        var identityService = new Mock<IIdentityService>();
+        var identityService = new Mock<IUserService>();
         var auditingAdapter = new AuditingAdapter<Model, Dto>(adapter.Object, clock.Object, identityService.Object);
         var model = new Model
         {
@@ -86,7 +86,7 @@ public class AuditingAdapterTests
     {
         var adapter = new Mock<IAdapter<Model, Dto>>();
         var clock = new Mock<ISystemClock>();
-        var identityService = new Mock<IIdentityService>();
+        var identityService = new Mock<IUserService>();
         var auditingAdapter = new AuditingAdapter<Model, Dto>(adapter.Object, clock.Object, identityService.Object);
         var model = new Model();
         var dto = new Dto();

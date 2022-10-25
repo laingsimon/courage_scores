@@ -10,13 +10,13 @@ public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
     private readonly IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> _teamAdapter;
-    private readonly IIdentityService _identityService;
+    private readonly IUserService _userService;
 
-    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> teamAdapter, IIdentityService identityService)
+    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> teamAdapter, IUserService userService)
     {
         _teamRepository = teamRepository;
         _teamAdapter = teamAdapter;
-        _identityService = identityService;
+        _userService = userService;
     }
 
     public async Task<TeamDto?> GetTeam(Guid id, CancellationToken token)
@@ -37,7 +37,7 @@ public class TeamService : ITeamService
 
     public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
     {
-        var identity = await _identityService.GetUser();
+        var identity = await _userService.GetUser();
         if (identity?.Admin != true)
         {
             return new ActionResultDto<TeamDto>
@@ -60,7 +60,7 @@ public class TeamService : ITeamService
 
     public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token)
     {
-        var identity = await _identityService.GetUser();
+        var identity = await _userService.GetUser();
         if (identity?.Admin != true)
         {
             return new ActionResultDto<TeamDto>

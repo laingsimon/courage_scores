@@ -10,11 +10,11 @@ namespace CourageScores.Controllers;
 [AllowAnonymous]
 public class AccountController : Controller
 {
-    private readonly IIdentityService _identityService;
+    private readonly IUserService _userService;
 
-    public AccountController(IIdentityService identityService)
+    public AccountController(IUserService userService)
     {
-        _identityService = identityService;
+        _userService = userService;
     }
 
     [HttpGet("/api/Account/Login")]
@@ -27,6 +27,6 @@ public class AccountController : Controller
     [HttpGet("/api/Account")]
     public async Task<UserDto?> GetUser()
     {
-        return await _identityService.GetUser();
+        return await _userService.GetUser();
     }
 }

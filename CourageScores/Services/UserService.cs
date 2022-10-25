@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace CourageScores.Services;
 
-public class IdentityService : IIdentityService
+public class UserService : IUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IUserRepository _userRepository;
     private UserDto? _user;
     private bool _userResolved;
 
-    public IdentityService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
+    public UserService(IHttpContextAccessor httpContextAccessor, IUserRepository userRepository)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;

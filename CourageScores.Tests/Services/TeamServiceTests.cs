@@ -16,7 +16,7 @@ public class TeamServiceTests
 #pragma warning disable CS8618
     private Mock<ITeamRepository> _teamRepository;
     private Mock<IAuditingAdapter<Team, TeamDto>> _teamAdapter;
-    private Mock<IIdentityService> _identityService;
+    private Mock<IUserService> _identityService;
     private TeamService _service;
     private CancellationToken _token;
 #pragma warning restore CS8618
@@ -27,7 +27,7 @@ public class TeamServiceTests
         _token = CancellationToken.None;
         _teamRepository = new Mock<ITeamRepository>();
         _teamAdapter = new Mock<IAuditingAdapter<Team, TeamDto>>();
-        _identityService = new Mock<IIdentityService>();
+        _identityService = new Mock<IUserService>();
 
         _service = new TeamService(_teamRepository.Object, _teamAdapter.Object, _identityService.Object);
     }

@@ -2,7 +2,7 @@
 
 namespace CourageScores.Services;
 
-public interface IIdentityService
+public interface IUserService
 {
     Task<UserDto?> GetUser();
 }

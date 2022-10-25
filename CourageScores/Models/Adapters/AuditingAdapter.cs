@@ -14,11 +14,11 @@ public class AuditingAdapter<T, TDto> : IAuditingAdapter<T, TDto>
     private readonly ISystemClock _clock;
     private readonly Lazy<UserDto?> _user;
 
-    public AuditingAdapter(IAdapter<T, TDto> adapter, ISystemClock clock, IIdentityService identityService)
+    public AuditingAdapter(IAdapter<T, TDto> adapter, ISystemClock clock, IUserService userService)
     {
         _adapter = adapter;
         _clock = clock;
-        _user = new Lazy<UserDto?>(() => identityService.GetUser().Result);
+        _user = new Lazy<UserDto?>(() => userService.GetUser().Result);
     }
 
     public TDto Adapt(T model)

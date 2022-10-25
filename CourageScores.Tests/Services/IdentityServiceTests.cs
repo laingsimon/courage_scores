@@ -15,7 +15,7 @@ namespace CourageScores.Tests.Services;
 public class IdentityServiceTests
 {
 #pragma warning disable CS8618
-    private IdentityService _service;
+    private UserService _service;
     private Mock<IHttpContextAccessor> _httpContextAccessor;
     private Mock<IUserRepository> _userRepository;
     private HttpContext? _httpContext;
@@ -29,7 +29,7 @@ public class IdentityServiceTests
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userRepository = new Mock<IUserRepository>();
         _authenticationService = new Mock<IAuthenticationService>();
-        _service = new IdentityService(_httpContextAccessor.Object, _userRepository.Object);
+        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object);
         _httpContextServices = new Mock<IServiceProvider>();
 
         _httpContextServices
