@@ -11,7 +11,6 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
-using CourageScores.Repository.Team;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
@@ -40,14 +39,12 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAccessService, AccessService>();
-        services.AddScoped<ISeasonService, SeasonService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
     {
-        services.AddScoped<ITeamRepository, TeamRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ISeasonRepository, SeasonRepository>();
+        services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     }
 
     private static void AddAdapters(IServiceCollection services)

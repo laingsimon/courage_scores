@@ -7,7 +7,7 @@ namespace CourageScores.Repository;
 public abstract class CosmosDbRepository<T> where T : CosmosEntity
 {
     private readonly Container _container;
-    private readonly string _tableName;
+    protected readonly string _tableName;
 
     protected CosmosDbRepository(Database database)
     {

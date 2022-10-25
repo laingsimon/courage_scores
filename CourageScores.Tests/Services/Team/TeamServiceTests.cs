@@ -1,6 +1,6 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Repository.Team;
+using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
@@ -13,7 +13,7 @@ namespace CourageScores.Tests.Services.Team;
 public class TeamServiceTests
 {
 #pragma warning disable CS8618
-    private Mock<ITeamRepository> _teamRepository;
+    private Mock<IGenericRepository<Models.Cosmos.Team.Team>> _teamRepository;
     private Mock<IAdapter<CourageScores.Models.Cosmos.Team.Team, TeamDto>> _teamAdapter;
     private Mock<IAccessService> _accessService;
     private TeamService _service;
@@ -25,7 +25,7 @@ public class TeamServiceTests
     public void Setup()
     {
         _token = CancellationToken.None;
-        _teamRepository = new Mock<ITeamRepository>();
+        _teamRepository = new Mock<IGenericRepository<Models.Cosmos.Team.Team>>();
         _teamAdapter = new Mock<IAdapter<CourageScores.Models.Cosmos.Team.Team, TeamDto>>();
         _accessService = new Mock<IAccessService>();
         _auditingHelper = new Mock<IAuditingHelper>();
