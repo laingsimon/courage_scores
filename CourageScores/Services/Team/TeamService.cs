@@ -1,19 +1,18 @@
 ﻿using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 
-namespace CourageScores.Services;
+namespace CourageScores.Services.Team;
 
 public class TeamService : ITeamService
 {
     private readonly ITeamRepository _teamRepository;
-    private readonly IAuditingAdapter<Team, TeamDto> _teamAdapter;
+    private readonly IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> _teamAdapter;
     private readonly IIdentityService _identityService;
 
-    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Team, TeamDto> teamAdapter, IIdentityService identityService)
+    public TeamService(ITeamRepository teamRepository, IAuditingAdapter<Models.Cosmos.Team.Team, TeamDto> teamAdapter, IIdentityService identityService)
     {
         _teamRepository = teamRepository;
         _teamAdapter = teamAdapter;

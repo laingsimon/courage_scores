@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
+using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
 

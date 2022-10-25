@@ -9,6 +9,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
+using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 
 namespace CourageScores;

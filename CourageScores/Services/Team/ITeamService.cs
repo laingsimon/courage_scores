@@ -1,7 +1,7 @@
 ﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 
-namespace CourageScores.Services;
+namespace CourageScores.Services.Team;
 
 public interface ITeamService
 {
