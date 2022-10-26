@@ -13,7 +13,6 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
-using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 
 namespace CourageScores;
@@ -36,7 +35,7 @@ public static class DependencyInjectionExtensions
 
     private static void AddServices(IServiceCollection services)
     {
-        services.AddScoped<ITeamService, TeamService>();
+        services.AddScoped(typeof(IGenericDataService<,>), typeof(GenericDataService<,>));
         services.AddScoped<IUserService, UserService>();
     }
 

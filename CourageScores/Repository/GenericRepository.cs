@@ -25,7 +25,7 @@ public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
         return Query($"select * from {_tableName} t {where}", token);
     }
 
-    public async Task<T> UpsertTeam(T item, CancellationToken token)
+    public async Task<T> Upsert(T item, CancellationToken token)
     {
         await UpsertItem(item, token);
         return await Get(item.Id, token) ?? throw new InvalidOperationException($"{typeof(T).Name} does not exist");
