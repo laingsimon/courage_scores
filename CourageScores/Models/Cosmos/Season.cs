@@ -1,9 +1,11 @@
-﻿namespace CourageScores.Models.Cosmos;
+﻿using CourageScores.Models.Dtos.Identity;
+
+namespace CourageScores.Models.Cosmos;
 
 /// <summary>
 /// A record of a season within the league
 /// </summary>
-public class Season : AuditedEntity
+public class Season : AuditedEntity, IPermissionedEntity
 {
     /// <summary>
     /// When the season starts
@@ -34,4 +36,19 @@ public class Season : AuditedEntity
     /// The name of this season
     /// </summary>
     public string Name { get; set; } = null!;
+
+    public bool CanCreate(UserDto user)
+    {
+        return user.Access?.LeagueAdmin == true;
+    }
+
+    public bool CanEdit(UserDto user)
+    {
+        return user.Access?.LeagueAdmin == true;
+    }
+
+    public bool CanDelete(UserDto user)
+    {
+        return user.Access?.LeagueAdmin == true;
+    }
 }
