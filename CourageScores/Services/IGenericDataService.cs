@@ -11,7 +11,7 @@ public interface IGenericDataService<TModel, TDto>
     
     IAsyncEnumerable<TDto> GetAll(CancellationToken token);
 
-    Task<ActionResultDto<TDto>> Update<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand,
+    Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand,
         CancellationToken token);
 
     Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token);

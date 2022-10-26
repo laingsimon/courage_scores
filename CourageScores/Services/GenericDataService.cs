@@ -8,7 +8,7 @@ using CourageScores.Repository;
 namespace CourageScores.Services;
 
 public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto>
-    where TModel : AuditedEntity, IPermissionedEntity
+    where TModel : AuditedEntity, IPermissionedEntity, new()
     where TDto : AuditedDto
 {
     private readonly IGenericRepository<TModel> _repository;
@@ -44,7 +44,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
     }
 
-    public async Task<ActionResultDto<TDto>> Update<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
+    public async Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
     {
         var user = await _userService.GetUser();
 
@@ -57,10 +57,14 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         if (item == null)
         {
-            return NotFound();
-        }
+            item = new TModel { Id = id };
 
-        if (!item.CanEdit(user))
+            if (!item.CanCreate(user))
+            {
+                return NotPermitted();
+            }
+        }
+        else if (!item.CanEdit(user))
         {
             return NotPermitted();
         }
@@ -68,14 +72,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         var outcome = await updateCommand.ApplyUpdate(item, token);
         if (!outcome.Success)
         {
-            return new ActionResultDto<TDto>
-            {
-                Errors =
-                {
-                    outcome.Message,
-                },
-                Success = false,
-            };
+            return Error(outcome.Message);
         }
 
         await _auditingHelper.SetUpdated(item);
@@ -110,6 +107,18 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         await _repository.Upsert(item, token);
 
         return Success(_adapter.Adapt(item), $"{typeof(TModel).Name} deleted");
+    }
+
+    private static ActionResultDto<TDto> Error(string error)
+    {
+        return new ActionResultDto<TDto>
+        {
+            Success = false,
+            Errors =
+            {
+                error
+            }
+        };
     }
 
     private static ActionResultDto<TDto> NotFound()

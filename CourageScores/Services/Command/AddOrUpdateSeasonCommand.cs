@@ -3,18 +3,12 @@ using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateSeasonCommand : IUpdateCommand<Season, Season>
+public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Season, SeasonDto>
 {
-    private SeasonDto? _seasonDto;
-
-    public Task<CommandOutcome<Season>> ApplyUpdate(Season season, CancellationToken token)
+    protected override void ApplyUpdates(Season season, SeasonDto update)
     {
-        throw new NotImplementedException("Add or update the season details");
-    }
-
-    public AddOrUpdateSeasonCommand WithData(SeasonDto seasonData)
-    {
-        _seasonDto = seasonData;
-        return this;
+        season.Name = update.Name;
+        season.EndDate = update.EndDate;
+        season.StartDate = update.StartDate;
     }
 }

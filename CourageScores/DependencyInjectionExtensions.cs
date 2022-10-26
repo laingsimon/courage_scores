@@ -23,9 +23,9 @@ public static class DependencyInjectionExtensions
     {
         services.AddScoped<ICosmosDatabaseFactory, CosmosDatabaseFactory>();
         services.AddScoped(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
+        services.AddScoped<IAuditingHelper, AuditingHelper>();
         services.AddHttpContextAccessor();
         services.AddSingleton<ISystemClock, SystemClock>();
-        services.AddSingleton<IAuditingHelper, AuditingHelper>();
         services.AddSingleton<ICommandFactory, CommandFactory>();
 
         AddServices(services);

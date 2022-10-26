@@ -35,7 +35,7 @@ public class TeamController : Controller
     public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateTeamCommand>().WithData(team);
-        return await _teamService.Update(team.Id, command, token);
+        return await _teamService.Upsert(team.Id, command, token);
     }
 
     [HttpDelete("/api/Team/{id}")]
@@ -48,6 +48,6 @@ public class TeamController : Controller
     public async Task<ActionResultDto<TeamDto>> AddPlayer(Guid id, [FromBody] TeamPlayerDto player, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddPlayerCommand>().ForPlayer(player);
-        return await _teamService.Update(id, command, token);
+        return await _teamService.Upsert(id, command, token);
     }
 }

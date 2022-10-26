@@ -2,18 +2,12 @@ using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Team.Command;
 
-public class AddOrUpdateTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.Cosmos.Team.Team>
+public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team, TeamDto>
 {
-    private TeamDto? _teamData;
-
-    public Task<CommandOutcome<Models.Cosmos.Team.Team>> ApplyUpdate(Models.Cosmos.Team.Team item, CancellationToken token)
+    protected override void ApplyUpdates(Models.Cosmos.Team.Team team, TeamDto update)
     {
-        throw new NotImplementedException("Add or update the team details");
-    }
-
-    public AddOrUpdateTeamCommand WithData(TeamDto teamData)
-    {
-        _teamData = teamData;
-        return this;
+        team.Name = update.Name;
+        team.Address = update.Address;
+        team.DivisionId = update.DivisionId;
     }
 }

@@ -81,7 +81,28 @@ public class GenericDataServiceTests
     }
 
     [Test]
-    public async Task Update_WhenNotFound_ReturnsUnsuccessful()
+    public async Task Upsert_WhenNotFound_CreatesNewItem()
+    {
+        var id = Guid.NewGuid();
+        var command = new Mock<IUpdateCommand<Model, object>>();
+        var user = new UserDto
+        {
+            Name = Model.CreatePermitted
+        };
+        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
+        command.Setup(c => c.ApplyUpdate(It.IsAny<Model>(), _token)).ReturnsAsync(() => commandResult);
+
+        var result = await _service.Upsert(id, command.Object, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.True);
+        _repository.Verify(r => r.Upsert(It.IsAny<Model>(), _token));
+    }
+
+    [Test]
+    public async Task Upsert_WhenNotFoundAndNotAnAdmin_ReturnsUnsuccessful()
     {
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<Model, object>>();
@@ -89,43 +110,7 @@ public class GenericDataServiceTests
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
-        var result = await _service.Update(id, command.Object, _token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Model not found" }));
-        _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Test]
-    public async Task Update_WhenNotLoggedIn_ReturnsUnsuccessful()
-    {
-        var model = new Model();
-        var id = Guid.NewGuid();
-        var command = new Mock<IUpdateCommand<Model, object>>();
-        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
-
-        var result = await _service.Update(id, command.Object, _token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
-        _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [Test]
-    public async Task Update_WhenNotAnAdmin_ReturnsUnsuccessful()
-    {
-        var model = new Mock<Model>();
-        var id = Guid.NewGuid();
-        var user = new UserDto();
-        var command = new Mock<IUpdateCommand<Model, object>>();
-        model.Setup(t => t.CanEdit(user)).Returns(false);
-        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model.Object);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-
-        var result = await _service.Update(id, command.Object, _token);
+        var result = await _service.Upsert(id, command.Object, _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
@@ -134,26 +119,63 @@ public class GenericDataServiceTests
     }
 
     [Test]
-    public async Task Update_WhenCommandFails_DoesNotUpsertItem()
+    public async Task Upsert_WhenNotLoggedIn_ReturnsUnsuccessful()
+    {
+        var model = new Model();
+        var id = Guid.NewGuid();
+        var command = new Mock<IUpdateCommand<Model, object>>();
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
+        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
+
+        var result = await _service.Upsert(id, command.Object, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Upsert_WhenNotAnAdmin_ReturnsUnsuccessful()
+    {
+        var model = new Model();
+        var id = Guid.NewGuid();
+        var user = new UserDto();
+        var command = new Mock<IUpdateCommand<Model, object>>();
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
+        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+
+        var result = await _service.Upsert(id, command.Object, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Upsert_WhenCommandFails_DoesNotUpsertItem()
     {
         var id = Guid.NewGuid();
         var updatedDto = new Dto();
-        var model = new Mock<Model>();
+        var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
         var commandResult = new CommandOutcome<object>(false, "some message", null);
-        var user = new UserDto();
-        model.Setup(m => m.CanEdit(user)).Returns(true);
-        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model.Object);
+        var user = new UserDto
+        {
+            Name = Model.EditPermitted,
+        };
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
         _adapter.Setup(a => a.Adapt(updatedModel)).Returns(updatedDto);
-        _repository.Setup(r => r.Upsert(model.Object, _token)).ReturnsAsync(() => updatedModel);
-        command.Setup(c => c.ApplyUpdate(model.Object, _token)).ReturnsAsync(() => commandResult);
+        _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
+        command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
 
-        var result = await _service.Update(id, command.Object, _token);
+        var result = await _service.Upsert(id, command.Object, _token);
 
-        _repository.Verify(r => r.Upsert(model.Object, _token), Times.Never);
-        command.Verify(c => c.ApplyUpdate(model.Object, _token));
+        _repository.Verify(r => r.Upsert(model, _token), Times.Never);
+        command.Verify(c => c.ApplyUpdate(model, _token));
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Result, Is.Null);
@@ -161,26 +183,28 @@ public class GenericDataServiceTests
     }
 
     [Test]
-    public async Task Update_WhenAnAdmin_UpsertsItem()
+    public async Task Upsert_WhenAnAdmin_UpsertsItem()
     {
         var id = Guid.NewGuid();
         var updatedDto = new Dto();
-        var model = new Mock<Model>();
+        var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
         var commandResult = new CommandOutcome<object>(true, "some message", null);
-        var user = new UserDto();
-        model.Setup(m => m.CanEdit(user)).Returns(true);
-        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model.Object);
+        var user = new UserDto
+        {
+            Name = Model.EditPermitted,
+        };
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
         _adapter.Setup(a => a.Adapt(updatedModel)).Returns(updatedDto);
-        _repository.Setup(r => r.Upsert(model.Object, _token)).ReturnsAsync(() => updatedModel);
-        command.Setup(c => c.ApplyUpdate(model.Object, _token)).ReturnsAsync(() => commandResult);
+        _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
+        command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
 
-        var result = await _service.Update(id, command.Object, _token);
+        var result = await _service.Upsert(id, command.Object, _token);
 
-        _repository.Verify(r => r.Upsert(model.Object, _token));
-        command.Verify(c => c.ApplyUpdate(model.Object, _token));
+        _repository.Verify(r => r.Upsert(model, _token));
+        command.Verify(c => c.ApplyUpdate(model, _token));
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(updatedDto));
@@ -224,10 +248,9 @@ public class GenericDataServiceTests
     public async Task Delete_WhenNotAnAdmin_ReturnsUnsuccessful()
     {
         var id = Guid.NewGuid();
-        var model = new Mock<Model>();
+        var model = new Model();
         var user = new UserDto();
-        model.Setup(m => m.CanDelete(user)).Returns(false);
-        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model.Object);
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
 
         var result = await _service.Delete(id, _token);
@@ -240,21 +263,23 @@ public class GenericDataServiceTests
     }
 
     [Test]
-    public async Task Delete_WhenAnAdmin_UpdatesItem()
+    public async Task Delete_WhenPermitted_SoftDeletesItem()
     {
         var id = Guid.NewGuid();
         var deletedDto = new Dto();
-        var model = new Mock<Model>();
-        var user = new UserDto();
-        model.Setup(m => m.CanDelete(user)).Returns(true);
+        var model = new Model();
+        var user = new UserDto
+        {
+            Name = Model.DeletePermitted,
+        };
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model.Object);
-        _adapter.Setup(a => a.Adapt(model.Object)).Returns(deletedDto);
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
+        _adapter.Setup(a => a.Adapt(model)).Returns(deletedDto);
 
         var result = await _service.Delete(id, _token);
 
-        _repository.Verify(r => r.Upsert(model.Object, _token));
-        _auditingHelper.Verify(a => a.SetDeleted(model.Object));
+        _repository.Verify(r => r.Upsert(model, _token));
+        _auditingHelper.Verify(a => a.SetDeleted(model));
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));
@@ -273,19 +298,23 @@ public class GenericDataServiceTests
 
     public class Model : AuditedEntity, IPermissionedEntity
     {
+        public const string CreatePermitted = nameof(CreatePermitted);
+        public const string EditPermitted = nameof(EditPermitted);
+        public const string DeletePermitted = nameof(DeletePermitted);
+
         public virtual bool CanCreate(UserDto user)
         {
-            return false;
+            return user.Name == CreatePermitted;
         }
 
         public virtual bool CanEdit(UserDto user)
         {
-            return false;
+            return user.Name == EditPermitted;
         }
 
         public virtual bool CanDelete(UserDto user)
         {
-            return false;
+            return user.Name == DeletePermitted;
         }
     }
 
