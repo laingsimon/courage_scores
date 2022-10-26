@@ -38,7 +38,6 @@ public static class DependencyInjectionExtensions
     {
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IAccessService, AccessService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

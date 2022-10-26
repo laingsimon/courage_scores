@@ -1,9 +1,11 @@
-﻿namespace CourageScores.Models.Cosmos.Team;
+﻿using CourageScores.Models.Dtos.Identity;
+
+namespace CourageScores.Models.Cosmos.Team;
 
 /// <summary>
 /// A record of a team and its players, where 'home' is for them, etc.
 /// </summary>
-public class Team : AuditedEntity
+public class Team : AuditedEntity, IPermissionedEntity
 {
     /// <summary>
     /// The name of the team
@@ -24,4 +26,19 @@ public class Team : AuditedEntity
     /// The seasons in which this team have played
     /// </summary>
     public List<TeamSeason> Seasons { get; set; } = null!;
+
+    public bool CanCreate(UserDto user)
+    {
+        return (user.Access?.TeamAdmin ?? false) || (user.Access?.LeagueAdmin ?? false);
+    }
+
+    public bool CanEdit(UserDto user)
+    {
+        return (user.Access?.TeamAdmin ?? false) || (user.Access?.LeagueAdmin ?? false);
+    }
+
+    public bool CanDelete(UserDto user)
+    {
+        return (user.Access?.TeamAdmin ?? false) || (user.Access?.LeagueAdmin ?? false);
+    }
 }

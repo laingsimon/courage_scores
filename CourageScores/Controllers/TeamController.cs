@@ -34,7 +34,8 @@ public class TeamController : Controller
     [HttpPut("/api/Team/")]
     public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
     {
-        return await _teamService.UpsertTeam(team, token);
+        var command = _commandFactory.GetCommand<AddOrUpdateTeamCommand>().ForTeam(team);
+        return await _teamService.UpdateTeam(team.Id, command, token);
     }
 
     [HttpDelete("/api/Team/{id}")]

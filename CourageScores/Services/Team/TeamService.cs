@@ -11,14 +11,18 @@ public class TeamService : ITeamService
 {
     private readonly IGenericRepository<Models.Cosmos.Team.Team> _repository;
     private readonly IAdapter<Models.Cosmos.Team.Team, TeamDto> _adapter;
-    private readonly IAccessService _accessService;
+    private readonly IUserService _userService;
     private readonly IAuditingHelper _auditingHelper;
 
-    public TeamService(IGenericRepository<Models.Cosmos.Team.Team> repository, IAdapter<Models.Cosmos.Team.Team, TeamDto> adapter, IAccessService accessService, IAuditingHelper auditingHelper)
+    public TeamService(
+        IGenericRepository<Models.Cosmos.Team.Team> repository,
+        IAdapter<Models.Cosmos.Team.Team, TeamDto> adapter,
+        IUserService userService,
+        IAuditingHelper auditingHelper)
     {
         _repository = repository;
         _adapter = adapter;
-        _accessService = accessService;
+        _userService = userService;
         _auditingHelper = auditingHelper;
     }
 
@@ -38,23 +42,15 @@ public class TeamService : ITeamService
         }
     }
 
-    public async Task<ActionResultDto<TeamDto>> UpsertTeam(TeamDto team, CancellationToken token)
-    {
-        if (!await _accessService.CanEditTeam(team))
-        {
-            return NotPermitted();
-        }
-        var createdTeam = await _repository.UpsertTeam(_adapter.Adapt(team), token);
-
-        return new ActionResultDto<TeamDto>
-        {
-            Result = _adapter.Adapt(createdTeam),
-            Success = true,
-        };
-    }
-
     public async Task<ActionResultDto<TeamDto>> UpdateTeam<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Team.Team, TOut> updateCommand, CancellationToken token)
     {
+        var user = await _userService.GetUser();
+
+        if (user == null)
+        {
+            return NotLoggedIn();
+        }
+
         var team = await _repository.Get(id, token);
 
         if (team == null)
@@ -62,7 +58,7 @@ public class TeamService : ITeamService
             return NotFound();
         }
 
-        if (!await _accessService.CanEditTeam(team))
+        if (!team.CanEdit(user))
         {
             return NotPermitted();
         }
@@ -89,6 +85,13 @@ public class TeamService : ITeamService
 
     public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token)
     {
+        var user = await _userService.GetUser();
+
+        if (user == null)
+        {
+            return NotLoggedIn();
+        }
+
         var team = await _repository.Get(id, token);
 
         if (team == null)
@@ -96,7 +99,7 @@ public class TeamService : ITeamService
             return NotFound();
         }
 
-        if (!await _accessService.CanDeleteTeam(team))
+        if (!team.CanDelete(user))
         {
             return NotPermitted();
         }
@@ -127,6 +130,18 @@ public class TeamService : ITeamService
             Warnings =
             {
                 "Not permitted"
+            }
+        };
+    }
+
+    private static ActionResultDto<TeamDto> NotLoggedIn()
+    {
+        return new ActionResultDto<TeamDto>
+        {
+            Success = false,
+            Warnings =
+            {
+                "Not logged in"
             }
         };
     }
