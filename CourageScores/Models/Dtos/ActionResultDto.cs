@@ -4,7 +4,7 @@
 /// The outcome of an action
 /// </summary>
 /// <typeparam name="TDto"></typeparam>
-public class ActionResultDto<TDto> where TDto : AuditedDto
+public class ActionResultDto<TDto>
 {
     /// <summary>
     /// The outcome of the action
