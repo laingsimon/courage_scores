@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './NavMenu.css';
+import {Settings} from "../api/settings";
+import {Division} from "../api/division";
+import {Http} from "../api/http";
 
 export class NavMenu extends Component {
   static displayName = NavMenu.name;
@@ -9,10 +12,19 @@ export class NavMenu extends Component {
   constructor (props) {
     super(props);
 
+    this.settings = new Settings();
+    this.divisionApi = new Division(new Http(this.settings));
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
-      collapsed: true
+      collapsed: true,
+      divisions: []
     };
+  }
+
+  async componentDidMount() {
+    this.setState({
+      divisions: await this.divisionApi.getAll()
+    });
   }
 
   toggleNavbar () {
@@ -32,6 +44,7 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
               </NavItem>
+              {this.state.divisions.map(division => (<NavItem><NavLink tag={Link} className="text-dark" to={`/division/${division.id}`}>{division.name}</NavLink></NavItem>))}
             </ul>
           </Collapse>
         </Navbar>
