@@ -4,7 +4,6 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
@@ -16,7 +15,7 @@ using NUnit.Framework;
 namespace CourageScores.Tests.Services.Identity;
 
 [TestFixture]
-public class IdentityServiceTests
+public class UserServiceTests
 {
 #pragma warning disable CS8618
     private UserService _service;
@@ -26,6 +25,7 @@ public class IdentityServiceTests
     private Mock<IAuthenticationService> _authenticationService;
     private Mock<IServiceProvider> _httpContextServices;
     private ISimpleAdapter<User, UserDto> _userAdapter;
+    private AccessAdapter _accessAdapter;
 #pragma warning restore CS8618
 
     [SetUp]
@@ -34,8 +34,9 @@ public class IdentityServiceTests
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userRepository = new Mock<IUserRepository>();
         _authenticationService = new Mock<IAuthenticationService>();
-        _userAdapter = new UserAdapter(new AccessAdapter());
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter);
+        _accessAdapter = new AccessAdapter();
+        _userAdapter = new UserAdapter(_accessAdapter);
+        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter);
         _httpContextServices = new Mock<IServiceProvider>();
 
         _httpContextServices
