@@ -1,4 +1,5 @@
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
@@ -8,14 +9,14 @@ namespace CourageScores.Services.Team.Command;
 public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
 {
     private readonly IAdapter<TeamPlayer, TeamPlayerDto> _playerAdapter;
-    private readonly ISeasonRepository _seasonRepository;
+    private readonly IGenericRepository<Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
     private TeamPlayerDto? _player;
 
     public AddPlayerCommand(
         IAdapter<TeamPlayer, TeamPlayerDto> playerAdapter,
-        ISeasonRepository seasonRepository,
+        IGenericRepository<Season> seasonRepository,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper)
     {

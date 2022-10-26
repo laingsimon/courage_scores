@@ -11,6 +11,7 @@ using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
+using CourageScores.Repository.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
 using Microsoft.Extensions.Internal;
@@ -26,11 +27,26 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IAuditingHelper, AuditingHelper>();
         services.AddHttpContextAccessor();
         services.AddSingleton<ISystemClock, SystemClock>();
-        services.AddSingleton<ICommandFactory, CommandFactory>();
+        services.AddScoped<ICommandFactory, CommandFactory>();
 
         AddServices(services);
         AddRepositories(services);
         AddAdapters(services);
+        AddCommands(services);
+    }
+
+    private static void AddCommands(IServiceCollection services)
+    {
+        var commandAssembly = typeof(IUpdateCommand).Assembly;
+        var commandTypes = commandAssembly
+            .GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract)
+            .Where(t => t.IsAssignableTo(typeof(IUpdateCommand)));
+
+        foreach (var commandType in commandTypes)
+        {
+            services.AddScoped(commandType);
+        }
     }
 
     private static void AddServices(IServiceCollection services)
@@ -42,7 +58,7 @@ public static class DependencyInjectionExtensions
     private static void AddRepositories(IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddSingleton(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
     }
 
     private static void AddAdapters(IServiceCollection services)

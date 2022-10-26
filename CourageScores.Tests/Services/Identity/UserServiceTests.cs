@@ -5,6 +5,7 @@ using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
+using CourageScores.Repository.Identity;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;

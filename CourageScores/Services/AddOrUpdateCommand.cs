@@ -1,6 +1,9 @@
+using CourageScores.Models.Cosmos;
+
 namespace CourageScores.Services;
 
 public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, TModel>
+    where TModel: CosmosEntity
 {
     private TDto? _update;
 
@@ -9,6 +12,11 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         if (_update == null)
         {
             throw new InvalidOperationException($"{nameof(WithData)} must be called first");
+        }
+
+        if (model.Id == default)
+        {
+            model.Id = Guid.NewGuid();
         }
 
         ApplyUpdates(model, _update!);

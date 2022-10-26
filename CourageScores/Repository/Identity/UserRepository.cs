@@ -1,7 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using User = CourageScores.Models.Cosmos.Identity.User;
 
-namespace CourageScores.Repository;
+namespace CourageScores.Repository.Identity;
 
 public class UserRepository : IUserRepository
 {

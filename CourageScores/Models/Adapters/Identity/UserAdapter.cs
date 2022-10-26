@@ -20,7 +20,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             EmailAddress = model.EmailAddress,
             GivenName = model.GivenName,
             Access = model.Access != null ? _accessAdapter.Adapt(model.Access) : null,
-        }.AddAuditProperties(model);
+        };
     }
 
     public User Adapt(UserDto dto)
@@ -31,6 +31,6 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             EmailAddress = dto.EmailAddress,
             GivenName = dto.GivenName,
             Access = dto.Access != null ? _accessAdapter.Adapt(dto.Access) : null,
-        }.AddAuditProperties(dto);
+        };
     }
 }

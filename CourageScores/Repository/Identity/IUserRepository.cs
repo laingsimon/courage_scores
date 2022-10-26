@@ -1,6 +1,6 @@
 ﻿using CourageScores.Models.Cosmos.Identity;
 
-namespace CourageScores.Repository;
+namespace CourageScores.Repository.Identity;
 
 public interface IUserRepository
 {

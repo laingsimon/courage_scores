@@ -4,7 +4,7 @@ namespace CourageScores.Models.Dtos.Identity;
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 #pragma warning disable CS8618
-public class UserDto : AuditedDto
+public class UserDto
 {
     /// <summary>
     /// The full name of the person
