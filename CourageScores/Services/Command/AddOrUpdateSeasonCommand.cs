@@ -3,9 +3,9 @@ using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Season, SeasonDto>
+public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Season, EditSeasonDto>
 {
-    protected override void ApplyUpdates(Season season, SeasonDto update)
+    protected override void ApplyUpdates(Season season, EditSeasonDto update)
     {
         season.Name = update.Name;
         season.EndDate = update.EndDate;

@@ -31,7 +31,7 @@ public class SeasonController : Controller
     }
 
     [HttpPut("/api/Season/")]
-    public async Task<ActionResultDto<SeasonDto>> AddOrUpdateSeason(SeasonDto season, CancellationToken token)
+    public async Task<ActionResultDto<SeasonDto>> AddOrUpdateSeason(EditSeasonDto season, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateSeasonCommand>().WithData(season);
         return await _seasonService.Upsert(season.Id, command, token);
