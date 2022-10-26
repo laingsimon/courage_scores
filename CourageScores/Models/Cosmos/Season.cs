@@ -20,17 +20,17 @@ public class Season : AuditedEntity, IPermissionedEntity
     /// <summary>
     /// The divisions applicable to this season
     /// </summary>
-    public List<Division> Divisions { get; set; } = null!;
+    public List<Division> Divisions { get; set; } = new();
 
     /// <summary>
     /// The teams playing within the season (and which division they are attributed to)
     /// </summary>
-    public List<Team.Team> Teams { get; set; } = null!;
+    public List<Team.Team> Teams { get; set; } = new();
 
     /// <summary>
     /// The games that have, or are yet to be, played in this season
     /// </summary>
-    public List<Game.Game> Games { get; set; } = null!;
+    public List<Game.Game> Games { get; set; } = new();
 
     /// <summary>
     /// The name of this season

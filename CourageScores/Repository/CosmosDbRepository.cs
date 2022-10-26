@@ -7,12 +7,12 @@ namespace CourageScores.Repository;
 public abstract class CosmosDbRepository<T> where T : CosmosEntity
 {
     private readonly Container _container;
-    protected readonly string _tableName;
+    protected readonly string TableName;
 
     protected CosmosDbRepository(Database database)
     {
-        _tableName = typeof(T).Name.ToLower();
-        _container = database.CreateContainerIfNotExistsAsync(_tableName, "/id").Result;
+        TableName = typeof(T).Name.ToLower();
+        _container = database.CreateContainerIfNotExistsAsync(TableName, "/id").Result;
     }
 
     protected async Task DeleteItem(Guid id, CancellationToken token)
@@ -45,7 +45,7 @@ public abstract class CosmosDbRepository<T> where T : CosmosEntity
 
     protected async Task<T?> GetItem(Guid id, CancellationToken token)
     {
-        await foreach (var item in Query($"select * from {_tableName} t where t.id = '{id}'", token))
+        await foreach (var item in Query($"select * from {TableName} t where t.id = '{id}'", token))
         {
             return item;
         }
