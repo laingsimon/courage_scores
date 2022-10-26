@@ -12,7 +12,6 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
             Captain = model.Captain,
             Id = model.Id,
             Name = model.Name,
-            PlayerId = model.PlayerId,
         }.AddAuditProperties(model);
     }
 
@@ -23,7 +22,6 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
             Captain = dto.Captain,
             Id = dto.Id,
             Name = dto.Name,
-            PlayerId = dto.PlayerId,
         };
     }
 }

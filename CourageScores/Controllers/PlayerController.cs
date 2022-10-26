@@ -25,4 +25,11 @@ public class PlayerController : Controller
         var command = _commandFactory.GetCommand<AddPlayerCommand>().ForPlayer(player);
         return await _teamService.Upsert(teamId, command, token);
     }
+
+    [HttpDelete("/api/Player/{teamId}/{playerId}")]
+    public async Task<ActionResultDto<TeamDto>> RemovePlayer(Guid teamId, Guid playerId, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<RemovePlayerCommand>().ForPlayer(playerId);
+        return await _teamService.Upsert(teamId, command, token);
+    }
 }

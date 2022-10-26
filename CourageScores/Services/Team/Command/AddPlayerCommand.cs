@@ -3,6 +3,8 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
+using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Team.Command;
 
@@ -12,18 +14,24 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
     private readonly IGenericRepository<Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
+    private readonly ISystemClock _clock;
+    private readonly IUserService _userService;
     private EditTeamPlayerDto? _player;
 
     public AddPlayerCommand(
         IAdapter<TeamPlayer, TeamPlayerDto> playerAdapter,
         IGenericRepository<Season> seasonRepository,
         ICommandFactory commandFactory,
-        IAuditingHelper auditingHelper)
+        IAuditingHelper auditingHelper,
+        ISystemClock clock,
+        IUserService userService)
     {
         _playerAdapter = playerAdapter;
         _seasonRepository = seasonRepository;
         _commandFactory = commandFactory;
         _auditingHelper = auditingHelper;
+        _clock = clock;
+        _userService = userService;
     }
 
     public AddPlayerCommand ForPlayer(EditTeamPlayerDto player)
@@ -37,6 +45,12 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
         if (_player == null)
         {
             throw new InvalidOperationException($"Player hasn't been set, ensure {nameof(ForPlayer)} is called");
+        }
+
+        var user = await _userService.GetUser();
+        if (user == null)
+        {
+            return new CommandOutcome<TeamPlayer>(false, $"Player cannot be removed, not logged in", null);
         }
 
         var seasons = await _seasonRepository.GetAll(token).ToList();
@@ -64,12 +78,21 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
         var existingPlayer = players.SingleOrDefault(p => p.Name == _player.Name);
         if (existingPlayer != null)
         {
-            return new CommandOutcome<TeamPlayer>(true, "Player already exists with this name, player not added", existingPlayer);
+            if (existingPlayer.Deleted == null)
+            {
+                return new CommandOutcome<TeamPlayer>(true, "Player already exists with this name, player not added", existingPlayer);
+            }
+
+            existingPlayer.Deleted = null;
+            existingPlayer.Remover = null;
+            existingPlayer.Updated = _clock.UtcNow.UtcDateTime;
+            existingPlayer.Editor = user.Name;
+            existingPlayer.Captain = _player.Captain;
+            return new CommandOutcome<TeamPlayer>(true, "Player undeleted from team", existingPlayer);
         }
 
         var newPlayer = new TeamPlayer
         {
-            PlayerId = Guid.NewGuid(),
             Name = _player.Name,
             Captain = _player.Captain,
             Id = Guid.NewGuid(),
