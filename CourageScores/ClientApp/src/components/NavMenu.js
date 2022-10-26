@@ -5,6 +5,7 @@ import './NavMenu.css';
 import {Settings} from "../api/settings";
 import {Division} from "../api/division";
 import {Http} from "../api/http";
+import {Account} from "../api/account";
 
 export class NavMenu extends Component {
   static displayName = NavMenu.name;
@@ -14,16 +15,20 @@ export class NavMenu extends Component {
 
     this.settings = new Settings();
     this.divisionApi = new Division(new Http(this.settings));
+    this.accountApi = new Account(new Http(this.settings));
     this.toggleNavbar = this.toggleNavbar.bind(this);
     this.state = {
       collapsed: true,
-      divisions: []
+      divisions: [],
+      loading: true
     };
   }
 
   async componentDidMount() {
     this.setState({
-      divisions: await this.divisionApi.getAll()
+      divisions: await this.divisionApi.getAll(),
+      account: await this.accountApi.account(),
+      loading: false
     });
   }
 
@@ -44,7 +49,11 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
               </NavItem>
-              {this.state.divisions.map(division => (<NavItem><NavLink tag={Link} className="text-dark" to={`/division/${division.id}`}>{division.name}</NavLink></NavItem>))}
+              {this.state.divisions.map(division => (<NavItem key={division.id}><NavLink tag={Link} className="text-dark" to={`/division/${division.id}`}>{division.name}</NavLink></NavItem>))}
+              <NavItem>
+                {!this.state.loading && this.state.account ? <a className="nav-link text-dark" href={`${this.settings.apiHost}/api/Account/Logout`}>Logout ({this.state.account.name})</a> : null}
+                {!this.state.loading && !this.state.account ? <a className="nav-link text-dark" href={`${this.settings.apiHost}/api/Account/Login`}>Login</a> : null}
+              </NavItem>
             </ul>
           </Collapse>
         </Navbar>

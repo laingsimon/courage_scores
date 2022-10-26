@@ -26,6 +26,12 @@ public class AccountController : Controller
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
 
+    [HttpGet("/api/Account/Logout")]
+    public IActionResult Logout()
+    {
+        throw new NotImplementedException("Not implemented");
+    }
+
     [HttpGet("/api/Account")]
     public async Task<UserDto?> GetUser()
     {
