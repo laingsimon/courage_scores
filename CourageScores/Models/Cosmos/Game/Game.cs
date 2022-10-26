@@ -37,5 +37,5 @@ public class Game : AuditedEntity
     /// <summary>
     /// The matches that were played
     /// </summary>
-    public List<GameMatch> Matches { get; set; } = null!;
+    public List<GameMatch> Matches { get; set; } = new();
 }

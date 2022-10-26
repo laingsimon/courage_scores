@@ -13,10 +13,10 @@ public class League : AuditedEntity
     /// <summary>
     /// The divisions that have been defined within the league
     /// </summary>
-    public List<Division> Divisions { get; set; } = null!;
+    public List<Division> Divisions { get; set; } = new();
 
     /// <summary>
     /// The seasons that have been defined within the league
     /// </summary>
-    public List<Season> Seasons { get; set; } = null!;
+    public List<Season> Seasons { get; set; } = new();
 }

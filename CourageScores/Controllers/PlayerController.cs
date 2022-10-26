@@ -20,7 +20,7 @@ public class PlayerController : Controller
     }
 
     [HttpPost("/api/Player/{teamId}")]
-    public async Task<ActionResultDto<TeamDto>> AddPlayer(Guid teamId, [FromBody] TeamPlayerDto player, CancellationToken token)
+    public async Task<ActionResultDto<TeamDto>> AddPlayer(Guid teamId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddPlayerCommand>().ForPlayer(player);
         return await _teamService.Upsert(teamId, command, token);

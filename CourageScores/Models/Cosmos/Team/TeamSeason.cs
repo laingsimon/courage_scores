@@ -13,5 +13,5 @@ public class TeamSeason : AuditedEntity
     /// <summary>
     /// The players that played for the team during the season
     /// </summary>
-    public List<TeamPlayer> Players { get; set; } = null!;
+    public List<TeamPlayer> Players { get; set; } = new();
 }

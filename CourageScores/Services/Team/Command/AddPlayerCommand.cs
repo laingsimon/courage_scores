@@ -12,7 +12,7 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
     private readonly IGenericRepository<Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
-    private TeamPlayerDto? _player;
+    private EditTeamPlayerDto? _player;
 
     public AddPlayerCommand(
         IAdapter<TeamPlayer, TeamPlayerDto> playerAdapter,
@@ -26,7 +26,7 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
         _auditingHelper = auditingHelper;
     }
 
-    public AddPlayerCommand ForPlayer(TeamPlayerDto player)
+    public AddPlayerCommand ForPlayer(EditTeamPlayerDto player)
     {
         _player = player;
         return this;
@@ -67,9 +67,13 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
             return new CommandOutcome<TeamPlayer>(true, "Player already exists with this name, player not added", existingPlayer);
         }
 
-        var newPlayer = _playerAdapter.Adapt(_player);
-        newPlayer.PlayerId = Guid.NewGuid();
-
+        var newPlayer = new TeamPlayer
+        {
+            PlayerId = Guid.NewGuid(),
+            Name = _player.Name,
+            Captain = _player.Captain,
+            Id = Guid.NewGuid(),
+        };
         await _auditingHelper.SetUpdated(newPlayer);
         players.Add(newPlayer);
 

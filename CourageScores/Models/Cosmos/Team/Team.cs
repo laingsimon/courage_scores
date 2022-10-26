@@ -25,7 +25,7 @@ public class Team : AuditedEntity, IPermissionedEntity
     /// <summary>
     /// The seasons in which this team have played
     /// </summary>
-    public List<TeamSeason> Seasons { get; set; } = null!;
+    public List<TeamSeason> Seasons { get; set; } = new();
 
     public bool CanCreate(UserDto user)
     {
