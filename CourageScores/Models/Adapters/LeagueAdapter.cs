@@ -20,9 +20,9 @@ public class LeagueAdapter : IAdapter<League, LeagueDto>
     {
         return new LeagueDto
         {
-            Divisions = model.Divisions.Select(_divisionAdapter.Adapt).ToList(),
+            Divisions = model.Divisions?.Select(_divisionAdapter.Adapt).ToList() ?? new List<DivisionDto>(),
             Id = model.Id,
-            Seasons = model.Seasons.Select(_seasonAdapter.Adapt).ToList(),
+            Seasons = model.Seasons?.Select(_seasonAdapter.Adapt).ToList() ?? new List<SeasonDto>(),
         }.AddAuditProperties(model);
     }
 
@@ -30,9 +30,9 @@ public class LeagueAdapter : IAdapter<League, LeagueDto>
     {
         return new League
         {
-            Divisions = dto.Divisions.Select(_divisionAdapter.Adapt).ToList(),
+            Divisions = dto.Divisions?.Select(_divisionAdapter.Adapt).ToList() ?? new List<Division>(),
             Id = dto.Id,
-            Seasons = dto.Seasons.Select(_seasonAdapter.Adapt).ToList(),
+            Seasons = dto.Seasons?.Select(_seasonAdapter.Adapt).ToList() ?? new List<Season>(),
         }.AddAuditProperties(dto);
     }
 }

@@ -25,7 +25,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             Date = model.Date,
             Home = _gameTeamAdapter.Adapt(model.Home),
             Id = model.Id,
-            Matches = model.Matches.Select(_gameMatchAdapter.Adapt).ToList(),
+            Matches = model.Matches?.Select(_gameMatchAdapter.Adapt).ToList() ?? new List<GameMatchDto>(),
             DivisionId = model.DivisionId,
         }.AddAuditProperties(model);
     }
@@ -39,7 +39,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             Date = dto.Date,
             Home = _gameTeamAdapter.Adapt(dto.Home),
             Id = dto.Id,
-            Matches = dto.Matches.Select(_gameMatchAdapter.Adapt).ToList(),
+            Matches = dto.Matches?.Select(_gameMatchAdapter.Adapt).ToList() ?? new List<GameMatch>(),
             DivisionId = dto.DivisionId,
         }.AddAuditProperties(dto);
     }
