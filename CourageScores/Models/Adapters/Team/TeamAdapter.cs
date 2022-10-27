@@ -19,7 +19,7 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
             Address = model.Address,
             Id = model.Id,
             Name = model.Name,
-            Seasons = model.Seasons?.Select(_seasonAdapter.Adapt).ToList() ?? new List<TeamSeasonDto>(),
+            Seasons = model.Seasons.Select(_seasonAdapter.Adapt).ToList(),
             DivisionId = model.DivisionId,
         }.AddAuditProperties(model);
     }
@@ -31,7 +31,7 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
             Address = dto.Address,
             Id = dto.Id,
             Name = dto.Name,
-            Seasons = dto.Seasons?.Select(_seasonAdapter.Adapt).ToList() ?? new List<TeamSeason>(),
+            Seasons = dto.Seasons.Select(_seasonAdapter.Adapt).ToList(),
             DivisionId = dto.DivisionId,
         }.AddAuditProperties(dto);
     }

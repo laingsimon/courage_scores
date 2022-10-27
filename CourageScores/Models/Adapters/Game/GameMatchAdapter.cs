@@ -21,12 +21,12 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
         return new GameMatchDto
         {
             Id = model.Id,
-            AwayPlayers = model.AwayPlayers?.Select(_gamePlayerAdapter.Adapt).ToList() ?? new List<GamePlayerDto>(),
+            AwayPlayers = model.AwayPlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
             AwayScore = model.AwayScore,
-            HomePlayers = model.HomePlayers?.Select(_gamePlayerAdapter.Adapt).ToList() ?? new List<GamePlayerDto>(),
+            HomePlayers = model.HomePlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
             HomeScore = model.HomeScore,
-            OneEighties = model.OneEighties?.Select(_gamePlayerAdapter.Adapt).ToList() ?? new List<GamePlayerDto>(),
-            Over100Checkouts = model.Over100Checkouts?.Select(_notablePlayerAdapter.Adapt).ToList() ?? new List<NotablePlayerDto>(),
+            OneEighties = model.OneEighties.Select(_gamePlayerAdapter.Adapt).ToList(),
+            Over100Checkouts = model.Over100Checkouts.Select(_notablePlayerAdapter.Adapt).ToList(),
             StartingScore = model.StartingScore,
             NumberOfLegs = model.NumberOfLegs,
         }.AddAuditProperties(model);
@@ -37,12 +37,12 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
         return new GameMatch
         {
             Id = dto.Id,
-            AwayPlayers = dto.AwayPlayers?.Select(_gamePlayerAdapter.Adapt).ToList() ?? new List<GamePlayer>(),
+            AwayPlayers = dto.AwayPlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
             AwayScore = dto.AwayScore,
-            HomePlayers = dto.HomePlayers?.Select(_gamePlayerAdapter.Adapt).ToList() ?? new List<GamePlayer>(),
+            HomePlayers = dto.HomePlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
             HomeScore = dto.HomeScore,
-            OneEighties = dto.OneEighties?.Select(_gamePlayerAdapter.Adapt).ToList() ?? new List<GamePlayer>(),
-            Over100Checkouts = dto.Over100Checkouts?.Select(_notablePlayerAdapter.Adapt).ToList() ?? new List<NotablePlayer>(),
+            OneEighties = dto.OneEighties.Select(_gamePlayerAdapter.Adapt).ToList(),
+            Over100Checkouts = dto.Over100Checkouts.Select(_notablePlayerAdapter.Adapt).ToList(),
             StartingScore = dto.StartingScore,
             NumberOfLegs = dto.NumberOfLegs,
         }.AddAuditProperties(dto);

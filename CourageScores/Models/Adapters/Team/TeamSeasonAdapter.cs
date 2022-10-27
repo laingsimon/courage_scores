@@ -17,7 +17,7 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
         return new TeamSeasonDto
         {
             Id = model.Id,
-            Players = model.Players?.Select(_playerAdapter.Adapt).ToList() ?? new List<TeamPlayerDto>(),
+            Players = model.Players.Select(_playerAdapter.Adapt).ToList(),
             SeasonId = model.SeasonId,
         }.AddAuditProperties(model);
     }
@@ -27,7 +27,7 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
         return new TeamSeason
         {
             Id = dto.Id,
-            Players = dto.Players?.Select(_playerAdapter.Adapt).ToList() ?? new List<TeamPlayer>(),
+            Players = dto.Players.Select(_playerAdapter.Adapt).ToList(),
             SeasonId = dto.SeasonId,
         }.AddAuditProperties(dto);
     }
