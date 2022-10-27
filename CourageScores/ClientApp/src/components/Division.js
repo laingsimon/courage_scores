@@ -1,11 +1,15 @@
-import React, {Component} from 'react';
+import React from 'react';
+import { useParams } from "react-router-dom";
 
-export class Division extends Component {
-    render() {
-        return (
-            <div>
-                <h2>CourageScores - Division</h2>
-            </div>
-        );
+export function Division(props) {
+    const { divisionId } = useParams();
+    const division = props.divisions[divisionId];
+
+    if (!division) {
+        return (<div>Loading...</div>);
     }
+
+    return (<div>
+            <h2>{division.name}</h2>
+        </div>);
 }

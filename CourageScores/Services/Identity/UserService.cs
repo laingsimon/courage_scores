@@ -105,6 +105,12 @@ public class UserService : IUserService
         }
 
         var result = await httpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        if (!result.Succeeded)
+        {
+            return null;
+        }
+
         var identity = result.Principal?.Identities.FirstOrDefault();
 
         if (identity == null)

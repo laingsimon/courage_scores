@@ -1,4 +1,4 @@
-class Division {
+class DivisionApi {
     constructor(http) {
         this.http = http;
     }
@@ -8,4 +8,4 @@ class Division {
     }
 }
 
-export { Division };
+export { DivisionApi };

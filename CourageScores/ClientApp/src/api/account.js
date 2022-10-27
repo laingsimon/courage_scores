@@ -1,4 +1,4 @@
-class Account {
+class AccountApi {
     constructor(http) {
         this.http = http;
     }
@@ -12,4 +12,4 @@ class Account {
     }
 }
 
-export { Account };
+export { AccountApi };

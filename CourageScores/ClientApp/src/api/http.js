@@ -39,7 +39,13 @@ class Http {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include'
-            }).then(response => response.json());
+            }).then(response => {
+                if (response.status === 204) {
+                    return null;
+                }
+
+                return response.json()
+            });
         }
 
         return await fetch(absoluteUrl, {
@@ -47,7 +53,13 @@ class Http {
             mode: 'cors',
             credentials: 'include'
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.status === 204) {
+                    return null;
+                }
+
+                return response.json()
+            })
             .catch(e => console.error('ERROR: ' + e));
     }
 }

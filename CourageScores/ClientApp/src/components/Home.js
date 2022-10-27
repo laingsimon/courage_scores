@@ -1,11 +1,9 @@
-import React, {Component} from 'react';
+import React from 'react';
 
-export class Home extends Component {
-    render() {
-        return (
-            <div>
-                <h2>CourageScores</h2>
-            </div>
-        );
-    }
+export function Home() {
+    return (
+        <div>
+            <h2>CourageScores</h2>
+        </div>
+    );
 }
