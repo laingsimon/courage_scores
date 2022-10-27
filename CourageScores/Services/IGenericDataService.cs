@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Services.Command;
 
 namespace CourageScores.Services;
 

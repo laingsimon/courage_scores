@@ -1,4 +1,3 @@
-using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
@@ -6,11 +5,10 @@ using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 
-namespace CourageScores.Services.Team.Command;
+namespace CourageScores.Services.Command;
 
-public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
+public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
 {
-    private readonly IAdapter<TeamPlayer, TeamPlayerDto> _playerAdapter;
     private readonly IGenericRepository<Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
@@ -18,15 +16,13 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
     private readonly IUserService _userService;
     private EditTeamPlayerDto? _player;
 
-    public AddPlayerCommand(
-        IAdapter<TeamPlayer, TeamPlayerDto> playerAdapter,
+    public AddPlayerToTeamSeasonCommand(
         IGenericRepository<Season> seasonRepository,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
         ISystemClock clock,
         IUserService userService)
     {
-        _playerAdapter = playerAdapter;
         _seasonRepository = seasonRepository;
         _commandFactory = commandFactory;
         _auditingHelper = auditingHelper;
@@ -34,13 +30,13 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
         _userService = userService;
     }
 
-    public AddPlayerCommand ForPlayer(EditTeamPlayerDto player)
+    public AddPlayerToTeamSeasonCommand ForPlayer(EditTeamPlayerDto player)
     {
         _player = player;
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team team, CancellationToken token)
     {
         if (_player == null)
         {
@@ -60,11 +56,11 @@ public class AddPlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlay
             return new CommandOutcome<TeamPlayer>(false, "A season must exist before a player can be added", null);
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
+        var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
         if (teamSeason == null)
         {
-            var addSeasonCommand = _commandFactory.GetCommand<AddSeasonCommand>().ForSeason(currentSeason.Id);
-            var result = await addSeasonCommand.ApplyUpdate(model, token);
+            var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(currentSeason.Id);
+            var result = await addSeasonCommand.ApplyUpdate(team, token);
             if (!result.Success || result.Result == null)
             {
                 return new CommandOutcome<TeamPlayer>(false, "Could not add season to team", null);

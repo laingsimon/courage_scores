@@ -4,6 +4,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Identity;
 using CourageScores.Repository;
+using CourageScores.Services.Command;
 
 namespace CourageScores.Services;
 

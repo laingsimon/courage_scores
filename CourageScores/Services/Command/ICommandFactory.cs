@@ -1,4 +1,4 @@
-namespace CourageScores.Services;
+namespace CourageScores.Services.Command;
 
 public interface ICommandFactory
 {

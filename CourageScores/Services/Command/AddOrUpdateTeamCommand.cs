@@ -1,6 +1,6 @@
 using CourageScores.Models.Dtos.Team;
 
-namespace CourageScores.Services.Team.Command;
+namespace CourageScores.Services.Command;
 
 public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team, EditTeamDto>
 {
