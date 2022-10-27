@@ -11,6 +11,8 @@ public interface IGenericDataService<TModel, TDto>
     
     IAsyncEnumerable<TDto> GetAll(CancellationToken token);
 
+    IAsyncEnumerable<TDto> GetWhere(string query, CancellationToken token);
+
     Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand,
         CancellationToken token);
 

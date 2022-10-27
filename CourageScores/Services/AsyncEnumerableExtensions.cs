@@ -13,4 +13,60 @@ public static class AsyncEnumerableExtensions
 
         return items;
     }
+
+    public static async IAsyncEnumerable<T> WhereAsync<T>(this IAsyncEnumerable<T> asyncEnumerable,
+        Predicate<T> predicate)
+    {
+        await foreach (var item in asyncEnumerable)
+        {
+            if (predicate(item))
+            {
+                yield return item;
+            }
+        }
+    }
+
+    public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IAsyncEnumerable<TIn> asyncEnumerable,
+        Func<TIn, TOut> selector)
+    {
+        await foreach (var item in asyncEnumerable)
+        {
+            yield return selector(item);
+        }
+    }
+
+    public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IAsyncEnumerable<TIn> asyncEnumerable,
+        Func<TIn, Task<TOut>> selector)
+    {
+        await foreach (var item in asyncEnumerable)
+        {
+            yield return await selector(item);
+        }
+    }
+
+    public static async IAsyncEnumerable<T> OrderByAsync<T, TKey>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> orderingSelector)
+    {
+        foreach (var item in (await asyncEnumerable.ToList()).OrderBy(orderingSelector))
+        {
+            yield return item;
+        }
+    }
+
+    public static async IAsyncEnumerable<T> OrderByDescendingAsync<T, TKey>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> orderingSelector)
+    {
+        foreach (var item in (await asyncEnumerable.ToList()).OrderByDescending(orderingSelector))
+        {
+            yield return item;
+        }
+    }
+
+    public static async Task<T?> FirstOrDefaultAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
+    {
+        await foreach (var item in asyncEnumerable)
+        {
+            return item;
+        }
+
+        return default;
+    }
 }

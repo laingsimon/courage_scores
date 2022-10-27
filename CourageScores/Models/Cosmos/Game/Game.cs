@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
@@ -7,7 +8,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// </summary>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-public class Game : AuditedEntity
+public class Game : AuditedEntity, IPermissionedEntity
 {
     /// <summary>
     /// The id of the division
@@ -38,4 +39,19 @@ public class Game : AuditedEntity
     /// The matches that were played
     /// </summary>
     public List<GameMatch> Matches { get; set; } = new();
+
+    public bool CanCreate(UserDto user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool CanEdit(UserDto user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public bool CanDelete(UserDto user)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -13,27 +13,35 @@ export default class App extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            appLoading: true,
-            subProps: {
-                divisions: [],
-                account: null,
-            },
-        };
-
         this.settings = new Settings();
         this.divisionApi = new DivisionApi(new Http(this.settings));
         this.accountApi = new AccountApi(new Http(this.settings));
         this.reloadDivisions = this.reloadDivisions.bind(this);
         this.reloadAccount = this.reloadAccount.bind(this);
+        this.reloadDivision = this.reloadDivision.bind(this);
+        this.reloadAll = this.reloadAll.bind(this);
+
+        this.state = {
+            appLoading: true,
+            subProps: {
+                divisions: [],
+                account: null,
+                divisionData: {}
+            }
+        };
     }
 
     async componentDidMount() {
+        await this.reloadAll();
+    }
+
+    async reloadAll() {
         this.setState({
             appLoading: false,
             subProps: {
                 account: await this.reloadAccount(),
                 divisions: await this.reloadDivisions(),
+                divisionData: await this.reloadDivision(null),
             }
         });
     }
@@ -62,19 +70,45 @@ export default class App extends Component {
         return subProps.account;
     }
 
+    async reloadDivision(id) {
+        if (!id) {
+            return this.state.subProps.divisionData;
+        }
+
+        const subProps = Object.assign(
+            {},
+            this.state.subProps);
+        subProps.divisionData[id] = {
+            teams: await this.divisionApi.teams(id),
+            fixtures: await this.divisionApi.fixtures(id),
+            players: await this.divisionApi.players(id),
+        };
+
+        this.setState({
+            subProps: subProps
+        });
+        return subProps.divisionData;
+    }
+
     render() {
         return (
             <Layout {...this.combineProps({...this.props})}>
                 <Routes>
                     <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
                     <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
+                    <Route path='/division/:divisionId/:mode' element={<Division {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
             </Layout>
         );
     }
 
     combineProps(props) {
-        return Object.assign(props, this.state.subProps);
+        return Object.assign(props, this.state.subProps, { apis: {
+            reloadDivisions: this.reloadDivisions,
+            reloadAccount: this.reloadAccount,
+            reloadDivision: this.reloadDivision,
+            reloadAll: this.reloadAll
+        } });
     }
 
     toMap(items) {

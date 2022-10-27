@@ -44,6 +44,14 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
     }
 
+    public async IAsyncEnumerable<TDto> GetWhere(string query, [EnumeratorCancellation] CancellationToken token)
+    {
+        await foreach (var item in _repository.GetSome(query, token))
+        {
+            yield return _adapter.Adapt(item);
+        }
+    }
+
     public async Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
     {
         var user = await _userService.GetUser();
