@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -61,20 +62,48 @@ public class DivisionService : IDivisionService
         var games = await _genericGameService
             .GetWhere($"t.DivisionId = '{divisionId}' and (t.Home.Id = '{team.Id}' or t.Away.Id = '{team.Id}')", token)
             .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
+            .SelectAsync(g => CreateOverview(g, team))
             .ToList();
-
-        // TODO: Work out a game breakdown, i.e. wins, losses, etc.
 
         return new DivisionTeamDto
         {
             TeamName = team.Name,
             Played = games.Count,
-            Points = 0,
-            Won = 0,
-            Lost = 0,
-            Drawn = 0,
+            Points = games.Sum(g => g.Points),
+            Won = games.Sum(g => g.Won),
+            Lost = games.Sum(g => g.Lost),
+            Drawn = games.Sum(g => g.Drawn),
             Difference = 0,
         };
+    }
+
+    private GameOverview CreateOverview(GameDto game, CosmosDto team)
+    {
+        var overview = new GameOverview
+        {
+            Id = game.Id,
+            Drawn = game.Matches.Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
+            Lost = game.Matches.Count(m => m.HomeScore < m.AwayScore && game.Home.Id == team.Id),
+            Won = game.Matches.Count(m => m.HomeScore > m.AwayScore && game.Home.Id == team.Id),
+            Played = 1,
+            TeamId = team.Id,
+        };
+
+        overview.Points = 1; // TODO: Work out how points are calculated
+
+        return overview;
+    }
+
+    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
+    private class GameOverview
+    {
+        public Guid Id { get; init; }
+        public Guid TeamId { get; init; }
+        public int Played { get; init; }
+        public int Won { get; init; }
+        public int Lost { get; init; }
+        public int Drawn { get; init; }
+        public int Points { get; set; }
     }
 
     #region delegating members
