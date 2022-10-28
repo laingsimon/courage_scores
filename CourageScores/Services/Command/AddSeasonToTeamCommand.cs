@@ -24,7 +24,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         return this;
     }
 
-    public async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team team, CancellationToken token)
+    public async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_seasonId == null)
         {
@@ -37,10 +37,10 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             return new CommandOutcome<TeamSeason>(false, "Season not found", null);
         }
 
-        if (season.Teams.All(t => t.Id != team.Id))
+        if (season.Teams.All(t => t.Id != model.Id))
         {
             // need to add the team to the season
-            var command = _commandFactory.GetCommand<AddTeamToSeasonCommand>().AddTeam(team);
+            var command = _commandFactory.GetCommand<AddTeamToSeasonCommand>().AddTeam(model);
             var commandResult = await _seasonService.Upsert(season.Id, command, token);
             if (!commandResult.Success || commandResult.Result == null)
             {
@@ -51,7 +51,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             season = commandResult.Result;
         }
 
-        var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
+        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
         if (teamSeason != null)
         {
             return new CommandOutcome<TeamSeason>(true, "Season already exists", teamSeason);
@@ -65,7 +65,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             Players = new List<TeamPlayer>(),
         };
         await _auditingHelper.SetUpdated(teamSeason);
-        team.Seasons.Add(teamSeason);
+        model.Seasons.Add(teamSeason);
 
         return new CommandOutcome<TeamSeason>(true, "Season added to this team", teamSeason);
     }

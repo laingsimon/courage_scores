@@ -36,7 +36,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team team, CancellationToken token)
+    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_player == null)
         {
@@ -56,11 +56,11 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "A season must exist before a player can be added", null);
         }
 
-        var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
         if (teamSeason == null)
         {
             var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(currentSeason.Id);
-            var result = await addSeasonCommand.ApplyUpdate(team, token);
+            var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {
                 return new CommandOutcome<TeamPlayer>(false, "Could not add season to team", null);

@@ -7,24 +7,24 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 {
     private TDto? _update;
 
-    public Task<CommandOutcome<TModel>> ApplyUpdate(TModel team, CancellationToken token)
+    public Task<CommandOutcome<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
         if (_update == null)
         {
             throw new InvalidOperationException($"{nameof(WithData)} must be called first");
         }
 
-        if (team.Id == default)
+        if (model.Id == default)
         {
-            team.Id = Guid.NewGuid();
+            model.Id = Guid.NewGuid();
         }
 
-        ApplyUpdates(team, _update!);
+        ApplyUpdates(model, _update!);
 
         return Task.FromResult(new CommandOutcome<TModel>(
             true,
             "Team updated",
-            team));
+            model));
     }
 
     protected abstract void ApplyUpdates(TModel team, TDto update);

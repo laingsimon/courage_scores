@@ -29,7 +29,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team team, CancellationToken token)
+    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_playerId == null)
         {
@@ -49,7 +49,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed as no season exists", null);
         }
 
-        var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
         if (teamSeason == null)
         {
             return new CommandOutcome<TeamPlayer>(false, "Team is not registered to the current season", null);
