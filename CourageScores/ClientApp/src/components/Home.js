@@ -3,7 +3,7 @@ import React from 'react';
 export function Home() {
     return (
         <div>
-            <h2>CourageScores</h2>
+            <h2>The Courage League</h2>
         </div>
     );
 }
