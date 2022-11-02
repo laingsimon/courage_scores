@@ -72,7 +72,7 @@ public class DivisionService : IDivisionService
         {
             Id = team.Id,
             Name = team.Name,
-            Played = games.Count,
+            Played = games.Sum(g => g.Played),
             Points = games.Sum(g => g.Points),
             Won = games.Sum(g => g.Won),
             Lost = games.Sum(g => g.Lost),
@@ -81,7 +81,7 @@ public class DivisionService : IDivisionService
         };
     }
 
-    private GameOverview CreateOverview(GameDto game, CosmosDto team)
+    private static GameOverview CreateOverview(GameDto game, CosmosDto team)
     {
         var overview = new GameOverview
         {
@@ -89,13 +89,18 @@ public class DivisionService : IDivisionService
             Drawn = game.Matches.Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
             Lost = game.Matches.Count(m => m.HomeScore < m.AwayScore && game.Home.Id == team.Id),
             Won = game.Matches.Count(m => m.HomeScore > m.AwayScore && game.Home.Id == team.Id),
-            Played = 1,
+            Played = game.Matches.Any() ? 1 : 0,
             TeamId = team.Id,
         };
 
-        overview.Points = 1; // TODO: Work out how points are calculated
+        overview.Points = CalculatePoints(overview);
 
         return overview;
+    }
+
+    private static int CalculatePoints(GameOverview overview)
+    {
+        return 0; // TODO: Work out how points are calculated
     }
 
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
