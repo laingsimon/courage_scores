@@ -17,13 +17,16 @@ export function NavMenu(props) {
                         <NavItem>
                             <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
                         </NavItem>
+                        <NavItem>
+                            <NavLink tag={Link} className="text-dark" to="/news">News</NavLink>
+                        </NavItem>
                         {props.divisions.map(division => (<NavItem key={division.id}>
                           <NavLink tag={Link} className="text-dark" to={`/division/${division.id}`}>
                             {division.name}
                           </NavLink>
                         </NavItem>))}
                         <NavItem>
-                            {!props.appLoading && props.account ? <a className="nav-link text-dark" href={`${settings.apiHost}/api/Account/Logout`}>Logout({props.account.name})</a> : null}
+                            {!props.appLoading && props.account ? <a className="nav-link text-dark" href={`${settings.apiHost}/api/Account/Logout`}>Logout ({props.account.name})</a> : null}
                             {!props.appLoading && !props.account ? <a className="nav-link text-dark" href={`${settings.apiHost}/api/Account/Login`}>Login</a> : null}
                         </NavItem>
                     </ul>
