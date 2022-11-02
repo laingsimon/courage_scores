@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -12,13 +13,13 @@ namespace CourageScores.Services.Division;
 public class DivisionService : IDivisionService
 {
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
-    private readonly IGenericDataService<Models.Cosmos.Team.Team, TeamDto> _genericTeamService;
+    private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
     private readonly IGenericDataService<Models.Cosmos.Game.Game, GameDto> _genericGameService;
     private readonly IGenericDataService<Season, SeasonDto> _genericSeasonService;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
-        IGenericDataService<Models.Cosmos.Team.Team, TeamDto> genericTeamService,
+        IGenericDataService<Team, TeamDto> genericTeamService,
         IGenericDataService<Models.Cosmos.Game.Game, GameDto> genericGameService,
         IGenericDataService<Season, SeasonDto> genericSeasonService)
     {
@@ -54,23 +55,64 @@ public class DivisionService : IDivisionService
         var games = await _genericGameService
             .GetWhere($"t.DivisionId = '{divisionId}'", token)
             .ToList();
+        var teams = await _genericTeamService.GetAll(token).ToList();
         var gameDates = games.GroupBy(g => g.Date).OrderBy(d => d.Key);
 
-        foreach (var date in gameDates)
+        foreach (var gamesForDate in gameDates)
         {
             yield return new DivisionFixtureDateDto
             {
-                Date = date.Key,
-                Fixtures = date.Select(fixture => new DivisionFixtureDto
-                {
-                    Id = fixture.Id,
-                    AwayTeam = fixture.Away.Name,
-                    HomeTeam = fixture.Home.Name,
-                    AwayScore = fixture.Matches.Any() ? fixture.Matches.Sum(m => m.AwayScore > m.HomeScore ? 1 : 0) : null,
-                    HomeScore = fixture.Matches.Any() ? fixture.Matches.Sum(m => m.HomeScore > m.AwayScore ? 1 : 0) : null,
-                }).ToList()
+                Date = gamesForDate.Key,
+                Fixtures = FixturesPerDate(gamesForDate, teams).OrderBy(f => f.HomeTeam).ToList()
             };
         }
+    }
+
+    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<GameDto> games, IReadOnlyCollection<TeamDto> teams)
+    {
+        var remainingTeams = teams.ToDictionary(t => t.Id);
+
+        foreach (var game in games)
+        {
+            if (game.Home != null)
+            {
+                remainingTeams.Remove(game.Home.Id);
+            }
+            if (game.Away != null)
+            {
+                remainingTeams.Remove(game.Away.Id);
+            }
+
+            yield return GameToFixture(game);
+        }
+
+        foreach (var remainingTeam in remainingTeams.Values)
+        {
+            yield return new DivisionFixtureDto
+            {
+                Id = remainingTeam.Id,
+                AwayScore = null,
+                HomeScore = null,
+                AwayTeam = "Bye",
+                HomeTeam = remainingTeam.Name
+            };
+        }
+    }
+
+    private static DivisionFixtureDto GameToFixture(GameDto fixture)
+    {
+        return new DivisionFixtureDto
+        {
+            Id = fixture.Id,
+            AwayTeam = fixture.Away.Name,
+            HomeTeam = fixture.Home.Name,
+            AwayScore = fixture.Matches.Any()
+                ? fixture.Matches.Sum(m => m.AwayScore > m.HomeScore ? 1 : 0)
+                : null,
+            HomeScore = fixture.Matches.Any()
+                ? fixture.Matches.Sum(m => m.HomeScore > m.AwayScore ? 1 : 0)
+                : null,
+        };
     }
 
     public async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
