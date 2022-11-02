@@ -28,9 +28,9 @@ export function DivisionPlayers(props) {
                 <td>{p.won}</td>
                 <td>{p.lost}</td>
                 <td>{p.points}</td>
-                <td>{p.winPc}</td>
+                <td>{p.winPercentage}</td>
                 <td>{p.oneEighties}</td>
-                <td>{p.over100checkouts}</td>
+                <td>{p.over100Checkouts}</td>
             </tr>))}
             </tbody>
         </table>

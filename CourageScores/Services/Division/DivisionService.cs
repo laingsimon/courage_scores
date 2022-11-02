@@ -117,7 +117,40 @@ public class DivisionService : IDivisionService
 
     public async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
     {
-        yield break;
+        var season = await _genericSeasonService.GetAll(token).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
+
+        if (season == null)
+        {
+            yield break;
+        }
+
+        var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).ToList();
+        foreach (var team in teams)
+        {
+            var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
+            if (teamSeason == null)
+            {
+                continue;
+            }
+
+            foreach (var player in teamSeason.Players)
+            {
+                yield return new DivisionPlayerDto
+                {
+                    Id = player.Id,
+                    Lost = 0,
+                    Name = player.Name,
+                    Played = 0,
+                    Points = 0,
+                    Rank = 0,
+                    Won = 0,
+                    OneEighties = 0,
+                    Over100Checkouts = 0,
+                    WinPercentage = 0,
+                    Team = team.Name,
+                };
+            }
+        }
     }
 
     private async Task<DivisionTeamDto> GetTeam(SeasonDto season, Guid divisionId, TeamDto team, CancellationToken token)
