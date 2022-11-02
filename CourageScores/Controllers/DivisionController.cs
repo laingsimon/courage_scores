@@ -1,6 +1,5 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
-using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Mvc;
@@ -32,7 +31,7 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division/{id}/Fixtures")]
-    public IAsyncEnumerable<DivisionFixtureDto> GetDivisionFixtures(Guid id, CancellationToken token)
+    public IAsyncEnumerable<DivisionFixtureDateDto> GetDivisionFixtures(Guid id, CancellationToken token)
     {
         return _divisionService.GetFixtures(id, token);
     }

@@ -14,7 +14,7 @@ export function DivisionFixtures(props) {
         return (<div>No fixtures found</div>);
     }
 
-    return (divisionData.fixtureDates.map(date => (<div>
+    return (divisionData.fixtureDates.map(date => (<div key={date.date}>
        <h4>{date.date}</h4>
        <table>
           <tbody>

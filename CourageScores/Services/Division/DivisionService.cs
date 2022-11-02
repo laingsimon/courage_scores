@@ -49,9 +49,28 @@ public class DivisionService : IDivisionService
         }
     }
 
-    public async IAsyncEnumerable<DivisionFixtureDto> GetFixtures(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
+    public async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
     {
-        yield break;
+        var games = await _genericGameService
+            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .ToList();
+        var gameDates = games.GroupBy(g => g.Date).OrderBy(d => d.Key);
+
+        foreach (var date in gameDates)
+        {
+            yield return new DivisionFixtureDateDto
+            {
+                Date = date.Key,
+                Fixtures = date.Select(fixture => new DivisionFixtureDto
+                {
+                    Id = fixture.Id,
+                    AwayTeam = fixture.Away.Name,
+                    HomeTeam = fixture.Home.Name,
+                    AwayScore = fixture.Matches.Any() ? fixture.Matches.Sum(m => m.AwayScore > m.HomeScore ? 1 : 0) : null,
+                    HomeScore = fixture.Matches.Any() ? fixture.Matches.Sum(m => m.HomeScore > m.AwayScore ? 1 : 0) : null,
+                }).ToList()
+            };
+        }
     }
 
     public async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(Guid divisionId, [EnumeratorCancellation] CancellationToken token)

@@ -80,7 +80,7 @@ export default class App extends Component {
             this.state.subProps);
         subProps.divisionData[id] = {
             teams: await this.divisionApi.teams(id),
-            fixtures: await this.divisionApi.fixtures(id),
+            fixtureDates: await this.divisionApi.fixtures(id),
             players: await this.divisionApi.players(id),
         };
 
