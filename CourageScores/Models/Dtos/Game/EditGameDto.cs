@@ -9,6 +9,6 @@ public class EditGameDto
     public string Address { get; set; } = null!;
     public DateTime Date { get; set; }
     public Guid DivisionId { get; set; }
-    public GameTeamDto Home { get; set; } = null!;
-    public GameTeamDto Away { get; set; } = null!;
+    public Guid HomeTeamId { get; set; }
+    public Guid AwayTeamId { get; set; }
 }

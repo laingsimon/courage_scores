@@ -7,7 +7,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 {
     private TDto? _update;
 
-    public Task<CommandOutcome<TModel>> ApplyUpdate(TModel model, CancellationToken token)
+    public async Task<CommandOutcome<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
         if (_update == null)
         {
@@ -19,15 +19,15 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             model.Id = Guid.NewGuid();
         }
 
-        ApplyUpdates(model, _update!);
+        await ApplyUpdates(model, _update!, token);
 
-        return Task.FromResult(new CommandOutcome<TModel>(
+        return new CommandOutcome<TModel>(
             true,
-            "Team updated",
-            model));
+            $"{typeof(TModel).Name} updated",
+            model);
     }
 
-    protected abstract void ApplyUpdates(TModel team, TDto update);
+    protected abstract Task ApplyUpdates(TModel team, TDto update, CancellationToken token);
 
     public AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {

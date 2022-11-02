@@ -5,10 +5,11 @@ namespace CourageScores.Services.Command;
 
 public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Season, EditSeasonDto>
 {
-    protected override void ApplyUpdates(Season season, EditSeasonDto update)
+    protected override Task ApplyUpdates(Season season, EditSeasonDto update, CancellationToken token)
     {
         season.Name = update.Name;
         season.EndDate = update.EndDate;
         season.StartDate = update.StartDate;
+        return Task.CompletedTask;
     }
 }
