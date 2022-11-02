@@ -62,7 +62,8 @@ public class DivisionService : IDivisionService
     private async Task<DivisionTeamDto> GetTeam(SeasonDto season, Guid divisionId, TeamDto team, CancellationToken token)
     {
         var games = await _genericGameService
-            .GetWhere($"t.DivisionId = '{divisionId}' and (t.Home.Id = '{team.Id}' or t.Away.Id = '{team.Id}')", token)
+            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .WhereAsync(t => t.Home.Id == team.Id || t.Away.Id == team.Id)
             .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
             .SelectAsync(g => CreateOverview(g, team))
             .ToList();
