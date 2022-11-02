@@ -10,6 +10,10 @@ export function DivisionPlayers(props) {
         return (<div>Loading division data</div>);
     }
 
+    if (!divisionData.players) {
+        return (<div>No teams found</div>);
+    }
+
     return (<div>
         <table className="table">
             <thead>
@@ -26,7 +30,7 @@ export function DivisionPlayers(props) {
                 </tr>
             </thead>
             <tbody>
-            {divisionData.teams.map(p => (<tr key={p.id}>
+            {divisionData.players.map(p => (<tr key={p.id}>
                 <td>{p.rank}</td>
                 <td>{p.name}</td>
                 <td>{p.team}</td>

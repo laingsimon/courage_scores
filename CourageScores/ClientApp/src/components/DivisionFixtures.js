@@ -10,6 +10,10 @@ export function DivisionFixtures(props) {
         return (<div>Loading division data</div>);
     }
 
+    if (!divisionData.fixtureDates) {
+        return (<div>No fixtures found</div>);
+    }
+
     return (divisionData.fixtureDates.map(date => (<div>
        <h4>{date.date}</h4>
        <table>
