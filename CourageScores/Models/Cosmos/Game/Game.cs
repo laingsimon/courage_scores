@@ -42,16 +42,16 @@ public class Game : AuditedEntity, IPermissionedEntity
 
     public bool CanCreate(UserDto user)
     {
-        throw new NotImplementedException();
+        return user.Access?.GameAdmin == true;
     }
 
     public bool CanEdit(UserDto user)
     {
-        throw new NotImplementedException();
+        return user.Access?.GameAdmin == true;
     }
 
     public bool CanDelete(UserDto user)
     {
-        throw new NotImplementedException();
+        return user.Access?.GameAdmin == true;
     }
 }

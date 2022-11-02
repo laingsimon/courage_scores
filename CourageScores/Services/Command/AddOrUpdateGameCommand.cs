@@ -25,12 +25,12 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         game.Date = update.Date;
         game.DivisionId = update.DivisionId;
 
-        if (game.Home.Id != update.HomeTeamId)
+        if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
             game.Home = await UpdateTeam(update.HomeTeamId, token);
         }
 
-        if (game.Away.Id != update.AwayTeamId)
+        if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
             game.Away = await UpdateTeam(update.AwayTeamId, token);
         }
