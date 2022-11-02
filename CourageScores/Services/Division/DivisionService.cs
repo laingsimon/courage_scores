@@ -39,9 +39,11 @@ public class DivisionService : IDivisionService
             yield break;
         }
 
-        await foreach (var team in teams
-                           .SelectAsync(t => GetTeam(season, divisionId, t, token))
-                           .OrderByDescendingAsync(t => t.Points).WithCancellation(token))
+        var teamsDetails = await teams
+            .SelectAsync(t => GetTeam(season, divisionId, t, token))
+            .ToList();
+
+        foreach (var team in teamsDetails.OrderByDescending(t => t.Points).ThenBy(t => t.Name))
         {
             yield return team;
         }
