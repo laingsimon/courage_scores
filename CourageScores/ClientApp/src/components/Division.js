@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {Link, useParams} from "react-router-dom";
 import {NavItem, NavLink} from "reactstrap";
 import {DivisionTeams} from "./DivisionTeams";
@@ -8,9 +8,21 @@ import {DivisionPlayers} from "./DivisionPlayers";
 export function Division(props) {
     const {divisionId, mode} = useParams();
     const division = props.divisions[divisionId];
+    const divisionData = props.divisionData[divisionId];
     const effectiveTab = mode || 'teams'
 
-    if (!division) {
+    useEffect(() => {
+        if (divisionData && division) {
+            return;
+        }
+
+        async function reloadDivisionData() {
+            await props.apis.reloadDivision(divisionId);
+        }
+        reloadDivisionData();
+    }, []);
+
+    if (!divisionData || !division) {
         return (<div>Loading...</div>);
     }
 

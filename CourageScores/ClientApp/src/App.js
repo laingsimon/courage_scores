@@ -75,15 +75,16 @@ export default class App extends Component {
             return this.state.subProps.divisionData;
         }
 
-        const subProps = Object.assign(
-            {},
-            this.state.subProps);
-        subProps.divisionData[id] = {
+        const divisionData = {
             teams: await this.divisionApi.teams(id),
             fixtureDates: await this.divisionApi.fixtures(id),
             players: await this.divisionApi.players(id),
         };
 
+        const subProps = Object.assign(
+            {},
+            this.state.subProps);
+        subProps.divisionData[id] = divisionData;
         this.setState({
             subProps: subProps
         });

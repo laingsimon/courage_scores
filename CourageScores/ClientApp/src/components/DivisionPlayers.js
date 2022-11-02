@@ -5,11 +5,6 @@ export function DivisionPlayers(props) {
     const {divisionId} = useParams();
     const divisionData = props.divisionData[divisionId];
 
-    if (!divisionData) {
-        props.apis.reloadDivision(divisionId); // don't await the async?
-        return (<div>Loading division data</div>);
-    }
-
     if (!divisionData.players) {
         return (<div>No teams found</div>);
     }
