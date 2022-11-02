@@ -5,7 +5,7 @@ export function DivisionTeams(props) {
     const {divisionId} = useParams();
     const divisionData = props.divisionData[divisionId];
 
-    return (<div className="light-background">
+    return (<div className="light-background p-3">
         <table className="table">
             <thead>
                 <tr>

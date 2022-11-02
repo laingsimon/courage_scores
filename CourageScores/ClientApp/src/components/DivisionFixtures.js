@@ -5,14 +5,10 @@ export function DivisionFixtures(props) {
     const {divisionId} = useParams();
     const divisionData = props.divisionData[divisionId];
 
-    if (!divisionData.fixtureDates) {
-        return (<div>No fixtures found</div>);
-    }
-
-    return (<div className="light-background">{
+    return (<div className="light-background p-3">{
         divisionData.fixtureDates.map(date => (<div key={date.date}>
-       <h4>{date.date}</h4>
-       <table>
+       <h4>{new Date(date.date).toDateString()}</h4>
+       <table className="table">
           <tbody>
              {date.fixtures.map(f => (<tr key={f.id}>
                    <td>{f.homeTeam}</td>

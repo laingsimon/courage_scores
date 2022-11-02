@@ -5,11 +5,7 @@ export function DivisionPlayers(props) {
     const {divisionId} = useParams();
     const divisionData = props.divisionData[divisionId];
 
-    if (!divisionData.players) {
-        return (<div>No teams found</div>);
-    }
-
-    return (<div className="light-background">
+    return (<div className="light-background p-3">
         <table className="table">
             <thead>
                 <tr>
