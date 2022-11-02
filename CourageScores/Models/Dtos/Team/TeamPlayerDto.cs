@@ -6,11 +6,6 @@
 public class TeamPlayerDto : AuditedDto
 {
     /// <summary>
-    /// The id of the player
-    /// </summary>
-    public Guid PlayerId { get; set; }
-
-    /// <summary>
     /// The name of the player
     /// </summary>
     public string Name { get; set; } = null!;
