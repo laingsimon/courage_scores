@@ -26,7 +26,7 @@ export function DivisionPlayers(props) {
                 </tr>
             </thead>
             <tbody>
-            {divisionData.teams.map(p => (<tr>
+            {divisionData.teams.map(p => (<tr key={p.id}>
                 <td>{p.rank}</td>
                 <td>{p.name}</td>
                 <td>{p.team}</td>

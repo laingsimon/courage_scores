@@ -69,6 +69,7 @@ public class DivisionService : IDivisionService
 
         return new DivisionTeamDto
         {
+            Id = team.Id,
             Name = team.Name,
             Played = games.Count,
             Points = games.Sum(g => g.Points),

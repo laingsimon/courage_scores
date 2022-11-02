@@ -14,7 +14,7 @@ export function DivisionFixtures(props) {
        <h4>{date.date}</h4>
        <table>
           <tbody>
-             {date.fixtures.map(f => (<tr>
+             {date.fixtures.map(f => (<tr key={f.id}>
                    <td>{f.homeTeam}</td>
                    <td>{f.homeScore}</td>
                    <td>vs</td>

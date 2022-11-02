@@ -2,6 +2,7 @@ namespace CourageScores.Models.Dtos.Division;
 
 public class DivisionTeamDto
 {
+    public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public int Played { get; set; }
     public int Points { get; set; }
