@@ -10,24 +10,23 @@ export function NavMenu(props) {
 
     return (<header>
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
-                <NavbarBrand tag={Link} to="/">The Courage League</NavbarBrand>
                 <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
                         <NavItem>
-                            <NavLink tag={Link} className="text-dark" to="/">Home</NavLink>
+                            <NavLink tag={Link} className="text-light" to="/">Home</NavLink>
                         </NavItem>
                         <NavItem>
-                            <NavLink tag={Link} className="text-dark" to="/news">News</NavLink>
+                            <NavLink tag={Link} className="text-light" to="/news">News</NavLink>
                         </NavItem>
                         {props.divisions.map(division => (<NavItem key={division.id}>
-                          <NavLink tag={Link} className="text-dark" to={`/division/${division.id}`}>
+                          <NavLink tag={Link} className="text-light" to={`/division/${division.id}`}>
                             {division.name}
                           </NavLink>
                         </NavItem>))}
                         <NavItem>
-                            {!props.appLoading && props.account ? <a className="nav-link text-dark" href={`${settings.apiHost}/api/Account/Logout`}>Logout ({props.account.name})</a> : null}
-                            {!props.appLoading && !props.account ? <a className="nav-link text-dark" href={`${settings.apiHost}/api/Account/Login`}>Login</a> : null}
+                            {!props.appLoading && props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Logout`}>Logout ({props.account.name})</a> : null}
+                            {!props.appLoading && !props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Login`}>Login</a> : null}
                         </NavItem>
                     </ul>
                 </Collapse>

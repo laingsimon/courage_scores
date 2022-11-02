@@ -14,7 +14,7 @@ export function DivisionPlayers(props) {
         return (<div>No teams found</div>);
     }
 
-    return (<div>
+    return (<div className="light-background">
         <table className="table">
             <thead>
                 <tr>

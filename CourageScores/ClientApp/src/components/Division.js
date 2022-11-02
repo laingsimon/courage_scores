@@ -18,13 +18,13 @@ export function Division(props) {
         <h2>{division.name}</h2>
         <ul className="nav nav-tabs">
             <NavItem>
-                <NavLink tag={Link} className={`text-dark${effectiveTab === 'teams' ? ' active' : ''}`} to={`/division/${divisionId}/teams`}>Teams</NavLink>
+                <NavLink tag={Link} className={effectiveTab === 'teams' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className={`text-dark${effectiveTab === 'fixtures' ? ' active' : ''}`} to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
+                <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className={`text-dark${effectiveTab === 'players' ? ' active' : ''}`} to={`/division/${divisionId}/players`}>Players</NavLink>
+                <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>
         {effectiveTab === 'teams' ? <DivisionTeams {...props} /> : null}

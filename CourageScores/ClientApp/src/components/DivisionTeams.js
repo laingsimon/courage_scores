@@ -10,7 +10,7 @@ export function DivisionTeams(props) {
         return (<div>Loading division data</div>);
     }
 
-    return (<div>
+    return (<div className="light-background">
         <table className="table">
             <thead>
                 <tr>
