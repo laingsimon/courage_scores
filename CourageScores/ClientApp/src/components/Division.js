@@ -7,12 +7,11 @@ import {DivisionPlayers} from "./DivisionPlayers";
 
 export function Division(props) {
     const {divisionId, mode} = useParams();
-    const division = props.divisions[divisionId];
     const divisionData = props.divisionData[divisionId];
     const effectiveTab = mode || 'teams'
 
     useEffect(() => {
-        if (divisionData && division) {
+        if (divisionData) {
             return;
         }
 
@@ -22,12 +21,12 @@ export function Division(props) {
         reloadDivisionData();
     }, []);
 
-    if (!divisionData || !division) {
+    if (!divisionData) {
         return (<div>Loading...</div>);
     }
 
     return (<div>
-        <h2>{division.name}</h2>
+        <h2>{divisionData.name}, {divisionData.seasonName}</h2>
         <ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'teams' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>

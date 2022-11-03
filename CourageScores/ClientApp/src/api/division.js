@@ -11,16 +11,8 @@ class DivisionApi {
         return this.http.get(`/api/Division/${id}`, {});
     }
 
-    teams(id) {
-        return this.http.get(`/api/Division/${id}/Teams`, {});
-    }
-
-    fixtures(id) {
-        return this.http.get(`/api/Division/${id}/Fixtures`, {});
-    }
-
-    players(id) {
-        return this.http.get(`/api/Division/${id}/Players`, {});
+    data(id) {
+        return this.http.get(`/api/Division/${id}/Data`, {});
     }
 }
 

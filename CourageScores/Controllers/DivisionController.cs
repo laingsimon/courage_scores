@@ -24,22 +24,10 @@ public class DivisionController : Controller
         return await _divisionService.Get(id, token);
     }
 
-    [HttpGet("/api/Division/{id}/Teams")]
-    public IAsyncEnumerable<DivisionTeamDto> GetDivisionTeams(Guid id, CancellationToken token)
+    [HttpGet("/api/Division/{id}/Data")]
+    public async Task<DivisionDataDto> GetDivisionTeams(Guid id, CancellationToken token)
     {
-        return _divisionService.GetTeams(id, token);
-    }
-
-    [HttpGet("/api/Division/{id}/Fixtures")]
-    public IAsyncEnumerable<DivisionFixtureDateDto> GetDivisionFixtures(Guid id, CancellationToken token)
-    {
-        return _divisionService.GetFixtures(id, token);
-    }
-
-    [HttpGet("/api/Division/{id}/Players")]
-    public IAsyncEnumerable<DivisionPlayerDto> GetDivisionPlayers(Guid id, CancellationToken token)
-    {
-        return _divisionService.GetPlayers(id, token);
+        return await _divisionService.GetDivisionData(id, token);
     }
 
     [HttpGet("/api/Division/")]

@@ -5,7 +5,5 @@ namespace CourageScores.Services.Division;
 
 public interface IDivisionService : IGenericDataService<Models.Cosmos.Division, DivisionDto>
 {
-    IAsyncEnumerable<DivisionTeamDto> GetTeams(Guid divisionId, CancellationToken token);
-    IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(Guid divisionId, CancellationToken token);
-    IAsyncEnumerable<DivisionPlayerDto> GetPlayers(Guid divisionId, CancellationToken token);
+    Task<DivisionDataDto> GetDivisionData(Guid divisionId, CancellationToken token);
 }

@@ -29,17 +29,44 @@ public class DivisionService : IDivisionService
         _genericSeasonService = genericSeasonService;
     }
 
-    public async IAsyncEnumerable<DivisionTeamDto> GetTeams(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, CancellationToken token)
     {
-        var teams = _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token);
+        var division = await _genericDivisionService.Get(divisionId, token);
+        if (division == null)
+        {
+            return new DivisionDataDto();
+        }
 
+        var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).ToList();
         var season = await _genericSeasonService.GetAll(token).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
 
         if (season == null)
         {
-            yield break;
+            return new DivisionDataDto
+            {
+                Id = division.Id,
+                Name = division.Name,
+            };
         }
 
+        return new DivisionDataDto
+        {
+            Id = division.Id,
+            Name = division.Name,
+            SeasonId = season.Id,
+            SeasonName = season.Name,
+            Teams = await GetTeams(teams, season, divisionId, token).ToList(),
+            Fixtures = await GetFixtures(teams, divisionId, token).ToList(),
+            Players = GetPlayers(teams, season.Id).ToList(),
+        };
+    }
+
+    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(
+        IReadOnlyCollection<TeamDto> teams,
+        SeasonDto season,
+        Guid divisionId,
+        [EnumeratorCancellation] CancellationToken token)
+    {
         var teamsDetails = await teams
             .SelectAsync(t => GetTeam(season, divisionId, t, token))
             .ToList();
@@ -50,12 +77,11 @@ public class DivisionService : IDivisionService
         }
     }
 
-    public async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<TeamDto> teams, Guid divisionId, [EnumeratorCancellation] CancellationToken token)
     {
         var games = await _genericGameService
             .GetWhere($"t.DivisionId = '{divisionId}'", token)
             .ToList();
-        var teams = await _genericTeamService.GetAll(token).ToList();
         var gameDates = games.GroupBy(g => g.Date).OrderBy(d => d.Key);
 
         foreach (var gamesForDate in gameDates)
@@ -66,6 +92,58 @@ public class DivisionService : IDivisionService
                 Fixtures = FixturesPerDate(gamesForDate, teams).OrderBy(f => f.HomeTeam).ToList()
             };
         }
+    }
+
+    private IEnumerable<DivisionPlayerDto> GetPlayers(IReadOnlyCollection<TeamDto> teams, Guid seasonId)
+    {
+        foreach (var team in teams)
+        {
+            var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == seasonId);
+            if (teamSeason == null)
+            {
+                continue;
+            }
+
+            foreach (var player in teamSeason.Players)
+            {
+                yield return new DivisionPlayerDto
+                {
+                    Id = player.Id,
+                    Lost = 0,
+                    Name = player.Name,
+                    Played = 0,
+                    Points = 0,
+                    Rank = 0,
+                    Won = 0,
+                    OneEighties = 0,
+                    Over100Checkouts = 0,
+                    WinPercentage = 0,
+                    Team = team.Name,
+                };
+            }
+        }
+    }
+
+    private async Task<DivisionTeamDto> GetTeam(SeasonDto season, Guid divisionId, TeamDto team, CancellationToken token)
+    {
+        var games = await _genericGameService
+            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .WhereAsync(t => t.Home.Id == team.Id || t.Away.Id == team.Id)
+            .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
+            .SelectAsync(g => CreateOverview(g, team))
+            .ToList();
+
+        return new DivisionTeamDto
+        {
+            Id = team.Id,
+            Name = team.Name,
+            Played = games.Sum(g => g.Played),
+            Points = games.Sum(g => g.Points),
+            Won = games.Sum(g => g.Won),
+            Lost = games.Sum(g => g.Lost),
+            Drawn = games.Sum(g => g.Drawn),
+            Difference = 0,
+        };
     }
 
     private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<GameDto> games, IReadOnlyCollection<TeamDto> teams)
@@ -112,66 +190,6 @@ public class DivisionService : IDivisionService
             HomeScore = fixture.Matches.Any()
                 ? fixture.Matches.Sum(m => m.HomeScore > m.AwayScore ? 1 : 0)
                 : null,
-        };
-    }
-
-    public async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(Guid divisionId, [EnumeratorCancellation] CancellationToken token)
-    {
-        var season = await _genericSeasonService.GetAll(token).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
-
-        if (season == null)
-        {
-            yield break;
-        }
-
-        var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).ToList();
-        foreach (var team in teams)
-        {
-            var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
-            if (teamSeason == null)
-            {
-                continue;
-            }
-
-            foreach (var player in teamSeason.Players)
-            {
-                yield return new DivisionPlayerDto
-                {
-                    Id = player.Id,
-                    Lost = 0,
-                    Name = player.Name,
-                    Played = 0,
-                    Points = 0,
-                    Rank = 0,
-                    Won = 0,
-                    OneEighties = 0,
-                    Over100Checkouts = 0,
-                    WinPercentage = 0,
-                    Team = team.Name,
-                };
-            }
-        }
-    }
-
-    private async Task<DivisionTeamDto> GetTeam(SeasonDto season, Guid divisionId, TeamDto team, CancellationToken token)
-    {
-        var games = await _genericGameService
-            .GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .WhereAsync(t => t.Home.Id == team.Id || t.Away.Id == team.Id)
-            .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
-            .SelectAsync(g => CreateOverview(g, team))
-            .ToList();
-
-        return new DivisionTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Played = games.Sum(g => g.Played),
-            Points = games.Sum(g => g.Points),
-            Won = games.Sum(g => g.Won),
-            Lost = games.Sum(g => g.Lost),
-            Drawn = games.Sum(g => g.Drawn),
-            Difference = 0,
         };
     }
 

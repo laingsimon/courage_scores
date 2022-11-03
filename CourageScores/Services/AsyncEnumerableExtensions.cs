@@ -35,6 +35,15 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IEnumerable<TIn> enumerable,
+        Func<TIn, Task<TOut>> selector)
+    {
+        foreach (var item in enumerable)
+        {
+            yield return await selector(item);
+        }
+    }
+
     public static async IAsyncEnumerable<TOut> SelectManyAsync<TIn, TOut>(this IAsyncEnumerable<TIn> asyncEnumerable,
         Func<TIn, IEnumerable<TOut>> selector)
     {

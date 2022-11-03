@@ -6,7 +6,7 @@ export function DivisionFixtures(props) {
     const divisionData = props.divisionData[divisionId];
 
     return (<div className="light-background p-3">{
-        divisionData.fixtureDates.map(date => (<div key={date.date}>
+        divisionData.fixtures.map(date => (<div key={date.date}>
        <h4>{new Date(date.date).toDateString()}</h4>
        <table className="table">
           <tbody>
