@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
@@ -8,10 +9,12 @@ namespace CourageScores.Services.Command;
 public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
 {
     private readonly IGenericRepository<Team> _teamRepository;
+    private readonly IGenericRepository<Season> _seasonRepository;
 
-    public AddOrUpdateGameCommand(IGenericRepository<Team> teamRepository)
+    public AddOrUpdateGameCommand(IGenericRepository<Team> teamRepository, IGenericRepository<Season> seasonRepository)
     {
         _teamRepository = teamRepository;
+        _seasonRepository = seasonRepository;
     }
 
     protected override async Task ApplyUpdates(Game game, EditGameDto update, CancellationToken token)
@@ -21,9 +24,18 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
             throw new InvalidOperationException("Unable to set have a game where the home team and away team are the same");
         }
 
+        var allSeasons = await _seasonRepository.GetAll(token).ToList();
+        var latestSeason = allSeasons.MaxBy(s => s.EndDate);
+
+        if (latestSeason == null)
+        {
+            throw new InvalidOperationException("Unable to add or update game, no season exists");
+        }
+
         game.Address = update.Address;
         game.Date = update.Date;
         game.DivisionId = update.DivisionId;
+        game.SeasonId = latestSeason.Id;
 
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {

@@ -40,6 +40,11 @@ public class Game : AuditedEntity, IPermissionedEntity
     /// </summary>
     public List<GameMatch> Matches { get; set; } = new();
 
+    /// <summary>
+    /// The id of the season in which the game is being played
+    /// </summary>
+    public Guid SeasonId { get; set; }
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.GameAdmin == true;

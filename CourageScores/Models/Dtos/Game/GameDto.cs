@@ -15,6 +15,11 @@ public class GameDto : AuditedDto
     public Guid DivisionId { get; set; }
 
     /// <summary>
+    /// The id of the season in which the game is being played
+    /// </summary>
+    public Guid SeasonId { get; set; }
+
+    /// <summary>
     /// The date (and time)
     /// </summary>
     public DateTime Date { get; set; }

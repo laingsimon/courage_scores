@@ -171,7 +171,7 @@ public class DivisionService : IDivisionService
                 Id = remainingTeam.Id,
                 AwayScore = null,
                 HomeScore = null,
-                AwayTeam = "Bye",
+                AwayTeam = null,
                 HomeTeam = remainingTeam.Name
             };
         }
