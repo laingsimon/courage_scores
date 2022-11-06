@@ -1,10 +1,12 @@
 import React from 'react';
 import {Container} from 'reactstrap';
 import {NavMenu} from './NavMenu';
+import {Heading} from "./Heading";
 
 export function Layout(props) {
     return (
-        <div>
+        <div className="darts-background">
+            <Heading />
             <NavMenu {...props} />
             <Container>
                 {props.children}
