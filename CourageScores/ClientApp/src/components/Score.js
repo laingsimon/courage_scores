@@ -116,10 +116,7 @@ export function Score() {
 
     function manOfTheMatchChanged(player, team) {
         const newFixtureData = Object.assign({}, fixtureData);
-        const newManOfTheMatch = Object.assign({}, newFixtureData[team].manOfTheMatch);
-        newManOfTheMatch.id = player.id;
-        newManOfTheMatch.name = player.name;
-        newFixtureData[team].manOfTheMatch = newManOfTheMatch;
+        newFixtureData[team].manOfTheMatch = player.id;
 
         setFixtureData(newFixtureData);
     }
@@ -273,14 +270,14 @@ export function Score() {
                 <td>
                     <PlayerSelection
                         players={allPlayers}
-                        selected={fixtureData.home.manOfTheMatch}
+                        selected={ { id: fixtureData.home.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
                 <td></td>
                 <td>
                     <PlayerSelection
                         players={allPlayers}
-                        selected={fixtureData.away.manOfTheMatch}
+                        selected={ { id: fixtureData.away.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'away')} />
                 </td>
                 <td></td>
