@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
-public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
+public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
 {
     private readonly IGenericRepository<Season> _seasonRepository;
     private readonly ISystemClock _clock;
@@ -29,7 +29,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_playerId == null)
         {

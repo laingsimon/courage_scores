@@ -180,8 +180,11 @@ export function Score() {
         setFixtureData(newFixtureData);
     }
 
-    function saveScores() {
-        alert('Save scores');
+    async function saveScores() {
+        const http = new Http(new Settings());
+        const gameApi = new GameApi(http);
+
+        await gameApi.updateScores(fixtureId, fixtureData);
     }
 
     if (loading) {
@@ -303,6 +306,6 @@ export function Score() {
             </tr>
             </tbody>
         </table>
-        <button className="btn btn-primary" onClick={() => saveScores()}>Save</button>
+        <button className="btn btn-primary" onClick={saveScores}>Save</button>
     </div>);
 }

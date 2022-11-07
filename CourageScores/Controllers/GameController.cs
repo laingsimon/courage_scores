@@ -38,6 +38,13 @@ public class GameController : Controller
         return await _gameService.Upsert(game.Id, command, token);
     }
 
+    [HttpPut("/api/Scores/{id}")]
+    public async Task<ActionResultDto<GameDto>> AddOrUpdateScore(Guid id, RecordScoresDto scores, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<UpdateScoresCommand>().WithData(scores);
+        return await _gameService.Upsert(id, command, token);
+    }
+
     [HttpDelete("/api/Game/{id}")]
     public async Task<ActionResultDto<GameDto>> DeleteGame(Guid id, CancellationToken token)
     {
