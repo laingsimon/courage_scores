@@ -4,12 +4,11 @@ import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
+import {MatchPlayerSelection} from "./MatchPlayerSelection";
+import {PlayerSelection} from "./PlayerSelection";
 
 export function Score() {
     const {fixtureId} = useParams();
-    const [scoreCard, setScoreCard] = useState({
-        matches: []
-    });
     const [loading, setLoading] = useState(true);
     const [fixtureData, setFixtureData] = useState(null);
     const [homeTeam, setHomeTeam] = useState([]);
@@ -88,6 +87,10 @@ export function Score() {
                 const allPlayers = homeTeamPlayers.concat(awayTeamPlayers);
                 allPlayers.sort(sortPlayers);
 
+                if (!gameData.matches || !gameData.matches.length) {
+                    gameData.matches = [ {}, {}, {}, {}, {}, {}, {}, {} ];
+                }
+
                 setAllPlayers(allPlayers);
                 setFixtureData(gameData);
             }
@@ -100,7 +103,60 @@ export function Score() {
         }
 
         loadFixtureData();
-    }, [fixtureData, loading, error, allPlayers]);
+    }, [ fixtureData, loading, error, allPlayers, fixtureId ]);
+
+    function onMatchChanged(newMatch, index) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        newFixtureData.matches[index] = newMatch;
+
+        setFixtureData(newFixtureData);
+    }
+
+    function manOfTheMatchChanged(player, team) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        const newManOfTheMatch = Object.assign({}, newFixtureData[team].manOfTheMatch);
+        newManOfTheMatch.id = player.id;
+        newManOfTheMatch.name = player.name;
+        newFixtureData[team].manOfTheMatch = newManOfTheMatch;
+
+        setFixtureData(newFixtureData);
+    }
+
+    function add180(player) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        const firstMatch = Object.assign({}, fixtureData.matches[0]);
+        newFixtureData.matches[0] = firstMatch;
+
+        if (!firstMatch.oneEighties) {
+            firstMatch.oneEighties = [];
+        }
+
+        firstMatch.oneEighties.push({
+            id: player.id,
+            name: player.name
+        });
+
+        setFixtureData(newFixtureData);
+
+    }
+
+    function addHiCheck(player) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        const firstMatch = Object.assign({}, fixtureData.matches[0]);
+        newFixtureData.matches[0] = firstMatch;
+
+        if (!firstMatch.over100Checkouts) {
+            firstMatch.over100Checkouts = [];
+        }
+
+        firstMatch.over100Checkouts.push({
+            id: player.id,
+            name: player.name,
+            notes: "" // TODO: Capture the score
+        });
+
+        setFixtureData(newFixtureData);
+    }
 
     if (loading) {
         return (<div className="light-background p-3">Loading fixture...</div>);
@@ -122,131 +178,95 @@ export function Score() {
             <tr>
                 <td colSpan="5">Singles</td>
             </tr>
-            <tr>
-                <td>
-                    <select>
-                        <option></option>
-                        {homeTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                </td>
-                <td>
-                    <input type="number" max="5" min="0"/>
-                </td>
-                <td>vs</td>
-                <td>
-                    <input type="number" max="5" min="0"/>
-                </td>
-                <td>
-                    <select>
-                        <option></option>
-                        {awayTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                </td>
-            </tr>
+            <MatchPlayerSelection
+                playerCount={1}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[0]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
+                otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
+            <MatchPlayerSelection
+                playerCount={1}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[1]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
+                otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
+            <MatchPlayerSelection
+                playerCount={1}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[2]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
+                otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]} />
+            <MatchPlayerSelection
+                playerCount={1}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[3]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
+                otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]} />
+            <MatchPlayerSelection
+                playerCount={1}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[4]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
+                otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]} />
             <tr>
                 <td colSpan="5">Doubles</td>
             </tr>
-            <tr>
-                <td>
-                    <select>
-                        <option></option>
-                        {homeTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                    <select>
-                        <option></option>
-                        {homeTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                </td>
-                <td>
-                    <input type="number" max="5" min="0"/>
-                </td>
-                <td>vs</td>
-                <td>
-                    <input type="number" max="5" min="0"/>
-                </td>
-                <td>
-                    <select>
-                        <option></option>
-                        {awayTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                    <select>
-                        <option></option>
-                        {awayTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                </td>
-            </tr>
+            <MatchPlayerSelection
+                playerCount={2}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[5]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
+                otherMatches={[fixtureData.matches[6]]} />
+            <MatchPlayerSelection
+                playerCount={2}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[6]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
+                otherMatches={[fixtureData.matches[5]]} />
             <tr>
                 <td colSpan="5">Triples</td>
             </tr>
-            <tr>
-                <td>
-                    <select>
-                        <option></option>
-                        {homeTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                    <select>
-                        <option></option>
-                        {homeTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                    <select>
-                        <option></option>
-                        {homeTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                </td>
-                <td>
-                    <input type="number" max="5" min="0"/>
-                </td>
-                <td>vs</td>
-                <td>
-                    <input type="number" max="5" min="0"/>
-                </td>
-                <td>
-                    <select>
-                        <option></option>
-                        {awayTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                    <select>
-                        <option></option>
-                        {awayTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                    <select>
-                        <option></option>
-                        {awayTeam.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
-                </td>
-            </tr>
+            <MatchPlayerSelection
+                playerCount={3}
+                homePlayers={homeTeam}
+                awayPlayers={awayTeam}
+                match={fixtureData.matches[7]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
             <tr>
                 <td>Man of the match</td>
                 <td>
-                    <select>
-                        <option></option>
-                        {allPlayers.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
+                    <PlayerSelection
+                        players={allPlayers}
+                        selected={fixtureData.home.manOfTheMatch}
+                        onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
                 <td></td>
                 <td>
-                    <select>
-                        <option></option>
-                        {allPlayers.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select>
+                    <PlayerSelection
+                        players={allPlayers}
+                        selected={fixtureData.away.manOfTheMatch}
+                        onChange={(elem, player) => manOfTheMatchChanged(player, 'away')} />
                 </td>
                 <td></td>
             </tr>
             <tr>
                 <td>180s</td>
                 <td>
-                    <select>
-                        <option></option>
-                        {allPlayers.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select> +
+                    {(fixtureData.matches[0].oneEighties || []).map(p => (<span key={p.id}>{p.name} <button>x</button></span>))}
+                    <PlayerSelection players={allPlayers} onChange={(elem, player) => add180(player)} />
                 </td>
                 <td></td>
                 <td>100+ c/o</td>
                 <td>
-                    <select>
-                        <option></option>
-                        {allPlayers.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-                    </select> +
+                    {(fixtureData.matches[0].over100Checkouts || []).map(p => (<span key={p.id}>{p.name} ({p.notes}) <button>x</button></span>))}
+                    <PlayerSelection players={allPlayers} onChange={(elem, player) => addHiCheck(player)} />
                 </td>
             </tr>
             </tbody>

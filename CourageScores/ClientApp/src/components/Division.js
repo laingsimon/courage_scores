@@ -19,7 +19,7 @@ export function Division(props) {
             await props.apis.reloadDivision(divisionId);
         }
         reloadDivisionData();
-    }, []);
+    }, [ divisionId, divisionData, props.apis ]);
 
     if (!divisionData) {
         return (<div>Loading...</div>);
