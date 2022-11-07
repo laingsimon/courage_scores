@@ -21,10 +21,14 @@ export function MatchPlayerSelection(props) {
     function homePlayerChanged(index, player) {
         const newMatch = Object.assign({ homePlayers: [] }, props.match);
         const existingPlayer = newMatch.homePlayers[index];
-        newMatch.homePlayers[index] = Object.assign({}, existingPlayer, {
-            id: player.id,
-            name: player.name
-        });
+        if (player) {
+            newMatch.homePlayers[index] = Object.assign({}, existingPlayer, {
+                id: player.id,
+                name: player.name
+            });
+        } else {
+            newMatch.homePlayers[index] = {};
+        }
 
         if (props.onMatchChanged) {
             props.onMatchChanged(newMatch);

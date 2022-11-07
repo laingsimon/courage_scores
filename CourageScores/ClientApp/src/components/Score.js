@@ -6,6 +6,8 @@ import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
 import {MatchPlayerSelection} from "./MatchPlayerSelection";
 import {PlayerSelection} from "./PlayerSelection";
+import {MultiPlayerSelection} from "./MultiPlayerSelection";
+import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 
 export function Score() {
     const {fixtureId} = useParams();
@@ -140,7 +142,7 @@ export function Score() {
 
     }
 
-    function addHiCheck(player) {
+    function addHiCheck(player, notes) {
         const newFixtureData = Object.assign({}, fixtureData);
         const firstMatch = Object.assign({}, fixtureData.matches[0]);
         newFixtureData.matches[0] = firstMatch;
@@ -152,10 +154,34 @@ export function Score() {
         firstMatch.over100Checkouts.push({
             id: player.id,
             name: player.name,
-            notes: "" // TODO: Capture the score
+            notes: notes
         });
 
         setFixtureData(newFixtureData);
+    }
+
+    function removeOneEightyScore(playerId, index) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        const firstMatch = Object.assign({}, fixtureData.matches[0]);
+        newFixtureData.matches[0] = firstMatch;
+
+        firstMatch.oneEighties.splice(index, 1);
+
+        setFixtureData(newFixtureData);
+    }
+
+    function removeHiCheck(playerId, index) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        const firstMatch = Object.assign({}, fixtureData.matches[0]);
+        newFixtureData.matches[0] = firstMatch;
+
+        firstMatch.over100Checkouts.splice(index, 1);
+
+        setFixtureData(newFixtureData);
+    }
+
+    function saveScores() {
+        alert('Save scores');
     }
 
     if (loading) {
@@ -259,17 +285,24 @@ export function Score() {
             <tr>
                 <td>180s</td>
                 <td>
-                    {(fixtureData.matches[0].oneEighties || []).map(p => (<span key={p.id}>{p.name} <button>x</button></span>))}
-                    <PlayerSelection players={allPlayers} onChange={(elem, player) => add180(player)} />
+                    <MultiPlayerSelection
+                        allPlayers={allPlayers}
+                        players={fixtureData.matches[0].oneEighties || []}
+                        onRemovePlayer={removeOneEightyScore}
+                        onAddPlayer={add180} />
                 </td>
                 <td></td>
                 <td>100+ c/o</td>
                 <td>
-                    {(fixtureData.matches[0].over100Checkouts || []).map(p => (<span key={p.id}>{p.name} ({p.notes}) <button>x</button></span>))}
-                    <PlayerSelection players={allPlayers} onChange={(elem, player) => addHiCheck(player)} />
+                    <MultiPlayerSelectionWithNotes
+                        allPlayers={allPlayers}
+                        players={fixtureData.matches[0].over100Checkouts || []}
+                        onRemovePlayer={removeHiCheck}
+                        onAddPlayer={addHiCheck} />
                 </td>
             </tr>
             </tbody>
         </table>
+        <button className="btn btn-primary" onClick={() => saveScores()}>Save</button>
     </div>);
 }
