@@ -290,22 +290,20 @@ export function Score() {
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
             <tr>
                 <td>Man of the match</td>
-                <td>
+                <td colSpan="2">
                     <PlayerSelection
                         players={allPlayers}
                         disabled={saving}
                         selected={ { id: fixtureData.home.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
-                <td></td>
-                <td>
+                <td colSpan="2">
                     <PlayerSelection
                         players={allPlayers}
                         disabled={saving}
                         selected={ { id: fixtureData.away.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'away')} />
                 </td>
-                <td></td>
             </tr>
             <tr>
                 <td>180s</td>

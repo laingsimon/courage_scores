@@ -16,18 +16,21 @@ export function MultiPlayerSelection(props) {
     }
 
     return (<div>
-        {(props.players || []).map(p => { index++; return (<button
-            disabled={props.disabled}
-            key={index}
-            className={`badge badge-pill ${props.disabled ? 'bg-secondary' : 'bg-primary'}`}
-            onClick={() => props.onRemovePlayer(p.id, index - 1)}>
-        {p.name} {props.disabled ? '' : '×'}
-        </button>); })}
-        <PlayerSelection
-            disabled={props.disabled}
-            players={props.allPlayers}
-            selected={player}
-            onChange={(elem, p) => setPlayer(p)} />
-        <button disabled={props.disabled} onClick={addPlayer} className={`btn ${props.disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+        <ol>
+            {(props.players || []).map(p => { index++; return (<li key={index}><button
+                disabled={props.disabled}
+                className={`badge badge-pill ${props.disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
+                onClick={() => props.onRemovePlayer(p.id, index - 1)}>
+            {p.name} {props.disabled ? '' : '×'}
+            </button></li>); })}
+        </ol>
+        <div>
+            <PlayerSelection
+                disabled={props.disabled}
+                players={props.allPlayers}
+                selected={player}
+                onChange={(elem, p) => setPlayer(p)} />
+            <button disabled={props.disabled} onClick={addPlayer} className={`badge ${props.disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+        </div>
     </div>);
 }
