@@ -18,7 +18,7 @@ export function DivisionFixtures(props) {
                    <td>vs</td>
                    <td>{f.awayTeam || 'Bye'}</td>
                    <td>{f.awayScore}</td>
-                   <td>{isAdmin && f.awayTeam ? <Link to={`/score/${f.id}`}>Edit</Link> : null}</td>
+                   <td>{f.awayTeam ? <Link to={`/score/${f.id}`}>{isAdmin ? 'Edit' : 'View'}</Link> : null}</td>
                 </tr>))}
           </tbody>
        </table>

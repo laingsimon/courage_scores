@@ -9,7 +9,7 @@ import {PlayerSelection} from "./PlayerSelection";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 
-export function Score() {
+export function Score(props) {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState(true);
     const [fixtureData, setFixtureData] = useState(null);
@@ -17,9 +17,14 @@ export function Score() {
     const [awayTeam, setAwayTeam] = useState([]);
     const [allPlayers, setAllPlayers] = useState([]);
     const [error, setError] = useState(null);
+    const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [canSave, setCanSave] = useState(true);
 
     useEffect(() => {
+        setDisabled(!((props.account && props.account.access && props.account.access.gameAdmin) || false));
+        setCanSave((props.account && props.account.access && props.account.access.gameAdmin) || false);
+
         if (fixtureData) {
             return;
         }
@@ -106,7 +111,7 @@ export function Score() {
         }
 
         loadFixtureData();
-    }, [ fixtureData, loading, error, allPlayers, fixtureId ]);
+    }, [ fixtureData, loading, error, allPlayers, fixtureId, props.account ]);
 
     function onMatchChanged(newMatch, index) {
         const newFixtureData = Object.assign({}, fixtureData);
@@ -179,15 +184,17 @@ export function Score() {
     }
 
     async function saveScores() {
-        if (saving) {
+        if (disabled) {
             return;
         }
 
         const http = new Http(new Settings());
         const gameApi = new GameApi(http);
 
+        setDisabled(true);
         setSaving(true);
         await gameApi.updateScores(fixtureId, fixtureData);
+        setDisabled(false);
         setSaving(false);
     }
 
@@ -200,7 +207,6 @@ export function Score() {
     }
 
     return (<div className="light-background p-3">
-        <h3>Record the scores of a game</h3>
         <table className="table">
             <tbody>
             <tr>
@@ -216,7 +222,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 match={fixtureData.matches[0]}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={5}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
                 otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
@@ -224,7 +230,7 @@ export function Score() {
                 playerCount={1}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={5}
                 match={fixtureData.matches[1]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
@@ -233,7 +239,7 @@ export function Score() {
                 playerCount={1}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={5}
                 match={fixtureData.matches[2]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
@@ -242,7 +248,7 @@ export function Score() {
                 playerCount={1}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={5}
                 match={fixtureData.matches[3]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
@@ -251,7 +257,7 @@ export function Score() {
                 playerCount={1}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={5}
                 match={fixtureData.matches[4]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
@@ -263,7 +269,7 @@ export function Score() {
                 playerCount={2}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={3}
                 match={fixtureData.matches[5]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
@@ -272,7 +278,7 @@ export function Score() {
                 playerCount={2}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={3}
                 match={fixtureData.matches[6]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
@@ -284,32 +290,32 @@ export function Score() {
                 playerCount={3}
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
-                disabled={saving}
+                disabled={disabled}
                 numberOfLegs={3}
                 match={fixtureData.matches[7]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
-            <tr>
+            {canSave ? (<tr>
                 <td>Man of the match</td>
                 <td colSpan="2">
                     <PlayerSelection
                         players={allPlayers}
-                        disabled={saving}
+                        disabled={disabled}
                         selected={ { id: fixtureData.home.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
                 <td colSpan="2">
                     <PlayerSelection
                         players={allPlayers}
-                        disabled={saving}
+                        disabled={disabled}
                         selected={ { id: fixtureData.away.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'away')} />
                 </td>
-            </tr>
+            </tr>) : null}
             <tr>
                 <td>180s</td>
                 <td>
                     <MultiPlayerSelection
-                        disabled={saving}
+                        disabled={disabled}
                         allPlayers={allPlayers}
                         players={fixtureData.matches[0].oneEighties || []}
                         onRemovePlayer={removeOneEightyScore}
@@ -319,7 +325,7 @@ export function Score() {
                 <td>100+ c/o</td>
                 <td>
                     <MultiPlayerSelectionWithNotes
-                        disabled={saving}
+                        disabled={disabled}
                         allPlayers={allPlayers}
                         players={fixtureData.matches[0].over100Checkouts || []}
                         onRemovePlayer={removeHiCheck}
@@ -328,9 +334,9 @@ export function Score() {
             </tr>
             </tbody>
         </table>
-        <button className="btn btn-primary" onClick={saveScores}>
+        {canSave ? (<button className="btn btn-primary" onClick={saveScores}>
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             Save
-        </button>
+        </button>) : null}
     </div>);
 }

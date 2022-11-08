@@ -89,6 +89,6 @@ public static class DependencyInjectionExtensions
         where TDto: AuditedDto
         where TAdapter: class, IAdapter<TModel, TDto>
     {
-        services.AddSingleton<IAdapter<TModel, TDto>, TAdapter>();
+        services.AddScoped<IAdapter<TModel, TDto>, TAdapter>();
     }
 }
