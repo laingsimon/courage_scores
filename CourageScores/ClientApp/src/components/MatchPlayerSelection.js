@@ -110,6 +110,7 @@ export function MatchPlayerSelection(props) {
     return (<tr>
         <td>
             {playerIndexes().map(index => (<PlayerSelection
+                disabled={props.disabled}
                 key={index}
                 players={props.homePlayers}
                 selected={homePlayer(index)}
@@ -117,14 +118,15 @@ export function MatchPlayerSelection(props) {
                 onChange={(elem, player) => homePlayerChanged(index, player)} />))}
         </td>
         <td>
-            <input type="number" max="5" min="0" value={props.match.homeScore || ''} onChange={(event) => homeScoreChanged(event.target.value)} />
+            <input disabled={props.disabled} type="number" max="5" min="0" value={props.match.homeScore || ''} onChange={(event) => homeScoreChanged(event.target.value)} />
         </td>
         <td>vs</td>
         <td>
-            <input type="number" max="5" min="0" value={props.match.awayScore || ''} onChange={(event) => awayScoreChanged(event.target.value)} />
+            <input disabled={props.disabled} type="number" max="5" min="0" value={props.match.awayScore || ''} onChange={(event) => awayScoreChanged(event.target.value)} />
         </td>
         <td>
             {playerIndexes().map(index => (<PlayerSelection
+                disabled={props.disabled}
                 key={index}
                 players={props.awayPlayers}
                 selected={awayPlayer(index)}

@@ -19,16 +19,18 @@ export function MultiPlayerSelectionWithNotes(props) {
 
     return (<div>
         {(props.players || []).map(p => { index++; return (<button
+            disabled={props.disabled}
             key={index}
-            className="badge badge-pill bg-primary"
+            className={`badge badge-pill ${props.disabled ? 'bg-secondary' : 'bg-primary'}`}
             onClick={() => props.onRemovePlayer(p.id, index - 1)}>
-        {p.name} ({p.notes}) &times;
+        {p.name} ({p.notes}) {props.disabled ? '' : '×'}
         </button>); })}
-        <input onChange={(elem) => setNotes(elem.target.value)} value={notes} type="number" min="100" max="120" />
+        <input disabled={props.disabled} onChange={(elem) => setNotes(elem.target.value)} value={notes} type="number" min="100" max="120" />
         <PlayerSelection
+            disabled={props.disabled}
             players={props.allPlayers}
             selected={player}
             onChange={(elem, p) => setPlayer(p)} />
-        <button onClick={addPlayer} className="btn btn-primary">+</button>
+        <button disabled={props.disabled} onClick={addPlayer} className={`btn ${props.disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
     </div>);
 }
