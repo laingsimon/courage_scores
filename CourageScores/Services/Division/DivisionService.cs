@@ -181,14 +181,14 @@ public class DivisionService : IDivisionService
     {
         return new DivisionFixtureDto
         {
-            Id = fixture.Id,
+            Id = overview.Id,
             AwayTeam = fixture.Away.Name,
             HomeTeam = fixture.Home.Name,
             AwayScore = fixture.Matches.Any()
-                ? fixture.Matches.Sum(m => m.AwayScore > m.HomeScore ? 1 : 0)
+                ? fixture.Matches.Count(m => m.AwayScore > m.HomeScore)
                 : null,
             HomeScore = fixture.Matches.Any()
-                ? fixture.Matches.Sum(m => m.HomeScore > m.AwayScore ? 1 : 0)
+                ? fixture.Matches.Count(m => m.HomeScore > m.AwayScore)
                 : null,
         };
     }
