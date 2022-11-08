@@ -181,7 +181,7 @@ public class DivisionService : IDivisionService
     {
         return new DivisionFixtureDto
         {
-            Id = overview.Id,
+            Id = fixture.Id,
             AwayTeam = fixture.Away.Name,
             HomeTeam = fixture.Home.Name,
             AwayScore = fixture.Matches.Any()
