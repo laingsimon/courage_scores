@@ -5,7 +5,7 @@ import {Heading} from "./Heading";
 
 export function Layout(props) {
     return (
-        <div className="darts-background">
+        <div>
             <Heading />
             <NavMenu {...props} />
             <Container>
