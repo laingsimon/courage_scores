@@ -20,9 +20,9 @@ public class AccountController : Controller
     }
 
     [HttpGet("/api/Account/Login")]
-    public IActionResult Login()
+    public IActionResult Login(string redirectUrl = "/")
     {
-        var properties = new AuthenticationProperties { RedirectUri = "/" };
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
         return Challenge(properties, GoogleDefaults.AuthenticationScheme);
     }
 
