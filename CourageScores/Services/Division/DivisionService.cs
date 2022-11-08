@@ -139,9 +139,9 @@ public class DivisionService : IDivisionService
             Name = team.Name,
             Played = games.Sum(g => g.Played),
             Points = games.Sum(g => g.Points),
-            Won = games.Sum(g => g.Won),
-            Lost = games.Sum(g => g.Lost),
-            Drawn = games.Sum(g => g.Drawn),
+            Won = games.Count(g => g.MatchesWon > g.MatchesLost),
+            Lost = games.Count(g => g.MatchesLost > g.MatchesWon),
+            Drawn = games.Count(g => g.MatchesWon == g.MatchesLost && g.MatchesWon > 0),
             Difference = 0,
         };
     }
@@ -198,9 +198,9 @@ public class DivisionService : IDivisionService
         var overview = new GameOverview
         {
             Id = game.Id,
-            Drawn = game.Matches.Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
-            Lost = game.Matches.Count(m => m.HomeScore < m.AwayScore && game.Home.Id == team.Id),
-            Won = game.Matches.Count(m => m.HomeScore > m.AwayScore && game.Home.Id == team.Id),
+            MatchesDrawn = game.Matches.Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
+            MatchesLost = game.Matches.Count(m => m.HomeScore < m.AwayScore && game.Home.Id == team.Id),
+            MatchesWon = game.Matches.Count(m => m.HomeScore > m.AwayScore && game.Home.Id == team.Id),
             Played = game.Matches.Any() ? 1 : 0,
             TeamId = team.Id,
         };
@@ -221,9 +221,9 @@ public class DivisionService : IDivisionService
         public Guid Id { get; init; }
         public Guid TeamId { get; init; }
         public int Played { get; init; }
-        public int Won { get; init; }
-        public int Lost { get; init; }
-        public int Drawn { get; init; }
+        public int MatchesWon { get; init; }
+        public int MatchesLost { get; init; }
+        public int MatchesDrawn { get; init; }
         public int Points { get; set; }
     }
 
