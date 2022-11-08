@@ -217,6 +217,7 @@ export function Score() {
                 awayPlayers={awayTeam}
                 match={fixtureData.matches[0]}
                 disabled={saving}
+                numberOfLegs={5}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
                 otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
             <MatchPlayerSelection
@@ -224,6 +225,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={5}
                 match={fixtureData.matches[1]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
                 otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
@@ -232,6 +234,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={5}
                 match={fixtureData.matches[2]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
                 otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]} />
@@ -240,6 +243,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={5}
                 match={fixtureData.matches[3]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
                 otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]} />
@@ -248,6 +252,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={5}
                 match={fixtureData.matches[4]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
                 otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]} />
@@ -259,6 +264,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={3}
                 match={fixtureData.matches[5]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
                 otherMatches={[fixtureData.matches[6]]} />
@@ -267,6 +273,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={3}
                 match={fixtureData.matches[6]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
                 otherMatches={[fixtureData.matches[5]]} />
@@ -278,6 +285,7 @@ export function Score() {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={saving}
+                numberOfLegs={3}
                 match={fixtureData.matches[7]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
             <tr>

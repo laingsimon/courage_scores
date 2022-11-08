@@ -51,6 +51,14 @@ export function MatchPlayerSelection(props) {
     function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, props.match);
         newMatch.homeScore = newScore;
+        newMatch.numberOfLegs = props.numberOfLegs;
+
+        if (newMatch.homeScore > props.numberOfLegs) {
+            newMatch.homeScore = props.numberOfLegs;
+        }
+        if (newMatch.awayScore + newMatch.homeScore > props.numberOfLegs) {
+            newMatch.awayScore = props.numberOfLegs - newMatch.homeScore;
+        }
 
         if (props.onMatchChanged) {
             props.onMatchChanged(newMatch);
@@ -60,6 +68,14 @@ export function MatchPlayerSelection(props) {
     function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, props.match);
         newMatch.awayScore = newScore;
+        newMatch.numberOfLegs = props.numberOfLegs;
+
+        if (newMatch.awayScore > props.numberOfLegs) {
+            newMatch.awayScore = props.numberOfLegs;
+        }
+        if (newMatch.awayScore + newMatch.homeScore > props.numberOfLegs) {
+            newMatch.homeScore = props.numberOfLegs - newMatch.awayScore;
+        }
 
         if (props.onMatchChanged) {
             props.onMatchChanged(newMatch);
@@ -118,11 +134,11 @@ export function MatchPlayerSelection(props) {
                 onChange={(elem, player) => homePlayerChanged(index, player)} />))}
         </td>
         <td>
-            <input disabled={props.disabled} type="number" max="5" min="0" value={props.match.homeScore || ''} onChange={(event) => homeScoreChanged(event.target.value)} />
+            <input disabled={props.disabled} type="number" max="5" min="0" value={props.match.homeScore === null ? '' : props.match.homeScore} onChange={(event) => homeScoreChanged(event.target.value)} />
         </td>
         <td>vs</td>
         <td>
-            <input disabled={props.disabled} type="number" max="5" min="0" value={props.match.awayScore || ''} onChange={(event) => awayScoreChanged(event.target.value)} />
+            <input disabled={props.disabled} type="number" max="5" min="0" value={props.match.awayScore === null ? '' : props.match.awayScore} onChange={(event) => awayScoreChanged(event.target.value)} />
         </td>
         <td>
             {playerIndexes().map(index => (<PlayerSelection
