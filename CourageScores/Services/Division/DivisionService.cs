@@ -39,6 +39,9 @@ public class DivisionService : IDivisionService
 
         var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).ToList();
         var season = await _genericSeasonService.GetAll(token).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
+        var games = await _genericGameService
+            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .ToList();
 
         if (season == null)
         {
@@ -56,8 +59,8 @@ public class DivisionService : IDivisionService
             SeasonId = season.Id,
             SeasonName = season.Name,
             Teams = await GetTeams(teams, season, divisionId, token).ToList(),
-            Fixtures = await GetFixtures(teams, divisionId, token).ToList(),
-            Players = GetPlayers(teams, season.Id).ToList(),
+            Fixtures = await GetFixtures(games, teams).ToList(),
+            Players = GetPlayers(games, teams, season.Id).ToList(),
         };
     }
 
@@ -77,11 +80,8 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<TeamDto> teams, Guid divisionId, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams)
     {
-        var games = await _genericGameService
-            .GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .ToList();
         var gameDates = games.GroupBy(g => g.Date).OrderBy(d => d.Key);
 
         foreach (var gamesForDate in gameDates)
@@ -94,7 +94,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private IEnumerable<DivisionPlayerDto> GetPlayers(IReadOnlyCollection<TeamDto> teams, Guid seasonId)
+    private IEnumerable<DivisionPlayerDto> GetPlayers(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams, Guid seasonId)
     {
         foreach (var team in teams)
         {
@@ -106,20 +106,51 @@ public class DivisionService : IDivisionService
 
             foreach (var player in teamSeason.Players)
             {
-                yield return new DivisionPlayerDto
+                var playedMatches = (from game in games
+                    from match in game.Matches
+                    where match.AwayPlayers.Count == 1 // singles matches only
+                    where match.AwayPlayers.All(p => p.Id == player.Id) || match.HomePlayers.All(p => p.Id == player.Id)
+                    select new
+                    {
+                        HomeTeamId = game.Home.Id,
+                        AwayTeamId = game.Away.Id,
+                        match.HomeScore,
+                        match.AwayScore,
+                    }).ToList();
+
+                var wonMatches = playedMatches
+                    .Count(m => (m.HomeScore > m.AwayScore && m.HomeTeamId == team.Id)
+                                || (m.AwayScore > m.HomeScore && m.AwayTeamId == team.Id));
+                var lostMatches = playedMatches
+                    .Count(m => (m.HomeScore < m.AwayScore && m.HomeTeamId == team.Id)
+                                || (m.AwayScore < m.HomeScore && m.AwayTeamId == team.Id));
+
+                var playerDto = new DivisionPlayerDto
                 {
                     Id = player.Id,
-                    Lost = 0,
                     Name = player.Name,
-                    Played = 0,
+                    Team = team.Name,
+                    Lost = lostMatches,
+                    Played = playedMatches.Count,
                     Points = 0,
                     Rank = 0,
-                    Won = 0,
-                    OneEighties = 0,
-                    Over100Checkouts = 0,
-                    WinPercentage = 0,
-                    Team = team.Name,
+                    Won = wonMatches,
+                    OneEighties = (from game in games
+                            from match in game.Matches
+                            from oneEighty in match.OneEighties
+                            where oneEighty.Id == player.Id
+                            select oneEighty).Count(),
+                    Over100Checkouts = (from game in games
+                        from match in game.Matches
+                        from hiCheck in match.Over100Checkouts
+                        where hiCheck.Id == player.Id
+                        select hiCheck).Count(),
+                    WinPercentage = ((double)wonMatches / playedMatches.Count) * 100,
                 };
+
+                CalculatePoints(playerDto);
+
+                yield return playerDto;
             }
         }
     }
@@ -211,6 +242,11 @@ public class DivisionService : IDivisionService
     }
 
     private static int CalculatePoints(GameOverview overview)
+    {
+        return 0; // TODO: Work out how points are calculated
+    }
+
+    private static int CalculatePoints(DivisionPlayerDto player)
     {
         return 0; // TODO: Work out how points are calculated
     }
