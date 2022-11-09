@@ -22,7 +22,7 @@ export function Division(props) {
     }, [ divisionId, divisionData, props.apis ]);
 
     if (!divisionData) {
-        return (<div>Loading...</div>);
+        return (<div className="light-background p-3">Loading...</div>);
     }
 
     return (<div>
