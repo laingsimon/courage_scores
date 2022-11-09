@@ -230,8 +230,8 @@ public class DivisionService : IDivisionService
         {
             Id = game.Id,
             MatchesDrawn = game.Matches.Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
-            MatchesLost = game.Matches.Count(m => m.HomeScore < m.AwayScore && game.Home.Id == team.Id),
-            MatchesWon = game.Matches.Count(m => m.HomeScore > m.AwayScore && game.Home.Id == team.Id),
+            MatchesLost = game.Matches.Count(m => (m.HomeScore < m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore > m.AwayScore && game.Away.Id == team.Id)),
+            MatchesWon = game.Matches.Count(m => (m.HomeScore > m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore < m.AwayScore && game.Away.Id == team.Id)),
             Played = game.Matches.Any() ? 1 : 0,
             TeamId = team.Id,
         };
