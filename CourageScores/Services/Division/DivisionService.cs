@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
@@ -39,9 +38,6 @@ public class DivisionService : IDivisionService
 
         var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).ToList();
         var season = await _genericSeasonService.GetAll(token).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
-        var games = await _genericGameService
-            .GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .ToList();
 
         if (season == null)
         {
@@ -52,37 +48,31 @@ public class DivisionService : IDivisionService
             };
         }
 
+        var games = await _genericGameService
+            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
+            .ToList();
+
         return new DivisionDataDto
         {
             Id = division.Id,
             Name = division.Name,
             SeasonId = season.Id,
             SeasonName = season.Name,
-            Teams = await GetTeams(teams, season, divisionId, token).ToList(),
-            Fixtures = await GetFixtures(games, teams).ToList(),
-            Players = GetPlayers(games, teams, season.Id).ToList(),
+            Teams = GetTeams(games, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            Fixtures = GetFixtures(games, teams).OrderBy(d => d.Date).ToList(),
+            Players = GetPlayers(games, teams, season.Id).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
         };
     }
 
-    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(
-        IReadOnlyCollection<TeamDto> teams,
-        SeasonDto season,
-        Guid divisionId,
-        [EnumeratorCancellation] CancellationToken token)
+    private static IEnumerable<DivisionTeamDto> GetTeams(List<GameDto> games, IReadOnlyCollection<TeamDto> teams)
     {
-        var teamsDetails = await teams
-            .SelectAsync(t => GetTeam(season, divisionId, t, token))
-            .ToList();
-
-        foreach (var team in teamsDetails.OrderByDescending(t => t.Points).ThenBy(t => t.Name))
-        {
-            yield return team;
-        }
+        return teams.Select(t => GetTeam(games, t));
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams)
+    private static IEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams)
     {
-        var gameDates = games.GroupBy(g => g.Date).OrderBy(d => d.Key);
+        var gameDates = games.GroupBy(g => g.Date);
 
         foreach (var gamesForDate in gameDates)
         {
@@ -94,7 +84,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private IEnumerable<DivisionPlayerDto> GetPlayers(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams, Guid seasonId)
+    private static IEnumerable<DivisionPlayerDto> GetPlayers(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams, Guid seasonId)
     {
         foreach (var team in teams)
         {
@@ -155,24 +145,21 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async Task<DivisionTeamDto> GetTeam(SeasonDto season, Guid divisionId, TeamDto team, CancellationToken token)
+    private static DivisionTeamDto GetTeam(IReadOnlyCollection<GameDto> games, TeamDto team)
     {
-        var games = await _genericGameService
-            .GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .WhereAsync(t => t.Home.Id == team.Id || t.Away.Id == team.Id)
-            .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
-            .SelectAsync(g => CreateOverview(g, team))
+        var thisTeamGames = games.Where(t => t.Home.Id == team.Id || t.Away.Id == team.Id)
+            .Select(g => CreateOverview(g, team))
             .ToList();
 
         return new DivisionTeamDto
         {
             Id = team.Id,
             Name = team.Name,
-            Played = games.Sum(g => g.Played),
-            Points = games.Sum(g => g.Points),
-            Won = games.Count(g => g.MatchesWon > g.MatchesLost),
-            Lost = games.Count(g => g.MatchesLost > g.MatchesWon),
-            Drawn = games.Count(g => g.MatchesWon == g.MatchesLost && g.MatchesWon > 0),
+            Played = thisTeamGames.Sum(g => g.Played),
+            Points = thisTeamGames.Sum(g => g.Points),
+            Won = thisTeamGames.Count(g => g.MatchesWon > g.MatchesLost),
+            Lost = thisTeamGames.Count(g => g.MatchesLost > g.MatchesWon),
+            Drawn = thisTeamGames.Count(g => g.MatchesWon == g.MatchesLost && g.MatchesWon > 0),
             Difference = 0,
         };
     }
