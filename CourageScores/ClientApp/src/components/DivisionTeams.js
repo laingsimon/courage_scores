@@ -1,11 +1,33 @@
 import React, { useState } from 'react';
 import {useParams} from "react-router-dom";
-import {EditTeam} from "./EditTeam";
+import {EditTeamDetails} from "./EditTeamDetails";
+import {Settings} from "../api/settings";
+import {Http} from "../api/http";
+import {TeamApi} from "../api/team";
 
 export function DivisionTeams(props) {
     const {divisionId} = useParams();
     const divisionData = props.divisionData[divisionId];
     const [ editTeam, setEditTeam ] = useState(null);
+    const [ loadingTeamDetails, setLoadingTeamDetails ] = useState(null);
+
+    async function openEditTeam(id) {
+        if (loadingTeamDetails) {
+            return;
+        }
+
+        if (editTeam != null && editTeam.id === id) {
+            setEditTeam(null);
+            return;
+        }
+
+        const api = new TeamApi(new Http(new Settings()));
+        setLoadingTeamDetails(id);
+        const result = await api.get(id);
+
+        setEditTeam(result);
+        setLoadingTeamDetails(null);
+    }
 
     return (<div className="light-background p-3">
         <table className="table">
@@ -18,6 +40,7 @@ export function DivisionTeams(props) {
                     <th>Lost</th>
                     <th>Drawn</th>
                     <th>+/-</th>
+                    {(props.account && props.account.access && props.account.access.teamAdmin) ? (<th></th>) : null}
                 </tr>
             </thead>
             <tbody>
@@ -29,12 +52,25 @@ export function DivisionTeams(props) {
                 <td>{t.lost}</td>
                 <td>{t.drawn}</td>
                 <td>{t.difference}</td>
+                {(props.account && props.account.access && props.account.access.teamAdmin) ? (<td>
+                    {(loadingTeamDetails === null && editTeam === null) || (editTeam != null && editTeam.id === t.id) || loadingTeamDetails === t.id ? (<button className={`btn btn-sm ${loadingTeamDetails === t.id || loadingTeamDetails === null ? 'btn-primary' : 'btn-secondary'}`} onClick={() => openEditTeam(t.id)}>
+                        {loadingTeamDetails === t.id ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '✏'}
+                    </button>) : (<button className="btn btn-sm btn-light">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>)}
+                </td>) : null}
             </tr>))}
             </tbody>
         </table>
-        {editTeam ? (<EditTeam {...editTeam} divisionId={divisionId} onChange={async () => { await props.apis.reloadDivision(divisionId); setEditTeam(null); }} onCancel={() => setEditTeam(null)} />) : null}
-        {editTeam && (props.account && props.account.access && props.account.access.teamAdmin) ? null : (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
+        {editTeam ? (<EditTeamDetails {...editTeam}
+                                      divisionId={divisionId}
+                                      onChange={(name, value) => {
+                                   const newData = {};
+                                   newData[name] = value;
+                                   setEditTeam(Object.assign({}, editTeam, newData))
+                               } }
+                                      onSaved={async () => { await props.apis.reloadDivision(divisionId); setEditTeam(null); }}
+                                      onCancel={() => setEditTeam(null)} />) : null}
+        {(props.account && props.account.access && props.account.access.teamAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
             Add team
-        </button>)}
+        </button>) : null}
     </div>);
 }
