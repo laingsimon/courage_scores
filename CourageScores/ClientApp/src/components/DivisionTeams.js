@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {useParams} from "react-router-dom";
+import {EditTeam} from "./EditTeam";
 
 export function DivisionTeams(props) {
     const {divisionId} = useParams();
     const divisionData = props.divisionData[divisionId];
+    const [ editTeam, setEditTeam ] = useState(null);
 
     return (<div className="light-background p-3">
         <table className="table">
@@ -30,5 +32,9 @@ export function DivisionTeams(props) {
             </tr>))}
             </tbody>
         </table>
+        {editTeam ? (<EditTeam {...editTeam} divisionId={divisionId} onChange={async () => { await props.apis.reloadDivision(divisionId); setEditTeam(null); }} onCancel={() => setEditTeam(null)} />) : null}
+        {editTeam && (props.account && props.account.access && props.account.access.teamAdmin) ? null : (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
+            Add team
+        </button>)}
     </div>);
 }
