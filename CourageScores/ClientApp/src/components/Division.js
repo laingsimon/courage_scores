@@ -23,8 +23,13 @@ export function Division(props) {
             return;
         }
 
+        async function reloadDivisionData() {
+            const api = new DivisionApi(new Http(new Settings()));
+            setDivisionData(await api.data(divisionId));
+        }
+
         reloadDivisionData();
-    }, [ divisionId, divisionData, reloadDivisionData ]);
+    }, [ divisionId, divisionData ]);
 
     if (!divisionData) {
         return (<div className="light-background p-3">Loading...</div>);
