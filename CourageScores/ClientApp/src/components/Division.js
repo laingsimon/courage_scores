@@ -1,25 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {Link, useParams} from "react-router-dom";
 import {NavItem, NavLink} from "reactstrap";
 import {DivisionTeams} from "./DivisionTeams";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionPlayers} from "./DivisionPlayers";
+import {Settings} from "../api/settings";
+import {Http} from "../api/http";
+import {DivisionApi} from "../api/division";
 
 export function Division(props) {
     const {divisionId, mode} = useParams();
-    const divisionData = props.divisionData[divisionId];
+    const [ divisionData, setDivisionData ] = useState(null);
     const effectiveTab = mode || 'teams'
+
+    async function reloadDivisionData() {
+        const api = new DivisionApi(new Http(new Settings()));
+        setDivisionData(await api.data(divisionId));
+    }
 
     useEffect(() => {
         if (divisionData) {
             return;
         }
 
-        async function reloadDivisionData() {
-            await props.apis.reloadDivision(divisionId);
-        }
         reloadDivisionData();
-    }, [ divisionId, divisionData, props.apis ]);
+    }, [ divisionId, divisionData ]);
 
     if (!divisionData) {
         return (<div className="light-background p-3">Loading...</div>);
@@ -38,8 +43,8 @@ export function Division(props) {
                 <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>
-        {effectiveTab === 'teams' ? <DivisionTeams {...props} /> : null}
-        {effectiveTab === 'fixtures' ? <DivisionFixtures {...props} /> : null}
-        {effectiveTab === 'players' ? <DivisionPlayers {...props} /> : null}
+        {effectiveTab === 'teams' ? <DivisionTeams {...props} divisionData={divisionData} divisionId={divisionId} onReloadDivision={reloadDivisionData} /> : null}
+        {effectiveTab === 'fixtures' ? <DivisionFixtures {...props} divisionData={divisionData} divisionId={divisionId} onReloadDivision={reloadDivisionData} /> : null}
+        {effectiveTab === 'players' ? <DivisionPlayers {...props} divisionData={divisionData} divisionId={divisionId} onReloadDivision={reloadDivisionData} /> : null}
     </div>);
 }

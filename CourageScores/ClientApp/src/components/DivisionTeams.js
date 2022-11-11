@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import {useParams} from "react-router-dom";
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
 
 export function DivisionTeams(props) {
-    const {divisionId} = useParams();
-    const divisionData = props.divisionData[divisionId];
+    const divisionData = props.divisionData;
     const [ editTeam, setEditTeam ] = useState(null);
     const [ loadingTeamDetails, setLoadingTeamDetails ] = useState(null);
 
@@ -61,13 +59,13 @@ export function DivisionTeams(props) {
             </tbody>
         </table>
         {editTeam ? (<EditTeamDetails {...editTeam}
-                                      divisionId={divisionId}
+                                      divisionId={props.divisionId}
                                       onChange={(name, value) => {
                                    const newData = {};
                                    newData[name] = value;
                                    setEditTeam(Object.assign({}, editTeam, newData))
                                } }
-                                      onSaved={async () => { await props.apis.reloadDivision(divisionId); setEditTeam(null); }}
+                                      onSaved={async () => { props.onReloadDivision(); setEditTeam(null); }}
                                       onCancel={() => setEditTeam(null)} />) : null}
         {(props.account && props.account.access && props.account.access.teamAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
             Add team

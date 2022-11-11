@@ -19,7 +19,6 @@ export default class App extends Component {
         this.accountApi = new AccountApi(new Http(this.settings));
         this.reloadDivisions = this.reloadDivisions.bind(this);
         this.reloadAccount = this.reloadAccount.bind(this);
-        this.reloadDivision = this.reloadDivision.bind(this);
         this.reloadAll = this.reloadAll.bind(this);
 
         this.state = {
@@ -42,7 +41,6 @@ export default class App extends Component {
             subProps: {
                 account: await this.reloadAccount(),
                 divisions: await this.reloadDivisions(),
-                divisionData: await this.reloadDivision(null),
             }
         });
     }
@@ -69,23 +67,6 @@ export default class App extends Component {
             subProps: subProps
         });
         return subProps.account;
-    }
-
-    async reloadDivision(id) {
-        if (!id) {
-            return this.state.subProps.divisionData;
-        }
-
-        const divisionData = await this.divisionApi.data(id);
-
-        const subProps = Object.assign(
-            {},
-            this.state.subProps);
-        subProps.divisionData[id] = divisionData;
-        this.setState({
-            subProps: subProps
-        });
-        return subProps.divisionData;
     }
 
     render() {

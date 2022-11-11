@@ -1,9 +1,7 @@
 import React from 'react';
-import {useParams} from "react-router-dom";
 
 export function DivisionPlayers(props) {
-    const {divisionId} = useParams();
-    const divisionData = props.divisionData[divisionId];
+    const divisionData = props.divisionData;
 
     return (<div className="light-background p-3">
         <table className="table">
