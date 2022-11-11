@@ -4,7 +4,7 @@ public class DivisionFixtureDto
 {
     public Guid Id { get; set; }
     public int? HomeScore { get; set; }
-    public string? HomeTeam { get; set; }
+    public DivisionFixtureTeamDto HomeTeam { get; set; } = null!;
     public int? AwayScore { get; set; }
-    public string? AwayTeam { get; set; }
+    public DivisionFixtureTeamDto? AwayTeam { get; set; }
 }

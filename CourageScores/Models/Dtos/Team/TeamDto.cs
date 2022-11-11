@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CourageScores.Models.Dtos.Team;
+﻿namespace CourageScores.Models.Dtos.Team;
 
 /// <summary>
 /// A record of a team and its players, where 'home' is for them, etc.

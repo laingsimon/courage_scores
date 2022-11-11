@@ -79,7 +79,7 @@ public class DivisionService : IDivisionService
             yield return new DivisionFixtureDateDto
             {
                 Date = gamesForDate.Key,
-                Fixtures = FixturesPerDate(gamesForDate, teams).OrderBy(f => f.HomeTeam).ToList()
+                Fixtures = FixturesPerDate(gamesForDate, teams).OrderBy(f => f.HomeTeam.Name).ToList()
             };
         }
     }
@@ -179,7 +179,10 @@ public class DivisionService : IDivisionService
                 remainingTeams.Remove(game.Away.Id);
             }
 
-            yield return GameToFixture(game);
+            yield return GameToFixture(
+                game,
+                teams.SingleOrDefault(t => t.Id == game.Home?.Id),
+                teams.SingleOrDefault(t => t.Id == game.Away?.Id));
         }
 
         foreach (var remainingTeam in remainingTeams.Values)
@@ -190,18 +193,33 @@ public class DivisionService : IDivisionService
                 AwayScore = null,
                 HomeScore = null,
                 AwayTeam = null,
-                HomeTeam = remainingTeam.Name
+                HomeTeam = new DivisionFixtureTeamDto
+                {
+                    Id = remainingTeam.Id,
+                    Name = remainingTeam.Name,
+                    Address = remainingTeam.Address,
+                }
             };
         }
     }
 
-    private static DivisionFixtureDto GameToFixture(GameDto fixture)
+    private static DivisionFixtureDto GameToFixture(GameDto fixture, TeamDto? homeTeam, TeamDto? awayTeam)
     {
         return new DivisionFixtureDto
         {
             Id = fixture.Id,
-            AwayTeam = fixture.Away.Name,
-            HomeTeam = fixture.Home.Name,
+            AwayTeam = new DivisionFixtureTeamDto
+            {
+                Id = fixture.Away.Id,
+                Name = fixture.Away.Name,
+                Address = awayTeam?.Address,
+            },
+            HomeTeam = new DivisionFixtureTeamDto
+            {
+                Id = fixture.Home.Id,
+                Name = fixture.Home.Name,
+                Address = homeTeam?.Address,
+            },
             AwayScore = fixture.Matches.Any()
                 ? fixture.Matches.Count(m => m.AwayScore > m.HomeScore)
                 : null,
