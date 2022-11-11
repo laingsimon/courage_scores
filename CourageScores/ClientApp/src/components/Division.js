@@ -24,7 +24,7 @@ export function Division(props) {
         }
 
         reloadDivisionData();
-    }, [ divisionId, divisionData ]);
+    }, [ divisionId, divisionData, reloadDivisionData ]);
 
     if (!divisionData) {
         return (<div className="light-background p-3">Loading...</div>);
