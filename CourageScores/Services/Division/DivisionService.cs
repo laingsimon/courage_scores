@@ -135,7 +135,7 @@ public class DivisionService : IDivisionService
                         from hiCheck in match.Over100Checkouts
                         where hiCheck.Id == player.Id
                         select hiCheck).Count(),
-                    WinPercentage = ((double)wonMatches / playedMatches.Count) * 100,
+                    WinPercentage = wonMatches > 0 ? ((double)wonMatches / playedMatches.Count) * 100 : 0,
                 };
 
                 CalculatePoints(playerDto);
