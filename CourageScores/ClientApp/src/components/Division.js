@@ -32,7 +32,9 @@ export function Division(props) {
     });
 
     if (!divisionData) {
-        return (<div className="light-background p-3">Loading...</div>);
+        return (<div className="light-background p-3">
+            <span className="h1">🎯</span> Loading...
+        </div>);
     }
 
     return (<div>
