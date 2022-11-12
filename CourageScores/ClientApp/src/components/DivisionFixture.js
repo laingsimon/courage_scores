@@ -9,15 +9,43 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     const [ awayTeamId, setAwayTeamId ] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [ saving, setSaving ] = useState(false);
 
-    function isSelectedInAnotherFixture(t) {
+    function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
+        if (!fixturesForThisDate || !fixturesForThisDate.fixtures) {
+            return false;
+        }
+
         const realFixtures = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.homeTeam && f.id !== fixture.id);
         const isSelected = realFixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id).length;
         return isSelected || false;
     }
 
+    function isFixtureSelectedForAnotherDate(t) {
+        for (let index = 0; index < divisionData.fixtures.length; index++) {
+            const fixtureDate = divisionData.fixtures[index];
+            if (fixtureDate.date === date) {
+                continue;
+            }
+
+            const fixtureDateFixtures = fixtureDate.fixtures;
+            const equivalentFixtures = fixtureDateFixtures.filter(f =>
+                (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
+                || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
+
+            if (equivalentFixtures.length) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     function isSameAddress(t) {
         const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
+        if (!fixturesForThisDate || !fixturesForThisDate.fixtures) {
+            return false;
+        }
+
         const homeTeam = fixturesForThisDate.fixtures.filter(f => f.homeTeam.id === t.id)[0];
         const awayTeam = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.awayTeam.id === t.id)[0];
         const teamAddress = homeTeam
@@ -35,8 +63,9 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
 
     function isValidAwayTeam(t) {
         return t.id !== fixture.homeTeam.id
-            && !isSelectedInAnotherFixture(t)
-            && !isSameAddress(t);
+            && !isSelectedInAnotherFixtureOnThisDate(t)
+            && !isSameAddress(t)
+            && !isFixtureSelectedForAnotherDate(t);
     }
 
     function renderAwayTeam() {

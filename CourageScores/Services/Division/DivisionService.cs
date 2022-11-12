@@ -161,6 +161,7 @@ public class DivisionService : IDivisionService
             Lost = thisTeamGames.Count(g => g.MatchesLost > g.MatchesWon),
             Drawn = thisTeamGames.Count(g => g.MatchesWon == g.MatchesLost && g.MatchesWon > 0),
             Difference = 0,
+            Address = team.Address,
         };
     }
 

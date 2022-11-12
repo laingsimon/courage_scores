@@ -10,4 +10,5 @@ public class DivisionTeamDto
     public int Lost { get; set; }
     public int Drawn { get; set; }
     public int Difference { get; set; }
+    public string Address { get; set; } = null!;
 }
