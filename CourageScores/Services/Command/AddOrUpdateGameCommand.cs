@@ -2,6 +2,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 
 namespace CourageScores.Services.Command;
@@ -10,11 +11,19 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
 {
     private readonly IGenericRepository<Team> _teamRepository;
     private readonly IGenericRepository<Season> _seasonRepository;
+    private readonly ICommandFactory _commandFactory;
+    private readonly IGenericDataService<Team, TeamDto> _teamService;
 
-    public AddOrUpdateGameCommand(IGenericRepository<Team> teamRepository, IGenericRepository<Season> seasonRepository)
+    public AddOrUpdateGameCommand(
+        IGenericRepository<Team> teamRepository,
+        IGenericRepository<Season> seasonRepository,
+        ICommandFactory commandFactory,
+        IGenericDataService<Team, TeamDto> teamService)
     {
         _teamRepository = teamRepository;
         _seasonRepository = seasonRepository;
+        _commandFactory = commandFactory;
+        _teamService = teamService;
     }
 
     protected override async Task ApplyUpdates(Game game, EditGameDto update, CancellationToken token)
@@ -39,22 +48,34 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
 
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
-            game.Home = await UpdateTeam(update.HomeTeamId, token);
+            game.Home = await UpdateTeam(update.HomeTeamId, latestSeason, token);
         }
 
         if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
-            game.Away = await UpdateTeam(update.AwayTeamId, token);
+            game.Away = await UpdateTeam(update.AwayTeamId, latestSeason, token);
         }
     }
 
-    private async Task<GameTeam> UpdateTeam(Guid teamId, CancellationToken token)
+    private async Task<GameTeam> UpdateTeam(Guid teamId, Season season, CancellationToken token)
     {
         var team = await _teamRepository.Get(teamId, token);
 
         if (team == null)
         {
             throw new InvalidOperationException("Unable to find team with id " + teamId);
+        }
+
+        if (team.Seasons.All(s => s.Id != season.Id))
+        {
+            // add team to season
+            var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
+            var result = await _teamService.Upsert(teamId, command, token);
+
+            if (!result.Success)
+            {
+                throw new InvalidOperationException("Could not add season to team: " + string.Join(", ", result.Errors));
+            }
         }
 
         return Adapt(team);
