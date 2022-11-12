@@ -7,6 +7,7 @@ import {GameApi} from "../api/game";
 export function DivisionFixture({ fixture, divisionData, account, onReloadDivision, date }) {
     const isAdmin = account && account.access && account.access.leagueAdmin;
     const [ awayTeamId, setAwayTeamId ] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
+    const [ saving, setSaving ] = useState(false);
 
     function isSelectedInAnotherFixture(t) {
         const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
@@ -50,9 +51,31 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     }
 
     async function saveTeamChange() {
-        const api = new GameApi(new Http(new Settings()));
-        if (awayTeamId === '') {
-            const result = await api.delete(fixture.id);
+        try {
+            const api = new GameApi(new Http(new Settings()));
+            setSaving(true);
+            if (awayTeamId === '') {
+                const result = await api.delete(fixture.id);
+
+                if (result.success) {
+                    if (onReloadDivision) {
+                        await onReloadDivision();
+                    }
+                } else {
+                    console.log(result);
+                    alert('Could not delete the game');
+                }
+                return;
+            }
+
+            const result = await api.update({
+                id: undefined,
+                address: fixture.homeTeam.address,
+                divisionId: divisionData.id,
+                homeTeamId: fixture.homeTeam.id,
+                awayTeamId: awayTeamId,
+                date: date,
+            });
 
             if (result.success) {
                 if (onReloadDivision) {
@@ -60,27 +83,10 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                 }
             } else {
                 console.log(result);
-                alert('Could not delete the game');
+                alert('Could not create the game');
             }
-            return;
-        }
-
-        const result = await api.update({
-            id: undefined,
-            address: fixture.homeTeam.address,
-            divisionId: divisionData.id,
-            homeTeamId: fixture.homeTeam.id,
-            awayTeamId: awayTeamId,
-            date: date,
-        });
-
-        if (result.success) {
-            if (onReloadDivision) {
-                await onReloadDivision();
-            }
-        } else {
-            console.log(result);
-            alert('Could not create the game');
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -91,7 +97,9 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
         <td>{renderAwayTeam()}</td>
         <td>{fixture.awayScore}</td>
         <td>
-            {isAdmin && awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '') ? (<button onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">💾</button>) : null}
+            {isAdmin && awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
+                ? (<button onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '💾'}</button>)
+                : null}
             {awayTeamId && (fixture.id !== fixture.homeTeam.id) ? <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>🎯</Link> : null}
         </td>
     </tr>)
