@@ -64,9 +64,9 @@ nav {
   text-align: center;
   padding: 3px;
   color: #928E1F;
-  font-weight: bold;
-  font-size: 60px;
-  opacity: 0.8;
+  font-family: fantasy;
+  font-size: 80px;
+  opacity: 0.7;
 }
 
 .margin-right {
