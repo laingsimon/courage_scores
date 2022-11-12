@@ -206,7 +206,9 @@ export function Score(props) {
     }
 
     if (loading) {
-        return (<div className="light-background p-3">Loading fixture...</div>);
+        return (<div className="light-background p-3">
+            <span className="h1">🎯</span> Loading...
+        </div>);
     }
 
     if (error) {

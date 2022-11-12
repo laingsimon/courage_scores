@@ -3,7 +3,6 @@ import {EditTeamDetails} from "./EditTeamDetails";
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
-import {DivisionApi} from "../api/division";
 
 export function DivisionTeams({ divisionData, onReloadDivision, account, divisionId }) {
     const [ editTeam, setEditTeam ] = useState(null);
