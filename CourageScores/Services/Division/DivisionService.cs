@@ -31,13 +31,13 @@ public class DivisionService : IDivisionService
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, CancellationToken token)
     {
         var division = await _genericDivisionService.Get(divisionId, token);
-        if (division == null)
+        if (division == null || division.Deleted != null)
         {
             return new DivisionDataDto();
         }
 
-        var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).ToList();
-        var season = await _genericSeasonService.GetAll(token).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
+        var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).WhereAsync(m => m.Deleted == null).ToList();
+        var season = await _genericSeasonService.GetAll(token).WhereAsync(m => m.Deleted == null).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
 
         if (season == null)
         {
@@ -50,6 +50,7 @@ public class DivisionService : IDivisionService
 
         var games = await _genericGameService
             .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .WhereAsync(m => m.Deleted == null)
             .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
             .ToList();
 
@@ -88,13 +89,13 @@ public class DivisionService : IDivisionService
     {
         foreach (var team in teams)
         {
-            var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == seasonId);
+            var teamSeason = team.Seasons.Where(m => m.Deleted == null).SingleOrDefault(s => s.SeasonId == seasonId);
             if (teamSeason == null)
             {
                 continue;
             }
 
-            foreach (var player in teamSeason.Players)
+            foreach (var player in teamSeason.Players.Where(p => p.Deleted == null))
             {
                 var playedMatches = (from game in games
                     from match in game.Matches
@@ -118,6 +119,7 @@ public class DivisionService : IDivisionService
                 var playerDto = new DivisionPlayerDto
                 {
                     Id = player.Id,
+                    TeamId = team.Id,
                     Name = player.Name,
                     Team = team.Name,
                     Lost = lostMatches,
@@ -126,12 +128,12 @@ public class DivisionService : IDivisionService
                     Rank = 0,
                     Won = wonMatches,
                     OneEighties = (from game in games
-                            from match in game.Matches
+                            from match in game.Matches.Where(m => m.Deleted == null)
                             from oneEighty in match.OneEighties
                             where oneEighty.Id == player.Id
                             select oneEighty).Count(),
                     Over100Checkouts = (from game in games
-                        from match in game.Matches
+                        from match in game.Matches.Where(m => m.Deleted == null)
                         from hiCheck in match.Over100Checkouts
                         where hiCheck.Id == player.Id
                         select hiCheck).Count(),
@@ -222,10 +224,10 @@ public class DivisionService : IDivisionService
                 Address = homeTeam?.Address,
             },
             AwayScore = fixture.Matches.Any()
-                ? fixture.Matches.Count(m => m.AwayScore > m.HomeScore)
+                ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.AwayScore > m.HomeScore)
                 : null,
             HomeScore = fixture.Matches.Any()
-                ? fixture.Matches.Count(m => m.HomeScore > m.AwayScore)
+                ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.HomeScore > m.AwayScore)
                 : null,
         };
     }
@@ -235,10 +237,10 @@ public class DivisionService : IDivisionService
         var overview = new GameOverview
         {
             Id = game.Id,
-            MatchesDrawn = game.Matches.Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
-            MatchesLost = game.Matches.Count(m => (m.HomeScore < m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore > m.AwayScore && game.Away.Id == team.Id)),
-            MatchesWon = game.Matches.Count(m => (m.HomeScore > m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore < m.AwayScore && game.Away.Id == team.Id)),
-            Played = game.Matches.Any() ? 1 : 0,
+            MatchesDrawn = game.Matches.Where(m => m.Deleted == null).Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
+            MatchesLost = game.Matches.Where(m => m.Deleted == null).Count(m => (m.HomeScore < m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore > m.AwayScore && game.Away.Id == team.Id)),
+            MatchesWon = game.Matches.Where(m => m.Deleted == null).Count(m => (m.HomeScore > m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore < m.AwayScore && game.Away.Id == team.Id)),
+            Played = game.Matches.Any(m => m.Deleted == null) ? 1 : 0,
             TeamId = team.Id,
         };
 

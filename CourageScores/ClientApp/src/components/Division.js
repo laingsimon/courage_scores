@@ -11,25 +11,30 @@ import {DivisionApi} from "../api/division";
 export function Division(props) {
     const {divisionId, mode} = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
+    const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams'
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
-        setDivisionData(await api.data(divisionId));
+        const divisionData = await api.data(divisionId);
+        setDivisionData(divisionData);
     }
 
     useEffect(() => {
-        if (divisionData) {
+        if (divisionData || loading) {
             return;
         }
+
+        setLoading(true);
 
         async function reloadDivisionData() {
             const api = new DivisionApi(new Http(new Settings()));
             setDivisionData(await api.data(divisionId));
+            setLoading(false);
         }
 
         reloadDivisionData();
-    });
+    }, [ divisionData, loading, divisionId ]);
 
     if (!divisionData) {
         return (<div className="light-background p-3">

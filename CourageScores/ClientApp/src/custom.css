@@ -72,3 +72,11 @@ nav {
 .margin-right {
   margin-right: 4px;
 }
+
+.layout-fixed {
+  table-layout: fixed;
+}
+
+.highlight-row td {
+  background: #dee2e6;
+}

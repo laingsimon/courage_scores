@@ -32,4 +32,11 @@ public class PlayerController : Controller
         var command = _commandFactory.GetCommand<RemovePlayerCommand>().ForPlayer(playerId);
         return await _teamService.Upsert(teamId, command, token);
     }
+
+    [HttpPatch("/api/Player/{teamId}/{playerId}")]
+    public async Task<ActionResultDto<TeamDto>> UpdatePlayer(Guid teamId, Guid playerId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<UpdatePlayerCommand>().ForPlayer(playerId).WithData(player);
+        return await _teamService.Upsert(teamId, command, token);
+    }
 }
