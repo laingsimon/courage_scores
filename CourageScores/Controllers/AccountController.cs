@@ -27,9 +27,10 @@ public class AccountController : Controller
     }
 
     [HttpGet("/api/Account/Logout")]
-    public IActionResult Logout()
+    public async Task<RedirectResult> Logout(string redirectUrl = "/")
     {
-        throw new NotImplementedException("Not implemented");
+        await HttpContext.SignOutAsync();
+        return Redirect(redirectUrl);
     }
 
     [HttpGet("/api/Account")]

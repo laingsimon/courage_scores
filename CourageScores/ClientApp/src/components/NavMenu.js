@@ -25,7 +25,7 @@ export function NavMenu(props) {
                           </NavLink>
                         </NavItem>))}
                         <NavItem>
-                            {!props.appLoading && props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Logout`}>Logout ({props.account.name})</a> : null}
+                            {!props.appLoading && props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Logout/?redirectUrl=${document.location.href}`}>Logout ({props.account.name})</a> : null}
                             {!props.appLoading && !props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Login/?redirectUrl=${document.location.href}`}>Login</a> : null}
                         </NavItem>
                     </ul>
