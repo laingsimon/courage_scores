@@ -69,16 +69,16 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
 
     steps:
+      - name: Resolve environment variables
+        shell: bash
+        run: |
+          echo "branch_name=$(echo "$GITHUB_REF_NAME" | sed -r 's/\//_/g')" >> $GITHUB_ENV
+
       - name: Download artifact from build job
         if: ${{ env.branch_name == 'release' || github.event.inputs.deploy == 'true' }}
         uses: actions/download-artifact@v2
         with:
           name: .net-app
-
-      - name: Resolve environment variables
-        shell: bash
-        run: |
-          echo "branch_name=$(echo "$GITHUB_REF_NAME" | sed -r 's/\//_/g')" >> $GITHUB_ENV
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
