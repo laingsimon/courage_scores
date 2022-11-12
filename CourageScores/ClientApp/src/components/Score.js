@@ -24,8 +24,10 @@ export function Score(props) {
     useEffect(() => {
         setDisabled(!((props.account && props.account.access && props.account.access.gameAdmin) || false));
         setCanSave((props.account && props.account.access && props.account.access.gameAdmin) || false);
+    }, [ props.account ]);
 
-        if (fixtureData) {
+    useEffect(() => {
+        if (fixtureData || error) {
             return;
         }
 
@@ -83,9 +85,14 @@ export function Score(props) {
                 }
 
                 const homeTeamPlayers = await loadTeamData(gameData.home.id, gameData.seasonId, 'home');
+
+                if (error || !homeTeamPlayers) {
+                    return;
+                }
+
                 const awayTeamPlayers = await loadTeamData(gameData.away.id, gameData.seasonId, 'away');
 
-                if (error) {
+                if (error || !awayTeamPlayers) {
                     return;
                 }
 
@@ -111,7 +118,7 @@ export function Score(props) {
         }
 
         loadFixtureData();
-    }, [ fixtureData, loading, error, allPlayers, fixtureId, props.account ]);
+    });
 
     function onMatchChanged(newMatch, index) {
         const newFixtureData = Object.assign({}, fixtureData);
