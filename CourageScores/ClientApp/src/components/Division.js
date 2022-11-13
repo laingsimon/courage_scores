@@ -18,6 +18,7 @@ export function Division({ account }) {
     const [ editMode, setEditMode ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(null);
     const [ divisionName, setDivisionName ] = useState(null);
+    const [ updatingData, setUpdatingData ] = useState(false);
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
@@ -66,31 +67,41 @@ export function Division({ account }) {
     }
 
     async function saveSeasonDetails() {
-        const api = new SeasonApi(new Http(new Settings()));
-        const result = await api.update(seasonData);
+        try {
+            setUpdatingData(true);
+            const api = new SeasonApi(new Http(new Settings()));
+            const result = await api.update(seasonData);
 
-        if (result.success) {
-            await reloadDivisionData();
-            setEditMode(null);
-        } else {
-            console.log(result);
-            window.alert(`Could not update season data`);
+            if (result.success) {
+                await reloadDivisionData();
+                setEditMode(null);
+            } else {
+                console.log(result);
+                window.alert(`Could not update season data`);
+            }
+        } finally {
+            setUpdatingData(false);
         }
     }
 
     async function saveDivisionName() {
-        const api = new DivisionApi(new Http(new Settings()));
-        const result = await api.update({
-            id: divisionId,
-            name: divisionName
-        });
+        try {
+            setUpdatingData(true);
+            const api = new DivisionApi(new Http(new Settings()));
+            const result = await api.update({
+                id: divisionId,
+                name: divisionName
+            });
 
-        if (result.success) {
-            await reloadDivisionData();
-            setEditMode(null);
-        } else {
-            console.log(result);
-            window.alert(`Could not update division name`);
+            if (result.success) {
+                await reloadDivisionData();
+                setEditMode(null);
+            } else {
+                console.log(result);
+                window.alert(`Could not update division name`);
+            }
+        } finally {
+            setUpdatingData(false);
         }
     }
 
@@ -98,19 +109,22 @@ export function Division({ account }) {
         <h2>
             {editMode === 'division'
                 ? (<span className="h4">
-                    <input value={divisionName} onChange={updateDivisionName} />
+                    <input disabled={updatingData} value={divisionName} onChange={updateDivisionName} className="margin-right" />
                     <button className="btn btn-sm btn-primary margin-right" onClick={saveDivisionName}>Save</button>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button>
                 </span>)
-                : (<span>{divisionData.name} {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('division')}>✏️</span>) : null}
+                : (<span>{divisionData.name} {isAdmin ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('division')}>✏️</span>) : null}
                 </span>)},
             {editMode === 'season'
                 ? (<span className="h4">
-                    <input onChange={updateSeasonData} name="name" value={seasonData.name}/> <input onChange={updateSeasonData} name="startDate" value={seasonData.startDate} type="date"/>-<input onChange={updateSeasonData} name="endDate" value={seasonData.endDate} type="date"/>
+                    <input disabled={updatingData} onChange={updateSeasonData} name="name" value={seasonData.name}/>
+                    <input disabled={updatingData} onChange={updateSeasonData} name="startDate" value={seasonData.startDate} type="date"/>
+                    -
+                    <input disabled={updatingData} onChange={updateSeasonData} name="endDate" value={seasonData.endDate} type="date"/>
                     <button className="btn btn-sm btn-primary margin-right" onClick={saveSeasonDetails}>Save</button>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button>
                 </span>)
-                : (<span>{divisionData.season.name} ({new Date(divisionData.season.startDate).toDateString()} - {new Date(divisionData.season.endDate).toDateString()}) {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('season')}>✏️</span>) : null}
+                : (<span>{divisionData.season.name} ({new Date(divisionData.season.startDate).toDateString()} - {new Date(divisionData.season.endDate).toDateString()}) {isAdmin ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('season')}>✏️</span>) : null}
                 </span>)}
         </h2>
         <ul className="nav nav-tabs">
