@@ -49,7 +49,7 @@ export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
         const api = new TeamApi(new Http(new Settings()));
         setLoadingPlayerDetails(player.id);
         const teamResult = await api.get(player.teamId);
-        const teamSeason = teamResult.seasons.filter(s => s.seasonId === divisionData.seasonId)[0];
+        const teamSeason = teamResult.seasons.filter(s => s.seasonId === divisionData.season.id)[0];
         const playerResult = teamSeason.players.filter(p => p.id === player.id)[0];
         playerResult.teamId = player.teamId;
 

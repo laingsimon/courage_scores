@@ -54,9 +54,9 @@ export function Division({ account }) {
                 </span>)},
             {editMode === 'season'
                 ? (<span>
-                    <input value={divisionData.seasonName}/>
+                    <input value={divisionData.season.name}/>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button></span>)
-                : (<span>{divisionData.seasonName} {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('season')}>✏️</span>) : null}
+                : (<span>{divisionData.season.name} {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('season')}>✏️</span>) : null}
                 </span>)}
         </h2>
         <ul className="nav nav-tabs">
