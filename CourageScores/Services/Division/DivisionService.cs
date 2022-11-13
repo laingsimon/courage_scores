@@ -50,19 +50,24 @@ public class DivisionService : IDivisionService
 
         var games = await _genericGameService
             .GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .WhereAsync(m => m.Deleted == null)
-            .WhereAsync(t => t.Date >= season.StartDate && t.Date < season.EndDate)
+            .WhereAsync(g => g.Deleted == null)
+            .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
         return new DivisionDataDto
         {
             Id = division.Id,
             Name = division.Name,
-            SeasonId = season.Id,
-            SeasonName = season.Name,
             Teams = GetTeams(games, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
             Fixtures = GetFixtures(games, teams).OrderBy(d => d.Date).ToList(),
             Players = GetPlayers(games, teams, season.Id).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
+            Season = new DivisionDataSeasonDto
+            {
+                Id = season.Id,
+                Name = season.Name,
+                StartDate = season.StartDate,
+                EndDate = season.EndDate,
+            },
         };
     }
 
