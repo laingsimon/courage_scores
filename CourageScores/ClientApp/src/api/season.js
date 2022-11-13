@@ -1,4 +1,4 @@
-﻿class SeasonApi {
+class SeasonApi {
     constructor(http) {
         this.http = http;
     }
