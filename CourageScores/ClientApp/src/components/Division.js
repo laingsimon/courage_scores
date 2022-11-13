@@ -13,6 +13,8 @@ export function Division({ account }) {
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
+    const isAdmin = account && account.access && account.access.leagueAdmin;
+    const [ editMode, setEditMode ] = useState(null);
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
@@ -43,7 +45,20 @@ export function Division({ account }) {
     }
 
     return (<div>
-        <h2>{divisionData.name}, {divisionData.seasonName}</h2>
+        <h2>
+            {editMode === 'division'
+                ? (<span>
+                    <input value={divisionData.name} />
+                    <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button></span>)
+                : (<span>{divisionData.name} {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('division')}>✏️</span>) : null}
+                </span>)},
+            {editMode === 'season'
+                ? (<span>
+                    <input value={divisionData.seasonName}/>
+                    <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button></span>)
+                : (<span>{divisionData.seasonName} {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('season')}>✏️</span>) : null}
+                </span>)}
+        </h2>
         <ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'teams' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>
