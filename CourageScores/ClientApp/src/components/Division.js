@@ -17,6 +17,7 @@ export function Division({ account }) {
     const isAdmin = account && account.access && account.access.leagueAdmin;
     const [ editMode, setEditMode ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(null);
+    const [ divisionName, setDivisionName ] = useState(null);
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
@@ -41,6 +42,7 @@ export function Division({ account }) {
                 startDate: divisionData.season.startDate.substring(0, 10),
                 endDate: divisionData.season.endDate.substring(0, 10),
             });
+            setDivisionName(divisionData.name);
             setLoading(false);
         }
 
@@ -59,6 +61,10 @@ export function Division({ account }) {
         setSeasonData(currentData);
     }
 
+    function updateDivisionName(event) {
+        setDivisionName(event.target.value);
+    }
+
     async function saveSeasonDetails() {
         const api = new SeasonApi(new Http(new Settings()));
         const result = await api.update(seasonData);
@@ -72,11 +78,28 @@ export function Division({ account }) {
         }
     }
 
+    async function saveDivisionName() {
+        const api = new DivisionApi(new Http(new Settings()));
+        const result = await api.update({
+            id: divisionId,
+            name: divisionName
+        });
+
+        if (result.success) {
+            await reloadDivisionData();
+            setEditMode(null);
+        } else {
+            console.log(result);
+            window.alert(`Could not update division name`);
+        }
+    }
+
     return (<div>
         <h2>
             {editMode === 'division'
                 ? (<span className="h4">
-                    <input value={divisionData.name} />
+                    <input value={divisionName} onChange={updateDivisionName} />
+                    <button className="btn btn-sm btn-primary margin-right" onClick={saveDivisionName}>Save</button>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button>
                 </span>)
                 : (<span>{divisionData.name} {isAdmin ? (<span className="extra-small" onClick={() => setEditMode('division')}>✏️</span>) : null}
