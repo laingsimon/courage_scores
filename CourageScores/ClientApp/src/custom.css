@@ -64,11 +64,19 @@ nav {
   text-align: center;
   padding: 3px;
   color: #928E1F;
-  font-weight: bold;
-  font-size: 60px;
-  opacity: 0.8;
+  font-family: fantasy;
+  font-size: 80px;
+  opacity: 0.7;
 }
 
 .margin-right {
   margin-right: 4px;
+}
+
+.layout-fixed {
+  table-layout: fixed;
+}
+
+.highlight-row td {
+  background: #dee2e6;
 }

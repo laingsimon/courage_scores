@@ -4,10 +4,29 @@ import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
 
-export function DivisionTeams(props) {
-    const divisionData = props.divisionData;
+export function DivisionTeams({ divisionData, onReloadDivision, account, divisionId }) {
     const [ editTeam, setEditTeam ] = useState(null);
     const [ loadingTeamDetails, setLoadingTeamDetails ] = useState(null);
+
+    async function prepareDeleteTeam(team) {
+        if (loadingTeamDetails) {
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to delete the ${team.name}?`)) {
+            return;
+        }
+
+        const api = new TeamApi(new Http(new Settings()));
+        const result = await api.delete(team.id);
+
+        if (result.success) {
+            await onReloadDivision();
+        } else {
+            console.log(result);
+            window.alert(`Could not delete team: ${JSON.stringify(result)}`);
+        }
+    }
 
     async function openEditTeam(id) {
         if (loadingTeamDetails) {
@@ -23,6 +42,7 @@ export function DivisionTeams(props) {
         setLoadingTeamDetails(id);
         const result = await api.get(id);
 
+        await onReloadDivision();
         setEditTeam(result);
         setLoadingTeamDetails(null);
     }
@@ -38,7 +58,7 @@ export function DivisionTeams(props) {
                     <th>Lost</th>
                     <th>Drawn</th>
                     <th>+/-</th>
-                    {(props.account && props.account.access && props.account.access.teamAdmin) ? (<th></th>) : null}
+                    {(account && account.access && account.access.teamAdmin) ? (<th></th>) : null}
                 </tr>
             </thead>
             <tbody>
@@ -50,24 +70,25 @@ export function DivisionTeams(props) {
                 <td>{t.lost}</td>
                 <td>{t.drawn}</td>
                 <td>{t.difference}</td>
-                {(props.account && props.account.access && props.account.access.teamAdmin) ? (<td>
+                {(account && account.access && account.access.teamAdmin) ? (<td className="text-nowrap">
                     {(loadingTeamDetails === null && editTeam === null) || (editTeam != null && editTeam.id === t.id) || loadingTeamDetails === t.id ? (<button className={`btn btn-sm ${loadingTeamDetails === t.id || loadingTeamDetails === null ? 'btn-primary' : 'btn-secondary'}`} onClick={() => openEditTeam(t.id)}>
                         {loadingTeamDetails === t.id ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '✏'}
                     </button>) : (<button className="btn btn-sm btn-light">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>)}
+                    {(loadingTeamDetails === null && editTeam === null) || (editTeam != null && editTeam.id === t.id) || loadingTeamDetails === t.id ? (<button className="btn btn-sm" onClick={() => prepareDeleteTeam(t)}>❌</button>) : null}
                 </td>) : null}
             </tr>))}
             </tbody>
         </table>
         {editTeam ? (<EditTeamDetails {...editTeam}
-                                      divisionId={props.divisionId}
+                                      divisionId={divisionId}
                                       onChange={(name, value) => {
                                    const newData = {};
                                    newData[name] = value;
                                    setEditTeam(Object.assign({}, editTeam, newData))
                                } }
-                                      onSaved={async () => { props.onReloadDivision(); setEditTeam(null); }}
+                                      onSaved={async () => { onReloadDivision(); setEditTeam(null); }}
                                       onCancel={() => setEditTeam(null)} />) : null}
-        {(props.account && props.account.access && props.account.access.teamAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
+        {(account && account.access && account.access.teamAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
             Add team
         </button>) : null}
     </div>);

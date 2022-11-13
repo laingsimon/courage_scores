@@ -10,6 +10,10 @@ class TeamApi {
     update(team) {
         return this.http.put(`/api/Team`, team);
     }
+
+    delete(id) {
+        return this.http.delete(`/api/Team/${id}`, {});
+    }
 }
 
 export { TeamApi };
