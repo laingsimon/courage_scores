@@ -8,11 +8,11 @@ import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {DivisionApi} from "../api/division";
 
-export function Division(props) {
-    const {divisionId, mode} = useParams();
+export function Division({ account }) {
+    const { divisionId, mode } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
-    const effectiveTab = mode || 'teams'
+    const effectiveTab = mode || 'teams';
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
@@ -55,8 +55,8 @@ export function Division(props) {
                 <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>
-        {effectiveTab === 'teams' ? <DivisionTeams {...props} divisionData={divisionData} divisionId={divisionId} onReloadDivision={reloadDivisionData} /> : null}
-        {effectiveTab === 'fixtures' ? <DivisionFixtures {...props} divisionData={divisionData} divisionId={divisionId} onReloadDivision={reloadDivisionData} /> : null}
-        {effectiveTab === 'players' ? <DivisionPlayers {...props} divisionData={divisionData} divisionId={divisionId} onReloadDivision={reloadDivisionData} /> : null}
+        {effectiveTab === 'teams' ? <DivisionTeams divisionData={divisionData} onReloadDivision={reloadDivisionData} account={account} divisionId={divisionId} /> : null}
+        {effectiveTab === 'fixtures' ? <DivisionFixtures divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
+        {effectiveTab === 'players' ? <DivisionPlayers divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
     </div>);
 }
