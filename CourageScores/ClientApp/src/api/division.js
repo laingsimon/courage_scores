@@ -14,6 +14,10 @@ class DivisionApi {
     data(id) {
         return this.http.get(`/api/Division/${id}/Data`, {});
     }
+
+    update(details) {
+        return this.http.put(`/api/Division`, details);
+    }
 }
 
 export { DivisionApi };

@@ -80,3 +80,7 @@ nav {
 .highlight-row td {
   background: #dee2e6;
 }
+
+.extra-small {
+  font-size: 17px;
+}
