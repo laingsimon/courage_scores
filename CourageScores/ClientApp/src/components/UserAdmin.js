@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect } from 'react';
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {AccountApi} from "../api/account";
@@ -7,14 +7,38 @@ export function UserAdmin() {
     const api = new AccountApi(new Http(new Settings()));
     const [ saving, setSaving ] = useState(false);
     const [ account, setAccount ] = useState({
-        emailAddress: '',
-        access: {
-            userAdmin: false,
-            leagueAdmin: false,
-            teamAdmin: false,
-            gameAdmin: false,
-        }
+        access: { }
     });
+    const [ emailAddress, setEmailAddress ] = useState('');
+    const [ loading, setLoading ] = useState(false);
+
+    useEffect(() => {
+        if (loading) {
+            return;
+        }
+
+        async function loadAccess() {
+            if (emailAddress) {
+                setLoading(true);
+                const api = new AccountApi(new Http(new Settings()));
+                const accessDetail = await api.get(emailAddress);
+                if (accessDetail) {
+                    setAccount(Object.assign({}, account, {
+                        access: accessDetail.access
+                    }));
+                } else {
+                    setAccount(Object.assign({}, account,{
+                        access: { },
+                    }));
+                }
+                setLoading(false);
+            }
+        }
+
+        loadAccess();
+    },
+        // eslint-disable-next-line
+[ emailAddress ]);
 
     function valueChanged(event) {
         const currentAccount = Object.assign({}, account);
@@ -39,14 +63,18 @@ export function UserAdmin() {
             return;
         }
 
-        if (!account.emailAddress) {
+        if (!emailAddress) {
             window.alert('You must enter an email address');
             return;
         }
 
         setSaving(true);
         try {
-            const result = await api.update(account);
+            const update = {
+                emailAddress: emailAddress,
+                access: account.access,
+            };
+            const result = await api.update(update);
             if (result.success) {
                 window.alert('Access updated');
             } else {
@@ -62,7 +90,7 @@ export function UserAdmin() {
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} className="form-check-input" type="checkbox" id={name}
-                       name={`access.${name}`} checked={account.access[name]} onChange={valueChanged}/>
+                       name={`access.${name}`} checked={account.access[name] || false} onChange={valueChanged}/>
                 <label className="form-check-label" htmlFor={name}>{description}</label>
             </div>
         </div>);
@@ -75,8 +103,12 @@ export function UserAdmin() {
                 <span className="input-group-text">Email address</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="emailAddress" value={account.emailAddress} onChange={valueChanged}/>
+                   name="emailAddress" value={emailAddress} onChange={(event) => setEmailAddress(event.target.value)}/>
         </div>
+        <h6>
+            {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+            Access
+        </h6>
         {renderAccessOption('manageAccess', 'Manage user access')}
         {renderAccessOption('manageDivisions', 'Manage divisions')}
         {renderAccessOption('manageGames', 'Manage games')}
@@ -85,7 +117,7 @@ export function UserAdmin() {
         {renderAccessOption('manageSeasons', 'Manage seasons')}
         {renderAccessOption('manageTeams', 'Manage teams')}
         <div>
-            <button className="btn btn-primary" onClick={saveChanges}>
+            <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Set access
             </button>

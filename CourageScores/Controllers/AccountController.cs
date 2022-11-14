@@ -39,6 +39,12 @@ public class AccountController : Controller
         return await _userService.GetUser();
     }
 
+    [HttpGet("/api/Account/{emailAddress}")]
+    public async Task<UserDto?> GetUser(string emailAddress)
+    {
+        return await _userService.GetUser(emailAddress);
+    }
+
     [HttpPost("/api/Account/Access")]
     public async Task<ActionResultDto<UserDto>> UpdateAccess([FromBody] UpdateAccessDto access)
     {
