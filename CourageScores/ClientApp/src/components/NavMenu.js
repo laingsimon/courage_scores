@@ -28,6 +28,7 @@ export function NavMenu({divisions, appLoading, account}) {
                             {!appLoading && account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Logout/?redirectUrl=${document.location.href}`}>Logout ({account.name})</a> : null}
                             {!appLoading && !account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Login/?redirectUrl=${document.location.href}`}>Login</a> : null}
                         </NavItem>
+                        {account && account.access && account.access.userAdmin ? (<NavLink tag={Link} className="text-light" to={`/userAdmin`}>User admin</NavLink>) : null}
                     </ul>
                 </Collapse>
             </Navbar>

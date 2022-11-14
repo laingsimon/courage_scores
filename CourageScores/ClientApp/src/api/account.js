@@ -10,6 +10,10 @@ class AccountApi {
     account() {
         return this.http.get(`/api/Account`, {});
     }
+
+    update(account) {
+        return this.http.post(`/api/Account`, account);
+    }
 }
 
 export { AccountApi };
