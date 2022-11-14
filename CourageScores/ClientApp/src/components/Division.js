@@ -106,6 +106,10 @@ export function Division({ account }) {
         }
     }
 
+    function renderDate(dateStr) {
+        return new Date(dateStr).toDateString().substring(4);
+    }
+
     return (<div>
         <h2>
             {editMode === 'division'
@@ -125,7 +129,7 @@ export function Division({ account }) {
                     <button className="btn btn-sm btn-primary margin-right" onClick={saveSeasonDetails}>Save</button>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button>
                 </span>)
-                : (<span>{divisionData.season.name} ({new Date(divisionData.season.startDate).toDateString()} - {new Date(divisionData.season.endDate).toDateString()}) {isSeasonAdmin
+                : (<span>{divisionData.season.name} ({renderDate(divisionData.season.startDate)} - {renderDate(divisionData.season.endDate)}) {isSeasonAdmin
                     ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('season')}>✏️</span>)
                     : null}
                 </span>)}
