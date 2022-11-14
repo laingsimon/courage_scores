@@ -28,7 +28,11 @@ export function Division({ account }) {
     }
 
     useEffect(() => {
-        if (divisionData || loading) {
+        if (loading) {
+            return;
+        }
+
+        if (divisionData && divisionData.id === divisionId) {
             return;
         }
 
@@ -51,7 +55,7 @@ export function Division({ account }) {
         reloadDivisionData();
     }, [ divisionData, loading, divisionId ]);
 
-    if (!divisionData) {
+    if (loading || !divisionData) {
         return (<div className="light-background p-3">
             <span className="h1">🎯</span> Loading...
         </div>);
