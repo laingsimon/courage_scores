@@ -84,3 +84,15 @@ nav {
 .extra-small {
   font-size: 17px;
 }
+
+input[type="date"] {
+  width: 7em;
+}
+
+.no-border {
+  border: none;
+}
+
+.margin-left {
+  margin-left: 5px;
+}
