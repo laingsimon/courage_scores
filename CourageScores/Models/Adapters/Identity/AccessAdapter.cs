@@ -9,10 +9,13 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
     {
         return new AccessDto
         {
-            GameAdmin = model.GameAdmin,
-            LeagueAdmin = model.LeagueAdmin,
-            TeamAdmin = model.TeamAdmin,
-            UserAdmin = model.UserAdmin,
+            ManageAccess = model.ManageAccess,
+            ManageDivisions = model.ManageDivisions,
+            ManageGames = model.ManageGames,
+            ManagePlayers = model.ManagePlayers,
+            ManageScores = model.ManageScores,
+            ManageSeasons = model.ManageSeasons,
+            ManageTeams = model.ManageTeams,
         };
     }
 
@@ -20,10 +23,13 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
     {
         return new Access
         {
-            GameAdmin = dto.GameAdmin,
-            LeagueAdmin = dto.LeagueAdmin,
-            TeamAdmin = dto.TeamAdmin,
-            UserAdmin = dto.UserAdmin,
+            ManageAccess = dto.ManageAccess,
+            ManageDivisions = dto.ManageDivisions,
+            ManageGames = dto.ManageGames,
+            ManagePlayers = dto.ManagePlayers,
+            ManageScores = dto.ManageScores,
+            ManageSeasons = dto.ManageSeasons,
+            ManageTeams = dto.ManageTeams,
         };
     }
 }

@@ -6,7 +6,7 @@ import {Settings} from "../api/settings";
 import {PlayerApi} from "../api/player";
 
 export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
-    const isAdmin = account && account.access && account.access.teamAdmin;
+    const isAdmin = account && account.access && account.access.managePlayers;
     const [ editPlayer, setEditPlayer ] = useState(null);
     const [ loadingPlayerDetails, setLoadingPlayerDetails ] = useState(null);
     const [ deletingPlayer, setDeletingPlayer ] = useState(null);

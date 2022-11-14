@@ -16,16 +16,16 @@ public class Division : AuditedEntity, IPermissionedEntity
 
     public bool CanCreate(UserDto user)
     {
-        return user.Access?.LeagueAdmin == true;
+        return user.Access?.ManageDivisions == true;
     }
 
     public bool CanEdit(UserDto user)
     {
-        return user.Access?.LeagueAdmin == true;
+        return user.Access?.ManageDivisions == true;
     }
 
     public bool CanDelete(UserDto user)
     {
-        return user.Access?.LeagueAdmin == true;
+        return user.Access?.ManageDivisions == true;
     }
 }

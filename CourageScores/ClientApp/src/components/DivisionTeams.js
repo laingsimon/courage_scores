@@ -7,6 +7,7 @@ import {TeamApi} from "../api/team";
 export function DivisionTeams({ divisionData, onReloadDivision, account, divisionId }) {
     const [ editTeam, setEditTeam ] = useState(null);
     const [ loadingTeamDetails, setLoadingTeamDetails ] = useState(null);
+    const isAdmin = account && account.access && account.access.manageTeams;
 
     async function prepareDeleteTeam(team) {
         if (loadingTeamDetails) {
@@ -58,7 +59,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
                     <th>Lost</th>
                     <th>Drawn</th>
                     <th>+/-</th>
-                    {(account && account.access && account.access.teamAdmin) ? (<th></th>) : null}
+                    {(isAdmin) ? (<th></th>) : null}
                 </tr>
             </thead>
             <tbody>
@@ -70,7 +71,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
                 <td>{t.lost}</td>
                 <td>{t.drawn}</td>
                 <td>{t.difference}</td>
-                {(account && account.access && account.access.teamAdmin) ? (<td className="text-nowrap">
+                {(isAdmin) ? (<td className="text-nowrap">
                     {(loadingTeamDetails === null && editTeam === null) || (editTeam != null && editTeam.id === t.id) || loadingTeamDetails === t.id ? (<button className={`btn btn-sm ${loadingTeamDetails === t.id || loadingTeamDetails === null ? 'btn-primary' : 'btn-secondary'}`} onClick={() => openEditTeam(t.id)}>
                         {loadingTeamDetails === t.id ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '✏'}
                     </button>) : (<button className="btn btn-sm btn-light">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button>)}
@@ -88,7 +89,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
                                } }
                                       onSaved={async () => { onReloadDivision(); setEditTeam(null); }}
                                       onCancel={() => setEditTeam(null)} />) : null}
-        {(account && account.access && account.access.teamAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
+        {(isAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary" onClick={() => setEditTeam({})}>
             Add team
         </button>) : null}
     </div>);

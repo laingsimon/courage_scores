@@ -14,7 +14,8 @@ export function Division({ account }) {
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
-    const isAdmin = account && account.access && account.access.leagueAdmin;
+    const isDivisionAdmin = account && account.access && account.access.manageDivisions;
+    const isSeasonAdmin = account && account.access && account.access.manageSeasons;
     const [ editMode, setEditMode ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(null);
     const [ divisionName, setDivisionName ] = useState(null);
@@ -113,7 +114,7 @@ export function Division({ account }) {
                     <button className="btn btn-sm btn-primary margin-right" onClick={saveDivisionName}>Save</button>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button>
                 </span>)
-                : (<span>{divisionData.name} {isAdmin ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('division')}>✏️</span>) : null}
+                : (<span>{divisionData.name} {isDivisionAdmin ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('division')}>✏️</span>) : null}
                 </span>)},
             {editMode === 'season'
                 ? (<span className="h4">
@@ -124,7 +125,9 @@ export function Division({ account }) {
                     <button className="btn btn-sm btn-primary margin-right" onClick={saveSeasonDetails}>Save</button>
                     <button className="btn btn-sm btn-secondary" onClick={() => setEditMode(null)}>Cancel</button>
                 </span>)
-                : (<span>{divisionData.season.name} ({new Date(divisionData.season.startDate).toDateString()} - {new Date(divisionData.season.endDate).toDateString()}) {isAdmin ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('season')}>✏️</span>) : null}
+                : (<span>{divisionData.season.name} ({new Date(divisionData.season.startDate).toDateString()} - {new Date(divisionData.season.endDate).toDateString()}) {isSeasonAdmin
+                    ? (<span className="btn btn-sm extra-small" onClick={() => setEditMode('season')}>✏️</span>)
+                    : null}
                 </span>)}
         </h2>
         <ul className="nav nav-tabs">

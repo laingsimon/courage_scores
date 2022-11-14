@@ -58,8 +58,18 @@ export function UserAdmin() {
         }
     }
 
+    function renderAccessOption(name, description) {
+        return (<div className="input-group mb-3">
+            <div className="form-check form-switch margin-right">
+                <input disabled={saving} className="form-check-input" type="checkbox" id={name}
+                       name={`access.${name}`} checked={account.access[name]} onChange={valueChanged}/>
+                <label className="form-check-label" htmlFor={name}>{description}</label>
+            </div>
+        </div>);
+    }
+
     return (<div className="light-background p-3">
-        <h3>User admin</h3>
+        <h3>Set access for a user</h3>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Email address</span>
@@ -67,46 +77,13 @@ export function UserAdmin() {
             <input disabled={saving} type="text" className="form-control"
                    name="emailAddress" value={account.emailAddress} onChange={valueChanged}/>
         </div>
-        <div className="input-group mb-3">
-            <div className="form-check form-switch margin-right">
-                <input disabled={saving} className="form-check-input" type="checkbox" id="userAdmin"
-                       name="access.userAdmin" checked={account.access.userAdmin} onChange={valueChanged}/>
-                <label className="form-check-label" htmlFor="userAdmin">User Admin</label>
-                <p>
-                    Can modify the access other users have within the service
-                </p>
-            </div>
-        </div>
-        <div className="input-group mb-3">
-            <div className="form-check form-switch margin-right">
-                <input disabled={saving} className="form-check-input" type="checkbox" id="leagueAdmin"
-                       name="access.leagueAdmin" checked={account.access.leagueAdmin} onChange={valueChanged}/>
-                <label className="form-check-label" htmlFor="leagueAdmin">League Admin</label>
-                <p>
-                    Can manage teams, divisions and seasons
-                </p>
-            </div>
-        </div>
-        <div className="input-group mb-3">
-            <div className="form-check form-switch margin-right">
-                <input disabled={saving} className="form-check-input" type="checkbox" id="teamAdmin"
-                       name="access.teamAdmin" checked={account.access.teamAdmin} onChange={valueChanged}/>
-                <label className="form-check-label" htmlFor="teamAdmin">Team Admin</label>
-                <p>
-                    Can manage teams
-                </p>
-            </div>
-        </div>
-        <div className="input-group mb-3">
-            <div className="form-check form-switch margin-right">
-                <input disabled={saving} className="form-check-input" type="checkbox" id="gameAdmin"
-                       name="access.gameAdmin" checked={account.access.gameAdmin} onChange={valueChanged}/>
-                <label className="form-check-label" htmlFor="gameAdmin">Game Admin</label>
-                <p>
-                    Can record scores and view man of the match records and manage games
-                </p>
-            </div>
-        </div>
+        {renderAccessOption('manageAccess', 'Manage user access')}
+        {renderAccessOption('manageDivisions', 'Manage divisions')}
+        {renderAccessOption('manageGames', 'Manage games')}
+        {renderAccessOption('managePlayers', 'Manage players')}
+        {renderAccessOption('manageScores', 'Manage scores')}
+        {renderAccessOption('manageSeasons', 'Manage seasons')}
+        {renderAccessOption('manageTeams', 'Manage teams')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
