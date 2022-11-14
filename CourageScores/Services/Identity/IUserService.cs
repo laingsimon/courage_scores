@@ -7,4 +7,5 @@ public interface IUserService
 {
     Task<UserDto?> GetUser();
     Task<ActionResultDto<UserDto>> UpdateAccess(UpdateAccessDto user);
+    Task<UserDto?> GetUser(string emailAddress);
 }

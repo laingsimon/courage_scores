@@ -15,7 +15,7 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
 
     public GameTeamDto Adapt(GameTeam model)
     {
-        var isAdmin = _userService.GetUser().Result?.Access?.GameAdmin == true;
+        var isAdmin = _userService.GetUser().Result?.Access?.ManageScores == true;
 
         return new GameTeamDto
         {

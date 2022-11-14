@@ -2,23 +2,11 @@ namespace CourageScores.Models.Cosmos.Identity;
 
 public class Access
 {
-    /// <summary>
-    /// Does this user have access to manage users?
-    /// </summary>
-    public bool UserAdmin { get; set; }
-
-    /// <summary>
-    /// Does this user have access to manage the seasons and divisions?
-    /// </summary>
-    public bool LeagueAdmin { get; set; }
-
-    /// <summary>
-    /// Does this user have access to manage teams?
-    /// </summary>
-    public bool TeamAdmin { get; set; }
-
-    /// <summary>
-    /// Does this user have access to manage games, dates, players, etc?
-    /// </summary>
-    public bool GameAdmin { get; set; }
+    public bool ManageAccess { get; set; }
+    public bool ManageDivisions { get; set; }
+    public bool ManageGames { get; set; }
+    public bool ManagePlayers { get; set; }
+    public bool ManageScores { get; set; }
+    public bool ManageSeasons { get; set; }
+    public bool ManageTeams { get; set; }
 }

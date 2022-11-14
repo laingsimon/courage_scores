@@ -155,7 +155,7 @@ public class UserServiceTests
         {
             Access = new Access
             {
-                LeagueAdmin = true,
+                ManageAccess = true,
             }
         };
         _authenticationService
@@ -167,6 +167,6 @@ public class UserServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Access, Is.Not.Null);
-        Assert.That(result.Access!.LeagueAdmin, Is.True);
+        Assert.That(result.Access!.ManageAccess, Is.True);
     }
 }

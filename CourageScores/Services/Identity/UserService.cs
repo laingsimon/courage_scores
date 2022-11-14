@@ -43,6 +43,20 @@ public class UserService : IUserService
             : null;
     }
 
+    public async Task<UserDto?> GetUser(string emailAddress)
+    {
+        var loggedInUser = await GetUser();
+        if (loggedInUser?.Access?.ManageAccess != true)
+        {
+            return null;
+        }
+
+        var user = await _userRepository.GetUser(emailAddress);
+        return user != null
+            ? _userAdapter.Adapt(user)
+            : null;
+    }
+
     public async Task<ActionResultDto<UserDto>> UpdateAccess(UpdateAccessDto user)
     {
         var loggedInUser = await GetUser();
@@ -55,7 +69,7 @@ public class UserService : IUserService
             };
         }
 
-        if (loggedInUser.Access?.UserAdmin != true)
+        if (loggedInUser.Access?.ManageAccess != true)
         {
             return new ActionResultDto<UserDto>
             {
@@ -77,7 +91,7 @@ public class UserService : IUserService
 
         userToUpdate.Access = _accessAdapter.Adapt(user.Access);
 
-        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access.UserAdmin == false)
+        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access.ManageAccess == false)
         {
             return new ActionResultDto<UserDto>
             {

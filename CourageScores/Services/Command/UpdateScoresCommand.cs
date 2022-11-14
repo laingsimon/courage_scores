@@ -40,9 +40,9 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not logged in", null);
         }
 
-        if (user.Access?.GameAdmin != true)
+        if (user.Access?.ManageScores != true)
         {
-            return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not a game admin", null);
+            return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not permitted", null);
         }
 
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 
 export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
-    const isAdmin = account && account.access && account.access.leagueAdmin;
+    const isAdmin = account && account.access && account.access.manageFixtures;
     const [ newDate, setNewDate ] = useState('');
 
     async function onNewDateCreated() {

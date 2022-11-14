@@ -29,16 +29,16 @@ public class Team : AuditedEntity, IPermissionedEntity
 
     public bool CanCreate(UserDto user)
     {
-        return (user.Access?.TeamAdmin ?? false) || (user.Access?.LeagueAdmin ?? false);
+        return user.Access?.ManageTeams ?? false;
     }
 
     public bool CanEdit(UserDto user)
     {
-        return (user.Access?.TeamAdmin ?? false) || (user.Access?.LeagueAdmin ?? false);
+        return user.Access?.ManageTeams ?? false;
     }
 
     public bool CanDelete(UserDto user)
     {
-        return (user.Access?.TeamAdmin ?? false) || (user.Access?.LeagueAdmin ?? false);
+        return user.Access?.ManageTeams ?? false;
     }
 }

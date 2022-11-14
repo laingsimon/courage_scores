@@ -3,12 +3,16 @@ class AccountApi {
         this.http = http;
     }
 
-    login() {
-        return this.http.get(`/api/Account/Login`, {});
+    get(emailAddress) {
+        return this.http.get(`/api/Account/${emailAddress}`, {});
     }
 
     account() {
         return this.http.get(`/api/Account`, {});
+    }
+
+    update(account) {
+        return this.http.post(`/api/Account/Access`, account);
     }
 }
 

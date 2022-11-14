@@ -22,8 +22,9 @@ export function Score(props) {
     const [canSave, setCanSave] = useState(true);
 
     useEffect(() => {
-        setDisabled(!((props.account && props.account.access && props.account.access.gameAdmin) || false));
-        setCanSave((props.account && props.account.access && props.account.access.gameAdmin) || false);
+        const isAdmin = (props.account && props.account.access && props.account.access.manageScores);
+        setDisabled(!isAdmin || false);
+        setCanSave(isAdmin || false);
     }, [ props.account ]);
 
     useEffect(() => {

@@ -4,7 +4,7 @@ import {Link} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../api/settings";
 
-export function NavMenu(props) {
+export function NavMenu({divisions, appLoading, account}) {
     const settings = new Settings();
     const [collapsed, setCollapsed] = useState(true);
 
@@ -19,15 +19,16 @@ export function NavMenu(props) {
                         <NavItem>
                             <NavLink tag={Link} className="text-light" to="/news">News</NavLink>
                         </NavItem>
-                        {props.divisions.map(division => (<NavItem key={division.id}>
+                        {divisions.map(division => (<NavItem key={division.id}>
                           <NavLink tag={Link} className="text-light" to={`/division/${division.id}`}>
                             {division.name}
                           </NavLink>
                         </NavItem>))}
                         <NavItem>
-                            {!props.appLoading && props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Logout/?redirectUrl=${document.location.href}`}>Logout ({props.account.name})</a> : null}
-                            {!props.appLoading && !props.account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Login/?redirectUrl=${document.location.href}`}>Login</a> : null}
+                            {!appLoading && account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Logout/?redirectUrl=${document.location.href}`}>Logout ({account.name})</a> : null}
+                            {!appLoading && !account ? <a className="nav-link text-light" href={`${settings.apiHost}/api/Account/Login/?redirectUrl=${document.location.href}`}>Login</a> : null}
                         </NavItem>
+                        {account && account.access && account.access.manageAccess ? (<NavLink tag={Link} className="text-light" to={`/userAdmin`}>User admin</NavLink>) : null}
                     </ul>
                 </Collapse>
             </Navbar>

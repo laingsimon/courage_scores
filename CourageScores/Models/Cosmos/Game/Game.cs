@@ -47,16 +47,16 @@ public class Game : AuditedEntity, IPermissionedEntity
 
     public bool CanCreate(UserDto user)
     {
-        return user.Access?.GameAdmin == true;
+        return user.Access?.ManageGames == true;
     }
 
     public bool CanEdit(UserDto user)
     {
-        return user.Access?.GameAdmin == true;
+        return user.Access?.ManageGames == true;
     }
 
     public bool CanDelete(UserDto user)
     {
-        return user.Access?.GameAdmin == true;
+        return user.Access?.ManageGames == true;
     }
 }
