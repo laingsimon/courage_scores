@@ -11,8 +11,12 @@ class DivisionApi {
         return this.http.get(`/api/Division/${id}`, {});
     }
 
-    data(id) {
-        return this.http.get(`/api/Division/${id}/Data`, {});
+    data(divisionId, seasonId) {
+        if (seasonId) {
+            return this.http.get(`/api/Division/${divisionId}/${seasonId}/Data`, {});
+        }
+        
+        return this.http.get(`/api/Division/${divisionId}/Data`, {});
     }
 
     update(details) {

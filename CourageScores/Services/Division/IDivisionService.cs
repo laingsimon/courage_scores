@@ -5,5 +5,5 @@ namespace CourageScores.Services.Division;
 
 public interface IDivisionService : IGenericDataService<Models.Cosmos.Division, DivisionDto>
 {
-    Task<DivisionDataDto> GetDivisionData(Guid divisionId, CancellationToken token);
+    Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token);
 }

@@ -28,7 +28,7 @@ public class DivisionService : IDivisionService
         _genericSeasonService = genericSeasonService;
     }
 
-    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
     {
         var division = await _genericDivisionService.Get(divisionId, token);
         if (division == null || division.Deleted != null)
@@ -37,7 +37,11 @@ public class DivisionService : IDivisionService
         }
 
         var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).WhereAsync(m => m.Deleted == null).ToList();
-        var season = await _genericSeasonService.GetAll(token).WhereAsync(m => m.Deleted == null).OrderByDescendingAsync(s => s.EndDate).FirstOrDefaultAsync();
+        var allSeasons = await _genericSeasonService.GetAll(token).WhereAsync(m => m.Deleted == null)
+            .OrderByDescendingAsync(s => s.EndDate).ToList();
+        var season = seasonId == null
+            ? allSeasons.FirstOrDefault()
+            : await _genericSeasonService.Get(seasonId.Value, token);
 
         if (season == null)
         {
@@ -45,6 +49,13 @@ public class DivisionService : IDivisionService
             {
                 Id = division.Id,
                 Name = division.Name,
+                Seasons = allSeasons.Select(s => new DivisionDataSeasonDto
+                {
+                    Id = s.Id,
+                    Name = s.Name,
+                    StartDate = s.StartDate,
+                    EndDate = s.EndDate,
+                }).ToList(),
             };
         }
 
@@ -68,6 +79,13 @@ public class DivisionService : IDivisionService
                 StartDate = season.StartDate,
                 EndDate = season.EndDate,
             },
+            Seasons = allSeasons.Select(s => new DivisionDataSeasonDto
+            {
+                Id = s.Id,
+                Name = s.Name,
+                StartDate = s.StartDate,
+                EndDate = s.EndDate,
+            }).ToList(),
         };
     }
 

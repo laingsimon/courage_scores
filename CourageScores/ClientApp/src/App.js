@@ -93,6 +93,7 @@ export default class App extends Component {
                     <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
                     <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/division/:divisionId/:mode' element={<Division {...this.combineProps({...this.props})} />} />}/>
+                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/userAdmin' element={<UserAdmin {...this.combineProps({...this.props})} />} />}/>
                 </Routes>

@@ -10,7 +10,7 @@ import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
 
 export function Division({ account, apis }) {
-    const { divisionId, mode } = useParams();
+    const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
@@ -24,7 +24,7 @@ export function Division({ account, apis }) {
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
-        const divisionData = await api.data(divisionId);
+        const divisionData = await api.data(divisionId, seasonId);
         setDivisionData(divisionData);
     }
 
@@ -33,7 +33,7 @@ export function Division({ account, apis }) {
             return;
         }
 
-        if (divisionData && divisionData.id === divisionId) {
+        if (divisionData && divisionData.id === divisionId && (divisionData.season.id === seasonId || !seasonId)) {
             return;
         }
 
@@ -41,7 +41,7 @@ export function Division({ account, apis }) {
 
         async function reloadDivisionData() {
             const api = new DivisionApi(new Http(new Settings()));
-            const divisionData = await api.data(divisionId);
+            const divisionData = await api.data(divisionId, seasonId);
             setDivisionData(divisionData);
             setSeasonData({
                 id: divisionData.season.id,
@@ -54,7 +54,7 @@ export function Division({ account, apis }) {
         }
 
         reloadDivisionData();
-    }, [ divisionData, loading, divisionId ]);
+    }, [ divisionData, loading, divisionId, seasonId ]);
 
     if (loading || !divisionData) {
         return (<div className="light-background p-3">
@@ -152,7 +152,13 @@ export function Division({ account, apis }) {
                     <DropdownToggle caret color="info">
                     </DropdownToggle>
                     <DropdownMenu>
-                        <DropdownItem>{seasonData.name} ({renderDate(divisionData.season.startDate)} - {renderDate(divisionData.season.endDate)})</DropdownItem>
+                        {divisionData.seasons.map(s => (<DropdownItem key={s.id}>
+                                <Link className="btn" to={`/division/${divisionId}/${mode}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                            </DropdownItem>
+                        ))}
+                        {isSeasonAdmin ? (<DropdownItem>
+                            <Link to={'/season/new'} className="btn">➕ New season</Link>
+                        </DropdownItem>) : null}
                     </DropdownMenu>
                 </ButtonDropdown>
             ) : null}

@@ -24,10 +24,16 @@ public class DivisionController : Controller
         return await _divisionService.Get(id, token);
     }
 
-    [HttpGet("/api/Division/{id}/Data")]
-    public async Task<DivisionDataDto> GetDivisionTeams(Guid id, CancellationToken token)
+    [HttpGet("/api/Division/{divisionId}/Data")]
+    public async Task<DivisionDataDto> GetDivisionTeams(Guid divisionId, CancellationToken token)
     {
-        return await _divisionService.GetDivisionData(id, token);
+        return await _divisionService.GetDivisionData(divisionId, null, token);
+    }
+
+    [HttpGet("/api/Division/{divisionId}/{seasonId}/Data")]
+    public async Task<DivisionDataDto> GetDivisionTeams(Guid divisionId, Guid seasonId, CancellationToken token)
+    {
+        return await _divisionService.GetDivisionData(divisionId, seasonId, token);
     }
 
     [HttpGet("/api/Division/")]
