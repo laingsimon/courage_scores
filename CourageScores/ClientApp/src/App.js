@@ -20,6 +20,7 @@ export default class App extends Component {
         this.reloadDivisions = this.reloadDivisions.bind(this);
         this.reloadAccount = this.reloadAccount.bind(this);
         this.reloadAll = this.reloadAll.bind(this);
+        this.clearError = this.clearError.bind(this);
 
         this.state = {
             appLoading: true,
@@ -27,8 +28,23 @@ export default class App extends Component {
                 divisions: [],
                 account: null,
                 divisionData: {}
-            }
+            },
+            error: null
         };
+    }
+
+    static getDerivedStateFromError(error) {
+        return {
+            error: {
+                message: error.message
+            },
+        };
+    }
+
+    clearError() {
+        this.setState({
+            error: null
+        });
     }
 
     async componentDidMount() {
@@ -71,7 +87,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <Layout {...this.combineProps({...this.props})}>
+            <Layout {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
                 <Routes>
                     <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
                     <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
