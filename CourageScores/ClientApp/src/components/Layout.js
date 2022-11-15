@@ -19,11 +19,11 @@ export function Layout({divisions, appLoading, account, children, error, clearEr
             {error ? renderError() : (<Container>
                 {children}
             </Container>)}
-            <Footer>
+            <div className="footer">
                 <a href="https://everythingfonts.com" class="efbadgelink">
                     <img src="https://everythingfonts.com/branding/efff.gif" title="Powered by fonts from Everything Fonts.com" alt="Powered by fonts from everythingfonts.com"/>
                 </a>    
-            </Footer>
+            </div>
         </div>
     );
 }
