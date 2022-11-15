@@ -22,7 +22,8 @@ export function NavMenu({divisions, appLoading, account}) {
     }
 
     return (<header>
-            <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
+            <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container dark>
+                <NavbarBrand href="/" className="me-auto">Menu</NavbarBrand>
                 <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
