@@ -218,7 +218,7 @@ export function Score(props) {
 
     return (<div>
         {fixtureData ? (<Link className={`btn btn-light text-nowrap`} to={`/division/${fixtureData.divisionId}/fixtures`}>
-            {fixtureData.divisionName} Fixtures
+            &larr; Fixtures
         </Link>) : null}
         <div className="light-background p-3 overflow-auto">
         <table className="table">
