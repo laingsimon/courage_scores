@@ -11,6 +11,15 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
             return;
         }
 
+        if (!teamId) {
+            window.alert('Please select a team');
+            return;
+        }
+        if (!name) {
+            window.alert('Please enter a name');
+            return;
+        }
+
         setSaving(true);
 
         try {
@@ -48,7 +57,8 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
-                <select value={teamId} onChange={valueChanged} name="teamId">
+                <select value={teamId || ''} onChange={valueChanged} name="teamId">
+                    <option value="" key="0">Select team</option>
                     {divisionData.teams.map(t => (<option key={t.id} value={t.id}>{t.name}</option>))}
                 </select>
             </div>
