@@ -71,11 +71,11 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
                    name="name" value={name || ''} onChange={valueChanged}/>
         </div>
         <div className="input-group mb-3">
-            <div className="input-group-prepend">
-                <span className="input-group-text">Captain</span>
+            <div className="form-check form-switch margin-right">
+                <input disabled={saving} type="checkbox"
+                   name="captain" id="captain" checked={captain} onChange={valueChanged} />
+                <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
-            <input disabled={saving} type="checkbox"
-                   name="captain" checked={captain} onChange={valueChanged} />
         </div>
         <button className="btn btn-primary margin-right" onClick={() => saveChanges()}>
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
