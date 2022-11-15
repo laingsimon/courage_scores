@@ -216,7 +216,11 @@ export function Score(props) {
         return (<div className="light-background p-3">Error: {error}</div>);
     }
 
-    return (<div className="light-background p-3 overflow-auto">
+    return (<div>
+        {fixtureData ? (<Link className={`btn btn-light text-nowrap`} to={`/division/${fixtureData.divisionId}/fixtures`}>
+            {fixtureData.divisionName} Fixtures
+        </Link>) : null}
+        <div className="light-background p-3 overflow-auto">
         <table className="table">
             <tbody>
             <tr>
@@ -348,5 +352,6 @@ export function Score(props) {
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             Save
         </button>) : null}
-    </div>);
+    </div>
+</div>);
 }
