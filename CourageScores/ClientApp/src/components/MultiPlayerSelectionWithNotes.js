@@ -26,7 +26,7 @@ export function MultiPlayerSelectionWithNotes(props) {
             {p.name} ({p.notes}) {props.disabled ? '' : '×'}
             </button>)}</li>); })}
         </ol>
-        {props.disabled ? null (<div>
+        {props.disabled ? null : (<div>
             <input
                 disabled={props.disabled}
                 onChange={(elem) => setNotes(elem.target.value)}
