@@ -5,7 +5,7 @@ import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
 
 export function DivisionFixture({ fixture, divisionData, account, onReloadDivision, date }) {
-    const isAdmin = account && account.access && account.access.manageFixtures;
+    const isAdmin = account && account.access && account.access.manageGames;
     const [ awayTeamId, setAwayTeamId ] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
