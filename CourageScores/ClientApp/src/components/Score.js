@@ -216,7 +216,7 @@ export function Score(props) {
         return (<div className="light-background p-3">Error: {error}</div>);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="light-background p-3 overflow-auto">
         <table className="table">
             <tbody>
             <tr>
