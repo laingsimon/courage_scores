@@ -17,20 +17,20 @@ export function MultiPlayerSelection(props) {
 
     return (<div>
         <ol>
-            {(props.players || []).map(p => { index++; return (<li key={index}><button
+            {(props.players || []).map(p => { index++; return (<li key={index}>{props.disabled ? null : (<button
                 disabled={props.disabled}
                 className={`badge badge-pill ${props.disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
                 onClick={() => props.onRemovePlayer(p.id, index - 1)}>
             {p.name} {props.disabled ? '' : '×'}
-            </button></li>); })}
+            </button>)}</li>); })}
         </ol>
-        <div>
+        {props.disabled ? null : (<div>
             <PlayerSelection
                 disabled={props.disabled}
                 players={props.allPlayers}
                 selected={player}
                 onChange={(elem, p) => setPlayer(p)} />
             <button disabled={props.disabled} onClick={addPlayer} className={`badge ${props.disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
-        </div>
+        </div>)}
     </div>);
 }
