@@ -30,7 +30,7 @@ export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
             date={newDate}/>);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="light-background p-3 overflow-auto">
         {divisionData.fixtures.map(date => (<div key={date.date}>
             <h4>{new Date(date.date).toDateString()}</h4>
             <table className="table layout-fixed">

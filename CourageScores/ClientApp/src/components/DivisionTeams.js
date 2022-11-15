@@ -48,7 +48,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
         setLoadingTeamDetails(null);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="light-background p-3 overflow-auto">
         <table className="table">
             <thead>
                 <tr>

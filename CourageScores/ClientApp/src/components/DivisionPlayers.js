@@ -57,7 +57,7 @@ export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
         setLoadingPlayerDetails(null);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="light-background p-3 overflow-auto" style={{ maxHeight: 500 }}>
         <table className="table">
             <thead>
                 <tr>
