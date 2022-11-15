@@ -149,7 +149,7 @@ export function Division({ account, apis }) {
                         {seasonData.name} ({renderDate(divisionData.season.startDate)} - {renderDate(divisionData.season.endDate)})
                         {isSeasonAdmin ? '✏' : ''}
                     </button>
-                    <DropdownToggle caret color="info">
+                    <DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}>
                     </DropdownToggle>
                     <DropdownMenu>
                         {divisionData.seasons.map(s => (<DropdownItem key={s.id}>
