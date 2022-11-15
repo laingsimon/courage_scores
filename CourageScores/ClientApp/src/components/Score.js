@@ -8,6 +8,7 @@ import {MatchPlayerSelection} from "./MatchPlayerSelection";
 import {PlayerSelection} from "./PlayerSelection";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
+import {Link} from 'react-router-dom';
 
 export function Score(props) {
     const {fixtureId} = useParams();
