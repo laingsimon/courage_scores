@@ -310,7 +310,7 @@ export function Score(props) {
                 match={fixtureData.matches[7]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
             {canSave ? (<tr>
-                <td>
+                <td colSpan="2">
                     Man of the match<br />
                     <PlayerSelection
                         players={allPlayers}
@@ -318,8 +318,8 @@ export function Score(props) {
                         selected={ { id: fixtureData.home.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
-                <td colSpan="3"></td>
-                <td>
+                <td></td>
+                <td colSpan="2">
                     Man of the match<br />
                     <PlayerSelection
                         players={allPlayers}
@@ -329,7 +329,7 @@ export function Score(props) {
                 </td>
             </tr>) : null}
             <tr>
-                <td>
+                <td colSpan="2">
                     180s<br />
                     <MultiPlayerSelection
                         disabled={disabled}
@@ -338,7 +338,7 @@ export function Score(props) {
                         onRemovePlayer={removeOneEightyScore}
                         onAddPlayer={add180} />
                 </td>
-                <td colSpan="2"></td>
+                <td></td>
                 <td colSpan="2">
                     100+ c/o<br />
                     <MultiPlayerSelectionWithNotes
