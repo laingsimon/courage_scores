@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
 
-export function TeamSelection({value, onChange, options, color}) {
+export function BootstrapDropdown({value, onChange, options, color}) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     if (options.length === 0) {

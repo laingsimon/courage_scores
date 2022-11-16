@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
-import {TeamSelection} from "./TeamSelection";
+import {BootstrapDropdown} from "./BootstrapDropdown";
 
 export function DivisionFixture({ fixture, divisionData, account, onReloadDivision, date }) {
     const bye = {
@@ -101,7 +101,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                     disabled: !!unavailableReason };
             }));
 
-        return (<TeamSelection
+        return (<BootstrapDropdown
             value={awayTeamId}
             onChange={(value) => setAwayTeamId(value)}
             options={options} />);
