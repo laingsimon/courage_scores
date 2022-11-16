@@ -29,6 +29,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     }
 
     function isFixtureSelectedForAnotherDate(t) {
+        const matchingFixtureDates = [];
         for (let index = 0; index < divisionData.fixtures.length; index++) {
             const fixtureDate = divisionData.fixtures[index];
             if (fixtureDate.date === date) {
@@ -41,11 +42,11 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                 || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
 
             if (equivalentFixtures.length) {
-                return fixtureDate.date;
+                matchingFixtureDates.push(fixtureDate.date);
             }
         }
 
-        return null;
+        return matchingFixtureDates;
     }
 
     function isSameAddress(t) {
@@ -80,7 +81,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                 : `Already playing against ${otherFixtureSameDate.awayTeam.name}`;
        }
         let otherFixtureOtherDate = isFixtureSelectedForAnotherDate(t);
-        if (otherFixtureOtherDate) {
+        if (otherFixtureOtherDate.length >= 2) {
             return `These teams are already playing each other on ${new Date(otherFixtureOtherDate).toDateString()}`;
         }
 
