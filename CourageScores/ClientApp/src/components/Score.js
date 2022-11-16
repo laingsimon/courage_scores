@@ -9,6 +9,7 @@ import {PlayerSelection} from "./PlayerSelection";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 import {Link} from 'react-router-dom';
+import {NavItem, NavLink} from "reactstrap";
 
 export function Score(props) {
     const {fixtureId} = useParams();
@@ -218,9 +219,17 @@ export function Score(props) {
     }
 
     return (<div>
-        {fixtureData ? (<div className="py-2"><Link className={`btn btn-light text-nowrap`} to={`/division/${fixtureData.divisionId}/fixtures`}>
-            &larr; Fixtures
-        </Link></div>) : null}
+        {fixtureData ? ( <ul className="nav nav-tabs">
+            <NavItem>
+                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/players`}>Players</NavLink>
+            </NavItem>
+        </ul>) : null}
         <div className="light-background p-3 overflow-auto">
         <table className="table">
             <tbody>
