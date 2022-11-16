@@ -3,8 +3,13 @@ import {Link} from "react-router-dom";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
+import {TeamSelection} from "./TeamSelection";
 
 export function DivisionFixture({ fixture, divisionData, account, onReloadDivision, date }) {
+    const bye = {
+        text: 'Bye',
+        value: '',
+    };
     const isAdmin = account && account.access && account.access.manageGames;
     const [ awayTeamId, setAwayTeamId ] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [ saving, setSaving ] = useState(false);
@@ -74,10 +79,10 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
             return (fixture.awayTeam ? fixture.awayTeam.name : 'Bye');
         }
 
-        return (<select value={awayTeamId} onChange={(event) => setAwayTeamId(event.target.value)}>
-            <option value={''}>Bye</option>
-            {divisionData.teams.filter(isValidAwayTeam).map(t => (<option key={t.id} value={t.id}>{t.name}</option>))}
-        </select>);
+        return (<TeamSelection
+            value={awayTeamId}
+            onChange={(value) => setAwayTeamId(value)}
+            options={[bye].concat(divisionData.teams.filter(isValidAwayTeam).map(t => { return { value: t.id, text: t.name } }))} />);
     }
 
     async function saveTeamChange() {
