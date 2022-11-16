@@ -9,8 +9,9 @@ import {PlayerSelection} from "./PlayerSelection";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 import {Link} from 'react-router-dom';
+import {NavItem, NavLink} from "reactstrap";
 
-export function Score(props) {
+export function Score({ account }) {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState(true);
     const [fixtureData, setFixtureData] = useState(null);
@@ -23,10 +24,10 @@ export function Score(props) {
     const [canSave, setCanSave] = useState(true);
 
     useEffect(() => {
-        const isAdmin = (props.account && props.account.access && props.account.access.manageScores);
+        const isAdmin = (account && account.access && account.access.manageScores);
         setDisabled(!isAdmin || false);
         setCanSave(isAdmin || false);
-    }, [ props.account ]);
+    }, [ account ]);
 
     useEffect(() => {
         if (fixtureData || error) {
@@ -217,10 +218,22 @@ export function Score(props) {
         return (<div className="light-background p-3">Error: {error}</div>);
     }
 
+    if (!allPlayers) {
+        return (<div className="light-background p-3">There are no players for the home and/or away teams</div>);
+    }
+
     return (<div>
-        {fixtureData ? (<div className="py-2"><Link className={`btn btn-light text-nowrap`} to={`/division/${fixtureData.divisionId}/fixtures`}>
-            &larr; Fixtures
-        </Link></div>) : null}
+        {fixtureData ? ( <ul className="nav nav-tabs">
+            <NavItem>
+                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/players`}>Players</NavLink>
+            </NavItem>
+        </ul>) : null}
         <div className="light-background p-3 overflow-auto">
         <table className="table">
             <tbody>

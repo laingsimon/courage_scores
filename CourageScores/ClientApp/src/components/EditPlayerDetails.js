@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {PlayerApi} from "../api/player";
+import {BootstrapDropdown} from "./BootstrapDropdown";
 
 export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange, onCancel, divisionData }) {
     const [ saving, setSaving ] = useState(false);
@@ -57,10 +58,9 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
-                <select value={teamId || ''} onChange={valueChanged} name="teamId">
-                    <option value="" key="0">Select team</option>
-                    {divisionData.teams.map(t => (<option key={t.id} value={t.id}>{t.name}</option>))}
-                </select>
+                <BootstrapDropdown
+                    onChange={value => onChange('teamId', value)} value={teamId || ''}
+                    options={[{ value: '', text: 'Select team' }].concat(divisionData.teams.map(t => { return { value: t.id, text: t.name } }))} />
             </div>
         )}
         <div className="input-group mb-3">
@@ -73,7 +73,7 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} type="checkbox"
-                   name="captain" id="captain" checked={captain} onChange={valueChanged} />
+                   name="captain" id="captain" checked={captain || false} onChange={valueChanged} className="form-check-input" />
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>

@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
-export function MultiPlayerSelection(props) {
+export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer }) {
     let index = 0;
     const [player, setPlayer] = useState(null);
 
     function addPlayer() {
         if (player) {
-            props.onAddPlayer(player);
+            onAddPlayer(player);
             setPlayer(null);
             return;
         }
@@ -17,20 +17,20 @@ export function MultiPlayerSelection(props) {
 
     return (<div>
         <ol>
-            {(props.players || []).map(p => { index++; return (<li key={index}>{props.disabled ? null : (<button
-                disabled={props.disabled}
-                className={`badge badge-pill ${props.disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
-                onClick={() => props.onRemovePlayer(p.id, index - 1)}>
-            {p.name} {props.disabled ? '' : '×'}
+            {(players || []).map(p => { index++; return (<li key={index}>{disabled ? null : (<button
+                disabled={disabled}
+                className={`badge badge-pill ${disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
+                onClick={() => onRemovePlayer(p.id, index - 1)}>
+            {p.name} {disabled ? '' : '×'}
             </button>)}</li>); })}
         </ol>
-        {props.disabled ? null : (<div>
+        {disabled ? null : (<div>
             <PlayerSelection
-                disabled={props.disabled}
-                players={props.allPlayers}
+                disabled={disabled}
+                players={allPlayers}
                 selected={player}
                 onChange={(elem, p) => setPlayer(p)} />
-            <button disabled={props.disabled} onClick={addPlayer} className={`badge ${props.disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+            <button disabled={disabled} onClick={addPlayer} className={`badge ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
         </div>)}
     </div>);
 }
