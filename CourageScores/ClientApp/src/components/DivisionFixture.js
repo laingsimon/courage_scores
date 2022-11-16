@@ -75,8 +75,10 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
         }
         let otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
         if (otherFixtureSameDate) {
-            return `Already playing against ${otherFixtureSameDate.awayTeam.name}`;
-        }
+            return otherFixtureSameDate.awayTeam.id === t.id
+                ? `Already playing against ${otherFixtureSameDate.awayTeam.name}`
+                : `Already playing against ${otherFixtureSameDate.homeTeam.name}`;
+       }
         let otherFixtureOtherDate = isFixtureSelectedForAnotherDate(t);
         if (otherFixtureOtherDate) {
             return `These teams are already playing each other on ${new Date(otherFixtureOtherDate).toDateString()}`;
