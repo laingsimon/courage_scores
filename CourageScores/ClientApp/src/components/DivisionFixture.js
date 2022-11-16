@@ -22,8 +22,10 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
         }
 
         const realFixtures = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.homeTeam && f.id !== fixture.id);
-        const isSelected = realFixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id).length;
-        return isSelected || false;
+        const selected = realFixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
+        return selected.length > 0
+            ? selected[0]
+            : null;
     }
 
     function isFixtureSelectedForAnotherDate(t) {
@@ -39,11 +41,11 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                 || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
 
             if (equivalentFixtures.length) {
-                return true;
+                return fixtureDate.date;
             }
         }
 
-        return false;
+        return null;
     }
 
     function isSameAddress(t) {
@@ -67,11 +69,20 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
         return teamAddress === fixture.homeTeam.address;
     }
 
-    function isValidAwayTeam(t) {
-        return t.id !== fixture.homeTeam.id
-            && !isSelectedInAnotherFixtureOnThisDate(t)
-            && !isSameAddress(t)
-            && !isFixtureSelectedForAnotherDate(t);
+    function getUnavailableReason(t) {
+        if (isSameAddress(t)) {
+            return `Same address`;
+        }
+        let otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
+        if (otherFixtureSameDate) {
+            return `Already playing against ${otherFixtureSameDate.awayTeam.name}`;
+        }
+        let otherFixtureOtherDate = isFixtureSelectedForAnotherDate(t);
+        if (otherFixtureOtherDate) {
+            return `These teams are already playing each other on ${new Date(otherFixtureOtherDate).toDateString()}`;
+        }
+
+        return null;
     }
 
     function renderAwayTeam() {
@@ -79,10 +90,21 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
             return (fixture.awayTeam ? fixture.awayTeam.name : 'Bye');
         }
 
+        const options = [bye].concat(divisionData.teams
+            .filter(t => t.id !== fixture.homeTeam.id)
+            .map(t => {
+                const unavailableReason = getUnavailableReason(t);
+
+                return {
+                    value: t.id,
+                    text: unavailableReason ? `${t.name} (${unavailableReason})` : t.name,
+                    disabled: !!unavailableReason };
+            }));
+
         return (<TeamSelection
             value={awayTeamId}
             onChange={(value) => setAwayTeamId(value)}
-            options={[bye].concat(divisionData.teams.filter(isValidAwayTeam).map(t => { return { value: t.id, text: t.name } }))} />);
+            options={options} />);
     }
 
     async function saveTeamChange() {
