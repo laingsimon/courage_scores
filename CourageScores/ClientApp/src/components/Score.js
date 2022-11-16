@@ -338,8 +338,8 @@ export function Score(props) {
                         onRemovePlayer={removeOneEightyScore}
                         onAddPlayer={add180} />
                 </td>
-                <td colSpan="3"></td>
-                <td>
+                <td colSpan="2"></td>
+                <td colSpan="2">
                     100+ c/o<br />
                     <MultiPlayerSelectionWithNotes
                         disabled={disabled}
