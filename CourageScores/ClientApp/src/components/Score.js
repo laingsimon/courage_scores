@@ -329,8 +329,8 @@ export function Score(props) {
                 </td>
             </tr>) : null}
             <tr>
-                <td>180s</td>
                 <td>
+                    180s<br />
                     <MultiPlayerSelection
                         disabled={disabled}
                         allPlayers={allPlayers}
@@ -338,9 +338,9 @@ export function Score(props) {
                         onRemovePlayer={removeOneEightyScore}
                         onAddPlayer={add180} />
                 </td>
-                <td></td>
-                <td>100+ c/o</td>
+                <td colSpan="3"></td>
                 <td>
+                    100+ c/o<br />
                     <MultiPlayerSelectionWithNotes
                         disabled={disabled}
                         allPlayers={allPlayers}
