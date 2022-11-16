@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
-export function MultiPlayerSelectionWithNotes(props) {
-    const [notes, setNotes] = useState('');
-    const [player, setPlayer] = useState(null);
+export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer }) {
     let index = 0;
+    const [player, setPlayer] = useState(null);
+    const [notes, setNotes] = useState('');
 
     function addPlayer() {
         if (player) {
-            props.onAddPlayer(player, notes);
+            onAddPlayer(player, notes);
             setPlayer(null);
             setNotes('');
             return;
@@ -19,16 +19,16 @@ export function MultiPlayerSelectionWithNotes(props) {
 
     return (<div>
         <ol>
-            {(props.players || []).map(p => { index++; return (<li key={index}>{props.disabled ? null : (<button
-                disabled={props.disabled}
-                className={`badge badge-pill ${props.disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
-                onClick={() => props.onRemovePlayer(p.id, index - 1)}>
-            {p.name} ({p.notes}) {props.disabled ? '' : '×'}
+            {(players || []).map(p => { index++; return (<li key={index}>{disabled ? null : (<button
+                disabled={disabled}
+                className={`badge badge-pill ${disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
+                onClick={() => onRemovePlayer(p.id, index - 1)}>
+            {p.name} ({p.notes}) {disabled ? '' : '×'}
             </button>)}</li>); })}
         </ol>
-        {props.disabled ? null : (<div>
+        {disabled ? null : (<div>
             <input
-                disabled={props.disabled}
+                disabled={disabled}
                 onChange={(elem) => setNotes(elem.target.value)}
                 value={notes}
                 className="margin-right"
@@ -36,11 +36,11 @@ export function MultiPlayerSelectionWithNotes(props) {
                 min="100"
                 max="120" />
             <PlayerSelection
-                disabled={props.disabled}
-                players={props.allPlayers}
+                disabled={disabled}
+                players={allPlayers}
                 selected={player}
                 onChange={(elem, p) => setPlayer(p)} />
-            <button disabled={props.disabled} onClick={addPlayer} className={`badge ${props.disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+            <button disabled={disabled} onClick={addPlayer} className={`badge ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
         </div>)}
     </div>);
 }

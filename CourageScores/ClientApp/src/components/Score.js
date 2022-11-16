@@ -11,7 +11,7 @@ import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
 
-export function Score(props) {
+export function Score({ account }) {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState(true);
     const [fixtureData, setFixtureData] = useState(null);
@@ -24,10 +24,10 @@ export function Score(props) {
     const [canSave, setCanSave] = useState(true);
 
     useEffect(() => {
-        const isAdmin = (props.account && props.account.access && props.account.access.manageScores);
+        const isAdmin = (account && account.access && account.access.manageScores);
         setDisabled(!isAdmin || false);
         setCanSave(isAdmin || false);
-    }, [ props.account ]);
+    }, [ account ]);
 
     useEffect(() => {
         if (fixtureData || error) {
@@ -216,6 +216,10 @@ export function Score(props) {
 
     if (error) {
         return (<div className="light-background p-3">Error: {error}</div>);
+    }
+
+    if (!allPlayers) {
+        return (<div className="light-background p-3">There are no players for the home and/or away teams</div>);
     }
 
     return (<div>

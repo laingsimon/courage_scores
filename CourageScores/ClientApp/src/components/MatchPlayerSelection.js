@@ -1,25 +1,25 @@
 import React from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
-export function MatchPlayerSelection(props) {
+export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers }) {
     function homePlayer(index) {
-        if (!props.match.homePlayers || props.match.homePlayers.length <= index) {
+        if (!match.homePlayers || match.homePlayers.length <= index) {
             return {};
         }
 
-        return props.match.homePlayers[index];
+        return match.homePlayers[index];
     }
 
     function awayPlayer(index) {
-        if (!props.match.awayPlayers || props.match.awayPlayers.length <= index) {
+        if (!match.awayPlayers || match.awayPlayers.length <= index) {
             return {};
         }
 
-        return props.match.awayPlayers[index];
+        return match.awayPlayers[index];
     }
 
     function homePlayerChanged(index, player) {
-        const newMatch = Object.assign({ homePlayers: [] }, props.match);
+        const newMatch = Object.assign({ homePlayers: [] }, match);
         const existingPlayer = newMatch.homePlayers[index];
         if (player) {
             newMatch.homePlayers[index] = Object.assign({}, existingPlayer, {
@@ -30,64 +30,64 @@ export function MatchPlayerSelection(props) {
             newMatch.homePlayers[index] = {};
         }
 
-        if (props.onMatchChanged) {
-            props.onMatchChanged(newMatch);
+        if (onMatchChanged) {
+            onMatchChanged(newMatch);
         }
     }
 
     function awayPlayerChanged(index, player) {
-        const newMatch = Object.assign({ awayPlayers: [] }, props.match);
+        const newMatch = Object.assign({ awayPlayers: [] }, match);
         const existingPlayer = newMatch.awayPlayers[index];
         newMatch.awayPlayers[index] = Object.assign({}, existingPlayer, {
             id: player.id,
             name: player.name
         });
 
-        if (props.onMatchChanged) {
-            props.onMatchChanged(newMatch);
+        if (onMatchChanged) {
+            onMatchChanged(newMatch);
         }
     }
 
     function homeScoreChanged(newScore) {
-        const newMatch = Object.assign({ }, props.match);
+        const newMatch = Object.assign({ }, match);
         newMatch.homeScore = newScore;
-        newMatch.numberOfLegs = props.numberOfLegs;
+        newMatch.numberOfLegs = numberOfLegs;
 
-        if (newMatch.homeScore > props.numberOfLegs) {
-            newMatch.homeScore = props.numberOfLegs;
+        if (newMatch.homeScore > numberOfLegs) {
+            newMatch.homeScore = numberOfLegs;
         }
-        if (newMatch.awayScore + newMatch.homeScore > props.numberOfLegs) {
-            newMatch.awayScore = props.numberOfLegs - newMatch.homeScore;
+        if (newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
+            newMatch.awayScore = numberOfLegs - newMatch.homeScore;
         }
 
-        if (props.onMatchChanged) {
-            props.onMatchChanged(newMatch);
+        if (onMatchChanged) {
+            onMatchChanged(newMatch);
         }
     }
 
     function awayScoreChanged(newScore) {
-        const newMatch = Object.assign({ }, props.match);
+        const newMatch = Object.assign({ }, match);
         newMatch.awayScore = newScore;
-        newMatch.numberOfLegs = props.numberOfLegs;
+        newMatch.numberOfLegs = numberOfLegs;
 
-        if (newMatch.awayScore > props.numberOfLegs) {
-            newMatch.awayScore = props.numberOfLegs;
+        if (newMatch.awayScore > numberOfLegs) {
+            newMatch.awayScore = numberOfLegs;
         }
-        if (newMatch.awayScore + newMatch.homeScore > props.numberOfLegs) {
-            newMatch.homeScore = props.numberOfLegs - newMatch.awayScore;
+        if (newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
+            newMatch.homeScore = numberOfLegs - newMatch.awayScore;
         }
 
-        if (props.onMatchChanged) {
-            props.onMatchChanged(newMatch);
+        if (onMatchChanged) {
+            onMatchChanged(newMatch);
         }
     }
 
     function exceptPlayers(playerIndex, propertyName) {
         const exceptPlayerIds = [];
 
-        if (props.otherMatches) {
-            for (let matchIndex = 0; matchIndex < props.otherMatches.length; matchIndex++) {
-                const otherMatch = props.otherMatches[matchIndex];
+        if (otherMatches) {
+            for (let matchIndex = 0; matchIndex < otherMatches.length; matchIndex++) {
+                const otherMatch = otherMatches[matchIndex];
                 const otherMatchPlayers = otherMatch[propertyName];
 
                 if (otherMatchPlayers) {
@@ -99,12 +99,12 @@ export function MatchPlayerSelection(props) {
             }
         }
 
-        const playerList = props.match[propertyName];
+        const playerList = match[propertyName];
         if (!playerList) {
             return exceptPlayerIds;
         }
 
-        for (let index = 0; index < props.playerCount; index++) {
+        for (let index = 0; index < playerCount; index++) {
             if (playerIndex !== index && playerList.length > index) {
                 exceptPlayerIds.push(playerList[index].id);
             }
@@ -116,7 +116,7 @@ export function MatchPlayerSelection(props) {
     function playerIndexes() {
         const indexes = [];
 
-        for (let index = 0; index < props.playerCount; index++) {
+        for (let index = 0; index < playerCount; index++) {
             indexes.push(index);
         }
 
@@ -125,38 +125,38 @@ export function MatchPlayerSelection(props) {
 
     return (<tr>
         <td>
-            {playerIndexes().map(index => props.disabled ? (homePlayer(index).name) : (<PlayerSelection
-                disabled={props.disabled}
+            {playerIndexes().map(index => disabled ? (homePlayer(index).name) : (<PlayerSelection
+                disabled={disabled}
                 key={index}
-                players={props.homePlayers}
+                players={homePlayers}
                 selected={homePlayer(index)}
                 except={exceptPlayers(index, 'homePlayers')}
                 onChange={(elem, player) => homePlayerChanged(index, player)} />))}
         </td>
         <td>
-            {props.disabled
-                ? (props.match.homeScore || '')
+            {disabled
+                ? (match.homeScore || '')
                 : (<input
-                    disabled={props.disabled}
+                    disabled={disabled}
                     type="number" max="5" min="0"
-                    value={props.match.homeScore || ''}
+                    value={match.homeScore || ''}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td>vs</td>
         <td>
-            {props.disabled
-                ? (props.match.awayScore || '')
+            {disabled
+                ? (match.awayScore || '')
                 : (<input
-                    disabled={props.disabled}
+                    disabled={disabled}
                     type="number" max="5" min="0"
-                    value={props.match.awayScore === null ? '' : props.match.awayScore}
+                    value={match.awayScore === null ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
-            {playerIndexes().map(index => props.disabled ? (awayPlayer(index).name) : (<PlayerSelection
-                disabled={props.disabled}
+            {playerIndexes().map(index => disabled ? (awayPlayer(index).name) : (<PlayerSelection
+                disabled={disabled}
                 key={index}
-                players={props.awayPlayers}
+                players={awayPlayers}
                 selected={awayPlayer(index)}
                 except={exceptPlayers(index, 'awayPlayers')}
                 onChange={(elem, player) => awayPlayerChanged(index, player)} />))}
