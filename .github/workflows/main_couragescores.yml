@@ -10,8 +10,8 @@ on:
       - release
   workflow_dispatch:
     inputs:
-      deploy:
-        description: 'Deploy'
+      deploy_prod:
+        description: 'Deploy to production'
         require: false
         type: boolean
         default: false
@@ -56,7 +56,7 @@ jobs:
           CosmosDb_DatabaseName: ${{ secrets.COSMOSDB_DATABASENAME }}
 
       - name: Upload artifact for deployment job
-        if: ${{ env.branch_name == 'release' || github.event.inputs.deploy == 'true' }}
+        if: ${{ env.branch_name == 'release' || github.event.inputs.deploy_prod == 'true' }}
         uses: actions/upload-artifact@v2
         with:
           name: .net-app
@@ -76,7 +76,7 @@ jobs:
           echo "branch_name=$(echo "$GITHUB_REF_NAME" | sed -r 's/\//_/g')" >> $GITHUB_ENV
 
       - name: Download artifact from build job
-        if: ${{ env.branch_name == 'release' || github.event.inputs.deploy == 'true' }}
+        if: ${{ env.branch_name == 'release' || github.event.inputs.deploy_prod == 'true' }}
         uses: actions/download-artifact@v2
         with:
           name: .net-app
@@ -84,7 +84,7 @@ jobs:
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
-        if: ${{ env.branch_name == 'release' || github.event.inputs.deploy == 'true' }}
+        if: ${{ env.branch_name == 'release' || github.event.inputs.deploy_prod == 'true' }}
         with:
           app-name: 'CourageScores'
           slot-name: 'Production'
