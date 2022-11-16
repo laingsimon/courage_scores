@@ -310,15 +310,17 @@ export function Score(props) {
                 match={fixtureData.matches[7]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
             {canSave ? (<tr>
-                <td>Man of the match</td>
-                <td colSpan="2">
+                <td>
+                    Man of the match<br />
                     <PlayerSelection
                         players={allPlayers}
                         disabled={disabled}
                         selected={ { id: fixtureData.home.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
-                <td colSpan="2">
+                <td colSpan="3"></td>
+                <td>
+                    Man of the match<br />
                     <PlayerSelection
                         players={allPlayers}
                         disabled={disabled}
