@@ -1,20 +1,26 @@
 import React from 'react';
+import {BootstrapDropdown} from "./BootstrapDropdown";
 
-export function PlayerSelection(props) {
+export function PlayerSelection({ players, disabled, selected, onChange, except }) {
+    const empty = {
+        value: '',
+        text: (<span>&nbsp;</span>)
+    };
+
     function findPlayer(playerId) {
         if (!playerId) {
             return null;
         }
 
-        return props.players.filter(p => p.id === playerId)[0];
+        return players.filter(p => p.id === playerId)[0];
     }
 
-    return (<select
-            disabled={props.disabled}
-            value={(props.selected || {}).id || ''}
-            className="margin-right"
-            onChange={(event) => { props.onChange(this, findPlayer(event.target.value)); }}>
-        <option></option>
-        {props.players.filter(p => (props.except || []).indexOf(p.id) === -1).map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
-    </select>)
+    return (<BootstrapDropdown
+        disabled={disabled}
+        value={(selected || {}).id || ''}
+        className="margin-right"
+        onChange={(value) => { onChange(this, findPlayer(value)); }}
+        options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
+                .map(p => { return { value: p.id, text: p.name } })) }
+    />);
 }
