@@ -53,6 +53,7 @@ jobs:
           GoogleAuth_Secret: ${{ secrets.GOOGLEOAUTHSECRET }}
           CosmosDb_Endpoint: ${{ secrets.COSMOSDBURL }}
           CosmosDb_Key: ${{ secrets.COSMOSDBKEY }}
+          CosmosDb_DatabaseName: ${{ secrets.COSMOSDB_DATABASENAME }}
 
       - name: Upload artifact for deployment job
         if: ${{ env.branch_name == 'release' || github.event.inputs.deploy == 'true' }}
