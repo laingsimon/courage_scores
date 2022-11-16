@@ -73,7 +73,7 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} type="checkbox"
-                   name="captain" id="captain" checked={captain} onChange={valueChanged} />
+                   name="captain" id="captain" checked={captain || false} onChange={valueChanged} className="form-check-input" />
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
