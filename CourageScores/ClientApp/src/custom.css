@@ -113,3 +113,8 @@ input[type="date"] {
 .margin-left {
   margin-left: 5px;
 }
+
+.dropdown-text-min-width {
+  min-width: 100px;
+  display: inline-block;
+}

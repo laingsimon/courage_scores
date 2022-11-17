@@ -40,7 +40,7 @@ export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, 
                 players={allPlayers}
                 selected={player}
                 onChange={(elem, p) => setPlayer(p)} />
-            <button disabled={disabled} onClick={addPlayer} className={`badge ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+            <button disabled={disabled} onClick={addPlayer} className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
         </div>)}
     </div>);
 }
