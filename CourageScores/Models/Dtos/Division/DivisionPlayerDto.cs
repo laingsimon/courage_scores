@@ -14,4 +14,5 @@ public class DivisionPlayerDto
     public double WinPercentage { get; set; }
     public int OneEighties { get; set; }
     public int Over100Checkouts { get; set; }
+    public bool Captain { get; set; }
 }

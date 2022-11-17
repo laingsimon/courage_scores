@@ -76,7 +76,7 @@ export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
             <tbody>
             {divisionData.players.map(p => (<tr key={p.id} className={(editPlayer != null && editPlayer.teamId === p.teamId) ? 'highlight-row' : null}>
                 <td>{p.rank}</td>
-                <td>{p.name}</td>
+                <td>{p.captain ? (<span>🤴 </span>) : null}{p.name}</td>
                 <td>{p.team}</td>
                 <td>{p.won}</td>
                 <td>{p.lost}</td>

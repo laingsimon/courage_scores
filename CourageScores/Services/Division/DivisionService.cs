@@ -144,6 +144,7 @@ public class DivisionService : IDivisionService
                     Id = player.Id,
                     TeamId = team.Id,
                     Name = player.Name,
+                    Captain = player.Captain,
                     Team = team.Name,
                     Lost = lostMatches,
                     Played = playedMatches.Count,
