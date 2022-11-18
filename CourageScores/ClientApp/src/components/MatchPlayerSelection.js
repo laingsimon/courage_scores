@@ -54,7 +54,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
-        newMatch.homeScore = newScore;
+        newMatch.homeScore = Number.parseInt(newScore);
         newMatch.numberOfLegs = numberOfLegs;
 
         if (newMatch.homeScore > numberOfLegs) {
@@ -71,7 +71,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
-        newMatch.awayScore = newScore;
+        newMatch.awayScore = Number.parseInt(newScore);
         newMatch.numberOfLegs = numberOfLegs;
 
         if (newMatch.awayScore > numberOfLegs) {
@@ -143,7 +143,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     type="number" max="5" min="0"
-                    value={match.homeScore || ''}
+                    value={match.homeScore || '0'}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td>vs</td>
@@ -153,7 +153,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     type="number" max="5" min="0"
-                    value={match.awayScore || ''}
+                    value={match.awayScore || '0'}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
