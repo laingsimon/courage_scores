@@ -1,0 +1,73 @@
+import React, {useState} from 'react';
+import {Http} from "../api/http";
+import {Settings} from "../api/settings";
+import {SeasonApi} from "../api/season";
+import {useNavigate} from "react-router-dom";
+
+export function NewSeason() {
+    const [ name, setName ] = useState('');
+    const [ startDate, setStartDate ] = useState('');
+    const [ endDate, setEndDate ] = useState('');
+    const [ saving, setSaving ] = useState(false);
+    const api = new SeasonApi(new Http(new Settings()));
+    const navigate = useNavigate();
+
+    async function createSeason() {
+        if (saving) {
+            return;
+        }
+
+        if (!name) {
+            window.alert('You must enter a name');
+            return;
+        }
+
+        setSaving(true);
+
+        try {
+            const response = await api.update({
+                name: name,
+                startDate: startDate,
+                endDate: endDate,
+            });
+
+            if (response.success) {
+                const seasonId = response.result.id;
+                navigate(`/season/edit/${seasonId}`);
+            } else {
+                console.log(response);
+                window.alert('Could not create the season');
+            }
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (<div className="light-background p-3">
+        <h3>Enter details for new season</h3>
+
+        <div className="input-group margin-right mt-3">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Name</span>
+            </div>
+            <input value={name} onChange={(event) => setName(event.target.value)} />
+        </div>
+        <div className="input-group margin-right mt-3">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Start date</span>
+            </div>
+            <input value={startDate} type="date" onChange={(event) => setStartDate(event.target.value)} />
+        </div>
+        <div className="input-group margin-right mt-3">
+            <div className="input-group-prepend">
+                <span className="input-group-text">End date</span>
+            </div>
+            <input value={endDate} type="date" onChange={(event) => setEndDate(event.target.value)} />
+        </div>
+
+        <button className="btn btn-primary mt-3" onClick={createSeason}>
+            {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+            Create Season
+        </button>
+    </div>)
+}

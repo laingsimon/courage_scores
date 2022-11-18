@@ -157,7 +157,7 @@ export function Division({ account, apis }) {
                             </DropdownItem>
                         ))}
                         {isSeasonAdmin ? (<DropdownItem>
-                            <Link to={'/season/new'} className="btn">➕ New season</Link>
+                            <Link to={`/season/new`} className="btn">➕ New season</Link>
                         </DropdownItem>) : null}
                     </DropdownMenu>
                 </ButtonDropdown>
