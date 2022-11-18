@@ -139,7 +139,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         </td>
         <td>
             {disabled
-                ? (match.homeScore || '')
+                ? (match.homeScore)
                 : (<input
                     disabled={disabled}
                     type="number" max="5" min="0"
@@ -149,7 +149,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         <td>vs</td>
         <td>
             {disabled
-                ? (match.awayScore || '')
+                ? (match.awayScore)
                 : (<input
                     disabled={disabled}
                     type="number" max="5" min="0"
