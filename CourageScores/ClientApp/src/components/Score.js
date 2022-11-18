@@ -13,7 +13,7 @@ import {NavItem, NavLink} from "reactstrap";
 
 export function Score({ account }) {
     const {fixtureId} = useParams();
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState('init');
     const [fixtureData, setFixtureData] = useState(null);
     const [homeTeam, setHomeTeam] = useState([]);
     const [awayTeam, setAwayTeam] = useState([]);
@@ -30,98 +30,99 @@ export function Score({ account }) {
     }, [ account ]);
 
     useEffect(() => {
-        if (fixtureData || error) {
+        if (loading !== 'init') {
             return;
         }
 
-        function sortPlayers(x, y) {
-            if (x.name > y.name) {
-                return 1;
-            } else if (x.name < y.name) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-
-        async function loadTeamData(teamId, seasonId, teamType) {
-            const http = new Http(new Settings());
-            const teamApi = new TeamApi(http);
-            const teamData = await teamApi.get(teamId);
-
-            if (!teamData) {
-                setError(`${teamType} team could not be found`);
-                return;
-            }
-
-            if (!teamData.seasons) {
-                setError(`${teamType} team has no seasons`);
-                return;
-            }
-
-            const teamSeasons = Object.fromEntries(teamData.seasons.map(season => [ season.seasonId, season ]));
-
-            if (!teamSeasons[seasonId]) {
-                setError(`${teamType} team has not registered for this season: ${seasonId}`);
-                return;
-            }
-
-            const players = teamSeasons[seasonId].players;
-            players.sort(sortPlayers);
-            return players;
-        }
-
-        async function loadFixtureData() {
-            const http = new Http(new Settings());
-            const gameApi = new GameApi(http);
-            const gameData = await gameApi.get(fixtureId);
-
-            try {
-                if (!gameData) {
-                    setError('Game could not be found');
-                    return;
-                }
-
-                if (!gameData.home || !gameData.away) {
-                    setError('Either home or away team are undefined for this game');
-                    return;
-                }
-
-                const homeTeamPlayers = await loadTeamData(gameData.home.id, gameData.seasonId, 'home');
-
-                if (error || !homeTeamPlayers) {
-                    return;
-                }
-
-                const awayTeamPlayers = await loadTeamData(gameData.away.id, gameData.seasonId, 'away');
-
-                if (error || !awayTeamPlayers) {
-                    return;
-                }
-
-                setHomeTeam(homeTeamPlayers);
-                setAwayTeam(awayTeamPlayers);
-
-                const allPlayers = homeTeamPlayers.concat(awayTeamPlayers);
-                allPlayers.sort(sortPlayers);
-
-                if (!gameData.matches || !gameData.matches.length) {
-                    gameData.matches = [ {}, {}, {}, {}, {}, {}, {}, {} ];
-                }
-
-                setAllPlayers(allPlayers);
-                setFixtureData(gameData);
-            }
-            catch (e) {
-                setError(e.toString());
-            }
-            finally {
-                setLoading(false);
-            }
-        }
-
+        setLoading('loading');
         loadFixtureData();
     });
+
+    function sortPlayers(x, y) {
+        if (x.name > y.name) {
+            return 1;
+        } else if (x.name < y.name) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+
+    async function loadTeamData(teamId, seasonId, teamType) {
+        const http = new Http(new Settings());
+        const teamApi = new TeamApi(http);
+        const teamData = await teamApi.get(teamId);
+
+        if (!teamData) {
+            setError(`${teamType} team could not be found`);
+            return;
+        }
+
+        if (!teamData.seasons) {
+            setError(`${teamType} team has no seasons`);
+            return;
+        }
+
+        const teamSeasons = Object.fromEntries(teamData.seasons.map(season => [ season.seasonId, season ]));
+
+        if (!teamSeasons[seasonId]) {
+            setError(`${teamType} team has not registered for this season: ${seasonId}`);
+            return;
+        }
+
+        const players = teamSeasons[seasonId].players;
+        players.sort(sortPlayers);
+        return players;
+    }
+
+    async function loadFixtureData() {
+        const http = new Http(new Settings());
+        const gameApi = new GameApi(http);
+        const gameData = await gameApi.get(fixtureId);
+
+        try {
+            if (!gameData) {
+                setError('Game could not be found');
+                return;
+            }
+
+            if (!gameData.home || !gameData.away) {
+                setError('Either home or away team are undefined for this game');
+                return;
+            }
+
+            const homeTeamPlayers = await loadTeamData(gameData.home.id, gameData.seasonId, 'home');
+
+            if (error || !homeTeamPlayers) {
+                return;
+            }
+
+            const awayTeamPlayers = await loadTeamData(gameData.away.id, gameData.seasonId, 'away');
+
+            if (error || !awayTeamPlayers) {
+                return;
+            }
+
+            setHomeTeam(homeTeamPlayers);
+            setAwayTeam(awayTeamPlayers);
+
+            const allPlayers = homeTeamPlayers.concat(awayTeamPlayers);
+            allPlayers.sort(sortPlayers);
+
+            if (!gameData.matches || !gameData.matches.length) {
+                gameData.matches = [ {}, {}, {}, {}, {}, {}, {}, {} ];
+            }
+
+            setAllPlayers(allPlayers);
+            setFixtureData(gameData);
+        }
+        catch (e) {
+            setError(e.toString());
+        }
+        finally {
+            setLoading('ready');
+        }
+    }
 
     function onMatchChanged(newMatch, index) {
         const newFixtureData = Object.assign({}, fixtureData);
@@ -208,7 +209,7 @@ export function Score({ account }) {
         setSaving(false);
     }
 
-    if (loading) {
+    if (loading !== 'ready') {
         return (<div className="light-background p-3">
             <span className="h1">🎯</span> Loading...
         </div>);
