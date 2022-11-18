@@ -36,7 +36,9 @@ export function Score({ account }) {
 
         setLoading('loading');
         loadFixtureData();
-    });
+    },
+        // eslint-disable-next-line
+        [loading]);
 
     function sortPlayers(x, y) {
         if (x.name > y.name) {
