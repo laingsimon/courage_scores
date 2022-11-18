@@ -19,7 +19,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         <ol>
             {(players || []).map(p => { index++; return (<li key={index}>{disabled ? null : (<button
                 disabled={disabled || readOnly}
-                className={`badge badge-pill ${disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
+                className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
                 onClick={() => onRemovePlayer(p.id, index - 1)}>
             {p.name} {disabled ? '' : '×'}
             </button>)}</li>); })}
