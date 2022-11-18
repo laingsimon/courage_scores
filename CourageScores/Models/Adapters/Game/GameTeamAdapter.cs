@@ -21,7 +21,11 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         {
             Id = model.Id,
             Name = model.Name,
-            ManOfTheMatch = isAdmin ? model.ManOfTheMatch : Guid.Empty,
+            ManOfTheMatch = model.ManOfTheMatch == null
+                ? null
+                : isAdmin
+                    ? model.ManOfTheMatch
+                    : Guid.Empty,
         }.AddAuditProperties(model);
     }
 

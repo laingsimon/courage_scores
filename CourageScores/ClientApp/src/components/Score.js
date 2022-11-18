@@ -135,7 +135,7 @@ export function Score({ account }) {
 
     function manOfTheMatchChanged(player, team) {
         const newFixtureData = Object.assign({}, fixtureData);
-        newFixtureData[team].manOfTheMatch = player ? player.id : null;
+        newFixtureData[team].manOfTheMatch = player ? player.id : undefined;
 
         setFixtureData(newFixtureData);
     }
@@ -201,14 +201,21 @@ export function Score({ account }) {
             return;
         }
 
-        const http = new Http(new Settings());
-        const gameApi = new GameApi(http);
+        try {
+            const http = new Http(new Settings());
+            const gameApi = new GameApi(http);
 
-        setDisabled(true);
-        setSaving(true);
-        await gameApi.updateScores(fixtureId, fixtureData);
-        setDisabled(false);
-        setSaving(false);
+            setDisabled(true);
+            setSaving(true);
+            const result = await gameApi.updateScores(fixtureId, fixtureData);
+
+            if (!result.success) {
+                window.alert(`Could not save the scores`);
+            }
+        } finally {
+            setDisabled(false);
+            setSaving(false);
+        }
     }
 
     if (loading !== 'ready') {
