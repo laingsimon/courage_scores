@@ -133,7 +133,7 @@ export function Score({ account }) {
 
     function manOfTheMatchChanged(player, team) {
         const newFixtureData = Object.assign({}, fixtureData);
-        newFixtureData[team].manOfTheMatch = player.id;
+        newFixtureData[team].manOfTheMatch = player ? player.id : null;
 
         setFixtureData(newFixtureData);
     }
