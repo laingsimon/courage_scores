@@ -1,7 +1,7 @@
 import React from 'react';
 import {BootstrapDropdown} from "./BootstrapDropdown";
 
-export function PlayerSelection({ players, disabled, selected, onChange, except }) {
+export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly }) {
     const empty = {
         value: '',
         text: (<span>&nbsp;</span>)
@@ -17,6 +17,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except 
 
     return (<BootstrapDropdown
         disabled={disabled}
+        readOnly={readOnly}
         value={(selected || {}).id || ''}
         className="margin-right"
         onChange={(value) => { onChange(this, findPlayer(value)); }}

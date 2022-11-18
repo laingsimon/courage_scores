@@ -205,7 +205,6 @@ export function Score({ account }) {
             const http = new Http(new Settings());
             const gameApi = new GameApi(http);
 
-            setDisabled(true);
             setSaving(true);
             const result = await gameApi.updateScores(fixtureId, fixtureData);
 
@@ -213,7 +212,6 @@ export function Score({ account }) {
                 window.alert(`Could not save the scores`);
             }
         } finally {
-            setDisabled(false);
             setSaving(false);
         }
     }
@@ -261,6 +259,7 @@ export function Score({ account }) {
                 awayPlayers={awayTeam}
                 match={fixtureData.matches[0]}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={5}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
                 otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
@@ -269,6 +268,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={5}
                 match={fixtureData.matches[1]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
@@ -278,6 +278,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={5}
                 match={fixtureData.matches[2]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
@@ -287,6 +288,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={5}
                 match={fixtureData.matches[3]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
@@ -296,6 +298,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={5}
                 match={fixtureData.matches[4]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
@@ -308,6 +311,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={3}
                 match={fixtureData.matches[5]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
@@ -317,6 +321,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={3}
                 match={fixtureData.matches[6]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
@@ -329,6 +334,7 @@ export function Score({ account }) {
                 homePlayers={homeTeam}
                 awayPlayers={awayTeam}
                 disabled={disabled}
+                readOnly={saving}
                 numberOfLegs={3}
                 match={fixtureData.matches[7]}
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
@@ -338,6 +344,7 @@ export function Score({ account }) {
                     <PlayerSelection
                         players={allPlayers}
                         disabled={disabled}
+                        readOnly={saving}
                         selected={ { id: fixtureData.home.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
                 </td>
@@ -347,6 +354,7 @@ export function Score({ account }) {
                     <PlayerSelection
                         players={allPlayers}
                         disabled={disabled}
+                        readOnly={saving}
                         selected={ { id: fixtureData.away.manOfTheMatch } }
                         onChange={(elem, player) => manOfTheMatchChanged(player, 'away')} />
                 </td>
@@ -356,6 +364,7 @@ export function Score({ account }) {
                     180s<br />
                     <MultiPlayerSelection
                         disabled={disabled}
+                        readOnly={saving}
                         allPlayers={allPlayers}
                         players={fixtureData.matches[0].oneEighties || []}
                         onRemovePlayer={removeOneEightyScore}
@@ -366,6 +375,7 @@ export function Score({ account }) {
                     100+ c/o<br />
                     <MultiPlayerSelectionWithNotes
                         disabled={disabled}
+                        readOnly={saving}
                         allPlayers={allPlayers}
                         players={fixtureData.matches[0].over100Checkouts || []}
                         onRemovePlayer={removeHiCheck}

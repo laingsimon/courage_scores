@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
-export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer }) {
+export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly }) {
     let index = 0;
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
@@ -20,7 +20,7 @@ export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, 
     return (<div>
         <ol>
             {(players || []).map(p => { index++; return (<li key={index}>{disabled ? null : (<button
-                disabled={disabled}
+                disabled={disabled || readOnly}
                 className={`badge badge-pill ${disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
                 onClick={() => onRemovePlayer(p.id, index - 1)}>
             {p.name} ({p.notes}) {disabled ? '' : '×'}
@@ -29,6 +29,7 @@ export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, 
         {disabled ? null : (<div>
             <input
                 disabled={disabled}
+                readOnly={readOnly}
                 onChange={(elem) => setNotes(elem.target.value)}
                 value={notes}
                 className="margin-right"
@@ -37,10 +38,11 @@ export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, 
                 max="120" />
             <PlayerSelection
                 disabled={disabled}
+                readOnly={readOnly}
                 players={allPlayers}
                 selected={player}
                 onChange={(elem, p) => setPlayer(p)} />
-            <button disabled={disabled} onClick={addPlayer} className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+            <button disabled={disabled || readOnly} onClick={addPlayer} className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
         </div>)}
     </div>);
 }

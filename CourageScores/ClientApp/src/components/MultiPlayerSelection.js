@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
-export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer }) {
+export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly }) {
     let index = 0;
     const [player, setPlayer] = useState(null);
 
@@ -18,7 +18,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     return (<div>
         <ol>
             {(players || []).map(p => { index++; return (<li key={index}>{disabled ? null : (<button
-                disabled={disabled}
+                disabled={disabled || readOnly}
                 className={`badge badge-pill ${disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
                 onClick={() => onRemovePlayer(p.id, index - 1)}>
             {p.name} {disabled ? '' : '×'}
@@ -27,10 +27,11 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         {disabled ? null : (<div>
             <PlayerSelection
                 disabled={disabled}
+                readOnly={readOnly}
                 players={allPlayers}
                 selected={player}
                 onChange={(elem, p) => setPlayer(p)} />
-            <button disabled={disabled} onClick={addPlayer} className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+            <button disabled={disabled || readOnly} onClick={addPlayer} className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
         </div>)}
     </div>);
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
-export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers }) {
+export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly }) {
     function homePlayer(index) {
         if (!match.homePlayers || match.homePlayers.length <= index) {
             return {};
@@ -131,6 +131,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         <td>
             {playerIndexes().map(index => disabled ? (homePlayer(index).name) : (<PlayerSelection
                 disabled={disabled}
+                readOnly={readOnly}
                 key={index}
                 players={homePlayers}
                 selected={homePlayer(index)}
@@ -142,6 +143,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 ? (match.homeScore)
                 : (<input
                     disabled={disabled}
+                    readOnly={readOnly}
                     type="number" max="5" min="0"
                     value={match.homeScore || '0'}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
@@ -152,6 +154,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 ? (match.awayScore)
                 : (<input
                     disabled={disabled}
+                    readOnly={readOnly}
                     type="number" max="5" min="0"
                     value={match.awayScore || '0'}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
@@ -159,6 +162,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         <td>
             {playerIndexes().map(index => disabled ? (awayPlayer(index).name) : (<PlayerSelection
                 disabled={disabled}
+                readOnly={readOnly}
                 key={index}
                 players={awayPlayers}
                 selected={awayPlayer(index)}
