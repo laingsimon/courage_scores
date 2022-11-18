@@ -153,7 +153,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     type="number" max="5" min="0"
-                    value={match.awayScore === null ? '' : match.awayScore}
+                    value={match.awayScore || ''}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
