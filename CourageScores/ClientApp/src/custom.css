@@ -118,3 +118,11 @@ input[type="date"] {
   min-width: 100px;
   display: inline-block;
 }
+
+.narrow-column {
+  width: 25px;
+}
+
+.medium-column-width {
+  width: 100px;
+}

@@ -176,11 +176,11 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
 
     return (<tr key={fixture.id} className={deleting ? 'text-decoration-line-through' : ''}>
         <td>{fixture.homeTeam.name}</td>
-        <td>{fixture.homeScore}</td>
-        <td>vs</td>
+        <td className="narrow-column text-primary fw-bolder">{fixture.homeScore}</td>
+        <td className="narrow-column">vs</td>
+        <td className="narrow-column text-primary fw-bolder">{fixture.awayScore}</td>
         <td>{renderAwayTeam()}</td>
-        <td>{fixture.awayScore}</td>
-        <td>
+        <td className="medium-column-width">
             {isAdmin && awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
                 ? (<button onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
