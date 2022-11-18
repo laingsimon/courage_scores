@@ -75,6 +75,6 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
         player.Captain = _player.Captain;
         player.Updated = _clock.UtcNow.UtcDateTime;
         player.Editor = user.Name;
-        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} removed from the {currentSeason.Name} season", player);
+        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {currentSeason.Name} season", player);
     }
 }
