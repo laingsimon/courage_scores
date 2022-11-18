@@ -138,7 +138,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 except={exceptPlayers(index, 'homePlayers')}
                 onChange={(elem, player) => homePlayerChanged(index, player)} />))}
         </td>
-        <td>
+        <td className="vertical-align-middle">
             {disabled
                 ? (match.homeScore)
                 : (<input
@@ -148,8 +148,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     value={match.homeScore || '0'}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
-        <td>vs</td>
-        <td>
+        <td className="vertical-align-middle">vs</td>
+        <td className="vertical-align-middle">
             {disabled
                 ? (match.awayScore)
                 : (<input

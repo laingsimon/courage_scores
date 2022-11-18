@@ -126,3 +126,7 @@ input[type="date"] {
 .medium-column-width {
   width: 100px;
 }
+
+.vertical-align-middle {
+  vertical-align: middle;
+}
