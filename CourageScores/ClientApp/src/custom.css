@@ -98,6 +98,10 @@ nav {
   background: #dee2e6;
 }
 
+.max-scroll-height {
+  max-height: 500px;
+}
+
 .extra-small {
   font-size: 17px;
 }
