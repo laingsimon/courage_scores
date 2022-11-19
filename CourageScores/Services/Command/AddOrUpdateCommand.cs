@@ -9,6 +9,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
     public async Task<CommandOutcome<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
+        var create = false;
         if (_update == null)
         {
             throw new InvalidOperationException($"{nameof(WithData)} must be called first");
@@ -16,22 +17,31 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         if (model.Id == default)
         {
+            create = true;
             model.Id = Guid.NewGuid();
         }
 
-        await ApplyUpdates(model, _update!, token);
+        var result = await ApplyUpdates(model, _update!, token);
 
         return new CommandOutcome<TModel>(
-            true,
-            $"{typeof(TModel).Name} updated",
+            result.Success,
+            result.Message ?? $"{typeof(TModel).Name} ${(create ? "created" : "updated")}",
             model);
     }
 
-    protected abstract Task ApplyUpdates(TModel team, TDto update, CancellationToken token);
+    protected abstract Task<CommandResult> ApplyUpdates(TModel team, TDto update, CancellationToken token);
 
     public AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {
         _update = update;
         return this;
+    }
+
+    public class CommandResult
+    {
+        public static readonly CommandResult SuccessNoMessage = new CommandResult { Success = true };
+
+        public bool Success { get; set; }
+        public string? Message { get; set; }
     }
 }

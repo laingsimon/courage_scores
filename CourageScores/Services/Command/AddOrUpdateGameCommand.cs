@@ -26,11 +26,15 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         _teamService = teamService;
     }
 
-    protected override async Task ApplyUpdates(Game game, EditGameDto update, CancellationToken token)
+    protected override async Task<CommandResult> ApplyUpdates(Game game, EditGameDto update, CancellationToken token)
     {
         if (update.HomeTeamId == update.AwayTeamId)
         {
-            throw new InvalidOperationException("Unable to set have a game where the home team and away team are the same");
+            return new CommandResult
+            {
+                Success = false,
+                Message = "Unable to set have a game where the home team and away team are the same",
+            };
         }
 
         var allSeasons = await _seasonRepository.GetAll(token).ToList();
@@ -38,7 +42,11 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
 
         if (latestSeason == null)
         {
-            throw new InvalidOperationException("Unable to add or update game, no season exists");
+            return new CommandResult
+            {
+                Success = false,
+                Message = "Unable to add or update game, no season exists",
+            };
         }
 
         game.Address = update.Address;
@@ -55,6 +63,8 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         {
             game.Away = await UpdateTeam(update.AwayTeamId, latestSeason, token);
         }
+
+        return CommandResult.SuccessNoMessage;
     }
 
     private async Task<GameTeam> UpdateTeam(Guid teamId, Season season, CancellationToken token)
