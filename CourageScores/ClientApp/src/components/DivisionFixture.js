@@ -52,8 +52,8 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     }
 
     function isSameAddress(t) {
-        const otherTeamsWithSameAddress = divisionData.teams.filter(f => f.address === t.address && f.id !== t.id);
-        return otherTeamsWithSameAddress.length > 0 && t.address !== 'Unknown';
+        const otherTeamHasSameAddress = fixture.address === t.address;
+        return otherTeamHasSameAddress && t.address !== 'Unknown';
     }
 
     function getUnavailableReason(t) {
