@@ -52,24 +52,8 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     }
 
     function isSameAddress(t) {
-        const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
-        if (!fixturesForThisDate || !fixturesForThisDate.fixtures) {
-            return false;
-        }
-
-        const homeTeam = fixturesForThisDate.fixtures.filter(f => f.homeTeam.id === t.id)[0];
-        const awayTeam = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.awayTeam.id === t.id)[0];
-        const teamAddress = homeTeam
-            ? homeTeam.homeTeam.address
-            : awayTeam
-                ? awayTeam.awayTeam.address
-                : null;
-
-        if (!teamAddress || teamAddress === 'Unknown') {
-            return false;
-        }
-
-        return teamAddress === fixture.homeTeam.address;
+        const otherTeamsWithSameAddress = divisionData.teams.filter(f => f.address === t.address && f.id !== t.id);
+        return otherTeamsWithSameAddress.length > 0 && t.address !== 'Unknown';
     }
 
     function getUnavailableReason(t) {
