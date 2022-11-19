@@ -54,13 +54,13 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
-        newMatch.homeScore = Number.parseInt(newScore);
+        newMatch.homeScore = newScore ? Number.parseInt(newScore) : newScore;
         newMatch.numberOfLegs = numberOfLegs;
 
-        if (newMatch.homeScore > numberOfLegs) {
+        if (newScore && newMatch.homeScore > numberOfLegs) {
             newMatch.homeScore = numberOfLegs;
         }
-        if (newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
+        if (newScore && newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
             newMatch.awayScore = numberOfLegs - newMatch.homeScore;
         }
 
@@ -71,13 +71,13 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
-        newMatch.awayScore = Number.parseInt(newScore);
+        newMatch.awayScore = newScore ? Number.parseInt(newScore) : newScore;
         newMatch.numberOfLegs = numberOfLegs;
 
-        if (newMatch.awayScore > numberOfLegs) {
+        if (newScore && newMatch.awayScore > numberOfLegs) {
             newMatch.awayScore = numberOfLegs;
         }
-        if (newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
+        if (newScore && newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
             newMatch.homeScore = numberOfLegs - newMatch.awayScore;
         }
 
@@ -145,7 +145,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     disabled={disabled}
                     readOnly={readOnly}
                     type="number" max="5" min="0"
-                    value={match.homeScore || '0'}
+                    value={match.homeScore === null ? '0' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td className="vertical-align-middle">vs</td>
@@ -156,7 +156,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     disabled={disabled}
                     readOnly={readOnly}
                     type="number" max="5" min="0"
-                    value={match.awayScore || '0'}
+                    value={match.awayScore === null ? '0' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
