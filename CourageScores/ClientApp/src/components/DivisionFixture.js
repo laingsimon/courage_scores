@@ -52,7 +52,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     }
 
     function isSameAddress(t) {
-        const otherTeamHasSameAddress = fixture.address === t.address;
+        const otherTeamHasSameAddress = fixture.homeTeam.address === t.address;
         return otherTeamHasSameAddress && t.address !== 'Unknown';
     }
 
