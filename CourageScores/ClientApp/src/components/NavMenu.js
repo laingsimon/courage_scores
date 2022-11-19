@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../api/settings";
 
@@ -8,6 +8,11 @@ export function NavMenu({divisions, appLoading, account}) {
     const settings = new Settings();
     const [collapsed, setCollapsed] = useState(true);
     const [ currentLink, setCurrentLink ] = useState(document.location.href);
+    const location = useLocation();
+
+    useEffect(() => {
+        setCurrentLink('https://' + document.location.host + location.pathname);
+    }, [location]);
 
     function isActive(toRegex) {
         return currentLink.match(toRegex);
@@ -22,7 +27,7 @@ export function NavMenu({divisions, appLoading, account}) {
     }
 
     function getAccountUrl(action) {
-        return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${document.location.href}`;
+        return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
     return (<header>
