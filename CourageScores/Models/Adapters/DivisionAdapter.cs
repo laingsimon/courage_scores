@@ -19,7 +19,7 @@ public class DivisionAdapter : IAdapter<Division, DivisionDto>
         return Task.FromResult(new Division
         {
             Id = dto.Id,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
         }.AddAuditProperties(dto));
     }
 }
