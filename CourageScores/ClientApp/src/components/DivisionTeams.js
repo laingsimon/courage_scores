@@ -84,6 +84,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
         </div>
         {editTeam ? (<div className="mt-3"><EditTeamDetails {...editTeam}
                                       divisionId={divisionId}
+                                      seasonId={divisionData.season.id}
                                       onChange={(name, value) => {
                                    const newData = {};
                                    newData[name] = value;
