@@ -3,7 +3,7 @@ import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
 
-export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel }) {
+export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId }) {
     const [ saving, setSaving ] = useState(false);
 
     async function saveChanges() {
@@ -19,7 +19,8 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                 id: id || undefined,
                 name: name,
                 address: address,
-                divisionId: divisionId
+                divisionId: divisionId,
+                seasonId: seasonId
             });
 
             if (result.success) {
