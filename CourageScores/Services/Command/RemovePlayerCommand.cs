@@ -12,6 +12,7 @@ public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
     private readonly ISystemClock _clock;
     private readonly IUserService _userService;
     private Guid? _playerId;
+    private Guid? _seasonId;
 
     public RemovePlayerCommand(
         IGenericRepository<Season> seasonRepository,
@@ -29,40 +30,50 @@ public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
         return this;
     }
 
+    public RemovePlayerCommand FromSeason(Guid seasonId)
+    {
+        _seasonId = seasonId;
+        return this;
+    }
+
     public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_playerId == null)
         {
-            throw new InvalidOperationException($"Player hasn't been set, ensure {nameof(ForPlayer)} is called");
+            throw new InvalidOperationException($"PlayerId hasn't been set, ensure {nameof(ForPlayer)} is called");
+        }
+
+        if (_seasonId == null)
+        {
+            throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(FromSeason)} is called");
         }
 
         var user = await _userService.GetUser();
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Player cannot be removed, not logged in", null);
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
         }
 
-        var seasons = await _seasonRepository.GetAll(token).ToList();
-        var currentSeason = seasons.MaxBy(s => s.StartDate);
-        if (currentSeason == null)
+        var season = await _seasonRepository.Get(_seasonId.Value, token);
+        if (season == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed as no season exists", null);
+            return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Team is not registered to the current season", null);
+            return new CommandOutcome<TeamPlayer>(false, $"Team is not registered to the ${season.Name} season", null);
         }
 
         var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
         if (player == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Player does not have a player with this id for the {currentSeason.Name} season", null);
+            return new CommandOutcome<TeamPlayer>(false, $"Player does not have a player with this id for the {season.Name} season", null);
         }
 
         player.Deleted = _clock.UtcNow.UtcDateTime;
         player.Remover = user.Name;
-        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} removed from the {currentSeason.Name} season", player);
+        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} removed from the {season.Name} season", player);
     }
 }

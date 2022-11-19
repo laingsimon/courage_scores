@@ -3,16 +3,16 @@ class PlayerApi {
         this.http = http;
     }
 
-    create(teamId, player) {
-        return this.http.post(`/api/Player/${teamId}`, player);
+    create(seasonId, teamId, player) {
+        return this.http.post(`/api/Player/${seasonId}/${teamId}`, player);
     }
 
-    delete(teamId, playerId) {
-        return this.http.delete(`/api/Player/${teamId}/${playerId}`, {});
+    delete(seasonId, teamId, playerId) {
+        return this.http.delete(`/api/Player/${seasonId}/${teamId}/${playerId}`, {});
     }
 
-    update(teamId, playerId, player) {
-        return this.http.patch(`/api/Player/${teamId}/${playerId}`, player);
+    update(seasonId, teamId, playerId, player) {
+        return this.http.patch(`/api/Player/${seasonId}/${teamId}/${playerId}`, player);
     }
 }
 

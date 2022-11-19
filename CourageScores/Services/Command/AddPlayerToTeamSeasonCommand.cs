@@ -15,6 +15,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
     private readonly ISystemClock _clock;
     private readonly IUserService _userService;
     private EditTeamPlayerDto? _player;
+    private Guid? _seasonId;
 
     public AddPlayerToTeamSeasonCommand(
         IGenericRepository<Season> seasonRepository,
@@ -36,6 +37,12 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         return this;
     }
 
+    public AddPlayerToTeamSeasonCommand ToSeason(Guid seasonId)
+    {
+        _seasonId = seasonId;
+        return this;
+    }
+
     public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_player == null)
@@ -43,27 +50,31 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             throw new InvalidOperationException($"Player hasn't been set, ensure {nameof(ForPlayer)} is called");
         }
 
+        if (_seasonId == null)
+        {
+            throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(ToSeason)} is called");
+        }
+
         var user = await _userService.GetUser();
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Player cannot be removed, not logged in", null);
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
         }
 
-        var seasons = await _seasonRepository.GetAll(token).ToList();
-        var currentSeason = seasons.MaxBy(s => s.StartDate);
-        if (currentSeason == null)
+        var season = await _seasonRepository.Get(_seasonId.Value, token);
+        if (season == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "A season must exist before a player can be added", null);
+            return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
         }
 
-        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == currentSeason.Id);
+        var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(currentSeason.Id);
+            var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {
-                return new CommandOutcome<TeamPlayer>(false, "Could not add season to team", null);
+                return new CommandOutcome<TeamPlayer>(false, $"Could not add the ${season.Name} season to team ${model.Name} - ${result.Message}", null);
             }
 
             teamSeason = result.Result;
@@ -96,6 +107,6 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         await _auditingHelper.SetUpdated(newPlayer);
         players.Add(newPlayer);
 
-        return new CommandOutcome<TeamPlayer>(true, $"Player added to team for the {currentSeason.Name} season", newPlayer);
+        return new CommandOutcome<TeamPlayer>(true, $"Player added to the ${model.Name} team for the {season.Name} season", newPlayer);
     }
 }

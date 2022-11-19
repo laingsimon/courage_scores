@@ -26,8 +26,8 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
         try {
             const api = new PlayerApi(new Http(new Settings()));
             const result = id
-                ? await api.update(teamId, id, { name: name, captain: captain })
-                : await api.create(teamId, { name: name, captain: captain });
+                ? await api.update(divisionData.season.id, teamId, id, { name: name, captain: captain })
+                : await api.create(divisionData.season.id, teamId, { name: name, captain: captain });
 
             if (result.success) {
                 if (onSaved) {
