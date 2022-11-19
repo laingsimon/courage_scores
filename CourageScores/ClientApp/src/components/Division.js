@@ -8,6 +8,7 @@ import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function Division({ account, apis }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -21,6 +22,7 @@ export function Division({ account, apis }) {
     const [ divisionName, setDivisionName ] = useState(null);
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     async function reloadDivisionData() {
         const api = new DivisionApi(new Http(new Settings()));
@@ -87,8 +89,7 @@ export function Division({ account, apis }) {
                 await reloadDivisionData();
                 setEditMode(null);
             } else {
-                console.log(result);
-                window.alert(`Could not update season data`);
+                setSaveError(result);
             }
         } finally {
             setUpdatingData(false);
@@ -113,8 +114,7 @@ export function Division({ account, apis }) {
                 await reloadDivisionData();
                 setEditMode(null);
             } else {
-                console.log(result);
-                window.alert(`Could not update division name`);
+                setSaveError(result);
             }
         } finally {
             setUpdatingData(false);
@@ -198,5 +198,6 @@ export function Division({ account, apis }) {
         {effectiveTab === 'teams' ? <DivisionTeams divisionData={divisionData} onReloadDivision={reloadDivisionData} account={account} divisionId={divisionId} /> : null}
         {effectiveTab === 'fixtures' ? <DivisionFixtures divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
         {effectiveTab === 'players' ? <DivisionPlayers divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save details" />) : null}
     </div>);
 }

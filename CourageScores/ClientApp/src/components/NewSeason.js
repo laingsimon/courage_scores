@@ -3,12 +3,14 @@ import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {SeasonApi} from "../api/season";
 import {useNavigate} from "react-router-dom";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function NewSeason() {
     const [ name, setName ] = useState('');
     const [ startDate, setStartDate ] = useState('');
     const [ endDate, setEndDate ] = useState('');
     const [ saving, setSaving ] = useState(false);
+    const [ newSeasonError, setNewSeasonError] = useState(null);
     const api = new SeasonApi(new Http(new Settings()));
     const navigate = useNavigate();
 
@@ -35,8 +37,7 @@ export function NewSeason() {
                 const seasonId = response.result.id;
                 navigate(`/season/edit/${seasonId}`);
             } else {
-                console.log(response);
-                window.alert('Could not create the season');
+                setNewSeasonError(response);
             }
         } finally {
             setSaving(false);
@@ -69,5 +70,6 @@ export function NewSeason() {
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             Create Season
         </button>
+        {newSeasonError ? (<ErrorDisplay {...newSeasonError} onClose={() => setNewSeasonError(null)} title="Could not create season" />) : null}
     </div>)
 }

@@ -27,7 +27,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 return new CommandResult
                 {
                     Success = false,
-                    Message = $"Unable to update address, ${team.Name} is playing ${game.Away.Name} which is registered at the updated address",
+                    Message = $"Unable to update address, {team.Name} is playing {game.Away.Name} (on {game.Date.ToString("MMM dd yyyy")}) which is registered at the updated address",
                 };
             }
 
@@ -36,7 +36,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 return new CommandResult
                 {
                     Success = false,
-                    Message = $"Unable to update address, ${team.Name} is playing ${game.Home.Name} which is registered at the updated address",
+                    Message = $"Unable to update address, {team.Name} is playing {game.Home.Name} (on {game.Date.ToString("MMM dd yyyy")}) which is registered at the updated address",
                 };
             }
 
