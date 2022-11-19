@@ -129,7 +129,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     return (<tr>
         <td>
-            {playerIndexes().map(index => disabled ? (homePlayer(index).name) : (<PlayerSelection
+            {playerIndexes().map(index => disabled ? (<div>{homePlayer(index).name}</div>) : (<PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
                 key={index}
@@ -160,7 +160,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
-            {playerIndexes().map(index => disabled ? (awayPlayer(index).name) : (<PlayerSelection
+            {playerIndexes().map(index => disabled ? (<div>{awayPlayer(index).name}</div>) : (<PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
                 key={index}

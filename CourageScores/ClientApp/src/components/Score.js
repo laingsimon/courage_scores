@@ -251,7 +251,7 @@ export function Score({ account }) {
                 <th colSpan="2">{fixtureData.away.name}</th>
             </tr>
             <tr>
-                <td colSpan="5">Singles</td>
+                <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
             </tr>
             <MatchPlayerSelection
                 playerCount={1}
@@ -304,7 +304,7 @@ export function Score({ account }) {
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
                 otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]} />
             <tr>
-                <td colSpan="5">Doubles</td>
+                <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
             </tr>
             <MatchPlayerSelection
                 playerCount={2}
@@ -327,7 +327,7 @@ export function Score({ account }) {
                 onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
                 otherMatches={[fixtureData.matches[5]]} />
             <tr>
-                <td colSpan="5">Triples</td>
+                <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
             </tr>
             <MatchPlayerSelection
                 playerCount={3}

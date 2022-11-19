@@ -19,9 +19,9 @@ export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, 
 
     return (<div>
         <ol>
-            {(players || []).map(p => { index++; return (<li key={index}>{disabled ? null : (<button
+            {(players || []).map(p => { index++; return (<li key={index}>{disabled ? <span>{p.name} ({p.notes})</span> : (<button
                 disabled={disabled || readOnly}
-                className={`badge badge-pill ${disabled ? 'bg-secondary' : 'bg-primary'} margin-right`}
+                className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
                 onClick={() => onRemovePlayer(p.id, index - 1)}>
             {p.name} ({p.notes}) {disabled ? '' : '×'}
             </button>)}</li>); })}
