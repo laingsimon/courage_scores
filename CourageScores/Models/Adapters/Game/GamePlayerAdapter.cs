@@ -19,7 +19,7 @@ public class GamePlayerAdapter : IAdapter<GamePlayer, GamePlayerDto>
         return Task.FromResult(new GamePlayer
         {
             Id = dto.Id,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
         }.AddAuditProperties(dto));
     }
 }

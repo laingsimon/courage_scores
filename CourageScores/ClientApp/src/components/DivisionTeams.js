@@ -3,10 +3,12 @@ import {EditTeamDetails} from "./EditTeamDetails";
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function DivisionTeams({ divisionData, onReloadDivision, account, divisionId }) {
     const [ editTeam, setEditTeam ] = useState(null);
     const [ loadingTeamDetails, setLoadingTeamDetails ] = useState(null);
+    const [ deleteError, setDeleteError ] = useState(null);
     const isAdmin = account && account.access && account.access.manageTeams;
 
     async function prepareDeleteTeam(team) {
@@ -24,8 +26,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
         if (result.success) {
             await onReloadDivision();
         } else {
-            console.log(result);
-            window.alert(`Could not delete team: ${JSON.stringify(result)}`);
+            setDeleteError(result);
         }
     }
 
@@ -84,6 +85,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
         </div>
         {editTeam ? (<div className="mt-3"><EditTeamDetails {...editTeam}
                                       divisionId={divisionId}
+                                      seasonId={divisionData.season.id}
                                       onChange={(name, value) => {
                                    const newData = {};
                                    newData[name] = value;
@@ -94,5 +96,6 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
         {(isAdmin) && editTeam == null && loadingTeamDetails === null ? (<button className="btn btn-primary mt-3" onClick={() => setEditTeam({})}>
             Add team
         </button>) : null}
+        {deleteError ? (<ErrorDisplay {...deleteError} onClose={() => setDeleteError(null)} title="Could not delete team" />) : null}
     </div>);
 }

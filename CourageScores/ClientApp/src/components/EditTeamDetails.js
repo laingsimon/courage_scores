@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
+import {ErrorDisplay} from "./ErrorDisplay";
 
-export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel }) {
+export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId }) {
     const [ saving, setSaving ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     async function saveChanges() {
         if (saving) {
@@ -19,7 +21,8 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                 id: id || undefined,
                 name: name,
                 address: address,
-                divisionId: divisionId
+                divisionId: divisionId,
+                seasonId: seasonId
             });
 
             if (result.success) {
@@ -27,7 +30,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                     await onSaved();
                 }
             } else {
-                alert(`Team could not be ${id ? 'created' : 'updated'}: ${JSON.stringify(result)}`);
+                setSaveError(result);
             }
         } finally {
             setSaving(false);
@@ -61,5 +64,6 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
             {id ? 'Save team' : 'Add team'}
         </button>
         <button className="btn btn-secondary" onClick={() => (onCancel || function() {})()}>Cancel</button>
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details" />) : null}
     </div>)
 }

@@ -20,7 +20,7 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         return new GameTeamDto
         {
             Id = model.Id,
-            Name = model.Name,
+            Name = model.Name.Trim(),
             ManOfTheMatch = model.ManOfTheMatch == null
                 ? null
                 : isAdmin

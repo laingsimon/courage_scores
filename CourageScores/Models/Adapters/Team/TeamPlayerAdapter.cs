@@ -21,7 +21,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         {
             Captain = dto.Captain,
             Id = dto.Id,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
         }.AddAuditProperties(dto));
     }
 }

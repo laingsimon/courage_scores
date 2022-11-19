@@ -10,8 +10,9 @@ import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
+import {ErrorDisplay} from "./ErrorDisplay";
 
-export function Score({ account }) {
+export function Score({account}) {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState('init');
     const [fixtureData, setFixtureData] = useState(null);
@@ -22,21 +23,22 @@ export function Score({ account }) {
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
+    const [ saveError, setSaveError ] = useState(null);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
         setDisabled(!isAdmin || false);
         setCanSave(isAdmin || false);
-    }, [ account ]);
+    }, [account]);
 
     useEffect(() => {
-        if (loading !== 'init') {
-            return;
-        }
+            if (loading !== 'init') {
+                return;
+            }
 
-        setLoading('loading');
-        loadFixtureData();
-    },
+            setLoading('loading');
+            loadFixtureData();
+        },
         // eslint-disable-next-line
         [loading]);
 
@@ -65,7 +67,7 @@ export function Score({ account }) {
             return;
         }
 
-        const teamSeasons = Object.fromEntries(teamData.seasons.map(season => [ season.seasonId, season ]));
+        const teamSeasons = Object.fromEntries(teamData.seasons.map(season => [season.seasonId, season]));
 
         if (!teamSeasons[seasonId]) {
             setError(`${teamType} team has not registered for this season: ${seasonId}`);
@@ -112,16 +114,14 @@ export function Score({ account }) {
             allPlayers.sort(sortPlayers);
 
             if (!gameData.matches || !gameData.matches.length) {
-                gameData.matches = [ {}, {}, {}, {}, {}, {}, {}, {} ];
+                gameData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
             }
 
             setAllPlayers(allPlayers);
             setFixtureData(gameData);
-        }
-        catch (e) {
+        } catch (e) {
             setError(e.toString());
-        }
-        finally {
+        } finally {
             setLoading('ready');
         }
     }
@@ -209,7 +209,7 @@ export function Score({ account }) {
             const result = await gameApi.updateScores(fixtureId, fixtureData);
 
             if (!result.success) {
-                window.alert(`Could not save the scores`);
+                setSaveError(result);
             }
         } finally {
             setSaving(false);
@@ -231,163 +231,168 @@ export function Score({ account }) {
     }
 
     return (<div>
-        {fixtureData ? ( <ul className="nav nav-tabs">
+        {fixtureData ? (<ul className="nav nav-tabs">
             <NavItem>
-                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
+                <NavLink tag={Link} className="text-light"
+                         to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
+                <NavLink tag={Link} className="text-light"
+                         to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-light" to={`/division/${fixtureData.divisionId}/players`}>Players</NavLink>
+                <NavLink tag={Link} className="text-light"
+                         to={`/division/${fixtureData.divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>) : null}
         <div className="light-background p-3 overflow-auto">
-        <table className="table">
-            <tbody>
-            <tr>
-                <th colSpan="2">{fixtureData.home.name}</th>
-                <th>vs</th>
-                <th colSpan="2">{fixtureData.away.name}</th>
-            </tr>
-            <tr>
-                <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
-            </tr>
-            <MatchPlayerSelection
-                playerCount={1}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                match={fixtureData.matches[0]}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={5}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
-                otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
-            <MatchPlayerSelection
-                playerCount={1}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={5}
-                match={fixtureData.matches[1]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
-                otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]} />
-            <MatchPlayerSelection
-                playerCount={1}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={5}
-                match={fixtureData.matches[2]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
-                otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]} />
-            <MatchPlayerSelection
-                playerCount={1}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={5}
-                match={fixtureData.matches[3]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
-                otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]} />
-            <MatchPlayerSelection
-                playerCount={1}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={5}
-                match={fixtureData.matches[4]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
-                otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]} />
-            <tr>
-                <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
-            </tr>
-            <MatchPlayerSelection
-                playerCount={2}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={3}
-                match={fixtureData.matches[5]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
-                otherMatches={[fixtureData.matches[6]]} />
-            <MatchPlayerSelection
-                playerCount={2}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={3}
-                match={fixtureData.matches[6]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
-                otherMatches={[fixtureData.matches[5]]} />
-            <tr>
-                <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
-            </tr>
-            <MatchPlayerSelection
-                playerCount={3}
-                homePlayers={homeTeam}
-                awayPlayers={awayTeam}
-                disabled={disabled}
-                readOnly={saving}
-                numberOfLegs={3}
-                match={fixtureData.matches[7]}
-                onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)} />
-            {canSave ? (<tr>
-                <td colSpan="2">
-                    Man of the match<br />
-                    <PlayerSelection
-                        players={allPlayers}
-                        disabled={disabled}
-                        readOnly={saving}
-                        selected={ { id: fixtureData.home.manOfTheMatch } }
-                        onChange={(elem, player) => manOfTheMatchChanged(player, 'home')} />
-                </td>
-                <td></td>
-                <td colSpan="2">
-                    Man of the match<br />
-                    <PlayerSelection
-                        players={allPlayers}
-                        disabled={disabled}
-                        readOnly={saving}
-                        selected={ { id: fixtureData.away.manOfTheMatch } }
-                        onChange={(elem, player) => manOfTheMatchChanged(player, 'away')} />
-                </td>
-            </tr>) : null}
-            <tr>
-                <td colSpan="2">
-                    180s<br />
-                    <MultiPlayerSelection
-                        disabled={disabled}
-                        readOnly={saving}
-                        allPlayers={allPlayers}
-                        players={fixtureData.matches[0].oneEighties || []}
-                        onRemovePlayer={removeOneEightyScore}
-                        onAddPlayer={add180} />
-                </td>
-                <td></td>
-                <td colSpan="2">
-                    100+ c/o<br />
-                    <MultiPlayerSelectionWithNotes
-                        disabled={disabled}
-                        readOnly={saving}
-                        allPlayers={allPlayers}
-                        players={fixtureData.matches[0].over100Checkouts || []}
-                        onRemovePlayer={removeHiCheck}
-                        onAddPlayer={addHiCheck} />
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        {canSave ? (<button className="btn btn-primary" onClick={saveScores}>
-            {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            Save
-        </button>) : null}
-    </div>
-</div>);
+            <table className="table">
+                <tbody>
+                <tr>
+                    <th colSpan="2">{fixtureData.home.name}</th>
+                    <th>vs</th>
+                    <th colSpan="2">{fixtureData.away.name}</th>
+                </tr>
+                <tr>
+                    <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
+                </tr>
+                <MatchPlayerSelection
+                    playerCount={1}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    match={fixtureData.matches[0]}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={5}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
+                    otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}/>
+                <MatchPlayerSelection
+                    playerCount={1}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={5}
+                    match={fixtureData.matches[1]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}/>
+                <MatchPlayerSelection
+                    playerCount={1}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={5}
+                    match={fixtureData.matches[2]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]}/>
+                <MatchPlayerSelection
+                    playerCount={1}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={5}
+                    match={fixtureData.matches[3]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]}/>
+                <MatchPlayerSelection
+                    playerCount={1}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={5}
+                    match={fixtureData.matches[4]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]}/>
+                <tr>
+                    <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
+                </tr>
+                <MatchPlayerSelection
+                    playerCount={2}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={3}
+                    match={fixtureData.matches[5]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
+                    otherMatches={[fixtureData.matches[6]]}/>
+                <MatchPlayerSelection
+                    playerCount={2}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={3}
+                    match={fixtureData.matches[6]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
+                    otherMatches={[fixtureData.matches[5]]}/>
+                <tr>
+                    <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
+                </tr>
+                <MatchPlayerSelection
+                    playerCount={3}
+                    homePlayers={homeTeam}
+                    awayPlayers={awayTeam}
+                    disabled={disabled}
+                    readOnly={saving}
+                    numberOfLegs={3}
+                    match={fixtureData.matches[7]}
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)}/>
+                {canSave ? (<tr>
+                    <td colSpan="2">
+                        Man of the match<br/>
+                        <PlayerSelection
+                            players={allPlayers}
+                            disabled={disabled}
+                            readOnly={saving}
+                            selected={{id: fixtureData.home.manOfTheMatch}}
+                            onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>
+                    </td>
+                    <td></td>
+                    <td colSpan="2">
+                        Man of the match<br/>
+                        <PlayerSelection
+                            players={allPlayers}
+                            disabled={disabled}
+                            readOnly={saving}
+                            selected={{id: fixtureData.away.manOfTheMatch}}
+                            onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>
+                    </td>
+                </tr>) : null}
+                <tr>
+                    <td colSpan="2">
+                        180s<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            players={fixtureData.matches[0].oneEighties || []}
+                            onRemovePlayer={removeOneEightyScore}
+                            onAddPlayer={add180}/>
+                    </td>
+                    <td></td>
+                    <td colSpan="2">
+                        100+ c/o<br/>
+                        <MultiPlayerSelectionWithNotes
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            players={fixtureData.matches[0].over100Checkouts || []}
+                            onRemovePlayer={removeHiCheck}
+                            onAddPlayer={addHiCheck}/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            {canSave ? (<button className="btn btn-primary" onClick={saveScores}>
+                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                 aria-hidden="true"></span>) : null}
+                Save
+            </button>) : null}
+        </div>
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score" />) : null}
+    </div>);
 }

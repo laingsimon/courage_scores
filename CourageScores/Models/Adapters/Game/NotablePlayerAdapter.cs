@@ -20,8 +20,8 @@ public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
         return Task.FromResult(new NotablePlayer
         {
             Id = dto.Id,
-            Name = dto.Name,
-            Notes = dto.Notes,
+            Name = dto.Name.Trim(),
+            Notes = dto.Notes?.Trim(),
         }.AddAuditProperties(dto));
     }
 }

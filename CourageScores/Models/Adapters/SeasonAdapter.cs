@@ -46,7 +46,7 @@ public class SeasonAdapter : IAdapter<Season, SeasonDto>
             Teams = await dto.Teams.SelectAsync(_teamAdapter.Adapt).ToList(),
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
         }.AddAuditProperties(dto);
     }
 }

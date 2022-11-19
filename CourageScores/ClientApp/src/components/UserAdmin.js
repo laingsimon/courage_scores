@@ -2,6 +2,7 @@ import React, {useState, useEffect } from 'react';
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {AccountApi} from "../api/account";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function UserAdmin() {
     const api = new AccountApi(new Http(new Settings()));
@@ -11,6 +12,7 @@ export function UserAdmin() {
     });
     const [ emailAddress, setEmailAddress ] = useState('');
     const [ loading, setLoading ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     useEffect(() => {
         if (loading) {
@@ -78,8 +80,7 @@ export function UserAdmin() {
             if (result.success) {
                 window.alert('Access updated');
             } else {
-                console.log(result);
-                window.alert('Access could not be updated');
+                setSaveError(result);
             }
         } finally {
             setSaving(false);
@@ -122,5 +123,6 @@ export function UserAdmin() {
                 Set access
             </button>
         </div>
-    </div>)
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save access" />) : null}
+    </div>);
 }

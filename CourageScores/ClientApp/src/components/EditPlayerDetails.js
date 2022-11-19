@@ -3,9 +3,11 @@ import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {PlayerApi} from "../api/player";
 import {BootstrapDropdown} from "./BootstrapDropdown";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange, onCancel, divisionData }) {
     const [ saving, setSaving ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     async function saveChanges() {
         if (saving) {
@@ -34,7 +36,7 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
                     await onSaved();
                 }
             } else {
-                alert(`Player could not be ${id ? 'created' : 'updated'}: ${JSON.stringify(result)}`);
+                setSaveError(result);
             }
         } finally {
             setSaving(false);
@@ -82,5 +84,6 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
             {id ? 'Save player' : 'Add player'}
         </button>
         <button className="btn btn-secondary" onClick={() => (onCancel || function() {})()}>Cancel</button>
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save player details" />) : null}
     </div>)
 }

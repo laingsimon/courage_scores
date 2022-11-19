@@ -4,12 +4,14 @@ import {TeamApi} from "../api/team";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {PlayerApi} from "../api/player";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
     const isAdmin = account && account.access && account.access.managePlayers;
     const [ editPlayer, setEditPlayer ] = useState(null);
     const [ loadingPlayerDetails, setLoadingPlayerDetails ] = useState(null);
     const [ deletingPlayer, setDeletingPlayer ] = useState(null);
+    const [ deleteError, setDeleteError ] = useState(null);
 
     async function prepareDeletePlayer(player) {
         if (loadingPlayerDetails) {
@@ -28,8 +30,7 @@ export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
             if (result.success) {
                 await onReloadDivision();
             } else {
-                console.log(result);
-                window.alert(`Could not delete player: ${JSON.stringify(result)}`);
+                setDeleteError(result);
             }
         } finally {
             setDeletingPlayer(null);
@@ -107,5 +108,6 @@ export function DivisionPlayers({ divisionData, account, onReloadDivision }) {
         {(isAdmin) && editPlayer == null && loadingPlayerDetails === null ? (<button className="btn btn-primary mt-3" onClick={() => setEditPlayer({})}>
             Add player
         </button>) : null}
+        {deleteError ? (<ErrorDisplay {...deleteError} onClose={() => setDeleteError(null)} title="Could not delete player" />) : null}
     </div>);
 }

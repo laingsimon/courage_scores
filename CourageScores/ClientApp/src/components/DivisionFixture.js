@@ -4,6 +4,7 @@ import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
 import {BootstrapDropdown} from "./BootstrapDropdown";
+import {ErrorDisplay} from "./ErrorDisplay";
 
 export function DivisionFixture({ fixture, divisionData, account, onReloadDivision, date }) {
     const bye = {
@@ -14,6 +15,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     const [ awayTeamId, setAwayTeamId ] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
@@ -126,8 +128,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                         await onReloadDivision();
                     }
                 } else {
-                    console.log(result);
-                    alert('Could not delete the game');
+                    setSaveError(result);
                 }
                 return;
             }
@@ -146,8 +147,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                     await onReloadDivision();
                 }
             } else {
-                console.log(result);
-                alert('Could not create the game');
+                setSaveError(result);
             }
         } finally {
             setSaving(false);
@@ -166,8 +166,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
             if (result.success) {
                 await onReloadDivision();
             } else {
-                console.log(result);
-                alert(`Could not delete game`);
+                setSaveError(result);
             }
         } finally {
             setDeleting(false);
@@ -186,6 +185,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
                 : null}
             {awayTeamId && (fixture.id !== fixture.homeTeam.id) ? <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>🎯</Link> : null}
             {isAdmin && awayTeamId && !saving && !deleting ? (<button className="btn btn-sm btn-danger" onClick={deleteGame}>&times;</button>) : null}
+            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details" />) : null}
         </td>
     </tr>)
 }
