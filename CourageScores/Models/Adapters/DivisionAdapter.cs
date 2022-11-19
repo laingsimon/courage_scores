@@ -5,21 +5,21 @@ namespace CourageScores.Models.Adapters;
 
 public class DivisionAdapter : IAdapter<Division, DivisionDto>
 {
-    public DivisionDto Adapt(Division model)
+    public Task<DivisionDto> Adapt(Division model)
     {
-        return new DivisionDto
+        return Task.FromResult(new DivisionDto
         {
             Id = model.Id,
             Name = model.Name,
-        }.AddAuditProperties(model);
+        }.AddAuditProperties(model));
     }
 
-    public Division Adapt(DivisionDto dto)
+    public Task<Division> Adapt(DivisionDto dto)
     {
-        return new Division
+        return Task.FromResult(new Division
         {
             Id = dto.Id,
             Name = dto.Name,
-        }.AddAuditProperties(dto);
+        }.AddAuditProperties(dto));
     }
 }

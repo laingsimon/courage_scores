@@ -5,23 +5,23 @@ namespace CourageScores.Models.Adapters.Team;
 
 public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
 {
-    public TeamPlayerDto Adapt(TeamPlayer model)
+    public Task<TeamPlayerDto> Adapt(TeamPlayer model)
     {
-        return new TeamPlayerDto
+        return Task.FromResult(new TeamPlayerDto
         {
             Captain = model.Captain,
             Id = model.Id,
             Name = model.Name,
-        }.AddAuditProperties(model);
+        }.AddAuditProperties(model));
     }
 
-    public TeamPlayer Adapt(TeamPlayerDto dto)
+    public Task<TeamPlayer> Adapt(TeamPlayerDto dto)
     {
-        return new TeamPlayer
+        return Task.FromResult(new TeamPlayer
         {
             Captain = dto.Captain,
             Id = dto.Id,
             Name = dto.Name,
-        };
+        }.AddAuditProperties(dto));
     }
 }

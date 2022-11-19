@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Team;
 
@@ -12,22 +13,22 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
         _playerAdapter = playerAdapter;
     }
 
-    public TeamSeasonDto Adapt(TeamSeason model)
+    public async Task<TeamSeasonDto> Adapt(TeamSeason model)
     {
         return new TeamSeasonDto
         {
             Id = model.Id,
-            Players = model.Players.Select(_playerAdapter.Adapt).ToList(),
+            Players = await model.Players.SelectAsync(_playerAdapter.Adapt).ToList(),
             SeasonId = model.SeasonId,
         }.AddAuditProperties(model);
     }
 
-    public TeamSeason Adapt(TeamSeasonDto dto)
+    public async Task<TeamSeason> Adapt(TeamSeasonDto dto)
     {
         return new TeamSeason
         {
             Id = dto.Id,
-            Players = dto.Players.Select(_playerAdapter.Adapt).ToList(),
+            Players = await dto.Players.SelectAsync(_playerAdapter.Adapt).ToList(),
             SeasonId = dto.SeasonId,
         }.AddAuditProperties(dto);
     }

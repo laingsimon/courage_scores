@@ -5,21 +5,21 @@ namespace CourageScores.Models.Adapters.Game;
 
 public class GamePlayerAdapter : IAdapter<GamePlayer, GamePlayerDto>
 {
-    public GamePlayerDto Adapt(GamePlayer model)
+    public Task<GamePlayerDto> Adapt(GamePlayer model)
     {
-        return new GamePlayerDto
+        return Task.FromResult(new GamePlayerDto
         {
             Id = model.Id,
             Name = model.Name,
-        }.AddAuditProperties(model);
+        }.AddAuditProperties(model));
     }
 
-    public GamePlayer Adapt(GamePlayerDto dto)
+    public Task<GamePlayer> Adapt(GamePlayerDto dto)
     {
-        return new GamePlayer
+        return Task.FromResult(new GamePlayer
         {
             Id = dto.Id,
             Name = dto.Name,
-        }.AddAuditProperties(dto);
+        }.AddAuditProperties(dto));
     }
 }

@@ -2,6 +2,7 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters;
 
@@ -21,28 +22,28 @@ public class SeasonAdapter : IAdapter<Season, SeasonDto>
         _teamAdapter = teamAdapter;
     }
 
-    public SeasonDto Adapt(Season model)
+    public async Task<SeasonDto> Adapt(Season model)
     {
         return new SeasonDto
         {
-            Divisions = model.Divisions.Select(_divisionAdapter.Adapt).ToList(),
-            Games = model.Games.Select(_gameAdapter.Adapt).ToList(),
+            Divisions = await model.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
+            Games = await model.Games.SelectAsync(_gameAdapter.Adapt).ToList(),
             Id = model.Id,
-            Teams = model.Teams.Select(_teamAdapter.Adapt).ToList(),
+            Teams = await model.Teams.SelectAsync(_teamAdapter.Adapt).ToList(),
             EndDate = model.EndDate,
             StartDate = model.StartDate,
             Name = model.Name,
         }.AddAuditProperties(model);
     }
 
-    public Season Adapt(SeasonDto dto)
+    public async Task<Season> Adapt(SeasonDto dto)
     {
         return new Season
         {
-            Divisions = dto.Divisions.Select(_divisionAdapter.Adapt).ToList(),
-            Games = dto.Games.Select(_gameAdapter.Adapt).ToList(),
+            Divisions = await dto.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
+            Games = await dto.Games.SelectAsync(_gameAdapter.Adapt).ToList(),
             Id = dto.Id,
-            Teams = dto.Teams.Select(_teamAdapter.Adapt).ToList(),
+            Teams = await dto.Teams.SelectAsync(_teamAdapter.Adapt).ToList(),
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,
             Name = dto.Name,

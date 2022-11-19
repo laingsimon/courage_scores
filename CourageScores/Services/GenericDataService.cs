@@ -33,7 +33,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         var item = await _repository.Get(id, token);
         return item != null
-            ? _adapter.Adapt(item)
+            ? await _adapter.Adapt(item)
             : null;
     }
 
@@ -41,7 +41,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         await foreach (var item in _repository.GetAll(token))
         {
-            yield return _adapter.Adapt(item);
+            yield return await _adapter.Adapt(item);
         }
     }
 
@@ -49,7 +49,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         await foreach (var item in _repository.GetSome(query, token))
         {
-            yield return _adapter.Adapt(item);
+            yield return await _adapter.Adapt(item);
         }
     }
 
@@ -88,7 +88,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         var updatedItem = await _repository.Upsert(item, token);
 
-        return Success(_adapter.Adapt(updatedItem), outcome.Message);
+        return Success(await _adapter.Adapt(updatedItem), outcome.Message);
     }
 
     public async Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
@@ -115,7 +115,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         await _auditingHelper.SetDeleted(item);
         await _repository.Upsert(item, token);
 
-        return Success(_adapter.Adapt(item), $"{typeof(TModel).Name} deleted");
+        return Success(await _adapter.Adapt(item), $"{typeof(TModel).Name} deleted");
     }
 
     private static ActionResultDto<TDto> Error(string error)

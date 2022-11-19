@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
@@ -16,31 +17,31 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
         _gameTeamAdapter = gameTeamAdapter;
     }
 
-    public GameDto Adapt(Cosmos.Game.Game model)
+    public async Task<GameDto> Adapt(Cosmos.Game.Game model)
     {
         return new GameDto
         {
             Address = model.Address,
-            Away = _gameTeamAdapter.Adapt(model.Away),
+            Away = await _gameTeamAdapter.Adapt(model.Away),
             Date = model.Date,
-            Home = _gameTeamAdapter.Adapt(model.Home),
+            Home = await _gameTeamAdapter.Adapt(model.Home),
             Id = model.Id,
-            Matches = model.Matches.Select(_gameMatchAdapter.Adapt).ToList(),
+            Matches = await model.Matches.SelectAsync(_gameMatchAdapter.Adapt).ToList(),
             DivisionId = model.DivisionId,
             SeasonId = model.SeasonId,
         }.AddAuditProperties(model);
     }
 
-    public Cosmos.Game.Game Adapt(GameDto dto)
+    public async Task<Cosmos.Game.Game> Adapt(GameDto dto)
     {
         return new Cosmos.Game.Game
         {
             Address = dto.Address,
-            Away = _gameTeamAdapter.Adapt(dto.Away),
+            Away = await _gameTeamAdapter.Adapt(dto.Away),
             Date = dto.Date,
-            Home = _gameTeamAdapter.Adapt(dto.Home),
+            Home = await _gameTeamAdapter.Adapt(dto.Home),
             Id = dto.Id,
-            Matches = dto.Matches.Select(_gameMatchAdapter.Adapt).ToList(),
+            Matches = await dto.Matches.SelectAsync(_gameMatchAdapter.Adapt).ToList(),
             DivisionId = dto.DivisionId,
             SeasonId = dto.SeasonId,
         }.AddAuditProperties(dto);

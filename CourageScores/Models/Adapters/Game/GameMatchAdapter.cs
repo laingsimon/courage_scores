@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
@@ -16,33 +17,33 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
         _notablePlayerAdapter = notablePlayerAdapter;
     }
 
-    public GameMatchDto Adapt(GameMatch model)
+    public async Task<GameMatchDto> Adapt(GameMatch model)
     {
         return new GameMatchDto
         {
             Id = model.Id,
-            AwayPlayers = model.AwayPlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
+            AwayPlayers = await model.AwayPlayers.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
             AwayScore = model.AwayScore,
-            HomePlayers = model.HomePlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
+            HomePlayers = await model.HomePlayers.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
             HomeScore = model.HomeScore,
-            OneEighties = model.OneEighties.Select(_gamePlayerAdapter.Adapt).ToList(),
-            Over100Checkouts = model.Over100Checkouts.Select(_notablePlayerAdapter.Adapt).ToList(),
+            OneEighties = await model.OneEighties.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
+            Over100Checkouts = await model.Over100Checkouts.SelectAsync(_notablePlayerAdapter.Adapt).ToList(),
             StartingScore = model.StartingScore,
             NumberOfLegs = model.NumberOfLegs,
         }.AddAuditProperties(model);
     }
 
-    public GameMatch Adapt(GameMatchDto dto)
+    public async Task<GameMatch> Adapt(GameMatchDto dto)
     {
         return new GameMatch
         {
             Id = dto.Id,
-            AwayPlayers = dto.AwayPlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
+            AwayPlayers = await dto.AwayPlayers.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
             AwayScore = dto.AwayScore,
-            HomePlayers = dto.HomePlayers.Select(_gamePlayerAdapter.Adapt).ToList(),
+            HomePlayers = await dto.HomePlayers.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
             HomeScore = dto.HomeScore,
-            OneEighties = dto.OneEighties.Select(_gamePlayerAdapter.Adapt).ToList(),
-            Over100Checkouts = dto.Over100Checkouts.Select(_notablePlayerAdapter.Adapt).ToList(),
+            OneEighties = await dto.OneEighties.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
+            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(_notablePlayerAdapter.Adapt).ToList(),
             StartingScore = dto.StartingScore,
             NumberOfLegs = dto.NumberOfLegs,
         }.AddAuditProperties(dto);

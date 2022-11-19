@@ -53,7 +53,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var dto = new Dto();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _adapter.Setup(a => a.Adapt(model)).Returns(dto);
+        _adapter.Setup(a => a.Adapt(model)).ReturnsAsync(() => dto);
 
         var result = await _service.Get(id, _token);
 
@@ -68,7 +68,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var dto = new Dto();
         _repository.Setup(r => r.GetAll(_token)).Returns(() => AsyncEnumerable(model));
-        _adapter.Setup(a => a.Adapt(model)).Returns(dto);
+        _adapter.Setup(a => a.Adapt(model)).ReturnsAsync(() => dto);
         var returnedItems = new List<Dto>();
 
         await foreach (var returnedItem in _service.GetAll(_token))
@@ -169,7 +169,7 @@ public class GenericDataServiceTests
         };
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-        _adapter.Setup(a => a.Adapt(updatedModel)).Returns(updatedDto);
+        _adapter.Setup(a => a.Adapt(updatedModel)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
 
@@ -198,7 +198,7 @@ public class GenericDataServiceTests
         };
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-        _adapter.Setup(a => a.Adapt(updatedModel)).Returns(updatedDto);
+        _adapter.Setup(a => a.Adapt(updatedModel)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
 
@@ -275,7 +275,7 @@ public class GenericDataServiceTests
         };
         _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _adapter.Setup(a => a.Adapt(model)).Returns(deletedDto);
+        _adapter.Setup(a => a.Adapt(model)).ReturnsAsync(() => deletedDto);
 
         var result = await _service.Delete(id, _token);
 

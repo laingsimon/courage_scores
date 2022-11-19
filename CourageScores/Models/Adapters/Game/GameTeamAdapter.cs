@@ -13,9 +13,9 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         _userService = userService;
     }
 
-    public GameTeamDto Adapt(GameTeam model)
+    public async Task<GameTeamDto> Adapt(GameTeam model)
     {
-        var isAdmin = _userService.GetUser().Result?.Access?.ManageScores == true;
+        var isAdmin = (await _userService.GetUser())?.Access?.ManageScores == true;
 
         return new GameTeamDto
         {
@@ -29,13 +29,13 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         }.AddAuditProperties(model);
     }
 
-    public GameTeam Adapt(GameTeamDto dto)
+    public Task<GameTeam> Adapt(GameTeamDto dto)
     {
-        return new GameTeam
+        return Task.FromResult(new GameTeam
         {
             Id = dto.Id,
             Name = dto.Name,
             ManOfTheMatch = dto.ManOfTheMatch,
-        }.AddAuditProperties(dto);
+        }.AddAuditProperties(dto));
     }
 }

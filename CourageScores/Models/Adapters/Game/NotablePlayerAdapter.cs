@@ -5,23 +5,23 @@ namespace CourageScores.Models.Adapters.Game;
 
 public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
 {
-    public NotablePlayerDto Adapt(NotablePlayer model)
+    public Task<NotablePlayerDto> Adapt(NotablePlayer model)
     {
-        return new NotablePlayerDto
+        return Task.FromResult(new NotablePlayerDto
         {
             Id = model.Id,
             Name = model.Name,
             Notes = model.Notes,
-        }.AddAuditProperties(model);
+        }.AddAuditProperties(model));
     }
 
-    public NotablePlayer Adapt(NotablePlayerDto dto)
+    public Task<NotablePlayer> Adapt(NotablePlayerDto dto)
     {
-        return new NotablePlayer
+        return Task.FromResult(new NotablePlayer
         {
             Id = dto.Id,
             Name = dto.Name,
             Notes = dto.Notes,
-        }.AddAuditProperties(dto);
+        }.AddAuditProperties(dto));
     }
 }

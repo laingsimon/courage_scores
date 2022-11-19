@@ -67,7 +67,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
         }
 
-        return new CommandOutcome<GameDto>(true, "Scores updated", _gameAdapter.Adapt(game));
+        return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));
     }
 
     private GameMatch AdaptToMatch(RecordScoresDto.RecordScoresMatchDto updatedMatch, UserDto user)
