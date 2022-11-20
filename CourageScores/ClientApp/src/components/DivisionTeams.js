@@ -50,7 +50,7 @@ export function DivisionTeams({ divisionData, onReloadDivision, account, divisio
     }
 
     return (<div className="light-background p-3">
-        <div className="overflow-auto max-scroll-height">
+        <div>
             <table className="table">
                 <thead>
                     <tr>

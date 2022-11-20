@@ -31,7 +31,7 @@ export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
     }
 
     return (<div className="light-background p-3">
-        <div className="overflow-auto max-scroll-height">
+        <div>
             {divisionData.fixtures.map(date => (<div key={date.date}>
                 <h4>{new Date(date.date).toDateString()}</h4>
                 <table className="table layout-fixed">
