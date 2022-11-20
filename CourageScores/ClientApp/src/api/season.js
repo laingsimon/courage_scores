@@ -10,6 +10,10 @@ class SeasonApi {
     delete(id) {
         return this.http.delete(`/api/Season/${id}`);
     }
+
+    getAll() {
+        return this.http.get(`/api/Season`, {});
+    }
 }
 
 export { SeasonApi };

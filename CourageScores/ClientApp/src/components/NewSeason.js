@@ -1,18 +1,29 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {SeasonApi} from "../api/season";
 import {useNavigate} from "react-router-dom";
 import {ErrorDisplay} from "./ErrorDisplay";
+import {BootstrapDropdown} from "./BootstrapDropdown";
 
-export function NewSeason() {
+export function NewSeason(props) {
     const [ name, setName ] = useState('');
     const [ startDate, setStartDate ] = useState('');
     const [ endDate, setEndDate ] = useState('');
     const [ saving, setSaving ] = useState(false);
     const [ newSeasonError, setNewSeasonError] = useState(null);
+    const [ seasons, setSeasons ] = useState([]);
     const api = new SeasonApi(new Http(new Settings()));
     const navigate = useNavigate();
+
+    useEffect(() => {
+        getSeasons();
+    });
+
+    async function getSeasons() {
+        const seasons = await api.getAll();
+        setSeasons(seasons.map(s => { return { value: s.id, text: `${s.name} (${new Date(s.startDate).toDateString()} - ${new Date(s.endDate).toDateString()})` } }));
+    }
 
     async function createSeason() {
         if (saving) {
@@ -64,6 +75,12 @@ export function NewSeason() {
                 <span className="input-group-text">End date</span>
             </div>
             <input value={endDate} type="date" onChange={(event) => setEndDate(event.target.value)} />
+        </div>
+        <div className="input-group margin-right mt-3">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Use teams from season</span>
+            </div>
+            <BootstrapDropdown value={null} options={seasons} />
         </div>
 
         <button className="btn btn-primary mt-3" onClick={createSeason}>
