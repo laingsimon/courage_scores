@@ -6,6 +6,10 @@ class SeasonApi {
     update(season) {
         return this.http.put(`/api/Season`, season);
     }
+
+    delete(id) {
+        return this.http.delete(`/api/Season/${id}`);
+    }
 }
 
 export { SeasonApi };

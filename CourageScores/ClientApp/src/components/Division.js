@@ -96,6 +96,32 @@ export function Division({ account, apis }) {
         }
     }
 
+    async function deleteSeason() {
+        if (updatingData) {
+            return;
+        }
+
+        if (!window.confirm('Are you sure you want to delete this season?')) {
+            return;
+        }
+
+        try {
+            setUpdatingData(true);
+            const api = new SeasonApi(new Http(new Settings()));
+            const result = await api.delete(seasonData.id);
+
+            if (result.success) {
+                await apis.reloadAll();
+                await reloadDivisionData();
+                setEditMode(null);
+            } else {
+                setSaveError(result);
+            }
+        } finally {
+            setUpdatingData(false);
+        }
+    }
+
     async function saveDivisionName() {
         if (updatingData) {
             return;
@@ -180,6 +206,7 @@ export function Division({ account, apis }) {
                         {updatingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                         Save
                     </button>
+                    {updatingData ? null : (<button className="btn btn-sm btn-danger" onClick={deleteSeason}>Delete</button>)}
                     {updatingData ? null : (<button className="btn btn-sm btn-warning" onClick={() => setEditMode(null)}>Cancel</button>)}
                 </div>)
                 : null}
