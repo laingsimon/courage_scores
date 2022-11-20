@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
 
-export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly }) {
+export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     if (options.length === 0) {
@@ -16,7 +16,17 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             : (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled></button>)
     }
 
-    return (<ButtonDropdown isOpen={dropdownOpen} toggle={() => { if (!readOnly) { setDropdownOpen(!dropdownOpen) } } } className={className}>
+    function toggleOpen() {
+        if (!readOnly) {
+            const willBeOpen = !dropdownOpen;
+            setDropdownOpen(willBeOpen);
+            if (onOpen) {
+                onOpen(willBeOpen);
+            }
+        }
+    }
+
+    return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className}>
         <DropdownToggle caret color={color || 'outline-light'} className="btn-sm text-dark border-dark">
             <span className="text-dark dropdown-text-min-width">{selectedOption ? selectedOption.text || value : value}</span>
         </DropdownToggle>

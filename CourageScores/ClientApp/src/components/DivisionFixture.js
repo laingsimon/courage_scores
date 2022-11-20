@@ -16,6 +16,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const [ clipCellRegion, setClipCellRegion ] = useState(true);
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
@@ -93,7 +94,13 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
         return (<BootstrapDropdown
             value={awayTeamId}
             onChange={(value) => setAwayTeamId(value)}
-            options={options} />);
+            options={options}
+            onOpen={toggleCellClip}
+        />);
+    }
+
+    function toggleCellClip(isOpen) {
+        setClipCellRegion(!isOpen);
     }
 
     async function saveTeamChange() {
@@ -162,7 +169,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
         <td className="narrow-column text-primary fw-bolder">{fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
         <td className="narrow-column text-primary fw-bolder">{fixture.awayScore}</td>
-        <td>{renderAwayTeam()}</td>
+        <td style={{ overflow: (clipCellRegion ? 'clip' : 'initial')}}>{renderAwayTeam()}</td>
         <td className="medium-column-width">
             {isAdmin && awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
                 ? (<button onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '💾'}</button>)
