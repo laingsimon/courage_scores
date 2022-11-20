@@ -96,6 +96,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
             onChange={(value) => setAwayTeamId(value)}
             options={options}
             onOpen={toggleCellClip}
+            disabled={deleting}
         />);
     }
 
@@ -147,6 +148,10 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
 
     async function deleteGame() {
         if (deleting || saving) {
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to delete this game?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
             return;
         }
 
