@@ -44,7 +44,7 @@ export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
         {isAdmin ? (<div className="mt-3">
             <div>
                 <span className="margin-right">New fixture:</span>
-                <input type="date" className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
+                <input type="date" min={divisionData.season.startDate.substring(0, 10)} max={divisionData.season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
