@@ -32,12 +32,12 @@ public class GameMatch : AuditedEntity
     /// <summary>
     /// What was the home score
     /// </summary>
-    public int HomeScore { get; set; }
+    public int? HomeScore { get; set; }
 
     /// <summary>
     /// What was the away score
     /// </summary>
-    public int AwayScore { get; set; }
+    public int? AwayScore { get; set; }
 
     /// <summary>
     /// Who scored a 180 in the match

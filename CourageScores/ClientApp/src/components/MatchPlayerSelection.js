@@ -54,7 +54,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
-        newMatch.homeScore = newScore ? Number.parseInt(newScore) : newScore;
+        newMatch.homeScore = newScore ? Number.parseInt(newScore) : null;
         newMatch.numberOfLegs = numberOfLegs;
 
         if (newScore && newMatch.homeScore > numberOfLegs) {
@@ -71,7 +71,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
     function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
-        newMatch.awayScore = newScore ? Number.parseInt(newScore) : newScore;
+        newMatch.awayScore = newScore ? Number.parseInt(newScore) : null;
         newMatch.numberOfLegs = numberOfLegs;
 
         if (newScore && newMatch.awayScore > numberOfLegs) {
@@ -145,7 +145,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     disabled={disabled}
                     readOnly={readOnly}
                     type="number" max="5" min="0"
-                    value={match.homeScore === null ? '0' : match.homeScore}
+                    value={match.homeScore === null ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td className="vertical-align-middle">vs</td>
@@ -156,7 +156,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     disabled={disabled}
                     readOnly={readOnly}
                     type="number" max="5" min="0"
-                    value={match.awayScore === null ? '0' : match.awayScore}
+                    value={match.awayScore === null ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>

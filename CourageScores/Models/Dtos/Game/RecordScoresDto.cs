@@ -14,9 +14,9 @@ public class RecordScoresDto
     public class RecordScoresMatchDto
     {
         public List<RecordScoresPlayerDto> HomePlayers { get; set; } = new();
-        public int HomeScore { get; set; }
+        public int? HomeScore { get; set; }
         public List<RecordScoresPlayerDto> AwayPlayers { get; set; } = new();
-        public int AwayScore { get; set; }
+        public int? AwayScore { get; set; }
         public List<RecordScoresPlayerDto> OneEighties { get; set; } = new ();
         public List<Over100CheckoutDto> Over100Checkouts { get; set; } = new ();
     }
