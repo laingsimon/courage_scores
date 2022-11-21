@@ -6,7 +6,7 @@ import {GameApi} from "../api/game";
 import {BootstrapDropdown} from "./BootstrapDropdown";
 import {ErrorDisplay} from "./ErrorDisplay";
 
-export function DivisionFixture({ fixture, divisionData, account, onReloadDivision, date }) {
+export function DivisionFixture({ fixture, account, onReloadDivision, date, divisionId, fixtures, teams }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -19,7 +19,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
     const [ clipCellRegion, setClipCellRegion ] = useState(true);
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
-        const fixturesForThisDate = divisionData.fixtures.filter(f => f.date === date)[0];
+        const fixturesForThisDate = fixtures.filter(f => f.date === date)[0];
         if (!fixturesForThisDate || !fixturesForThisDate.fixtures) {
             return false;
         }
@@ -33,8 +33,8 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
 
     function isFixtureSelectedForAnotherDate(t) {
         const matchingFixtureDates = [];
-        for (let index = 0; index < divisionData.fixtures.length; index++) {
-            const fixtureDate = divisionData.fixtures[index];
+        for (let index = 0; index < fixtures.length; index++) {
+            const fixtureDate = fixtures[index];
             if (fixtureDate.date === date) {
                 continue;
             }
@@ -80,7 +80,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
             return (fixture.awayTeam ? fixture.awayTeam.name : 'Bye');
         }
 
-        const options = [bye].concat(divisionData.teams
+        const options = [bye].concat(teams
             .filter(t => t.id !== fixture.homeTeam.id)
             .map(t => {
                 const unavailableReason = getUnavailableReason(t);
@@ -128,7 +128,7 @@ export function DivisionFixture({ fixture, divisionData, account, onReloadDivisi
             const result = await api.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
-                divisionId: divisionData.id,
+                divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: awayTeamId,
                 date: date,

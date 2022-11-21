@@ -19,7 +19,7 @@ export function Division({ account, apis }) {
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
     const [ editMode, setEditMode ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(null);
-    const [ divisionName, setDivisionName ] = useState(null);
+    const [ divisionName, setDivisionName ] = useState('');
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
@@ -55,6 +55,7 @@ export function Division({ account, apis }) {
             setLoading(false);
         }
 
+        // noinspection JSIgnoredPromiseFromCall
         reloadDivisionData();
     }, [ divisionData, loading, divisionId, seasonId ]);
 
@@ -222,9 +223,33 @@ export function Division({ account, apis }) {
                 <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>
-        {effectiveTab === 'teams' ? <DivisionTeams divisionData={divisionData} onReloadDivision={reloadDivisionData} account={account} divisionId={divisionId} /> : null}
-        {effectiveTab === 'fixtures' ? <DivisionFixtures divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
-        {effectiveTab === 'players' ? <DivisionPlayers divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save details" />) : null}
+        {effectiveTab === 'teams'
+            ? (<DivisionTeams
+                teams={divisionData.teams}
+                onReloadDivision={reloadDivisionData}
+                account={account}
+                divisionId={divisionId} />)
+            : null}
+        {effectiveTab === 'fixtures'
+            ? (<DivisionFixtures
+                season={divisionData.season}
+                divisionId={divisionData.id}
+                fixtures={divisionData.fixtures}
+                teams={divisionData.teams}
+                account={account}
+                onReloadDivision={reloadDivisionData} />)
+            : null}
+        {effectiveTab === 'players'
+            ? (<DivisionPlayers
+                players={divisionData.players}
+                account={account}
+                onReloadDivision={reloadDivisionData} />)
+            : null}
+        {saveError
+            ? (<ErrorDisplay
+                {...saveError}
+                onClose={() => setSaveError(null)}
+                title="Could not save details" />)
+            : null}
     </div>);
 }
