@@ -32,6 +32,24 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             date={newDate}/>);
     }
 
+    function renderNewTeamSelection() {
+        return (<tr>
+            <td colSpan="2">
+                <select>
+                    <option>A team from a previous season NOT already playing a fixture in this season</option>
+                    <option>Add a team...</option>
+                </select>
+            </td>
+            <td colSpan="2">vs</td>
+            <td>
+                <select>
+                    <option>A team from a previous season NOT already playing a fixture in this season</option>
+                    <option>Add a team...</option>
+                </select>
+            </td>
+        </tr>)
+    }
+
     return (<div className="light-background p-3">
         <div>
             {fixtures.map(date => (<div key={date.date}>
@@ -47,6 +65,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         account={account}
                         fixture={f}
                         date={date.date}/>))}
+                    {renderNewTeamSelection()}
                     </tbody>
                 </table>
             </div>))}
@@ -59,6 +78,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
+                    {renderNewTeamSelection()}
                 </tbody>
             </table>) : null}
         </div>) : null}

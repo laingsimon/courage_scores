@@ -4,7 +4,7 @@ import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
 import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
-import {MatchPlayerSelection} from "./MatchPlayerSelection";
+import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {PlayerSelection} from "./PlayerSelection";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
@@ -52,7 +52,7 @@ export function Score({account}) {
         }
     }
 
-    async function loadTeamData(teamId, seasonId, teamType) {
+    async function loadTeamPlayers(teamId, seasonId, teamType) {
         const http = new Http(new Settings());
         const teamApi = new TeamApi(http);
         const teamData = await teamApi.get(teamId);
@@ -76,6 +76,10 @@ export function Score({account}) {
 
         const players = teamSeasons[seasonId].players;
         players.sort(sortPlayers);
+        players.push({
+            id: NEW_PLAYER,
+            name: 'Add a player...'
+        });
         return players;
     }
 
@@ -95,13 +99,13 @@ export function Score({account}) {
                 return;
             }
 
-            const homeTeamPlayers = await loadTeamData(gameData.home.id, gameData.seasonId, 'home');
+            const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home');
 
             if (error || !homeTeamPlayers) {
                 return;
             }
 
-            const awayTeamPlayers = await loadTeamData(gameData.away.id, gameData.seasonId, 'away');
+            const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away');
 
             if (error || !awayTeamPlayers) {
                 return;
@@ -110,7 +114,7 @@ export function Score({account}) {
             setHomeTeam(homeTeamPlayers);
             setAwayTeam(awayTeamPlayers);
 
-            const allPlayers = homeTeamPlayers.concat(awayTeamPlayers);
+            const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
             allPlayers.sort(sortPlayers);
 
             if (!gameData.matches || !gameData.matches.length) {

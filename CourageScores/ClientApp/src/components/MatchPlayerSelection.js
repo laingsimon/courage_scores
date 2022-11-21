@@ -1,6 +1,8 @@
 import React from 'react';
 import {PlayerSelection} from "./PlayerSelection";
 
+export const NEW_PLAYER = 'NEW_PLAYER';
+
 export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly }) {
     function homePlayer(index) {
         if (!match.homePlayers || match.homePlayers.length <= index) {
