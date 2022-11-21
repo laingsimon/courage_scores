@@ -8,7 +8,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// </summary>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-public class Game : AuditedEntity, IPermissionedEntity
+public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
     /// <summary>
     /// The id of the division
@@ -58,5 +58,81 @@ public class Game : AuditedEntity, IPermissionedEntity
     public bool CanDelete(UserDto user)
     {
         return user.Access?.ManageGames == true;
+    }
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitGame(this);
+
+        visitor.VisitTeam(Home, Matches.Any() ? GameState.Played : GameState.Pending);
+        if (Home.ManOfTheMatch != null)
+        {
+            visitor.VisitManOfTheMatch(Home.ManOfTheMatch);
+        }
+
+        visitor.VisitTeam(Away, Matches.Any() ? GameState.Played : GameState.Pending);
+        if (Away.ManOfTheMatch != null)
+        {
+            visitor.VisitManOfTheMatch(Away.ManOfTheMatch);
+        }
+
+        var gameScore = new GameScoreVisitor(Home, Away);
+        foreach (var match in Matches)
+        {
+            match.Accept(gameScore);
+            match.Accept(visitor);
+        }
+
+        gameScore.Accept(visitor);
+    }
+
+    private class GameScoreVisitor : IGameVisitor, IGameVisitable
+    {
+        private readonly GameTeam _home;
+        private readonly GameTeam _away;
+        private int _homeScore;
+        private int _awayScore;
+
+        public GameScoreVisitor(GameTeam home, GameTeam away)
+        {
+            _home = home;
+            _away = away;
+        }
+
+        public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+        {
+            if (players.Count == 0)
+            {
+                return;
+            }
+
+            switch (team)
+            {
+                case TeamDesignation.Home:
+                    _homeScore++;
+                    break;
+                case TeamDesignation.Away:
+                    _awayScore++;
+                    break;
+            }
+        }
+
+        public void Accept(IGameVisitor visitor)
+        {
+            if (_homeScore > _awayScore)
+            {
+                visitor.VisitGameWinner(_home);
+                visitor.VisitGameLost(_away);
+            }
+            else if (_awayScore > _homeScore)
+            {
+                visitor.VisitGameWinner(_away);
+                visitor.VisitGameLost(_home);
+            }
+            else if (_homeScore == _awayScore && _homeScore > 0)
+            {
+                visitor.VisitGameDraw(_home, _away);
+            }
+        }
     }
 }
