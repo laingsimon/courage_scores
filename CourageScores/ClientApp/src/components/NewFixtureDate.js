@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import {DivisionFixture} from "./DivisionFixture";
 import {BootstrapDropdown} from "./BootstrapDropdown";
 import {Dialog} from "./Dialog";
 

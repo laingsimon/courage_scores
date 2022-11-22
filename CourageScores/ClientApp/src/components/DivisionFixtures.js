@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
-import {BootstrapDropdown} from "./BootstrapDropdown";
 import {NewFixtureDate} from "./NewFixtureDate";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, allTeams, onNewTeam }) {

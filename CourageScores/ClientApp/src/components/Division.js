@@ -64,7 +64,9 @@ export function Division({ account, apis }) {
 
         // noinspection JSIgnoredPromiseFromCall
         reloadDivisionData();
-    }, [ divisionData, loading, divisionId, seasonId ]);
+    },
+    // eslint-disable-next-line
+    [ divisionData, loading, divisionId, seasonId ]);
 
     if (loading || !divisionData) {
         return (<div className="light-background p-3">
