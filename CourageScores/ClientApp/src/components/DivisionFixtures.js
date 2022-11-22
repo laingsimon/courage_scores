@@ -65,7 +65,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         account={account}
                         fixture={f}
                         date={date.date}/>))}
-                    {renderNewTeamSelection()}
+                    {isAdmin ? renderNewTeamSelection() : null}
                     </tbody>
                 </table>
             </div>))}
