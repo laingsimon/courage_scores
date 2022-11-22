@@ -20,7 +20,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
         readOnly={readOnly}
         value={(selected || {}).id || ''}
         className="margin-right"
-        onChange={(value) => { onChange(this, findPlayer(value)); }}
+        onChange={(value) => onChange ? onChange(this, findPlayer(value)) : null}
         options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
                 .map(p => { return { value: p.id, text: p.name } })) }
     />);

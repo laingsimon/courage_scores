@@ -34,7 +34,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             {options.map(o => (<DropdownItem key={o.value}
                                              disabled={o.disabled || false}
                                              className={o.value === value ? 'active' : ''}
-                onClick={() => onChange(o.value)}>{o.text}</DropdownItem>))}
+                onClick={() => onChange ? onChange(o.value) : null}>{o.text}</DropdownItem>))}
         </DropdownMenu>
     </ButtonDropdown>);
 }

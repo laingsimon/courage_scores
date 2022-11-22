@@ -6,7 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {ErrorDisplay} from "./ErrorDisplay";
 import {BootstrapDropdown} from "./BootstrapDropdown";
 
-export function NewSeason(props) {
+export function NewSeason() {
     const [ name, setName ] = useState('');
     const [ startDate, setStartDate ] = useState('');
     const [ endDate, setEndDate ] = useState('');

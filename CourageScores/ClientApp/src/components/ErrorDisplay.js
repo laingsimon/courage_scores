@@ -25,7 +25,7 @@ export function ErrorDisplay({ errors, messages, warnings, result, success, onCl
                         {messages ? messages.map(m => (<p key={index++} className="text-primary">{m}</p>)) : null}
                     </div>
                     <div className="modal-footer">
-                        <button className="btn btn-primary" onClick={onClose}>Close</button>
+                        <button className="btn btn-primary" onClick={() => onClose ? onClose() : null}>Close</button>
                     </div>
                 </div>
             </div>

@@ -160,7 +160,9 @@ export function DivisionFixture({ fixture, account, onReloadDivision, date, divi
             const api = new GameApi(new Http(new Settings()));
             const result = await api.delete(fixture.id);
             if (result.success) {
-                await onReloadDivision();
+                if (onReloadDivision) {
+                    await onReloadDivision();
+                }
             } else {
                 setSaveError(result);
             }

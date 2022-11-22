@@ -7,7 +7,9 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
 
     function addPlayer() {
         if (player) {
-            onAddPlayer(player);
+            if (onAddPlayer) {
+                onAddPlayer(player);
+            }
             setPlayer(null);
             return;
         }

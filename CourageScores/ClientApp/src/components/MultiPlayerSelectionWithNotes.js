@@ -8,7 +8,9 @@ export function MultiPlayerSelectionWithNotes({ onAddPlayer, players, disabled, 
 
     function addPlayer() {
         if (player) {
-            onAddPlayer(player, notes);
+            if (onAddPlayer) {
+                onAddPlayer(player, notes);
+            }
             setPlayer(null);
             setNotes('');
             return;

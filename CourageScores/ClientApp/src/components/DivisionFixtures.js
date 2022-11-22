@@ -7,7 +7,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
     async function onNewDateCreated() {
         setNewDate('');
-        await onReloadDivision();
+        if (onReloadDivision) {
+            await onReloadDivision();
+        }
     }
 
     function renderNewFixture(team) {
