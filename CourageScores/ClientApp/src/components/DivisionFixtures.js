@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {NewFixtureDate} from "./NewFixtureDate";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, allTeams, onNewTeam }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
 
@@ -50,7 +50,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         account={account}
                         fixture={f}
                         date={date.date}/>))}
-                    {isAdmin ? (<NewFixtureDate fixtures={fixtures} allTeams={allTeams} date={date.date} onNewTeam={onNewTeam} />) : null}
+                    {isAdmin ? (<NewFixtureDate fixtures={fixtures} teams={teams} date={date.date} divisionId={divisionId} seasonId={season.id} onNewTeam={onNewTeam} />) : null}
                     </tbody>
                 </table>
             </div>))}
@@ -63,7 +63,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate fixtures={fixtures} allTeams={allTeams} onNewTeam={onNewTeam} />
+                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onNewTeam} date={newDate} divisionId={divisionId} seasonId={season.id} />
                 </tbody>
             </table>) : null}
         </div>) : null}

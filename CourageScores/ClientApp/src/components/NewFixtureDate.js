@@ -1,68 +1,144 @@
 import React, { useState } from 'react';
 import {BootstrapDropdown} from "./BootstrapDropdown";
 import {Dialog} from "./Dialog";
+import {EditTeamDetails} from "./EditTeamDetails";
+import {GameApi} from "../api/game";
+import {Http} from "../api/http";
+import {Settings} from "../api/settings";
+import {ErrorDisplay} from "./ErrorDisplay";
 
-export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
-    const [ newHomeTeam, setNewHomeTeam ] = useState(null);
-    const [ newAwayTeam, setNewAwayTeam ] = useState(null);
+export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
+    const [ homeTeamId, setHomeTeamId ] = useState(null);
+    const [ awayTeamId, setAwayTeamId ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);
     const [ saving, setSaving ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
+    const [ clipCellRegion, setClipCellRegion ] = useState(false);
+    const [ teamDetails, setTeamDetails ] = useState({
+        name: '',
+        address: '',
+    });
     const newTeam = { value: 'NEW_TEAM', text: 'Add a team...' };
 
-    const unselectedTeamsInDivision = allTeams
+    function toggleCellClip(isOpen) {
+        setClipCellRegion(!isOpen);
+    }
+
+    const unselectedTeamsInDivision = teams
         .filter(t => {
             const alreadySelected = fixtures
-                .map(f => f.fixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id).length)
+                .map(f => f.fixtures.filter(f => (f.homeTeam && f.homeTeam.id === t.id) || (f.awayTeam && f.awayTeam.id === t.id)).length)
                 .reduce((prev, count) => prev + count, 0);
             return alreadySelected === 0;
         })
         .map(t => { return { value: t.id, text: t.name } });
 
-    function setHomeTeam(value) {
-        if (value === newTeam.value) {
-            setNewHomeTeam(null);
+    function setHomeTeam(id) {
+        if (id === newTeam.value) {
+            setHomeTeamId(null);
             setNewTeamFor('home');
         } else {
             setNewTeamFor(null);
-            setNewHomeTeam(value);
+            setHomeTeamId(id);
         }
     }
 
-    function setAwayTeam(value) {
-        if (value === newTeam.value) {
-            setNewAwayTeam(null);
+    function setAwayTeam(id) {
+        if (id === newTeam.value) {
+            setAwayTeamId(null);
             setNewTeamFor('away');
         } else {
             setNewTeamFor(null);
-            setNewAwayTeam(value);
+            setAwayTeamId(id);
         }
     }
 
+    async function teamCreated(team) {
+        await onNewTeam();
+
+        if (newTeamFor === 'home') {
+            setHomeTeam(team.id);
+            setNewTeamFor(null);
+        } else if (newTeamFor === 'away') {
+            setAwayTeam(team.id);
+            setNewTeamFor(null);
+        }
+    }
+
+    function onChange(name, value) {
+        const newTeamDetails = Object.assign({}, teamDetails);
+        newTeamDetails[name] = value;
+        setTeamDetails(newTeamDetails);
+    }
+
     function renderNewTeamDialog() {
-        return (<Dialog title="Create a new team..." onClose={() => setNewTeamFor(null)}>
-          <p>New team inputs for {newTeamFor}</p>
+        return (<Dialog title="Create a new team...">
+          <EditTeamDetails
+              divisionId={divisionId}
+              seasonId={seasonId}
+              {...teamDetails}
+              onCancel={() => setNewTeamFor(null)} id={null}
+              onSaved={teamCreated}
+              onChange={onChange} />
         </Dialog>)
     }
 
+    async function saveFixture() {
+        if (saving) {
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const api = new GameApi(new Http(new Settings()));
+            const homeTeam = teams.filter(t => t.id === homeTeamId)[0];
+            const awayTeam = teams.filter(t => t.id === awayTeamId)[0];
+
+            const result = await api.update({
+                id: undefined,
+                address: homeTeam.address,
+                divisionId: divisionId,
+                homeTeamId: homeTeam.id,
+                awayTeamId: awayTeam.id,
+                date: date,
+            });
+
+            if (result.success) {
+                if (onNewTeam) {
+                    await onNewTeam();
+                }
+            } else {
+                setSaveError(result);
+            }
+        } finally {
+            setSaving(false);
+        }
+    }
+
     return (<tr>
-        <td colSpan="2">
+        <td style={{ overflow: (clipCellRegion ? 'clip' : 'initial')}}>
             <BootstrapDropdown
-                value={newHomeTeam}
+                value={homeTeamId}
                 onChange={setHomeTeam}
-                options={unselectedTeamsInDivision.filter(t => t.value !== newAwayTeam).concat([ newTeam ])} />
+                onOpen={toggleCellClip}
+                options={unselectedTeamsInDivision.filter(t => t.value !== awayTeamId).concat([ newTeam ])} />
         </td>
-        <td colSpan="2">vs</td>
-        <td>
+        <td className="narrow-column"></td>
+        <td className="narrow-column">vs</td>
+        <td className="narrow-column"></td>
+        <td style={{ overflow: (clipCellRegion ? 'clip' : 'initial')}}>
             <BootstrapDropdown
-                value={newAwayTeam}
+                value={awayTeamId}
                 onChange={setAwayTeam}
-                options={unselectedTeamsInDivision.filter(t => t.value !== newHomeTeam).concat([ newTeam ])} />
+                onOpen={toggleCellClip}
+                options={unselectedTeamsInDivision.filter(t => t.value !== homeTeamId).concat([ newTeam ])} />
         </td>
-        <td>
+        <td className="medium-column-width">
             {newTeamFor ? renderNewTeamDialog() : null}
-            <button className="btn btn-sm btn-primary">
+            <button className="btn btn-sm btn-primary" onClick={saveFixture}>
                 {saving ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '💾'}
             </button>
+            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
         </td>
     </tr>);
 }

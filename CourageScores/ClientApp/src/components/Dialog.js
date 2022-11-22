@@ -11,9 +11,9 @@ export function Dialog({ children, onClose, title }) {
                     <div className="modal-body">
                         {children}
                     </div>
-                    <div className="modal-footer">
+                    {onClose ? (<div className="modal-footer">
                         <button className="btn btn-primary" onClick={() => onClose ? onClose() : null}>Close</button>
-                    </div>
+                    </div>) : null}
                 </div>
             </div>
         </div>

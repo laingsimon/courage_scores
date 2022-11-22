@@ -244,8 +244,7 @@ export function Division({ account, apis }) {
                 season={divisionData.season}
                 divisionId={divisionData.id}
                 fixtures={divisionData.fixtures}
-                teams={divisionData.teams}
-                allTeams={teams}
+                teams={teams}
                 account={account}
                 onNewTeam={reloadDivisionData}
                 onReloadDivision={reloadDivisionData} />)

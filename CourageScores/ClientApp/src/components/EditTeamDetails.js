@@ -17,7 +17,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
 
         try {
             const api = new TeamApi(new Http(new Settings()));
-            const result = await api.update({
+            const response = await api.update({
                 id: id || undefined,
                 name: name,
                 address: address,
@@ -25,12 +25,12 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                 seasonId: seasonId
             });
 
-            if (result.success) {
+            if (response.success) {
                 if (onSaved) {
-                    await onSaved();
+                    await onSaved(response.result);
                 }
             } else {
-                setSaveError(result);
+                setSaveError(response);
             }
         } finally {
             setSaving(false);
