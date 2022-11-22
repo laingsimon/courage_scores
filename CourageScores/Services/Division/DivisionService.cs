@@ -1,10 +1,10 @@
-using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
-using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Repository;
 using CourageScores.Services.Command;
 
 namespace CourageScores.Services.Division;
@@ -13,19 +13,19 @@ public class DivisionService : IDivisionService
 {
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
     private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
-    private readonly IGenericDataService<Models.Cosmos.Game.Game, GameDto> _genericGameService;
     private readonly IGenericDataService<Season, SeasonDto> _genericSeasonService;
+    private readonly IGenericRepository<Game> _gameRepository;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
         IGenericDataService<Team, TeamDto> genericTeamService,
-        IGenericDataService<Models.Cosmos.Game.Game, GameDto> genericGameService,
-        IGenericDataService<Season, SeasonDto> genericSeasonService)
+        IGenericDataService<Season, SeasonDto> genericSeasonService,
+        IGenericRepository<Game> gameRepository)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
-        _genericGameService = genericGameService;
         _genericSeasonService = genericSeasonService;
+        _gameRepository = gameRepository;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
@@ -59,19 +59,33 @@ public class DivisionService : IDivisionService
             };
         }
 
-        var games = await _genericGameService
-            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+        var playerIdToTeamLookup = (from team in teams
+            from teamSeason in team.Seasons
+            where teamSeason.SeasonId == season.Id
+            from player in teamSeason.Players
+            select new TeamPlayerTuple(player, team))
+            .ToDictionary(t => t.Player.Id);
+
+        var games = await _gameRepository
+            .GetSome($"t.DivisionId = '{divisionId}'", token)
             .WhereAsync(g => g.Deleted == null)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
-        return new DivisionDataDto
+        var divisionData = new DivisionData();
+        var gameVisitor = new DivisionDataGameVisitor(divisionData);
+        foreach (var game in games)
+        {
+            game.Accept(gameVisitor);
+        }
+
+        var divisionDataDto = new DivisionDataDto
         {
             Id = division.Id,
             Name = division.Name,
-            Teams = GetTeams(games, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
             Fixtures = GetFixtures(games, teams).OrderBy(d => d.Date).ToList(),
-            Players = GetPlayers(games, teams, season.Id).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
+            Players = GetPlayers(divisionData, playerIdToTeamLookup).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
             Season = new DivisionDataSeasonDto
             {
                 Id = season.Id,
@@ -87,14 +101,52 @@ public class DivisionService : IDivisionService
                 EndDate = s.EndDate,
             }).ToList(),
         };
+
+        ApplyRanksAndPointsDifference(divisionDataDto.Teams, divisionDataDto.Players);
+
+        return divisionDataDto;
     }
 
-    private static IEnumerable<DivisionTeamDto> GetTeams(List<GameDto> games, IReadOnlyCollection<TeamDto> teams)
+    private void ApplyRanksAndPointsDifference(IReadOnlyCollection<DivisionTeamDto> teams, IReadOnlyCollection<DivisionPlayerDto> players)
     {
-        return teams.Select(t => GetTeam(games, t));
+        if (teams.Any())
+        {
+            var topTeamPoints = teams.First().Points;
+            foreach (var team in teams)
+            {
+                team.Difference = team.Points - topTeamPoints;
+            }
+        }
+
+        var rank = 1;
+        foreach (var player in players)
+        {
+            player.Rank = rank++;
+        }
     }
 
-    private static IEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams)
+    private static IEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
+    {
+        foreach (var (id, score) in divisionData.Teams)
+        {
+            var team = teams.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found", Address = "Not found" };
+
+            yield return new DivisionTeamDto
+            {
+                Id = id,
+                Name = team.Name,
+                Played = score.Played,
+                Points = CalculatePoints(score),
+                Won = score.Win,
+                Lost = score.Lost,
+                Drawn = score.Draw,
+                Difference = 0,
+                Address = team.Address,
+            };
+        }
+    }
+
+    private static IEnumerable<DivisionFixtureDateDto> GetFixtures(IReadOnlyCollection<Game> games, IReadOnlyCollection<TeamDto> teams)
     {
         var gameDates = games.GroupBy(g => g.Date);
 
@@ -108,108 +160,48 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static IEnumerable<DivisionPlayerDto> GetPlayers(IReadOnlyCollection<GameDto> games, IReadOnlyCollection<TeamDto> teams, Guid seasonId)
+    private static IEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData, IReadOnlyDictionary<Guid, TeamPlayerTuple> playerIdToTeamLookup)
     {
-        foreach (var team in teams)
+        foreach (var (id, score) in divisionData.Players)
         {
-            var teamSeason = team.Seasons.Where(m => m.Deleted == null).SingleOrDefault(s => s.SeasonId == seasonId);
-            if (teamSeason == null)
+            if (!playerIdToTeamLookup.TryGetValue(id, out var playerTuple))
             {
-                continue;
+                playerTuple = new TeamPlayerTuple(
+                    new TeamPlayerDto { Name = "Not found" },
+                    new TeamDto { Name = "Not found" });
             }
 
-            foreach (var player in teamSeason.Players.Where(p => p.Deleted == null))
+            yield return new DivisionPlayerDto
             {
-                var playedMatches = (from game in games
-                    from match in game.Matches
-                    where match.AwayPlayers.Count == 1 // singles matches only
-                    where match.AwayPlayers.All(p => p.Id == player.Id) || match.HomePlayers.All(p => p.Id == player.Id)
-                    select new
-                    {
-                        HomeTeamId = game.Home.Id,
-                        AwayTeamId = game.Away.Id,
-                        match.HomeScore,
-                        match.AwayScore,
-                    }).ToList();
-
-                var wonMatches = playedMatches
-                    .Count(m => (m.HomeScore > m.AwayScore && m.HomeTeamId == team.Id)
-                                || (m.AwayScore > m.HomeScore && m.AwayTeamId == team.Id));
-                var lostMatches = playedMatches
-                    .Count(m => (m.HomeScore < m.AwayScore && m.HomeTeamId == team.Id)
-                                || (m.AwayScore < m.HomeScore && m.AwayTeamId == team.Id));
-
-                var playerDto = new DivisionPlayerDto
-                {
-                    Id = player.Id,
-                    TeamId = team.Id,
-                    Name = player.Name,
-                    Captain = player.Captain,
-                    Team = team.Name,
-                    Lost = lostMatches,
-                    Played = playedMatches.Count,
-                    Points = 0,
-                    Rank = 0,
-                    Won = wonMatches,
-                    OneEighties = (from game in games
-                            from match in game.Matches.Where(m => m.Deleted == null)
-                            from oneEighty in match.OneEighties
-                            where oneEighty.Id == player.Id
-                            select oneEighty).Count(),
-                    Over100Checkouts = (from game in games
-                        from match in game.Matches.Where(m => m.Deleted == null)
-                        from hiCheck in match.Over100Checkouts
-                        where hiCheck.Id == player.Id
-                        select hiCheck).Count(),
-                    WinPercentage = wonMatches > 0 ? ((double)wonMatches / playedMatches.Count) * 100 : 0,
-                };
-
-                CalculatePoints(playerDto);
-
-                yield return playerDto;
-            }
+                Captain = playerTuple.Player.Captain,
+                Id = id,
+                Lost = score.Lost,
+                Name = playerTuple.Player.Name,
+                Played = score.Played,
+                Points = CalculatePoints(score),
+                Team = playerTuple.Team.Name,
+                Won = score.Win,
+                OneEighties = score.OneEighty,
+                Over100Checkouts = score.HiCheckout,
+                TeamId = playerTuple.Team.Id,
+                WinPercentage = score.WinPercentage,
+            };
         }
     }
 
-    private static DivisionTeamDto GetTeam(IReadOnlyCollection<GameDto> games, TeamDto team)
-    {
-        var thisTeamGames = games.Where(t => t.Home.Id == team.Id || t.Away.Id == team.Id)
-            .Select(g => CreateOverview(g, team))
-            .ToList();
-
-        return new DivisionTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Played = thisTeamGames.Sum(g => g.Played),
-            Points = thisTeamGames.Sum(g => g.Points),
-            Won = thisTeamGames.Count(g => g.MatchesWon > g.MatchesLost),
-            Lost = thisTeamGames.Count(g => g.MatchesLost > g.MatchesWon),
-            Drawn = thisTeamGames.Count(g => g.MatchesWon == g.MatchesLost && g.MatchesWon > 0),
-            Difference = 0,
-            Address = team.Address,
-        };
-    }
-
-    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<GameDto> games, IReadOnlyCollection<TeamDto> teams)
+    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
 
         foreach (var game in games)
         {
-            if (game.Home != null)
-            {
-                remainingTeams.Remove(game.Home.Id);
-            }
-            if (game.Away != null)
-            {
-                remainingTeams.Remove(game.Away.Id);
-            }
+            remainingTeams.Remove(game.Home.Id);
+            remainingTeams.Remove(game.Away.Id);
 
             yield return GameToFixture(
                 game,
-                teams.SingleOrDefault(t => t.Id == game.Home?.Id),
-                teams.SingleOrDefault(t => t.Id == game.Away?.Id));
+                teams.SingleOrDefault(t => t.Id == game.Home.Id),
+                teams.SingleOrDefault(t => t.Id == game.Away.Id));
         }
 
         foreach (var remainingTeam in remainingTeams.Values)
@@ -230,7 +222,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static DivisionFixtureDto GameToFixture(GameDto fixture, TeamDto? homeTeam, TeamDto? awayTeam)
+    private static DivisionFixtureDto GameToFixture(Game fixture, TeamDto? homeTeam, TeamDto? awayTeam)
     {
         return new DivisionFixtureDto
         {
@@ -256,43 +248,21 @@ public class DivisionService : IDivisionService
         };
     }
 
-    private static GameOverview CreateOverview(GameDto game, CosmosDto team)
+    private static int CalculatePoints(DivisionData.Score score)
     {
-        var overview = new GameOverview
+        return (score.Win * 3) + (score.Draw * 1);
+    }
+
+    private class TeamPlayerTuple
+    {
+        public TeamPlayerDto Player { get; }
+        public TeamDto Team { get; }
+
+        public TeamPlayerTuple(TeamPlayerDto player, TeamDto team)
         {
-            Id = game.Id,
-            MatchesDrawn = game.Matches.Where(m => m.Deleted == null).Count(m => m.AwayScore == m.HomeScore && m.HomeScore > 0),
-            MatchesLost = game.Matches.Where(m => m.Deleted == null).Count(m => (m.HomeScore < m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore > m.AwayScore && game.Away.Id == team.Id)),
-            MatchesWon = game.Matches.Where(m => m.Deleted == null).Count(m => (m.HomeScore > m.AwayScore && game.Home.Id == team.Id) || (m.HomeScore < m.AwayScore && game.Away.Id == team.Id)),
-            Played = game.Matches.Any(m => m.Deleted == null) ? 1 : 0,
-            TeamId = team.Id,
-        };
-
-        overview.Points = CalculatePoints(overview);
-
-        return overview;
-    }
-
-    private static int CalculatePoints(GameOverview overview)
-    {
-        return 0; // TODO: Work out how points are calculated
-    }
-
-    private static int CalculatePoints(DivisionPlayerDto player)
-    {
-        return 0; // TODO: Work out how points are calculated
-    }
-
-    [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    private class GameOverview
-    {
-        public Guid Id { get; init; }
-        public Guid TeamId { get; init; }
-        public int Played { get; init; }
-        public int MatchesWon { get; init; }
-        public int MatchesLost { get; init; }
-        public int MatchesDrawn { get; init; }
-        public int Points { get; set; }
+            Player = player;
+            Team = team;
+        }
     }
 
     #region delegating members
