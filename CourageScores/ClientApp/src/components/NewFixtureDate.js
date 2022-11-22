@@ -11,7 +11,9 @@ export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
 
     const unselectedTeamsInDivision = allTeams
         .filter(t => {
-            const alreadySelected = fixtures.map(f => f.fixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id).length).reduce((prev, count) => prev + count, 0);
+            const alreadySelected = fixtures
+                .map(f => f.fixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id).length)
+                .reduce((prev, count) => prev + count, 0);
             return alreadySelected === 0;
         })
         .map(t => { return { value: t.id, text: t.name } });
