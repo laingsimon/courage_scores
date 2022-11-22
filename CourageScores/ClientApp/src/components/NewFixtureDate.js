@@ -18,7 +18,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         name: '',
         address: '',
     });
-    const newTeam = { value: 'NEW_TEAM', text: 'Add a team...' };
+    const newTeam = { value: 'NEW_TEAM', text: '➕ Add a team...' };
 
     function toggleCellClip(isOpen) {
         setClipCellRegion(!isOpen);
@@ -51,6 +51,24 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
             setNewTeamFor(null);
             setAwayTeamId(id);
         }
+    }
+
+    async function teamCreated(team) {
+        await onNewTeam();
+
+        if (newTeamFor === 'home') {
+            setHomeTeam(team.id);
+            setNewTeamFor(null);
+        } else if (newTeamFor === 'away') {
+            setAwayTeam(team.id);
+            setNewTeamFor(null);
+        }
+    }
+
+    function onChange(name, value) {
+        const newTeamDetails = Object.assign({}, teamDetails);
+        newTeamDetails[name] = value;
+        setTeamDetails(newTeamDetails);
     }
 
     async function teamCreated(team) {
@@ -135,9 +153,9 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         </td>
         <td className="medium-column-width">
             {newTeamFor ? renderNewTeamDialog() : null}
-            <button className="btn btn-sm btn-primary" onClick={saveFixture}>
+            {homeTeamId && awayTeamId ? (<button className="btn btn-sm btn-primary" onClick={saveFixture}>
                 {saving ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '💾'}
-            </button>
+            </button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
         </td>
     </tr>);
