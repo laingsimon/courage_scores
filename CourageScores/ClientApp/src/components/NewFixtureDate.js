@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {BootstrapDropdown} from "./BootstrapDropdown";
+import {Dialog} from "./Dialog";
 
 export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
     const [ newHomeTeam, setNewHomeTeam ] = useState(null);
@@ -36,7 +37,9 @@ export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
     }
 
     function renderNewTeamDialog() {
-        return (<h3>New team dialog for {newTeamFor}</h3>)
+        return (<Dialog title="Create a new team...">
+          <p>New team inputs for {newTeamFor}</p>
+        </Dialog>)
     }
 
     return (<tr>
