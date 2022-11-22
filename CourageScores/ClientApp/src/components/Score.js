@@ -6,7 +6,6 @@ import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {PlayerSelection} from "./PlayerSelection";
-import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
@@ -369,7 +368,7 @@ export function Score({account}) {
                 <tr>
                     <td colSpan="2">
                         180s<br/>
-                        <MultiPlayerSelection
+                        <MultiPlayerSelectionWithNotes
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
@@ -386,7 +385,8 @@ export function Score({account}) {
                             allPlayers={allPlayers}
                             players={fixtureData.matches[0].over100Checkouts || []}
                             onRemovePlayer={removeHiCheck}
-                            onAddPlayer={addHiCheck}/>
+                            onAddPlayer={addHiCheck}
+                            showNotes={true} />
                     </td>
                 </tr>
                 </tbody>
