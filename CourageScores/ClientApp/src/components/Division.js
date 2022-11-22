@@ -9,10 +9,12 @@ import {Http} from "../api/http";
 import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
 import {ErrorDisplay} from "./ErrorDisplay";
+import {TeamApi} from "../api/team";
 
 export function Division({ account, apis }) {
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
+    const [ teams, setTeams ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
@@ -23,11 +25,15 @@ export function Division({ account, apis }) {
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const divisionApi = new DivisionApi(new Http(new Settings()));
+    const teamApi = new TeamApi(new Http(new Settings()));
 
     async function reloadDivisionData() {
-        const api = new DivisionApi(new Http(new Settings()));
-        const divisionData = await api.data(divisionId, seasonId);
+        const divisionData = await divisionApi.data(divisionId, seasonId);
         setDivisionData(divisionData);
+
+        const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
+        setTeams(teams);
     }
 
     useEffect(() => {
@@ -42,9 +48,10 @@ export function Division({ account, apis }) {
         setLoading(true);
 
         async function reloadDivisionData() {
-            const api = new DivisionApi(new Http(new Settings()));
-            const divisionData = await api.data(divisionId, seasonId);
+            const divisionData = await divisionApi.data(divisionId, seasonId);
+            const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
             setDivisionData(divisionData);
+            setTeams(teams);
             setSeasonData({
                 id: divisionData.season.id,
                 name: divisionData.season.name,
@@ -236,7 +243,9 @@ export function Division({ account, apis }) {
                 divisionId={divisionData.id}
                 fixtures={divisionData.fixtures}
                 teams={divisionData.teams}
+                allTeams={teams}
                 account={account}
+                onNewTeam={reloadDivisionData}
                 onReloadDivision={reloadDivisionData} />)
             : null}
         {effectiveTab === 'players'

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
+import {BootstrapDropdown} from "./BootstrapDropdown";
+import {NewFixtureDate} from "./NewFixtureDate";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, allTeams, onNewTeam }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
 
@@ -34,24 +36,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             date={newDate}/>);
     }
 
-    function renderNewTeamSelection() {
-        return (<tr>
-            <td colSpan="2">
-                <select>
-                    <option>A team from a previous season NOT already playing a fixture in this season</option>
-                    <option>Add a team...</option>
-                </select>
-            </td>
-            <td colSpan="2">vs</td>
-            <td>
-                <select>
-                    <option>A team from a previous season NOT already playing a fixture in this season</option>
-                    <option>Add a team...</option>
-                </select>
-            </td>
-        </tr>)
-    }
-
     return (<div className="light-background p-3">
         <div>
             {fixtures.map(date => (<div key={date.date}>
@@ -67,7 +51,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         account={account}
                         fixture={f}
                         date={date.date}/>))}
-                    {isAdmin ? renderNewTeamSelection() : null}
+                    {isAdmin ? (<NewFixtureDate fixtures={fixtures} allTeams={allTeams} date={date.date} onNewTeam={onNewTeam} />) : null}
                     </tbody>
                 </table>
             </div>))}
@@ -80,7 +64,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    {renderNewTeamSelection()}
+                    <NewFixtureDate fixtures={fixtures} allTeams={allTeams} onNewTeam={onNewTeam} />
                 </tbody>
             </table>) : null}
         </div>) : null}

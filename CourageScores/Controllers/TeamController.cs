@@ -31,6 +31,18 @@ public class TeamController : Controller
         return _teamService.GetAll(token);
     }
 
+    [HttpGet("/api/Team/{divisionId}/{seasonId}")]
+    public IAsyncEnumerable<TeamDto> GetTeams(Guid divisionId, Guid seasonId, CancellationToken token)
+    {
+        return _teamService
+            .GetWhere($"t.DivisionId = '{divisionId}'", token)
+            .SelectAsync(t =>
+            {
+                t.Seasons.RemoveAll(ts => ts.SeasonId != seasonId);
+                return t;
+            });
+    }
+
     [HttpPut("/api/Team/")]
     public async Task<ActionResultDto<TeamDto>> UpsertTeam(EditTeamDto team, CancellationToken token)
     {
