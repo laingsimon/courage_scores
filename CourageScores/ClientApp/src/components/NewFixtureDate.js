@@ -6,6 +6,7 @@ export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
     const [ newHomeTeam, setNewHomeTeam ] = useState(null);
     const [ newAwayTeam, setNewAwayTeam ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);
+    const [ saving, setSaving ] = useState(false);
     const newTeam = { value: 'NEW_TEAM', text: 'Add a team...' };
 
     const unselectedTeamsInDivision = allTeams
@@ -38,7 +39,7 @@ export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
     }
 
     function renderNewTeamDialog() {
-        return (<Dialog title="Create a new team...">
+        return (<Dialog title="Create a new team..." onClose={() => setNewTeamFor(null)}>
           <p>New team inputs for {newTeamFor}</p>
         </Dialog>)
     }
@@ -59,7 +60,9 @@ export function NewFixtureDate({ fixtures, allTeams, date, onNewTeam }) {
         </td>
         <td>
             {newTeamFor ? renderNewTeamDialog() : null}
-            <button className="btn btn-sm btn-primary">Add game</button>
+            <button className="btn btn-sm btn-primary">
+                {saving ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '💾'}
+            </button>
         </td>
     </tr>);
 }
