@@ -3,7 +3,7 @@ using CourageScores.Models.Cosmos;
 namespace CourageScores.Services.Command;
 
 public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, TModel>
-    where TModel: CosmosEntity
+    where TModel: AuditedEntity
 {
     private TDto? _update;
 
@@ -13,6 +13,11 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         if (_update == null)
         {
             throw new InvalidOperationException($"{nameof(WithData)} must be called first");
+        }
+
+        if (model.Deleted != null)
+        {
+            return new CommandOutcome<TModel>(false, $"Cannot update a {typeof(TModel).Name} that has already been deleted", null);
         }
 
         if (model.Id == default)

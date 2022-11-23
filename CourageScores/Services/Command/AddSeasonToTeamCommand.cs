@@ -31,6 +31,11 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(ForSeason)} is called");
         }
 
+        if (model.Deleted != null)
+        {
+            return new CommandOutcome<TeamSeason>(false, "Cannot edit a team that has been deleted", null);
+        }
+
         var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
