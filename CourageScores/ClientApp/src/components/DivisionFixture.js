@@ -5,8 +5,9 @@ import {Settings} from "../api/settings";
 import {GameApi} from "../api/game";
 import {BootstrapDropdown} from "./BootstrapDropdown";
 import {ErrorDisplay} from "./ErrorDisplay";
+import {TeamApi} from "../api/team";
 
-export function DivisionFixture({ fixture, account, onReloadDivision, date, divisionId, fixtures, teams }) {
+export function DivisionFixture({ fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -17,6 +18,7 @@ export function DivisionFixture({ fixture, account, onReloadDivision, date, divi
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ clipCellRegion, setClipCellRegion ] = useState(true);
+    const [ deletingHomeTeam, setDeletingHomeTeam ] = useState(false);
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = fixtures.filter(f => f.date === date)[0];
@@ -171,8 +173,40 @@ export function DivisionFixture({ fixture, account, onReloadDivision, date, divi
         }
     }
 
+    async function deleteTeam() {
+        if (deleting || saving) {
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to delete the ${fixture.homeTeam.name} team?`)) {
+            return;
+        }
+
+        setDeletingHomeTeam(true);
+        try {
+            const api = new TeamApi(new Http(new Settings()));
+            const response = await api.delete(fixture.homeTeam.id, seasonId);
+
+            if (response.success) {
+                await onReloadDivision();
+                window.alert(response.messages);
+            } else {
+                setSaveError(response);
+            }
+        } finally {
+            setDeletingHomeTeam(false);
+        }
+    }
+
     return (<tr key={fixture.id} className={deleting ? 'text-decoration-line-through' : ''}>
-        <td>{fixture.homeTeam.name}</td>
+        <td>
+            {isAdmin && !awayTeamId ? (
+                <button className="btn btn-sm btn-danger margin-right" onClick={deleteTeam}>
+                    {deletingHomeTeam ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : (<span>&times;</span>)}
+                </button>
+            ) : null}
+            {fixture.homeTeam.name}
+        </td>
         <td className="narrow-column text-primary fw-bolder">{fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
         <td className="narrow-column text-primary fw-bolder">{fixture.awayScore}</td>

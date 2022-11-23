@@ -10,10 +10,10 @@ namespace CourageScores.Controllers;
 [ApiController]
 public class TeamController : Controller
 {
-    private readonly IGenericDataService<Team, TeamDto> _teamService;
+    private readonly ITeamService _teamService;
     private readonly ICommandFactory _commandFactory;
 
-    public TeamController(IGenericDataService<Team, TeamDto> teamService, ICommandFactory commandFactory)
+    public TeamController(ITeamService teamService, ICommandFactory commandFactory)
     {
         _teamService = teamService;
         _commandFactory = commandFactory;
@@ -34,13 +34,7 @@ public class TeamController : Controller
     [HttpGet("/api/Team/{divisionId}/{seasonId}")]
     public IAsyncEnumerable<TeamDto> GetTeams(Guid divisionId, Guid seasonId, CancellationToken token)
     {
-        return _teamService
-            .GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .SelectAsync(t =>
-            {
-                t.Seasons.RemoveAll(ts => ts.SeasonId != seasonId);
-                return t;
-            });
+        return _teamService.GetTeamsForSeason(divisionId, seasonId, token);
     }
 
     [HttpPut("/api/Team/")]
@@ -50,9 +44,10 @@ public class TeamController : Controller
         return await _teamService.Upsert(team.Id, command, token);
     }
 
-    [HttpDelete("/api/Team/{id}")]
-    public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, CancellationToken token)
+    [HttpDelete("/api/Team/{id}/{seasonId}")]
+    public async Task<ActionResultDto<TeamDto>> DeleteTeam(Guid id, Guid seasonId, CancellationToken token)
     {
-        return await _teamService.Delete(id, token);
+        var command = _commandFactory.GetCommand<DeleteTeamCommand>().FromSeason(seasonId);
+        return await _teamService.Upsert(id, command, token);
     }
 }

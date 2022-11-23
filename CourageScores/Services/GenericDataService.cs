@@ -85,6 +85,17 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
 
         await _auditingHelper.SetUpdated(item);
+        if (outcome.Delete)
+        {
+            if (item.CanDelete(user))
+            {
+                await _auditingHelper.SetDeleted(item);
+            }
+            else
+            {
+                return NotPermitted();
+            }
+        }
 
         var updatedItem = await _repository.Upsert(item, token);
 

@@ -7,7 +7,7 @@ export function ErrorDisplay({ errors, messages, warnings, result, success, onCl
     function renderValidationErrors(errors) {
         return (<ol className="text-danger">
             {Object.keys(errors).map(key => {
-                return (<li key={key}>{key} {errors[key].map(e => (<p>{e}</p>))}</li>)
+                return (<li key={key}>{key} {errors[key].map(e => (<p key={index++}>{e}</p>))}</li>)
             })}
         </ol>)
     }

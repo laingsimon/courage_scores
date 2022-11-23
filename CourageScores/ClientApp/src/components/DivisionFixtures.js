@@ -29,6 +29,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             onReloadDivision={onNewDateCreated}
             fixtures={fixtures}
             teams={teams}
+            seasonId={season.id}
             divisionId={divisionId}
             account={account}
             fixture={newFixture}
@@ -46,6 +47,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         teams={teams}
                         fixtures={fixtures}
                         divisionId={divisionId}
+                        seasonId={season.id}
                         onReloadDivision={onReloadDivision}
                         account={account}
                         fixture={f}
