@@ -6,7 +6,7 @@ import {Http} from "../api/http";
 import {TeamApi} from "../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {PlayerSelection} from "./PlayerSelection";
-import {MultiPlayerSelectionWithNotes} from "./MultiPlayerSelectionWithNotes";
+import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "./ErrorDisplay";
@@ -408,7 +408,7 @@ export function Score({account}) {
                 <tr>
                     <td colSpan="2">
                         180s<br/>
-                        <MultiPlayerSelectionWithNotes
+                        <MultiPlayerSelection
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
@@ -419,7 +419,7 @@ export function Score({account}) {
                     <td></td>
                     <td colSpan="2">
                         100+ c/o<br/>
-                        <MultiPlayerSelectionWithNotes
+                        <MultiPlayerSelection
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
