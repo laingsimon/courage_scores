@@ -18,7 +18,7 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
         return new TeamSeasonDto
         {
             Id = model.Id,
-            Players = await model.Players.SelectAsync(_playerAdapter.Adapt).ToList(),
+            Players = await model.Players.Where(p => p.Deleted == null).SelectAsync(_playerAdapter.Adapt).ToList(),
             SeasonId = model.SeasonId,
         }.AddAuditProperties(model);
     }
