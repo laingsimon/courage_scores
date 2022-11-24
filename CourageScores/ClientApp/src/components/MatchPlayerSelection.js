@@ -200,6 +200,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 except={exceptPlayers(index, 'homePlayers')}
                 onChange={(elem, player) => homePlayerChanged(index, player)}
                 allowEdit={true}
+                allowDelete={true}
+                onDelete={playerUpdated}
                 onEdit={playerUpdated}
                 teamId={home.id}
                 seasonId={seasonId}
@@ -237,6 +239,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 onChange={(elem, player) => awayPlayerChanged(index, player)}
                 allowEdit={true}
                 onEdit={playerUpdated}
+                allowDelete={true}
+                onDelete={playerUpdated}
                 teamId={away.id}
                 seasonId={seasonId}
                 gameId={gameId} />))}
