@@ -83,6 +83,9 @@ export function Score({account}) {
                    correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
                    correspondingPlayer.renamed = true;
                }
+               if (correspondingPlayer && correspondingPlayer.captain) {
+                   matchPlayer.captain = correspondingPlayer.captain;
+               }
            });
         });
 

@@ -20,6 +20,10 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
     }
 
     function beginEditPlayer() {
+        if (!selected || !selected.id) {
+            return;
+        }
+
         const playerDetails = Object.assign({}, selected);
         setPlayerDetails(playerDetails);
         setEditPlayer(true);
@@ -57,9 +61,9 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
 
     return (<div>
         {editPlayer && teamId && seasonId ? renderEditPlayer() : null}
-        {allowEdit && selected ? (<button
-            disabled={!teamId || !seasonId}
-            className={`btn btn-sm ${teamId && seasonId ? 'btn-primary' : 'btn-secondary'} margin-right`}
+        {allowEdit ? (<button
+            disabled={!teamId || !seasonId || (!(selected || {}).id)}
+            className={`btn btn-sm ${teamId && seasonId && (selected || {}).id ? 'btn-primary' : 'btn-secondary'} margin-right`}
             onClick={beginEditPlayer}>✏</button>) : null}
         <BootstrapDropdown
             disabled={disabled}
