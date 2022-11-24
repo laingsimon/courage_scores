@@ -51,7 +51,7 @@ export function Score({account}) {
         }
     }
 
-    async function loadTeamPlayers(teamId, seasonId, teamType) {
+    async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const http = new Http(new Settings());
         const teamApi = new TeamApi(http);
         const teamData = await teamApi.get(teamId);
@@ -74,6 +74,18 @@ export function Score({account}) {
         }
 
         const players = teamSeasons[seasonId].players;
+
+        matches.forEach(match => {
+           const matchPlayers = match[teamType + 'Players'];
+           matchPlayers.forEach(matchPlayer => {
+               const correspondingPlayer = players.filter(p => p.id === matchPlayer.id)[0];
+               if (correspondingPlayer && correspondingPlayer.name !== matchPlayer.name && !correspondingPlayer.renamed) {
+                   correspondingPlayer.name = `${correspondingPlayer.name} (nee ${matchPlayer.name})`;
+                   correspondingPlayer.renamed = true;
+               }
+           });
+        });
+
         players.sort(sortPlayers);
         players.push({
             id: NEW_PLAYER,
@@ -98,13 +110,13 @@ export function Score({account}) {
                 return;
             }
 
-            const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home');
+            const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
 
             if (error || !homeTeamPlayers) {
                 return;
             }
 
-            const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away');
+            const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
 
             if (error || !awayTeamPlayers) {
                 return;

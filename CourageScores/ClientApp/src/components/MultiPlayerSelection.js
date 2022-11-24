@@ -19,22 +19,28 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         alert('Ensure a player is selected first');
     }
 
-    function renderPlayer(p) {
-       if (showNotes) {
-           return `${p.name} (${p.notes})`;
-       }
+    function renderPlayer(player) {
+        const notes = player.notes;
+        player = allPlayers.filter(p => p.id === player.id)[0] || player
 
-       return p.name;
+        if (showNotes) {
+            return `${player.name} (${notes})`;
+        }
+
+        return player.name;
     }
 
     return (<div>
         <ol>
-            {(players || []).map(p => { index++; return (<li key={index}>{disabled ? <span>{renderPlayer(p)}</span> : (<button
-                disabled={disabled || readOnly}
-                className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
-                onClick={async () => onRemovePlayer ? await onRemovePlayer(p.id, index - 1) : null}>
-            {renderPlayer(p)} {disabled ? '' : '×'}
-            </button>)}</li>); })}
+            {(players || []).map(p => {
+                index++;
+                return (<li key={index}>{disabled ? <span>{renderPlayer(p)}</span> : (<button
+                    disabled={disabled || readOnly}
+                    className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
+                    onClick={async () => onRemovePlayer ? await onRemovePlayer(p.id, index - 1) : null}>
+                    {renderPlayer(p)} {disabled ? '' : '🗑'}
+                </button>)}</li>);
+            })}
         </ol>
         {disabled ? null : (<div>
             {showNotes ? (<input
@@ -45,14 +51,16 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                 className="margin-right"
                 type="number"
                 min="100"
-                max="120" />) : null}
+                max="120"/>) : null}
             <PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
                 players={allPlayers}
                 selected={player}
-                onChange={(elem, p) => setPlayer(p)} />
-            <button disabled={disabled || readOnly} onClick={addPlayer} className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>+</button>
+                onChange={(elem, p) => setPlayer(p)}/>
+            <button disabled={disabled || readOnly} onClick={addPlayer}
+                    className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>💾
+            </button>
         </div>)}
     </div>);
 }
