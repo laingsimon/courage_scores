@@ -24,6 +24,7 @@ export function NavMenu({divisions, appLoading, account}) {
 
     function navigate(event) {
         setCurrentLink(event.target.href);
+        setCollapsed(true);
     }
 
     function getAccountUrl(action) {
