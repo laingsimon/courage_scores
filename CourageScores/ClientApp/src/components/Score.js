@@ -268,7 +268,12 @@ export function Score({account}) {
                     readOnly={saving}
                     numberOfLegs={5}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
-                    otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}/>
+                    otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
+                    onPlayerChanged={loadFixtureData}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -278,7 +283,12 @@ export function Score({account}) {
                     numberOfLegs={5}
                     match={fixtureData.matches[1]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}/>
+                    onPlayerChanged={loadFixtureData}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -288,7 +298,12 @@ export function Score({account}) {
                     numberOfLegs={5}
                     match={fixtureData.matches[2]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]}/>
+                    onPlayerChanged={loadFixtureData}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -298,7 +313,12 @@ export function Score({account}) {
                     numberOfLegs={5}
                     match={fixtureData.matches[3]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]}/>
+                    onPlayerChanged={loadFixtureData}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -308,7 +328,12 @@ export function Score({account}) {
                     numberOfLegs={5}
                     match={fixtureData.matches[4]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]}/>
+                    onPlayerChanged={loadFixtureData}
+                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
                 </tr>
@@ -321,7 +346,12 @@ export function Score({account}) {
                     numberOfLegs={3}
                     match={fixtureData.matches[5]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
-                    otherMatches={[fixtureData.matches[6]]}/>
+                    onPlayerChanged={loadFixtureData}
+                    otherMatches={[fixtureData.matches[6]]}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <MatchPlayerSelection
                     playerCount={2}
                     homePlayers={homeTeam}
@@ -331,7 +361,12 @@ export function Score({account}) {
                     numberOfLegs={3}
                     match={fixtureData.matches[6]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
-                    otherMatches={[fixtureData.matches[5]]}/>
+                    onPlayerChanged={loadFixtureData}
+                    otherMatches={[fixtureData.matches[5]]}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
                 </tr>
@@ -343,7 +378,12 @@ export function Score({account}) {
                     readOnly={saving}
                     numberOfLegs={3}
                     match={fixtureData.matches[7]}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)}/>
+                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)}
+                    onPlayerChanged={loadFixtureData}
+                    seasonId={fixtureData.seasonId}
+                    home={fixtureData.home}
+                    away={fixtureData.away}
+                    gameId={fixtureData.id} />
                 {canSave ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>

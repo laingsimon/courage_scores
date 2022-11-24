@@ -3,7 +3,7 @@ import {PlayerSelection} from "./PlayerSelection";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly }) {
+export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId, onPlayerChanged }) {
     function homePlayer(index) {
         if (!match.homePlayers || match.homePlayers.length <= index) {
             return {};
@@ -129,6 +129,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         return indexes;
     }
 
+    async function playerUpdated() {
+        if (onPlayerChanged) {
+            await onPlayerChanged();
+        }
+    }
+
     return (<tr>
         <td>
             {playerIndexes().map(index => disabled ? (<div key={index}>{homePlayer(index).name}</div>) : (<PlayerSelection
@@ -138,7 +144,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 players={homePlayers}
                 selected={homePlayer(index)}
                 except={exceptPlayers(index, 'homePlayers')}
-                onChange={(elem, player) => homePlayerChanged(index, player)} />))}
+                onChange={(elem, player) => homePlayerChanged(index, player)}
+                allowEdit={true}
+                onEdit={playerUpdated}
+                teamId={home.id}
+                seasonId={seasonId}
+                gameId={gameId} />))}
         </td>
         <td className="vertical-align-middle">
             {disabled
@@ -169,7 +180,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 players={awayPlayers}
                 selected={awayPlayer(index)}
                 except={exceptPlayers(index, 'awayPlayers')}
-                onChange={(elem, player) => awayPlayerChanged(index, player)} />))}
+                onChange={(elem, player) => awayPlayerChanged(index, player)}
+                allowEdit={true}
+                onEdit={playerUpdated}
+                teamId={away.id}
+                seasonId={seasonId}
+                gameId={gameId} />))}
         </td>
     </tr>);
 }

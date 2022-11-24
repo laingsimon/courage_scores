@@ -5,7 +5,7 @@ import {PlayerApi} from "../api/player";
 import {BootstrapDropdown} from "./BootstrapDropdown";
 import {ErrorDisplay} from "./ErrorDisplay";
 
-export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange, onCancel, divisionData }) {
+export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange, onCancel, seasonId, teams, gameId }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
 
@@ -28,8 +28,8 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
         try {
             const api = new PlayerApi(new Http(new Settings()));
             const result = id
-                ? await api.update(divisionData.season.id, teamId, id, { name: name, captain: captain })
-                : await api.create(divisionData.season.id, teamId, { name: name, captain: captain });
+                ? await api.update(seasonId, teamId, id, { name: name, captain: captain, gameId: gameId || undefined })
+                : await api.create(seasonId, teamId, { name: name, captain: captain });
 
             if (result.success) {
                 if (onSaved) {
@@ -62,7 +62,7 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
                 </div>
                 <BootstrapDropdown
                     onChange={value => onChange('teamId', value)} value={teamId || ''}
-                    options={[{ value: '', text: 'Select team' }].concat(divisionData.teams.map(t => { return { value: t.id, text: t.name } }))} />
+                    options={[{ value: '', text: 'Select team' }].concat(teams.map(t => { return { value: t.id, text: t.name } }))} />
             </div>
         )}
         <div className="input-group mb-3">

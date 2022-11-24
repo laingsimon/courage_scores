@@ -1,4 +1,6 @@
-﻿using CourageScores.Models.Cosmos;
+﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Cosmos;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
@@ -12,15 +14,17 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
     private readonly IUserService _userService;
     private readonly IGenericRepository<Season> _seasonRepository;
     private readonly ISystemClock _clock;
+    private readonly IGenericRepository<Game> _gameRepository;
     private Guid? _playerId;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
 
-    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Season> seasonRepository, ISystemClock clock)
+    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Season> seasonRepository, ISystemClock clock, IGenericRepository<Game> gameRepository)
     {
         _userService = userService;
         _seasonRepository = seasonRepository;
         _clock = clock;
+        _gameRepository = gameRepository;
     }
 
     public UpdatePlayerCommand ForPlayer(Guid playerId)
@@ -66,7 +70,12 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
         var user = await _userService.GetUser();
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not logged in", null);
+        }
+
+        if (user.Access?.ManageTeams != true)
+        {
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not permitted", null);
         }
 
         var season = await _seasonRepository.Get(_seasonId.Value, token);
@@ -87,10 +96,45 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, $"Player does not have a player with this id for the {season.Name} season", null);
         }
 
+        var updatedGames = await UpdateGames(_playerId.Value, _player, token).ToList();
+
         player.Name = _player.Name;
         player.Captain = _player.Captain;
         player.Updated = _clock.UtcNow.UtcDateTime;
         player.Editor = user.Name;
-        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season", player);
+        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season, {updatedGames.Count} game/s updated", player);
+    }
+
+    private async IAsyncEnumerable<Game> UpdateGames(Guid playerId, EditTeamPlayerDto player, [EnumeratorCancellation] CancellationToken token)
+    {
+        var games = player.GameId.HasValue
+            ? _gameRepository.GetSome($"t.id = '{player.GameId.Value}'", token)
+            : _gameRepository.GetSome($"t.seasonId = '{_seasonId}'", token);
+
+        await foreach (var game in games.WithCancellation(token))
+        {
+            var updated = false;
+
+            foreach (var match in game.Matches)
+            {
+                foreach (var p in match.AwayPlayers.Where(p => p.Id == playerId))
+                {
+                    p.Name = player.Name;
+                    updated = true;
+                }
+
+                foreach (var p in match.HomePlayers.Where(p => p.Id == playerId))
+                {
+                    p.Name = player.Name;
+                    updated = true;
+                }
+            }
+
+            if (updated)
+            {
+                await _gameRepository.Upsert(game, token);
+                yield return game;
+            }
+        }
     }
 }
