@@ -193,7 +193,6 @@ export function DivisionFixture({ fixture, account, onReloadDivision, date, divi
 
             if (response.success) {
                 await onReloadDivision();
-                window.alert(response.messages);
             } else {
                 setSaveError(response);
             }

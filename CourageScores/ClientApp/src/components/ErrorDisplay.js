@@ -1,7 +1,7 @@
 import React from 'react';
 import {Dialog} from "./Dialog";
 
-export function ErrorDisplay({ errors, messages, warnings, result, success, onClose, title }) {
+export function ErrorDisplay({ errors, messages, warnings, onClose, title }) {
     let index = 0;
 
     function renderValidationErrors(errors) {
