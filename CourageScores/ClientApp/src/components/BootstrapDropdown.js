@@ -16,12 +16,12 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             : (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled></button>)
     }
 
-    function toggleOpen() {
+    async function toggleOpen() {
         if (!readOnly) {
             const willBeOpen = !dropdownOpen;
             setDropdownOpen(willBeOpen);
             if (onOpen) {
-                onOpen(willBeOpen);
+                await onOpen(willBeOpen);
             }
         }
     }
@@ -34,7 +34,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             {options.map(o => (<DropdownItem key={o.value}
                                              disabled={o.disabled || false}
                                              className={o.value === value ? 'active' : ''}
-                onClick={() => onChange ? onChange(o.value) : null}>{o.text}</DropdownItem>))}
+                onClick={async () => onChange ? await onChange(o.value) : null}>{o.text}</DropdownItem>))}
         </DropdownMenu>
     </ButtonDropdown>);
 }

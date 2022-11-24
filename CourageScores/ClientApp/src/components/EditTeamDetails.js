@@ -37,9 +37,9 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
         }
     }
 
-    function valueChanged(event) {
+    async function valueChanged(event) {
         if (onChange) {
-            onChange(event.target.name, event.target.value);
+            await onChange(event.target.name, event.target.value);
         }
     }
 
@@ -63,7 +63,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             {id ? 'Save team' : 'Add team'}
         </button>
-        <button className="btn btn-secondary" onClick={() => (onCancel || function() {})()}>Cancel</button>
+        <button className="btn btn-secondary" onClick={async () => onCancel ? await onCancel() : null}>Cancel</button>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details" />) : null}
     </div>)
 }

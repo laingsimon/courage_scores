@@ -54,7 +54,9 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
     }
 
     async function teamCreated(team) {
-        await onNewTeam();
+        if (onNewTeam) {
+            await onNewTeam();
+        }
 
         if (newTeamFor === 'home') {
             setHomeTeam(team.id);

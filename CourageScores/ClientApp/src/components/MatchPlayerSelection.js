@@ -20,7 +20,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         return match.awayPlayers[index];
     }
 
-    function homePlayerChanged(index, player) {
+    async function homePlayerChanged(index, player) {
         const newMatch = Object.assign({ homePlayers: [] }, match);
         const existingPlayer = newMatch.homePlayers[index];
         if (player) {
@@ -33,11 +33,11 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         }
 
         if (onMatchChanged) {
-            onMatchChanged(newMatch);
+            await onMatchChanged(newMatch);
         }
     }
 
-    function awayPlayerChanged(index, player) {
+    async function awayPlayerChanged(index, player) {
         const newMatch = Object.assign({ awayPlayers: [] }, match);
         const existingPlayer = newMatch.awayPlayers[index];
         if (player) {
@@ -50,11 +50,11 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         }
 
         if (onMatchChanged) {
-            onMatchChanged(newMatch);
+            await onMatchChanged(newMatch);
         }
     }
 
-    function homeScoreChanged(newScore) {
+    async function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.homeScore = newScore ? Number.parseInt(newScore) : null;
         newMatch.numberOfLegs = numberOfLegs;
@@ -67,11 +67,11 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         }
 
         if (onMatchChanged) {
-            onMatchChanged(newMatch);
+            await onMatchChanged(newMatch);
         }
     }
 
-    function awayScoreChanged(newScore) {
+    async function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.awayScore = newScore ? Number.parseInt(newScore) : null;
         newMatch.numberOfLegs = numberOfLegs;
@@ -84,7 +84,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         }
 
         if (onMatchChanged) {
-            onMatchChanged(newMatch);
+            await onMatchChanged(newMatch);
         }
     }
 

@@ -214,7 +214,10 @@ export function DivisionFixture({ fixture, account, onReloadDivision, date, divi
     }
 
     async function teamDetailSaved() {
-        await onReloadDivision();
+        if (onReloadDivision) {
+            await onReloadDivision();
+        }
+
         setEditTeamMode(null);
     }
 

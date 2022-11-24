@@ -12,7 +12,7 @@ export function Dialog({ children, onClose, title }) {
                         {children}
                     </div>
                     {onClose ? (<div className="modal-footer">
-                        <button className="btn btn-primary" onClick={() => onClose ? onClose() : null}>Close</button>
+                        <button className="btn btn-primary" onClick={async () => onClose ? await onClose() : null}>Close</button>
                     </div>) : null}
                 </div>
             </div>

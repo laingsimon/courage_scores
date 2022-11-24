@@ -31,9 +31,9 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
         setPlayerDetails(newPlayerDetails);
     }
 
-    function playerUpdated() {
+    async function playerUpdated() {
         if (onEdit) {
-            onEdit();
+            await onEdit();
         }
         setEditPlayer(false);
     }
@@ -66,7 +66,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
             readOnly={readOnly}
             value={(selected || {}).id || ''}
             className="margin-right"
-            onChange={(value) => onChange ? onChange(this, findPlayer(value)) : null}
+            onChange={async (value) => onChange ? await onChange(this, findPlayer(value)) : null}
             options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
                     .map(p => { return { value: p.id, text: p.name } })) } />
     </div>);

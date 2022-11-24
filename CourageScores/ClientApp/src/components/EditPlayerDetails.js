@@ -43,14 +43,14 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
         }
     }
 
-    function valueChanged(event) {
+    async function valueChanged(event) {
         if (onChange) {
             if (event.target.type === 'checkbox') {
-                onChange(event.target.name, event.target.checked);
+                await onChange(event.target.name, event.target.checked);
                 return;
             }
 
-            onChange(event.target.name, event.target.value);
+            await onChange(event.target.name, event.target.value);
         }
     }
 
@@ -83,7 +83,7 @@ export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             {id ? 'Save player' : 'Add player'}
         </button>
-        <button className="btn btn-secondary" onClick={() => (onCancel || function() {})()}>Cancel</button>
+        <button className="btn btn-secondary" onClick={async () => onCancel ? await onCancel() : null}>Cancel</button>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save player details" />) : null}
     </div>)
 }
