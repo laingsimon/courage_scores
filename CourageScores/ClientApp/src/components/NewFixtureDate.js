@@ -54,26 +54,6 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
     }
 
     async function teamCreated(team) {
-        if (onNewTeam) {
-            await onNewTeam();
-        }
-
-        if (newTeamFor === 'home') {
-            setHomeTeam(team.id);
-            setNewTeamFor(null);
-        } else if (newTeamFor === 'away') {
-            setAwayTeam(team.id);
-            setNewTeamFor(null);
-        }
-    }
-
-    function onChange(name, value) {
-        const newTeamDetails = Object.assign({}, teamDetails);
-        newTeamDetails[name] = value;
-        setTeamDetails(newTeamDetails);
-    }
-
-    async function teamCreated(team) {
         await onNewTeam();
 
         if (newTeamFor === 'home') {
