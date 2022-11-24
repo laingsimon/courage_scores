@@ -35,10 +35,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         const newMatch = Object.assign({ homePlayers: [] }, match);
         const existingPlayer = newMatch.homePlayers[index];
         if (player) {
-            newMatch.homePlayers[index] = Object.assign({}, existingPlayer, {
-                id: player.id,
-                name: player.name
-            });
+            newMatch.homePlayers[index] = Object.assign({}, existingPlayer, player);
         } else {
             newMatch.homePlayers[index] = {};
         }
@@ -58,10 +55,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         const newMatch = Object.assign({ awayPlayers: [] }, match);
         const existingPlayer = newMatch.awayPlayers[index];
         if (player) {
-            newMatch.awayPlayers[index] = Object.assign({}, existingPlayer, {
-                id: player.id,
-                name: player.name
-            });
+            newMatch.awayPlayers[index] = Object.assign({}, existingPlayer, player);
         } else {
             newMatch.awayPlayers[index] = {};
         }
