@@ -255,7 +255,7 @@ export function Score({account}) {
                          to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-light"
+                <NavLink tag={Link} className="text-dark active"
                          to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
             </NavItem>
             <NavItem>
