@@ -56,11 +56,12 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
     async function teamCreated(team) {
         await onNewTeam();
 
+        const hasFixtures = fixtures.filter(f => f.date === date).length;
         if (newTeamFor === 'home') {
-            setHomeTeam(team.id);
+            setHomeTeam(hasFixtures ? null : team.id);
             setNewTeamFor(null);
         } else if (newTeamFor === 'away') {
-            setAwayTeam(team.id);
+            setAwayTeam(hasFixtures ? null : team.id);
             setNewTeamFor(null);
         }
     }
