@@ -271,6 +271,9 @@ export function Score({account}) {
                     <th>vs</th>
                     <th colSpan="2">{fixtureData.away.name}</th>
                 </tr>
+                {fixtureData.address ? (<tr>
+                    <th colSpan="5">Paying at: {fixtureData.address}</th>
+                </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
                 </tr>
