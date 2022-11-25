@@ -52,7 +52,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         account={account}
                         fixture={f}
                         date={date.date}/>))}
-                    {isAdmin ? (<NewFixtureDate fixtures={fixtures} teams={teams} date={date.date} divisionId={divisionId} seasonId={season.id} onNewTeam={onNewTeam} />) : null}
                     </tbody>
                 </table>
             </div>))}
