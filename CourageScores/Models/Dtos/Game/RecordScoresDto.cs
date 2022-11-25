@@ -5,6 +5,7 @@ public class RecordScoresDto
     public ManOfTheMatchDto? Home { get; set; }
     public ManOfTheMatchDto? Away { get; set; }
     public List<RecordScoresMatchDto> Matches { get; set; } = null!;
+    public string? Address { get; set; }
 
     public class ManOfTheMatchDto
     {

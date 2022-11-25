@@ -72,6 +72,11 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
         }
 
+        if (user.Access?.ManageGames == true)
+        {
+            game.Address = _scores.Address ?? game.Address;
+        }
+
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));
     }
 
