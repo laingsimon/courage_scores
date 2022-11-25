@@ -191,10 +191,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     return (<tr>
         <td>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
-            {playerIndexes().map(index => disabled ? (<div key={index}>{homePlayer(index).name}</div>) : (<PlayerSelection
+            {playerIndexes().map(index => disabled ? (<div key={index}>{homePlayer(index).name}</div>) : (<div key={index}><PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
-                key={index}
                 players={homePlayers}
                 selected={homePlayer(index)}
                 except={exceptPlayers(index, 'homePlayers')}
@@ -205,7 +204,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 onEdit={playerUpdated}
                 teamId={home.id}
                 seasonId={seasonId}
-                gameId={gameId} />))}
+                gameId={gameId} /></div>))}
         </td>
         <td className="vertical-align-middle">
             {disabled
@@ -229,10 +228,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
-            {playerIndexes().map(index => disabled ? (<div key={index}>{awayPlayer(index).name}</div>) : (<PlayerSelection
+            {playerIndexes().map(index => disabled ? (<div key={index}>{awayPlayer(index).name}</div>) : (<div key={index}><PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
-                key={index}
                 players={awayPlayers}
                 selected={awayPlayer(index)}
                 except={exceptPlayers(index, 'awayPlayers')}
@@ -243,7 +241,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 onDelete={playerUpdated}
                 teamId={away.id}
                 seasonId={seasonId}
-                gameId={gameId} />))}
+                gameId={gameId} /></div>))}
         </td>
     </tr>);
 }

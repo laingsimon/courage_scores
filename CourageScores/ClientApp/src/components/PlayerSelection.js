@@ -91,7 +91,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
         }
     }
 
-    return (<div>
+    return (<span>
         {editPlayer && teamId && seasonId ? renderEditPlayer() : null}
         {allowDelete ? (<button
             disabled={!teamId || !seasonId || (!(selected || {}).id) || deletingPlayer}
@@ -112,5 +112,5 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
             options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
                     .map(p => { return { value: p.id, text: p.name } })) } />
         {deleteError ? (<ErrorDisplay {...deleteError} onClose={() => setDeleteError(null)} title="Could not delete player" />) : null}
-    </div>);
+    </span>);
 }
