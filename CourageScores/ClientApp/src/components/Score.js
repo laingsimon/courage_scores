@@ -234,6 +234,12 @@ export function Score({account}) {
         }
     }
 
+    function changeAddress(event) {
+         const newFixtureData = Object.assign({}, fixtureData);
+         newFixtureData.address = event.target.value;
+         setFixtureData(newFixtureData);
+    }
+
     if (loading !== 'ready') {
         return (<div className="light-background p-3">
             <span className="h1">🎯</span> Loading...
@@ -271,8 +277,17 @@ export function Score({account}) {
                     <th>vs</th>
                     <th colSpan="2">{fixtureData.away.name}</th>
                 </tr>
-                {fixtureData.address ? (<tr>
-                    <th colSpan="5">Paying at: {fixtureData.address}</th>
+                {fixtureData.address || canSave ? (<tr>
+                    {canSave
+                        ? (<td colSpan="5">
+                               <div className="input-group mb-3">
+                                   <div className="input-group-prepend">
+                                       <span className="input-group-text">Address</span>
+                                   </div>
+                                   <input disabled={saving} type="text" className="form-control" value={fixtureData.address} onChange={changeAddress}/>
+                               </div>
+                           </td>)
+                        : (<td colSpan="5">Paying at: {fixtureData.address}</td>)}
                 </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
