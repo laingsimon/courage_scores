@@ -134,3 +134,12 @@ input[type="date"] {
 .vertical-align-middle {
   vertical-align: middle;
 }
+
+.loading-background {
+  background-image: url("../public/loading.gif");
+  background-position: -20px center;
+  background-repeat: no-repeat;
+  min-height: 120px;
+  background-size: 150px 150px;
+  padding-left: 120px !important;
+}

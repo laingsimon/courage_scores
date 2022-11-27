@@ -69,8 +69,8 @@ export function Division({ account, apis }) {
     [ divisionData, loading, divisionId, seasonId ]);
 
     if (loading || !divisionData) {
-        return (<div className="light-background p-3">
-            <span className="h1">🎯</span> Loading...
+        return (<div className="light-background p-3 loading-background">
+            <div className="mt-2 pt-4 h3">Loading...</div>
         </div>);
     }
 
