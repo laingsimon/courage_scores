@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import {Settings} from "../api/settings";
-import {Http} from "../api/http";
-import {TeamApi} from "../api/team";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {Settings} from "../../api/settings";
+import {Http} from "../../api/http";
+import {TeamApi} from "../../api/team";
+import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId }) {
     const [ saving, setSaving ] = useState(false);

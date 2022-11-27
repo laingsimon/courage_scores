@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Route, Routes} from 'react-router-dom';
-import {Layout} from './components/Layout';
+import {Layout} from './components/layout/Layout';
 import './custom.css';
 import {Home} from "./components/Home";
 import {Division} from "./components/Division";
@@ -8,9 +8,9 @@ import {Settings} from "./api/settings";
 import {Http} from "./api/http";
 import {AccountApi} from "./api/account";
 import {DivisionApi} from "./api/division";
-import {Score} from "./components/Score";
-import {UserAdmin} from "./components/UserAdmin";
-import {NewSeason} from "./components/NewSeason";
+import {Score} from "./components/division_fixtures/scores/Score";
+import {UserAdmin} from "./components/admin/UserAdmin";
+import {NewSeason} from "./components/admin/NewSeason";
 
 export default class App extends Component {
     constructor(props) {

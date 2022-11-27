@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
-import {PlayerSelection} from "./PlayerSelection";
-import {Dialog} from "./Dialog";
-import {EditPlayerDetails} from "./EditPlayerDetails";
+import {PlayerSelection} from "../../division_players/PlayerSelection";
+import {Dialog} from "../../common/Dialog";
+import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 

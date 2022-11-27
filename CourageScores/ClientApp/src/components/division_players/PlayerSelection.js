@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
-import {BootstrapDropdown} from "./BootstrapDropdown";
-import {Dialog} from "./Dialog";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
-import {PlayerApi} from "../api/player";
-import {Http} from "../api/http";
-import {Settings} from "../api/settings";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {PlayerApi} from "../../api/player";
+import {Http} from "../../api/http";
+import {Settings} from "../../api/settings";
+import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete }) {
     const empty = {

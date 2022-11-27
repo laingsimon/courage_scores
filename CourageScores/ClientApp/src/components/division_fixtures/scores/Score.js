@@ -1,15 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from "react-router-dom";
-import {Settings} from "../api/settings";
-import {GameApi} from "../api/game";
-import {Http} from "../api/http";
-import {TeamApi} from "../api/team";
+import {Settings} from "../../../api/settings";
+import {GameApi} from "../../../api/game";
+import {Http} from "../../../api/http";
+import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
-import {PlayerSelection} from "./PlayerSelection";
+import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {ErrorDisplay} from "../../common/ErrorDisplay";
 
 export function Score({account}) {
     const {fixtureId} = useParams();

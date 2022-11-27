@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {Link, useParams} from "react-router-dom";
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, NavItem, NavLink} from "reactstrap";
-import {DivisionTeams} from "./DivisionTeams";
-import {DivisionFixtures} from "./DivisionFixtures";
-import {DivisionPlayers} from "./DivisionPlayers";
+import {DivisionTeams} from "./division_teams/DivisionTeams";
+import {DivisionFixtures} from "./division_fixtures/DivisionFixtures";
+import {DivisionPlayers} from "./division_players/DivisionPlayers";
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {ErrorDisplay} from "./common/ErrorDisplay";
 import {TeamApi} from "../api/team";
 
 export function Division({ account, apis }) {

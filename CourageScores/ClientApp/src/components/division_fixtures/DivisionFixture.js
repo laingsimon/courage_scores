@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {Link} from "react-router-dom";
-import {Http} from "../api/http";
-import {Settings} from "../api/settings";
-import {GameApi} from "../api/game";
-import {BootstrapDropdown} from "./BootstrapDropdown";
-import {ErrorDisplay} from "./ErrorDisplay";
-import {TeamApi} from "../api/team";
-import {Dialog} from "./Dialog";
-import {EditTeamDetails} from "./EditTeamDetails";
+import {Http} from "../../api/http";
+import {Settings} from "../../api/settings";
+import {GameApi} from "../../api/game";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {ErrorDisplay} from "../common/ErrorDisplay";
+import {TeamApi} from "../../api/team";
+import {Dialog} from "../common/Dialog";
+import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 
 export function DivisionFixture({ fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId }) {
     const bye = {

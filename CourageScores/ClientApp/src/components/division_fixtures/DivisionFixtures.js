@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
-import {NewFixtureDate} from "./NewFixtureDate";
+import {NewFixtureDate} from "./scores/NewFixtureDate";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam }) {
     const isAdmin = account && account.access && account.access.manageGames;

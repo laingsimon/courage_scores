@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {PlayerSelection} from "./PlayerSelection";
+import {PlayerSelection} from "../../division_players/PlayerSelection";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes }) {
     let index = 0;

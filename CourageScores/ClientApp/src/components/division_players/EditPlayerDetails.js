@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import {Settings} from "../api/settings";
-import {Http} from "../api/http";
-import {PlayerApi} from "../api/player";
-import {BootstrapDropdown} from "./BootstrapDropdown";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {Settings} from "../../api/settings";
+import {Http} from "../../api/http";
+import {PlayerApi} from "../../api/player";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function EditPlayerDetails({ id, name, captain, teamId, onSaved, onChange, onCancel, seasonId, teams, gameId }) {
     const [ saving, setSaving ] = useState(false);

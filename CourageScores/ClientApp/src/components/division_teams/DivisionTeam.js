@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
-import {Dialog} from "./Dialog";
+import {Dialog} from "../common/Dialog";
 
 export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }) {
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({}, team));
