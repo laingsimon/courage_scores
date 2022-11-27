@@ -7,7 +7,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// </summary>
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
-public class GameMatch : AuditedEntity
+public class GameMatch : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// The number of legs, typically 3 or 5
@@ -32,12 +32,12 @@ public class GameMatch : AuditedEntity
     /// <summary>
     /// What was the home score
     /// </summary>
-    public int HomeScore { get; set; }
+    public int? HomeScore { get; set; }
 
     /// <summary>
     /// What was the away score
     /// </summary>
-    public int AwayScore { get; set; }
+    public int? AwayScore { get; set; }
 
     /// <summary>
     /// Who scored a 180 in the match
@@ -48,4 +48,50 @@ public class GameMatch : AuditedEntity
     /// Who checked out with more than 100
     /// </summary>
     public List<NotablePlayer> Over100Checkouts { get; set; } = new();
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitMatch(this);
+
+        if (HomePlayers.Count == AwayPlayers.Count)
+        {
+            foreach (var player in HomePlayers)
+            {
+                visitor.VisitPlayer(player, HomePlayers.Count);
+            }
+
+            foreach (var player in AwayPlayers)
+            {
+                visitor.VisitPlayer(player, AwayPlayers.Count);
+            }
+        }
+
+        if (HomeScore.HasValue && AwayScore.HasValue && HomePlayers.Count == AwayPlayers.Count)
+        {
+            if (HomeScore > AwayScore)
+            {
+                visitor.VisitMatchWin(HomePlayers, TeamDesignation.Home);
+                visitor.VisitMatchLost(AwayPlayers, TeamDesignation.Away);
+            }
+            else if (AwayScore > HomeScore)
+            {
+                visitor.VisitMatchWin(AwayPlayers, TeamDesignation.Away);
+                visitor.VisitMatchLost(HomePlayers, TeamDesignation.Home);
+            }
+            else
+            {
+                visitor.VisitMatchDraw(HomePlayers, AwayPlayers);
+            }
+        }
+
+        foreach (var player in OneEighties)
+        {
+            visitor.VisitOneEighty(player);
+        }
+
+        foreach (var player in Over100Checkouts)
+        {
+            visitor.VisitHiCheckout(player);
+        }
+    }
 }

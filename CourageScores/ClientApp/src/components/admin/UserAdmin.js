@@ -1,8 +1,8 @@
 import React, {useState, useEffect } from 'react';
-import {Settings} from "../api/settings";
-import {Http} from "../api/http";
-import {AccountApi} from "../api/account";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {Settings} from "../../api/settings";
+import {Http} from "../../api/http";
+import {AccountApi} from "../../api/account";
+import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function UserAdmin() {
     const api = new AccountApi(new Http(new Settings()));

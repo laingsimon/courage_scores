@@ -1,33 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import {Link, useParams} from "react-router-dom";
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, NavItem, NavLink} from "reactstrap";
-import {DivisionTeams} from "./DivisionTeams";
-import {DivisionFixtures} from "./DivisionFixtures";
-import {DivisionPlayers} from "./DivisionPlayers";
+import {DivisionTeams} from "./division_teams/DivisionTeams";
+import {DivisionFixtures} from "./division_fixtures/DivisionFixtures";
+import {DivisionPlayers} from "./division_players/DivisionPlayers";
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
-import {ErrorDisplay} from "./ErrorDisplay";
+import {ErrorDisplay} from "./common/ErrorDisplay";
+import {TeamApi} from "../api/team";
 
 export function Division({ account, apis }) {
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
+    const [ teams, setTeams ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
     const [ editMode, setEditMode ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(null);
-    const [ divisionName, setDivisionName ] = useState(null);
+    const [ divisionName, setDivisionName ] = useState('');
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const divisionApi = new DivisionApi(new Http(new Settings()));
+    const teamApi = new TeamApi(new Http(new Settings()));
 
     async function reloadDivisionData() {
-        const api = new DivisionApi(new Http(new Settings()));
-        const divisionData = await api.data(divisionId, seasonId);
+        const divisionData = await divisionApi.data(divisionId, seasonId);
         setDivisionData(divisionData);
+
+        const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
+        setTeams(teams);
     }
 
     useEffect(() => {
@@ -42,9 +48,10 @@ export function Division({ account, apis }) {
         setLoading(true);
 
         async function reloadDivisionData() {
-            const api = new DivisionApi(new Http(new Settings()));
-            const divisionData = await api.data(divisionId, seasonId);
+            const divisionData = await divisionApi.data(divisionId, seasonId);
+            const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
             setDivisionData(divisionData);
+            setTeams(teams);
             setSeasonData({
                 id: divisionData.season.id,
                 name: divisionData.season.name,
@@ -55,8 +62,11 @@ export function Division({ account, apis }) {
             setLoading(false);
         }
 
+        // noinspection JSIgnoredPromiseFromCall
         reloadDivisionData();
-    }, [ divisionData, loading, divisionId, seasonId ]);
+    },
+    // eslint-disable-next-line
+    [ divisionData, loading, divisionId, seasonId ]);
 
     if (loading || !divisionData) {
         return (<div className="light-background p-3">
@@ -222,9 +232,36 @@ export function Division({ account, apis }) {
                 <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>
-        {effectiveTab === 'teams' ? <DivisionTeams divisionData={divisionData} onReloadDivision={reloadDivisionData} account={account} divisionId={divisionId} /> : null}
-        {effectiveTab === 'fixtures' ? <DivisionFixtures divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
-        {effectiveTab === 'players' ? <DivisionPlayers divisionData={divisionData} account={account} onReloadDivision={reloadDivisionData} /> : null}
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save details" />) : null}
+        {effectiveTab === 'teams'
+            ? (<DivisionTeams
+                teams={divisionData.teams}
+                onTeamSaved={reloadDivisionData}
+                account={account}
+                seasonId={divisionData.season.id}
+                divisionId={divisionId} />)
+            : null}
+        {effectiveTab === 'fixtures'
+            ? (<DivisionFixtures
+                season={divisionData.season}
+                divisionId={divisionData.id}
+                fixtures={divisionData.fixtures}
+                teams={teams}
+                account={account}
+                onNewTeam={reloadDivisionData}
+                onReloadDivision={reloadDivisionData} />)
+            : null}
+        {effectiveTab === 'players'
+            ? (<DivisionPlayers
+                players={divisionData.players}
+                account={account}
+                onPlayerSaved={reloadDivisionData}
+                seasonId={divisionData.season.id} />)
+            : null}
+        {saveError
+            ? (<ErrorDisplay
+                {...saveError}
+                onClose={() => setSaveError(null)}
+                title="Could not save details" />)
+            : null}
     </div>);
 }

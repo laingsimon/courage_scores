@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Http} from "../api/http";
-import {Settings} from "../api/settings";
-import {SeasonApi} from "../api/season";
+import {Http} from "../../api/http";
+import {Settings} from "../../api/settings";
+import {SeasonApi} from "../../api/season";
 import {useNavigate} from "react-router-dom";
-import {ErrorDisplay} from "./ErrorDisplay";
-import {BootstrapDropdown} from "./BootstrapDropdown";
+import {ErrorDisplay} from "../common/ErrorDisplay";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
-export function NewSeason(props) {
+export function NewSeason() {
     const [ name, setName ] = useState('');
     const [ startDate, setStartDate ] = useState('');
     const [ endDate, setEndDate ] = useState('');

@@ -54,6 +54,7 @@ public static class DependencyInjectionExtensions
     private static void AddServices(IServiceCollection services)
     {
         services.AddScoped(typeof(IGenericDataService<,>), typeof(GenericDataService<,>));
+        services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDivisionService, DivisionService>();
     }

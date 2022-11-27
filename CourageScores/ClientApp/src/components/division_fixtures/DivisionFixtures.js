@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
+import {NewFixtureDate} from "./scores/NewFixtureDate";
 
-export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
 
     async function onNewDateCreated() {
         setNewDate('');
-        await onReloadDivision();
+        if (onReloadDivision) {
+            await onReloadDivision();
+        }
     }
 
     function renderNewFixture(team) {
@@ -24,7 +27,10 @@ export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
         return (<DivisionFixture
             key={team.id}
             onReloadDivision={onNewDateCreated}
-            divisionData={divisionData}
+            fixtures={fixtures}
+            teams={teams}
+            seasonId={season.id}
+            divisionId={divisionId}
             account={account}
             fixture={newFixture}
             date={newDate}/>);
@@ -32,11 +38,20 @@ export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
 
     return (<div className="light-background p-3">
         <div>
-            {divisionData.fixtures.map(date => (<div key={date.date}>
+            {fixtures.map(date => (<div key={date.date}>
                 <h4>{new Date(date.date).toDateString()}</h4>
                 <table className="table layout-fixed">
                     <tbody>
-                    {date.fixtures.map(f => (<DivisionFixture key={f.id} onReloadDivision={onReloadDivision} divisionData={divisionData} account={account} fixture={f} date={date.date}/>))}
+                    {date.fixtures.map(f => (<DivisionFixture
+                        key={f.id}
+                        teams={teams}
+                        fixtures={fixtures}
+                        divisionId={divisionId}
+                        seasonId={season.id}
+                        onReloadDivision={onReloadDivision}
+                        account={account}
+                        fixture={f}
+                        date={date.date}/>))}
                     </tbody>
                 </table>
             </div>))}
@@ -44,11 +59,12 @@ export function DivisionFixtures({ divisionData, account, onReloadDivision }) {
         {isAdmin ? (<div className="mt-3">
             <div>
                 <span className="margin-right">New fixture:</span>
-                <input type="date" min={divisionData.season.startDate.substring(0, 10)} max={divisionData.season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
+                <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
-                    {divisionData.teams.map(t => (renderNewFixture(t)))}
+                    {teams.map(t => (renderNewFixture(t)))}
+                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onNewTeam} date={newDate} divisionId={divisionId} seasonId={season.id} />
                 </tbody>
             </table>) : null}
         </div>) : null}

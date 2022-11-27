@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
 import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
-import {Settings} from "../api/settings";
+import {Settings} from "../../api/settings";
 
 export function NavMenu({divisions, appLoading, account}) {
     const settings = new Settings();
@@ -24,6 +24,7 @@ export function NavMenu({divisions, appLoading, account}) {
 
     function navigate(event) {
         setCurrentLink(event.target.href);
+        setCollapsed(true);
     }
 
     function getAccountUrl(action) {

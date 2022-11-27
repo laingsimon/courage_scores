@@ -34,6 +34,11 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             throw new InvalidOperationException($"Game hasn't been set, ensure {nameof(WithData)} is called");
         }
 
+        if (game.Deleted != null)
+        {
+            return new CommandOutcome<GameDto>(false, "Cannot edit a game that has been deleted", null);
+        }
+
         var user = await _userService.GetUser();
         if (user == null)
         {
@@ -65,6 +70,11 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
 
             game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
+        }
+
+        if (user.Access?.ManageGames == true)
+        {
+            game.Address = _scores.Address ?? game.Address;
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));

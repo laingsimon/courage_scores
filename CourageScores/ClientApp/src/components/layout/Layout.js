@@ -8,7 +8,7 @@ export function Layout({divisions, appLoading, account, children, error, clearEr
         return (<div className="light-background p-3">
             <h3>An error occurred</h3>
             <pre>{JSON.stringify(error.message)}</pre>
-            <button className="btn btn-warning" onClick={clearError}>Clear error</button>
+            <button className="btn btn-warning" onClick={() => clearError ? clearError() : null}>Clear error</button>
         </div>)
     }
 

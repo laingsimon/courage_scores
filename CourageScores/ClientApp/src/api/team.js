@@ -11,8 +11,12 @@ class TeamApi {
         return this.http.put(`/api/Team`, team);
     }
 
-    delete(id) {
-        return this.http.delete(`/api/Team/${id}`, {});
+    delete(id, seasonId) {
+        return this.http.delete(`/api/Team/${id}/${seasonId}`, {});
+    }
+
+    getForDivisionAndSeason(divisionId, seasonId) {
+        return this.http.get(`/api/Team/${divisionId}/${seasonId}`, {});
     }
 }
 
