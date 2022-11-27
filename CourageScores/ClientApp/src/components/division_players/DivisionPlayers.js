@@ -1,6 +1,7 @@
 import React from 'react';
+import {DivisionPlayer} from "./DivisionPlayer";
 
-export function DivisionPlayers({ players }) {
+export function DivisionPlayers({ players, account, onPlayerSaved, seasonId }) {
     return (<div className="light-background p-3">
         <div>
             <table className="table">
@@ -18,17 +19,12 @@ export function DivisionPlayers({ players }) {
                 </tr>
                 </thead>
                 <tbody>
-                {players.map(p => (<tr key={p.id}>
-                    <td>{p.rank}</td>
-                    <td>{p.captain ? (<span>🤴 </span>) : null}{p.name}</td>
-                    <td>{p.team}</td>
-                    <td>{p.won}</td>
-                    <td>{p.lost}</td>
-                    <td>{p.points}</td>
-                    <td>{p.winPercentage}</td>
-                    <td>{p.oneEighties}</td>
-                    <td>{p.over100Checkouts}</td>
-                </tr>))}
+                {players.map(player => (<DivisionPlayer
+                    key={player.id}
+                    player={player}
+                    account={account}
+                    seasonId={seasonId}
+                    onPlayerSaved={onPlayerSaved} />))}
                 </tbody>
             </table>
         </div>

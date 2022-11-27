@@ -36,7 +36,7 @@ export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }
         </Dialog>)
     }
 
-    return (<tr key={team.id}>
+    return (<tr>
         <td>
             {isAdmin ? (<button onClick={() => setEditTeam(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
             {editTeam && isAdmin ? renderEditTeam() : null}

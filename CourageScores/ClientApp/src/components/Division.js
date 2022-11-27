@@ -254,7 +254,8 @@ export function Division({ account, apis }) {
             ? (<DivisionPlayers
                 players={divisionData.players}
                 account={account}
-                onReloadDivision={reloadDivisionData} />)
+                onPlayerSaved={reloadDivisionData}
+                seasonId={divisionData.season.id} />)
             : null}
         {saveError
             ? (<ErrorDisplay
