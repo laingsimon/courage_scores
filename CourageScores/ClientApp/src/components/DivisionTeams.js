@@ -1,6 +1,7 @@
 import React from 'react';
+import {DivisionTeam} from "./DivisionTeam";
 
-export function DivisionTeams({ teams }) {
+export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSaved }) {
     return (<div className="light-background p-3">
         <div>
             <table className="table">
@@ -16,15 +17,13 @@ export function DivisionTeams({ teams }) {
                     </tr>
                 </thead>
                 <tbody>
-                {teams.map(t => (<tr key={t.id}>
-                    <td>{t.name}</td>
-                    <td>{t.played}</td>
-                    <td>{t.points}</td>
-                    <td>{t.won}</td>
-                    <td>{t.lost}</td>
-                    <td>{t.drawn}</td>
-                    <td>{t.difference}</td>
-                </tr>))}
+                {teams.map(team => (<DivisionTeam
+                    key={team.id}
+                    team={team}
+                    seasonId={seasonId}
+                    account={account}
+                    divisionId={divisionId}
+                    onTeamSaved={onTeamSaved} />))}
                 </tbody>
             </table>
         </div>
