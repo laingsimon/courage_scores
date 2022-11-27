@@ -39,8 +39,8 @@ export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }
     return (<tr>
         <td>
             {isAdmin ? (<button onClick={() => setEditTeam(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {editTeam && isAdmin ? renderEditTeam() : null}
             {team.name}
+            {editTeam && isAdmin ? renderEditTeam() : null}
         </td>
         <td>{team.played}</td>
         <td>{team.points}</td>

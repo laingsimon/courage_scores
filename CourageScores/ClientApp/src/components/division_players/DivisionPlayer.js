@@ -44,9 +44,8 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, teamId
         <td>{player.rank}</td>
         <td>
             {isAdmin ? (<button onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {editPlayer && isAdmin ? renderEditPlayer() : null}
-
             {player.captain ? (<span>🤴 </span>) : null}{player.name}
+            {editPlayer && isAdmin ? renderEditPlayer() : null}
         </td>
         <td>{player.team}</td>
         <td>{player.won}</td>
