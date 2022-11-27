@@ -1,9 +1,46 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {DivisionTeam} from "./DivisionTeam";
+import {Dialog} from "../common/Dialog";
+import {EditTeamDetails} from "./EditTeamDetails";
 
 export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSaved }) {
+    const isAdmin = account && account.access && account.access.manageTeams;
+    const [ newTeam, setNewTeam ] = useState(false);
+    const [ teamDetails, setTeamDetails ] = useState({
+        name: '',
+        address: '',
+    });
+
+    function onChange(name, value) {
+        const newTeamDetails = Object.assign({}, teamDetails);
+        newTeamDetails[name] = value;
+        setTeamDetails(newTeamDetails);
+    }
+
+    async function onTeamCreated() {
+        if (onTeamSaved) {
+            await onTeamSaved();
+        }
+
+        setNewTeam(false);
+    }
+
+    function renderNewTeamDialog() {
+        return (<Dialog title="Create a new team...">
+            <EditTeamDetails
+                divisionId={divisionId}
+                seasonId={seasonId}
+                {...teamDetails}
+                onCancel={() => setNewTeam(false)}
+                id={null}
+                onSaved={onTeamCreated}
+                onChange={onChange}/>
+        </Dialog>);
+    }
+
     return (<div className="light-background p-3">
         <div>
+            <p>Only teams with fixtures selected will appear here</p>
             <table className="table">
                 <thead>
                     <tr>
@@ -27,5 +64,11 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
                 </tbody>
             </table>
         </div>
+        {isAdmin ? (<div>
+            <div>
+                <button className="btn btn-sm btn-primary" onClick={() => setNewTeam(true)}>Add team</button>
+            </div>
+            {newTeam ? renderNewTeamDialog() : null}
+        </div>) : null}
     </div>);
 }

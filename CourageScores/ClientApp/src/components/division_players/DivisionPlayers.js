@@ -4,6 +4,7 @@ import {DivisionPlayer} from "./DivisionPlayer";
 export function DivisionPlayers({ players, account, onPlayerSaved, seasonId }) {
     return (<div className="light-background p-3">
         <div>
+            <p>Only players that have played a singles match will appear here</p>
             <table className="table">
                 <thead>
                 <tr>
