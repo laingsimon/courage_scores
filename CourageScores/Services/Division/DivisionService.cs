@@ -84,6 +84,7 @@ public class DivisionService : IDivisionService
             Id = division.Id,
             Name = division.Name,
             Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
             Fixtures = GetFixtures(games, teams).OrderBy(d => d.Date).ToList(),
             Players = GetPlayers(divisionData, playerIdToTeamLookup).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
             Season = new DivisionDataSeasonDto
@@ -122,6 +123,21 @@ public class DivisionService : IDivisionService
         foreach (var player in players)
         {
             player.Rank = rank++;
+        }
+    }
+
+    private static IEnumerable<DivisionTeamDto> GetTeamsWithoutFixtures(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
+    {
+        foreach (var team in teams.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
+        {
+            yield return new DivisionTeamDto
+            {
+                Id = team.Id,
+                Address = team.Address,
+                Played = 0,
+                Name = team.Name,
+                Points = 0,
+            };
         }
     }
 
