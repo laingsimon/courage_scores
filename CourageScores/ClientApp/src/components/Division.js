@@ -229,7 +229,10 @@ export function Division({ account, apis }) {
                     <div className="input-group-prepend">
                         <span className="input-group-text">Number of legs</span>
                     </div>
-                    <input readOnly={proposingGames} value={proposalSettings.numberOfLegs} type="number" min="1" max="2" onChange={updateProposalSettings} name="numberOfLegs" className="no-border margin-right" />
+                    <select disabled={proposingGames} value={proposalSettings.numberOfLegs} onChange={updateProposalSettings} name="numberOfLegs">
+                        <option value="1">Single leg</option>
+                        <option value="2">Two legs</option>
+                    </select>
                 </div>
                 <div className="input-group my-3">
                     <div className="input-group-prepend">
