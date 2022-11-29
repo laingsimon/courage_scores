@@ -164,8 +164,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         var currentDate = request.WeekDay != null
             ? (request.StartDate ?? season.StartDate).MoveToDay(request.WeekDay.Value)
             : request.StartDate ?? season.StartDate;
-        var iteration = 1;
+        if (request.ExcludedDates.ContainsKey(currentDate))
+        {
+            currentDate = currentDate.AddDays(request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
+        }
 
+        var iteration = 1;
         while (proposals.Count > 0)
         {
             request.LogInfo(result, $"Iteration {iteration}");
