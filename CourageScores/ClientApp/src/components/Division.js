@@ -10,6 +10,7 @@ import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {TeamApi} from "../api/team";
+import {Dialog} from "./common/Dialog";
 
 export function Division({ account, apis }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -25,6 +26,9 @@ export function Division({ account, apis }) {
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const [ proposingGames, setProposingGames ] = useState(false);
+    const [ proposalSettings, setProposalSettings ] = useState(null);
+    const [ proposalResponse, setProposalResponse ] = useState(null);
     const divisionApi = new DivisionApi(new Http(new Settings()));
     const teamApi = new TeamApi(new Http(new Settings()));
     const seasonApi = new SeasonApi(new Http(new Settings()));
@@ -163,7 +167,28 @@ export function Division({ account, apis }) {
     }
 
     async function proposeFixtures() {
-        const request = {
+        setUpdatingData(true);
+        setProposingGames(true);
+        setProposalResponse(null);
+        try {
+            const response = await seasonApi.propose(proposalSettings);
+            if (response.success) {
+                const newDivisionData = Object.assign({}, divisionData);
+                newDivisionData.fixtures = response.result;
+                setDivisionData(newDivisionData);
+
+                setProposalResponse(response);
+            } else {
+                setSaveError(response);
+            }
+        } finally {
+            setProposingGames(false);
+            setUpdatingData(false);
+        }
+    }
+
+    function beginProposeFixtures() {
+        setProposalSettings({
             divisionId: divisionId,
             seasonId: seasonId || divisionData.season.id,
             // teams: [ 'ede4cfe8-280a-4cf2-8f6b-b0dffd4d4075', 'e147f2a9-f494-436c-bc55-bf5dde4070a2', '1f533f5b-b709-4d75-8229-465e6aaec7df' ],
@@ -173,26 +198,64 @@ export function Division({ account, apis }) {
             numberOfLegs: 2,
             // startDate: "2022-01-01" // not required, use season start date
             logLevel: 'Warning'
-        };
+        });
+    }
 
-        setUpdatingData(true);
-        try {
-            const response = await seasonApi.propose(request);
-            if (response.success) {
-                const newDivisionData = Object.assign({}, divisionData);
-                newDivisionData.fixtures = response.result;
-                setDivisionData(newDivisionData);
+    function updateProposalSettings(event) {
+        const newProposalSettings = Object.assign({}, proposalSettings);
+        newProposalSettings[event.target.name] = event.target.value;
+        setProposalSettings(newProposalSettings);
+    }
 
-                setSaveError(response);
-            } else {
-                setSaveError(response);
-            }
-        } finally {
-            setUpdatingData(false);
+    function renderProposalSettings() {
+        let index = 0;
+
+        function renderValidationErrors(errors) {
+            return (<ol className="text-danger">
+                {Object.keys(errors).map(key => {
+                    return (<li key={key}>{key} {errors[key].map(e => (<p key={index++}>{e}</p>))}</li>)
+                })}
+            </ol>)
         }
+
+        return (<div className="text-black"><Dialog title="Propose games...">
+            <div>
+                <div className="input-group my-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Number of legs</span>
+                    </div>
+                    <input readOnly={proposingGames} value={proposalSettings.numberOfLegs} type="number" min="1" max="2" onChange={updateProposalSettings} name="numberOfLegs" className="no-border margin-right" />
+                </div>
+                <div className="input-group my-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Log level</span>
+                    </div>
+                    <select name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
+                        <option value="Information">Everything</option>
+                        <option value="Warning">Warnings and Errors</option>
+                        <option value="Error">Errors only</option>
+                    </select>
+                </div>
+            </div>
+            {proposalResponse ? (<ul>
+                {proposalResponse.errors && proposalResponse.errors.length ? proposalResponse.errors.map(e => (<li key={index++} className="text-danger">{e}</li>)) : null}
+                {proposalResponse.errors && !proposalResponse.errors.length ? (renderValidationErrors(proposalResponse.errors)): null}
+                {proposalResponse.warnings ? proposalResponse.warnings.map(w => (<li key={index++} className="text-warning">{w}</li>)) : null}
+                {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
+            </ul>) : null}
+            <div className="text-end">
+                {proposalResponse ? (<span className="margin-right text-primary fw-bold">✔ Click close to see the proposed fixtures</span>) : null}
+                <button className="btn btn-success margin-right" onClick={proposeFixtures}>
+                    {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                    Propose Games...
+                </button>
+                <button className="btn btn-primary margin-right" onClick={() => setProposalSettings(null)}>Close</button>
+            </div>
+        </Dialog></div>)
     }
 
     return (<div>
+        {proposalSettings ? renderProposalSettings() : null}
         <div className="btn-group py-2">
             {editMode !== 'division' ? (<button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
                 {divisionName}
@@ -281,7 +344,8 @@ export function Division({ account, apis }) {
                 account={account}
                 onNewTeam={reloadDivisionData}
                 onReloadDivision={reloadDivisionData}
-                onProposeFixtures={proposeFixtures}/>)
+                onProposeFixtures={beginProposeFixtures}
+                proposingGames={proposingGames} />)
             : null}
         {effectiveTab === 'players'
             ? (<DivisionPlayers

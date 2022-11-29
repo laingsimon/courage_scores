@@ -143,3 +143,7 @@ input[type="date"] {
   background-size: 150px 150px;
   padding-left: 120px !important;
 }
+
+.modal-dialog-larger-max-width {
+  max-width: 800px;
+}

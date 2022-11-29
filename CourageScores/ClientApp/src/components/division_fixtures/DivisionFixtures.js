@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {NewFixtureDate} from "./scores/NewFixtureDate";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam, onProposeFixtures }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam, onProposeFixtures, proposingGames }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
-    const [ proposingGames, setProposingGames ] = useState(false);
 
     async function onNewDateCreated() {
         setNewDate('');
@@ -37,23 +36,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             date={newDate}/>);
     }
 
-    async function proposeFixtures() {
-        if (proposingGames) {
-            return;
-        }
-
-        setProposingGames(true);
-        try {
-            await onProposeFixtures();
-        } finally {
-            setProposingGames(false);
-        }
-    }
-
     return (<div className="light-background p-3">
-        {isAdmin && onProposeFixtures ? (<div><button className="btn btn-warning" onClick={proposeFixtures}>
-            {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            Propose games
+        {isAdmin && onProposeFixtures ? (<div><button className="btn btn-success" onClick={onProposeFixtures}>
+            Propose games...
         </button></div>) : null}
         <div>
             {fixtures.map(date => (<div key={date.date}>
