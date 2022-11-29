@@ -137,8 +137,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         ActionResultDto<List<DivisionFixtureDateDto>> result,
         [EnumeratorCancellation] CancellationToken token)
     {
-        var iteration = 1;
-        var rand = new Random();
         var teamsToPropose = request.Teams.Any()
             ? allTeams.Join(request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
             : allTeams;
@@ -153,38 +151,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             .WhereAsync(g => g.Deleted == null && g.SeasonId == season.Id)
             .ToList();
 
-        var currentDate = request.WeekDay != null
-            ? MoveToDay(request.StartDate ?? season.StartDate, request.WeekDay.Value)
-            : request.StartDate ?? season.StartDate;
-        var proposals = request.NumberOfLegs == 1
-            ? teamsToPropose.SelectMany(home => teamsToPropose.Except(new[] { home }).Select(away => new Proposal(home, away))).Distinct().ToList()
-            : teamsToPropose.SelectMany(home => teamsToPropose.Except(new[] { home }).SelectMany(away => new[] { new Proposal(home, away), new Proposal(away, home) })).Distinct().ToList();
-
-        proposals.RemoveAll(p =>
-        {
-            return existingGames.Any(g => g.Home.Id == p.Home.Id && g.Away.Id == p.Away.Id);
-        });
-
-        proposals.RemoveAll(p =>
-        {
-            if (p.Home.Address == p.Away.Address)
-            {
-                string GetMessage(Team home, Team away)
-                {
-                    return $"{home.Name} cannot ever play against {away.Name} as they have the same venue - {home.Address}";
-                }
-
-                if (request.LogLevel <= LogLevel.Warning && !result.Warnings.Contains(GetMessage(p.Away, p.Home)))
-                {
-                    result.Warnings.Add(GetMessage(p.Home, p.Away));
-                }
-
-                return true;
-            }
-
-            return false;
-        });
-
         foreach (var existingFixtureDate in existingGames.GroupBy(g => g.Date))
         {
             yield return new DivisionFixtureDateDto
@@ -194,21 +160,23 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 {
                     Id = g.Id,
                     AwayScore = null,
-                    AwayTeam = AdaptToTeam(g.Away, null),
+                    AwayTeam = g.Away.AdaptToTeam(null),
                     HomeScore = null,
-                    HomeTeam = AdaptToTeam(g.Home, g.Address),
+                    HomeTeam = g.Home.AdaptToTeam(g.Address),
                 }).ToList()
             };
         }
 
-        var maxIterations = 10 * proposals.Count;
+        var proposals = GetProposals(request, teamsToPropose, result, existingGames);
+        var maxIterations = 5 * proposals.Count;
+        var currentDate = request.WeekDay != null
+            ? (request.StartDate ?? season.StartDate).MoveToDay(request.WeekDay.Value)
+            : request.StartDate ?? season.StartDate;
+        var iteration = 1;
 
         while (proposals.Count > 0)
         {
-            if (request.LogLevel <= LogLevel.Information)
-            {
-                result.Messages.Add($"Iteration {iteration}");
-            }
+            request.LogInfo(result, $"Iteration {iteration}");
 
             if (iteration > maxIterations)
             {
@@ -217,151 +185,115 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             }
 
             token.ThrowIfCancellationRequested();
-            var addressesInUseOnDate = existingGames
-                    .Where(g => g.Date == currentDate)
-                    .Select(g => g.Address)
-                    .ToHashSet();
-            var teamsInPlayOnDate = existingGames
-                .Where(g => g.Date == currentDate)
-                .SelectMany(g => new[] { g.Home.Id, g.Away.Id })
-                .ToHashSet();
+            yield return CreateFixturesForDate(request, result, existingGames, currentDate, proposals, token);
+            currentDate = currentDate.AddDays(request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
+            iteration++;
+        }
+    }
 
-            var incompatibleProposals = new List<Proposal>();
-            var gamesOnDate = new DivisionFixtureDateDto
+    private static DivisionFixtureDateDto CreateFixturesForDate(
+        AutoProvisionGamesRequest request,
+        ActionResultDto<List<DivisionFixtureDateDto>> result,
+        IReadOnlyCollection<Game> existingGames,
+        DateTime currentDate,
+        List<Proposal> proposals,
+        CancellationToken token)
+    {
+        var addressesInUseOnDate = existingGames
+            .Where(g => g.Date == currentDate)
+            .Select(g => g.Address)
+            .ToHashSet();
+        var teamsInPlayOnDate = existingGames
+            .Where(g => g.Date == currentDate)
+            .SelectMany(g => new[] { g.Home.Id, g.Away.Id })
+            .ToHashSet();
+
+        var incompatibleProposals = new List<Proposal>();
+        var gamesOnDate = new DivisionFixtureDateDto { Date = currentDate };
+
+        void IncompatibleProposal(Proposal proposal, string message)
+        {
+            incompatibleProposals.Add(proposal);
+            request.LogInfo(result, $"{currentDate:yyyy-MM-dd}: {message}");
+        }
+
+        while (proposals.Count > 0)
+        {
+            var proposal = proposals.GetAndRemove(Random.Shared.Next(0, proposals.Count));
+
+            if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
             {
-                Date = currentDate,
-                Fixtures = new List<DivisionFixtureDto>(),
-            };
-
-            while (proposals.Count > 0)
-            {
-                var index = rand.Next(0, proposals.Count);
-                var proposal = proposals[index];
-                proposals.RemoveAt(index);
-
-                if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
-                {
-                    incompatibleProposals.Add(proposal);
-                    if (request.LogLevel <= LogLevel.Information)
-                    {
-                        result.Messages.Add(
-                            $"{currentDate:yyyy-MM-dd}: Home and/or Away are already playing, skipping");
-                    }
-
-                    continue;
-                }
-
-                if (addressesInUseOnDate.Contains(proposal.Home.Address))
-                {
-                    incompatibleProposals.Add(proposal);
-                    if (request.LogLevel <= LogLevel.Information)
-                    {
-                        result.Messages.Add(
-                            $"{currentDate:yyyy-MM-dd}: Address {proposal.Home.Address} is already in use, skipping");
-                    }
-
-                    continue;
-                }
-
-                addressesInUseOnDate.Add(proposal.Home.Address);
-                teamsInPlayOnDate.Add(proposal.Home.Id);
-                teamsInPlayOnDate.Add(proposal.Away.Id);
-
-                gamesOnDate.Fixtures.Add(AdaptToGame(proposal));
-                token.ThrowIfCancellationRequested();
-                iteration++;
+                IncompatibleProposal(proposal, "Home and/or Away are already playing, skipping");
+                continue;
             }
 
-            yield return gamesOnDate;
-            proposals.AddRange(incompatibleProposals);
-            currentDate = AddDays(currentDate, request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
+            if (addressesInUseOnDate.Contains(proposal.Home.Address))
+            {
+                IncompatibleProposal(proposal, $"Address {proposal.Home.Address} is already in use, skipping");
+                continue;
+            }
+
+            addressesInUseOnDate.Add(proposal.Home.Address);
+            teamsInPlayOnDate.Add(proposal.Home.Id);
+            teamsInPlayOnDate.Add(proposal.Away.Id);
+
+            gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
+            token.ThrowIfCancellationRequested();
         }
+
+        proposals.AddRange(incompatibleProposals);
+        return gamesOnDate;
     }
 
-    private static DivisionFixtureDto AdaptToGame(Proposal proposal)
+    private static List<Proposal> GetProposals(
+        AutoProvisionGamesRequest request,
+        IReadOnlyCollection<Team> teamsToPropose,
+        ActionResultDto<List<DivisionFixtureDateDto>> result,
+        IReadOnlyCollection<Game> existingGames)
     {
-        return new DivisionFixtureDto
-        {
-            Id = Guid.NewGuid(),
-            AwayScore = null,
-            HomeScore = null,
-            HomeTeam = AdaptToTeam(proposal.Home),
-            AwayTeam = AdaptToTeam(proposal.Away),
-        };
-    }
+        var proposals = teamsToPropose
+            .SelectMany(home =>
+            {
+                var exceptHome = teamsToPropose.Except(new[] { home });
 
-    private static DivisionFixtureTeamDto AdaptToTeam(Team team)
-    {
-        return new DivisionFixtureTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Address = team.Address,
-        };
-    }
+                return exceptHome.SelectMany(away =>
+                {
+                    return request.NumberOfLegs == 1
+                        ? new[] { new Proposal(home, away) }
+                        : new[]
+                        {
+                            new Proposal(home, away),
+                            new Proposal(away, home)
+                        };
+                });
+            })
+            .Distinct()
+            .Where(p =>
+            {
+                return !existingGames.Any(g => g.Home.Id == p.Home.Id && g.Away.Id == p.Away.Id);
+            })
+            .Where(p =>
+            {
+                if (p.Home.Address != p.Away.Address)
+                {
+                    return true;
+                }
 
-    private static DivisionFixtureTeamDto AdaptToTeam(GameTeam team, string? address)
-    {
-        return new DivisionFixtureTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Address = address,
-        };
-    }
+                string GetMessage(Team home, Team away)
+                {
+                    return $"{home.Name} cannot ever play against {away.Name} as they have the same venue - {home.Address}";
+                }
 
-    private static DateTime MoveToDay(DateTime referenceDate, DayOfWeek weekDay)
-    {
-        while (referenceDate.DayOfWeek != weekDay)
-        {
-            referenceDate = referenceDate.AddDays(1);
-        }
+                if (!result.Warnings.Contains(GetMessage(p.Away, p.Home)))
+                {
+                    request.LogWarning(result, GetMessage(p.Home, p.Away));
+                }
 
-        return referenceDate;
-    }
+                return false;
 
-    private static DateTime AddDays(DateTime referenceDate, int days, IReadOnlyCollection<DateTime> except)
-    {
-        referenceDate = referenceDate.AddDays(days);
-        while (except.Contains(referenceDate))
-        {
-            referenceDate = referenceDate.AddDays(days);
-        }
+            })
+            .ToList();
 
-        return referenceDate;
-    }
-
-    private class Proposal : IEquatable<Proposal>
-    {
-        public Team Home { get; }
-        public Team Away { get; }
-
-        public Proposal(Team home, Team away)
-        {
-            Home = home;
-            Away = away;
-        }
-
-        public override int GetHashCode()
-        {
-            return Home.GetHashCode() + Away.GetHashCode();
-        }
-
-        public override bool Equals(object? other)
-        {
-            return Equals(other as Proposal);
-        }
-
-        public bool Equals(Proposal? other)
-        {
-            return other != null
-                   && other.Home.Id == Home.Id
-                   && other.Away.Id == Away.Id;
-        }
-
-        public override string ToString()
-        {
-            return $"{Home.Name} vs {Away.Name}";
-        }
+        return proposals;
     }
 }
