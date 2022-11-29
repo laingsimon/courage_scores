@@ -191,9 +191,7 @@ export function Division({ account, apis }) {
                 setDivisionData(newDivisionData);
 
                 setProposalResponse(response);
-                if (!proposalResponse.messages.length && !proposalResponse.warnings.length && !proposalResponse.errors.length) {
-                    setProposalSettingsDialogVisible(false);
-                }
+                setProposalSettingsDialogVisible(false);
             } else {
                 setSaveError(response);
             }
@@ -204,7 +202,6 @@ export function Division({ account, apis }) {
     }
 
     function beginProposeFixtures() {
-        setProposalResponse(null);
         setProposalSettingsDialogVisible(true);
     }
 
@@ -307,7 +304,6 @@ export function Division({ account, apis }) {
                 {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
             </ul>) : null}
             <div className="text-end">
-                {proposalResponse ? (<span className="margin-right text-primary fw-bold">✔ Click close to see the proposed fixtures</span>) : null}
                 <button className="btn btn-success margin-right" onClick={proposeFixtures}>
                     {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Propose Games...
