@@ -27,6 +27,7 @@ export function Division({ account, apis }) {
     const [ saveError, setSaveError ] = useState(null);
     const divisionApi = new DivisionApi(new Http(new Settings()));
     const teamApi = new TeamApi(new Http(new Settings()));
+    const seasonApi = new SeasonApi(new Http(new Settings()));
 
     async function reloadDivisionData() {
         const divisionData = await divisionApi.data(divisionId, seasonId);
@@ -161,6 +162,27 @@ export function Division({ account, apis }) {
         return new Date(dateStr).toDateString().substring(4);
     }
 
+    async function proposeFixtures() {
+        const request = {
+            divisionId: divisionId,
+            seasonId: seasonId || divisionData.season.id,
+            weekDay: 4, // thurs
+            // excludedDates: { "2022-11-30", "reason" }
+            // frequencyDays: 7, not required as weekDay is provided
+            numberOfLegs: 2,
+            // startDate: "2022-01-01" // not required, use season start date
+        };
+
+        const response = await seasonApi.propose(request);
+        if (response.success) {
+            const newDivisionData = Object.assign({}, divisionData);
+            newDivisionData.fixtures = response.result;
+            setDivisionData(newDivisionData);
+        } else {
+            setSaveError(response);
+        }
+    }
+
     return (<div>
         <div className="btn-group py-2">
             {editMode !== 'division' ? (<button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
@@ -249,7 +271,8 @@ export function Division({ account, apis }) {
                 teams={teams}
                 account={account}
                 onNewTeam={reloadDivisionData}
-                onReloadDivision={reloadDivisionData} />)
+                onReloadDivision={reloadDivisionData}
+                onProposeFixtures={proposeFixtures}/>)
             : null}
         {effectiveTab === 'players'
             ? (<DivisionPlayers
