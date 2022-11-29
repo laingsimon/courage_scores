@@ -78,6 +78,9 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                                 Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeams).ToList()
                             };
                     }).ToList();
+            result.Messages = result.Messages.Distinct().ToList();
+            result.Warnings = result.Warnings.Distinct().ToList();
+            result.Errors = result.Errors.Distinct().ToList();
             result.Success = result.Errors.Count == 0;
 
             return result;
@@ -166,7 +169,16 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         {
             if (p.Home.Address == p.Away.Address)
             {
-                result.Warnings.Add($"{p.Home.Name} cannot ever play against {p.Away.Name} as they have the same venue - {p.Home.Address}");
+                string GetMessage(Team home, Team away)
+                {
+                    return $"{home.Name} cannot ever play against {away.Name} as they have the same venue - {home.Address}";
+                }
+
+                if (!result.Warnings.Contains(GetMessage(p.Away, p.Home)))
+                {
+                    result.Warnings.Add(GetMessage(p.Home, p.Away));
+                }
+
                 return true;
             }
 
