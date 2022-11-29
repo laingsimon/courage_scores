@@ -33,7 +33,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             divisionId={divisionId}
             account={account}
             fixture={newFixture}
-            date={newDate}/>);
+            date={newDate}
+            allowTeamDelete={false}
+            allowTeamEdit={false} />);
     }
 
     return (<div className="light-background p-3">
@@ -55,7 +57,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         account={account}
                         fixture={f}
                         readOnly={proposingGames}
-                        date={date.date}/>))}
+                        date={date.date}
+                        allowTeamDelete={false}
+                        allowTeamEdit={false} />))}
                     </tbody>
                 </table>
             </div>))}

@@ -9,7 +9,7 @@ import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 
-export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly }) {
+export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -269,10 +269,10 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
     return (<tr key={fixture.id} className={deleting ? 'text-decoration-line-through' : ''}>
         <td>
-            {isAdmin ? (
+            {isAdmin && allowTeamEdit ? (
                 <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>
             ) : null}
-            {isAdmin ? (
+            {isAdmin && allowTeamDelete ? (
                 <button className={`btn btn-sm ${awayTeamId ? 'btn-secondary' : 'btn-danger'} margin-right`}
                         onClick={deleteTeam} disabled={awayTeamId || readOnly}>
                     {deletingHomeTeam ? (
@@ -288,7 +288,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         <td className="narrow-column">vs</td>
         <td className="narrow-column text-primary fw-bolder">{fixture.awayScore}</td>
         <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
-            {isAdmin ? (
+            {isAdmin && allowTeamEdit ? (
                 <button className={`btn btn-sm ${awayTeamId ? 'btn-primary' : 'btn-secondary'} margin-right`}
                         disabled={!awayTeamId || readOnly} onClick={() => {
                     if (awayTeamId) {
