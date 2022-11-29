@@ -1,11 +1,11 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Repository;
+using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Season;
@@ -14,7 +14,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 {
     private readonly IUserService _userService;
     private readonly IGenericRepository<Team> _teamRepository;
-    private readonly IGenericRepository<Game> _gameRepository;
+    private readonly IDivisionService _divisionService;
 
     public SeasonService(
         IGenericRepository<Models.Cosmos.Season> repository,
@@ -22,12 +22,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IUserService userService,
         IAuditingHelper auditingHelper,
         IGenericRepository<Team> teamRepository,
-        IGenericRepository<Game> gameRepository)
+        IDivisionService divisionService)
         : base(repository, adapter, userService, auditingHelper)
     {
         _userService = userService;
         _teamRepository = teamRepository;
-        _gameRepository = gameRepository;
+        _divisionService = divisionService;
     }
 
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
@@ -146,24 +146,16 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             yield break;
         }
 
-        var existingGames = await _gameRepository
-            .GetSome($"t.DivisionId = '{request.DivisionId}'", token)
-            .WhereAsync(g => g.Deleted == null && g.SeasonId == season.Id)
-            .ToList();
+        var divisionData = await _divisionService.GetDivisionData(request.DivisionId, request.SeasonId, token);
 
-        foreach (var existingFixtureDate in existingGames.GroupBy(g => g.Date))
+        var existingGames = divisionData.Fixtures;
+
+        foreach (var existingFixtureDate in existingGames)
         {
             yield return new DivisionFixtureDateDto
             {
-                Date = existingFixtureDate.Key,
-                Fixtures = existingFixtureDate.Select(g => new DivisionFixtureDto
-                {
-                    Id = g.Id,
-                    AwayScore = null,
-                    AwayTeam = g.Away.AdaptToTeam(null),
-                    HomeScore = null,
-                    HomeTeam = g.Home.AdaptToTeam(g.Address),
-                }).ToList()
+                Date = existingFixtureDate.Date,
+                Fixtures = existingFixtureDate.Fixtures,
             };
         }
 
@@ -194,18 +186,23 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private static DivisionFixtureDateDto CreateFixturesForDate(
         AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
-        IReadOnlyCollection<Game> existingGames,
+        List<DivisionFixtureDateDto> existingGames,
         DateTime currentDate,
         List<Proposal> proposals,
         CancellationToken token)
     {
         var addressesInUseOnDate = existingGames
-            .Where(g => g.Date == currentDate)
-            .Select(g => g.Address)
+            .Where(fixtureDate => fixtureDate.Date == currentDate)
+            .SelectMany(fixtureDate => fixtureDate.Fixtures)
+            .Where(fixture => fixture.AwayTeam != null)
+            .Select(fixture => fixture.HomeTeam.Address)
+            .Where(addr => !string.IsNullOrEmpty(addr))
             .ToHashSet();
         var teamsInPlayOnDate = existingGames
-            .Where(g => g.Date == currentDate)
-            .SelectMany(g => new[] { g.Home.Id, g.Away.Id })
+            .Where(fixtureDate => fixtureDate.Date == currentDate)
+            .SelectMany(fixtureDate => fixtureDate.Fixtures)
+            .Where(fixture => fixture.AwayTeam != null)
+            .SelectMany(fixture => new[] {fixture.HomeTeam.Id, fixture.AwayTeam!.Id})
             .ToHashSet();
 
         var incompatibleProposals = new List<Proposal>();
@@ -249,7 +246,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         AutoProvisionGamesRequest request,
         IReadOnlyCollection<Team> teamsToPropose,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
-        IReadOnlyCollection<Game> existingGames)
+        List<DivisionFixtureDateDto> existingDate)
     {
         var proposals = teamsToPropose
             .SelectMany(home =>
@@ -270,7 +267,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             .Distinct()
             .Where(p =>
             {
-                return !existingGames.Any(g => g.Home.Id == p.Home.Id && g.Away.Id == p.Away.Id);
+                return !existingDate.SelectMany(fixtureDate => fixtureDate.Fixtures).Any(f =>
+                    f.HomeTeam.Id == p.Home.Id && f.AwayTeam != null && f.AwayTeam.Id == p.Away.Id);
             })
             .Where(p =>
             {
