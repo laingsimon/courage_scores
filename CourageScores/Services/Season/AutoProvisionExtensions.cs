@@ -22,7 +22,7 @@ public static class AutoProvisionExtensions
     {
         if (request.LogLevel <= LogLevel.Warning)
         {
-            result.Messages.Add(message);
+            result.Warnings.Add(message);
         }
     }
 

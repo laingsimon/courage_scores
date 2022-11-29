@@ -167,12 +167,12 @@ export function Division({ account, apis }) {
             divisionId: divisionId,
             seasonId: seasonId || divisionData.season.id,
             // teams: [ 'ede4cfe8-280a-4cf2-8f6b-b0dffd4d4075', 'e147f2a9-f494-436c-bc55-bf5dde4070a2', '1f533f5b-b709-4d75-8229-465e6aaec7df' ],
-            weekDay: 4, // thurs
+            weekDay: 'Thursday',
             // excludedDates: { "2022-11-30", "reason" }
             // frequencyDays: 7, not required as weekDay is provided
             numberOfLegs: 2,
             // startDate: "2022-01-01" // not required, use season start date
-            logLevel: "Warning"
+            logLevel: 'Warning'
         };
 
         setUpdatingData(true);

@@ -46,7 +46,7 @@ public class SeasonController : Controller
     }
 
     [HttpPost("/api/Season/ProposeGames/")]
-    public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProvisionGames(AutoProvisionGamesRequest request, CancellationToken token)
+    public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProvisionGames([FromBody] AutoProvisionGamesRequest request, CancellationToken token)
     {
         return await _seasonService.ProposeGames(request, token);
     }

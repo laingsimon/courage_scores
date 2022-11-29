@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
 namespace CourageScores.Models.Dtos.Season;
 
 /// <summary>
@@ -26,7 +23,6 @@ public class AutoProvisionGamesRequest
     /// <summary>
     /// [Optional] Which day of the week should the games occur on?
     /// </summary>
-    [JsonConverter(typeof(StringEnumConverter))]
     public DayOfWeek? WeekDay { get; set; } = DayOfWeek.Thursday;
 
     /// <summary>
