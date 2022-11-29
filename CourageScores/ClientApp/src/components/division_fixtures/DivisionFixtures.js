@@ -69,12 +69,13 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         onReloadDivision={onReloadDivision}
                         account={account}
                         fixture={f}
+                        readOnly={proposingGames}
                         date={date.date}/>))}
                     </tbody>
                 </table>
             </div>))}
         </div>
-        {isAdmin ? (<div className="mt-3">
+        {isAdmin && !proposingGames ? (<div className="mt-3">
             <div>
                 <span className="margin-right">New fixture:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />

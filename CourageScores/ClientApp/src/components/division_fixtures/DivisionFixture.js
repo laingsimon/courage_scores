@@ -9,7 +9,7 @@ import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 
-export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId}) {
+export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -126,6 +126,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             options={options}
             onOpen={toggleCellClip}
             disabled={deleting}
+            readOnly={readOnly}
         />);
     }
 
@@ -135,7 +136,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
     async function saveTeamChange() {
         try {
-            if (saving || deleting) {
+            if (saving || deleting || readOnly) {
                 return;
             }
 
@@ -176,7 +177,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     }
 
     async function deleteGame() {
-        if (deleting || saving) {
+        if (deleting || saving || readOnly) {
             return;
         }
 
@@ -201,7 +202,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     }
 
     async function deleteTeam() {
-        if (deleting || saving) {
+        if (deleting || saving || readOnly) {
             return;
         }
 
@@ -225,6 +226,10 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     }
 
     function editTeam(type) {
+        if (readOnly) {
+            return;
+        }
+
         setTeamDetails(Object.assign({}, fixture[type + 'Team']));
         setEditTeamMode(type);
     }
@@ -244,6 +249,10 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     }
 
     function renderEditTeam() {
+        if (readOnly) {
+            return;
+        }
+
         return (<Dialog title={`Edit team: ${fixture[editTeamMode + 'Team'].name}`}>
             <EditTeamDetails
                 id={teamDetails.id}
@@ -261,11 +270,11 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     return (<tr key={fixture.id} className={deleting ? 'text-decoration-line-through' : ''}>
         <td>
             {isAdmin ? (
-                <button className="btn btn-sm btn-primary margin-right" onClick={() => editTeam('home')}>✏</button>
+                <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>
             ) : null}
             {isAdmin ? (
                 <button className={`btn btn-sm ${awayTeamId ? 'btn-secondary' : 'btn-danger'} margin-right`}
-                        onClick={deleteTeam} disabled={awayTeamId}>
+                        onClick={deleteTeam} disabled={awayTeamId || readOnly}>
                     {deletingHomeTeam ? (
                         <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : (
                         <span>🗑</span>)}
@@ -281,7 +290,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
             {isAdmin ? (
                 <button className={`btn btn-sm ${awayTeamId ? 'btn-primary' : 'btn-secondary'} margin-right`}
-                        disabled={!awayTeamId} onClick={() => {
+                        disabled={!awayTeamId || readOnly} onClick={() => {
                     if (awayTeamId) {
                         editTeam('away')
                     }
@@ -291,14 +300,14 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         </td>
         <td className="medium-column-width">
             {isAdmin && awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
-                ? (<button onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
+                ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
             {awayTeamId && (fixture.id !== fixture.homeTeam.id) ?
                 <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>🎯</Link> : null}
             {isAdmin && awayTeamId && !saving && !deleting ? (
-                <button className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
+                <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save fixture details"/>) : null}
         </td>
