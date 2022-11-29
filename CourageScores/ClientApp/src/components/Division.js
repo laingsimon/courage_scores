@@ -203,6 +203,7 @@ export function Division({ account, apis }) {
     }
 
     function beginProposeFixtures() {
+        setProposalResponse(null);
         setProposalSettingsDialogVisible(true);
     }
 
