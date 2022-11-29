@@ -1,4 +1,6 @@
-﻿namespace CourageScores.Models.Dtos;
+﻿using CourageScores.Models.Dtos.Season;
+
+namespace CourageScores.Models.Dtos;
 
 /// <summary>
 /// A record of all the data within the league

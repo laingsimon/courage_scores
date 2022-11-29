@@ -1,7 +1,7 @@
 ﻿using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 
-namespace CourageScores.Models.Dtos;
+namespace CourageScores.Models.Dtos.Season;
 
 /// <summary>
 /// A record of a season within the league

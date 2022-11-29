@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
@@ -10,13 +9,13 @@ namespace CourageScores.Services.Command;
 public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
 {
     private readonly IGenericRepository<Team> _teamRepository;
-    private readonly IGenericRepository<Season> _seasonRepository;
+    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IGenericDataService<Team, TeamDto> _teamService;
 
     public AddOrUpdateGameCommand(
         IGenericRepository<Team> teamRepository,
-        IGenericRepository<Season> seasonRepository,
+        IGenericRepository<Models.Cosmos.Season> seasonRepository,
         ICommandFactory commandFactory,
         IGenericDataService<Team, TeamDto> teamService)
     {
@@ -67,7 +66,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         return CommandResult.SuccessNoMessage;
     }
 
-    private async Task<GameTeam> UpdateTeam(Guid teamId, Season season, CancellationToken token)
+    private async Task<GameTeam> UpdateTeam(Guid teamId, Models.Cosmos.Season season, CancellationToken token)
     {
         var team = await _teamRepository.Get(teamId, token);
 

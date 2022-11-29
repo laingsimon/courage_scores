@@ -1,8 +1,8 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
@@ -13,13 +13,13 @@ public class DivisionService : IDivisionService
 {
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
     private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
-    private readonly IGenericDataService<Season, SeasonDto> _genericSeasonService;
+    private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Game> _gameRepository;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
         IGenericDataService<Team, TeamDto> genericTeamService,
-        IGenericDataService<Season, SeasonDto> genericSeasonService,
+        IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Game> gameRepository)
     {
         _genericDivisionService = genericDivisionService;

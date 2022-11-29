@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
@@ -12,14 +11,14 @@ namespace CourageScores.Services.Command;
 public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
 {
     private readonly IUserService _userService;
-    private readonly IGenericRepository<Season> _seasonRepository;
+    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ISystemClock _clock;
     private readonly IGenericRepository<Game> _gameRepository;
     private Guid? _playerId;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
 
-    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Season> seasonRepository, ISystemClock clock, IGenericRepository<Game> gameRepository)
+    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Models.Cosmos.Season> seasonRepository, ISystemClock clock, IGenericRepository<Game> gameRepository)
     {
         _userService = userService;
         _seasonRepository = seasonRepository;
