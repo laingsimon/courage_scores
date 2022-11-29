@@ -29,6 +29,7 @@ export function Division({ account, apis }) {
     const [ proposingGames, setProposingGames ] = useState(false);
     const [ proposalSettings, setProposalSettings ] = useState(null);
     const [ proposalResponse, setProposalResponse ] = useState(null);
+    const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
     const divisionApi = new DivisionApi(new Http(new Settings()));
     const teamApi = new TeamApi(new Http(new Settings()));
     const seasonApi = new SeasonApi(new Http(new Settings()));
@@ -56,6 +57,17 @@ export function Division({ account, apis }) {
             const divisionData = await divisionApi.data(divisionId, seasonId);
             const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
             setDivisionData(divisionData);
+            setProposalSettings({
+                divisionId: divisionId,
+                seasonId: seasonId || divisionData.season.id,
+                teams: [ ],
+                weekDay: 'Thursday',
+                excludedDates: { },
+                // frequencyDays: 7, not required as weekDay is provided
+                numberOfLegs: 2,
+                // startDate: "2022-01-01" // not required, use season start date
+                logLevel: 'Warning'
+            });
             setTeams(teams);
             setSeasonData({
                 id: divisionData.season.id,
@@ -178,6 +190,9 @@ export function Division({ account, apis }) {
                 setDivisionData(newDivisionData);
 
                 setProposalResponse(response);
+                if (!proposalResponse.messages.length && !proposalResponse.warnings.length && !proposalResponse.errors.length) {
+                    setProposalSettingsDialogVisible(false);
+                }
             } else {
                 setSaveError(response);
             }
@@ -188,17 +203,7 @@ export function Division({ account, apis }) {
     }
 
     function beginProposeFixtures() {
-        setProposalSettings({
-            divisionId: divisionId,
-            seasonId: seasonId || divisionData.season.id,
-            // teams: [ 'ede4cfe8-280a-4cf2-8f6b-b0dffd4d4075', 'e147f2a9-f494-436c-bc55-bf5dde4070a2', '1f533f5b-b709-4d75-8229-465e6aaec7df' ],
-            weekDay: 'Thursday',
-            // excludedDates: { "2022-11-30", "reason" }
-            // frequencyDays: 7, not required as weekDay is provided
-            numberOfLegs: 2,
-            // startDate: "2022-01-01" // not required, use season start date
-            logLevel: 'Warning'
-        });
+        setProposalSettingsDialogVisible(true);
     }
 
     function updateProposalSettings(event) {
@@ -249,13 +254,13 @@ export function Division({ account, apis }) {
                     {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Propose Games...
                 </button>
-                <button className="btn btn-primary margin-right" onClick={() => setProposalSettings(null)}>Close</button>
+                <button className="btn btn-primary margin-right" onClick={() => setProposalSettingsDialogVisible(false)}>Close</button>
             </div>
         </Dialog></div>)
     }
 
     return (<div>
-        {proposalSettings ? renderProposalSettings() : null}
+        {proposalSettingsDialogVisible ? renderProposalSettings() : null}
         <div className="btn-group py-2">
             {editMode !== 'division' ? (<button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
                 {divisionName}
