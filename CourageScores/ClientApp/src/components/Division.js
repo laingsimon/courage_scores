@@ -237,6 +237,20 @@ export function Division({ account, apis }) {
                 </div>
                 <div className="input-group my-3">
                     <div className="input-group-prepend">
+                        <span className="input-group-text">Day of week</span>
+                    </div>
+                    <select disabled={proposingGames} value={proposalSettings.weekDay} onChange={updateProposalSettings} name="weekDay">
+                        <option value="Monday">Monday</option>
+                        <option value="Tuesday">Tuesday</option>
+                        <option value="Wednesday">Wednesday</option>
+                        <option value="Thursday">Thursday</option>
+                        <option value="Friday">Friday</option>
+                        <option value="Saturday">Saturday</option>
+                        <option value="Sunday">Sunday</option>
+                    </select>
+                </div>
+                <div className="input-group my-3">
+                    <div className="input-group-prepend">
                         <span className="input-group-text">Log level</span>
                     </div>
                     <select name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
