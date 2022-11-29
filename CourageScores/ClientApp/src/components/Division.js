@@ -63,6 +63,7 @@ export function Division({ account, apis }) {
                 teams: [ ],
                 weekDay: 'Thursday',
                 excludedDates: { },
+                newExclusion: { date: '', reason: '' },
                 // frequencyDays: 7, not required as weekDay is provided
                 numberOfLegs: 2,
                 // startDate: "2022-01-01" // not required, use season start date
@@ -213,6 +214,31 @@ export function Division({ account, apis }) {
         setProposalSettings(newProposalSettings);
     }
 
+    function updateNewExclusion(event) {
+        const newProposalSettings = Object.assign({}, proposalSettings);
+        newProposalSettings.newExclusion[event.target.name] = event.target.value;
+        setProposalSettings(newProposalSettings);
+    }
+
+    function addDateExclusion() {
+        if (!proposalSettings.newExclusion.date) {
+            window.alert('Enter a date first');
+            return;
+        }
+
+        const newProposalSettings = Object.assign({}, proposalSettings);
+        const newExclusion = newProposalSettings.newExclusion;
+        newProposalSettings.newExclusion = { date: '', reason: '' };
+        newProposalSettings.excludedDates[newExclusion.date] = newExclusion.reason;
+        setProposalSettings(newProposalSettings);
+    }
+
+    function removeDateExclusion(date) {
+        const newProposalSettings = Object.assign({}, proposalSettings);
+        delete newProposalSettings.excludedDates[date];
+        setProposalSettings(newProposalSettings);
+    }
+
     function renderProposalSettings() {
         let index = 0;
 
@@ -248,6 +274,25 @@ export function Division({ account, apis }) {
                         <option value="Saturday">Saturday</option>
                         <option value="Sunday">Sunday</option>
                     </select>
+                </div>
+                <div className="px-4">
+                    <h6>Excluded dates</h6>
+                    {Object.keys(proposalSettings.excludedDates).map(date => (<div key={date}>
+                        <span className="margin-right">{new Date(date).toDateString()}</span>
+                        {proposalSettings.excludedDates[date] ? (<span>({proposalSettings.excludedDates[date]})</span>) : null}
+                        <button className="btn btn-sm btn-danger" onClick={() => removeDateExclusion(date)}>🗑</button>
+                    </div>))}
+                    <div className="input-group my-2">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">Date</span>
+                        </div>
+                        <input type="date" value={proposalSettings.newExclusion.date} name="date" onChange={updateNewExclusion} className="margin-right" />
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">Reason</span>
+                        </div>
+                        <input type="text" value={proposalSettings.newExclusion.reason} name="reason" onChange={updateNewExclusion} className="margin-right" />
+                        <button className="btn btn-sm btn-primary" onClick={addDateExclusion}>+</button>
+                    </div>
                 </div>
                 <div className="input-group my-3">
                     <div className="input-group-prepend">
