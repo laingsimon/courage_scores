@@ -48,4 +48,9 @@ public class AutoProvisionGamesRequest
     /// Start the games from this date, rather than the season start date
     /// </summary>
     public DateTime? StartDate { get; set; }
+
+    /// <summary>
+    /// The level of logging to return
+    /// </summary>
+    public LogLevel LogLevel { get; set; } = LogLevel.Warning;
 }

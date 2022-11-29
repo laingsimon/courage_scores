@@ -174,7 +174,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     return $"{home.Name} cannot ever play against {away.Name} as they have the same venue - {home.Address}";
                 }
 
-                if (!result.Warnings.Contains(GetMessage(p.Away, p.Home)))
+                if (request.LogLevel <= LogLevel.Warning && !result.Warnings.Contains(GetMessage(p.Away, p.Home)))
                 {
                     result.Warnings.Add(GetMessage(p.Home, p.Away));
                 }
@@ -205,7 +205,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
         while (proposals.Count > 0)
         {
-            result.Messages.Add($"Iteration {iteration}");
+            if (request.LogLevel <= LogLevel.Information)
+            {
+                result.Messages.Add($"Iteration {iteration}");
+            }
+
             if (iteration > maxIterations)
             {
                 result.Errors.Add($"Reached maximum attempts ({maxIterations}), exiting to prevent infinite loop");
@@ -238,14 +242,24 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
                 {
                     incompatibleProposals.Add(proposal);
-                    result.Messages.Add($"{currentDate:yyyy-MM-dd}: Home and/or Away are already playing, skipping");
+                    if (request.LogLevel <= LogLevel.Information)
+                    {
+                        result.Messages.Add(
+                            $"{currentDate:yyyy-MM-dd}: Home and/or Away are already playing, skipping");
+                    }
+
                     continue;
                 }
 
                 if (addressesInUseOnDate.Contains(proposal.Home.Address))
                 {
                     incompatibleProposals.Add(proposal);
-                    result.Messages.Add($"{currentDate:yyyy-MM-dd}: Address {proposal.Home.Address} is already in use, skipping");
+                    if (request.LogLevel <= LogLevel.Information)
+                    {
+                        result.Messages.Add(
+                            $"{currentDate:yyyy-MM-dd}: Address {proposal.Home.Address} is already in use, skipping");
+                    }
+
                     continue;
                 }
 
