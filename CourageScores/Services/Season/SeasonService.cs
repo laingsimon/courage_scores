@@ -57,21 +57,25 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             };
         }
 
+        var allTeams = await _teamRepository
+            .GetSome($"t.DivisionId = '{request.DivisionId}'", token)
+            .WhereAsync(t => t.Deleted == null)
+            .ToList();
+
         try
         {
             var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
-            var datesAndGames = await ProposeGamesInt(request, season, result, token).ToList();
+            var datesAndGames = await ProposeGamesInt(request, season, allTeams, result, token).ToList();
             result.Result =
                 datesAndGames //regroup the results, in case existing games are reported before proposed games for the same date
                     .GroupBy(d => d.Date)
+                    .OrderBy(g => g.Key)
                     .Select(g =>
                     {
-                        return g.Count() == 1
-                            ? g.Single()
-                            : new DivisionFixtureDateDto
+                        return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = g.SelectMany(f => f.Fixtures).ToList()
+                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeams).ToList()
                             };
                     }).ToList();
             result.Success = result.Errors.Count == 0;
@@ -90,21 +94,52 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> ProposeGamesInt(AutoProvisionGamesRequest request,
+    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IReadOnlyCollection<Team> allTeams)
+    {
+        var teamIds = new HashSet<Guid>();
+
+        foreach (var fixture in fixtures)
+        {
+            teamIds.Add(fixture.HomeTeam.Id);
+            if (fixture.AwayTeam != null)
+            {
+                teamIds.Add(fixture.AwayTeam.Id);
+            }
+
+            yield return fixture;
+        }
+
+        foreach (var missingTeam in allTeams.Where(t => !teamIds.Contains(t.Id)))
+        {
+            yield return new DivisionFixtureDto
+            {
+                Id = missingTeam.Id,
+                AwayScore = null,
+                HomeScore = null,
+                AwayTeam = null,
+                HomeTeam = new DivisionFixtureTeamDto
+                {
+                    Address = missingTeam.Address,
+                    Id = missingTeam.Id,
+                    Name = missingTeam.Name,
+                }
+            };
+        }
+    }
+
+    private async IAsyncEnumerable<DivisionFixtureDateDto> ProposeGamesInt(
+        AutoProvisionGamesRequest request,
         SeasonDto season,
+        List<Team> allTeams,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
         [EnumeratorCancellation] CancellationToken token)
     {
         var iteration = 1;
         var rand = new Random();
-        var teams = await _teamRepository
-            .GetSome($"t.DivisionId = '{request.DivisionId}'", token)
-            .WhereAsync(t => t.Deleted == null)
-            .ToList();
         var teamsToPropose = request.Teams.Any()
-            ? teams.Join(request.Teams, t => t.Id, id => id, (t, _) => t).ToArray()
-            : teams.ToArray();
-        if (teams.Count < 2)
+            ? allTeams.Join(request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
+            : allTeams;
+        if (teamsToPropose.Count < 2)
         {
             result.Errors.Add("Insufficient teams");
             yield break;
@@ -125,6 +160,17 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         proposals.RemoveAll(p =>
         {
             return existingGames.Any(g => g.Home.Id == p.Home.Id && g.Away.Id == p.Away.Id);
+        });
+
+        proposals.RemoveAll(p =>
+        {
+            if (p.Home.Address == p.Away.Address)
+            {
+                result.Warnings.Add($"{p.Home.Name} cannot ever play against {p.Away.Name} as they have the same venue - {p.Home.Address}");
+                return true;
+            }
+
+            return false;
         });
 
         foreach (var existingFixtureDate in existingGames.GroupBy(g => g.Date))
@@ -210,7 +256,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     {
         return new DivisionFixtureDto
         {
-            Id = Guid.Empty,
+            Id = Guid.NewGuid(),
             AwayScore = null,
             HomeScore = null,
             HomeTeam = AdaptToTeam(proposal.Home),
