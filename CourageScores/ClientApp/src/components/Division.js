@@ -191,7 +191,9 @@ export function Division({ account, apis }) {
                 setDivisionData(newDivisionData);
 
                 setProposalResponse(response);
-                setProposalSettingsDialogVisible(false);
+                if (!response.messages.length && !response.warnings.length && !response.errors.length) {
+                    setProposalSettingsDialogVisible(false);
+                }
             } else {
                 setSaveError(response);
             }
@@ -288,7 +290,7 @@ export function Division({ account, apis }) {
                 </div>
                 <div className="input-group my-3">
                     <div className="input-group-prepend">
-                        <span className="input-group-text">Log level</span>
+                        <span className="input-group-text">Show</span>
                     </div>
                     <select name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
                         <option value="Information">Everything</option>
