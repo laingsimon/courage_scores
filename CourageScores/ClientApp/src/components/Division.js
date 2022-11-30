@@ -238,6 +238,10 @@ export function Division({ account, apis }) {
         setProposalSettings(newProposalSettings);
     }
 
+    async function saveProposals() {
+        window.alert('Not implemented');
+    }
+
     function renderProposalSettings() {
         let index = 0;
 
@@ -307,7 +311,7 @@ export function Division({ account, apis }) {
             </ul></div>) : null}
             <div className="text-end">
                 <button className="btn btn-success margin-right" onClick={proposeFixtures}>
-                    {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                    {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎲'}
                     Propose Games...
                 </button>
                 <button disabled={proposingGames} className="btn btn-primary margin-right" onClick={() => { if (!proposingGames) { setProposalSettingsDialogVisible(false) } }}>Close</button>
@@ -406,7 +410,8 @@ export function Division({ account, apis }) {
                 onNewTeam={reloadDivisionData}
                 onReloadDivision={reloadDivisionData}
                 onProposeFixtures={beginProposeFixtures}
-                proposingGames={proposingGames} />)
+                proposingGames={proposingGames}
+                onSaveProposals={proposalResponse != null ? saveProposals : null} />)
             : null}
         {effectiveTab === 'players'
             ? (<DivisionPlayers

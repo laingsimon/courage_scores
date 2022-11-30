@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {NewFixtureDate} from "./scores/NewFixtureDate";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam, onProposeFixtures, proposingGames }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam, onProposeFixtures, proposingGames, onSaveProposals }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
 
@@ -39,9 +39,15 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     return (<div className="light-background p-3">
-        {isAdmin && onProposeFixtures ? (<div><button className="btn btn-success" onClick={onProposeFixtures}>
-            Propose games...
-        </button></div>) : null}
+        {isAdmin ? (<div className="mb-3">
+            <span className="margin-right">Admin tools:</span>
+            {onProposeFixtures ? (<button className="btn btn-primary margin-right" onClick={onProposeFixtures}>
+                {onSaveProposals ? '🎲 Propose games (again)...' : '🎲 Propose games...'}
+            </button>) : null}
+            {onSaveProposals ? (<button className="btn btn-success" onClick={onSaveProposals}>
+                💾 Save proposals...
+            </button>) : null}
+        </div>) : null}
         <div>
             {fixtures.map(date => (<div key={date.date}>
                 <h4>{new Date(date.date).toDateString()}</h4>
