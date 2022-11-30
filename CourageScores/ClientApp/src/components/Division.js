@@ -299,12 +299,12 @@ export function Division({ account, apis }) {
                     </select>
                 </div>
             </div>
-            {proposalResponse ? (<ul>
+            {proposalResponse ? (<div className="overflow-auto max-scroll-height"><ul>
                 {proposalResponse.errors && proposalResponse.errors.length ? proposalResponse.errors.map(e => (<li key={index++} className="text-danger">{e}</li>)) : null}
                 {proposalResponse.errors && !proposalResponse.errors.length ? (renderValidationErrors(proposalResponse.errors)): null}
                 {proposalResponse.warnings ? proposalResponse.warnings.map(w => (<li key={index++} className="text-warning">{w}</li>)) : null}
                 {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
-            </ul>) : null}
+            </ul></div>) : null}
             <div className="text-end">
                 <button className="btn btn-success margin-right" onClick={proposeFixtures}>
                     {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
