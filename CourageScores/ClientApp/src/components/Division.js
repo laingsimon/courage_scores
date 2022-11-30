@@ -278,21 +278,21 @@ export function Division({ account, apis }) {
                     <h6>Excluded dates</h6>
                     {Object.keys(proposalSettings.excludedDates).map(date => (<div key={date}>
                         <span className="margin-right">{new Date(date).toDateString()}</span>
-                        <button className="btn btn-sm btn-danger" onClick={() => removeDateExclusion(date)}>🗑</button>
+                        <button disabled={proposingGames} className="btn btn-sm btn-danger" onClick={() => removeDateExclusion(date)}>🗑</button>
                     </div>))}
                     <div className="input-group my-2">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Date</span>
                         </div>
-                        <input type="date" value={proposalSettings.newExclusion.date} name="date" onChange={updateNewExclusion} className="margin-right" />
-                        <button className="btn btn-sm btn-primary" onClick={addDateExclusion}>+</button>
+                        <input disabled={proposingGames} type="date" value={proposalSettings.newExclusion.date} name="date" onChange={updateNewExclusion} className="margin-right" />
+                        <button disabled={proposingGames} className="btn btn-sm btn-primary" onClick={addDateExclusion}>+</button>
                     </div>
                 </div>
                 <div className="input-group my-3">
                     <div className="input-group-prepend">
                         <span className="input-group-text">Show</span>
                     </div>
-                    <select name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
+                    <select disabled={proposingGames} name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
                         <option value="Information">Everything</option>
                         <option value="Warning">Warnings and Errors</option>
                         <option value="Error">Errors only</option>
@@ -310,7 +310,7 @@ export function Division({ account, apis }) {
                     {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Propose Games...
                 </button>
-                <button className="btn btn-primary margin-right" onClick={() => setProposalSettingsDialogVisible(false)}>Close</button>
+                <button disabled={proposingGames} className="btn btn-primary margin-right" onClick={() => { if (!proposingGames) { setProposalSettingsDialogVisible(false) } }}>Close</button>
             </div>
         </Dialog></div>)
     }
