@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -15,6 +16,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private readonly IUserService _userService;
     private readonly IGenericRepository<Team> _teamRepository;
     private readonly IDivisionService _divisionService;
+    private readonly IGenericRepository<Game> _gameRepository;
 
     public SeasonService(
         IGenericRepository<Models.Cosmos.Season> repository,
@@ -22,12 +24,14 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IUserService userService,
         IAuditingHelper auditingHelper,
         IGenericRepository<Team> teamRepository,
-        IDivisionService divisionService)
+        IDivisionService divisionService,
+        IGenericRepository<Game> gameRepository)
         : base(repository, adapter, userService, auditingHelper)
     {
         _userService = userService;
         _teamRepository = teamRepository;
         _divisionService = divisionService;
+        _gameRepository = gameRepository;
     }
 
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
@@ -153,8 +157,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         var iteration = 1;
         while (proposals.Count > 0)
         {
-            request.LogInfo(result, $"Iteration {iteration}");
-
             if (iteration > maxIterations)
             {
                 result.Errors.Add($"Reached maximum attempts ({maxIterations}), exiting to prevent infinite loop");
@@ -162,13 +164,13 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             }
 
             token.ThrowIfCancellationRequested();
-            yield return CreateFixturesForDate(request, result, existingGames, currentDate, proposals, token);
+            yield return await CreateFixturesForDate(request, result, existingGames, currentDate, proposals, token);
             currentDate = currentDate.AddDays(request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
             iteration++;
         }
     }
 
-    private static DivisionFixtureDateDto CreateFixturesForDate(
+    private async Task<DivisionFixtureDateDto> CreateFixturesForDate(
         AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
         IReadOnlyCollection<DivisionFixtureDateDto> existingGames,
@@ -176,13 +178,10 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         List<Proposal> proposals,
         CancellationToken token)
     {
-        var addressesInUseOnDate = existingGames
-            .Where(fixtureDate => fixtureDate.Date == currentDate)
-            .SelectMany(fixtureDate => fixtureDate.Fixtures)
-            .Where(fixture => fixture.AwayTeam != null)
-            .Select(fixture => fixture.HomeTeam.Address)
-            .Where(addr => !string.IsNullOrEmpty(addr))
-            .ToHashSet();
+        // ensure fixtures from ANY division are included in reserved addresses
+        var addressesInUseOnDate = await _gameRepository.GetSome($"t.Date = '{currentDate:yyyy-MM-dd}T00:00:00'", token)
+            .WhereAsync(game => !string.IsNullOrEmpty(game.Address))
+            .ToDictionaryAsync(game => game.Address, game => new { divisionId = game.DivisionId, homeTeam = game.Home.Name, awayTeam = game.Away.Name });
         var teamsInPlayOnDate = existingGames
             .Where(fixtureDate => fixtureDate.Date == currentDate)
             .SelectMany(fixtureDate => fixtureDate.Fixtures)
@@ -205,17 +204,22 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
             if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
             {
-                IncompatibleProposal(proposal, "Home and/or Away are already playing, skipping");
+                IncompatibleProposal(proposal, $"{proposal.Home.Name} and/or {proposal.Away.Name} are already playing");
                 continue;
             }
 
-            if (addressesInUseOnDate.Contains(proposal.Home.Address))
+            if (addressesInUseOnDate.ContainsKey(proposal.Home.Address))
             {
-                IncompatibleProposal(proposal, $"Address {proposal.Home.Address} is already in use, skipping");
+                var inUseBy = addressesInUseOnDate[proposal.Home.Address];
+                var division = inUseBy.divisionId == request.DivisionId
+                    ? null
+                    : (await _divisionService.Get(inUseBy.divisionId, token)) ?? new DivisionDto
+                        { Name = inUseBy.divisionId.ToString() };
+                IncompatibleProposal(proposal, $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}");
                 continue;
             }
 
-            addressesInUseOnDate.Add(proposal.Home.Address);
+            addressesInUseOnDate.Add(proposal.Home.Address, new { divisionId = request.DivisionId, homeTeam = proposal.Home.Name, awayTeam = proposal.Away.Name });
             teamsInPlayOnDate.Add(proposal.Home.Id);
             teamsInPlayOnDate.Add(proposal.Away.Id);
 

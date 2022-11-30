@@ -90,4 +90,35 @@ public static class AsyncEnumerableExtensions
 
         return default;
     }
+
+    public static async Task<HashSet<T>> ToHashSetAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
+    {
+        var hashSet = new HashSet<T>();
+
+        await foreach (var item in asyncEnumerable)
+        {
+            hashSet.Add(item);
+        }
+
+        return hashSet;
+    }
+
+    public static async Task<Dictionary<TKey, T>> ToDictionaryAsync<T, TKey>(
+        this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> keySelector) where TKey : notnull
+    {
+        return await asyncEnumerable.ToDictionaryAsync(keySelector, item => item);
+    }
+
+    public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> keySelector, Func<T, TValue> valueSelector)
+        where TKey : notnull
+    {
+        var dict = new Dictionary<TKey, TValue>();
+
+        await foreach (var item in asyncEnumerable)
+        {
+            dict.Add(keySelector(item), valueSelector(item));
+        }
+
+        return dict;
+    }
 }
