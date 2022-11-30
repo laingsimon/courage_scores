@@ -36,30 +36,17 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         var user = await _userService.GetUser();
         if (user?.Access?.ManageGames != true)
         {
-            return new ActionResultDto<List<DivisionFixtureDateDto>>
-            {
-                Errors = new List<string>
-                {
-                    "Not permitted"
-                }
-            };
+            return this.Error("Not permitted");
         }
 
         var season = await Get(request.SeasonId, token);
         if (season == null)
         {
-            return new ActionResultDto<List<DivisionFixtureDateDto>>
-            {
-                Errors = new List<string>
-                {
-                    "Season could not be found"
-                }
-            };
+            return this.Error("Season could not be found");
         }
 
         var allTeams = await _teamRepository
             .GetSome($"t.DivisionId = '{request.DivisionId}'", token)
-            .WhereAsync(t => t.Deleted == null)
             .ToList();
 
         try
@@ -87,17 +74,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
         catch (Exception exc)
         {
-            return new ActionResultDto<List<DivisionFixtureDateDto>>
-            {
-                Errors = new List<string>
-                {
-                    exc.Message
-                }
-            };
+            return this.Error(exc.Message);
         }
     }
 
-    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IReadOnlyCollection<Team> allTeams)
+    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
     {
         var teamIds = new HashSet<Guid>();
 
@@ -190,7 +171,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private static DivisionFixtureDateDto CreateFixturesForDate(
         AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
-        List<DivisionFixtureDateDto> existingGames,
+        IReadOnlyCollection<DivisionFixtureDateDto> existingGames,
         DateTime currentDate,
         List<Proposal> proposals,
         CancellationToken token)
@@ -250,7 +231,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         AutoProvisionGamesRequest request,
         IReadOnlyCollection<Team> teamsToPropose,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
-        List<DivisionFixtureDateDto> existingDate)
+        IReadOnlyCollection<DivisionFixtureDateDto> existingDate)
     {
         var proposals = teamsToPropose
             .SelectMany(home =>

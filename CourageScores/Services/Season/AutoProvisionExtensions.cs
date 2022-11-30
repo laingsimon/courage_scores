@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -66,16 +65,6 @@ public static class AutoProvisionExtensions
         };
     }
 
-    public static DivisionFixtureTeamDto AdaptToTeam(this GameTeam team, string? address)
-    {
-        return new DivisionFixtureTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Address = address,
-        };
-    }
-
     private static DivisionFixtureTeamDto AdaptToTeam(this Team team)
     {
         return new DivisionFixtureTeamDto
@@ -83,6 +72,17 @@ public static class AutoProvisionExtensions
             Id = team.Id,
             Name = team.Name,
             Address = team.Address,
+        };
+    }
+
+    public static ActionResultDto<List<DivisionFixtureDateDto>> Error(this SeasonService _, string message)
+    {
+        return new ActionResultDto<List<DivisionFixtureDateDto>>
+        {
+            Errors = new List<string>
+            {
+                message
+            }
         };
     }
 }
