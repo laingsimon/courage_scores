@@ -48,6 +48,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
             if (game.Home.Id == update.Id)
             {
                 game.Home.Name = update.Name;
+                if (game.Address == team.Address)
+                {
+                    game.Address = update.Address;
+                }
             }
 
             if (game.Away.Id == update.Id)
