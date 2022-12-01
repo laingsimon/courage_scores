@@ -23,6 +23,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     const [deletingHomeTeam, setDeletingHomeTeam] = useState(false);
     const [editTeamMode, setEditTeamMode] = useState(null);
     const [teamDetails, setTeamDetails] = useState(null);
+    const [proposal, setProposal] = useState(fixture.proposal);
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = fixtures.filter(f => f.date === date)[0];
@@ -267,7 +268,30 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         </Dialog>)
     }
 
-    return (<tr key={fixture.id} className={(deleting ? 'text-decoration-line-through' : '') + (fixture.proposal ? ' bg-yellow' : '')}>
+    async function saveProposal() {
+        setSaving(true);
+        try {
+            const api = new GameApi(new Http(new Settings()));
+            const result = await api.update({
+                id: fixture.id,
+                address: fixture.homeTeam.address,
+                date: date,
+                divisionId: divisionId,
+                homeTeamId: fixture.homeTeam.id,
+                awayTeamId: fixture.awayTeam.id,
+            });
+
+            if (result.success) {
+                setProposal(false);
+            } else {
+                setSaveError(result);
+            }
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (<tr key={fixture.id} className={(deleting ? 'text-decoration-line-through' : '') + (proposal ? ' bg-yellow' : '')}>
         <td>
             {isAdmin && allowTeamEdit ? (
                 <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>
@@ -304,10 +328,12 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {!fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id) ?
+            {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id) ?
                 <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>🎯</Link> : null}
-            {!fixture.proposal && isAdmin && awayTeamId && !saving && !deleting ? (
+            {!proposal && isAdmin && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
+            {proposal && isAdmin && awayTeamId && !saving && !deleting ? (
+                <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save fixture details"/>) : null}
         </td>
