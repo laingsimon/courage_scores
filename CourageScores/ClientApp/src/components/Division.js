@@ -10,7 +10,6 @@ import {DivisionApi} from "../api/division";
 import {SeasonApi} from "../api/season";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {TeamApi} from "../api/team";
-import {Dialog} from "./common/Dialog";
 
 export function Division({ account, apis }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -26,13 +25,8 @@ export function Division({ account, apis }) {
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
-    const [ proposingGames, setProposingGames ] = useState(false);
-    const [ proposalSettings, setProposalSettings ] = useState(null);
-    const [ proposalResponse, setProposalResponse ] = useState(null);
-    const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
     const divisionApi = new DivisionApi(new Http(new Settings()));
     const teamApi = new TeamApi(new Http(new Settings()));
-    const seasonApi = new SeasonApi(new Http(new Settings()));
 
     async function reloadDivisionData() {
         const divisionData = await divisionApi.data(divisionId, seasonId);
@@ -57,18 +51,6 @@ export function Division({ account, apis }) {
             const divisionData = await divisionApi.data(divisionId, seasonId);
             const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
             setDivisionData(divisionData);
-            setProposalSettings({
-                divisionId: divisionId,
-                seasonId: seasonId || divisionData.season.id,
-                teams: [ ],
-                weekDay: 'Thursday',
-                excludedDates: { },
-                newExclusion: { date: '' },
-                // frequencyDays: 7, not required as weekDay is provided
-                numberOfLegs: 2,
-                // startDate: "2022-01-01" // not required, use season start date
-                logLevel: 'Warning'
-            });
             setTeams(teams);
             setSeasonData({
                 id: divisionData.season.id,
@@ -179,148 +161,7 @@ export function Division({ account, apis }) {
         return new Date(dateStr).toDateString().substring(4);
     }
 
-    async function proposeFixtures() {
-        setUpdatingData(true);
-        setProposingGames(true);
-        setProposalResponse(null);
-        try {
-            const response = await seasonApi.propose(proposalSettings);
-            if (response.success) {
-                const newDivisionData = Object.assign({}, divisionData);
-                newDivisionData.fixtures = response.result;
-                setDivisionData(newDivisionData);
-
-                setProposalResponse(response);
-                if (!response.messages.length && !response.warnings.length && !response.errors.length) {
-                    setProposalSettingsDialogVisible(false);
-                }
-            } else {
-                setSaveError(response);
-            }
-        } finally {
-            setProposingGames(false);
-            setUpdatingData(false);
-        }
-    }
-
-    function beginProposeFixtures() {
-        setProposalSettingsDialogVisible(true);
-    }
-
-    function updateProposalSettings(event) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        newProposalSettings[event.target.name] = event.target.value;
-        setProposalSettings(newProposalSettings);
-    }
-
-    function updateNewExclusion(event) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        newProposalSettings.newExclusion[event.target.name] = event.target.value;
-        setProposalSettings(newProposalSettings);
-    }
-
-    function addDateExclusion() {
-        if (!proposalSettings.newExclusion.date) {
-            window.alert('Enter a date first');
-            return;
-        }
-
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        const newExclusion = newProposalSettings.newExclusion;
-        newProposalSettings.newExclusion = { date: '' };
-        newProposalSettings.excludedDates[newExclusion.date] = 'unspecified';
-        setProposalSettings(newProposalSettings);
-    }
-
-    function removeDateExclusion(date) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        delete newProposalSettings.excludedDates[date];
-        setProposalSettings(newProposalSettings);
-    }
-
-    async function saveProposals() {
-        window.alert('Not implemented');
-    }
-
-    function renderProposalSettings() {
-        let index = 0;
-
-        function renderValidationErrors(errors) {
-            return (<ol className="text-danger">
-                {Object.keys(errors).map(key => {
-                    return (<li key={key}>{key} {errors[key].map(e => (<p key={index++}>{e}</p>))}</li>)
-                })}
-            </ol>)
-        }
-
-        return (<div className="text-black"><Dialog title="Propose games...">
-            <div>
-                <div className="input-group my-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">Number of legs</span>
-                    </div>
-                    <select disabled={proposingGames} value={proposalSettings.numberOfLegs} onChange={updateProposalSettings} name="numberOfLegs">
-                        <option value="1">Single leg</option>
-                        <option value="2">Two legs</option>
-                    </select>
-                </div>
-                <div className="input-group my-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">Day of week</span>
-                    </div>
-                    <select disabled={proposingGames} value={proposalSettings.weekDay} onChange={updateProposalSettings} name="weekDay">
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                    </select>
-                </div>
-                <div className="px-4">
-                    <h6>Excluded dates</h6>
-                    {Object.keys(proposalSettings.excludedDates).map(date => (<div key={date}>
-                        <span className="margin-right">{new Date(date).toDateString()}</span>
-                        <button disabled={proposingGames} className="btn btn-sm btn-danger" onClick={() => removeDateExclusion(date)}>🗑</button>
-                    </div>))}
-                    <div className="input-group my-2">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">Date</span>
-                        </div>
-                        <input disabled={proposingGames} type="date" value={proposalSettings.newExclusion.date} name="date" onChange={updateNewExclusion} className="margin-right" />
-                        <button disabled={proposingGames} className="btn btn-sm btn-primary" onClick={addDateExclusion}>+</button>
-                    </div>
-                </div>
-                <div className="input-group my-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">Show</span>
-                    </div>
-                    <select disabled={proposingGames} name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
-                        <option value="Information">Everything</option>
-                        <option value="Warning">Warnings and Errors</option>
-                        <option value="Error">Errors only</option>
-                    </select>
-                </div>
-            </div>
-            {proposalResponse ? (<div className="overflow-auto max-scroll-height"><ul>
-                {proposalResponse.errors && proposalResponse.errors.length ? proposalResponse.errors.map(e => (<li key={index++} className="text-danger">{e}</li>)) : null}
-                {proposalResponse.errors && !proposalResponse.errors.length ? (renderValidationErrors(proposalResponse.errors)): null}
-                {proposalResponse.warnings ? proposalResponse.warnings.map(w => (<li key={index++} className="text-warning">{w}</li>)) : null}
-                {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
-            </ul></div>) : null}
-            <div className="text-end">
-                <button className="btn btn-success margin-right" onClick={proposeFixtures}>
-                    {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎲'}
-                    Propose Games...
-                </button>
-                <button disabled={proposingGames} className="btn btn-primary margin-right" onClick={() => { if (!proposingGames) { setProposalSettingsDialogVisible(false) } }}>Close</button>
-            </div>
-        </Dialog></div>)
-    }
-
     return (<div>
-        {proposalSettingsDialogVisible ? renderProposalSettings() : null}
         <div className="btn-group py-2">
             {editMode !== 'division' ? (<button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
                 {divisionName}
@@ -408,10 +249,7 @@ export function Division({ account, apis }) {
                 teams={teams}
                 account={account}
                 onNewTeam={reloadDivisionData}
-                onReloadDivision={reloadDivisionData}
-                onProposeFixtures={beginProposeFixtures}
-                proposingGames={proposingGames}
-                onSaveProposals={proposalResponse != null ? saveProposals : null} />)
+                onReloadDivision={reloadDivisionData} />)
             : null}
         {effectiveTab === 'players'
             ? (<DivisionPlayers
