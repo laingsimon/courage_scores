@@ -136,7 +136,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         if (savingProposals.started) {
             saveProposal();
         }
-    }, [ savingProposals, cancelSavingProposals ]);
+    },
+        // eslint-disable-next-line
+        [ savingProposals, cancelSavingProposals ]);
 
     async function saveProposals() {
         const proposals = [];
