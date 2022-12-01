@@ -66,7 +66,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = AddMissingTeams(g.Key, g.SelectMany(f => f.Fixtures), allTeams).ToList()
+                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeams).ToList()
                             };
                     }).ToList();
             result.Messages = result.Messages.Distinct().ToList();
@@ -82,7 +82,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
-    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(DateTime date, IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
+    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
     {
         var teamIds = new HashSet<Guid>();
 
@@ -178,57 +178,77 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         List<Proposal> proposals,
         CancellationToken token)
     {
-        // ensure fixtures from ANY division are included in reserved addresses
-        var addressesInUseOnDate = await _gameRepository.GetSome($"t.Date = '{currentDate:yyyy-MM-dd}T00:00:00'", token)
-            .WhereAsync(game => !string.IsNullOrEmpty(game.Address))
-            .ToDictionaryAsync(game => game.Address, game => new { divisionId = game.DivisionId, homeTeam = game.Home.Name, awayTeam = game.Away.Name });
-        var teamsInPlayOnDate = existingGames
-            .Where(fixtureDate => fixtureDate.Date == currentDate)
-            .SelectMany(fixtureDate => fixtureDate.Fixtures)
-            .Where(fixture => fixture.AwayTeam != null)
-            .SelectMany(fixture => new[] {fixture.HomeTeam.Id, fixture.AwayTeam!.Id})
-            .ToHashSet();
-
-        var incompatibleProposals = new List<Proposal>();
-        var gamesOnDate = new DivisionFixtureDateDto { Date = currentDate };
-
-        void IncompatibleProposal(Proposal proposal, string message)
+        try
         {
-            incompatibleProposals.Add(proposal);
-            request.LogInfo(result, $"{currentDate:yyyy-MM-dd}: {message}");
-        }
+            var games = await _gameRepository
+                .GetSome($"t.Date = '{currentDate:yyyy-MM-dd}T00:00:00'", token)
+                .WhereAsync(game => !string.IsNullOrEmpty(game.Address))
+                .ToList();
 
-        while (proposals.Count > 0)
-        {
-            var proposal = proposals.GetAndRemove(Random.Shared.Next(0, proposals.Count));
+            // ensure fixtures from ANY division are included in reserved addresses
+            var addressesInUseOnDate = games
+                .GroupBy(g => g.Address)
+                .ToDictionary(
+                    g => g.Key,
+                    grp => new { divisionId = grp.First().DivisionId, homeTeam = grp.First().Home.Name, awayTeam = grp.First().Home.Name });
+            var teamsInPlayOnDate = existingGames
+                .Where(fixtureDate => fixtureDate.Date == currentDate)
+                .SelectMany(fixtureDate => fixtureDate.Fixtures)
+                .Where(fixture => fixture.AwayTeam != null)
+                .SelectMany(fixture => new[] {fixture.HomeTeam.Id, fixture.AwayTeam!.Id})
+                .ToHashSet();
 
-            if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
+            var incompatibleProposals = new List<Proposal>();
+            var gamesOnDate = new DivisionFixtureDateDto {Date = currentDate};
+
+            void IncompatibleProposal(Proposal proposal, string message)
             {
-                IncompatibleProposal(proposal, $"{proposal.Home.Name} and/or {proposal.Away.Name} are already playing");
-                continue;
+                incompatibleProposals.Add(proposal);
+                request.LogInfo(result, $"{currentDate:yyyy-MM-dd}: {message}");
             }
 
-            if (addressesInUseOnDate.ContainsKey(proposal.Home.Address))
+            while (proposals.Count > 0)
             {
-                var inUseBy = addressesInUseOnDate[proposal.Home.Address];
-                var division = inUseBy.divisionId == request.DivisionId
-                    ? null
-                    : (await _divisionService.Get(inUseBy.divisionId, token)) ?? new DivisionDto
-                        { Name = inUseBy.divisionId.ToString() };
-                IncompatibleProposal(proposal, $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}");
-                continue;
+                var proposal = proposals.GetAndRemove(Random.Shared.Next(0, proposals.Count));
+
+                if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
+                {
+                    IncompatibleProposal(proposal,
+                        $"{proposal.Home.Name} and/or {proposal.Away.Name} are already playing");
+                    continue;
+                }
+
+                if (addressesInUseOnDate.ContainsKey(proposal.Home.Address))
+                {
+                    var inUseBy = addressesInUseOnDate[proposal.Home.Address];
+                    var division = inUseBy.divisionId == request.DivisionId
+                        ? null
+                        : (await _divisionService.Get(inUseBy.divisionId, token)) ?? new DivisionDto
+                            {Name = inUseBy.divisionId.ToString()};
+                    IncompatibleProposal(proposal,
+                        $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}");
+                    continue;
+                }
+
+                addressesInUseOnDate.Add(proposal.Home.Address,
+                    new
+                    {
+                        divisionId = request.DivisionId, homeTeam = proposal.Home.Name, awayTeam = proposal.Away.Name
+                    });
+                teamsInPlayOnDate.Add(proposal.Home.Id);
+                teamsInPlayOnDate.Add(proposal.Away.Id);
+
+                gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
+                token.ThrowIfCancellationRequested();
             }
 
-            addressesInUseOnDate.Add(proposal.Home.Address, new { divisionId = request.DivisionId, homeTeam = proposal.Home.Name, awayTeam = proposal.Away.Name });
-            teamsInPlayOnDate.Add(proposal.Home.Id);
-            teamsInPlayOnDate.Add(proposal.Away.Id);
-
-            gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
-            token.ThrowIfCancellationRequested();
+            proposals.AddRange(incompatibleProposals);
+            return gamesOnDate;
         }
-
-        proposals.AddRange(incompatibleProposals);
-        return gamesOnDate;
+        catch (Exception exc)
+        {
+            throw new InvalidOperationException($"Unable to create fixtures for date {currentDate}: {exc.Message}", exc);
+        }
     }
 
     private static List<Proposal> GetProposals(
