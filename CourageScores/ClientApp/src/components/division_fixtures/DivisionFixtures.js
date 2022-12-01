@@ -5,6 +5,7 @@ import {Dialog} from "../common/Dialog";
 import {SeasonApi} from "../../api/season";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
+import {ProposeGamesDialog} from "./ProposeGamesDialog";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam }) {
     const isAdmin = account && account.access && account.access.manageGames;
@@ -63,37 +64,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         setProposalSettingsDialogVisible(true);
     }
 
-    function updateProposalSettings(event) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        newProposalSettings[event.target.name] = event.target.value;
-        setProposalSettings(newProposalSettings);
-    }
-
-    function updateNewExclusion(event) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        newProposalSettings.newExclusion[event.target.name] = event.target.value;
-        setProposalSettings(newProposalSettings);
-    }
-
-    function addDateExclusion() {
-        if (!proposalSettings.newExclusion.date) {
-            window.alert('Enter a date first');
-            return;
-        }
-
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        const newExclusion = newProposalSettings.newExclusion;
-        newProposalSettings.newExclusion = { date: '' };
-        newProposalSettings.excludedDates[newExclusion.date] = 'unspecified';
-        setProposalSettings(newProposalSettings);
-    }
-
-    function removeDateExclusion(date) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        delete newProposalSettings.excludedDates[date];
-        setProposalSettings(newProposalSettings);
-    }
-
     async function proposeFixtures() {
         setProposingGames(true);
         setProposalResponse(null);
@@ -118,85 +88,14 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         window.alert('Not implemented');
     }
 
-    function renderProposalSettings() {
-        let index = 0;
-
-        function renderValidationErrors(errors) {
-            return (<ol className="text-danger">
-                {Object.keys(errors).map(key => {
-                    return (<li key={key}>{key} {errors[key].map(e => (<p key={index++}>{e}</p>))}</li>)
-                })}
-            </ol>)
-        }
-
-        return (<div className="text-black"><Dialog title="Propose games...">
-            <div>
-                <div className="input-group my-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">Number of legs</span>
-                    </div>
-                    <select disabled={proposingGames} value={proposalSettings.numberOfLegs} onChange={updateProposalSettings} name="numberOfLegs">
-                        <option value="1">Single leg</option>
-                        <option value="2">Two legs</option>
-                    </select>
-                </div>
-                <div className="input-group my-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">Day of week</span>
-                    </div>
-                    <select disabled={proposingGames} value={proposalSettings.weekDay} onChange={updateProposalSettings} name="weekDay">
-                        <option value="Monday">Monday</option>
-                        <option value="Tuesday">Tuesday</option>
-                        <option value="Wednesday">Wednesday</option>
-                        <option value="Thursday">Thursday</option>
-                        <option value="Friday">Friday</option>
-                        <option value="Saturday">Saturday</option>
-                        <option value="Sunday">Sunday</option>
-                    </select>
-                </div>
-                <div className="px-4">
-                    <h6>Excluded dates</h6>
-                    {Object.keys(proposalSettings.excludedDates).map(date => (<div key={date}>
-                        <span className="margin-right">{new Date(date).toDateString()}</span>
-                        <button disabled={proposingGames} className="btn btn-sm btn-danger" onClick={() => removeDateExclusion(date)}>🗑</button>
-                    </div>))}
-                    <div className="input-group my-2">
-                        <div className="input-group-prepend">
-                            <span className="input-group-text">Date</span>
-                        </div>
-                        <input disabled={proposingGames} type="date" value={proposalSettings.newExclusion.date} name="date" onChange={updateNewExclusion} className="margin-right" />
-                        <button disabled={proposingGames} className="btn btn-sm btn-primary" onClick={addDateExclusion}>+</button>
-                    </div>
-                </div>
-                <div className="input-group my-3">
-                    <div className="input-group-prepend">
-                        <span className="input-group-text">Show</span>
-                    </div>
-                    <select disabled={proposingGames} name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
-                        <option value="Information">Everything</option>
-                        <option value="Warning">Warnings and Errors</option>
-                        <option value="Error">Errors only</option>
-                    </select>
-                </div>
-            </div>
-            {proposalResponse ? (<div className="overflow-auto max-scroll-height"><ul>
-                {proposalResponse.errors && proposalResponse.errors.length ? proposalResponse.errors.map(e => (<li key={index++} className="text-danger">{e}</li>)) : null}
-                {proposalResponse.errors && !proposalResponse.errors.length ? (renderValidationErrors(proposalResponse.errors)): null}
-                {proposalResponse.warnings ? proposalResponse.warnings.map(w => (<li key={index++} className="text-warning">{w}</li>)) : null}
-                {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
-            </ul></div>) : null}
-            <div className="text-end">
-                <button className="btn btn-success margin-right" onClick={proposeFixtures}>
-                    {proposingGames ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎲'}
-                    Propose Games...
-                </button>
-                <button disabled={proposingGames} className="btn btn-primary margin-right" onClick={() => { if (!proposingGames) { setProposalSettingsDialogVisible(false) } }}>Close</button>
-            </div>
-        </Dialog></div>)
-    }
-
     return (<div className="light-background p-3">
-        {proposalSettingsDialogVisible ? renderProposalSettings() : null}
+        {proposalSettingsDialogVisible ? (<ProposeGamesDialog
+            onPropose={proposeFixtures}
+            onClose={() => setProposalSettingsDialogVisible(false)}
+            proposalSettings={proposalSettings}
+            disabled={proposingGames}
+            proposalResponse={proposalResponse}
+            onUpdateProposalSettings={settings => setProposalSettings(settings)} />) : null}
         {isAdmin ? (<div className="mb-3">
             <span className="margin-right">Admin tools:</span>
             <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
