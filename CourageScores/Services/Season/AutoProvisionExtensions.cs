@@ -62,6 +62,7 @@ public static class AutoProvisionExtensions
             HomeScore = null,
             HomeTeam = AdaptToTeam(proposal.Home),
             AwayTeam = AdaptToTeam(proposal.Away),
+            Proposal = true
         };
     }
 
