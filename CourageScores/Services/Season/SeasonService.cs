@@ -66,7 +66,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeams).ToList()
+                                Fixtures = AddMissingTeams(g.Key, g.SelectMany(f => f.Fixtures), allTeams).ToList()
                             };
                     }).ToList();
             result.Messages = result.Messages.Distinct().ToList();
@@ -82,7 +82,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
-    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
+    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(DateTime date, IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
     {
         var teamIds = new HashSet<Guid>();
 
@@ -140,7 +140,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             yield return new DivisionFixtureDateDto
             {
                 Date = existingFixtureDate.Date,
-                Fixtures = existingFixtureDate.Fixtures,
+                Fixtures = existingFixtureDate.Fixtures.Where(fd => fd.AwayTeam != null).ToList(),
             };
         }
 
