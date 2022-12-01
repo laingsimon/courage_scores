@@ -147,3 +147,7 @@ input[type="date"] {
 .modal-dialog-larger-max-width {
   max-width: 800px;
 }
+
+.bg-yellow {
+  background-color: #ffffcc;
+}
