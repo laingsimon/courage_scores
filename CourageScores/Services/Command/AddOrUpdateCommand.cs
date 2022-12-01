@@ -30,7 +30,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         return new CommandOutcome<TModel>(
             result.Success,
-            result.Message ?? $"{typeof(TModel).Name} ${(create ? "created" : "updated")}",
+            result.Message ?? $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
             model);
     }
 

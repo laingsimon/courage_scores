@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters;

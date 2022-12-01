@@ -14,6 +14,10 @@ class SeasonApi {
     getAll() {
         return this.http.get(`/api/Season`, {});
     }
+
+    propose(request) {
+        return this.http.post(`/api/Season/ProposeGames`, request);
+    }
 }
 
 export { SeasonApi };

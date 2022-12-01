@@ -9,6 +9,7 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
@@ -16,6 +17,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Season;
 using Microsoft.Extensions.Internal;
 
 namespace CourageScores;
@@ -57,6 +59,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ITeamService, TeamService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDivisionService, DivisionService>();
+        services.AddScoped<ISeasonService, SeasonService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

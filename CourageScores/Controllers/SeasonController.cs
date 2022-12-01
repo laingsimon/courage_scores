@@ -1,7 +1,9 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
-using CourageScores.Services;
+using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Services.Command;
+using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourageScores.Controllers;
@@ -9,10 +11,10 @@ namespace CourageScores.Controllers;
 [ApiController]
 public class SeasonController : Controller
 {
-    private readonly IGenericDataService<Season, SeasonDto> _seasonService;
+    private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
 
-    public SeasonController(IGenericDataService<Season, SeasonDto> seasonService, ICommandFactory commandFactory)
+    public SeasonController(ISeasonService seasonService, ICommandFactory commandFactory)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;
@@ -41,5 +43,11 @@ public class SeasonController : Controller
     public async Task<ActionResultDto<SeasonDto>> DeleteSeason(Guid id, CancellationToken token)
     {
         return await _seasonService.Delete(id, token);
+    }
+
+    [HttpPost("/api/Season/ProposeGames/")]
+    public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProvisionGames([FromBody] AutoProvisionGamesRequest request, CancellationToken token)
+    {
+        return await _seasonService.ProposeGames(request, token);
     }
 }

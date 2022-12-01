@@ -7,4 +7,5 @@ public class DivisionFixtureDto
     public DivisionFixtureTeamDto HomeTeam { get; set; } = null!;
     public int? AwayScore { get; set; }
     public DivisionFixtureTeamDto? AwayTeam { get; set; }
+    public bool Proposal { get; set; }
 }

@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
@@ -9,7 +8,7 @@ namespace CourageScores.Services.Command;
 
 public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
 {
-    private readonly IGenericRepository<Season> _seasonRepository;
+    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISystemClock _clock;
@@ -18,7 +17,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
     private Guid? _seasonId;
 
     public AddPlayerToTeamSeasonCommand(
-        IGenericRepository<Season> seasonRepository,
+        IGenericRepository<Models.Cosmos.Season> seasonRepository,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
         ISystemClock clock,

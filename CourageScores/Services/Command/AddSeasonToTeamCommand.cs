@@ -1,17 +1,18 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Services.Command;
 
 public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
 {
     private readonly IAuditingHelper _auditingHelper;
-    private readonly IGenericDataService<Season, SeasonDto> _seasonService;
+    private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _seasonService;
     private readonly ICommandFactory _commandFactory;
     private Guid? _seasonId;
 
-    public AddSeasonToTeamCommand(IAuditingHelper auditingHelper, IGenericDataService<Season, SeasonDto> seasonService, ICommandFactory commandFactory)
+    public AddSeasonToTeamCommand(IAuditingHelper auditingHelper, IGenericDataService<Models.Cosmos.Season, SeasonDto> seasonService, ICommandFactory commandFactory)
     {
         _auditingHelper = auditingHelper;
         _seasonService = seasonService;

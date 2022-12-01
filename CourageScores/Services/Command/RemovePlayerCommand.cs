@@ -1,5 +1,4 @@
-﻿using CourageScores.Models.Cosmos;
-using CourageScores.Models.Cosmos.Team;
+﻿using CourageScores.Models.Cosmos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
@@ -8,14 +7,14 @@ namespace CourageScores.Services.Command;
 
 public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
 {
-    private readonly IGenericRepository<Season> _seasonRepository;
+    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ISystemClock _clock;
     private readonly IUserService _userService;
     private Guid? _playerId;
     private Guid? _seasonId;
 
     public RemovePlayerCommand(
-        IGenericRepository<Season> seasonRepository,
+        IGenericRepository<Models.Cosmos.Season> seasonRepository,
         ISystemClock clock,
         IUserService userService)
     {
