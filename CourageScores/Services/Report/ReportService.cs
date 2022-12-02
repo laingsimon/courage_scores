@@ -76,6 +76,7 @@ public class ReportService : IReportService
         yield return new ManOfTheMatchReport();
         yield return new MostPlayedPlayerReport();
         yield return new MostOneEightiesReport();
+        yield return new HighestCheckoutReport();
     }
 
     private ReportCollectionDto UnableToProduceReport(string reason, Guid divisionId, Guid seasonId)
