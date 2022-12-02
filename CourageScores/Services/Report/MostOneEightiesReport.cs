@@ -23,7 +23,7 @@ public class MostOneEightiesReport : IReport
         };
     }
 
-    public VisitOneEighty(GamePlayer player)
+    public void VisitOneEighty(GamePlayer player)
     {
         if (_player180sRecord.TryGetValue(player.Id, out var currentCount))
         {
