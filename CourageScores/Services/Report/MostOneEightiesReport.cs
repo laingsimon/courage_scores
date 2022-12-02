@@ -5,13 +5,11 @@ namespace CourageScores.Services.Report;
 
 public class MostOneEightiesReport : IReport
 {
-    private readonly bool _singlesOnly;
     private readonly int _topCount;
     private readonly Dictionary<Guid, int> _player180sRecord = new();
 
-    public MostOneEightiesReport(bool singlesOnly = false, int topCount = 3)
+    public MostOneEightiesReport(int topCount = 3)
     {
-        _singlesOnly = singlesOnly;
         _topCount = topCount;
     }
 
@@ -19,19 +17,14 @@ public class MostOneEightiesReport : IReport
     {
         return new ReportDto
         {
-            Description = $"The top {_topCount} most 189s {(_singlesOnly ? "(singles only)" : "(singles, doubles and trebles)")}",
+            Description = $"The top {_topCount} most 180s",
             Name = "Most 180s",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
         };
     }
 
-    public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+    public VisitOneEighty(GamePlayer player)
     {
-        if (_singlesOnly && matchPlayerCount != 1)
-        {
-            return;
-        }
-
         if (_player180sRecord.TryGetValue(player.Id, out var currentCount))
         {
             _player180sRecord[player.Id] = currentCount + 1;
