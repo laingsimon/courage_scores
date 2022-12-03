@@ -9,6 +9,7 @@ import {Http} from "../api/http";
 import {DivisionApi} from "../api/division";
 import {TeamApi} from "../api/team";
 import {DivisionControls} from "./DivisionControls";
+import {DivisionReports} from "./division_reports/DivisionReports";
 
 export function Division({ account, apis }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -81,6 +82,9 @@ export function Division({ account, apis }) {
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
+            {account && account.access && account.access.runReports ? (<NavItem>
+                <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
+            </NavItem>) : null}
         </ul>
         {effectiveTab === 'teams'
             ? (<DivisionTeams
@@ -107,6 +111,10 @@ export function Division({ account, apis }) {
                 account={account}
                 onPlayerSaved={reloadDivisionData}
                 seasonId={divisionData.season.id} />)
+            : null}
+        {effectiveTab === 'reports'
+            ? (<DivisionReports
+                divisionData={divisionData} />)
             : null}
     </div>);
 }

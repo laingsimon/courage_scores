@@ -16,6 +16,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageScores = model.ManageScores,
             ManageSeasons = model.ManageSeasons,
             ManageTeams = model.ManageTeams,
+            RunReports = model.RunReports,
         };
     }
 
@@ -30,6 +31,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageScores = dto.ManageScores,
             ManageSeasons = dto.ManageSeasons,
             ManageTeams = dto.ManageTeams,
+            RunReports = dto.RunReports,
         };
     }
 }

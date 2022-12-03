@@ -17,6 +17,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Report;
 using CourageScores.Services.Season;
 using Microsoft.Extensions.Internal;
 
@@ -60,6 +61,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDivisionService, DivisionService>();
         services.AddScoped<ISeasonService, SeasonService>();
+        services.AddScoped<IReportService, ReportService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

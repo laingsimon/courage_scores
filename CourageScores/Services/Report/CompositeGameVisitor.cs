@@ -1,0 +1,91 @@
+using CourageScores.Models.Cosmos.Game;
+
+namespace CourageScores.Services.Report;
+
+public class CompositeGameVisitor : IGameVisitor
+{
+    private readonly bool _canAccessManOfTheMatch;
+    private readonly IGameVisitor[] _underlyingVisitors;
+
+    public CompositeGameVisitor(IEnumerable<IGameVisitor> underlyingVisitors, bool canAccessManOfTheMatch)
+    {
+        _canAccessManOfTheMatch = canAccessManOfTheMatch;
+        _underlyingVisitors = underlyingVisitors.ToArray();
+    }
+
+    private void ForEachVisitor(Action<IGameVisitor> action)
+    {
+        foreach (var visitor in _underlyingVisitors)
+        {
+            action(visitor);
+        }
+    }
+
+    public void VisitGame(Game game)
+    {
+        ForEachVisitor(visitor => visitor.VisitGame(game));
+    }
+
+    public void VisitMatch(GameMatch match)
+    {
+        ForEachVisitor(visitor => visitor.VisitMatch(match));
+    }
+
+    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+    {
+        ForEachVisitor(visitor => visitor.VisitMatchWin(players, team));
+    }
+
+    public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers)
+    {
+        ForEachVisitor(visitor => visitor.VisitMatchDraw(homePlayers, awayPlayers));
+    }
+
+    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+    {
+        ForEachVisitor(visitor => visitor.VisitMatchLost(players, team));
+    }
+
+    public void VisitOneEighty(GamePlayer player)
+    {
+        ForEachVisitor(visitor => visitor.VisitOneEighty(player));
+    }
+
+    public void VisitHiCheckout(NotablePlayer player)
+    {
+        ForEachVisitor(visitor => visitor.VisitHiCheckout(player));
+    }
+
+    public void VisitTeam(GameTeam team, GameState gameState)
+    {
+        ForEachVisitor(visitor => visitor.VisitTeam(team, gameState));
+    }
+
+    public void VisitManOfTheMatch(Guid? manOfTheMatch)
+    {
+        if (_canAccessManOfTheMatch)
+        {
+            ForEachVisitor(visitor => visitor.VisitManOfTheMatch(manOfTheMatch));
+        }
+    }
+
+    public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+    {
+        ForEachVisitor(visitor => visitor.VisitPlayer(player, matchPlayerCount));
+    }
+
+    public void VisitGameDraw(GameTeam home, GameTeam away)
+    {
+        ForEachVisitor(visitor => visitor.VisitGameDraw(home, away));
+    }
+
+    public void VisitGameWinner(GameTeam team)
+    {
+        ForEachVisitor(visitor => visitor.VisitGameWinner(team));
+    }
+
+    public void VisitGameLost(GameTeam team)
+    {
+        ForEachVisitor(visitor => visitor.VisitGameLost(team));
+    }
+}

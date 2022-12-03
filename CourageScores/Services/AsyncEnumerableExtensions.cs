@@ -109,6 +109,7 @@ public static class AsyncEnumerableExtensions
         return await asyncEnumerable.ToDictionaryAsync(keySelector, item => item);
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> keySelector, Func<T, TValue> valueSelector)
         where TKey : notnull
     {
@@ -120,5 +121,20 @@ public static class AsyncEnumerableExtensions
         }
 
         return dict;
+    }
+
+    public static async IAsyncEnumerable<T> TakeAsync<T>(this IAsyncEnumerable<T> items, int take)
+    {
+        var count = 0;
+        await foreach (var item in items)
+        {
+            if (count >= take)
+            {
+                yield break;
+            }
+
+            yield return item;
+            count++;
+        }
     }
 }
