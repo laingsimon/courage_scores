@@ -79,11 +79,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             const result = await api.delete(seasonData.id);
 
             if (result.success) {
-                await reloadAll();
-                if (onReloadDivisionData) {
-                    await onReloadDivisionData();
-                }
-                setEditMode(null);
+                document.location.href = `https://${document.location.host}`;
             } else {
                 setSaveError(result);
             }
@@ -107,11 +103,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             const result = await api.delete(originalDivisionData.id);
 
             if (result.success) {
-                await reloadAll();
-                if (onReloadDivisionData) {
-                    await onReloadDivisionData();
-                }
-                setEditMode(null);
+                document.location.href = `https://${document.location.host}`;
             } else {
                 setSaveError(result);
             }
