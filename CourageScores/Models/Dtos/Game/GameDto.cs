@@ -43,4 +43,9 @@ public class GameDto : AuditedDto
     /// The matches that were played
     /// </summary>
     public List<GameMatchDto> Matches { get; set; } = null!;
+
+    /// <summary>
+    /// Whether the game has been postponed
+    /// </summary>
+    public bool Postponed { get; set; }
 }

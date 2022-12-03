@@ -308,9 +308,9 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
             {editTeamMode ? renderEditTeam() : null}
         </td>
-        <td className="narrow-column text-primary fw-bolder">{fixture.homeScore}</td>
+        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
-        <td className="narrow-column text-primary fw-bolder">{fixture.awayScore}</td>
+        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.awayScore}</td>
         <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
             {isAdmin && allowTeamEdit ? (
                 <button className={`btn btn-sm ${awayTeamId ? 'btn-primary' : 'btn-secondary'} margin-right`}

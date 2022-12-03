@@ -261,6 +261,7 @@ public class DivisionService : IDivisionService
             HomeScore = fixture.Matches.Any()
                 ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.HomeScore > m.AwayScore)
                 : null,
+            Postponed = fixture.Postponed,
         };
     }
 

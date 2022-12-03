@@ -8,4 +8,5 @@ public class DivisionFixtureDto
     public int? AwayScore { get; set; }
     public DivisionFixtureTeamDto? AwayTeam { get; set; }
     public bool Proposal { get; set; }
+    public bool Postponed { get; set; }
 }
