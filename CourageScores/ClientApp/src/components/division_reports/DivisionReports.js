@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {ReportApi} from "../../api/report";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
 export function DivisionReports({ divisionData }) {
     const [ reportData, setReportData ] = useState(null);
@@ -31,11 +32,10 @@ export function DivisionReports({ divisionData }) {
         }
 
         return (<div>
-            <ul className="nav nav-tabs">
-                {reportData.reports.map(report => (<li key={report.name} className="nav-item">
-                    <button className={`nav-link${activeReport === report.name ? ' active fw-bold': ''}`} onClick={() => setActiveReport(report.name)}>{report.name}</button>
-                </li>))}
-            </ul>
+            <BootstrapDropdown
+                onChange={(value) => setActiveReport(value)}
+                options={reportData.reports.map(report => { return { value: report.name, text: report.description }})}
+                value={activeReport} />
         </div>)
     }
 
@@ -51,7 +51,6 @@ export function DivisionReports({ divisionData }) {
 
         let rowIndex = 0;
         return (<div>
-            <p>{report.description}</p>
             {report.rows.length === 0
                 ? (<p className="text-danger fw-bold">No rows</p>)
                 : (<table className="table table-striped">
@@ -88,7 +87,7 @@ export function DivisionReports({ divisionData }) {
         <p>Run reports for the <strong>{divisionData.name}</strong> division and <strong>{divisionData.season.name}</strong> season</p>
         <button onClick={getReports} className="btn btn-primary">
             {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            Get reports
+            Analyse fixtures...
         </button>
         <div className="my-3">
             {reportData && ! gettingData ? renderMessages() : null}

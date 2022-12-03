@@ -82,7 +82,7 @@ export function Division({ account, apis }) {
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
-            {account.access && account.access.runReports ? (<NavItem>
+            {account && account.access && account.access.runReports ? (<NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
             </NavItem>) : null}
         </ul>
