@@ -32,7 +32,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
             return new CommandResult
             {
                 Success = false,
-                Message = "Unable to set have a game where the home team and away team are the same",
+                Message = "Unable to update a game where the home team and away team are the same",
             };
         }
 
