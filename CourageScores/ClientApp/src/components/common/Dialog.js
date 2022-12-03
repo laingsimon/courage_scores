@@ -1,9 +1,9 @@
 import React from 'react';
 
-export function Dialog({ children, onClose, title }) {
+export function Dialog({ children, onClose, title, slim }) {
     return (<div>
-        <div className="modal fade show" role="dialog" style={{display: 'block'}}>
-            <div className="modal-dialog modal-dialog-centered modal-dialog-larger-max-width">
+        <div className="modal fade show text-black" role="dialog" style={{display: 'block'}}>
+            <div className={`modal-dialog modal-dialog-centered${slim ? '' : ' modal-dialog-larger-max-width'}`}>
                 <div className="modal-content">
                     <div className="modal-header justify-content-center">
                         <h5>{title}</h5>

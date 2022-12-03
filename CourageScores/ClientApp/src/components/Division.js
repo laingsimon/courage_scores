@@ -11,7 +11,7 @@ import {TeamApi} from "../api/team";
 import {DivisionControls} from "./DivisionControls";
 import {DivisionReports} from "./division_reports/DivisionReports";
 
-export function Division({ account, apis }) {
+export function Division({ account, apis, divisions }) {
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ teams, setTeams ] = useState(null);
@@ -70,7 +70,8 @@ export function Division({ account, apis }) {
                 startDate: divisionData.season.startDate.substring(0, 10),
                 endDate: divisionData.season.endDate.substring(0, 10),
             }}
-            originalDivisionName={divisionData.name}
+            originalDivisionData={{ name: divisionData.name, id: divisionData.id }}
+            divisions={divisions}
             onReloadDivisionData={reloadDivisionData} />
         <ul className="nav nav-tabs">
             <NavItem>

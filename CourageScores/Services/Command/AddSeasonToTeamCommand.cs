@@ -43,20 +43,6 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             return new CommandOutcome<TeamSeason>(false, "Season not found", null);
         }
 
-        if (season.Teams.All(t => t.Id != model.Id))
-        {
-            // need to add the team to the season
-            var command = _commandFactory.GetCommand<AddTeamToSeasonCommand>().AddTeam(model);
-            var commandResult = await _seasonService.Upsert(season.Id, command, token);
-            if (!commandResult.Success || commandResult.Result == null)
-            {
-                // TODO: Include the errors, warnings and messages
-                return new CommandOutcome<TeamSeason>(false, "Could not add team to season", null);
-            }
-
-            season = commandResult.Result;
-        }
-
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
         if (teamSeason != null)
         {

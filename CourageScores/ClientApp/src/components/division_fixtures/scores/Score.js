@@ -10,8 +10,10 @@ import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
+import {DivisionControls} from "../../DivisionControls";
+import {SeasonApi} from "../../../api/season";
 
-export function Score({account}) {
+export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState('init');
     const [fixtureData, setFixtureData] = useState(null);
@@ -23,6 +25,9 @@ export function Score({account}) {
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
     const [ saveError, setSaveError ] = useState(null);
+    const [season, setSeason] = useState(null);
+    const [division, setDivision] = useState(null);
+    const [seasons, setSeasons] = useState(null);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -100,6 +105,7 @@ export function Score({account}) {
     async function loadFixtureData() {
         const http = new Http(new Settings());
         const gameApi = new GameApi(http);
+        const seasonApi = new SeasonApi(http);
         const gameData = await gameApi.get(fixtureId);
 
         try {
@@ -137,12 +143,29 @@ export function Score({account}) {
 
             setAllPlayers(allPlayers);
             setFixtureData(gameData);
+
+            const seasonsResponse = await seasonApi.getAll();
+            const season = seasonsResponse.filter(s => s.id === gameData.seasonId)[0];
+
+            setSeason(season);
+            setSeasons(seasonsResponse);
         } catch (e) {
             setError(e.toString());
         } finally {
             setLoading('ready');
         }
     }
+
+    useEffect(() => {
+        if (!fixtureData || !divisions) {
+            return;
+        }
+
+        const division = divisions[fixtureData.divisionId];
+        if (division) {
+            setDivision(division);
+        }
+    }, [ divisions, fixtureData ])
 
     function onMatchChanged(newMatch, index) {
         const newFixtureData = Object.assign({}, fixtureData);
@@ -259,6 +282,20 @@ export function Score({account}) {
     }
 
     return (<div>
+        <DivisionControls
+            reloadAll={apis.reloadAll}
+            seasons={seasons}
+            account={account}
+            originalSeasonData={{
+                id: season.id,
+                name: season.name,
+                startDate: season.startDate.substring(0, 10),
+                endDate: season.endDate.substring(0, 10),
+            }}
+            originalDivisionData={division}
+            divisions={divisions}
+            onReloadDivisionData={apis.reloadAll}
+            overrideMode="fixtures" />
         {fixtureData ? (<ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className="text-light"

@@ -23,16 +23,6 @@ public class Season : AuditedEntity, IPermissionedEntity
     public List<Division> Divisions { get; set; } = new();
 
     /// <summary>
-    /// The teams playing within the season (and which division they are attributed to)
-    /// </summary>
-    public List<Team.Team> Teams { get; set; } = new();
-
-    /// <summary>
-    /// The games that have, or are yet to be, played in this season
-    /// </summary>
-    public List<Game.Game> Games { get; set; } = new();
-
-    /// <summary>
     /// The name of this season
     /// </summary>
     public string Name { get; set; } = null!;
