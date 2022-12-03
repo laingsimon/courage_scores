@@ -6,6 +6,7 @@ import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
+import {Dialog} from "./common/Dialog";
 
 export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll, divisions, overrideMode }) {
     const { mode } = useParams();
@@ -17,6 +18,9 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     const [ seasonData, setSeasonData ] = useState(originalSeasonData);
     const [ divisionName, setDivisionName ] = useState(originalDivisionData.name);
     const [ openDropdown, setOpenDropdown ] = useState(null);
+    const [ newDivisionName, setNewDivisionName ] = useState('');
+    const [ newDivisionDialogOpen, setNewDivisionDialogOpen ] = useState(false);
+    const [ creatingDivision, setCreatingDivision ] = useState(false);
 
     function toggleDropdown(name) {
         if (openDropdown === null || openDropdown !== name) {
@@ -119,7 +123,56 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         return new Date(dateStr).toDateString().substring(4);
     }
 
+    async function createDivision() {
+        if (creatingDivision) {
+            return;
+        }
+
+        if (!newDivisionName) {
+            window.alert('Enter a division name');
+            return;
+        }
+
+        try {
+            setCreatingDivision(true);
+
+            const api = new DivisionApi(new Http(new Settings()));
+            const response = await api.update({
+                name: newDivisionName
+            });
+
+            if (response.success) {
+                await reloadAll();
+                await onReloadDivisionData();
+                setNewDivisionDialogOpen(false);
+            } else {
+                setSaveError(response);
+            }
+        } finally {
+            setCreatingDivision(false);
+        }
+    }
+
+    function renderNewDivisionDialog() {
+        return (<Dialog title="Create a new division" slim={true}>
+            <div className="input-group">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Name</span>
+                </div>
+                <input readOnly={creatingDivision} value={newDivisionName} onChange={(event) => setNewDivisionName(event.target.value)} className="form-control margin-right" />
+            </div>
+            <div className="mt-3 text-end">
+                <button className="btn btn-primary margin-right" onClick={() => setNewDivisionDialogOpen(false)}>Close</button>
+                <button className="btn btn-primary margin-right" onClick={createDivision}>
+                    {creatingDivision ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                    Create division
+                </button>
+            </div>
+        </Dialog>);
+    }
+
     return (<div className="btn-group py-2">
+        {newDivisionDialogOpen ? renderNewDivisionDialog() : null}
         {editMode !== 'division' ? (
                 <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => toggleDropdown('division')}>
                     <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
@@ -134,7 +187,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                             </DropdownItem>
                         ))}
                         {isDivisionAdmin ? (<DropdownItem>
-                            <Link to={`/division/new`} className="btn">➕ New division</Link>
+                            <span className="btn" onClick={() => setNewDivisionDialogOpen(true)}>➕ New division</span>
                         </DropdownItem>) : null}
                     </DropdownMenu>
                 </ButtonDropdown>) : null}
