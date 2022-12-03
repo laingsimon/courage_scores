@@ -13,11 +13,18 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
     const [ editMode, setEditMode ] = useState(null);
     const [ updatingData, setUpdatingData ] = useState(false);
-    const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
-    const [ divisionsDropdownOpen, setDivisionsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(originalSeasonData);
     const [ divisionName, setDivisionName ] = useState(originalDivisionData.name);
+    const [ openDropdown, setOpenDropdown ] = useState(null);
+
+    function toggleDropdown(name) {
+        if (openDropdown === null || openDropdown !== name) {
+            setOpenDropdown(name);
+        } else {
+            setOpenDropdown(null);
+        }
+    }
 
     function updateSeasonData(event) {
         const currentData = Object.assign({}, seasonData);
@@ -114,7 +121,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
 
     return (<div className="btn-group py-2">
         {editMode !== 'division' ? (
-                <ButtonDropdown isOpen={divisionsDropdownOpen} toggle={() => setDivisionsDropdownOpen(!divisionsDropdownOpen)}>
+                <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => toggleDropdown('division')}>
                     <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
                         {divisionName}
                         {isDivisionAdmin ? '✏' : ''}
@@ -144,7 +151,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 {updatingData ? null : (<button className="btn btn-sm btn-warning" onClick={() => setEditMode(null)}>Cancel</button>)}
             </div>)
             : null}
-        {editMode !== 'season' ? (<ButtonDropdown isOpen={seasonsDropdownOpen} toggle={() => setSeasonsDropdownOpen(!seasonsDropdownOpen)}>
+        {editMode !== 'season' ? (<ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => toggleDropdown('season')}>
                 <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isSeasonAdmin ? setEditMode('season') : null}>
                     {seasonData.name} ({renderDate(seasonData.startDate)} - {renderDate(seasonData.endDate)})
                     {isSeasonAdmin ? '✏' : ''}
