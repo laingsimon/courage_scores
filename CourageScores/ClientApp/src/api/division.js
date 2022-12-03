@@ -15,12 +15,16 @@ class DivisionApi {
         if (seasonId) {
             return this.http.get(`/api/Division/${divisionId}/${seasonId}/Data`, {});
         }
-        
+
         return this.http.get(`/api/Division/${divisionId}/Data`, {});
     }
 
     update(details) {
         return this.http.put(`/api/Division`, details);
+    }
+
+    delete(id) {
+        return this.http.delete(`/api/Division/${id}`);
     }
 }
 
