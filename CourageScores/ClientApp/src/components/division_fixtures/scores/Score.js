@@ -293,6 +293,7 @@ export function Score({account, apis, divisions}) {
                 endDate: season.endDate.substring(0, 10),
             }}
             originalDivisionData={division}
+            divisions={divisions}
             onReloadDivisionData={apis.reloadAll} />
         {fixtureData ? (<ul className="nav nav-tabs">
             <NavItem>

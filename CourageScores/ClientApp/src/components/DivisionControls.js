@@ -7,7 +7,7 @@ import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 
-export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll }) {
+export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll, divisions }) {
     const { mode } = useParams();
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
