@@ -7,8 +7,8 @@ import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 
-export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionName, onReloadDivisionData, reloadAll }) {
-    const { divisionId, mode } = useParams();
+export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll }) {
+    const { mode } = useParams();
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
     const [ editMode, setEditMode ] = useState(null);
@@ -16,7 +16,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(originalSeasonData);
-    const [ divisionName, setDivisionName ] = useState(originalDivisionName);
+    const [ divisionName, setDivisionName ] = useState(originalDivisionData.name);
 
     function updateSeasonData(event) {
         const currentData = Object.assign({}, seasonData);
@@ -89,7 +89,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             setUpdatingData(true);
             const api = new DivisionApi(new Http(new Settings()));
             const result = await api.update({
-                id: divisionId,
+                id: originalDivisionData.id,
                 name: divisionName
             });
 
@@ -138,7 +138,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 </DropdownToggle>
                 <DropdownMenu>
                     {seasons.map(s => (<DropdownItem key={s.id}>
-                            <Link className="btn" to={`/division/${divisionId}/${mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                            <Link className="btn" to={`/division/${originalDivisionData.id}/${mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                         </DropdownItem>
                     ))}
                     {isSeasonAdmin ? (<DropdownItem>
