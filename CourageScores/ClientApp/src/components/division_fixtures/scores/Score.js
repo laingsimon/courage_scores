@@ -294,7 +294,8 @@ export function Score({account, apis, divisions}) {
             }}
             originalDivisionData={division}
             divisions={divisions}
-            onReloadDivisionData={apis.reloadAll} />
+            onReloadDivisionData={apis.reloadAll}
+            overrideMode="fixtures" />
         {fixtureData ? (<ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className="text-light"

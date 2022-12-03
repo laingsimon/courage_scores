@@ -7,13 +7,14 @@ import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 
-export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll, divisions }) {
+export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll, divisions, overrideMode }) {
     const { mode } = useParams();
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
     const [ editMode, setEditMode ] = useState(null);
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ seasonsDropdownOpen, setSeasonsDropdownOpen ] = useState(false);
+    const [ divisionsDropdownOpen, setDivisionsDropdownOpen ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(originalSeasonData);
     const [ divisionName, setDivisionName ] = useState(originalDivisionData.name);
@@ -112,10 +113,24 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     }
 
     return (<div className="btn-group py-2">
-        {editMode !== 'division' ? (<button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
-            {divisionName}
-            {isDivisionAdmin ? '✏' : ''}
-        </button>) : null}
+        {editMode !== 'division' ? (
+                <ButtonDropdown isOpen={divisionsDropdownOpen} toggle={() => setDivisionsDropdownOpen(!divisionsDropdownOpen)}>
+                    <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
+                        {divisionName}
+                        {isDivisionAdmin ? '✏' : ''}
+                    </button>
+                    <DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}>
+                    </DropdownToggle>
+                    <DropdownMenu>
+                        {divisions.map(d => (<DropdownItem key={d.id}>
+                                <Link className="btn" to={`/division/${d.id}/${overrideMode || mode || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
+                            </DropdownItem>
+                        ))}
+                        {isDivisionAdmin ? (<DropdownItem>
+                            <Link to={`/division/new`} className="btn">➕ New division</Link>
+                        </DropdownItem>) : null}
+                    </DropdownMenu>
+                </ButtonDropdown>) : null}
         {editMode === 'division'
             ? (<div className="input-group margin-right">
                 <div className="input-group-prepend">
@@ -130,15 +145,15 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             </div>)
             : null}
         {editMode !== 'season' ? (<ButtonDropdown isOpen={seasonsDropdownOpen} toggle={() => setSeasonsDropdownOpen(!seasonsDropdownOpen)}>
-                <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isSeasonAdmin ? setEditMode('season') : null}>
+                <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isSeasonAdmin ? setEditMode('season') : null}>
                     {seasonData.name} ({renderDate(seasonData.startDate)} - {renderDate(seasonData.endDate)})
                     {isSeasonAdmin ? '✏' : ''}
                 </button>
-                <DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}>
+                <DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}>
                 </DropdownToggle>
                 <DropdownMenu>
                     {seasons.map(s => (<DropdownItem key={s.id}>
-                            <Link className="btn" to={`/division/${originalDivisionData.id}/${mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                            <Link className="btn" to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                         </DropdownItem>
                     ))}
                     {isSeasonAdmin ? (<DropdownItem>
