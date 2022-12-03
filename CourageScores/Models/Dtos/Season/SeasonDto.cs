@@ -24,16 +24,6 @@ public class SeasonDto : AuditedDto
     public List<DivisionDto> Divisions { get; set; } = null!;
 
     /// <summary>
-    /// The teams playing within the season (and which division they are attributed to)
-    /// </summary>
-    public List<TeamDto> Teams { get; set; } = null!;
-
-    /// <summary>
-    /// The games that have, or are yet to be, played in this season
-    /// </summary>
-    public List<GameDto> Games { get; set; } = null!;
-
-    /// <summary>
     /// The name of this season
     /// </summary>
     public string Name { get; set; } = null!;

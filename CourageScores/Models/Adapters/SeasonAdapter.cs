@@ -28,9 +28,7 @@ public class SeasonAdapter : IAdapter<Season, SeasonDto>
         return new SeasonDto
         {
             Divisions = await model.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
-            Games = await model.Games.SelectAsync(_gameAdapter.Adapt).ToList(),
             Id = model.Id,
-            Teams = await model.Teams.SelectAsync(_teamAdapter.Adapt).ToList(),
             EndDate = model.EndDate,
             StartDate = model.StartDate,
             Name = model.Name,
@@ -42,9 +40,7 @@ public class SeasonAdapter : IAdapter<Season, SeasonDto>
         return new Season
         {
             Divisions = await dto.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
-            Games = await dto.Games.SelectAsync(_gameAdapter.Adapt).ToList(),
             Id = dto.Id,
-            Teams = await dto.Teams.SelectAsync(_teamAdapter.Adapt).ToList(),
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,
             Name = dto.Name.Trim(),
