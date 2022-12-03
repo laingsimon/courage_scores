@@ -265,8 +265,12 @@ export function Score({account}) {
                          to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-dark active"
+                <NavLink tag={Link} className="text-light"
                          to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
+            </NavItem>
+            <NavItem>
+                <NavLink tag={Link} className="text-dark active"
+                         to={`/score/${fixtureId}`}>{fixtureData.home.name} vs {fixtureData.away.name} - {new Date(fixtureData.date).toDateString()}</NavLink>
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className="text-light"
@@ -276,11 +280,6 @@ export function Score({account}) {
         <div className="light-background p-3 overflow-auto">
             <table className="table">
                 <tbody>
-                <tr>
-                    <th colSpan="2">{fixtureData.home.name}</th>
-                    <th>vs</th>
-                    <th colSpan="2">{fixtureData.away.name}</th>
-                </tr>
                 {fixtureData.address || canSave ? (<tr>
                     {canSave
                         ? (<td colSpan="5">
