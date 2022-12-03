@@ -196,7 +196,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             onUpdateProposalSettings={settings => setProposalSettings(settings)} />) : null}
         {savingProposals ? renderSavingProposalsDialog() : null}
         {isAdmin ? (<div className="mb-3">
-            <span className="margin-right">Admin tools:</span>
             <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
                 🎲 Propose games...
             </button>
