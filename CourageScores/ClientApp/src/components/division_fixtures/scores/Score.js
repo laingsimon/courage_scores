@@ -234,10 +234,14 @@ export function Score({account}) {
         }
     }
 
-    function changeAddress(event) {
-         const newFixtureData = Object.assign({}, fixtureData);
-         newFixtureData.address = event.target.value;
-         setFixtureData(newFixtureData);
+    function changeFixtureProperty(event) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        if (event.target.type === 'checkbox') {
+            newFixtureData[event.target.name] = event.target.checked;
+        } else {
+            newFixtureData[event.target.name] = event.target.value;
+        }
+        setFixtureData(newFixtureData);
     }
 
     if (loading !== 'ready') {
@@ -284,10 +288,14 @@ export function Score({account}) {
                                    <div className="input-group-prepend">
                                        <span className="input-group-text">Address</span>
                                    </div>
-                                   <input disabled={saving} type="text" className="form-control" value={fixtureData.address} onChange={changeAddress}/>
+                                   <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
+                                   <div className="form-check form-switch">
+                                       <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
+                                       <label className="form-check-label" htmlFor="postponed">Postponed</label>
+                                   </div>
                                </div>
                            </td>)
-                        : (<td colSpan="5">Paying at: {fixtureData.address}</td>)}
+                        : (<td colSpan="5">Paying at: {fixtureData.address}{fixtureData.postponed ? (<span className="fw-bold text-danger ml-3">Postponed</span>) : null}</td>)}
                 </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
