@@ -6,6 +6,7 @@ public class RecordScoresDto
     public ManOfTheMatchDto? Away { get; set; }
     public List<RecordScoresMatchDto> Matches { get; set; } = null!;
     public string? Address { get; set; }
+    public bool? Postponed { get; set; }
 
     public class ManOfTheMatchDto
     {

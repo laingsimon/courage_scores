@@ -11,4 +11,5 @@ public class EditGameDto
     public Guid DivisionId { get; set; }
     public Guid HomeTeamId { get; set; }
     public Guid AwayTeamId { get; set; }
+    public bool Postponed { get; set; }
 }

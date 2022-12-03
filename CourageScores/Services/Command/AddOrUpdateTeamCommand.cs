@@ -56,6 +56,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 HomeTeamId = game.Home.Id,
                 Date = game.Date,
                 DivisionId = game.DivisionId,
+                Postponed = game.Postponed,
             });
         }
 

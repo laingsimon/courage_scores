@@ -45,6 +45,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public Guid SeasonId { get; set; }
 
+    /// <summary>
+    /// Whether the game has been postponed
+    /// </summary>
+    public bool Postponed { get; set; }
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;

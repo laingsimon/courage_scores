@@ -29,6 +29,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             Matches = await model.Matches.SelectAsync(_gameMatchAdapter.Adapt).ToList(),
             DivisionId = model.DivisionId,
             SeasonId = model.SeasonId,
+            Postponed = model.Postponed,
         }.AddAuditProperties(model);
     }
 
@@ -44,6 +45,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             Matches = await dto.Matches.SelectAsync(_gameMatchAdapter.Adapt).ToList(),
             DivisionId = dto.DivisionId,
             SeasonId = dto.SeasonId,
+            Postponed = dto.Postponed,
         }.AddAuditProperties(dto);
     }
 }
