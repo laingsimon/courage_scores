@@ -307,7 +307,7 @@ export function Score({account, apis, divisions}) {
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className="text-dark active"
-                         to={`/score/${fixtureId}`}>{fixtureData.home.name} vs {fixtureData.away.name} - {new Date(fixtureData.date).toDateString()}</NavLink>
+                         to={`/score/${fixtureId}`}>Fixture</NavLink>
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className="text-light"
