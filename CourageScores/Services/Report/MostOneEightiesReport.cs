@@ -6,7 +6,7 @@ namespace CourageScores.Services.Report;
 public class MostOneEightiesReport : IReport
 {
     private readonly int _topCount;
-    private readonly Dictionary<Guid, int> _player180sRecord = new();
+    private readonly Dictionary<Guid, int> _playerOneEightysRecord = new();
 
     public MostOneEightiesReport(int topCount = 3)
     {
@@ -25,19 +25,19 @@ public class MostOneEightiesReport : IReport
 
     public void VisitOneEighty(GamePlayer player)
     {
-        if (_player180sRecord.TryGetValue(player.Id, out var currentCount))
+        if (_playerOneEightysRecord.TryGetValue(player.Id, out var currentCount))
         {
-            _player180sRecord[player.Id] = currentCount + 1;
+            _playerOneEightysRecord[player.Id] = currentCount + 1;
         }
         else
         {
-            _player180sRecord[player.Id] = 1;
+            _playerOneEightysRecord[player.Id] = 1;
         }
     }
 
     private async IAsyncEnumerable<ReportRowDto> GetRows(IPlayerLookup playerLookup)
     {
-        foreach (var pair in _player180sRecord.OrderByDescending(pair => pair.Value))
+        foreach (var pair in _playerOneEightysRecord.OrderByDescending(pair => pair.Value))
         {
             var player = await playerLookup.GetPlayer(pair.Key);
             yield return new ReportRowDto

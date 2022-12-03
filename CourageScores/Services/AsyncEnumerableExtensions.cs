@@ -109,6 +109,7 @@ public static class AsyncEnumerableExtensions
         return await asyncEnumerable.ToDictionaryAsync(keySelector, item => item);
     }
 
+    // ReSharper disable once MemberCanBePrivate.Global
     public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<T, TKey, TValue>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> keySelector, Func<T, TValue> valueSelector)
         where TKey : notnull
     {
