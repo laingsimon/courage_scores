@@ -1,12 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {DivisionFixture} from "./DivisionFixture";
-import {NewFixtureDate} from "./scores/NewFixtureDate";
+import {NewFixtureDate} from "./NewFixtureDate";
 import {Dialog} from "../common/Dialog";
 import {SeasonApi} from "../../api/season";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
 import {GameApi} from "../../api/game";
+import {KnockoutFixture} from "./KnockoutFixture";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam }) {
     const isAdmin = account && account.access && account.access.manageGames;
@@ -221,6 +222,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         date={date.date}
                         allowTeamDelete={false}
                         allowTeamEdit={false} />))}
+                    {date.knockoutFixtures.map(kf => (<KnockoutFixture
+                        key={kf.id}
+                        fixture={kf} />))}
                     </tbody>
                 </table>
             </div>))}
