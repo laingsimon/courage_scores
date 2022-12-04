@@ -8,8 +8,9 @@ import {Settings} from "../../api/settings";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
 import {GameApi} from "../../api/game";
 import {KnockoutFixture} from "./KnockoutFixture";
+import {NewKnockoutGame} from "./NewKnockoutGame";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, onNewTeam }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
     const [ proposingGames, setProposingGames ] = useState(false);
@@ -187,6 +188,11 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         </Dialog>);
     }
 
+    async function onKnockoutChanged() {
+        const divisionData = await onReloadDivision();
+        setNewFixtures(divisionData.fixtures);
+    }
+
     return (<div className="light-background p-3">
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
@@ -223,8 +229,12 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         allowTeamDelete={false}
                         allowTeamEdit={false} />))}
                     {date.knockoutFixtures.map(kf => (<KnockoutFixture
-                        key={kf.id}
-                        fixture={kf} />))}
+                        key={kf.address}
+                        knockout={kf}
+                        date={date.date}
+                        seasonId={season.id}
+                        divisionId={divisionId}
+                        onKnockoutChanged={onKnockoutChanged} />))}
                     </tbody>
                 </table>
             </div>))}
@@ -237,7 +247,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate fixtures={newFixtures} teams={teams} onNewTeam={onNewTeam} date={newDate} divisionId={divisionId} seasonId={season.id} />
+                    <NewFixtureDate fixtures={newFixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
+                    {newFixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}
