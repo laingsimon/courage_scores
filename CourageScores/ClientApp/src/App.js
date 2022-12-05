@@ -11,6 +11,7 @@ import {DivisionApi} from "./api/division";
 import {Score} from "./components/division_fixtures/scores/Score";
 import {UserAdmin} from "./components/admin/UserAdmin";
 import {NewSeason} from "./components/admin/NewSeason";
+import {Knockout} from "./components/division_fixtures/knockouts/Knockout";
 
 export default class App extends Component {
     constructor(props) {
@@ -98,6 +99,7 @@ export default class App extends Component {
                     <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/userAdmin' element={<UserAdmin {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/season/new' element={<NewSeason {...this.combineProps({...this.props})} />} />}/>
+                    <Route path='/knockout/:knockoutId' element={<Knockout {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
             </Layout>
         );
