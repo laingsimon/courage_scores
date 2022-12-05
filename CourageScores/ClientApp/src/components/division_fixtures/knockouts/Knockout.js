@@ -130,6 +130,27 @@ export function Knockout({ account, divisions, apis }) {
         });
     }
 
+    function getWinningSide(round) {
+        if (round && round.nextRound) {
+            return getWinningSide(round.nextRound);
+        }
+
+        if (round.matches && round.matches.length === 1) {
+            const match = round.matches[0];
+            if (match.scoreA && match.scoreB && match.sideA && match.sideB) {
+                if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
+                    return match.sideA.id;
+                } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
+                    return match.sideB.id;
+                } else {
+                    return null;
+                }
+            }
+
+            return null;
+        }
+    }
+
     if (loading !== 'ready') {
         return (<div className="light-background p-3 loading-background">
             <div className="mt-2 pt-4 h3">Loading...</div>
@@ -142,6 +163,8 @@ export function Knockout({ account, divisions, apis }) {
 
     let sideIndex = 0;
     const readOnly = !isAdmin || !canSave || disabled || saving;
+    const winningSideId = getWinningSide(knockoutData.round);
+
     return (<div>
         <DivisionControls
             reloadAll={apis.reloadAll}
@@ -164,8 +187,8 @@ export function Knockout({ account, divisions, apis }) {
                 {knockoutData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
-                    return (<KnockoutSide key={thisSideIndex} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-                {readOnly ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
+                    return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || knockoutData.round} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                {readOnly || knockoutData.round ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
             </div>
             <KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />
             <button className="btn btn-primary" onClick={saveKnockout}>

@@ -58,7 +58,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     selected={player}
                     onChange={(elem, p) => setPlayer(p)}/>
                 <button disabled={disabled || readOnly} onClick={addPlayer}
-                        className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>💾
+                        className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
                 </button>
             </li>)}
         </ol>

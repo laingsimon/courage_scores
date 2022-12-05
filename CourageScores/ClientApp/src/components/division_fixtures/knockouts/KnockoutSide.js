@@ -1,14 +1,17 @@
 import React from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
+import {toMap} from "../../../Utilities";
 
-export function KnockoutSide({ seasonId, side, onChange, teams, otherSides }) {
+export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
     const team = { };
+
     const teamsAndPlayers = teams
         .map(t => {
             const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
+            const teamPlayerMap = toMap(teamSeason.players);
 
             if (side && side.players) {
-                const playerFound = side.players.reduce((prev, sidePlayer) => prev || teamSeason.players.filter(p => sidePlayer.id === p.id).length > 0, false);
+                const playerFound = side.players.reduce((prev, sidePlayer) => prev || teamPlayerMap[sidePlayer.id], false);
                 if (!playerFound) {
                     // the side contains a player, only allow other players from the same team.
                     return [];
@@ -22,7 +25,7 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides }) {
             if (otherSides) {
                 for (let index = 0; index < otherSides.length; index++) {
                     const otherSide = otherSides[index];
-                    const playerFound = otherSide.players.reduce((prev, sidePlayer) => prev || teamSeason.players.filter(p => sidePlayer.id === p.id).length > 0, false);
+                    const playerFound = otherSide.players.reduce((prev, sidePlayer) => prev || teamPlayerMap[sidePlayer.id], false);
                     if (playerFound) {
                         // don't allow teams from another selected side to be picked
                         return [];
@@ -69,7 +72,7 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides }) {
         return { id: tap.player.id, name: `${tap.player.name} (${tap.team.name})`, originalName: tap.player.name, team: tap.team };
     }
 
-    if (!side) {
+    if (!side && !readOnly) {
         return (<div className="bg-yellow p-1 m-1">
             <strong>Add a side</strong>
             <MultiPlayerSelection
@@ -79,12 +82,12 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides }) {
         </div>);
     }
 
-    return (<div className="bg-light p-1 m-1">
+    return (<div className={`p-1 m-1 ${winner ? 'bg-warning' : 'bg-light'}`}>
         <strong>{side.name}</strong>
-        <MultiPlayerSelection
+        {readOnly ? (<ol>{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
             allPlayers={teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer)}
             onAddPlayer={onAddPlayer}
-            onRemovePlayer={onRemovePlayer} />
+            onRemovePlayer={onRemovePlayer} />)}
     </div>);
 }

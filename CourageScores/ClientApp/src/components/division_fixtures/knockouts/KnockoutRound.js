@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
+import {toMap} from "../../../Utilities";
 
 export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
     const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && current.scoreA && current.scoreB, true);
+    const sideMap = toMap(sides);
 
     function sideSelection(side) {
         return {
@@ -16,7 +18,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
         const newNewMatch = Object.assign({}, newMatch);
         newNewMatch[property] = {
             id: sideId,
-            players: sides.filter(s => s.id === sideId)[0].players
+            players: sideMap[sideId].players
         };
         setNewMatch(newNewMatch);
     }
@@ -69,6 +71,10 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
     }
 
     async function removeMatch(matchIndex) {
+        if (!window.confirm('Are you sure you want to remove this match?')) {
+            return;
+        }
+
         const newRound = Object.assign({}, round);
         newRound.matches = round.matches || [];
         newRound.matches.splice(matchIndex, 1);
@@ -81,7 +87,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
     async function updateMatch(matchIndex, property, sideId) {
         const newRound = Object.assign({}, round);
         const match = newRound.matches[matchIndex];
-        match[property] = sides.filter(s => s.id === sideId)[0];
+        match[property] = sides[sideId];
 
         if (onChange) {
             await onChange(newRound);
@@ -112,9 +118,9 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
 
         for (let index = 0; index < round.matches.length; index++) {
             const match = round.matches[index];
-            if (match.scoreA > match.scoreB) {
+            if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
                 winners.push(match.sideA);
-            } else if (match.scoreB > match.scoreA) {
+            } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
                 winners.push(match.sideB);
             }
         }
@@ -124,36 +130,38 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
 
     let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
+    const hasNextRound = round.nextRound && round.nextRound.matches.length > 0;
+
     return (<div className="my-3 p-1">
         <strong>Round: {depth}</strong>
-        <table className="table"><tbody>
+        <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''}`}><tbody>
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
             return (<tr key={thisMatchIndex} className="bg-light">
-                <td>
-                    <BootstrapDropdown readOnly={readOnly}
+                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'bg-warning' : ''}>
+                    {readOnly || hasNextRound ? (match.sideA.name || sideMap[match.sideA.id].name) : (<BootstrapDropdown readOnly={readOnly}
                                        value={match.sideA ? match.sideA.id : null}
                                        options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideA')).map(sideSelection)}
                                        onChange={(side) => updateMatch(thisMatchIndex, 'sideA', side)}
-                                       className="margin-right" />
+                                       className="margin-right" />)}
                 </td>
-                <td>
-                    <input type="number" value={match.scoreA || ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreA')} />
+                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-warning' : 'narrow-column'}>
+                    {readOnly || hasNextRound ? (match.scoreA) : (<input type="number" value={match.scoreA || ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreA')} />)}
                 </td>
-                <td>vs</td>
-                <td>
-                    <input type="number" value={match.scoreB || ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreB')} />
+                <td className="narrow-column">vs</td>
+                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'narrow-column bg-warning' : 'narrow-column'}>
+                    {readOnly || hasNextRound ? (match.scoreB) : (<input type="number" value={match.scoreB || ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreB')} />)}
                 </td>
-                <td>
-                    <BootstrapDropdown readOnly={readOnly}
+                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'bg-warning' : ''}>
+                    {readOnly || hasNextRound ? (match.sideB.name || sideMap[match.sideB.id].name) : (<BootstrapDropdown readOnly={readOnly}
                                    value={match.sideB ? match.sideB.id : null}
                                    options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideB')).map(sideSelection)}
                                    onChange={(side) => updateMatch(thisMatchIndex, 'sideB', side)}
-                                   className="margin-right" />
+                                   className="margin-right" />)}
                 </td>
-                <td>
-                    <button className="btn btn-primary btn-sm" onClick={() => removeMatch(thisMatchIndex)}>🗑</button>
-                </td>
+                {readOnly || hasNextRound ? null : (<td>
+                    <button className="btn btn-danger btn-sm" onClick={() => removeMatch(thisMatchIndex)}>🗑</button>
+                </td>)}
             </tr>);
         })}
         {readOnly || allSidesSelected ? null : (<tr className="bg-yellow p-1">
@@ -173,10 +181,10 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                                className="margin-right" />
             </td>
             <td>
-                <button className="btn btn-primary btn-sm" onClick={addMatch}>➕</button>
+                <button disabled={readOnly} className="btn btn-primary btn-sm" onClick={addMatch}>➕</button>
             </td>
         </tr>)}
         </tbody></table>
-        {round.nextRound || (allMatchesHaveAScore && allSidesSelected) ? (<KnockoutRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={winningSides()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && allSidesSelected && winningSides().length > 1) ? (<KnockoutRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={winningSides()} />) : null}
     </div>);
 }

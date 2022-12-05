@@ -12,6 +12,7 @@ import {Score} from "./components/division_fixtures/scores/Score";
 import {UserAdmin} from "./components/admin/UserAdmin";
 import {NewSeason} from "./components/admin/NewSeason";
 import {Knockout} from "./components/division_fixtures/knockouts/Knockout";
+import {toMap} from "./Utilities";
 
 export default class App extends Component {
     constructor(props) {
@@ -68,7 +69,7 @@ export default class App extends Component {
         const subProps = Object.assign(
             {},
             this.state.subProps);
-        subProps.divisions = this.toMap(await this.divisionApi.getAll());
+        subProps.divisions = toMap(await this.divisionApi.getAll());
 
         this.setState({
             subProps: subProps
@@ -112,17 +113,5 @@ export default class App extends Component {
             reloadDivision: this.reloadDivision,
             reloadAll: this.reloadAll
         } });
-    }
-
-    toMap(items) {
-        const map = {
-            map: items.map.bind(items),
-            length: items.length,
-        };
-        for (let index = 0; index < items.length; index++) {
-            const item = items[index];
-            map[item.id] = item;
-        }
-        return map;
     }
 }
