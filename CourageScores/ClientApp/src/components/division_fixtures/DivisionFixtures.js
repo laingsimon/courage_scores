@@ -191,6 +191,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     async function onKnockoutChanged() {
         const divisionData = await onReloadDivision();
         setNewFixtures(divisionData.fixtures);
+        setNewDate('');
     }
 
     return (<div className="light-background p-3">
@@ -248,7 +249,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
                     <NewFixtureDate fixtures={newFixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {newFixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
+                    {newFixtures.filter(f => f.date === newDate).fixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}
