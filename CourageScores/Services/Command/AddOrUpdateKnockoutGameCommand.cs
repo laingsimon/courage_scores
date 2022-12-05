@@ -9,15 +9,18 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
 {
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly IAdapter<KnockoutSide, KnockoutSideDto> _knockoutSideAdapter;
+    private readonly IAdapter<KnockoutRound, KnockoutRoundDto> _knockoutRoundAdapter;
     private readonly IAuditingHelper _auditingHelper;
 
     public AddOrUpdateKnockoutGameCommand(
         IGenericRepository<Models.Cosmos.Season> seasonRepository,
         IAdapter<KnockoutSide, KnockoutSideDto> knockoutSideAdapter,
+        IAdapter<KnockoutRound, KnockoutRoundDto> knockoutRoundAdapter,
         IAuditingHelper auditingHelper)
     {
         _seasonRepository = seasonRepository;
         _knockoutSideAdapter = knockoutSideAdapter;
+        _knockoutRoundAdapter = knockoutRoundAdapter;
         _auditingHelper = auditingHelper;
     }
 
@@ -40,6 +43,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         game.DivisionId = update.DivisionId;
         game.SeasonId = latestSeason.Id;
         game.Sides = await update.Sides.SelectAsync(s => _knockoutSideAdapter.Adapt(s)).ToList();
+        game.Round = update.Round != null ? await _knockoutRoundAdapter.Adapt(update.Round) : null;
 
         foreach (var knockoutSide in game.Sides)
         {

@@ -10,4 +10,5 @@ public class EditKnockoutGameDto
     public DateTime Date { get; set; }
     public Guid DivisionId { get; set; }
     public List<KnockoutSideDto> Sides { get; set; } = new();
+    public KnockoutRoundDto? Round { get; set; }
 }
