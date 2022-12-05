@@ -9,13 +9,16 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
 {
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly IAdapter<KnockoutSide, KnockoutSideDto> _knockoutSideAdapter;
+    private readonly IAuditingHelper _auditingHelper;
 
     public AddOrUpdateKnockoutGameCommand(
         IGenericRepository<Models.Cosmos.Season> seasonRepository,
-        IAdapter<KnockoutSide, KnockoutSideDto> knockoutSideAdapter)
+        IAdapter<KnockoutSide, KnockoutSideDto> knockoutSideAdapter,
+        IAuditingHelper auditingHelper)
     {
         _seasonRepository = seasonRepository;
         _knockoutSideAdapter = knockoutSideAdapter;
+        _auditingHelper = auditingHelper;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(KnockoutGame game, EditKnockoutGameDto update, CancellationToken token)
@@ -38,6 +41,63 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         game.SeasonId = latestSeason.Id;
         game.Sides = await update.Sides.SelectAsync(s => _knockoutSideAdapter.Adapt(s)).ToList();
 
+        foreach (var knockoutSide in game.Sides)
+        {
+            if (knockoutSide.Id == default)
+            {
+                knockoutSide.Id = Guid.NewGuid();
+            }
+            await _auditingHelper.SetUpdated(knockoutSide);
+
+            await SetIds(knockoutSide.Players);
+        }
+        await SetIds(game.Round, game.Sides);
+
         return CommandResult.SuccessNoMessage;
+    }
+
+    private async Task SetIds(KnockoutRound? round, IReadOnlyCollection<KnockoutSide> sides)
+    {
+        if (round == null)
+        {
+            return;
+        }
+
+        if (round.Id == default)
+        {
+            round.Id = Guid.NewGuid();
+        }
+        await _auditingHelper.SetUpdated(round);
+
+        foreach (var knockoutSide in round.Sides.Where(s => s.Id == default))
+        {
+            var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).SequenceEqual(knockoutSide.Players.OrderBy(p => p.Id)));
+            if (equivalentSide != null)
+            {
+                knockoutSide.Id = equivalentSide.Id;
+            }
+            await _auditingHelper.SetUpdated(knockoutSide);
+
+            await SetIds(knockoutSide.Players);
+        }
+
+        foreach (var match in round.Matches)
+        {
+            if (match.Id == default)
+            {
+                match.Id = Guid.NewGuid();
+            }
+            await _auditingHelper.SetUpdated(match);
+        }
+
+        await SetIds(round.NextRound, sides);
+    }
+
+    private async Task SetIds(List<GamePlayer> players)
+    {
+        foreach (var player in players)
+        {
+            await _auditingHelper.SetUpdated(player);
+        }
     }
 }
