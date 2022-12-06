@@ -67,6 +67,50 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
         }
     }
 
+    function renderResult(round, rounds) {
+        if (!round) {
+            return null;
+        }
+
+        if (round.nextRound) {
+            return renderResult(round.nextRound, rounds + 1);
+        }
+
+        if (round && round.matches && round.matches.length === 1) {
+            const match = round.matches[0];
+            if (match.scoreA && match.scoreB && match.sideA && match.sideB) {
+                if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
+                    return renderWiningSide(match.sideA, rounds);
+                } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
+                    return renderWiningSide(match.sideB, rounds);
+                } else {
+                    return (<span>A draw after {rounds} rounds</span>);
+                }
+            }
+
+            return null;
+        }
+    }
+
+    function renderWiningSide(side, rounds) {
+        return (<span className="margin-left">Winner: <strong className="text-primary">{side.name || side.id}</strong> after {rounds} rounds</span>);
+    }
+
+    function getKnockoutType(sides) {
+        if (!sides || !sides.length) {
+            return 'Knockout';
+        }
+
+        const firstSide = sides[0];
+        const playerCount = firstSide.players.length;
+
+        switch (playerCount) {
+            case 1: return 'Singles';
+            case 2: return 'Pairs';
+            default: return 'Knockout';
+        }
+    }
+
     if (isProposedKnockout && !isAdmin) {
         // don't show proposed knockout addresses when not an admin
         return null;
@@ -88,8 +132,11 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
     }
 
     return (<tr>
-        <td colSpan="5">
-            Knockout at <strong>{knockout.address}</strong>
+        <td colSpan="2">
+            {getKnockoutType(knockout.sides)} at <strong>{knockout.address}</strong>
+        </td>
+        <td colSpan="3">
+            {knockout.round ? (renderResult(knockout.round, 1)) : null}
         </td>
         <td className="medium-column-width">
             <Link className="btn btn-sm btn-primary margin-right" to={`/knockout/${knockout.id}`}>🎖️</Link>
