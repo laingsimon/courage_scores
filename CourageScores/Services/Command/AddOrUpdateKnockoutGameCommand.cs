@@ -1,0 +1,107 @@
+using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos.Game;
+using CourageScores.Repository;
+
+namespace CourageScores.Services.Command;
+
+public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, EditKnockoutGameDto>
+{
+    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
+    private readonly IAdapter<KnockoutSide, KnockoutSideDto> _knockoutSideAdapter;
+    private readonly IAdapter<KnockoutRound, KnockoutRoundDto> _knockoutRoundAdapter;
+    private readonly IAuditingHelper _auditingHelper;
+
+    public AddOrUpdateKnockoutGameCommand(
+        IGenericRepository<Models.Cosmos.Season> seasonRepository,
+        IAdapter<KnockoutSide, KnockoutSideDto> knockoutSideAdapter,
+        IAdapter<KnockoutRound, KnockoutRoundDto> knockoutRoundAdapter,
+        IAuditingHelper auditingHelper)
+    {
+        _seasonRepository = seasonRepository;
+        _knockoutSideAdapter = knockoutSideAdapter;
+        _knockoutRoundAdapter = knockoutRoundAdapter;
+        _auditingHelper = auditingHelper;
+    }
+
+    protected override async Task<CommandResult> ApplyUpdates(KnockoutGame game, EditKnockoutGameDto update, CancellationToken token)
+    {
+        var allSeasons = await _seasonRepository.GetAll(token).ToList();
+        var latestSeason = allSeasons.MaxBy(s => s.EndDate);
+
+        if (latestSeason == null)
+        {
+            return new CommandResult
+            {
+                Success = false,
+                Message = "Unable to add or update game, no season exists",
+            };
+        }
+
+        game.Address = update.Address;
+        game.Date = update.Date;
+        game.DivisionId = update.DivisionId;
+        game.SeasonId = latestSeason.Id;
+        game.Sides = await update.Sides.SelectAsync(s => _knockoutSideAdapter.Adapt(s)).ToList();
+        game.Round = update.Round != null ? await _knockoutRoundAdapter.Adapt(update.Round) : null;
+
+        foreach (var knockoutSide in game.Sides)
+        {
+            if (knockoutSide.Id == default)
+            {
+                knockoutSide.Id = Guid.NewGuid();
+            }
+            await _auditingHelper.SetUpdated(knockoutSide);
+
+            await SetIds(knockoutSide.Players);
+        }
+        await SetIds(game.Round, game.Sides);
+
+        return CommandResult.SuccessNoMessage;
+    }
+
+    private async Task SetIds(KnockoutRound? round, IReadOnlyCollection<KnockoutSide> sides)
+    {
+        if (round == null)
+        {
+            return;
+        }
+
+        if (round.Id == default)
+        {
+            round.Id = Guid.NewGuid();
+        }
+        await _auditingHelper.SetUpdated(round);
+
+        foreach (var knockoutSide in round.Sides.Where(s => s.Id == default))
+        {
+            var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).SequenceEqual(knockoutSide.Players.OrderBy(p => p.Id)));
+            if (equivalentSide != null)
+            {
+                knockoutSide.Id = equivalentSide.Id;
+            }
+            await _auditingHelper.SetUpdated(knockoutSide);
+
+            await SetIds(knockoutSide.Players);
+        }
+
+        foreach (var match in round.Matches)
+        {
+            if (match.Id == default)
+            {
+                match.Id = Guid.NewGuid();
+            }
+            await _auditingHelper.SetUpdated(match);
+        }
+
+        await SetIds(round.NextRound, sides);
+    }
+
+    private async Task SetIds(List<GamePlayer> players)
+    {
+        foreach (var player in players)
+        {
+            await _auditingHelper.SetUpdated(player);
+        }
+    }
+}

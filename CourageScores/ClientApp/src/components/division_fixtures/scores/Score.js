@@ -165,7 +165,7 @@ export function Score({account, apis, divisions}) {
         if (division) {
             setDivision(division);
         }
-    }, [ divisions, fixtureData ])
+    }, [ divisions, fixtureData ]);
 
     function onMatchChanged(newMatch, index) {
         const newFixtureData = Object.assign({}, fixtureData);

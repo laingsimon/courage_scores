@@ -291,7 +291,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         }
     }
 
-    return (<tr key={fixture.id} className={(deleting ? 'text-decoration-line-through' : '') + (proposal ? ' bg-yellow' : '')}>
+    return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (proposal ? ' bg-yellow' : '')}>
         <td>
             {isAdmin && allowTeamEdit ? (
                 <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>

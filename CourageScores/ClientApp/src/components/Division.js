@@ -26,6 +26,7 @@ export function Division({ account, apis, divisions }) {
 
         const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
         setTeams(teams);
+        return divisionData;
     }
 
     useEffect(() => {
@@ -103,7 +104,6 @@ export function Division({ account, apis, divisions }) {
                 fixtures={divisionData.fixtures}
                 teams={teams}
                 account={account}
-                onNewTeam={reloadDivisionData}
                 onReloadDivision={reloadDivisionData} />)
             : null}
         {effectiveTab === 'players'

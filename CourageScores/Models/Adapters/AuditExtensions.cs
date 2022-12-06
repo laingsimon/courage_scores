@@ -22,10 +22,26 @@ public static class AuditExtensions
         where TModel: AuditedEntity
         where TDto: AuditedDto
     {
-        model.Author = dto.Author;
-        model.Created = dto.Created;
-        model.Editor = dto.Editor;
-        model.Updated = dto.Updated;
+        if (dto.Author != null)
+        {
+            model.Author = dto.Author;
+        }
+
+        if (dto.Created.HasValue)
+        {
+            model.Created = dto.Created.Value;
+        }
+
+        if (dto.Editor != null)
+        {
+            model.Editor = dto.Editor;
+        }
+
+        if (dto.Updated.HasValue)
+        {
+            model.Updated = dto.Updated.Value;
+        }
+
         model.Deleted = dto.Deleted;
         model.Remover = dto.Remover;
         return model;

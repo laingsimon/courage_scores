@@ -4,7 +4,7 @@ import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reacts
 export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    if (options.length === 0) {
+    if (!options || options.length === 0) {
         return (<button className={`btn btn-sm btn-${color || 'light'} dropdown-toggle`} disabled>&nbsp;</button>)
     }
 

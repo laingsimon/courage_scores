@@ -41,26 +41,26 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     {renderPlayer(p)} {disabled ? '' : '🗑'}
                 </button>)}</li>);
             })}
+            {disabled ? null : (<li>
+                {showNotes ? (<input
+                    disabled={disabled}
+                    readOnly={readOnly}
+                    onChange={(elem) => setNotes(elem.target.value)}
+                    value={notes}
+                    className="margin-right"
+                    type="number"
+                    min="100"
+                    max="120"/>) : null}
+                <PlayerSelection
+                    disabled={disabled}
+                    readOnly={readOnly}
+                    players={allPlayers}
+                    selected={player}
+                    onChange={(elem, p) => setPlayer(p)}/>
+                <button disabled={disabled || readOnly} onClick={addPlayer}
+                        className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
+                </button>
+            </li>)}
         </ol>
-        {disabled ? null : (<div>
-            {showNotes ? (<input
-                disabled={disabled}
-                readOnly={readOnly}
-                onChange={(elem) => setNotes(elem.target.value)}
-                value={notes}
-                className="margin-right"
-                type="number"
-                min="100"
-                max="120"/>) : null}
-            <PlayerSelection
-                disabled={disabled}
-                readOnly={readOnly}
-                players={allPlayers}
-                selected={player}
-                onChange={(elem, p) => setPlayer(p)}/>
-            <button disabled={disabled || readOnly} onClick={addPlayer}
-                    className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'}`}>💾
-            </button>
-        </div>)}
     </div>);
 }

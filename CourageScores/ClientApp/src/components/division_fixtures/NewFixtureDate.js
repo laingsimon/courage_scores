@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {Dialog} from "../../common/Dialog";
-import {EditTeamDetails} from "../../division_teams/EditTeamDetails";
-import {GameApi} from "../../../api/game";
-import {Http} from "../../../api/http";
-import {Settings} from "../../../api/settings";
-import {ErrorDisplay} from "../../common/ErrorDisplay";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {Dialog} from "../common/Dialog";
+import {EditTeamDetails} from "../division_teams/EditTeamDetails";
+import {GameApi} from "../../api/game";
+import {Http} from "../../api/http";
+import {Settings} from "../../api/settings";
+import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
     const [ homeTeamId, setHomeTeamId ] = useState(null);
