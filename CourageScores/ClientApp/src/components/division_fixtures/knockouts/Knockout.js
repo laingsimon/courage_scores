@@ -135,7 +135,7 @@ export function Knockout({ account, divisions, apis }) {
             return getWinningSide(round.nextRound);
         }
 
-        if (round.matches && round.matches.length === 1) {
+        if (round && round.matches && round.matches.length === 1) {
             const match = round.matches[0];
             if (match.scoreA && match.scoreB && match.sideA && match.sideB) {
                 if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
@@ -183,18 +183,18 @@ export function Knockout({ account, divisions, apis }) {
         <div className="light-background p-3">
             <p>At <strong>{knockoutData.address}</strong> on <strong>{new Date(knockoutData.date).toDateString()}</strong></p>
             <div>Sides:</div>
-            <div className="my-1 d-flex flex-sm-wrap">
+            <div className="my-1 d-flex flex-wrap">
                 {knockoutData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
                     return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || knockoutData.round} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || knockoutData.round ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
             </div>
-            <KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />
-            <button className="btn btn-primary" onClick={saveKnockout}>
+            {knockoutData.sides.length > 0 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {isAdmin ? (<button className="btn btn-primary" onClick={saveKnockout}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save
-            </button>
+            </button>) : null}
         </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save knockout details"/>) : null}
     </div>);

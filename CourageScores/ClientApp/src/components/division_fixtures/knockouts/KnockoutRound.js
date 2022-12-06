@@ -130,7 +130,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
 
     let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
-    const hasNextRound = round.nextRound && round.nextRound.matches.length > 0;
+    const hasNextRound = round.nextRound && round.nextRound.matches && round.nextRound.matches.length > 0;
 
     return (<div className="my-3 p-1">
         <strong>Round: {depth}</strong>
