@@ -244,7 +244,6 @@ public class DivisionService : IDivisionService
                     Id = default,
                     Round = null,
                     Sides = new(),
-                    DivisionId = default,
                     SeasonId = default,
                 };
             }

@@ -10,7 +10,7 @@ import {KnockoutRound} from "./KnockoutRound";
 import {KnockoutSide} from "./KnockoutSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 
-export function Knockout({ account, divisions, apis }) {
+export function Knockout({ account, apis }) {
     const { knockoutId } = useParams();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
@@ -20,7 +20,6 @@ export function Knockout({ account, divisions, apis }) {
     const [canSave, setCanSave] = useState(true);
     const [knockoutData, setKnockoutData] = useState(null);
     const [season, setSeason] = useState(null);
-    const [division, setDivision] = useState(null);
     const [seasons, setSeasons] = useState(null);
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
@@ -42,17 +41,6 @@ export function Knockout({ account, divisions, apis }) {
         // eslint-disable-next-line
         [loading]);
 
-    useEffect(() => {
-        if (!knockoutData || !divisions) {
-            return;
-        }
-
-        const division = divisions[knockoutData.divisionId];
-        if (division) {
-            setDivision(division);
-        }
-    }, [ divisions, knockoutData ]);
-
     async function loadFixtureData() {
         const http = new Http(new Settings());
         const knockoutApi = new KnockoutApi(http);
@@ -70,7 +58,7 @@ export function Knockout({ account, divisions, apis }) {
 
             const seasonsResponse = await seasonApi.getAll();
             const season = seasonsResponse.filter(s => s.id === knockoutData.seasonId)[0];
-            const teams = await teamApi.getForDivisionAndSeason(knockoutData.divisionId, knockoutData.seasonId);
+            const teams = await teamApi.getAll();
 
             setTeams(teams);
             setSeason(season);
@@ -176,8 +164,6 @@ export function Knockout({ account, divisions, apis }) {
                 startDate: season.startDate.substring(0, 10),
                 endDate: season.endDate.substring(0, 10),
             }}
-            originalDivisionData={division}
-            divisions={divisions}
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
         <div className="light-background p-3">

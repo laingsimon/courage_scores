@@ -13,11 +13,6 @@ public class KnockoutGame : AuditedEntity, IPermissionedEntity
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The division for the knockout game
-    /// </summary>
-    public Guid DivisionId { get; set; }
-
-    /// <summary>
     /// The season for the knockout game
     /// </summary>
     public Guid SeasonId { get; set; }

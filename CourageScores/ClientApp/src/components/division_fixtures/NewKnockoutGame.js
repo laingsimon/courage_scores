@@ -22,7 +22,6 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
             const response = await api.update({
                 date: date,
                 address: address,
-                divisionId: divisionId,
                 seasonId: seasonId
             });
 

@@ -40,7 +40,6 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
 
         game.Address = update.Address;
         game.Date = update.Date;
-        game.DivisionId = update.DivisionId;
         game.SeasonId = latestSeason.Id;
         game.Sides = await update.Sides.SelectAsync(s => _knockoutSideAdapter.Adapt(s)).ToList();
         game.Round = update.Round != null ? await _knockoutRoundAdapter.Adapt(update.Round) : null;
