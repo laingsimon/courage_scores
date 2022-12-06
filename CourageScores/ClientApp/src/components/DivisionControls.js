@@ -140,7 +140,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     }
 
     function renderDate(dateStr) {
-        return new Date(dateStr).toDateString().substring(4);
+        return new Date(dateStr).toLocaleDateString('en-GB', { month: "short", day: "numeric" });
     }
 
     async function createDivision() {
