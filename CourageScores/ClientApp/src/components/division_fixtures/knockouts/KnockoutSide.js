@@ -1,6 +1,6 @@
 import React from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, nameSort} from "../../../Utilities";
+import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
 
 export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
     const team = { };
@@ -54,6 +54,7 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
     async function onAddPlayer(player) {
         const newSide = Object.assign({}, side);
         newSide.players = newSide.players || [];
+        newSide.id = newSide.id || createTemporaryId();
         newSide.players.push({
             id: player.id,
             name: player.originalName
