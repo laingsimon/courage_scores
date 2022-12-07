@@ -29,4 +29,14 @@ public class KnockoutGameDto : AuditedDto
     /// The address for the knockout games
     /// </summary>
     public string Address { get; set; } = null!;
+
+    /// <summary>
+    /// Who scored a 180 in the match
+    /// </summary>
+    public List<GamePlayerDto> OneEighties { get; set; } = null!;
+
+    /// <summary>
+    /// Who checked out with more than 100
+    /// </summary>
+    public List<NotablePlayerDto> Over100Checkouts { get; set; } = null!;
 }

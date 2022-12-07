@@ -9,6 +9,8 @@ import {TeamApi} from "../../../api/team";
 import {KnockoutRound} from "./KnockoutRound";
 import {KnockoutSide} from "./KnockoutSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
+import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
+import {nameSort} from "../../../Utilities";
 
 export function Knockout({ account, apis }) {
     const { knockoutId } = useParams();
@@ -23,6 +25,7 @@ export function Knockout({ account, apis }) {
     const [seasons, setSeasons] = useState(null);
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
+    const [allPlayers, setAllPlayers] = useState([]);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -59,10 +62,15 @@ export function Knockout({ account, apis }) {
             const seasonsResponse = await seasonApi.getAll();
             const season = seasonsResponse.filter(s => s.id === knockoutData.seasonId)[0];
             const teams = await teamApi.getAll();
+            const allPlayers = knockoutData.sides
+                ? knockoutData.sides.flatMap(side => side.players)
+                : [];
+            allPlayers.sort(nameSort);
 
             setTeams(teams);
             setSeason(season);
             setSeasons(seasonsResponse);
+            setAllPlayers(allPlayers);
         } catch (e) {
             setError(e.toString());
         } finally {
@@ -145,6 +153,54 @@ export function Knockout({ account, apis }) {
         }
     }
 
+    function add180(player) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        if (!newKnockoutData.oneEighties) {
+            newKnockoutData.oneEighties = [];
+        }
+
+        newKnockoutData.oneEighties.push({
+            id: player.id,
+            name: player.name
+        });
+
+        setKnockoutData(newKnockoutData);
+
+    }
+
+    function addHiCheck(player, notes) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        if (!newKnockoutData.over100Checkouts) {
+            newKnockoutData.over100Checkouts = [];
+        }
+
+        newKnockoutData.over100Checkouts.push({
+            id: player.id,
+            name: player.name,
+            notes: notes
+        });
+
+        setKnockoutData(newKnockoutData);
+    }
+
+    function removeOneEightyScore(playerId, index) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        newKnockoutData.oneEighties.splice(index, 1);
+
+        setKnockoutData(newKnockoutData);
+    }
+
+    function removeHiCheck(playerId, index) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        newKnockoutData.over100Checkouts.splice(index, 1);
+
+        setKnockoutData(newKnockoutData);
+    }
+
     if (loading !== 'ready') {
         return (<div className="light-background p-3 loading-background">
             <div className="mt-2 pt-4 h3">Loading...</div>
@@ -173,7 +229,7 @@ export function Knockout({ account, apis }) {
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
         <div className="light-background p-3">
-            {isAdmin 
+            {isAdmin
                 ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
@@ -190,6 +246,33 @@ export function Knockout({ account, apis }) {
                 {readOnly || knockoutData.round ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
             </div>
             {knockoutData.sides.length >= 2 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {knockoutData.sides.length >= 2 ? (<table className="table">
+                <tbody>
+                <tr>
+                    <td colSpan="2">
+                        180s<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            players={knockoutData.oneEighties || []}
+                            onRemovePlayer={removeOneEightyScore}
+                            onAddPlayer={add180}/>
+                    </td>
+                    <td colSpan="2">
+                        100+ c/o<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            players={knockoutData.over100Checkouts || []}
+                            onRemovePlayer={removeHiCheck}
+                            onAddPlayer={addHiCheck}
+                            showNotes={true} />
+                    </td>
+                </tr>
+                </tbody>
+            </table>) : null}
             {isAdmin ? (<button className="btn btn-primary" onClick={saveKnockout}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save

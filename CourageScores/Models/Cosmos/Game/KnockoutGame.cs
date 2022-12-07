@@ -32,6 +32,16 @@ public class KnockoutGame : AuditedEntity, IPermissionedEntity
     /// </summary>
     public string Address { get; set; } = null!;
 
+    /// <summary>
+    /// Who scored a 180 in the match
+    /// </summary>
+    public List<GamePlayer> OneEighties { get; set; } = new();
+
+    /// <summary>
+    /// Who checked out with more than 100
+    /// </summary>
+    public List<NotablePlayer> Over100Checkouts { get; set; } = new();
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;

@@ -8,13 +8,19 @@ public class KnockoutGameAdapter : IAdapter<KnockoutGame, KnockoutGameDto>
 {
     private readonly IAdapter<KnockoutRound, KnockoutRoundDto> _roundAdapter;
     private readonly IAdapter<KnockoutSide, KnockoutSideDto> _sideAdapter;
+    private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
+    private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
 
     public KnockoutGameAdapter(
         IAdapter<KnockoutRound, KnockoutRoundDto> roundAdapter,
-        IAdapter<KnockoutSide, KnockoutSideDto> sideAdapter)
+        IAdapter<KnockoutSide, KnockoutSideDto> sideAdapter,
+        IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
+        IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter)
     {
         _roundAdapter = roundAdapter;
         _sideAdapter = sideAdapter;
+        _gamePlayerAdapter = gamePlayerAdapter;
+        _notablePlayerAdapter = notablePlayerAdapter;
     }
 
     public async Task<KnockoutGameDto> Adapt(KnockoutGame model)
@@ -27,6 +33,8 @@ public class KnockoutGameAdapter : IAdapter<KnockoutGame, KnockoutGameDto>
             Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList(),
             SeasonId = model.SeasonId,
             Address = model.Address,
+            OneEighties = await model.OneEighties.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
+            Over100Checkouts = await model.Over100Checkouts.SelectAsync(_notablePlayerAdapter.Adapt).ToList(),
         }.AddAuditProperties(model);
     }
 
@@ -40,6 +48,8 @@ public class KnockoutGameAdapter : IAdapter<KnockoutGame, KnockoutGameDto>
             Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList(),
             SeasonId = dto.SeasonId,
             Address = dto.Address,
+            OneEighties = await dto.OneEighties.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
+            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(_notablePlayerAdapter.Adapt).ToList(),
         }.AddAuditProperties(dto);
     }
 }

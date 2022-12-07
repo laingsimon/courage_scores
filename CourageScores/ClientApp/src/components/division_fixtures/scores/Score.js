@@ -12,6 +12,7 @@ import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
+import {nameSort} from "../../../Utilities";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -45,16 +46,6 @@ export function Score({account, apis, divisions}) {
         },
         // eslint-disable-next-line
         [loading]);
-
-    function sortPlayers(x, y) {
-        if (x.name > y.name) {
-            return 1;
-        } else if (x.name < y.name) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const http = new Http(new Settings());
@@ -94,7 +85,7 @@ export function Score({account, apis, divisions}) {
            });
         });
 
-        players.sort(sortPlayers);
+        players.sort(nameSort);
         players.push({
             id: NEW_PLAYER,
             name: 'Add a player...'
@@ -135,7 +126,7 @@ export function Score({account, apis, divisions}) {
             setAwayTeam(awayTeamPlayers);
 
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
-            allPlayers.sort(sortPlayers);
+            allPlayers.sort(nameSort);
 
             if (!gameData.matches || !gameData.matches.length) {
                 gameData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
