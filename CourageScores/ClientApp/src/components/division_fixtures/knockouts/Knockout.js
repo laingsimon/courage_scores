@@ -189,7 +189,7 @@ export function Knockout({ account, apis }) {
                     return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || knockoutData.round} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || knockoutData.round ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
             </div>
-            {knockoutData.sides.length > 0 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {knockoutData.sides.length >= 2 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
             {isAdmin ? (<button className="btn btn-primary" onClick={saveKnockout}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save
