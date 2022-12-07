@@ -76,6 +76,12 @@ export function Knockout({ account, apis }) {
         setKnockoutData(newKnockoutData);
     }
 
+    async function changeAddress(event) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+        newKnockoutData.address = event.target.value;
+        setKnockoutData(newKnockoutData);
+    }
+
     async function sideChanged(newSide, sideIndex) {
         const newKnockoutData = Object.assign({}, knockoutData);
         if (sideIndex === undefined) {
@@ -167,7 +173,14 @@ export function Knockout({ account, apis }) {
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
         <div className="light-background p-3">
-            <p>At <strong>{knockoutData.address}</strong> on <strong>{new Date(knockoutData.date).toDateString()}</strong></p>
+            {isAdmin 
+                ? (<div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">Address</span>
+                        </div>
+                        <input className="form-control" disabled={saving} type="text" value={knockoutData.address} onChange={changeAddress} />
+                    </div>)
+                : (<p>At <strong>{knockoutData.address}</strong> on <strong>{new Date(knockoutData.date).toDateString()}</strong></p>)}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
                 {knockoutData.sides.map(side => {
