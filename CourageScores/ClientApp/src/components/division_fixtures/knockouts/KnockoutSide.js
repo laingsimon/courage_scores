@@ -22,6 +22,7 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
 
     const sidePlayerMap = side ? toMap(side.players) : {};
     const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
+    teams.sort(nameSort);
 
     const teamsAndPlayers = teams
         .flatMap(t => {
