@@ -211,7 +211,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                         </DropdownItem>) : null}
                     </DropdownMenu>
                 </ButtonDropdown>) : null}
-        {editMode !== 'division' && (!originalDivisionData || !divisions) ? (<div className="btn-group"><button className="btn btn-info text-nowrap">All divisions</button></div>) : null}
+        {editMode !== 'division' && (!originalDivisionData || !divisions) ? (<div className="btn-group"><button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}>All divisions</button></div>) : null}
         {editMode === 'division' && originalDivisionData && divisions
             ? (<div className="input-group margin-right">
                 <div className="input-group-prepend">
