@@ -206,7 +206,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 seasonId={seasonId}
                 gameId={gameId} /></div>))}
         </td>
-        <td className="vertical-align-middle">
+        <td className="vertical-align-middle text-end">
             {disabled
                 ? (match.homeScore)
                 : (<input
@@ -216,8 +216,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     value={match.homeScore === null ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
-        <td className="vertical-align-middle">vs</td>
-        <td className="vertical-align-middle">
+        <td className="vertical-align-middle text-center">vs</td>
+        <td className="vertical-align-middle text-start">
             {disabled
                 ? (match.awayScore)
                 : (<input

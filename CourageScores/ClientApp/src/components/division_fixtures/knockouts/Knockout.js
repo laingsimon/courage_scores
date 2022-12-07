@@ -9,8 +9,10 @@ import {TeamApi} from "../../../api/team";
 import {KnockoutRound} from "./KnockoutRound";
 import {KnockoutSide} from "./KnockoutSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
+import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
+import {nameSort} from "../../../Utilities";
 
-export function Knockout({ account, divisions, apis }) {
+export function Knockout({ account, apis }) {
     const { knockoutId } = useParams();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
@@ -20,10 +22,10 @@ export function Knockout({ account, divisions, apis }) {
     const [canSave, setCanSave] = useState(true);
     const [knockoutData, setKnockoutData] = useState(null);
     const [season, setSeason] = useState(null);
-    const [division, setDivision] = useState(null);
     const [seasons, setSeasons] = useState(null);
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
+    const [allPlayers, setAllPlayers] = useState([]);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -42,17 +44,6 @@ export function Knockout({ account, divisions, apis }) {
         // eslint-disable-next-line
         [loading]);
 
-    useEffect(() => {
-        if (!knockoutData || !divisions) {
-            return;
-        }
-
-        const division = divisions[knockoutData.divisionId];
-        if (division) {
-            setDivision(division);
-        }
-    }, [ divisions, knockoutData ]);
-
     async function loadFixtureData() {
         const http = new Http(new Settings());
         const knockoutApi = new KnockoutApi(http);
@@ -70,11 +61,16 @@ export function Knockout({ account, divisions, apis }) {
 
             const seasonsResponse = await seasonApi.getAll();
             const season = seasonsResponse.filter(s => s.id === knockoutData.seasonId)[0];
-            const teams = await teamApi.getForDivisionAndSeason(knockoutData.divisionId, knockoutData.seasonId);
+            const teams = await teamApi.getAll();
+            const allPlayers = knockoutData.sides
+                ? knockoutData.sides.flatMap(side => side.players)
+                : [];
+            allPlayers.sort(nameSort);
 
             setTeams(teams);
             setSeason(season);
             setSeasons(seasonsResponse);
+            setAllPlayers(allPlayers);
         } catch (e) {
             setError(e.toString());
         } finally {
@@ -85,6 +81,12 @@ export function Knockout({ account, divisions, apis }) {
     async function onChange(newRound) {
         const newKnockoutData = Object.assign({}, knockoutData);
         newKnockoutData.round = newRound;
+        setKnockoutData(newKnockoutData);
+    }
+
+    async function changeAddress(event) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+        newKnockoutData.address = event.target.value;
         setKnockoutData(newKnockoutData);
     }
 
@@ -151,6 +153,54 @@ export function Knockout({ account, divisions, apis }) {
         }
     }
 
+    function add180(player) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        if (!newKnockoutData.oneEighties) {
+            newKnockoutData.oneEighties = [];
+        }
+
+        newKnockoutData.oneEighties.push({
+            id: player.id,
+            name: player.name
+        });
+
+        setKnockoutData(newKnockoutData);
+
+    }
+
+    function addHiCheck(player, notes) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        if (!newKnockoutData.over100Checkouts) {
+            newKnockoutData.over100Checkouts = [];
+        }
+
+        newKnockoutData.over100Checkouts.push({
+            id: player.id,
+            name: player.name,
+            notes: notes
+        });
+
+        setKnockoutData(newKnockoutData);
+    }
+
+    function removeOneEightyScore(playerId, index) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        newKnockoutData.oneEighties.splice(index, 1);
+
+        setKnockoutData(newKnockoutData);
+    }
+
+    function removeHiCheck(playerId, index) {
+        const newKnockoutData = Object.assign({}, knockoutData);
+
+        newKnockoutData.over100Checkouts.splice(index, 1);
+
+        setKnockoutData(newKnockoutData);
+    }
+
     if (loading !== 'ready') {
         return (<div className="light-background p-3 loading-background">
             <div className="mt-2 pt-4 h3">Loading...</div>
@@ -176,12 +226,17 @@ export function Knockout({ account, divisions, apis }) {
                 startDate: season.startDate.substring(0, 10),
                 endDate: season.endDate.substring(0, 10),
             }}
-            originalDivisionData={division}
-            divisions={divisions}
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
         <div className="light-background p-3">
-            <p>At <strong>{knockoutData.address}</strong> on <strong>{new Date(knockoutData.date).toDateString()}</strong></p>
+            {isAdmin
+                ? (<div className="input-group mb-3">
+                        <div className="input-group-prepend">
+                            <span className="input-group-text">Address</span>
+                        </div>
+                        <input className="form-control" disabled={saving} type="text" value={knockoutData.address} onChange={changeAddress} />
+                    </div>)
+                : (<p>At <strong>{knockoutData.address}</strong> on <strong>{new Date(knockoutData.date).toDateString()}</strong></p>)}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
                 {knockoutData.sides.map(side => {
@@ -190,7 +245,34 @@ export function Knockout({ account, divisions, apis }) {
                     return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || knockoutData.round} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || knockoutData.round ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
             </div>
-            {knockoutData.sides.length > 0 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {knockoutData.sides.length >= 2 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {knockoutData.sides.length >= 2 ? (<table className="table">
+                <tbody>
+                <tr>
+                    <td colSpan="2">
+                        180s<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            players={knockoutData.oneEighties || []}
+                            onRemovePlayer={removeOneEightyScore}
+                            onAddPlayer={add180}/>
+                    </td>
+                    <td colSpan="2">
+                        100+ c/o<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            players={knockoutData.over100Checkouts || []}
+                            onRemovePlayer={removeHiCheck}
+                            onAddPlayer={addHiCheck}
+                            showNotes={true} />
+                    </td>
+                </tr>
+                </tbody>
+            </table>) : null}
             {isAdmin ? (<button className="btn btn-primary" onClick={saveKnockout}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save

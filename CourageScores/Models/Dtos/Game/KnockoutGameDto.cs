@@ -11,11 +11,6 @@ public class KnockoutGameDto : AuditedDto
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The division for the knockout game
-    /// </summary>
-    public Guid DivisionId { get; set; }
-
-    /// <summary>
     /// The season for the knockout game
     /// </summary>
     public Guid SeasonId { get; set; }
@@ -34,4 +29,14 @@ public class KnockoutGameDto : AuditedDto
     /// The address for the knockout games
     /// </summary>
     public string Address { get; set; } = null!;
+
+    /// <summary>
+    /// Who scored a 180 in the match
+    /// </summary>
+    public List<GamePlayerDto> OneEighties { get; set; } = null!;
+
+    /// <summary>
+    /// Who checked out with more than 100
+    /// </summary>
+    public List<NotablePlayerDto> Over100Checkouts { get; set; } = null!;
 }

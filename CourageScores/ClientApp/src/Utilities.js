@@ -9,3 +9,22 @@ export function toMap(items) {
     }
     return map;
 }
+
+export function nameSort(x, y) {
+    if (x.name.toLowerCase() === y.name.toLowerCase()) {
+        return 0;
+    }
+
+    return (x.name.toLowerCase() > y.name.toLowerCase())
+        ? 1
+        : -1;
+}
+
+export function createTemporaryId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random()*16|0;
+        // eslint-disable-next-line
+        const v = c === 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
+}

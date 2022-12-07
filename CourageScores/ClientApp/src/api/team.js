@@ -7,6 +7,10 @@ class TeamApi {
         return this.http.get(`/api/Team/${id}`, {});
     }
 
+    getAll() {
+        return this.http.get(`/api/Team`, {});
+    }
+
     update(team) {
         return this.http.put(`/api/Team`, team);
     }

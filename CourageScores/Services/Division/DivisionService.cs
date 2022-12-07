@@ -80,7 +80,7 @@ public class DivisionService : IDivisionService
             .ToList();
 
         var knockoutGames = await _knockoutGameRepository
-            .GetSome($"t.DivisionId = '{divisionId}'", token)
+            .GetSome($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
@@ -244,7 +244,6 @@ public class DivisionService : IDivisionService
                     Id = default,
                     Round = null,
                     Sides = new(),
-                    DivisionId = default,
                     SeasonId = default,
                 };
             }

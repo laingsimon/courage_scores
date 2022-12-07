@@ -1,45 +1,60 @@
 import React from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap} from "../../../Utilities";
+import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
 
 export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
     const team = { };
 
+    const alreadySelectedOnAnotherSide = toMap(otherSides
+        .filter(s => !side || s.id !== side.id)
+        .flatMap(s => s.players));
+
+    const playerToTeamMap = toMap(teams.flatMap(t => {
+        const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
+        if (!teamSeason || !teamSeason.players) {
+            return [];
+        }
+
+        return teamSeason.players.map(p => {
+            return { id: p.id, player: p, team: t };
+        });
+    }));
+
+    const sidePlayerMap = side ? toMap(side.players) : {};
+    const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
+
     const teamsAndPlayers = teams
-        .map(t => {
+        .flatMap(t => {
+            if (side && sidePlayerTeamMapping && sidePlayerTeamMapping.team.id !== t.id) {
+                // a player is selected from a different team. As players cannot be mixed between teams, skip this team
+                return [];
+            }
+
             const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
-            const teamPlayerMap = toMap(teamSeason.players);
-
-            if (side && side.players) {
-                const playerFound = side.players.reduce((prev, sidePlayer) => prev || teamPlayerMap[sidePlayer.id], false);
-                if (!playerFound) {
-                    // the side contains a player, only allow other players from the same team.
-                    return [];
-                }
-
-                team.id = t.id;
-                team.name = t.name;
-                team.players = teamSeason.players;
+            if (!teamSeason || !teamSeason.players) {
+                return [];
             }
 
-            if (otherSides) {
-                for (let index = 0; index < otherSides.length; index++) {
-                    const otherSide = otherSides[index];
-                    const playerFound = otherSide.players.reduce((prev, sidePlayer) => prev || teamPlayerMap[sidePlayer.id], false);
-                    if (playerFound) {
-                        // don't allow teams from another selected side to be picked
-                        return [];
+            return teamSeason.players
+                .filter(p => !alreadySelectedOnAnotherSide[p.id])
+                .map(p => {
+                    if (side && sidePlayerMap[p.id] && !team.id) {
+                        // this player&team have already been selected for this side, retain some details of the team
+                        // so the name of the side can be the teams' name if multiple players are selected
+                        team.id = t.id;
+                        team.name = t.name;
+                        team.players = t.players;
                     }
-                }
-            }
 
-            return teamSeason ? teamSeason.players.map(p => { return { player: p, team: t }; }) : [];
-        })
-        .flatMap(mapping => mapping);
+                    return { team: t, player: p };
+                })
+                .filter(mapping => mapping != null);
+    });
 
     async function onAddPlayer(player) {
         const newSide = Object.assign({}, side);
         newSide.players = newSide.players || [];
+        newSide.id = newSide.id || createTemporaryId();
         newSide.players.push({
             id: player.id,
             name: player.originalName
@@ -82,11 +97,13 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
         </div>);
     }
 
+    const allPlayers = teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer);
+    allPlayers.sort(nameSort);
     return (<div className={`p-1 m-1 ${winner ? 'bg-warning' : 'bg-light'}`}>
         <strong>{side.name}</strong>
         {readOnly ? (<ol>{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
-            allPlayers={teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer)}
+            allPlayers={allPlayers}
             onAddPlayer={onAddPlayer}
             onRemovePlayer={onRemovePlayer} />)}
     </div>);

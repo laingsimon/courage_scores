@@ -16,7 +16,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(originalSeasonData);
-    const [ divisionName, setDivisionName ] = useState(originalDivisionData.name);
+    const [ divisionName, setDivisionName ] = useState(originalDivisionData ? originalDivisionData.name : '');
     const [ openDropdown, setOpenDropdown ] = useState(null);
     const [ newDivisionName, setNewDivisionName ] = useState('');
     const [ newDivisionDialogOpen, setNewDivisionDialogOpen ] = useState(false);
@@ -193,7 +193,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
 
     return (<div className="btn-group py-2">
         {newDivisionDialogOpen ? renderNewDivisionDialog() : null}
-        {editMode !== 'division' ? (
+        {editMode !== 'division' && originalDivisionData && divisions ? (
                 <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => toggleDropdown('division')}>
                     <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setEditMode('division') : null}>
                         {divisionName}
@@ -211,7 +211,8 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                         </DropdownItem>) : null}
                     </DropdownMenu>
                 </ButtonDropdown>) : null}
-        {editMode === 'division'
+        {editMode !== 'division' && (!originalDivisionData || !divisions) ? (<div className="btn-group"><button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}>All divisions</button></div>) : null}
+        {editMode === 'division' && originalDivisionData && divisions
             ? (<div className="input-group margin-right">
                 <div className="input-group-prepend">
                     <span className="input-group-text">Name</span>
@@ -225,14 +226,13 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 {updatingData ? null : (<button className="btn btn-sm btn-warning" onClick={() => setEditMode(null)}>Cancel</button>)}
             </div>)
             : null}
-        {editMode !== 'season' ? (<ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => toggleDropdown('season')}>
+        {editMode !== 'season' ? (<ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => { if (originalDivisionData) { toggleDropdown('season') } }}>
                 <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isSeasonAdmin ? setEditMode('season') : null}>
                     {seasonData.name} ({renderDate(seasonData.startDate)} - {renderDate(seasonData.endDate)})
                     {isSeasonAdmin ? '✏' : ''}
                 </button>
-                <DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}>
-                </DropdownToggle>
-                <DropdownMenu>
+                {originalDivisionData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+                {originalDivisionData ? (<DropdownMenu>
                     {seasons.map(s => (<DropdownItem key={s.id}>
                             <Link className="btn" to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                         </DropdownItem>
@@ -240,7 +240,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     {isSeasonAdmin ? (<DropdownItem>
                         <Link to={`/season/new`} className="btn">➕ New season</Link>
                     </DropdownItem>) : null}
-                </DropdownMenu>
+                </DropdownMenu>) : null}
             </ButtonDropdown>
         ) : null}
         {editMode === 'season'

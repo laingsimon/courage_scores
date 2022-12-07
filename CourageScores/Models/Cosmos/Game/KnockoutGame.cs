@@ -13,11 +13,6 @@ public class KnockoutGame : AuditedEntity, IPermissionedEntity
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The division for the knockout game
-    /// </summary>
-    public Guid DivisionId { get; set; }
-
-    /// <summary>
     /// The season for the knockout game
     /// </summary>
     public Guid SeasonId { get; set; }
@@ -36,6 +31,16 @@ public class KnockoutGame : AuditedEntity, IPermissionedEntity
     /// The address for the knockout games
     /// </summary>
     public string Address { get; set; } = null!;
+
+    /// <summary>
+    /// Who scored a 180 in the match
+    /// </summary>
+    public List<GamePlayer> OneEighties { get; set; } = new();
+
+    /// <summary>
+    /// Who checked out with more than 100
+    /// </summary>
+    public List<NotablePlayer> Over100Checkouts { get; set; } = new();
 
     public bool CanCreate(UserDto user)
     {
