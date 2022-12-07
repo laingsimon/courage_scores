@@ -317,6 +317,11 @@ export function Score({account, apis, divisions}) {
         <div className="light-background p-3 overflow-auto">
             <table className="table">
                 <tbody>
+                <tr>
+                    <td colSpan="2" className="text-end fw-bold">{fixtureData.home.name}</td>
+                    <td className="text-center">vs</td>
+                    <td colSpan="2" className="text-start fw-bold">{fixtureData.away.name}</td>
+                </tr>
                 {fixtureData.address || canSave ? (<tr>
                     {canSave
                         ? (<td colSpan="5">
