@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
 
 export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
     const team = { };
+    const [sortOption, setSortOption] = useState('team');
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -22,7 +23,6 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
 
     const sidePlayerMap = side ? toMap(side.players) : {};
     const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
-    teams.sort(nameSort);
 
     const teamsAndPlayers = teams
         .flatMap(t => {
@@ -88,11 +88,35 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
         return { id: tap.player.id, name: `${tap.player.name} (${tap.team.name})`, originalName: tap.player.name, team: tap.team };
     }
 
+    function tapSort(x, y) {
+        if (sortOption === 'team') {
+            if (x.team.name === y.team.name) {
+                if (x.player.name === y.player.name) {
+                    return 0;
+                }
+
+                return x.player.name > y.player.name ? 1 : -1;
+            }
+
+            return x.team.name > y.team.name ? 1 : -1;
+        } else if (sortOption === 'player') {
+            if (x.player.name === y.player.name) {
+                return 0;
+            }
+
+            return x.player.name > y.player.name ? 1 : -1;
+        }
+
+        return 0;
+    }
+
     if (!side && !readOnly) {
+        teamsAndPlayers.sort(tapSort)
+        const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
         return (<div className="bg-yellow p-1 m-1">
-            <strong>Add a side</strong>
+            <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
             <MultiPlayerSelection
-                allPlayers={teamsAndPlayers.map(toSelectablePlayer)}
+                allPlayers={allPlayers}
                 onAddPlayer={onAddPlayer}
                 onRemovePlayer={onRemovePlayer} />
         </div>);
