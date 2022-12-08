@@ -19,9 +19,10 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
             setCreating(true);
 
             const api = new KnockoutApi(new Http(new Settings()));
+            const teamsAtAddress = teams.filter(t => t.address === address).map(t => t.name).join(', ');
             const response = await api.update({
                 date: date,
-                address: address,
+                address: teamsAtAddress,
                 seasonId: seasonId
             });
 
@@ -42,15 +43,15 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
 
         teams.forEach(team => {
            if (addresses[team.address]) {
-               addresses[team.address].push(team.name);
+               addresses[team.address].push(team);
            } else {
-               addresses[team.address] = [ team.name ];
+               addresses[team.address] = [ team ];
            }
         });
 
         return Object.keys(addresses).map(address => { return {
             value: address,
-            text: `${address} (${addresses[address].join(', ')})` }; });
+            text: `${address} (${addresses[address].map(t => t.name).join(', ')})` }; });
     }
 
     return (<tr>
