@@ -194,6 +194,16 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         setNewDate('');
     }
 
+    function isInPast(date) {
+        const today = new Date();
+        return new Date(date) < today;
+    }
+
+    function isToday(date) {
+        const today = new Date().toDateString();
+        return today === new Date(date).toDateString();
+    }
+
     return (<div className="light-background p-3">
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
@@ -212,7 +222,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             </button>) : null}
         </div>) : null}
         <div>
-            {newFixtures.map(date => (<div key={date.date}>
+            {newFixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) ? '' : 'text-secondary')}>
                 <h4>{new Date(date.date).toDateString()}</h4>
                 <table className="table layout-fixed">
                     <tbody>
