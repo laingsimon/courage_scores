@@ -134,7 +134,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         }
     }
 
-    private GamePlayer AdaptToPlayer(EditKnockoutGameDto.RecordScoresPlayerDto player, UserDto user)
+    private GamePlayer AdaptToPlayer(EditKnockoutGameDto.RecordKnockoutScoresPlayerDto player, UserDto user)
     {
         return new GamePlayer
         {
@@ -147,7 +147,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         };
     }
 
-    private NotablePlayer AdaptToHiCheckPlayer(EditKnockoutGameDto.Over100CheckoutDto player, UserDto user)
+    private NotablePlayer AdaptToHiCheckPlayer(EditKnockoutGameDto.KnockoutOver100CheckoutDto player, UserDto user)
     {
         return new NotablePlayer
         {

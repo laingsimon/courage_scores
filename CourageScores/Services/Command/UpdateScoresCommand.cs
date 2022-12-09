@@ -81,7 +81,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));
     }
 
-    private GameMatch AdaptToMatch(RecordScoresDto.RecordScoresMatchDto updatedMatch, UserDto user)
+    private GameMatch AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserDto user)
     {
         return new GameMatch
         {
@@ -103,7 +103,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         };
     }
 
-    private GameMatch UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresMatchDto updatedMatch, UserDto user)
+    private GameMatch UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserDto user)
     {
         return new GameMatch
         {
@@ -126,7 +126,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         };
     }
 
-    private GamePlayer AdaptToPlayer(RecordScoresDto.RecordScoresPlayerDto player, UserDto user)
+    private GamePlayer AdaptToPlayer(RecordScoresDto.RecordScoresGamePlayerDto player, UserDto user)
     {
         return new GamePlayer
         {
@@ -139,7 +139,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         };
     }
 
-    private NotablePlayer AdaptToHiCheckPlayer(RecordScoresDto.Over100CheckoutDto player, UserDto user)
+    private NotablePlayer AdaptToHiCheckPlayer(RecordScoresDto.GameOver100CheckoutDto player, UserDto user)
     {
         return new NotablePlayer
         {

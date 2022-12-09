@@ -11,16 +11,16 @@ public class EditKnockoutGameDto
     public List<KnockoutSideDto> Sides { get; set; } = new();
     public KnockoutRoundDto? Round { get; set; }
 
-    public List<RecordScoresPlayerDto> OneEighties { get; set; } = new ();
-    public List<Over100CheckoutDto> Over100Checkouts { get; set; } = new ();
+    public List<RecordKnockoutScoresPlayerDto> OneEighties { get; set; } = new ();
+    public List<KnockoutOver100CheckoutDto> Over100Checkouts { get; set; } = new ();
 
-    public class RecordScoresPlayerDto
+    public class RecordKnockoutScoresPlayerDto
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
     }
 
-    public class Over100CheckoutDto : RecordScoresPlayerDto
+    public class KnockoutOver100CheckoutDto : RecordKnockoutScoresPlayerDto
     {
         public string? Notes { get; set; }
     }
