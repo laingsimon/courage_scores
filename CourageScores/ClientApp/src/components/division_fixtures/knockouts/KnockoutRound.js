@@ -16,10 +16,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
 
     function setNewSide(sideId, property) {
         const newNewMatch = Object.assign({}, newMatch);
-        newNewMatch[property] = {
-            id: sideId,
-            players: sideMap[sideId].players
-        };
+        newNewMatch[property] = sideMap[sideId];
         setNewMatch(newNewMatch);
     }
 
@@ -87,7 +84,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
     async function updateMatch(matchIndex, property, sideId) {
         const newRound = Object.assign({}, round);
         const match = newRound.matches[matchIndex];
-        match[property] = sides[sideId];
+        match[property] = sideMap[sideId];
 
         if (onChange) {
             await onChange(newRound);
@@ -113,19 +110,22 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
         }
     }
 
-    function winningSides() {
-        let winners = [];
+    function sidesForTheNextRound() {
+        const sidesForTheNextRound = sides.filter(side => {
+            const isPlaying = round.matches.filter(m => m.sideA.id === side.id || m.sideB.id === side.id).length;
+            return !isPlaying;
+        });
 
         for (let index = 0; index < round.matches.length; index++) {
             const match = round.matches[index];
             if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
-                winners.push(match.sideA);
+                sidesForTheNextRound.push(match.sideA);
             } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
-                winners.push(match.sideB);
+                sidesForTheNextRound.push(match.sideB);
             }
         }
-
-        return winners;
+        
+        return sidesForTheNextRound;
     }
 
     let matchIndex = 0;
@@ -164,7 +164,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                 </td>)}
             </tr>);
         })}
-        {readOnly || allSidesSelected ? null : (<tr className="bg-yellow p-1">
+        {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>
                 <BootstrapDropdown value={newMatch.sideA ? newMatch.sideA.id : null}
                                onChange={(side) => setNewSide(side, 'sideA')}
@@ -185,6 +185,6 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && allSidesSelected && winningSides().length > 1) ? (<KnockoutRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={winningSides()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && round.matches.length > 1 && sidesForTheNextRound().length > 1) ? (<KnockoutRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
     </div>);
 }
