@@ -239,7 +239,7 @@ public class DivisionService : IDivisionService
             {
                 yield return new KnockoutGameDto
                 {
-                    Address = teamAddress.Key,
+                    Address = string.Join(", ", teamAddress.Select(t => t.Name)),
                     Date = default,
                     Id = default,
                     Round = null,
