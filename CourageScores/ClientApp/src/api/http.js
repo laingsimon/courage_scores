@@ -31,7 +31,7 @@ class Http {
         const absoluteUrl = this.settings.apiHost + relativeUrl;
 
         if (content) {
-            return fetch(absoluteUrl, {
+            const response = await fetch(absoluteUrl, {
                 method: httpMethod,
                 mode: 'cors',
                 body: JSON.stringify(content),
@@ -39,29 +39,31 @@ class Http {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include'
-            }).then(response => {
-                if (response.status === 204) {
-                    return null;
-                }
-
-                return response.json()
             });
+
+            if (response.status === 204) {
+                return null;
+            }
+
+            return await response.json();
         }
 
-        return await fetch(absoluteUrl, {
+        const response = await fetch(absoluteUrl, {
             method: httpMethod,
             mode: 'cors',
             credentials: 'include'
-        })
-            .then(response => {
-                if (response.status === 204) {
-                    return null;
-                }
+        });
 
-                return response.json()
-            })
-            .catch(e => console.error('ERROR: ' + e));
+        if (response.status === 204) {
+            return null;
+        }
+
+        if (response.status === 500) {
+            throw new Error(await response.text());
+        }
+
+        return await response.json();
     }
 }
 
-export { Http };
+export {Http};

@@ -49,9 +49,10 @@ export function Knockout({ account, apis }) {
         const knockoutApi = new KnockoutApi(http);
         const seasonApi = new SeasonApi(http);
         const teamApi = new TeamApi(http);
-        const knockoutData = await knockoutApi.get(knockoutId);
 
         try {
+            const knockoutData = await knockoutApi.get(knockoutId);
+
             if (!knockoutData) {
                 setError('Knockout could not be found');
                 return;

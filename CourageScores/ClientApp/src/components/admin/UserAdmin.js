@@ -20,20 +20,24 @@ export function UserAdmin() {
         }
 
         async function loadAccess() {
-            if (emailAddress) {
-                setLoading(true);
-                const api = new AccountApi(new Http(new Settings()));
-                const accessDetail = await api.get(emailAddress);
-                if (accessDetail) {
-                    setAccount(Object.assign({}, account, {
-                        access: accessDetail.access
-                    }));
-                } else {
-                    setAccount(Object.assign({}, account,{
-                        access: { },
-                    }));
+            try {
+                if (emailAddress) {
+                    setLoading(true);
+                    const api = new AccountApi(new Http(new Settings()));
+                    const accessDetail = await api.get(emailAddress);
+                    if (accessDetail) {
+                        setAccount(Object.assign({}, account, {
+                            access: accessDetail.access
+                        }));
+                    } else {
+                        setAccount(Object.assign({}, account, {
+                            access: {},
+                        }));
+                    }
+                    setLoading(false);
                 }
-                setLoading(false);
+            } catch (e) {
+                setSaveError(e.toString());
             }
         }
 
@@ -82,7 +86,10 @@ export function UserAdmin() {
             } else {
                 setSaveError(result);
             }
-        } finally {
+        } catch (e) {
+            setSaveError(e.toString());
+        }
+        finally {
             setSaving(false);
         }
     }
