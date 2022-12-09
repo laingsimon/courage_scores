@@ -5,6 +5,7 @@ import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
 export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
     const team = { };
     const [sortOption, setSortOption] = useState('team');
+    const [changeSideName, setChangeSideName] = useState(false);
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -110,6 +111,14 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
         return 0;
     }
 
+    async function updateSideName(event) {
+        const newSide = Object.assign({}, side);
+        newSide.name = event.target.value;
+        if (onChange) {
+            await onChange(newSide);
+        }
+    }
+
     if (!side && !readOnly) {
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
@@ -125,7 +134,9 @@ export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winn
     const allPlayers = teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer);
     allPlayers.sort(nameSort);
     return (<div className={`p-1 m-1 ${winner ? 'bg-warning' : 'bg-light'}`}>
-        <strong>{side.name}</strong>
+        {changeSideName
+            ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
+            : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
         {readOnly ? (<ol>{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
             allPlayers={allPlayers}
