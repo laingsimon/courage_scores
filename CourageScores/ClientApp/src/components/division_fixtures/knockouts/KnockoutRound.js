@@ -134,7 +134,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
 
     return (<div className="my-3 p-1">
         <strong>Round: {depth}</strong>
-        <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''}`}><tbody>
+        <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
             return (<tr key={thisMatchIndex} className="bg-light">
@@ -143,6 +143,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                                        value={match.sideA ? match.sideA.id : null}
                                        options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideA')).map(sideSelection)}
                                        onChange={(side) => updateMatch(thisMatchIndex, 'sideA', side)}
+                                       slim={true}
                                        className="margin-right" />)}
                 </td>
                 <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-warning' : 'narrow-column'}>
@@ -157,6 +158,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                                    value={match.sideB ? match.sideB.id : null}
                                    options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideB')).map(sideSelection)}
                                    onChange={(side) => updateMatch(thisMatchIndex, 'sideB', side)}
+                                   slim={true}
                                    className="margin-right" />)}
                 </td>
                 {readOnly || hasNextRound ? null : (<td>
