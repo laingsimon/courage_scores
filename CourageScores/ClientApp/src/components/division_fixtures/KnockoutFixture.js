@@ -140,7 +140,7 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
         </td>
         <td className="medium-column-width">
             <Link className="btn btn-sm btn-primary margin-right" to={`/knockout/${knockout.id}`}>🎖️</Link>
-            {isAdmin ? (<button className="btn btn-sm btn-danger" onClick={deleteKnockout}>) : null}
+            {isAdmin ? (<button className="btn btn-sm btn-danger" onClick={deleteKnockout}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
             </button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
