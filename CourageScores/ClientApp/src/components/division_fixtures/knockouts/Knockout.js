@@ -213,7 +213,8 @@ export function Knockout({ account, apis }) {
 
     let sideIndex = 0;
     const readOnly = !isAdmin || !canSave || disabled || saving;
-    const winningSideId = getWinningSide(knockoutData.round);
+    const hasStarted = knockoutData.round && knockoutData.round.matches && knockoutData.round.matches.length > 0;
+    const winningSideId = hasStarted ? getWinningSide(knockoutData.round) : null;
 
     return (<div>
         <DivisionControls
@@ -242,8 +243,8 @@ export function Knockout({ account, apis }) {
                 {knockoutData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
-                    return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || knockoutData.round} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-                {readOnly || knockoutData.round ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
+                    return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || hasStarted} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                {readOnly || hasStarted ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
             </div>
             {knockoutData.sides.length >= 2 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
             {knockoutData.sides.length >= 2 ? (<table className="table">
