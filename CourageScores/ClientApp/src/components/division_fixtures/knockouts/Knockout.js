@@ -98,11 +98,32 @@ export function Knockout({ account, apis }) {
         } else {
             if (newSide.players.length > 0) {
                 newKnockoutData.sides[sideIndex] = newSide;
+                updateSideDataInRound(newKnockoutData.round, newSide);
             } else {
+                // delete the side
                 newKnockoutData.sides.splice(sideIndex, 1);
             }
         }
         setKnockoutData(newKnockoutData);
+    }
+
+    function updateSideDataInRound(round, side) {
+        if (!round) {
+            return;
+        }
+
+        if (round.matches) {
+            for (let index = 0; index < round.matches.length; index++) {
+                const match = round.matches[index];
+                if (match.sideA && match.sideA.id === side.id) {
+                    match.sideA = side;
+                } else if (match.sideB && match.sideB.id === side.id) {
+                    match.sideB = side;
+                }
+            }
+        }
+
+        updateSideDataInRound(round.nextRound, side);
     }
 
     async function saveKnockout() {
