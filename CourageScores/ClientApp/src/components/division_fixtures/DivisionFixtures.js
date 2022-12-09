@@ -242,6 +242,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     {date.knockoutFixtures.map(kf => (<KnockoutFixture
                         key={kf.address}
                         knockout={kf}
+                        account={account}
                         date={date.date}
                         seasonId={season.id}
                         divisionId={divisionId}
