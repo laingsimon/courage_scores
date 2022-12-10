@@ -17,6 +17,8 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageSeasons = model.ManageSeasons,
             ManageTeams = model.ManageTeams,
             RunReports = model.RunReports,
+            ExportData = model.ExportData,
+            ImportData = model.ImportData,
         };
     }
 
@@ -32,6 +34,8 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ManageSeasons = dto.ManageSeasons,
             ManageTeams = dto.ManageTeams,
             RunReports = dto.RunReports,
+            ExportData = dto.ExportData,
+            ImportData = dto.ImportData,
         };
     }
 }

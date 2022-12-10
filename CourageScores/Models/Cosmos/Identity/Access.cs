@@ -10,4 +10,6 @@ public class Access
     public bool ManageSeasons { get; set; }
     public bool ManageTeams { get; set; }
     public bool RunReports { get; set; }
+    public bool ExportData { get; set; }
+    public bool ImportData { get; set; }
 }
