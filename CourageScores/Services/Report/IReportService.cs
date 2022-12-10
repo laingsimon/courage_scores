@@ -4,5 +4,5 @@ namespace CourageScores.Services.Report;
 
 public interface IReportService
 {
-    Task<ReportCollectionDto> GetReports(Guid divisionId, Guid seasonId, CancellationToken token);
+    Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token);
 }
