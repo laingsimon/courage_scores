@@ -118,13 +118,13 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
 
     if (isProposedKnockout) {
         return (<tr>
-            <td colSpan="4">
+            <td colSpan="5">
                 Knockout at <strong>{knockout.address}</strong>
             </td>
-            <td colSpan="2" className="text-end">
-                {isAdmin && isProposedKnockout ? (<button className="btn btn-sm btn-primary" onClick={createKnockoutGame}>
+            <td className="medium-column-width">
+                {isAdmin && isProposedKnockout ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createKnockoutGame}>
                         {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎖'}
-                        Reserve for knockout
+                        Reserve
                     </button>)
                     : null}
             </td>

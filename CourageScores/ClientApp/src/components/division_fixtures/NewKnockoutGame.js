@@ -55,16 +55,18 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
     }
 
     return (<tr>
-        <td colSpan="6">
+        <td colSpan="5">
             <BootstrapDropdown
                 options={getAddresses()}
                 value={address}
                 onChange={(address) => setAddress(address)}
                 readOnly={creating}
                 className="margin-right" />
-            <button className="btn btn-primary" onClick={createKnockoutGame}>
+        </td>
+        <td className="medium-column-width">
+            <button className="btn btn-primary text-nowrap" onClick={createKnockoutGame}>
                 {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎖'}
-                Reserve for knockout
+                Reserve
             </button>
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
         </td>
