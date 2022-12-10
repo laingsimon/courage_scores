@@ -6,6 +6,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
     const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && hasScore(current.scoreA) && hasScore(current.scoreB), true);
     const sideMap = toMap(sides);
+    const [changeRoundName, setChangeRoundName] = useState(false);
 
     function sideSelection(side) {
         return {
@@ -132,12 +133,36 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
         return score !== null && score !== undefined;
     }
 
+    async function updateRoundName(event) {
+        const newRound = Object.assign({}, round);
+        newRound.name = event.target.value;
+        if (onChange) {
+            await onChange(newRound);
+        }
+    }
+
+    function getSideName() {
+        if (sides.length === 2) {
+            return 'Final';
+        }
+        if (sides.length === 4) {
+            return 'Semi-Final';
+        }
+        if (sides.length === 8) {
+            return 'Quarter-Final';
+        }
+
+        return `Round: ${depth}`;
+    }
+
     let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
     const hasNextRound = round.nextRound && round.nextRound.matches && round.nextRound.matches.length > 0;
 
     return (<div className="my-3 p-1">
-        <strong>Round: {depth}</strong>
+        {changeRoundName && !readOnly
+            ? (<input type="text" onChange={updateRoundName} value={round.name === null ? getSideName() : round.name} onBlur={() => setChangeRoundName(false)} />)
+            : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getSideName() : (round.name || getSideName())}</strong>)}
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
