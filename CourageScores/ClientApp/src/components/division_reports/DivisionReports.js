@@ -7,6 +7,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 export function DivisionReports({ divisionData }) {
     const [ reportData, setReportData ] = useState(null);
     const [ gettingData, setGettingData ] = useState(false);
+    const [ topCount, setTopCount ] = useState(3);
     const [ activeReport, setActiveReport ] = useState(null);
     const api = new ReportApi(new Http(new Settings()));
 
@@ -16,7 +17,8 @@ export function DivisionReports({ divisionData }) {
         try {
             const request = {
                 divisionId: divisionData.id,
-                seasonId: divisionData.season.id
+                seasonId: divisionData.season.id,
+                topCount: topCount
             };
             const result = await api.getReport(request);
             setReportData(result);
@@ -89,6 +91,12 @@ export function DivisionReports({ divisionData }) {
 
     return (<div className="light-background p-3">
         <p>Run reports for the <strong>{divisionData.name}</strong> division and <strong>{divisionData.season.name}</strong> season</p>
+        <div>
+            <label>
+                Top count
+                <input type="text" value={topCount} onChange={(event) => setTopCount(event.target.value)} />
+            </label>
+        </div>
         <button onClick={getReports} className="btn btn-primary">
             {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             Analyse fixtures...
