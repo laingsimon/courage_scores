@@ -15,6 +15,7 @@ using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Data;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
@@ -62,6 +63,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDivisionService, DivisionService>();
         services.AddScoped<ISeasonService, SeasonService>();
         services.AddScoped<IReportService, ReportService>();
+        services.AddScoped<IDataService, DataService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
