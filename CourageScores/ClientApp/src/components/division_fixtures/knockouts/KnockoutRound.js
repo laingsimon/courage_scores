@@ -4,7 +4,7 @@ import {toMap} from "../../../Utilities";
 
 export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
-    const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && current.scoreA && current.scoreB, true);
+    const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && hasScore(current.scoreA) && hasScore(current.scoreB), true);
     const sideMap = toMap(sides);
 
     function sideSelection(side) {
@@ -124,8 +124,12 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                 sidesForTheNextRound.push(match.sideB);
             }
         }
-        
+
         return sidesForTheNextRound;
+    }
+
+    function hasScore(score) {
+        return score !== null && score !== undefined;
     }
 
     let matchIndex = 0;
@@ -137,8 +141,12 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
+            const scoreARecorded = hasScore(match.scoreA);
+            const scoreBRecorded = hasScore(match.scoreB);
+            const hasBothScores = scoreARecorded && scoreBRecorded;
+
             return (<tr key={thisMatchIndex} className="bg-light">
-                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'bg-warning' : ''}>
+                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'bg-warning' : ''}>
                     {readOnly || hasNextRound ? (match.sideA.name || sideMap[match.sideA.id].name) : (<BootstrapDropdown readOnly={readOnly}
                                        value={match.sideA ? match.sideA.id : null}
                                        options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideA')).map(sideSelection)}
@@ -146,14 +154,14 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                                        slim={true}
                                        className="margin-right" />)}
                 </td>
-                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-warning' : 'narrow-column'}>
-                    {readOnly || hasNextRound ? (match.scoreA) : (<input type="number" value={match.scoreA || ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreA')} />)}
+                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-warning' : 'narrow-column'}>
+                    {readOnly || hasNextRound ? (match.scoreA) : (<input type="number" value={scoreARecorded ? match.scoreA : ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreA')} />)}
                 </td>
                 <td className="narrow-column">vs</td>
-                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'narrow-column bg-warning' : 'narrow-column'}>
-                    {readOnly || hasNextRound ? (match.scoreB) : (<input type="number" value={match.scoreB || ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreB')} />)}
+                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'narrow-column bg-warning' : 'narrow-column'}>
+                    {readOnly || hasNextRound ? (match.scoreB) : (<input type="number" value={scoreBRecorded ? match.scoreB : ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreB')} />)}
                 </td>
-                <td className={match.scoreA && match.scoreB && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'bg-warning' : ''}>
+                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'bg-warning' : ''}>
                     {readOnly || hasNextRound ? (match.sideB.name || sideMap[match.sideB.id].name) : (<BootstrapDropdown readOnly={readOnly}
                                    value={match.sideB ? match.sideB.id : null}
                                    options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideB')).map(sideSelection)}
