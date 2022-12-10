@@ -14,7 +14,11 @@ export function DivisionReports({ divisionData }) {
         setGettingData(true);
 
         try {
-            const result = await api.get(divisionData.id, divisionData.season.id);
+            const request = {
+                divisionId: divisionData.id,
+                seasonId: divisionData.season.id
+            };
+            const result = await api.getReport(request);
             setReportData(result);
             if (result.reports.length > 0) {
                 setActiveReport(result.reports[0].name);
