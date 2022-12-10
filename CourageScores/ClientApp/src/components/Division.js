@@ -29,6 +29,13 @@ export function Division({ account, apis, divisions }) {
         return divisionData;
     }
 
+    function setNewFixtures(newFixtures) {
+        const newDivisionData = Object.assign({}, divisionData);
+        newDivisionData.fixtures = newFixtures;
+
+        setDivisionData(newDivisionData);
+    }
+
     useEffect(() => {
         if (loading) {
             return;
@@ -104,7 +111,8 @@ export function Division({ account, apis, divisions }) {
                 fixtures={divisionData.fixtures}
                 teams={teams}
                 account={account}
-                onReloadDivision={reloadDivisionData} />)
+                onReloadDivision={reloadDivisionData}
+                setNewFixtures={setNewFixtures} />)
             : null}
         {effectiveTab === 'players'
             ? (<DivisionPlayers

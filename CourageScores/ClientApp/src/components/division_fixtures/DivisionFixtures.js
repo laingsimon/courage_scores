@@ -10,7 +10,7 @@ import {GameApi} from "../../api/game";
 import {KnockoutFixture} from "./KnockoutFixture";
 import {NewKnockoutGame} from "./NewKnockoutGame";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
     const [ proposingGames, setProposingGames ] = useState(false);
@@ -28,7 +28,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     });
     const [ proposalResponse, setProposalResponse ] = useState(null);
     const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
-    const [ newFixtures, setNewFixtures ] = useState(fixtures);
     const [ savingProposals, setSavingProposals ] = useState(null);
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const seasonApi = new SeasonApi(new Http(new Settings()));
@@ -222,14 +221,14 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             </button>) : null}
         </div>) : null}
         <div>
-            {newFixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) ? '' : 'text-secondary')}>
+            {fixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) ? '' : 'text-secondary')}>
                 <h4>{new Date(date.date).toDateString()}</h4>
                 <table className="table layout-fixed">
                     <tbody>
                     {date.fixtures.map(f => (<DivisionFixture
                         key={f.id}
                         teams={teams}
-                        fixtures={newFixtures}
+                        fixtures={fixtures}
                         divisionId={divisionId}
                         seasonId={season.id}
                         onReloadDivision={onReloadDivision}
@@ -259,8 +258,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate fixtures={newFixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {newFixtures.filter(f => f.date === newDate).fixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
+                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
+                    {fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}
