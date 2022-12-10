@@ -25,29 +25,29 @@ public class ReportService : IReportService
         _clock = clock;
     }
 
-    public async Task<ReportCollectionDto> GetReports(Guid divisionId, Guid seasonId, CancellationToken token)
+    public async Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token)
     {
         var user = await _userService.GetUser();
         if (user?.Access == null || !user.Access.RunReports)
         {
-            return UnableToProduceReport("Not permitted", divisionId, seasonId);
+            return UnableToProduceReport("Not permitted", request);
         }
 
-        var season = await _seasonService.Get(seasonId, token);
+        var season = await _seasonService.Get(request.SeasonId, token);
         if (season == null)
         {
-            return UnableToProduceReport("Season not found", divisionId, seasonId);
+            return UnableToProduceReport("Season not found", request);
         }
 
-        var division = await _divisionService.Get(divisionId, token);
+        var division = await _divisionService.Get(request.DivisionId, token);
         if (division == null)
         {
-            return UnableToProduceReport("Division not found", divisionId, seasonId);
+            return UnableToProduceReport("Division not found", request);
         }
 
-        var reportVisitors = GetReportVisitors().ToArray();
+        var reportVisitors = GetReportVisitors(request).ToArray();
         var reportVisitor = new CompositeGameVisitor(reportVisitors, user.Access.ManageScores);
-        var games = _gameRepository.GetSome($"t.DivisionId = '{divisionId}' and t.SeasonId = '{seasonId}'", token);
+        var games = _gameRepository.GetSome($"t.DivisionId = '{request.DivisionId}' and t.SeasonId = '{request.SeasonId}'", token);
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
 
@@ -60,8 +60,8 @@ public class ReportService : IReportService
 
         return new ReportCollectionDto
         {
-            DivisionId = divisionId,
-            SeasonId = seasonId,
+            DivisionId = request.DivisionId,
+            SeasonId = request.SeasonId,
             Reports = await reportVisitors.SelectAsync(v => v.GetReport(playerLookup)).ToList(),
             Messages =
             {
@@ -71,7 +71,7 @@ public class ReportService : IReportService
         };
     }
 
-    private static IEnumerable<IReport> GetReportVisitors()
+    private static IEnumerable<IReport> GetReportVisitors(ReportRequestDto request)
     {
         yield return new ManOfTheMatchReport();
         yield return new MostPlayedPlayerReport();
@@ -79,12 +79,12 @@ public class ReportService : IReportService
         yield return new HighestCheckoutReport();
     }
 
-    private ReportCollectionDto UnableToProduceReport(string reason, Guid divisionId, Guid seasonId)
+    private ReportCollectionDto UnableToProduceReport(string reason, ReportRequestDto request)
     {
         return new ReportCollectionDto
         {
-            DivisionId = divisionId,
-            SeasonId = seasonId,
+            DivisionId = request.DivisionId,
+            SeasonId = request.SeasonId,
             Messages = { reason },
             Created = _clock.UtcNow.UtcDateTime,
         };
