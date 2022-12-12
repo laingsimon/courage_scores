@@ -1,24 +1,26 @@
-﻿using System.IO.Compression;
+﻿using Ionic.Zip;
 using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Data;
 
 public class ZipBuilder
 {
-    private readonly ZipArchive _zip;
-    private readonly MemoryStream _stream;
+    private readonly ZipFile _zip;
 
-    public ZipBuilder()
+    public ZipBuilder(string? password)
     {
-        _stream = new MemoryStream();
-        _zip = new ZipArchive(_stream, ZipArchiveMode.Create, true);
+        _zip = new ZipFile();
+        if (!string.IsNullOrEmpty(password))
+        {
+            _zip.Password = password;
+        }
     }
 
     public Task<byte[]> CreateZip()
     {
-        _zip.Dispose();
-        _stream.Seek(0, SeekOrigin.Begin);
-        return Task.FromResult(_stream.ToArray());
+        var stream = new MemoryStream();
+        _zip.Save(stream);
+        return Task.FromResult(stream.ToArray());
     }
 
     public async Task AddFile(string tableName, string id, JObject record, CancellationToken token)
@@ -27,12 +29,11 @@ public class ZipBuilder
         await AddFile(fileName, record.ToString());
     }
 
-    public async Task AddFile(string fileName, string content)
+    public Task AddFile(string fileName, string content)
     {
-        var entry = _zip.CreateEntry(fileName);
-        using (var writer = new StreamWriter(entry.Open()))
+        return Task.Run(() =>
         {
-            await writer.WriteAsync(content);
-        }
+            _zip.AddEntry(fileName, content);
+        });
     }
 }

@@ -42,7 +42,7 @@ public class DataService : IDataService
 
         try
         {
-            var builder = new ZipBuilder();
+            var builder = new ZipBuilder(request.Password);
             var metaData = new ExportMetaData
             {
                 Created = _clock.UtcNow.UtcDateTime,
