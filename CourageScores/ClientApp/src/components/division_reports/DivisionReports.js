@@ -91,16 +91,19 @@ export function DivisionReports({ divisionData }) {
 
     return (<div className="light-background p-3">
         <p>Run reports for the <strong>{divisionData.name}</strong> division and <strong>{divisionData.season.name}</strong> season</p>
-        <div>
-            <label>
-                Top count
-                <input type="text" value={topCount} onChange={(event) => setTopCount(event.target.value)} />
-            </label>
+        <div className="input-group">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Return top </span>
+            </div>
+            <input type="number" min="1" max="100" value={topCount} onChange={(event) => setTopCount(event.target.value)} />
+            <div className="input-group-prepend margin-right">
+                <span className="input-group-text">records</span>
+            </div>
+            <button onClick={getReports} className="btn btn-primary">
+                {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '📊 '}
+                Analyse fixtures...
+            </button>
         </div>
-        <button onClick={getReports} className="btn btn-primary">
-            {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            Analyse fixtures...
-        </button>
         <div className="my-3">
             {reportData && ! gettingData ? renderMessages() : null}
             {reportData && ! gettingData ? renderReportNames() : null}
