@@ -11,6 +11,7 @@ export function ExportData() {
         includeDeletedEntries: true,
         password: ''
     });
+    const [ zipContent, setZipContent ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
 
     function valueChanged(event) {
@@ -26,13 +27,14 @@ export function ExportData() {
             return;
         }
 
+        setZipContent(null);
         setExporting(true);
         try {
-            const result = await api.export(exportRequest);
-            if (result.success) {
-                // trigger a save...
+            const response = await api.export(exportRequest);
+            if (response.success) {
+                setZipContent(response.result.zip);
             } else {
-                setSaveError(result);
+                setSaveError(response);
             }
         } catch (e) {
             setSaveError(e.toString());
@@ -59,10 +61,13 @@ export function ExportData() {
             </div>
         </div>
         <div>
-            <button className="btn btn-primary" onClick={startExport} disabled={exporting}>
+            <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Export data
             </button>
+            {zipContent && !exporting && !saveError ? (<a download="export.zip"  href={'data:application/zip;base64,' + zipContent} className="btn btn-success">
+                Download zip file
+            </a>) : null}
         </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not export data" />) : null}
     </div>);
