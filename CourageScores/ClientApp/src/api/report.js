@@ -3,8 +3,8 @@ class ReportApi {
         this.http = http;
     }
 
-    get(divisionId, seasonId) {
-        return this.http.get(`/api/Report/${divisionId}/${seasonId}`, {});
+    getReport(request) {
+        return this.http.post(`/api/Report`, request);
     }
 }
 

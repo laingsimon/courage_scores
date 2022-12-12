@@ -7,6 +7,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 export function DivisionReports({ divisionData }) {
     const [ reportData, setReportData ] = useState(null);
     const [ gettingData, setGettingData ] = useState(false);
+    const [ topCount, setTopCount ] = useState(3);
     const [ activeReport, setActiveReport ] = useState(null);
     const api = new ReportApi(new Http(new Settings()));
 
@@ -14,7 +15,12 @@ export function DivisionReports({ divisionData }) {
         setGettingData(true);
 
         try {
-            const result = await api.get(divisionData.id, divisionData.season.id);
+            const request = {
+                divisionId: divisionData.id,
+                seasonId: divisionData.season.id,
+                topCount: topCount
+            };
+            const result = await api.getReport(request);
             setReportData(result);
             if (result.reports.length > 0) {
                 setActiveReport(result.reports[0].name);
@@ -85,10 +91,19 @@ export function DivisionReports({ divisionData }) {
 
     return (<div className="light-background p-3">
         <p>Run reports for the <strong>{divisionData.name}</strong> division and <strong>{divisionData.season.name}</strong> season</p>
-        <button onClick={getReports} className="btn btn-primary">
-            {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            Analyse fixtures...
-        </button>
+        <div className="input-group">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Return top </span>
+            </div>
+            <input type="number" min="1" max="100" value={topCount} onChange={(event) => setTopCount(event.target.value)} />
+            <div className="input-group-prepend margin-right">
+                <span className="input-group-text">records</span>
+            </div>
+            <button onClick={getReports} className="btn btn-primary">
+                {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '📊 '}
+                Analyse fixtures...
+            </button>
+        </div>
         <div className="my-3">
             {reportData && ! gettingData ? renderMessages() : null}
             {reportData && ! gettingData ? renderReportNames() : null}

@@ -14,9 +14,9 @@ public class ReportController : Controller
         _reportService = reportService;
     }
 
-    [HttpGet("/api/Report/{divisionId}/{seasonId}")]
-    public async Task<ReportCollectionDto> GetReports(Guid divisionId, Guid seasonId, CancellationToken token)
+    [HttpPost("/api/Report")]
+    public async Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token)
     {
-        return await _reportService.GetReports(divisionId, seasonId, token);
+        return await _reportService.GetReports(request, token);
     }
 }
