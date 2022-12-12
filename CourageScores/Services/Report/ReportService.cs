@@ -73,10 +73,10 @@ public class ReportService : IReportService
 
     private static IEnumerable<IReport> GetReportVisitors(ReportRequestDto request)
     {
-        yield return new ManOfTheMatchReport();
-        yield return new MostPlayedPlayerReport();
-        yield return new MostOneEightiesReport();
-        yield return new HighestCheckoutReport();
+        yield return new ManOfTheMatchReport(request.TopCount);
+        yield return new MostPlayedPlayerReport(topCount: request.TopCount);
+        yield return new MostOneEightiesReport(request.TopCount);
+        yield return new HighestCheckoutReport(request.TopCount);
     }
 
     private ReportCollectionDto UnableToProduceReport(string reason, ReportRequestDto request)
