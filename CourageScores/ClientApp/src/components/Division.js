@@ -10,6 +10,7 @@ import {DivisionApi} from "../api/division";
 import {TeamApi} from "../api/team";
 import {DivisionControls} from "./DivisionControls";
 import {DivisionReports} from "./division_reports/DivisionReports";
+import {TeamOverview} from "./division_teams/TeamOverview";
 
 export function Division({ account, apis, divisions }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -83,7 +84,7 @@ export function Division({ account, apis, divisions }) {
             onReloadDivisionData={reloadDivisionData} />
         <ul className="nav nav-tabs">
             <NavItem>
-                <NavLink tag={Link} className={effectiveTab === 'teams' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>
+                <NavLink tag={Link} className={effectiveTab === 'teams' || effectiveTab.startsWith('team:') ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
@@ -124,6 +125,11 @@ export function Division({ account, apis, divisions }) {
         {effectiveTab === 'reports'
             ? (<DivisionReports
                 divisionData={divisionData} />)
+            : null}
+        {effectiveTab && effectiveTab.startsWith('team:')
+            ? (<TeamOverview
+                divisionData={divisionData}
+                teamId={effectiveTab.substring('team:'.length)}/>)
             : null}
     </div>);
 }

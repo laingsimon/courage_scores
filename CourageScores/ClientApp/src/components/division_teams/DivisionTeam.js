@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
+import {Link} from "react-router-dom";
 
 export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }) {
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({}, team));
@@ -39,7 +40,7 @@ export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }
     return (<tr>
         <td>
             {isAdmin ? (<button onClick={() => setEditTeam(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {team.name}
+            <Link to={`/division/${divisionId}/team:${team.id}`}>{team.name}</Link>
             {editTeam && isAdmin ? renderEditTeam() : null}
         </td>
         <td>{team.played}</td>
