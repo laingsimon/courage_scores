@@ -48,6 +48,7 @@ export function NavMenu({divisions, appLoading, account}) {
                             {division.name}
                           </NavLink>
                         </NavItem>))}
+                        {appLoading ? (<NavItem><NavLink><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></NavLink></NavItem>) : null}
                         <NavItem>
                             {!appLoading && account ? <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout ({account.name})</a> : null}
                             {!appLoading && !account ? <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
