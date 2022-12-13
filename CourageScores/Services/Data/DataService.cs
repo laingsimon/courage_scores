@@ -2,6 +2,7 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Identity;
+using Ionic.Zip;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
@@ -89,6 +90,15 @@ public class DataService : IDataService
 
         try
         {
+            var zip = await ZipFileReader.OpenZipFile(new MemoryStream(request.Zip), request.Password);
+
+            if (!zip.HasFile("meta.json"))
+            {
+                return UnsuccessfulImport("Zip file does not contain a meta.json file");
+            }
+
+            var metaContent = await zip.ReadJson<ExportMetaData>("meta.json");
+            actionResult.Messages.Add($"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
 
             actionResult.Success = true;
         }
