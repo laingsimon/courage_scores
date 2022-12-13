@@ -90,7 +90,7 @@ public class DataService : IDataService
 
         try
         {
-            var zip = await ZipFileReader.OpenZipFile(new MemoryStream(request.Zip), request.Password);
+            var zip = await ZipFileReader.OpenZipFile(request.Zip.OpenReadStream(), request.Password);
 
             if (!zip.HasFile("meta.json"))
             {
@@ -98,9 +98,14 @@ public class DataService : IDataService
             }
 
             var metaContent = await zip.ReadJson<ExportMetaData>("meta.json");
-            actionResult.Messages.Add($"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
+            actionResult.Messages.Add(
+                $"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
 
             actionResult.Success = true;
+        }
+        catch (BadPasswordException)
+        {
+            actionResult.Errors.Add("Password is incorrect");
         }
         catch (Exception exc)
         {

@@ -22,7 +22,9 @@ public class DataController : Controller
     }
 
     [HttpPost("/api/Data/Import")]
-    public async Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token)
+    [RequestFormLimits(KeyLengthLimit = 1024*1027*20)] // 20MB
+    [RequestSizeLimit(bytes: 1024*1024*20)] // 20MB
+    public async Task<ActionResultDto<ImportDataResultDto>> ImportData([FromForm] ImportDataRequestDto request, CancellationToken token)
     {
         return await _dataService.ImportData(request, token);
     }

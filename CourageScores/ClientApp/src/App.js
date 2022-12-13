@@ -14,6 +14,7 @@ import {NewSeason} from "./components/admin/NewSeason";
 import {Knockout} from "./components/division_fixtures/knockouts/Knockout";
 import {toMap} from "./Utilities";
 import {ExportData} from "./components/admin/ExportData";
+import {ImportData} from "./components/admin/ImportData";
 
 export default class App extends Component {
     constructor(props) {
@@ -101,6 +102,7 @@ export default class App extends Component {
                     <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/userAdmin' element={<UserAdmin {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/dataAdmin/export' element={<ExportData {...this.combineProps({...this.props})} />} />}/>
+                    <Route path='/dataAdmin/import' element={<ImportData {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/season/new' element={<NewSeason {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/knockout/:knockoutId' element={<Knockout {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
