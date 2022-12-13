@@ -26,12 +26,12 @@ public class DataService : IDataService
         var user = await _userService.GetUser();
         if (user == null)
         {
-            return Unsuccessful("Not logged in");
+            return UnsuccessfulExport("Not logged in");
         }
 
         if (user.Access?.ExportData != true)
         {
-            return Unsuccessful("Not permitted");
+            return UnsuccessfulExport("Not permitted");
         }
 
         var result = new ExportDataResultDto();
@@ -68,9 +68,53 @@ public class DataService : IDataService
         return actionResult;
     }
 
-    private ActionResultDto<ExportDataResultDto> Unsuccessful(string reason)
+    public async Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token)
+    {
+        var user = await _userService.GetUser();
+        if (user == null)
+        {
+            return UnsuccessfulImport("Not logged in");
+        }
+
+        if (user.Access?.ImportData != true)
+        {
+            return UnsuccessfulImport("Not permitted");
+        }
+
+        var result = new ImportDataResultDto();
+        var actionResult = new ActionResultDto<ImportDataResultDto>
+        {
+            Result = result,
+        };
+
+        try
+        {
+
+            actionResult.Success = true;
+        }
+        catch (Exception exc)
+        {
+            actionResult.Errors.Add(exc.Message);
+        }
+
+        return actionResult;
+    }
+
+    private static ActionResultDto<ExportDataResultDto> UnsuccessfulExport(string reason)
     {
         return new ActionResultDto<ExportDataResultDto>
+        {
+            Errors =
+            {
+                reason
+            },
+            Success = false,
+        };
+    }
+
+    private static ActionResultDto<ImportDataResultDto> UnsuccessfulImport(string reason)
+    {
+        return new ActionResultDto<ImportDataResultDto>
         {
             Errors =
             {

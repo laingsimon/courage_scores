@@ -20,4 +20,10 @@ public class DataController : Controller
     {
         return await _dataService.ExportData(request, token);
     }
+
+    [HttpPost("/api/Data/Import")]
+    public async Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token)
+    {
+        return await _dataService.ImportData(request, token);
+    }
 }

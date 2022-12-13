@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace CourageScores.Models.Dtos.Data;
+﻿namespace CourageScores.Models.Dtos.Data;
 
 public class ExportDataResultDto
 {

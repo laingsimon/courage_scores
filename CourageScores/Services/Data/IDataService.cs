@@ -6,4 +6,5 @@ namespace CourageScores.Services.Data;
 public interface IDataService
 {
     Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportResultRequestDto request, CancellationToken token);
+    Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token);
 }
