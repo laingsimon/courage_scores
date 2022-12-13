@@ -91,7 +91,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <Layout {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
+            <Layout appLoading={this.state.appLoading} {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
                 <Routes>
                     <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
                     <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
