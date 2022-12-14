@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 
-export function DivisionPlayer({player, onPlayerSaved, account, seasonId, teamId }) {
+export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue }) {
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
     const [ editPlayer, setEditPlayer ] = useState(false);
     const isAdmin = account && account.access && account.access.managePlayers;
@@ -43,11 +43,11 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, teamId
     return (<tr>
         <td>{player.rank}</td>
         <td>
-            {isAdmin ? (<button onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+            {isAdmin && onPlayerSaved ? (<button onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
             {player.captain ? (<span>🤴 </span>) : null}{player.name}
-            {editPlayer && isAdmin ? renderEditPlayer() : null}
+            {editPlayer && isAdmin && onPlayerSaved ? renderEditPlayer() : null}
         </td>
-        <td>{player.team}</td>
+        {hideVenue ? null : (<td>{player.team}</td>)}
         <td>{player.won}</td>
         <td>{player.lost}</td>
         <td>{player.points}</td>

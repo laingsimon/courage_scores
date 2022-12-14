@@ -129,7 +129,9 @@ export function Division({ account, apis, divisions }) {
         {effectiveTab && effectiveTab.startsWith('team:')
             ? (<TeamOverview
                 divisionData={divisionData}
-                teamId={effectiveTab.substring('team:'.length)}/>)
+                teamId={effectiveTab.substring('team:'.length)}
+                account={account}
+                seasonId={seasonId || divisionData.season.id} />)
             : null}
     </div>);
 }
