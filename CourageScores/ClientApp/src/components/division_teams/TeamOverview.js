@@ -63,7 +63,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
             </div>
         </div>
         <div>
-            <DivisionPlayers players={players} onPlayerSaved={null} account={account} seasonId={seasonId} hideVenue={true} />
+            <DivisionPlayers players={players} onPlayerSaved={null} account={account} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
         </div>
     </div>)
 }

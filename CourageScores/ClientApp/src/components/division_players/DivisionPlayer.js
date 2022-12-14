@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
+import {Link} from "react-router-dom";
 
-export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue }) {
+export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue, divisionId }) {
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
     const [ editPlayer, setEditPlayer ] = useState(false);
     const isAdmin = account && account.access && account.access.managePlayers;
@@ -47,7 +48,11 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
             {player.captain ? (<span>🤴 </span>) : null}{player.name}
             {editPlayer && isAdmin && onPlayerSaved ? renderEditPlayer() : null}
         </td>
-        {hideVenue ? null : (<td>{player.team}</td>)}
+        {hideVenue
+            ? null
+            : (<td>
+                <Link to={`/division/${divisionId}/team:${team.id}/${seasonId}`} className="margin-right">{player.team}</Link>
+            </td>)}
         <td>{player.won}</td>
         <td>{player.lost}</td>
         <td>{player.points}</td>

@@ -120,7 +120,8 @@ export function Division({ account, apis, divisions }) {
                 players={divisionData.players}
                 account={account}
                 onPlayerSaved={reloadDivisionData}
-                seasonId={divisionData.season.id} />)
+                seasonId={divisionData.season.id}
+                divisionId={divisionData.id} />)
             : null}
         {effectiveTab === 'reports'
             ? (<DivisionReports
@@ -131,7 +132,7 @@ export function Division({ account, apis, divisions }) {
                 divisionData={divisionData}
                 teamId={effectiveTab.substring('team:'.length)}
                 account={account}
-                seasonId={seasonId || divisionData.season.id} />)
+                seasonId={divisionData.season.id} />)
             : null}
     </div>);
 }
