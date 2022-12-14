@@ -309,9 +309,13 @@ export function Score({account, apis, divisions}) {
             <table className="table">
                 <tbody>
                 <tr>
-                    <td colSpan="2" className="text-end fw-bold">{fixtureData.home.name}</td>
+                    <td colSpan="2" className="text-end fw-bold">
+                        <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.home.id}/${fixtureData.season.id}`} className="margin-right">{fixtureData.home.name}</Link>
+                    </td>
                     <td className="text-center">vs</td>
-                    <td colSpan="2" className="text-start fw-bold">{fixtureData.away.name}</td>
+                    <td colSpan="2" className="text-start fw-bold">
+                        <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.away.id}/${fixtureData.season.id}`} className="margin-right">{fixtureData.away.name}</Link>
+                    </td>
                 </tr>
                 {fixtureData.address || canSave ? (<tr>
                     {canSave
