@@ -32,7 +32,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
         const fixture = fixtureDate.fixtures[0];
 
         return (<div className="col text-center">
-            <p><strong>{titlePrefix}: {new Date(fixtureDate.date).toDateString()}</strong></p>
+            <p><strong>{titlePrefix}: <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link></strong></p>
             {fixture.homeTeam.id === teamId
                 ? (<strong className="margin-right">{fixture.homeTeam.name}</strong>)
                 : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
