@@ -45,7 +45,7 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
         <td>{player.rank}</td>
         <td>
             {isAdmin && onPlayerSaved ? (<button onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {player.captain ? (<span>🤴 </span>) : null}{player.name}
+            <Link to={`/division/${divisionId}/player:${player.id}/${seasonId}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>
             {editPlayer && isAdmin && onPlayerSaved ? renderEditPlayer() : null}
         </td>
         {hideVenue

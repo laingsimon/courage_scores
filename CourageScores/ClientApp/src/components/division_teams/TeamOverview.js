@@ -3,9 +3,6 @@ import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 
 export function TeamOverview({ divisionData, teamId, account, seasonId }) {
-    /* position in table */
-    /* players and link to their details */
-
     const today = new Date(new Date().toDateString());
     const team = divisionData.teams.filter(t => t.id === teamId)[0];
     const fixtures = divisionData.fixtures.map(fixtureDate => {

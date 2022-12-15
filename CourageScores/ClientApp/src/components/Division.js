@@ -11,6 +11,7 @@ import {TeamApi} from "../api/team";
 import {DivisionControls} from "./DivisionControls";
 import {DivisionReports} from "./division_reports/DivisionReports";
 import {TeamOverview} from "./division_teams/TeamOverview";
+import {PlayerOverview} from "./division_players/PlayerOverview";
 
 export function Division({ account, apis, divisions }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -90,7 +91,7 @@ export function Division({ account, apis, divisions }) {
                 <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
+                <NavLink tag={Link} className={effectiveTab === 'players' || effectiveTab.startsWith('player:') ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
             </NavItem>
             {account && account.access && account.access.runReports ? (<NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
@@ -131,6 +132,13 @@ export function Division({ account, apis, divisions }) {
             ? (<TeamOverview
                 divisionData={divisionData}
                 teamId={effectiveTab.substring('team:'.length)}
+                account={account}
+                seasonId={divisionData.season.id} />)
+            : null}
+        {effectiveTab && effectiveTab.startsWith('player:')
+            ? (<PlayerOverview
+                divisionData={divisionData}
+                playerId={effectiveTab.substring('player:'.length)}
                 account={account}
                 seasonId={divisionData.season.id} />)
             : null}
