@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
+import {Link} from "react-router-dom";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId, onPlayerChanged }) {
+export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId, onPlayerChanged, divisionId }) {
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
 
@@ -191,7 +192,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     return (<tr>
         <td>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
-            {playerIndexes().map(index => disabled ? (<div key={index}>{homePlayer(index).name}</div>) : (<div key={index}><PlayerSelection
+            {playerIndexes().map(index => disabled
+                ? (<div key={index}><Link to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link></div>)
+                : (<div key={index}><PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
                 players={homePlayers}
@@ -228,7 +231,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td>
-            {playerIndexes().map(index => disabled ? (<div key={index}>{awayPlayer(index).name}</div>) : (<div key={index}><PlayerSelection
+            {playerIndexes().map(index => disabled
+                ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
+                : (<div key={index}><PlayerSelection
                 disabled={disabled}
                 readOnly={readOnly}
                 players={awayPlayers}
