@@ -60,6 +60,20 @@ export function NavMenu({divisions, appLoading, account}) {
                                 </NavLink>
                             </NavItem>)
                             : null}
+                        {account && account.access && account.access.exportData
+                            ? (<NavItem>
+                                <NavLink tag={Link} onClick={navigate} className={getClassName('/dataAdmin/export')} to={`/dataAdmin/export`}>
+                                    Export data
+                                </NavLink>
+                            </NavItem>)
+                            : null}
+                        {account && account.access && account.access.importData
+                            ? (<NavItem>
+                                <NavLink tag={Link} onClick={navigate} className={getClassName('/dataAdmin/import')} to={`/dataAdmin/import`}>
+                                    Import data
+                                </NavLink>
+                            </NavItem>)
+                            : null}
                     </ul>
                 </Collapse>
             </Navbar>

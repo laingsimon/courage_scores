@@ -125,6 +125,8 @@ export function UserAdmin() {
         {renderAccessOption('manageSeasons', 'Manage seasons')}
         {renderAccessOption('manageTeams', 'Manage teams')}
         {renderAccessOption('runReports', 'Run reports')}
+        {renderAccessOption('exportData', 'Export data (backup)')}
+        {renderAccessOption('importData', 'Import data (restore)')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
