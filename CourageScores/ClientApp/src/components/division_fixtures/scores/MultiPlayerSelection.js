@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
+import {Link} from "react-router-dom";
 
-export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes }) {
+export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId }) {
     let index = 0;
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
@@ -34,7 +35,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         <ol>
             {(players || []).map(p => {
                 index++;
-                return (<li key={index}>{disabled ? <span>{renderPlayer(p)}</span> : (<button
+                return (<li key={index}>{disabled ? <Link to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{renderPlayer(p)}</Link> : (<button
                     disabled={disabled || readOnly}
                     className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
                     onClick={async () => onRemovePlayer ? await onRemovePlayer(p.id, index - 1) : null}>

@@ -309,9 +309,13 @@ export function Score({account, apis, divisions}) {
             <table className="table">
                 <tbody>
                 <tr>
-                    <td colSpan="2" className="text-end fw-bold">{fixtureData.home.name}</td>
+                    <td colSpan="2" className="text-end fw-bold">
+                        <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.home.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.home.name}</Link>
+                    </td>
                     <td className="text-center">vs</td>
-                    <td colSpan="2" className="text-start fw-bold">{fixtureData.away.name}</td>
+                    <td colSpan="2" className="text-start fw-bold">
+                        <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.away.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.away.name}</Link>
+                    </td>
                 </tr>
                 {fixtureData.address || canSave ? (<tr>
                     {canSave
@@ -346,7 +350,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -361,7 +366,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -376,7 +382,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -391,7 +398,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -406,7 +414,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
                 </tr>
@@ -424,7 +433,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
                     playerCount={2}
                     homePlayers={homeTeam}
@@ -439,7 +449,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
                 </tr>
@@ -456,7 +467,8 @@ export function Score({account, apis, divisions}) {
                     seasonId={fixtureData.seasonId}
                     home={fixtureData.home}
                     away={fixtureData.away}
-                    gameId={fixtureData.id} />
+                    gameId={fixtureData.id}
+                    divisionId={fixtureData.divisionId} />
                 {canSave ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
@@ -487,7 +499,9 @@ export function Score({account, apis, divisions}) {
                             allPlayers={allPlayers}
                             players={fixtureData.matches[0].oneEighties || []}
                             onRemovePlayer={removeOneEightyScore}
-                            onAddPlayer={add180}/>
+                            onAddPlayer={add180}
+                            divisionId={fixtureData.divisionId}
+                            seasonId={fixtureData.seasonId} />
                     </td>
                     <td></td>
                     <td colSpan="2">
@@ -499,7 +513,9 @@ export function Score({account, apis, divisions}) {
                             players={fixtureData.matches[0].over100Checkouts || []}
                             onRemovePlayer={removeHiCheck}
                             onAddPlayer={addHiCheck}
-                            showNotes={true} />
+                            showNotes={true}
+                            divisionId={fixtureData.divisionId}
+                            seasonId={fixtureData.seasonId} />
                     </td>
                 </tr>
                 </tbody>

@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
+import {Link} from "react-router-dom";
 
-export function DivisionPlayer({player, onPlayerSaved, account, seasonId, teamId }) {
+export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue, divisionId }) {
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
     const [ editPlayer, setEditPlayer ] = useState(false);
     const isAdmin = account && account.access && account.access.managePlayers;
@@ -43,11 +44,15 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, teamId
     return (<tr>
         <td>{player.rank}</td>
         <td>
-            {isAdmin ? (<button onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {player.captain ? (<span>🤴 </span>) : null}{player.name}
-            {editPlayer && isAdmin ? renderEditPlayer() : null}
+            {isAdmin && onPlayerSaved ? (<button onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+            <Link to={`/division/${divisionId}/player:${player.id}/${seasonId}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>
+            {editPlayer && isAdmin && onPlayerSaved ? renderEditPlayer() : null}
         </td>
-        <td>{player.team}</td>
+        {hideVenue
+            ? null
+            : (<td>
+                <Link to={`/division/${divisionId}/team:${team.id}/${seasonId}`} className="margin-right">{player.team}</Link>
+            </td>)}
         <td>{player.won}</td>
         <td>{player.lost}</td>
         <td>{player.points}</td>

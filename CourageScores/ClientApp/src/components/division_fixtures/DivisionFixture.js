@@ -106,7 +106,9 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
-            return (fixture.awayTeam ? fixture.awayTeam.name : 'Bye');
+            return (fixture.awayTeam 
+               ? (<Link to={`/division/${divisionId}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)
+               : 'Bye');
         }
 
         const options = [bye].concat(teams
@@ -304,7 +306,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                         <span>🗑</span>)}
                 </button>
             ) : null}
-            {fixture.homeTeam.name}
+            <Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>
 
             {editTeamMode ? renderEditTeam() : null}
         </td>

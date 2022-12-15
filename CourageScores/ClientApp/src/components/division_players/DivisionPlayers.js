@@ -1,7 +1,7 @@
 import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 
-export function DivisionPlayers({ players, account, onPlayerSaved, seasonId }) {
+export function DivisionPlayers({ players, account, onPlayerSaved, seasonId, hideVenue, divisionId }) {
     return (<div className="light-background p-3">
         <div>
             <p>Only players that have played a singles match will appear here</p>
@@ -10,7 +10,7 @@ export function DivisionPlayers({ players, account, onPlayerSaved, seasonId }) {
                 <tr>
                     <th>Rank</th>
                     <th>Player</th>
-                    <th>Venue</th>
+                    {hideVenue ? null :(<th>Venue</th>)}
                     <th>Won</th>
                     <th>Lost</th>
                     <th>Points</th>
@@ -25,7 +25,9 @@ export function DivisionPlayers({ players, account, onPlayerSaved, seasonId }) {
                     player={player}
                     account={account}
                     seasonId={seasonId}
-                    onPlayerSaved={onPlayerSaved} />))}
+                    onPlayerSaved={onPlayerSaved}
+                    hideVenue={hideVenue}
+                    divisionId={divisionId} />))}
                 </tbody>
             </table>
         </div>
