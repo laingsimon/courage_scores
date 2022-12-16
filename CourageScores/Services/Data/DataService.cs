@@ -115,6 +115,28 @@ public class DataService : IDataService
         return actionResult;
     }
 
+    public async IAsyncEnumerable<TableDto> GetTables([EnumeratorCancellation] CancellationToken token)
+    {
+        var iterator = _database.GetContainerQueryStreamIterator();
+        while (iterator.HasMoreResults)
+        {
+            var container = await iterator.ReadNextAsync(token);
+            var containerContent = ContainerItemJson.ReadContainerStream(container.Content);
+
+            foreach (var table in containerContent.DocumentCollections)
+            {
+                var tableName = table.Id;
+
+                var partitionKey = table.PartitionKey.Paths.Single();
+                yield return new TableDto
+                {
+                    Name = tableName,
+                    PartitionKey = partitionKey,
+                };
+            }
+        }
+    }
+
     private static ActionResultDto<ExportDataResultDto> UnsuccessfulExport(string reason)
     {
         return new ActionResultDto<ExportDataResultDto>
@@ -141,26 +163,16 @@ public class DataService : IDataService
 
     private async IAsyncEnumerable<TableAccessor> GetTables(ExportResultRequestDto request, [EnumeratorCancellation] CancellationToken token)
     {
-        var iterator = _database.GetContainerQueryStreamIterator();
-        while (iterator.HasMoreResults)
+        await foreach (var table in GetTables(token))
         {
-            var container = await iterator.ReadNextAsync(token);
-            var containerContent = ContainerItemJson.ReadContainerStream(container.Content);
-
-            foreach (var table in containerContent.DocumentCollections)
+            if (request.Tables?.Any() == true &&
+                !request.Tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
             {
-                var tableName = table.Id;
-
-                if (request.Tables?.Any() == true &&
-                    !request.Tables.Contains(tableName, StringComparer.OrdinalIgnoreCase))
-                {
-                    // ignore table, as it hasn't been requested, but other tables have been
-                    continue;
-                }
-
-                var partitionKey = table.PartitionKey.Paths.Single();
-                yield return new TableAccessor(tableName, partitionKey);
+                // ignore table, as it hasn't been requested, but other tables have been
+                continue;
             }
+
+            yield return new TableAccessor(table.Name, table.PartitionKey);
         }
     }
 }
