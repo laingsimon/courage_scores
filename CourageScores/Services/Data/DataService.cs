@@ -97,9 +97,17 @@ public class DataService : IDataService
                 return UnsuccessfulImport("Zip file does not contain a meta.json file");
             }
 
+            var tableImporter = new DataImporter(_database, request, result, await GetTables(token).ToList());
             var metaContent = await zip.ReadJson<ExportMetaData>("meta.json");
             actionResult.Messages.Add(
                 $"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
+
+            if (request.PurgeData)
+            {
+                actionResult.Messages.AddRange(await tableImporter.PurgeData(request.Tables, token).ToList());
+            }
+
+            actionResult.Messages.AddRange(await tableImporter.ImportData(request.Tables, zip, token).ToList());
 
             actionResult.Success = true;
         }
