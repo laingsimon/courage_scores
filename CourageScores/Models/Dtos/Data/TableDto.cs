@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace CourageScores.Models.Dtos.Data;
 
 /// <summary>
@@ -14,4 +16,25 @@ public class TableDto
     /// The partition key path for this table
     /// </summary>
     public string PartitionKey { get; set; } = null!;
+
+    /// <summary>
+    /// The type for this data table
+    /// </summary>
+    [JsonIgnore]
+    public Type? DataType { get; set; }
+
+    /// <summary>
+    /// The type-name of this data table
+    /// </summary>
+    public string? DataTypeName => DataType?.Name;
+
+    /// <summary>
+    /// Can the logged in user import this data type
+    /// </summary>
+    public bool CanImport { get; set; }
+
+    /// <summary>
+    /// Can the logged in user export this data type
+    /// </summary>
+    public bool CanExport { get; set; }
 }

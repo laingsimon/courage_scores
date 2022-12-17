@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Identity;
@@ -128,6 +129,10 @@ public class DataService : IDataService
 
     public async IAsyncEnumerable<TableDto> GetTables([EnumeratorCancellation] CancellationToken token)
     {
+        var typeLookup = typeof(IPermissionedEntity).Assembly.GetTypes()
+            .Where(t => t.IsAssignableTo(typeof(IPermissionedEntity)) && !t.IsAbstract)
+            .ToDictionary(t => t.Name, StringComparer.OrdinalIgnoreCase);
+
         var iterator = _database.GetContainerQueryStreamIterator();
         while (iterator.HasMoreResults)
         {
@@ -139,13 +144,36 @@ public class DataService : IDataService
                 var tableName = table.Id;
 
                 var partitionKey = table.PartitionKey.Paths.Single();
+                typeLookup.TryGetValue(tableName, out var dataType);
+                var canImport = await CanImportDataType(dataType);
+
                 yield return new TableDto
                 {
                     Name = tableName,
                     PartitionKey = partitionKey,
+                    DataType = dataType,
+                    CanImport = canImport,
+                    CanExport = true,
                 };
             }
         }
+    }
+
+    private async Task<bool> CanImportDataType(Type? dataType)
+    {
+        var user = await _userService.GetUser();
+        if (user == null)
+        {
+            throw new InvalidOperationException("Not logged in");
+        }
+
+        if (dataType == null)
+        {
+            return true;
+        }
+
+        var instance = (IPermissionedEntity)Activator.CreateInstance(dataType)!;
+        return instance.CanCreate(user) && instance.CanEdit(user) && instance.CanDelete(user);
     }
 
     private static ActionResultDto<ExportDataResultDto> UnsuccessfulExport(string reason)
