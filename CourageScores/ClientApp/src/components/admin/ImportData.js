@@ -92,9 +92,17 @@ export function ImportData() {
                 Import data
             </button>
         </div>
-        {response ? (<div>
-            Response information...
-            <pre>{JSON.stringify(response)}</pre>
+        {response ? (<div className="py-3">
+            <h5>Output</h5>
+            <ul>
+                {Object.keys(response.result.tables).map(t => (<li><strong>{t}</strong>: {response.result.tables[t]} row/s imported</li>))}
+            </ul>
+            <strong>Messages</strong>
+            <div className="overflow-auto max-scroll-height">
+                {response.errors.map(error => (<div className="text-danger">{error}</div>))}
+                {response.warnings.map(warning => (<div className="text-warning">{warning}</div>))}
+                {response.messages.map(message => (<div className="text-secondary">{message}</div>))}
+            </div>
         </div>) : null}
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not import data" />) : null}
     </div>);
