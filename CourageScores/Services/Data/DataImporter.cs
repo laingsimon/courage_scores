@@ -1,3 +1,4 @@
+using System.Net;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Dtos.Data;
 using Microsoft.Azure.Cosmos;
@@ -54,7 +55,20 @@ public class DataImporter
                     _result.Tables.Add(table.Name, 1);
                 }
 
-                await ImportRecord(await zip.ReadJson<JObject>(recordToImport), container, token);
+                Exception? error = null;
+                try
+                {
+                    await ImportRecord(await zip.ReadJson<JObject>(recordToImport), container, token);
+                }
+                catch (Exception exc)
+                {
+                    error = exc;
+                }
+
+                if (error != null)
+                {
+                    yield return $"ERROR: {error.Message}";
+                }
             }
 
             if (_request.DryRun && tableName.EndsWith("_import"))
@@ -63,11 +77,6 @@ public class DataImporter
                 yield return $"DRY RUN: Deleting temporary table: {tableName}";
             }
         }
-    }
-
-    private async Task ImportRecord(JObject recordToImport, Container container, CancellationToken token)
-    {
-        await container.UpsertItemAsync(recordToImport, cancellationToken: token);
     }
 
     public async IAsyncEnumerable<string> PurgeData(IReadOnlyCollection<string> tables, [EnumeratorCancellation] CancellationToken token)
@@ -91,6 +100,19 @@ public class DataImporter
                 await PurgeData(table.Name, token);
             }
         }
+    }
+
+    private static async Task ImportRecord(JObject recordToImport, Container container, CancellationToken token)
+    {
+        var result = await container.UpsertItemAsync(recordToImport, cancellationToken: token);
+
+        if (result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK)
+        {
+            // updated or created
+            return;
+        }
+
+        throw new InvalidOperationException($"Could not import row: {result.StatusCode}");
     }
 
     private async Task PurgeData(string tableName, CancellationToken token)
