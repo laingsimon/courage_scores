@@ -9,6 +9,10 @@ class DataApi {
         return this.http.post(`/api/Data/Export`, request);
     }
 
+    tables() {
+        return this.http.get(`/api/Data/Tables`, {});
+    }
+
     async import(request, file) {
         const data = new FormData();
         data.append('Zip', file);
