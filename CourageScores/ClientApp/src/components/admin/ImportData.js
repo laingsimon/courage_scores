@@ -28,7 +28,9 @@ export function ImportData() {
 
     useEffect(() => {
         getTables();
-    }, []);
+    },
+    // eslint-disable-next-line
+    []);
 
     function onTableChange(selection) {
         const newImportRequest = Object.assign({}, importRequest);

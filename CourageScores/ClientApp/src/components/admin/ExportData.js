@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
@@ -27,7 +27,9 @@ export function ExportData() {
 
     useEffect(() => {
         getTables();
-    }, []);
+    },
+    // eslint-disable-next-line
+    []);
 
     function valueChanged(event) {
         const newExportRequest = Object.assign({}, exportRequest);
