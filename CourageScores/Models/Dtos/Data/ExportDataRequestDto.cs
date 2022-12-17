@@ -1,6 +1,6 @@
 ﻿namespace CourageScores.Models.Dtos.Data;
 
-public class ExportResultRequestDto
+public class ExportDataRequestDto
 {
     /// <summary>
     /// A password to protect the data with

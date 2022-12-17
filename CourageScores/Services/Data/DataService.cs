@@ -25,7 +25,7 @@ public class DataService : IDataService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportResultRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
     {
         var user = await _userService.GetUser();
         if (user == null)
@@ -200,7 +200,7 @@ public class DataService : IDataService
         };
     }
 
-    private async IAsyncEnumerable<TableAccessor> GetTables(ExportResultRequestDto request, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<TableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
     {
         await foreach (var table in GetTables(token))
         {
