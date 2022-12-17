@@ -14,12 +14,14 @@ public class DataService : IDataService
     private readonly Database _database;
     private readonly ISystemClock _clock;
     private readonly IUserService _userService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DataService(Database database, ISystemClock clock, IUserService userService)
+    public DataService(Database database, ISystemClock clock, IUserService userService, IHttpContextAccessor httpContextAccessor)
     {
         _database = database;
         _clock = clock;
         _userService = userService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportResultRequestDto request, CancellationToken token)
@@ -44,11 +46,12 @@ public class DataService : IDataService
         try
         {
             var builder = new ZipBuilder(request.Password);
+            var apiRequest = _httpContextAccessor.HttpContext?.Request;
             var metaData = new ExportMetaData
             {
                 Created = _clock.UtcNow.UtcDateTime,
                 Creator = user.Name,
-                Hostname = _database.Client.Endpoint.Host,
+                Hostname = apiRequest?.Host.ToString() ?? _database.Client.Endpoint.Host,
             };
             await builder.AddFile("meta.json", JsonConvert.SerializeObject(metaData));
 
@@ -97,9 +100,17 @@ public class DataService : IDataService
                 return UnsuccessfulImport("Zip file does not contain a meta.json file");
             }
 
+            var tableImporter = new DataImporter(_database, request, result, await GetTables(token).ToList());
             var metaContent = await zip.ReadJson<ExportMetaData>("meta.json");
             actionResult.Messages.Add(
                 $"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
+
+            if (request.PurgeData)
+            {
+                actionResult.Messages.AddRange(await tableImporter.PurgeData(request.Tables, token).ToList());
+            }
+
+            actionResult.Messages.AddRange(await tableImporter.ImportData(request.Tables, zip, token).ToList());
 
             actionResult.Success = true;
         }
@@ -113,6 +124,28 @@ public class DataService : IDataService
         }
 
         return actionResult;
+    }
+
+    public async IAsyncEnumerable<TableDto> GetTables([EnumeratorCancellation] CancellationToken token)
+    {
+        var iterator = _database.GetContainerQueryStreamIterator();
+        while (iterator.HasMoreResults)
+        {
+            var container = await iterator.ReadNextAsync(token);
+            var containerContent = ContainerItemJson.ReadContainerStream(container.Content);
+
+            foreach (var table in containerContent.DocumentCollections)
+            {
+                var tableName = table.Id;
+
+                var partitionKey = table.PartitionKey.Paths.Single();
+                yield return new TableDto
+                {
+                    Name = tableName,
+                    PartitionKey = partitionKey,
+                };
+            }
+        }
     }
 
     private static ActionResultDto<ExportDataResultDto> UnsuccessfulExport(string reason)
@@ -141,26 +174,16 @@ public class DataService : IDataService
 
     private async IAsyncEnumerable<TableAccessor> GetTables(ExportResultRequestDto request, [EnumeratorCancellation] CancellationToken token)
     {
-        var iterator = _database.GetContainerQueryStreamIterator();
-        while (iterator.HasMoreResults)
+        await foreach (var table in GetTables(token))
         {
-            var container = await iterator.ReadNextAsync(token);
-            var containerContent = ContainerItemJson.ReadContainerStream(container.Content);
-
-            foreach (var table in containerContent.DocumentCollections)
+            if (request.Tables?.Any() == true &&
+                !request.Tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
             {
-                var tableName = table.Id;
-
-                if (request.Tables?.Any() == true &&
-                    !request.Tables.Contains(tableName, StringComparer.OrdinalIgnoreCase))
-                {
-                    // ignore table, as it hasn't been requested, but other tables have been
-                    continue;
-                }
-
-                var partitionKey = table.PartitionKey.Paths.Single();
-                yield return new TableAccessor(tableName, partitionKey);
+                // ignore table, as it hasn't been requested, but other tables have been
+                continue;
             }
+
+            yield return new TableAccessor(table.Name, table.PartitionKey);
         }
     }
 }

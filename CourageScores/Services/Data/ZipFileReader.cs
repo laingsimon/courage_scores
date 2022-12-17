@@ -52,4 +52,9 @@ public class ZipFileReader
             }
         });
     }
+
+    public IEnumerable<string> EnumerateFiles(string path)
+    {
+        return _zip.Entries.Where(e => e.FileName.StartsWith(path)).Select(e => e.FileName);
+    }
 }
