@@ -14,12 +14,14 @@ public class DataService : IDataService
     private readonly Database _database;
     private readonly ISystemClock _clock;
     private readonly IUserService _userService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public DataService(Database database, ISystemClock clock, IUserService userService)
+    public DataService(Database database, ISystemClock clock, IUserService userService, IHttpContextAccessor httpContextAccessor)
     {
         _database = database;
         _clock = clock;
         _userService = userService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportResultRequestDto request, CancellationToken token)
@@ -44,11 +46,12 @@ public class DataService : IDataService
         try
         {
             var builder = new ZipBuilder(request.Password);
+            var apiRequest = _httpContextAccessor.HttpContext?.Request;
             var metaData = new ExportMetaData
             {
                 Created = _clock.UtcNow.UtcDateTime,
                 Creator = user.Name,
-                Hostname = _database.Client.Endpoint.Host,
+                Hostname = apiRequest?.Host.ToString() ?? _database.Client.Endpoint.Host,
             };
             await builder.AddFile("meta.json", JsonConvert.SerializeObject(metaData));
 
