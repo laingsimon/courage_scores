@@ -310,6 +310,7 @@ public class DivisionService : IDivisionService
                 ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.HomeScore > m.AwayScore)
                 : null,
             Postponed = fixture.Postponed,
+            IsKnockout = fixture.IsKnockout,
         };
     }
 

@@ -12,4 +12,5 @@ public class EditGameDto
     public Guid HomeTeamId { get; set; }
     public Guid AwayTeamId { get; set; }
     public bool Postponed { get; set; }
+    public bool IsKnockout { get; set; }
 }

@@ -57,6 +57,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 Date = game.Date,
                 DivisionId = game.DivisionId,
                 Postponed = game.Postponed,
+                IsKnockout = game.IsKnockout,
             });
         }
 
