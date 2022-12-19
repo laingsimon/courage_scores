@@ -325,7 +325,7 @@ export function Score({account, apis, divisions}) {
                                        <span className="input-group-text">Address</span>
                                    </div>
                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
-                                   <div className="form-check form-switch">
+                                   <div className="form-check form-switch margin-right">
                                        <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="postponed">Postponed</label>
                                    </div>

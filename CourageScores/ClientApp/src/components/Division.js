@@ -100,6 +100,7 @@ export function Division({ account, apis, divisions }) {
         {effectiveTab === 'teams'
             ? (<DivisionTeams
                 teams={divisionData.teams}
+                allTeams={divisionData.allTeams}
                 teamsWithoutFixtures={divisionData.teamsWithoutFixtures}
                 onTeamSaved={reloadDivisionData}
                 account={account}
@@ -112,6 +113,7 @@ export function Division({ account, apis, divisions }) {
                 divisionId={divisionData.id}
                 fixtures={divisionData.fixtures}
                 teams={teams}
+                allTeams={divisionData.allTeams}
                 account={account}
                 onReloadDivision={reloadDivisionData}
                 setNewFixtures={setNewFixtures} />)

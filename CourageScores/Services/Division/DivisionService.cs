@@ -256,11 +256,13 @@ public class DivisionService : IDivisionService
     private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyKnockoutGames)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
+        var hasKnockout = false;
 
         foreach (var game in games)
         {
             remainingTeams.Remove(game.Home.Id);
             remainingTeams.Remove(game.Away.Id);
+            hasKnockout = hasKnockout || game.IsKnockout;
 
             yield return GameToFixture(
                 game,
@@ -283,7 +285,8 @@ public class DivisionService : IDivisionService
                         Id = remainingTeam.Id,
                         Name = remainingTeam.Name,
                         Address = remainingTeam.Address,
-                    }
+                    },
+                    IsKnockout = hasKnockout,
                 };
             }
         }

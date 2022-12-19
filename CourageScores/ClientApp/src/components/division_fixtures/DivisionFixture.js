@@ -9,7 +9,7 @@ import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 
-export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete }) {
+export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -31,6 +31,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             return false;
         }
 
+        // intentionally looks at knockout games
         const realFixtures = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.homeTeam && f.id !== fixture.id);
         const selected = realFixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
         return selected.length > 0
@@ -46,7 +47,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             }
 
             const fixtureDateFixtures = fixtureDate.fixtures;
-            const equivalentFixtures = fixtureDateFixtures.filter(f => f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
+            const equivalentFixtures = fixtureDateFixtures.filter(f => f.isKnockout === false && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
 
             if (equivalentFixtures.length) {
                 return fixtureDate.date;
@@ -65,7 +66,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             }
 
             const fixtureDateFixtures = fixtureDate.fixtures;
-            const equivalentFixtures = fixtureDateFixtures.filter(f =>
+            const equivalentFixtures = fixtureDateFixtures.filter(f => !f.isKnockout).filter(f =>
                 (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
                 || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
 
@@ -106,9 +107,37 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
-            return (fixture.awayTeam 
+            return (fixture.awayTeam
                ? (<Link to={`/division/${divisionId}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)
                : 'Bye');
+        }
+
+        if (isKnockout) {
+            const options = allTeams
+                .filter(t => t.id !== fixture.homeTeam.id)
+                .map(t => {
+                    const otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
+                    const unavailableReason = otherFixtureSameDate
+                        ? otherFixtureSameDate.awayTeam.id === t.id
+                            ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
+                            : `Already playing against ${otherFixtureSameDate.awayTeam.name}`
+                        : null;
+
+                    return {
+                        value: t.id,
+                        text: otherFixtureSameDate ? `🚫 ${t.name} (${unavailableReason})`: t.name,
+                        disabled: !!otherFixtureSameDate
+                    };
+            });
+
+            return (<BootstrapDropdown
+                value={awayTeamId}
+                onChange={(value) => setAwayTeamId(value)}
+                options={options}
+                onOpen={toggleCellClip}
+                disabled={deleting}
+                readOnly={readOnly}
+            />);
         }
 
         const options = [bye].concat(teams
@@ -165,6 +194,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: awayTeamId,
                 date: date,
+                isKnockout: isKnockout
             });
 
             if (result.success) {
@@ -331,7 +361,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
             {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id) ?
-                <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>🎯</Link> : null}
+                <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>{fixture.isKnockout ? '🎖️' : '🎯'}</Link> : null}
             {!proposal && isAdmin && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
             {proposal && isAdmin && awayTeamId && !saving && !deleting ? (

@@ -276,7 +276,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             .Distinct()
             .Where(p =>
             {
-                return !existingDate.SelectMany(fixtureDate => fixtureDate.Fixtures).Any(f =>
+                return !existingDate.SelectMany(fixtureDate => fixtureDate.Fixtures).Any(f => f.IsKnockout == false &&
                     f.HomeTeam.Id == p.Home.Id && f.AwayTeam != null && f.AwayTeam.Id == p.Away.Id);
             })
             .Where(p =>
