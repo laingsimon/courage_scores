@@ -239,7 +239,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         allowTeamDelete={false}
                         allowTeamEdit={false} />))}
                     {date.knockoutFixtures.map(kf => (<KnockoutFixture
-                        key={kf.address}
+                        key={kf.address + '-' + kf.date}
                         knockout={kf}
                         account={account}
                         date={date.date}
