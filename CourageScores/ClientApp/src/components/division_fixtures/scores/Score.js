@@ -325,13 +325,21 @@ export function Score({account, apis, divisions}) {
                                        <span className="input-group-text">Address</span>
                                    </div>
                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
-                                   <div className="form-check form-switch">
+                                   <div className="form-check form-switch margin-right">
                                        <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="postponed">Postponed</label>
                                    </div>
+                                   <div className="form-check form-switch">
+                                       <input disabled={saving} type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={fixtureData.isKnockout} onChange={changeFixtureProperty} />
+                                       <label className="form-check-label" htmlFor="knockout">Knockout</label>
+                                   </div>
                                </div>
                            </td>)
-                        : (<td colSpan="5">Paying at: {fixtureData.address}{fixtureData.postponed ? (<span className="fw-bold text-danger ml-3">Postponed</span>) : null}</td>)}
+                        : (<td colSpan="5">
+                            Paying at: {fixtureData.address}
+                            {fixtureData.postponed ? (<span className="fw-bold text-danger ml-3">Postponed</span>) : null}
+                            {fixtureData.isKnockout ? (<span className="fw-bold text-danger ml-3">Knockout</span>) : null}
+                            </td>)}
                 </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>

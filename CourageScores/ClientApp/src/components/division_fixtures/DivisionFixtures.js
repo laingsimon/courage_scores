@@ -10,9 +10,10 @@ import {GameApi} from "../../api/game";
 import {KnockoutFixture} from "./KnockoutFixture";
 import {NewKnockoutGame} from "./NewKnockoutGame";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
+    const [ isKnockout, setIsKnockout ] = useState(false);
     const [ proposingGames, setProposingGames ] = useState(false);
     const [ proposalSettings, setProposalSettings ] = useState({
         divisionId: divisionId,
@@ -55,13 +56,15 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             onReloadDivision={onNewDateCreated}
             fixtures={fixtures}
             teams={teams}
+            allTeams={allTeams}
             seasonId={season.id}
             divisionId={divisionId}
             account={account}
             fixture={newFixture}
             date={newDate}
             allowTeamDelete={false}
-            allowTeamEdit={false} />);
+            allowTeamEdit={false}
+            isKnockout={isKnockout} />);
     }
 
     function beginProposeFixtures() {
@@ -228,6 +231,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     {date.fixtures.map(f => (<DivisionFixture
                         key={f.id}
                         teams={teams}
+                        allTeams={allTeams}
                         fixtures={fixtures}
                         divisionId={divisionId}
                         seasonId={season.id}
@@ -237,7 +241,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         readOnly={proposingGames}
                         date={date.date}
                         allowTeamDelete={false}
-                        allowTeamEdit={false} />))}
+                        allowTeamEdit={false}
+                        isKnockout={f.isKnockout} />))}
                     {date.knockoutFixtures.map(kf => (<KnockoutFixture
                         key={kf.address + '-' + kf.date}
                         knockout={kf}
@@ -254,12 +259,17 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <div>
                 <span className="margin-right">New fixture:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
+
+                <div className="form-check form-switch d-inline-block">
+                    <input type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
+                    <label className="form-check-label" htmlFor="knockout">Knockout fixture</label>
+                </div>
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
+                    <NewFixtureDate isKnockout={isKnockout} fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
+                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}
