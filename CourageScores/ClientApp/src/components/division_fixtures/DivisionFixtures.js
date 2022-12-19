@@ -13,6 +13,7 @@ import {NewKnockoutGame} from "./NewKnockoutGame";
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures }) {
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
+    const [ isKnockout, setIsKnockout ] = useState(false);
     const [ proposingGames, setProposingGames ] = useState(false);
     const [ proposalSettings, setProposalSettings ] = useState({
         divisionId: divisionId,
@@ -254,6 +255,11 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <div>
                 <span className="margin-right">New fixture:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
+
+                <div className="form-check form-switch d-inline-block">
+                    <input type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
+                    <label className="form-check-label" htmlFor="knockout">Knockout fixture</label>
+                </div>
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
