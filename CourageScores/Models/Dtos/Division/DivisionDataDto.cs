@@ -1,3 +1,5 @@
+using CourageScores.Models.Dtos.Team;
+
 namespace CourageScores.Models.Dtos.Division;
 
 public class DivisionDataDto
@@ -10,4 +12,5 @@ public class DivisionDataDto
     public List<DivisionPlayerDto> Players { get; set; } = new();
     public DivisionDataSeasonDto Season { get; set; } = new();
     public List<DivisionDataSeasonDto> Seasons { get; set; } = new();
+    public List<TeamDto> AllTeams { get; set; } = new();
 }

@@ -44,7 +44,8 @@ public class DivisionService : IDivisionService
             return new DivisionDataDto();
         }
 
-        var teams = await _genericTeamService.GetWhere($"t.DivisionId = '{divisionId}'", token).WhereAsync(m => m.Deleted == null).ToList();
+        var allTeams = await _genericTeamService.GetAll(token).ToList();
+        var teams = allTeams.Where(t => t.DivisionId == divisionId).ToList();
         var allSeasons = await _genericSeasonService.GetAll(token).WhereAsync(m => m.Deleted == null)
             .OrderByDescendingAsync(s => s.EndDate).ToList();
         var season = seasonId == null
@@ -98,6 +99,7 @@ public class DivisionService : IDivisionService
             Id = division.Id,
             Name = division.Name,
             Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            AllTeams = allTeams,
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context).OrderByAsync(d => d.Date).ToList(),
             Players = GetPlayers(divisionData, playerIdToTeamLookup).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
@@ -188,6 +190,7 @@ public class DivisionService : IDivisionService
                 Date = date,
                 Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, knockoutGamesForDate?.Any() ?? false).OrderBy(f => f.HomeTeam.Name).ToList(),
                 KnockoutFixtures = await KnockoutFixturesPerDate(knockoutGamesForDate ?? Array.Empty<KnockoutGame>(), context.Teams).OrderByAsync(f => f.Address).ToList(),
+                HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
             };
         }
     }
