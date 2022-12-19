@@ -5,7 +5,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// <summary>
 /// The details of a knockout game
 /// </summary>
-public class KnockoutGame : AuditedEntity, IPermissionedEntity
+public class KnockoutGame : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
     /// <summary>
     /// The date for the knockout game
@@ -55,5 +55,27 @@ public class KnockoutGame : AuditedEntity, IPermissionedEntity
     public bool CanDelete(UserDto user)
     {
         return user.Access?.ManageGames == true;
+    }
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitKnockoutGame(this);
+
+        foreach (var player in Over100Checkouts)
+        {
+            visitor.VisitHiCheckout(player);
+        }
+
+        foreach (var player in OneEighties)
+        {
+            visitor.VisitOneEighty(player);
+        }
+
+        foreach (var side in Sides)
+        {
+            side.Accept(visitor);
+        }
+
+        Round?.Accept(visitor);
     }
 }

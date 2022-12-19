@@ -336,7 +336,9 @@ public class DivisionService : IDivisionService
         public Dictionary<DateTime, Game[]> GamesForDate { get; }
         public Dictionary<DateTime, KnockoutGame[]> KnockoutGamesForDate { get; }
 
-        public DivisionDataContext(IReadOnlyCollection<Game> games, IReadOnlyCollection<TeamDto> teams,
+        public DivisionDataContext(
+            IReadOnlyCollection<Game> games,
+            IReadOnlyCollection<TeamDto> teams,
             IReadOnlyCollection<KnockoutGame> knockoutGames)
         {
             GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());

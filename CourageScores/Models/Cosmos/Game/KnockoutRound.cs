@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the matches within a round of a knockout game
 /// </summary>
-public class KnockoutRound : AuditedEntity
+public class KnockoutRound : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// Optional name for the round
@@ -24,4 +24,32 @@ public class KnockoutRound : AuditedEntity
     /// The details of the next round, winners against winners
     /// </summary>
     public KnockoutRound? NextRound { get; set; }
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitKnockoutRound(this);
+
+        foreach (var match in Matches)
+        {
+            match.Accept(visitor);
+        }
+
+        NextRound?.Accept(visitor);
+
+        if (Sides.Count == 2 && Matches.Count == 1 && Matches[0].ScoreA != null && Matches[0].ScoreB != null)
+        {
+            // get the winner
+            var match = Matches.Single();
+            visitor.VisitKnockoutFinal(match);
+
+            if (match.ScoreA > match.ScoreB)
+            {
+                visitor.VisitKnockoutWinner(match.SideA);
+            }
+            else if (match.ScoreB > match.ScoreA)
+            {
+                visitor.VisitKnockoutWinner(match.SideB);
+            }
+        }
+    }
 }

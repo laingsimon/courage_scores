@@ -56,4 +56,24 @@ public interface IGameVisitor
     void VisitGameLost(GameTeam team)
     {
     }
+
+    void VisitKnockoutGame(KnockoutGame knockoutGame)
+    {
+    }
+
+    void VisitKnockoutRound(KnockoutRound knockoutRound)
+    {
+    }
+
+    void VisitKnockoutFinal(KnockoutMatch match)
+    {
+    }
+
+    void VisitKnockoutWinner(KnockoutSide side)
+    {
+    }
+
+    void VisitKnockoutMatch(KnockoutMatch match)
+    {
+    }
 }

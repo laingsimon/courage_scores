@@ -3,7 +3,7 @@
 /// <summary>
 /// Representation of a match in a knockout round
 /// </summary>
-public class KnockoutMatch : AuditedEntity
+public class KnockoutMatch : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// Who is playing from side a
@@ -24,4 +24,9 @@ public class KnockoutMatch : AuditedEntity
     /// The score for side b
     /// </summary>
     public int? ScoreB { get; set; }
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitKnockoutMatch(this);
+    }
 }
