@@ -34,7 +34,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
         return (<div className="col text-center">
             <p><strong>{titlePrefix}: <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link></strong></p>
             {fixture.homeTeam.id === teamId
-                ? (<strong className="margin-right">{fixture.homeTeam.name}</strong>)
+                ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
                 : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
             <strong className="margin-right">
                 {renderScore(fixture.homeScore, fixture.postponed)}
@@ -44,7 +44,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
                 {renderScore(fixture.awayScore, fixture.postponed)}
             </strong>
             {fixture.awayTeam.id === teamId
-                ? (<strong className="margin-right">{fixture.awayTeam.name}</strong>)
+                ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
                 : (<Link to={`/division/${divisionData.id}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
         </div>);
     }
@@ -55,11 +55,11 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
 
         <div>
             <div className="row justify-content-evenly">
-                {lastFixture ? renderFixture(lastFixture, 'Last fixture') : null}
-                {nextFixture ? renderFixture(nextFixture, 'Next fixture') : null}
+                {lastFixture ? renderFixture(lastFixture, 'Last') : null}
+                {nextFixture ? renderFixture(nextFixture, 'Next') : null}
             </div>
         </div>
-        <div>
+        <div className="overflow-x-auto">
             <DivisionPlayers players={players} onPlayerSaved={null} account={account} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
         </div>
     </div>)

@@ -108,7 +108,9 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
-               ? (<Link to={`/division/${divisionId}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)
+               ? !proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
+                   ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</Link>)
+                   : null
                : 'Bye');
         }
 
@@ -336,7 +338,9 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                         <span>🗑</span>)}
                 </button>
             ) : null}
-            <Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>
+            {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
+               ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
+               : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
 
             {editTeamMode ? renderEditTeam() : null}
         </td>
@@ -354,20 +358,18 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             ) : null}
             {renderAwayTeam()}
         </td>
-        <td className="medium-column-width">
-            {isAdmin && awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
+        {isAdmin ? (<td className="medium-column-width">
+            {awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
                 ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id) ?
-                <Link className="btn btn-sm btn-primary margin-right" to={`/score/${fixture.id}`}>{fixture.isKnockout ? '🎖️' : '🎯'}</Link> : null}
-            {!proposal && isAdmin && awayTeamId && !saving && !deleting ? (
+            {!proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
-            {proposal && isAdmin && awayTeamId && !saving && !deleting ? (
+            {proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save fixture details"/>) : null}
-        </td>
+        </td>) : null}
     </tr>)
 }

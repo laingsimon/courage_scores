@@ -132,18 +132,19 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
     }
 
     return (<tr>
-        <td colSpan="2">
-            {getKnockoutType(knockout.sides)} at <strong>{knockout.address}</strong>
+        <td colSpan={knockout.round ? 3 : 5}>
+            <Link to={`/knockout/${knockout.id}`}>
+                {getKnockoutType(knockout.sides)} at <strong>{knockout.address}</strong>
+            </Link>
         </td>
-        <td colSpan="3">
-            {knockout.round ? (renderResult(knockout.round, 1)) : null}
-        </td>
-        <td className="medium-column-width">
-            <Link className="btn btn-sm btn-primary margin-right" to={`/knockout/${knockout.id}`}>🎖️</Link>
-            {isAdmin ? (<button className="btn btn-sm btn-danger" onClick={deleteKnockout}>
+        {knockout.round ? (<td colSpan="2">
+            {renderResult(knockout.round, 1)}
+        </td>) : null}
+        {isAdmin ? (<td className="medium-column-width">
+            <button className="btn btn-sm btn-danger" onClick={deleteKnockout}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
-            </button>) : null}
+            </button>
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
-        </td>
+        </td>) : null}
     </tr>);
 }

@@ -151,3 +151,7 @@ input[type="date"] {
 .bg-yellow {
   background-color: #ffffcc;
 }
+
+.overflow-x-auto {
+   overflow-x: auto;
+}

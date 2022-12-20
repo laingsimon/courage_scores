@@ -60,7 +60,6 @@ export function DivisionTeams({ teams, teamsWithoutFixtures, account, divisionId
                     account={account}
                     divisionId={divisionId}
                     onTeamSaved={onTeamSaved} />))}
-                {teamsWithoutFixtures.length ? (<tr><td colSpan="7" className="text-center text-primary fw-bold">Teams Without Fixtures</td></tr>) : null}
                 {teamsWithoutFixtures.map(team => (<DivisionTeam
                     key={team.id}
                     team={team}

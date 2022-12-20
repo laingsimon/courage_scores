@@ -15,7 +15,7 @@ export function Heading() {
                     </a>
                 </div>
             </div>
-            <h1 className="heading">THE COURAGE LEAGUE</h1>
+            <h1 className="heading">COURAGE LEAGUE</h1>
         </div>
     );
 }

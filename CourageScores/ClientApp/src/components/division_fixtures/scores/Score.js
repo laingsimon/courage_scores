@@ -336,9 +336,8 @@ export function Score({account, apis, divisions}) {
                                </div>
                            </td>)
                         : (<td colSpan="5">
-                            Paying at: {fixtureData.address}
-                            {fixtureData.postponed ? (<span className="fw-bold text-danger ml-3">Postponed</span>) : null}
-                            {fixtureData.isKnockout ? (<span className="fw-bold text-danger ml-3">Knockout</span>) : null}
+                            {fixtureData.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
+                            {fixtureData.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
                             </td>)}
                 </tr>) : null}
                 <tr>

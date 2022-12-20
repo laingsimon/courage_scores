@@ -37,8 +37,8 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
             </span>
         </h3>
 
-        <div>
-            <DivisionPlayers players={[ player ]} onPlayerSaved={null} account={account} seasonId={seasonId} divisionId={divisionData.id} />
+        <div className="overflow-x-auto">
+            <DivisionPlayers hideHeading={true} hideVenue={true} players={[ player ]} onPlayerSaved={null} account={account} seasonId={seasonId} divisionId={divisionData.id} />
         </div>
 
         <div>

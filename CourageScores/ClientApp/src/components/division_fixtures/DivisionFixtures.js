@@ -224,8 +224,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             </button>) : null}
         </div>) : null}
         <div>
-            {fixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) ? '' : 'text-secondary')}>
-                <h4>{new Date(date.date).toDateString()}</h4>
+            {fixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) ? '' : 'opacity-50')}>
+                <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
                 <table className="table layout-fixed">
                     <tbody>
                     {date.fixtures.map(f => (<DivisionFixture
