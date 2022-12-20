@@ -3,8 +3,8 @@ import {Link} from "react-router-dom";
 import {DivisionPlayers} from "./DivisionPlayers";
 
 export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
-    const player = divisionData.players.filter(p => p.id === playerId)[0];
-    const team = divisionData.teams.filter(t => t.id === player.teamId)[0];
+    const player = divisionData.players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown' };
+    const team = divisionData.teams.filter(t => t.id === player.teamId)[0] || { id: null, name: 'Unknown' };
     const knockoutDates = divisionData.fixtures.flatMap(fixtureDate => {
         const knockoutFixtures = fixtureDate.knockoutFixtures.filter(kf => kf.created);
         return knockoutFixtures
@@ -27,6 +27,12 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
                 {new Date(date.date).toDateString()} - {date.knockout.address}
             </Link>
         </li>);
+    }
+
+    if (!player.id) {
+        return (<div className="light-background p-3">
+            <h5 className="text-danger">⚠ Player could not be found</h5>
+        </div>)
     }
 
     return (<div className="light-background p-3">
