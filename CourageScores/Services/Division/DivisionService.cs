@@ -17,23 +17,23 @@ public class DivisionService : IDivisionService
     private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Game> _gameRepository;
-    private readonly IGenericRepository<KnockoutGame> _knockoutGameRepository;
-    private readonly IAdapter<KnockoutGame, KnockoutGameDto> _knockoutGameAdapter;
+    private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
+    private readonly IAdapter<TournamentGame, TournamentGameDto> _tournamentGameAdapter;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
         IGenericDataService<Team, TeamDto> genericTeamService,
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Game> gameRepository,
-        IGenericRepository<KnockoutGame> knockoutGameRepository,
-        IAdapter<KnockoutGame, KnockoutGameDto> knockoutGameAdapter)
+        IGenericRepository<TournamentGame> tournamentGameRepository,
+        IAdapter<TournamentGame, TournamentGameDto> tournamentGameAdapter)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
         _genericSeasonService = genericSeasonService;
         _gameRepository = gameRepository;
-        _knockoutGameRepository = knockoutGameRepository;
-        _knockoutGameAdapter = knockoutGameAdapter;
+        _tournamentGameRepository = tournamentGameRepository;
+        _tournamentGameAdapter = tournamentGameAdapter;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
@@ -80,12 +80,12 @@ public class DivisionService : IDivisionService
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
-        var knockoutGames = await _knockoutGameRepository
+        var tournamentGames = await _tournamentGameRepository
             .GetSome($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
-        var context = new DivisionDataContext(games, teams, knockoutGames);
+        var context = new DivisionDataContext(games, teams, tournamentGames);
 
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData);
@@ -183,13 +183,13 @@ public class DivisionService : IDivisionService
         foreach (var date in context.GetDates())
         {
             context.GamesForDate.TryGetValue(date, out var gamesForDate);
-            context.KnockoutGamesForDate.TryGetValue(date, out var knockoutGamesForDate);
+            context.TournamentGamesForDate.TryGetValue(date, out var tournamentGamesForDate);
 
             yield return new DivisionFixtureDateDto
             {
                 Date = date,
-                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, knockoutGamesForDate?.Any() ?? false).OrderBy(f => f.HomeTeam.Name).ToList(),
-                KnockoutFixtures = await KnockoutFixturesPerDate(knockoutGamesForDate ?? Array.Empty<KnockoutGame>(), context.Teams).OrderByAsync(f => f.Address).ToList(),
+                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false).OrderBy(f => f.HomeTeam.Name).ToList(),
+                TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams).OrderByAsync(f => f.Address).ToList(),
                 HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
             };
         }
@@ -224,14 +224,14 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<KnockoutGameDto> KnockoutFixturesPerDate(IReadOnlyCollection<KnockoutGame> knockoutGames, IReadOnlyCollection<TeamDto> teams)
+    private async IAsyncEnumerable<TournamentGameDto> TournamentFixturesPerDate(IReadOnlyCollection<TournamentGame> tournamentGames, IReadOnlyCollection<TeamDto> teams)
     {
         var addressesInUse = new HashSet<string>();
 
-        foreach (var game in knockoutGames)
+        foreach (var game in tournamentGames)
         {
             addressesInUse.Add(game.Address);
-            yield return await _knockoutGameAdapter.Adapt(game);
+            yield return await _tournamentGameAdapter.Adapt(game);
         }
 
         if (addressesInUse.Any())
@@ -240,7 +240,7 @@ public class DivisionService : IDivisionService
                          .GroupBy(t => t.Address)
                          .Where(g => !addressesInUse.Contains(g.Key)))
             {
-                yield return new KnockoutGameDto
+                yield return new TournamentGameDto
                 {
                     Address = string.Join(", ", teamAddress.Select(t => t.Name)),
                     Date = default,
@@ -253,7 +253,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyKnockoutGames)
+    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
         var hasKnockout = false;
@@ -270,7 +270,7 @@ public class DivisionService : IDivisionService
                 teams.SingleOrDefault(t => t.Id == game.Away.Id));
         }
 
-        if (!anyKnockoutGames)
+        if (!anyTournamentGamesForDate)
         {
             foreach (var remainingTeam in remainingTeams.Values)
             {
@@ -341,21 +341,21 @@ public class DivisionService : IDivisionService
     {
         public IReadOnlyCollection<TeamDto> Teams { get; }
         public Dictionary<DateTime, Game[]> GamesForDate { get; }
-        public Dictionary<DateTime, KnockoutGame[]> KnockoutGamesForDate { get; }
+        public Dictionary<DateTime, TournamentGame[]> TournamentGamesForDate { get; }
 
         public DivisionDataContext(
             IReadOnlyCollection<Game> games,
             IReadOnlyCollection<TeamDto> teams,
-            IReadOnlyCollection<KnockoutGame> knockoutGames)
+            IReadOnlyCollection<TournamentGame> tournamentGames)
         {
             GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
             Teams = teams;
-            KnockoutGamesForDate = knockoutGames.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
+            TournamentGamesForDate = tournamentGames.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         }
 
         public IEnumerable<DateTime> GetDates()
         {
-            return GamesForDate.Keys.Union(KnockoutGamesForDate.Keys);
+            return GamesForDate.Keys.Union(TournamentGamesForDate.Keys);
         }
     }
 

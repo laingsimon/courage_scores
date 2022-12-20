@@ -4,27 +4,27 @@ using CourageScores.Models.Dtos.Game;
 
 namespace CourageScores.Services.Command;
 
-public class UpdateKnockoutRoundsCommand : IUpdateCommand<KnockoutGame, KnockoutGame>
+public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, TournamentGame>
 {
-    private readonly IAdapter<KnockoutSide, KnockoutSideDto> _sideAdapter;
-    private readonly IAdapter<KnockoutMatch, KnockoutMatchDto> _matchAdapter;
-    private KnockoutRoundDto? _rounds;
+    private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
+    private readonly IAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter;
+    private TournamentRoundDto? _rounds;
 
-    public UpdateKnockoutRoundsCommand(
-        IAdapter<KnockoutSide, KnockoutSideDto> sideAdapter,
-        IAdapter<KnockoutMatch, KnockoutMatchDto> matchAdapter)
+    public UpdateTournamentRoundsCommand(
+        IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
+        IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter)
     {
         _sideAdapter = sideAdapter;
         _matchAdapter = matchAdapter;
     }
 
-    public UpdateKnockoutRoundsCommand WithData(KnockoutRoundDto rounds)
+    public UpdateTournamentRoundsCommand WithData(TournamentRoundDto rounds)
     {
         _rounds = rounds;
         return this;
     }
 
-    public async Task<CommandOutcome<KnockoutGame>> ApplyUpdate(KnockoutGame model, CancellationToken token)
+    public async Task<CommandOutcome<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
         if (_rounds == null)
         {
@@ -33,17 +33,17 @@ public class UpdateKnockoutRoundsCommand : IUpdateCommand<KnockoutGame, Knockout
 
         model.Round = await UpdateRound(model.Round, _rounds);
 
-        return new CommandOutcome<KnockoutGame>(true, "Knockout game updated", model);
+        return new CommandOutcome<TournamentGame>(true, "Tournament game updated", model);
     }
 
-    private async Task<KnockoutRound?> UpdateRound(KnockoutRound? currentRound, KnockoutRoundDto? update)
+    private async Task<TournamentRound?> UpdateRound(TournamentRound? currentRound, TournamentRoundDto? update)
     {
         if (update == null)
         {
             return null;
         }
 
-        currentRound ??= new KnockoutRound();
+        currentRound ??= new TournamentRound();
 
         currentRound.Name = update.Name;
         currentRound.Matches = await update.Matches.SelectAsync(m => _matchAdapter.Adapt(m)).ToList();

@@ -5,26 +5,26 @@ import {DivisionPlayers} from "./DivisionPlayers";
 export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
     const player = divisionData.players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown' };
     const team = divisionData.teams.filter(t => t.id === player.teamId)[0] || { id: null, name: 'Unknown' };
-    const knockoutDates = divisionData.fixtures.flatMap(fixtureDate => {
-        const knockoutFixtures = fixtureDate.knockoutFixtures.filter(kf => kf.created);
-        return knockoutFixtures
-            .filter(kf => {
-                return kf.sides.filter(side => {
+    const tournamentDates = divisionData.fixtures.flatMap(fixtureDate => {
+        const tournamentFixtures = fixtureDate.tournamentFixtures.filter(tournament => tournament.created);
+        return tournamentFixtures
+            .filter(tournament => {
+                return tournament.sides.filter(side => {
                     return side.players.filter(p => p.id === playerId).length > 0;
                 }).length > 0;
             })
-            .map(kf => {
+            .map(tournament => {
                 return {
                     date: fixtureDate.date,
-                    knockout: kf
+                    tournament: tournament
                 };
             });
     });
 
-    function renderKnockoutGame(date) {
-        return (<li key={date + '-' + date.knockout.address}>
-            <Link to={`/knockout/${date.knockout.id}`}>
-                {new Date(date.date).toDateString()} - {date.knockout.address}
+    function renderTournamentGame(date) {
+        return (<li key={date + '-' + date.tournament.address}>
+            <Link to={`/tournament/${date.tournament.id}`}>
+                {new Date(date.date).toDateString()} - {date.tournament.address}
             </Link>
         </li>);
     }
@@ -48,9 +48,9 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
         </div>
 
         <div>
-            <h6>Knockout games</h6>
+            <h6>Tournament games</h6>
             <ul>
-                {knockoutDates.map(renderKnockoutGame)}
+                {tournamentDates.map(renderTournamentGame)}
             </ul>
         </div>
     </div>)

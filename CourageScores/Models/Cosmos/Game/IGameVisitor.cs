@@ -57,23 +57,23 @@ public interface IGameVisitor
     {
     }
 
-    void VisitKnockoutGame(KnockoutGame knockoutGame)
+    void VisitTournamentGame(TournamentGame tournamentGame)
     {
     }
 
-    void VisitKnockoutRound(KnockoutRound knockoutRound)
+    void VisitTournamentRound(TournamentRound tournamentRound)
     {
     }
 
-    void VisitKnockoutFinal(KnockoutMatch match)
+    void VisitTournamentFinal(TournamentMatch match)
     {
     }
 
-    void VisitKnockoutWinner(KnockoutSide side)
+    void VisitTournamentWinner(TournamentSide side)
     {
     }
 
-    void VisitKnockoutMatch(KnockoutMatch match)
+    void VisitTournamentMatch(TournamentMatch match)
     {
     }
 }

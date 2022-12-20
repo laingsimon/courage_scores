@@ -1,9 +1,9 @@
 ﻿namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
-/// Represents the matches within a round of a knockout game
+/// Represents the matches within a round of a tournament game
 /// </summary>
-public class KnockoutRound : AuditedEntity, IGameVisitable
+public class TournamentRound : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// Optional name for the round
@@ -13,21 +13,21 @@ public class KnockoutRound : AuditedEntity, IGameVisitable
     /// <summary>
     /// The sides that can play in the round
     /// </summary>
-    public List<KnockoutSide> Sides { get; set; } = new();
+    public List<TournamentSide> Sides { get; set; } = new();
 
     /// <summary>
     /// The matches that are-to-be/have-been played
     /// </summary>
-    public List<KnockoutMatch> Matches { get; set; } = new();
+    public List<TournamentMatch> Matches { get; set; } = new();
 
     /// <summary>
     /// The details of the next round, winners against winners
     /// </summary>
-    public KnockoutRound? NextRound { get; set; }
+    public TournamentRound? NextRound { get; set; }
 
     public void Accept(IGameVisitor visitor)
     {
-        visitor.VisitKnockoutRound(this);
+        visitor.VisitTournamentRound(this);
 
         foreach (var match in Matches)
         {
@@ -40,15 +40,15 @@ public class KnockoutRound : AuditedEntity, IGameVisitable
         {
             // get the winner
             var match = Matches.Single();
-            visitor.VisitKnockoutFinal(match);
+            visitor.VisitTournamentFinal(match);
 
             if (match.ScoreA > match.ScoreB)
             {
-                visitor.VisitKnockoutWinner(match.SideA);
+                visitor.VisitTournamentWinner(match.SideA);
             }
             else if (match.ScoreB > match.ScoreA)
             {
-                visitor.VisitKnockoutWinner(match.SideB);
+                visitor.VisitTournamentWinner(match.SideB);
             }
         }
     }

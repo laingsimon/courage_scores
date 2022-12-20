@@ -3,24 +3,24 @@ import {useParams} from "react-router-dom";
 import {Http} from "../../../api/http";
 import {Settings} from "../../../api/settings";
 import {SeasonApi} from "../../../api/season";
-import {KnockoutApi} from "../../../api/knockout";
+import {TournamentApi} from "../../../api/tournament";
 import {DivisionControls} from "../../DivisionControls";
 import {TeamApi} from "../../../api/team";
-import {KnockoutRound} from "./KnockoutRound";
-import {KnockoutSide} from "./KnockoutSide";
+import {TournamentRound} from "./TournamentRound";
+import {TournamentSide} from "./TournamentSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {nameSort} from "../../../Utilities";
 
-export function Knockout({ account, apis }) {
-    const { knockoutId } = useParams();
+export function Tournament({ account, apis }) {
+    const { tournamentId } = useParams();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
     const [error, setError] = useState(null);
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
-    const [knockoutData, setKnockoutData] = useState(null);
+    const [tournamentData, setTournamentData] = useState(null);
     const [season, setSeason] = useState(null);
     const [seasons, setSeasons] = useState(null);
     const [teams, setTeams] = useState(null);
@@ -46,25 +46,25 @@ export function Knockout({ account, apis }) {
 
     async function loadFixtureData() {
         const http = new Http(new Settings());
-        const knockoutApi = new KnockoutApi(http);
+        const tournamentApi = new TournamentApi(http);
         const seasonApi = new SeasonApi(http);
         const teamApi = new TeamApi(http);
 
         try {
-            const knockoutData = await knockoutApi.get(knockoutId);
+            const tournamentData = await tournamentApi.get(tournamentId);
 
-            if (!knockoutData) {
-                setError('Knockout could not be found');
+            if (!tournamentData) {
+                setError('Tournament could not be found');
                 return;
             }
 
-            setKnockoutData(knockoutData);
+            setTournamentData(tournamentData);
 
             const seasonsResponse = await seasonApi.getAll();
-            const season = seasonsResponse.filter(s => s.id === knockoutData.seasonId)[0];
+            const season = seasonsResponse.filter(s => s.id === tournamentData.seasonId)[0];
             const teams = await teamApi.getAll();
-            const allPlayers = knockoutData.sides
-                ? knockoutData.sides.flatMap(side => side.players)
+            const allPlayers = tournamentData.sides
+                ? tournamentData.sides.flatMap(side => side.players)
                 : [];
             allPlayers.sort(nameSort);
 
@@ -80,31 +80,31 @@ export function Knockout({ account, apis }) {
     }
 
     async function onChange(newRound) {
-        const newKnockoutData = Object.assign({}, knockoutData);
-        newKnockoutData.round = newRound;
-        setKnockoutData(newKnockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
+        newTournamentData.round = newRound;
+        setTournamentData(newTournamentData);
     }
 
     async function changeAddress(event) {
-        const newKnockoutData = Object.assign({}, knockoutData);
-        newKnockoutData.address = event.target.value;
-        setKnockoutData(newKnockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
+        newTournamentData.address = event.target.value;
+        setTournamentData(newTournamentData);
     }
 
     async function sideChanged(newSide, sideIndex) {
-        const newKnockoutData = Object.assign({}, knockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
         if (sideIndex === undefined) {
-            newKnockoutData.sides.push(newSide);
+            newTournamentData.sides.push(newSide);
         } else {
             if (newSide.players.length > 0) {
-                newKnockoutData.sides[sideIndex] = newSide;
-                updateSideDataInRound(newKnockoutData.round, newSide);
+                newTournamentData.sides[sideIndex] = newSide;
+                updateSideDataInRound(newTournamentData.round, newSide);
             } else {
                 // delete the side
-                newKnockoutData.sides.splice(sideIndex, 1);
+                newTournamentData.sides.splice(sideIndex, 1);
             }
         }
-        setKnockoutData(newKnockoutData);
+        setTournamentData(newTournamentData);
     }
 
     function updateSideDataInRound(round, side) {
@@ -126,7 +126,7 @@ export function Knockout({ account, apis }) {
         updateSideDataInRound(round.nextRound, side);
     }
 
-    async function saveKnockout() {
+    async function saveTournament() {
         if (saving) {
             return;
         }
@@ -136,9 +136,9 @@ export function Knockout({ account, apis }) {
         try {
 
             const http = new Http(new Settings());
-            const knockoutApi = new KnockoutApi(http);
+            const tournamentApi = new TournamentApi(http);
 
-            const response = await knockoutApi.update(knockoutData);
+            const response = await tournamentApi.update(tournamentData);
             if (!response.success) {
                 setSaveError(response);
             }
@@ -149,7 +149,7 @@ export function Knockout({ account, apis }) {
 
     function getOtherSides(sideIndex) {
         let index = 0;
-        return knockoutData.sides.filter(_ => {
+        return tournamentData.sides.filter(_ => {
             return index++ !== sideIndex;
         });
     }
@@ -176,51 +176,51 @@ export function Knockout({ account, apis }) {
     }
 
     function add180(player) {
-        const newKnockoutData = Object.assign({}, knockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
 
-        if (!newKnockoutData.oneEighties) {
-            newKnockoutData.oneEighties = [];
+        if (!newTournamentData.oneEighties) {
+            newTournamentData.oneEighties = [];
         }
 
-        newKnockoutData.oneEighties.push({
+        newTournamentData.oneEighties.push({
             id: player.id,
             name: player.name
         });
 
-        setKnockoutData(newKnockoutData);
+        setTournamentData(newTournamentData);
 
     }
 
     function addHiCheck(player, notes) {
-        const newKnockoutData = Object.assign({}, knockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
 
-        if (!newKnockoutData.over100Checkouts) {
-            newKnockoutData.over100Checkouts = [];
+        if (!newTournamentData.over100Checkouts) {
+            newTournamentData.over100Checkouts = [];
         }
 
-        newKnockoutData.over100Checkouts.push({
+        newTournamentData.over100Checkouts.push({
             id: player.id,
             name: player.name,
             notes: notes
         });
 
-        setKnockoutData(newKnockoutData);
+        setTournamentData(newTournamentData);
     }
 
     function removeOneEightyScore(playerId, index) {
-        const newKnockoutData = Object.assign({}, knockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
 
-        newKnockoutData.oneEighties.splice(index, 1);
+        newTournamentData.oneEighties.splice(index, 1);
 
-        setKnockoutData(newKnockoutData);
+        setTournamentData(newTournamentData);
     }
 
     function removeHiCheck(playerId, index) {
-        const newKnockoutData = Object.assign({}, knockoutData);
+        const newTournamentData = Object.assign({}, tournamentData);
 
-        newKnockoutData.over100Checkouts.splice(index, 1);
+        newTournamentData.over100Checkouts.splice(index, 1);
 
-        setKnockoutData(newKnockoutData);
+        setTournamentData(newTournamentData);
     }
 
     if (loading !== 'ready') {
@@ -235,8 +235,8 @@ export function Knockout({ account, apis }) {
 
     let sideIndex = 0;
     const readOnly = !isAdmin || !canSave || disabled || saving;
-    const hasStarted = knockoutData.round && knockoutData.round.matches && knockoutData.round.matches.length > 0;
-    const winningSideId = hasStarted ? getWinningSide(knockoutData.round) : null;
+    const hasStarted = tournamentData.round && tournamentData.round.matches && tournamentData.round.matches.length > 0;
+    const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
 
     return (<div>
         <DivisionControls
@@ -257,19 +257,19 @@ export function Knockout({ account, apis }) {
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={knockoutData.address} onChange={changeAddress} />
+                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} onChange={changeAddress} />
                     </div>)
-                : (<p>At <strong>{knockoutData.address}</strong> on <strong>{new Date(knockoutData.date).toDateString()}</strong></p>)}
+                : (<p>At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong></p>)}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
-                {knockoutData.sides.map(side => {
+                {tournamentData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
-                    return (<KnockoutSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || hasStarted} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-                {readOnly || hasStarted ? null : (<KnockoutSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={knockoutData.sides} />)}
+                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || hasStarted} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
-            {knockoutData.sides.length >= 2 ? (<KnockoutRound round={knockoutData.round || {}} sides={knockoutData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
-            {knockoutData.sides.length >= 2 ? (<table className="table">
+            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {tournamentData.sides.length >= 2 ? (<table className="table">
                 <tbody>
                 <tr>
                     <td colSpan="2">
@@ -278,7 +278,7 @@ export function Knockout({ account, apis }) {
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
-                            players={knockoutData.oneEighties || []}
+                            players={tournamentData.oneEighties || []}
                             onRemovePlayer={removeOneEightyScore}
                             onAddPlayer={add180}/>
                     </td>
@@ -288,7 +288,7 @@ export function Knockout({ account, apis }) {
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
-                            players={knockoutData.over100Checkouts || []}
+                            players={tournamentData.over100Checkouts || []}
                             onRemovePlayer={removeHiCheck}
                             onAddPlayer={addHiCheck}
                             showNotes={true} />
@@ -296,11 +296,11 @@ export function Knockout({ account, apis }) {
                 </tr>
                 </tbody>
             </table>) : null}
-            {isAdmin ? (<button className="btn btn-primary" onClick={saveKnockout}>
+            {isAdmin ? (<button className="btn btn-primary" onClick={saveTournament}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save
             </button>) : null}
         </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save knockout details"/>) : null}
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save tournament details"/>) : null}
     </div>);
 }

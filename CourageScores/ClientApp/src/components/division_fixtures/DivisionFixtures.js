@@ -7,8 +7,8 @@ import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
 import {GameApi} from "../../api/game";
-import {KnockoutFixture} from "./KnockoutFixture";
-import {NewKnockoutGame} from "./NewKnockoutGame";
+import {TournamentFixture} from "./TournamentFixture";
+import {NewTournamentGame} from "./NewTournamentGame";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams }) {
     const isAdmin = account && account.access && account.access.manageGames;
@@ -190,7 +190,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         </Dialog>);
     }
 
-    async function onKnockoutChanged() {
+    async function onTournamentChanged() {
         const divisionData = await onReloadDivision();
         setNewFixtures(divisionData.fixtures);
         setNewDate('');
@@ -243,14 +243,14 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                         allowTeamDelete={false}
                         allowTeamEdit={false}
                         isKnockout={f.isKnockout} />))}
-                    {date.knockoutFixtures.map(kf => (<KnockoutFixture
-                        key={kf.address + '-' + kf.date}
-                        knockout={kf}
+                    {date.tournamentFixtures.map(tournament => (<TournamentFixture
+                        key={tournament.address + '-' + tournament.date}
+                        tournament={tournament}
                         account={account}
                         date={date.date}
                         seasonId={season.id}
                         divisionId={divisionId}
-                        onKnockoutChanged={onKnockoutChanged} />))}
+                        onTournamentChanged={onTournamentChanged} />))}
                     </tbody>
                 </table>
             </div>))}
@@ -269,7 +269,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
                     <NewFixtureDate isKnockout={isKnockout} fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewKnockoutGame date={newDate} onNewKnockout={onKnockoutChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
+                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}

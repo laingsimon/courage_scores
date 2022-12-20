@@ -4,18 +4,18 @@ using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class KnockoutSideAdapter : IAdapter<KnockoutSide, KnockoutSideDto>
+public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
 {
     private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
 
-    public KnockoutSideAdapter(IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter)
+    public TournamentSideAdapter(IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter)
     {
         _gamePlayerAdapter = gamePlayerAdapter;
     }
 
-    public async Task<KnockoutSideDto> Adapt(KnockoutSide model)
+    public async Task<TournamentSideDto> Adapt(TournamentSide model)
     {
-        return new KnockoutSideDto
+        return new TournamentSideDto
         {
             Id = model.Id,
             Name = model.Name,
@@ -23,9 +23,9 @@ public class KnockoutSideAdapter : IAdapter<KnockoutSide, KnockoutSideDto>
         }.AddAuditProperties(model);
     }
 
-    public async Task<KnockoutSide> Adapt(KnockoutSideDto dto)
+    public async Task<TournamentSide> Adapt(TournamentSideDto dto)
     {
-        return new KnockoutSide
+        return new TournamentSide
         {
             Id = dto.Id,
             Name = dto.Name,

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
 
-export function KnockoutSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
+export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);

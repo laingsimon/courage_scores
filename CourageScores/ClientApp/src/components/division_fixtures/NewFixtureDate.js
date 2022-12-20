@@ -124,7 +124,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
                 onOpen={toggleCellClip}
                 options={unselectedTeamsInDivision.filter(t => t.value !== awayTeamId).concat([ newTeam ])} />
         </td>
-        <td className="narrow-column">{isKnockout ? 'Knockout game' : 'Regular game'}</td>
+        <td className="narrow-column"></td>
         <td className="narrow-column">vs</td>
         <td className="narrow-column"></td>
         <td style={{ overflow: (clipCellRegion ? 'clip' : 'initial')}}>

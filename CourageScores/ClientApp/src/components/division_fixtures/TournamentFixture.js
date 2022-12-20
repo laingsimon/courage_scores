@@ -1,18 +1,18 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
-import {KnockoutApi} from "../../api/knockout";
+import {TournamentApi} from "../../api/tournament";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 
-export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId, divisionId, date }) {
-    const isProposedKnockout = !knockout.round && knockout.id === '00000000-0000-0000-0000-000000000000';
+export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date }) {
+    const isProposedTournament = !tournament.round && tournament.id === '00000000-0000-0000-0000-000000000000';
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const isAdmin = account && account.access && account.access.manageGames;
 
-    async function createKnockoutGame() {
+    async function createTournamentGame() {
         if (creating || deleting) {
             return;
         }
@@ -20,17 +20,17 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
         try {
             setCreating(true);
 
-            const api = new KnockoutApi(new Http(new Settings()));
+            const api = new TournamentApi(new Http(new Settings()));
             const response = await api.update({
                 date: date,
-                address: knockout.address,
+                address: tournament.address,
                 divisionId: divisionId,
                 seasonId: seasonId
             });
 
             if (response.success) {
-                if (onKnockoutChanged) {
-                    await onKnockoutChanged();
+                if (onTournamentChanged) {
+                    await onTournamentChanged();
                 }
             } else {
                 setSaveError(response);
@@ -40,24 +40,24 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
         }
     }
 
-    async function deleteKnockout() {
+    async function deleteTournamentGame() {
         if (deleting || creating) {
             return;
         }
 
-        if (!window.confirm(`Are you sure you want to delete this knockout fixture?`)) {
+        if (!window.confirm(`Are you sure you want to delete this tournament fixture?`)) {
             return;
         }
 
         try {
             setDeleting(true);
 
-            const api = new KnockoutApi(new Http(new Settings()));
-            const response = await api.delete(knockout.id);
+            const api = new TournamentApi(new Http(new Settings()));
+            const response = await api.delete(tournament.id);
 
             if (response.success) {
-                if (onKnockoutChanged) {
-                    await onKnockoutChanged();
+                if (onTournamentChanged) {
+                    await onTournamentChanged();
                 }
             } else {
                 setSaveError(response);
@@ -96,9 +96,9 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
         return (<span className="margin-left">Winner: <strong className="text-primary">{side.name || side.id}</strong> after {rounds} rounds</span>);
     }
 
-    function getKnockoutType(sides) {
+    function getTournamentType(sides) {
         if (!sides || !sides.length) {
-            return 'Knockout';
+            return 'Tournament';
         }
 
         const firstSide = sides[0];
@@ -107,22 +107,22 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
         switch (playerCount) {
             case 1: return 'Singles';
             case 2: return 'Pairs';
-            default: return 'Knockout';
+            default: return 'Tournament';
         }
     }
 
-    if (isProposedKnockout && !isAdmin) {
-        // don't show proposed knockout addresses when not an admin
+    if (isProposedTournament && !isAdmin) {
+        // don't show proposed tournament addresses when not an admin
         return null;
     }
 
-    if (isProposedKnockout) {
+    if (isProposedTournament) {
         return (<tr>
             <td colSpan="5">
-                Knockout at <strong>{knockout.address}</strong>
+                Tournament at <strong>{tournament.address}</strong>
             </td>
             <td className="medium-column-width">
-                {isAdmin && isProposedKnockout ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createKnockoutGame}>
+                {isAdmin && isProposedTournament ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
                         {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎖'}
                         Reserve
                     </button>)
@@ -132,16 +132,16 @@ export function KnockoutFixture({ account, knockout, onKnockoutChanged, seasonId
     }
 
     return (<tr>
-        <td colSpan={knockout.round ? 3 : 5}>
-            <Link to={`/knockout/${knockout.id}`}>
-                {getKnockoutType(knockout.sides)} at <strong>{knockout.address}</strong>
+        <td colSpan={tournament.round ? 3 : 5}>
+            <Link to={`/tournament/${tournament.id}`}>
+                {getTournamentType(tournament.sides)} at <strong>{tournament.address}</strong>
             </Link>
         </td>
-        {knockout.round ? (<td colSpan="2">
-            {renderResult(knockout.round, 1)}
+        {tournament.round ? (<td colSpan="2">
+            {renderResult(tournament.round, 1)}
         </td>) : null}
         {isAdmin ? (<td className="medium-column-width">
-            <button className="btn btn-sm btn-danger" onClick={deleteKnockout}>
+            <button className="btn btn-sm btn-danger" onClick={deleteTournamentGame}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
             </button>
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}

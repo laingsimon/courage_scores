@@ -1,6 +1,6 @@
 ﻿namespace CourageScores.Models.Cosmos.Game;
 
-public class KnockoutSide : AuditedEntity, IGameVisitable
+public class TournamentSide : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// Optional name for the side, e.g. Riverside

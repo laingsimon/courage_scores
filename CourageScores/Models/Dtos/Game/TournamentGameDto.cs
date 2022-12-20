@@ -1,32 +1,32 @@
 ﻿namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
-/// The details of a knockout game
+/// The details of a tournament game
 /// </summary>
-public class KnockoutGameDto : AuditedDto
+public class TournamentGameDto : AuditedDto
 {
     /// <summary>
-    /// The date for the knockout game
+    /// The date for the tournament game
     /// </summary>
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The season for the knockout game
+    /// The season for the tournament game
     /// </summary>
     public Guid SeasonId { get; set; }
 
     /// <summary>
     /// The sides that can play in the game
     /// </summary>
-    public List<KnockoutSideDto> Sides { get; set; } = new();
+    public List<TournamentSideDto> Sides { get; set; } = new();
 
     /// <summary>
-    /// The first round of the knockout game
+    /// The first round of the tournament game
     /// </summary>
-    public KnockoutRoundDto? Round { get; set; }
+    public TournamentRoundDto? Round { get; set; }
 
     /// <summary>
-    /// The address for the knockout games
+    /// The address for the tournament games
     /// </summary>
     public string Address { get; set; } = null!;
 

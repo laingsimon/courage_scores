@@ -4,16 +4,16 @@ using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class KnockoutGameAdapter : IAdapter<KnockoutGame, KnockoutGameDto>
+public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
 {
-    private readonly IAdapter<KnockoutRound, KnockoutRoundDto> _roundAdapter;
-    private readonly IAdapter<KnockoutSide, KnockoutSideDto> _sideAdapter;
+    private readonly IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter;
+    private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
     private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
 
-    public KnockoutGameAdapter(
-        IAdapter<KnockoutRound, KnockoutRoundDto> roundAdapter,
-        IAdapter<KnockoutSide, KnockoutSideDto> sideAdapter,
+    public TournamentGameAdapter(
+        IAdapter<TournamentRound, TournamentRoundDto> roundAdapter,
+        IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
         IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
         IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter)
     {
@@ -23,9 +23,9 @@ public class KnockoutGameAdapter : IAdapter<KnockoutGame, KnockoutGameDto>
         _notablePlayerAdapter = notablePlayerAdapter;
     }
 
-    public async Task<KnockoutGameDto> Adapt(KnockoutGame model)
+    public async Task<TournamentGameDto> Adapt(TournamentGame model)
     {
-        return new KnockoutGameDto
+        return new TournamentGameDto
         {
             Id = model.Id,
             Round = model.Round != null ? await _roundAdapter.Adapt(model.Round) : null,
@@ -38,9 +38,9 @@ public class KnockoutGameAdapter : IAdapter<KnockoutGame, KnockoutGameDto>
         }.AddAuditProperties(model);
     }
 
-    public async Task<KnockoutGame> Adapt(KnockoutGameDto dto)
+    public async Task<TournamentGame> Adapt(TournamentGameDto dto)
     {
-        return new KnockoutGame
+        return new TournamentGame
         {
             Id = dto.Id,
             Round = dto.Round != null ? await _roundAdapter.Adapt(dto.Round) : null,

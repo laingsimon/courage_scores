@@ -11,7 +11,7 @@ import {DivisionApi} from "./api/division";
 import {Score} from "./components/division_fixtures/scores/Score";
 import {UserAdmin} from "./components/admin/UserAdmin";
 import {NewSeason} from "./components/admin/NewSeason";
-import {Knockout} from "./components/division_fixtures/knockouts/Knockout";
+import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
 import {toMap} from "./Utilities";
 import {ExportData} from "./components/admin/ExportData";
 import {ImportData} from "./components/admin/ImportData";
@@ -104,7 +104,7 @@ export default class App extends Component {
                     <Route path='/dataAdmin/export' element={<ExportData {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/dataAdmin/import' element={<ImportData {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/season/new' element={<NewSeason {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/knockout/:knockoutId' element={<Knockout {...this.combineProps({...this.props})} />} />}/>
+                    <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
             </Layout>
         );
