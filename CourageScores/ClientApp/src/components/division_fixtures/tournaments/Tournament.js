@@ -278,6 +278,7 @@ export function Tournament({ account, apis }) {
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
+                            seasonId={tournamentData.seasonId}
                             players={tournamentData.oneEighties || []}
                             onRemovePlayer={removeOneEightyScore}
                             onAddPlayer={add180}/>
@@ -288,6 +289,7 @@ export function Tournament({ account, apis }) {
                             disabled={disabled}
                             readOnly={saving}
                             allPlayers={allPlayers}
+                            seasonId={tournamentData.seasonId}
                             players={tournamentData.over100Checkouts || []}
                             onRemovePlayer={removeHiCheck}
                             onAddPlayer={addHiCheck}
