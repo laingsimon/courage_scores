@@ -78,7 +78,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
 
         if (round && round.matches && round.matches.length === 1) {
             const match = round.matches[0];
-            if (match.scoreA && match.scoreB && match.sideA && match.sideB) {
+            if (match.scoreA !== null && match.scoreB !== null && match.sideA && match.sideB) {
                 if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
                     return renderWiningSide(match.sideA, rounds);
                 } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
