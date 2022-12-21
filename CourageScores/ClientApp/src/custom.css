@@ -156,3 +156,8 @@ input[type="date"] {
 .overflow-x-auto {
    overflow-x: auto;
 }
+
+.bg-winner,
+td.bg-winner {
+  background-image: linear-gradient(180deg, #33ff33, #00cc00);
+}

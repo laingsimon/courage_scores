@@ -272,6 +272,18 @@ export function Score({account, apis, divisions}) {
         return (<div className="light-background p-3">There are no players for the home and/or away teams</div>);
     }
 
+    const finalScore = fixtureData.matches.map(match => {
+        return { awayScore: match.awayScore, homeScore: match.homeScore };
+    }).reduce((prev, current) => {
+        return {
+            awayScore: prev.awayScore + current.awayScore,
+            homeScore: prev.homeScore + current.homeScore
+        };
+    }, { awayScore: 0, homeScore: 0 });
+    const winner = finalScore.homeScore > finalScore.awayScore
+        ? 'home'
+        : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
+
     return (<div>
         <DivisionControls
             reloadAll={apis.reloadAll}
@@ -309,11 +321,11 @@ export function Score({account, apis, divisions}) {
             <table className="table">
                 <tbody>
                 <tr>
-                    <td colSpan="2" className="text-end fw-bold">
+                    <td colSpan="2" className={`text-end fw-bold ${winner === 'home' ? 'bg-winner' : null}`}>
                         <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.home.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.home.name}</Link>
                     </td>
                     <td className="text-center">vs</td>
-                    <td colSpan="2" className="text-start fw-bold">
+                    <td colSpan="2" className={`text-start fw-bold ${winner === 'away' ? 'bg-winner' : null}`}>
                         <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.away.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.away.name}</Link>
                     </td>
                 </tr>

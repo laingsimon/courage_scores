@@ -133,7 +133,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     const allPlayers = teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer);
     allPlayers.sort(nameSort);
-    return (<div className={`p-1 m-1 ${winner ? 'bg-warning' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
+    return (<div className={`p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
