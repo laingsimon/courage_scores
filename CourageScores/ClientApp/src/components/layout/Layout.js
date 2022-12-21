@@ -15,7 +15,7 @@ export function Layout({divisions, appLoading, account, children, error, clearEr
     return (
         <div>
             <Heading />
-            <NavMenu divisions={divisions} appLoading={appLoading} account={account} />
+            <NavMenu divisions={divisions} appLoading={appLoading} account={account} clearError={clearError} />
             {error ? renderError() : (<Container>
                 {children}
             </Container>)}
