@@ -4,7 +4,7 @@ import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../../api/settings";
 
-export function NavMenu({divisions, appLoading, account}) {
+export function NavMenu({divisions, appLoading, account, clearError}) {
     const settings = new Settings();
     const [collapsed, setCollapsed] = useState(true);
     const [ currentLink, setCurrentLink ] = useState(document.location.href);
@@ -25,6 +25,9 @@ export function NavMenu({divisions, appLoading, account}) {
     function navigate(event) {
         setCurrentLink(event.target.href);
         setCollapsed(true);
+        if (clearError) {
+            clearError();
+        }
     }
 
     function getAccountUrl(action) {
