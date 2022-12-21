@@ -161,3 +161,11 @@ input[type="date"] {
 td.bg-winner {
   background-image: linear-gradient(180deg, #33ff33, #00cc00);
 }
+
+.no-list-indent{
+  padding-left: 0px;
+}
+
+.no-list-indent ::marker{
+  content: '';
+}

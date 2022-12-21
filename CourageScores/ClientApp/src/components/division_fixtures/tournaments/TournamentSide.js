@@ -137,7 +137,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
-        {readOnly ? (<ol>{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
+        {readOnly ? (<ol className="no-list-indent">{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
             allPlayers={allPlayers}
             onAddPlayer={onAddPlayer}
