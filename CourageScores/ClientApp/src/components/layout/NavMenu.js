@@ -38,10 +38,10 @@ export function NavMenu({divisions, appLoading, account}) {
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
                         <NavItem>
-                            <NavLink tag={Link} onClick={navigate} className={getClassName(document.location.origin + '/?$')} to="/">Home</NavLink>
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/">Home</NavLink>
                         </NavItem>
                         <NavItem>
-                            <NavLink tag={Link} onClick={navigate} className={getClassName('/news')} to="/news">News</NavLink>
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
                         </NavItem>
                         {divisions.map(division => (<NavItem key={division.id}>
                           <NavLink tag={Link} onClick={navigate} className={getClassName(`/division/${division.id}`)} to={`/division/${division.id}`}>
