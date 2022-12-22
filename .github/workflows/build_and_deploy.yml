@@ -53,6 +53,7 @@ jobs:
           GoogleAuth_Secret: ${{ secrets.GOOGLEOAUTHSECRET }}
           CosmosDb_Endpoint: ${{ secrets.COSMOSDBURL }}
           CosmosDb_Key: ${{ secrets.COSMOSDBKEY }}
+          DebugToken: ${{ secrets.DEBUGTOKEN }}
           
       - name: Dev environment variable substitution
         if: ${{ env.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
