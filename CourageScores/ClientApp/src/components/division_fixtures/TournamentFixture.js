@@ -6,7 +6,7 @@ import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date }) {
-    const isProposedTournament = !tournament.round && tournament.id === '00000000-0000-0000-0000-000000000000';
+    const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
@@ -67,50 +67,6 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         }
     }
 
-    function renderResult(round, rounds) {
-        if (!round) {
-            return null;
-        }
-
-        if (round.nextRound) {
-            return renderResult(round.nextRound, rounds + 1);
-        }
-
-        if (round && round.matches && round.matches.length === 1) {
-            const match = round.matches[0];
-            if (match.scoreA !== null && match.scoreB !== null && match.sideA && match.sideB) {
-                if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
-                    return renderWiningSide(match.sideA, rounds);
-                } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
-                    return renderWiningSide(match.sideB, rounds);
-                } else {
-                    return (<span>A draw after {rounds} rounds</span>);
-                }
-            }
-
-            return null;
-        }
-    }
-
-    function renderWiningSide(side, rounds) {
-        return (<span className="margin-left">Winner: <strong className="text-primary">{side.name || side.id}</strong> after {rounds} rounds</span>);
-    }
-
-    function getTournamentType(sides) {
-        if (!sides || !sides.length) {
-            return 'Tournament';
-        }
-
-        const firstSide = sides[0];
-        const playerCount = firstSide.players.length;
-
-        switch (playerCount) {
-            case 1: return 'Singles';
-            case 2: return 'Pairs';
-            default: return 'Tournament';
-        }
-    }
-
     if (isProposedTournament && !isAdmin) {
         // don't show proposed tournament addresses when not an admin
         return null;
@@ -132,13 +88,15 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
     }
 
     return (<tr>
-        <td colSpan={tournament.round ? 3 : 5}>
+        <td colSpan={tournament.winningSide ? 3 : 5}>
             <Link to={`/tournament/${tournament.id}`}>
-                {getTournamentType(tournament.sides)} at <strong>{tournament.address}</strong>
+                {tournament.type} at <strong>{tournament.address}</strong>
             </Link>
         </td>
-        {tournament.round ? (<td colSpan="2">
-            {renderResult(tournament.round, 1)}
+        {tournament.winningSide ? (<td colSpan="2">
+            {tournament.winningSide
+                ? (<span className="margin-left">Winner: <strong className="text-primary">{tournament.winningSide.name}</strong></span>)
+                : null}
         </td>) : null}
         {isAdmin ? (<td className="medium-column-width">
             <button className="btn btn-sm btn-danger" onClick={deleteTournamentGame}>

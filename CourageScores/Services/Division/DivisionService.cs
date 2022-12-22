@@ -19,7 +19,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
-    private readonly IAdapter<TournamentGame, TournamentGameDto> _tournamentGameAdapter;
+    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUserService _userService;
 
     public DivisionService(
@@ -28,7 +28,7 @@ public class DivisionService : IDivisionService
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
-        IAdapter<TournamentGame, TournamentGameDto> tournamentGameAdapter,
+        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IUserService userService)
     {
         _genericDivisionService = genericDivisionService;
@@ -36,7 +36,7 @@ public class DivisionService : IDivisionService
         _genericSeasonService = genericSeasonService;
         _gameRepository = gameRepository;
         _tournamentGameRepository = tournamentGameRepository;
-        _tournamentGameAdapter = tournamentGameAdapter;
+        _tournamentSideAdapter = tournamentSideAdapter;
         _userService = userService;
     }
 
@@ -243,14 +243,14 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<TournamentGameDto> TournamentFixturesPerDate(IReadOnlyCollection<TournamentGame> tournamentGames, IReadOnlyCollection<TeamDto> teams, UserContext userContext)
+    private async IAsyncEnumerable<DivisionTournamentFixtureDetailsDto> TournamentFixturesPerDate(IReadOnlyCollection<TournamentGame> tournamentGames, IReadOnlyCollection<TeamDto> teams, UserContext userContext)
     {
         var addressesInUse = new HashSet<string>();
 
         foreach (var game in tournamentGames)
         {
             addressesInUse.Add(game.Address);
-            yield return await _tournamentGameAdapter.Adapt(game);
+            yield return await AdaptToTournamentFixtureDto(game);
         }
 
         if (addressesInUse.Any() && userContext.CanCreateGames)
@@ -259,17 +259,80 @@ public class DivisionService : IDivisionService
                          .GroupBy(t => t.Address)
                          .Where(g => !addressesInUse.Contains(g.Key)))
             {
-                yield return new TournamentGameDto
+                yield return new DivisionTournamentFixtureDetailsDto
                 {
                     Address = string.Join(", ", teamAddress.Select(t => t.Name)),
                     Date = default,
                     Id = default,
-                    Round = null,
-                    Sides = new(),
                     SeasonId = default,
+                    WinningSide = null,
+                    Type = null,
+                    Proposed = true,
                 };
             }
         }
+    }
+
+    private async Task<DivisionTournamentFixtureDetailsDto> AdaptToTournamentFixtureDto(TournamentGame tournamentGame)
+    {
+        TournamentSide? winningSide = null;
+        var round = tournamentGame.Round;
+        var tournamentType = "Tournament";
+
+        if (tournamentGame.Sides.Count > 1)
+        {
+            var firstSide = tournamentGame.Sides.First();
+            switch (firstSide.Players.Count)
+            {
+                case 1:
+                    tournamentType = "Singles";
+                    break;
+                case 2:
+                    tournamentType = "Pairs";
+                    break;
+            }
+        }
+
+        // work out which side won, if any
+        while (round != null)
+        {
+            if (round.NextRound != null)
+            {
+                round = round.NextRound;
+                continue;
+            }
+
+            if (round.Matches.Count == 1)
+            {
+                // the final
+                var match = round.Matches.Single();
+                if (match.ScoreA != null && match.ScoreB != null)
+                {
+                    if (match.ScoreA > match.ScoreB)
+                    {
+                        winningSide = match.SideA;
+                    }
+
+                    if (match.ScoreB > match.ScoreA)
+                    {
+                        winningSide = match.SideB;
+                    }
+                }
+            }
+
+            break;
+        }
+
+        return new DivisionTournamentFixtureDetailsDto
+        {
+            Id = tournamentGame.Id,
+            Address = tournamentGame.Address,
+            Date = tournamentGame.Date,
+            SeasonId = tournamentGame.SeasonId,
+            WinningSide = winningSide != null ? await _tournamentSideAdapter.Adapt(winningSide) : null,
+            Type = tournamentType,
+            Proposed = false,
+        };
     }
 
     private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate, UserContext userContext)
