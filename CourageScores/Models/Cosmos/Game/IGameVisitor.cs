@@ -56,4 +56,24 @@ public interface IGameVisitor
     void VisitGameLost(GameTeam team)
     {
     }
+
+    void VisitTournamentGame(TournamentGame tournamentGame)
+    {
+    }
+
+    void VisitTournamentRound(TournamentRound tournamentRound)
+    {
+    }
+
+    void VisitTournamentFinal(TournamentMatch match)
+    {
+    }
+
+    void VisitTournamentWinner(TournamentSide side)
+    {
+    }
+
+    void VisitTournamentMatch(TournamentMatch match)
+    {
+    }
 }

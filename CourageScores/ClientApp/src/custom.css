@@ -27,6 +27,7 @@ nav {
   background-size: cover;
   background-attachment: fixed;
   background-position: top center;
+  background-repeat: no-repeat;
 }
 
 .light-background {
@@ -150,4 +151,21 @@ input[type="date"] {
 
 .bg-yellow {
   background-color: #ffffcc;
+}
+
+.overflow-x-auto {
+   overflow-x: auto;
+}
+
+.bg-winner,
+td.bg-winner {
+  background-image: linear-gradient(180deg, #33ff33, #00cc00);
+}
+
+.no-list-indent{
+  padding-left: 0px;
+}
+
+.no-list-indent ::marker{
+  content: '';
 }

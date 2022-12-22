@@ -53,6 +53,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         game.DivisionId = update.DivisionId;
         game.SeasonId = latestSeason.Id;
         game.Postponed = update.Postponed;
+        game.IsKnockout = update.IsKnockout;
 
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {

@@ -190,7 +190,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     }
 
     return (<tr>
-        <td>
+        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link></div>)
@@ -209,7 +209,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 seasonId={seasonId}
                 gameId={gameId} /></div>))}
         </td>
-        <td className="vertical-align-middle text-end">
+        <td className={`vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}`}>
             {disabled
                 ? (match.homeScore)
                 : (<input
@@ -220,7 +220,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td className="vertical-align-middle text-center">vs</td>
-        <td className="vertical-align-middle text-start">
+        <td className={`vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}`}>
             {disabled
                 ? (match.awayScore)
                 : (<input
@@ -230,7 +230,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     value={match.awayScore === null ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
-        <td>
+        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}>
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
                 : (<div key={index}><PlayerSelection

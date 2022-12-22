@@ -16,7 +16,7 @@ public class DataController : Controller
     }
 
     [HttpPost("/api/Data/Export")]
-    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportResultRequestDto request, CancellationToken token)
+    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
     {
         return await _dataService.ExportData(request, token);
     }

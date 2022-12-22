@@ -30,6 +30,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             DivisionId = model.DivisionId,
             SeasonId = model.SeasonId,
             Postponed = model.Postponed,
+            IsKnockout = model.IsKnockout,
         }.AddAuditProperties(model);
     }
 
@@ -46,6 +47,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             DivisionId = dto.DivisionId,
             SeasonId = dto.SeasonId,
             Postponed = dto.Postponed,
+            IsKnockout = dto.IsKnockout,
         }.AddAuditProperties(dto);
     }
 }

@@ -82,10 +82,10 @@ public static class DependencyInjectionExtensions
         AddAdapter<GamePlayer, GamePlayerDto, GamePlayerAdapter>(services);
         AddAdapter<GameTeam, GameTeamDto, GameTeamAdapter>(services);
         AddAdapter<NotablePlayer, NotablePlayerDto, NotablePlayerAdapter>(services);
-        AddAdapter<KnockoutGame, KnockoutGameDto, KnockoutGameAdapter>(services);
-        AddAdapter<KnockoutSide, KnockoutSideDto, KnockoutSideAdapter>(services);
-        AddAdapter<KnockoutMatch, KnockoutMatchDto, KnockoutMatchAdapter>(services);
-        AddAdapter<KnockoutRound, KnockoutRoundDto, KnockoutRoundAdapter>(services);
+        AddAdapter<TournamentGame, TournamentGameDto, TournamentGameAdapter>(services);
+        AddAdapter<TournamentSide, TournamentSideDto, TournamentSideAdapter>(services);
+        AddAdapter<TournamentMatch, TournamentMatchDto, TournamentMatchAdapter>(services);
+        AddAdapter<TournamentRound, TournamentRoundDto, TournamentRoundAdapter>(services);
 
         AddAdapter<Team, TeamDto, TeamAdapter>(services);
         AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);

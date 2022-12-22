@@ -46,6 +46,13 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+var debugToken = configuration["DebugToken"];
+var handler = new ExceptionHandler(app.Environment.IsDevelopment(), debugToken);
+app.UseExceptionHandler(exceptionHandlerApp =>
+{
+    exceptionHandlerApp.Run(handler.HandleException);
+});
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();

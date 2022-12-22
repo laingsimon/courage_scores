@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
+import {TableSelection} from "./TableSelection";
 
 export function ImportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -10,10 +11,32 @@ export function ImportData() {
     const [importRequest, setImportRequest] = useState({
         password: '',
         dryRun: true,
-        purgeData: true
+        purgeData: true,
+        tables: []
     });
     const [response, setResponse] = useState(null);
     const [saveError, setSaveError] = useState(null);
+    const [ dataTables, setDataTables ] = useState(null);
+
+    async function getTables() {
+        const tables = await api.tables();
+        setDataTables(tables);
+
+        const selected = tables.filter(t => t.canImport).map(t => t.name);
+        onTableChange(selected);
+    }
+
+    useEffect(() => {
+        getTables();
+    },
+    // eslint-disable-next-line
+    []);
+
+    function onTableChange(selection) {
+        const newImportRequest = Object.assign({}, importRequest);
+        newImportRequest.tables = selection;
+        setImportRequest(newImportRequest);
+    }
 
     function valueChanged(event) {
         const newImportRequest = Object.assign({}, importRequest);
@@ -86,6 +109,7 @@ export function ImportData() {
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
+        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChange={onTableChange} requireCanImport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
                 {importing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

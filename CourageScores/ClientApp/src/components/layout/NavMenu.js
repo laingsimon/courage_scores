@@ -4,7 +4,7 @@ import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../../api/settings";
 
-export function NavMenu({divisions, appLoading, account}) {
+export function NavMenu({divisions, appLoading, account, clearError}) {
     const settings = new Settings();
     const [collapsed, setCollapsed] = useState(true);
     const [ currentLink, setCurrentLink ] = useState(document.location.href);
@@ -25,6 +25,9 @@ export function NavMenu({divisions, appLoading, account}) {
     function navigate(event) {
         setCurrentLink(event.target.href);
         setCollapsed(true);
+        if (clearError) {
+            clearError();
+        }
     }
 
     function getAccountUrl(action) {
@@ -38,10 +41,10 @@ export function NavMenu({divisions, appLoading, account}) {
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
                         <NavItem>
-                            <NavLink tag={Link} onClick={navigate} className={getClassName(document.location.origin + '/?$')} to="/">Home</NavLink>
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/">Home</NavLink>
                         </NavItem>
                         <NavItem>
-                            <NavLink tag={Link} onClick={navigate} className={getClassName('/news')} to="/news">News</NavLink>
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
                         </NavItem>
                         {divisions.map(division => (<NavItem key={division.id}>
                           <NavLink tag={Link} onClick={navigate} className={getClassName(`/division/${division.id}`)} to={`/division/${division.id}`}>

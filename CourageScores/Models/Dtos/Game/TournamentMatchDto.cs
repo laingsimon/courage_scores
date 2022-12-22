@@ -1,19 +1,19 @@
-﻿namespace CourageScores.Models.Cosmos.Game;
+﻿namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
-/// Representation of a match in a knockout round
+/// Representation of a match in a tournament round
 /// </summary>
-public class KnockoutMatch : AuditedEntity
+public class TournamentMatchDto : AuditedDto
 {
     /// <summary>
     /// Who is playing from side a
     /// </summary>
-    public KnockoutSide SideA { get; set; } = null!;
+    public TournamentSideDto SideA { get; set; } = null!;
 
     /// <summary>
     /// Who is playing from side b
     /// </summary>
-    public KnockoutSide SideB { get; set; } = null!;
+    public TournamentSideDto SideB { get; set; } = null!;
 
     /// <summary>
     /// The score for side a

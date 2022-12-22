@@ -3,32 +3,32 @@
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
-/// The details of a knockout game
+/// The details of a tournament game
 /// </summary>
-public class KnockoutGame : AuditedEntity, IPermissionedEntity
+public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
     /// <summary>
-    /// The date for the knockout game
+    /// The date for the tournament game
     /// </summary>
     public DateTime Date { get; set; }
 
     /// <summary>
-    /// The season for the knockout game
+    /// The season for the tournament game
     /// </summary>
     public Guid SeasonId { get; set; }
 
     /// <summary>
     /// The sides that can play in the game
     /// </summary>
-    public List<KnockoutSide> Sides { get; set; } = new();
+    public List<TournamentSide> Sides { get; set; } = new();
 
     /// <summary>
-    /// The first round of the knockout game
+    /// The first round of the tournament game
     /// </summary>
-    public KnockoutRound? Round { get; set; }
+    public TournamentRound? Round { get; set; }
 
     /// <summary>
-    /// The address for the knockout games
+    /// The address for the tournament games
     /// </summary>
     public string Address { get; set; } = null!;
 
@@ -55,5 +55,27 @@ public class KnockoutGame : AuditedEntity, IPermissionedEntity
     public bool CanDelete(UserDto user)
     {
         return user.Access?.ManageGames == true;
+    }
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitTournamentGame(this);
+
+        foreach (var player in Over100Checkouts)
+        {
+            visitor.VisitHiCheckout(player);
+        }
+
+        foreach (var player in OneEighties)
+        {
+            visitor.VisitOneEighty(player);
+        }
+
+        foreach (var side in Sides)
+        {
+            side.Accept(visitor);
+        }
+
+        Round?.Accept(visitor);
     }
 }

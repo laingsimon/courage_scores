@@ -30,7 +30,7 @@ public class DataImporter
                 break;
             }
 
-            if (tables.Any() && tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
+            if (tables.Any() && !tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
             {
                 // this table isn't in the list of permitted tables
                 continue;

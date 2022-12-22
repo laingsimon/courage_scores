@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {toMap} from "../../../Utilities";
 
-export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
     const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && hasScore(current.scoreA) && hasScore(current.scoreB), true);
     const sideMap = toMap(sides);
@@ -171,7 +171,7 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
             const hasBothScores = scoreARecorded && scoreBRecorded;
 
             return (<tr key={thisMatchIndex} className="bg-light">
-                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'bg-warning' : ''}>
+                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'bg-winner' : ''}>
                     {readOnly || hasNextRound ? (match.sideA.name || sideMap[match.sideA.id].name) : (<BootstrapDropdown readOnly={readOnly}
                                        value={match.sideA ? match.sideA.id : null}
                                        options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideA')).map(sideSelection)}
@@ -179,14 +179,14 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
                                        slim={true}
                                        className="margin-right" />)}
                 </td>
-                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-warning' : 'narrow-column'}>
+                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-winner' : 'narrow-column'}>
                     {readOnly || hasNextRound ? (match.scoreA) : (<input type="number" value={scoreARecorded ? match.scoreA : ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreA')} />)}
                 </td>
                 <td className="narrow-column">vs</td>
-                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'narrow-column bg-warning' : 'narrow-column'}>
+                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'narrow-column bg-winner' : 'narrow-column'}>
                     {readOnly || hasNextRound ? (match.scoreB) : (<input type="number" value={scoreBRecorded ? match.scoreB : ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreB')} />)}
                 </td>
-                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'bg-warning' : ''}>
+                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'bg-winner' : ''}>
                     {readOnly || hasNextRound ? (match.sideB.name || sideMap[match.sideB.id].name) : (<BootstrapDropdown readOnly={readOnly}
                                    value={match.sideB ? match.sideB.id : null}
                                    options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideB')).map(sideSelection)}
@@ -220,6 +220,6 @@ export function KnockoutRound({ round, onChange, sides, readOnly, depth }) {
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && round.matches.length > 1 && sidesForTheNextRound().length > 1) ? (<KnockoutRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && round.matches.length > 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
     </div>);
 }

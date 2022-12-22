@@ -50,6 +50,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public bool Postponed { get; set; }
 
+    /// <summary>
+    /// Is this a knockout game?
+    /// </summary>
+    public bool IsKnockout { get; set; }
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;

@@ -8,32 +8,32 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, EditKnockoutGameDto>
+public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGame, EditTournamentGameDto>
 {
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
-    private readonly IAdapter<KnockoutSide, KnockoutSideDto> _knockoutSideAdapter;
-    private readonly IAdapter<KnockoutRound, KnockoutRoundDto> _knockoutRoundAdapter;
+    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISystemClock _systemClock;
     private readonly IUserService _userService;
 
-    public AddOrUpdateKnockoutGameCommand(
+    public AddOrUpdateTournamentGameCommand(
         IGenericRepository<Models.Cosmos.Season> seasonRepository,
-        IAdapter<KnockoutSide, KnockoutSideDto> knockoutSideAdapter,
-        IAdapter<KnockoutRound, KnockoutRoundDto> knockoutRoundAdapter,
+        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        IAdapter<TournamentRound, TournamentRoundDto> tournamentRoundAdapter,
         IAuditingHelper auditingHelper,
         ISystemClock systemClock,
         IUserService userService)
     {
         _seasonRepository = seasonRepository;
-        _knockoutSideAdapter = knockoutSideAdapter;
-        _knockoutRoundAdapter = knockoutRoundAdapter;
+        _tournamentSideAdapter = tournamentSideAdapter;
+        _tournamentRoundAdapter = tournamentRoundAdapter;
         _auditingHelper = auditingHelper;
         _systemClock = systemClock;
         _userService = userService;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(KnockoutGame game, EditKnockoutGameDto update, CancellationToken token)
+    protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
         var allSeasons = await _seasonRepository.GetAll(token).ToList();
         var latestSeason = allSeasons.MaxBy(s => s.EndDate);
@@ -44,7 +44,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
             return new CommandResult
             {
                 Success = false,
-                Message = "Knockout cannot be updated, not logged in",
+                Message = "Tournament game cannot be updated, not logged in",
             };
         }
 
@@ -53,7 +53,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
             return new CommandResult
             {
                 Success = false,
-                Message = "Knockout cannot be updated, not permitted",
+                Message = "Tournament game cannot be updated, not permitted",
             };
         }
 
@@ -69,27 +69,27 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         game.Address = update.Address;
         game.Date = update.Date;
         game.SeasonId = latestSeason.Id;
-        game.Sides = await update.Sides.SelectAsync(s => _knockoutSideAdapter.Adapt(s)).ToList();
-        game.Round = update.Round != null ? await _knockoutRoundAdapter.Adapt(update.Round) : null;
+        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s)).ToList();
+        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round) : null;
         game.OneEighties = update.OneEighties.Select(p => AdaptToPlayer(p, user)).ToList();
         game.Over100Checkouts = update.Over100Checkouts.Select(p => AdaptToHiCheckPlayer(p, user)).ToList();
 
-        foreach (var knockoutSide in game.Sides)
+        foreach (var side in game.Sides)
         {
-            if (knockoutSide.Id == default)
+            if (side.Id == default)
             {
-                knockoutSide.Id = Guid.NewGuid();
+                side.Id = Guid.NewGuid();
             }
-            await _auditingHelper.SetUpdated(knockoutSide);
+            await _auditingHelper.SetUpdated(side);
 
-            await SetIds(knockoutSide.Players);
+            await SetIds(side.Players);
         }
         await SetIds(game.Round, game.Sides);
 
         return CommandResult.SuccessNoMessage;
     }
 
-    private async Task SetIds(KnockoutRound? round, IReadOnlyCollection<KnockoutSide> sides)
+    private async Task SetIds(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides)
     {
         if (round == null)
         {
@@ -102,16 +102,16 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         }
         await _auditingHelper.SetUpdated(round);
 
-        foreach (var knockoutSide in round.Sides.Where(s => s.Id == default))
+        foreach (var side in round.Sides.Where(s => s.Id == default))
         {
-            var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).SequenceEqual(knockoutSide.Players.OrderBy(p => p.Id)));
+            var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).SequenceEqual(side.Players.OrderBy(p => p.Id)));
             if (equivalentSide != null)
             {
-                knockoutSide.Id = equivalentSide.Id;
+                side.Id = equivalentSide.Id;
             }
-            await _auditingHelper.SetUpdated(knockoutSide);
+            await _auditingHelper.SetUpdated(side);
 
-            await SetIds(knockoutSide.Players);
+            await SetIds(side.Players);
         }
 
         foreach (var match in round.Matches)
@@ -134,7 +134,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         }
     }
 
-    private GamePlayer AdaptToPlayer(EditKnockoutGameDto.RecordKnockoutScoresPlayerDto player, UserDto user)
+    private GamePlayer AdaptToPlayer(EditTournamentGameDto.RecordTournamentScoresPlayerDto player, UserDto user)
     {
         return new GamePlayer
         {
@@ -147,7 +147,7 @@ public class AddOrUpdateKnockoutGameCommand : AddOrUpdateCommand<KnockoutGame, E
         };
     }
 
-    private NotablePlayer AdaptToHiCheckPlayer(EditKnockoutGameDto.KnockoutOver100CheckoutDto player, UserDto user)
+    private NotablePlayer AdaptToHiCheckPlayer(EditTournamentGameDto.TournamentOver100CheckoutDto player, UserDto user)
     {
         return new NotablePlayer
         {

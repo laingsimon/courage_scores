@@ -10,4 +10,5 @@ public class DivisionDataDto
     public List<DivisionPlayerDto> Players { get; set; } = new();
     public DivisionDataSeasonDto Season { get; set; } = new();
     public List<DivisionDataSeasonDto> Seasons { get; set; } = new();
+    public List<DivisionTeamDetailsDto> AllTeams { get; set; } = new();
 }

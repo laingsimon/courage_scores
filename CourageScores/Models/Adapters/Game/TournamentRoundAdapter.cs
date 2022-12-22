@@ -4,22 +4,22 @@ using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class KnockoutRoundAdapter : IAdapter<KnockoutRound, KnockoutRoundDto>
+public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundDto>
 {
-    private readonly IAdapter<KnockoutMatch, KnockoutMatchDto> _matchAdapter;
-    private readonly IAdapter<KnockoutSide, KnockoutSideDto> _sideAdapter;
+    private readonly IAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter;
+    private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
 
-    public KnockoutRoundAdapter(
-        IAdapter<KnockoutMatch, KnockoutMatchDto> matchAdapter,
-        IAdapter<KnockoutSide, KnockoutSideDto> sideAdapter)
+    public TournamentRoundAdapter(
+        IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter,
+        IAdapter<TournamentSide, TournamentSideDto> sideAdapter)
     {
         _matchAdapter = matchAdapter;
         _sideAdapter = sideAdapter;
     }
 
-    public async Task<KnockoutRoundDto> Adapt(KnockoutRound model)
+    public async Task<TournamentRoundDto> Adapt(TournamentRound model)
     {
-        return new KnockoutRoundDto
+        return new TournamentRoundDto
         {
             Id = model.Id,
             Matches = await model.Matches.SelectAsync(m => _matchAdapter.Adapt(m)).ToList(),
@@ -29,9 +29,9 @@ public class KnockoutRoundAdapter : IAdapter<KnockoutRound, KnockoutRoundDto>
         }.AddAuditProperties(model);
     }
 
-    public async Task<KnockoutRound> Adapt(KnockoutRoundDto dto)
+    public async Task<TournamentRound> Adapt(TournamentRoundDto dto)
     {
-        return new KnockoutRound
+        return new TournamentRound
         {
             Id = dto.Id,
             Matches = await dto.Matches.SelectAsync(m => _matchAdapter.Adapt(m)).ToList(),

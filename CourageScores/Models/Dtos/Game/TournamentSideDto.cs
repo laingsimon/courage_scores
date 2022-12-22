@@ -1,6 +1,6 @@
 ﻿namespace CourageScores.Models.Dtos.Game;
 
-public class KnockoutSideDto : AuditedDto
+public class TournamentSideDto : AuditedDto
 {
     /// <summary>
     /// Optional name for the side, e.g. Riverside

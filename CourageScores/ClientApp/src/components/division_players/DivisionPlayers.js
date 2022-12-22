@@ -1,10 +1,10 @@
 import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 
-export function DivisionPlayers({ players, account, onPlayerSaved, seasonId, hideVenue, divisionId }) {
-    return (<div className="light-background p-3">
+export function DivisionPlayers({ players, account, onPlayerSaved, seasonId, hideVenue, divisionId, hideHeading }) {
+    return (<div className="light-background p-3 overflow-x-auto">
         <div>
-            <p>Only players that have played a singles match will appear here</p>
+            {hideHeading ? null : (<p>Only players that have played a singles match will appear here</p>)}
             <table className="table">
                 <thead>
                 <tr>

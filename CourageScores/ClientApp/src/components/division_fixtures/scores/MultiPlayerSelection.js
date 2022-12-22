@@ -20,7 +20,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         alert('Ensure a player is selected first');
     }
 
-    function renderPlayer(player) {
+    function playerName(player) {
         const notes = player.notes;
         player = allPlayers.filter(p => p.id === player.id)[0] || player
 
@@ -31,15 +31,23 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         return player.name;
     }
 
+    function renderLinkToPlayer(p) {
+        if (!divisionId || !seasonId) {
+            return playerName(p);
+        }
+
+        return (<Link to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
+    }
+
     return (<div>
         <ol>
             {(players || []).map(p => {
                 index++;
-                return (<li key={index}>{disabled ? <Link to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{renderPlayer(p)}</Link> : (<button
+                return (<li key={index}>{disabled ? renderLinkToPlayer(p) : (<button
                     disabled={disabled || readOnly}
                     className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
                     onClick={async () => onRemovePlayer ? await onRemovePlayer(p.id, index - 1) : null}>
-                    {renderPlayer(p)} {disabled ? '' : '🗑'}
+                    {playerName(p)} {disabled ? '' : '🗑'}
                 </button>)}</li>);
             })}
             {disabled ? null : (<li>

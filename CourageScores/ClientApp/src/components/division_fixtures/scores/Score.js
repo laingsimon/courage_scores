@@ -272,6 +272,18 @@ export function Score({account, apis, divisions}) {
         return (<div className="light-background p-3">There are no players for the home and/or away teams</div>);
     }
 
+    const finalScore = fixtureData.matches.map(match => {
+        return { awayScore: match.awayScore, homeScore: match.homeScore };
+    }).reduce((prev, current) => {
+        return {
+            awayScore: prev.awayScore + current.awayScore,
+            homeScore: prev.homeScore + current.homeScore
+        };
+    }, { awayScore: 0, homeScore: 0 });
+    const winner = finalScore.homeScore > finalScore.awayScore
+        ? 'home'
+        : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
+
     return (<div>
         <DivisionControls
             reloadAll={apis.reloadAll}
@@ -309,11 +321,11 @@ export function Score({account, apis, divisions}) {
             <table className="table">
                 <tbody>
                 <tr>
-                    <td colSpan="2" className="text-end fw-bold">
+                    <td colSpan="2" className={`text-end fw-bold ${winner === 'home' ? 'bg-winner' : null}`}>
                         <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.home.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.home.name}</Link>
                     </td>
                     <td className="text-center">vs</td>
-                    <td colSpan="2" className="text-start fw-bold">
+                    <td colSpan="2" className={`text-start fw-bold ${winner === 'away' ? 'bg-winner' : null}`}>
                         <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.away.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.away.name}</Link>
                     </td>
                 </tr>
@@ -325,13 +337,20 @@ export function Score({account, apis, divisions}) {
                                        <span className="input-group-text">Address</span>
                                    </div>
                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
-                                   <div className="form-check form-switch">
+                                   <div className="form-check form-switch margin-right">
                                        <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="postponed">Postponed</label>
                                    </div>
+                                   <div className="form-check form-switch">
+                                       <input disabled={saving} type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={fixtureData.isKnockout} onChange={changeFixtureProperty} />
+                                       <label className="form-check-label" htmlFor="knockout">Knockout</label>
+                                   </div>
                                </div>
                            </td>)
-                        : (<td colSpan="5">Paying at: {fixtureData.address}{fixtureData.postponed ? (<span className="fw-bold text-danger ml-3">Postponed</span>) : null}</td>)}
+                        : (<td colSpan="5">
+                            {fixtureData.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
+                            {fixtureData.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
+                            </td>)}
                 </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>

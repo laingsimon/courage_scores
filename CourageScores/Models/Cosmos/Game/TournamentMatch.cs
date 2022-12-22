@@ -1,19 +1,19 @@
-﻿namespace CourageScores.Models.Dtos.Game;
+﻿namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
-/// Representation of a match in a knockout round
+/// Representation of a match in a tournament round
 /// </summary>
-public class KnockoutMatchDto : AuditedDto
+public class TournamentMatch : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// Who is playing from side a
     /// </summary>
-    public KnockoutSideDto SideA { get; set; } = null!;
+    public TournamentSide SideA { get; set; } = null!;
 
     /// <summary>
     /// Who is playing from side b
     /// </summary>
-    public KnockoutSideDto SideB { get; set; } = null!;
+    public TournamentSide SideB { get; set; } = null!;
 
     /// <summary>
     /// The score for side a
@@ -24,4 +24,9 @@ public class KnockoutMatchDto : AuditedDto
     /// The score for side b
     /// </summary>
     public int? ScoreB { get; set; }
+
+    public void Accept(IGameVisitor visitor)
+    {
+        visitor.VisitTournamentMatch(this);
+    }
 }

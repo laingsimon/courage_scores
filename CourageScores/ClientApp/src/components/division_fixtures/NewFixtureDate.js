@@ -7,7 +7,7 @@ import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 
-export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
+export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId, isKnockout }) {
     const [ homeTeamId, setHomeTeamId ] = useState(null);
     const [ awayTeamId, setAwayTeamId ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);

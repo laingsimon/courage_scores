@@ -1,16 +1,16 @@
 import React, {useState} from 'react';
-import {KnockoutApi} from "../../api/knockout";
+import {TournamentApi} from "../../api/tournament";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
-export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, seasonId }) {
+export function NewTournamentGame({ date, onNewTournament, teams, divisionId, seasonId }) {
     const [ creating, setCreating ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ address, setAddress ] = useState('');
 
-    async function createKnockoutGame() {
+    async function createTournamentGame() {
         if (creating) {
             return;
         }
@@ -18,7 +18,7 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
         try {
             setCreating(true);
 
-            const api = new KnockoutApi(new Http(new Settings()));
+            const api = new TournamentApi(new Http(new Settings()));
             const teamsAtAddress = teams.filter(t => t.address === address).map(t => t.name).join(', ');
             const response = await api.update({
                 date: date,
@@ -27,8 +27,8 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
             });
 
             if (response.success) {
-                if (onNewKnockout) {
-                    await onNewKnockout();
+                if (onNewTournament) {
+                    await onNewTournament();
                 }
             } else {
                 setSaveError(response);
@@ -64,11 +64,11 @@ export function NewKnockoutGame({ date, onNewKnockout, teams, divisionId, season
                 className="margin-right" />
         </td>
         <td className="medium-column-width">
-            <button className="btn btn-primary text-nowrap" onClick={createKnockoutGame}>
+            <button className="btn btn-primary text-nowrap" onClick={createTournamentGame}>
                 {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎖'}
                 Reserve
             </button>
-            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
+            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save tournament details" />) : null}
         </td>
     </tr>)
 }

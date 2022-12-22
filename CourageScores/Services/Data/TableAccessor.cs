@@ -16,7 +16,7 @@ public class TableAccessor
     }
 
     public async Task ExportData(Database database, ExportDataResultDto result, ZipBuilder builder,
-        ExportResultRequestDto request, CancellationToken token)
+        ExportDataRequestDto request, CancellationToken token)
     {
         result.Tables.Add(_tableName, 0);
 
@@ -40,7 +40,7 @@ public class TableAccessor
         }
     }
 
-    private async Task ExportRow(JObject record, ExportDataResultDto result, ZipBuilder builder, ExportResultRequestDto request, CancellationToken token)
+    private async Task ExportRow(JObject record, ExportDataResultDto result, ZipBuilder builder, ExportDataRequestDto request, CancellationToken token)
     {
         var deleted = record.Value<DateTime?>("Deleted");
         if (deleted.HasValue && !request.IncludeDeletedEntries)

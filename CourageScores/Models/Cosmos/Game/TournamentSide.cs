@@ -1,6 +1,6 @@
 ﻿namespace CourageScores.Models.Cosmos.Game;
 
-public class KnockoutSide : AuditedEntity
+public class TournamentSide : AuditedEntity, IGameVisitable
 {
     /// <summary>
     /// Optional name for the side, e.g. Riverside
@@ -11,4 +11,12 @@ public class KnockoutSide : AuditedEntity
     /// The players in this side, e.g. the 2 players from the same team for doubles
     /// </summary>
     public List<GamePlayer> Players { get; set; } = new();
+
+    public void Accept(IGameVisitor visitor)
+    {
+        foreach (var player in Players)
+        {
+            visitor.VisitPlayer(player, -1); // TODO: Check on this
+        }
+    }
 }

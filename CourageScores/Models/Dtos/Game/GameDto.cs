@@ -48,4 +48,9 @@ public class GameDto : AuditedDto
     /// Whether the game has been postponed
     /// </summary>
     public bool Postponed { get; set; }
+
+    /// <summary>
+    /// Is this a knockout game?
+    /// </summary>
+    public bool IsKnockout { get; set; }
 }
