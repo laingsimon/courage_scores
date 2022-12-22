@@ -8,6 +8,7 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Division;
 
@@ -19,6 +20,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericRepository<Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IAdapter<TournamentGame, TournamentGameDto> _tournamentGameAdapter;
+    private readonly IUserService _userService;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
@@ -26,7 +28,8 @@ public class DivisionService : IDivisionService
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
-        IAdapter<TournamentGame, TournamentGameDto> tournamentGameAdapter)
+        IAdapter<TournamentGame, TournamentGameDto> tournamentGameAdapter,
+        IUserService userService)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
@@ -34,6 +37,7 @@ public class DivisionService : IDivisionService
         _gameRepository = gameRepository;
         _tournamentGameRepository = tournamentGameRepository;
         _tournamentGameAdapter = tournamentGameAdapter;
+        _userService = userService;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
@@ -94,6 +98,12 @@ public class DivisionService : IDivisionService
             game.Accept(gameVisitor);
         }
 
+        var user = await _userService.GetUser();
+        var userContext = new UserContext
+        {
+            CanCreateGames = user?.Access?.ManageGames ?? false
+        };
+
         var divisionDataDto = new DivisionDataDto
         {
             Id = division.Id,
@@ -101,7 +111,7 @@ public class DivisionService : IDivisionService
             Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
             AllTeams = allTeams,
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
-            Fixtures = await GetFixtures(context).OrderByAsync(d => d.Date).ToList(),
+            Fixtures = await GetFixtures(context, userContext).OrderByAsync(d => d.Date).ToList(),
             Players = GetPlayers(divisionData, playerIdToTeamLookup).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
             Season = new DivisionDataSeasonDto
             {
@@ -178,7 +188,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, UserContext userContext)
     {
         foreach (var date in context.GetDates())
         {
@@ -188,8 +198,8 @@ public class DivisionService : IDivisionService
             yield return new DivisionFixtureDateDto
             {
                 Date = date,
-                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false).OrderBy(f => f.HomeTeam.Name).ToList(),
-                TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams).OrderByAsync(f => f.Address).ToList(),
+                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false, userContext).OrderBy(f => f.HomeTeam.Name).ToList(),
+                TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext).OrderByAsync(f => f.Address).ToList(),
                 HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
             };
         }
@@ -224,7 +234,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<TournamentGameDto> TournamentFixturesPerDate(IReadOnlyCollection<TournamentGame> tournamentGames, IReadOnlyCollection<TeamDto> teams)
+    private async IAsyncEnumerable<TournamentGameDto> TournamentFixturesPerDate(IReadOnlyCollection<TournamentGame> tournamentGames, IReadOnlyCollection<TeamDto> teams, UserContext userContext)
     {
         var addressesInUse = new HashSet<string>();
 
@@ -234,7 +244,7 @@ public class DivisionService : IDivisionService
             yield return await _tournamentGameAdapter.Adapt(game);
         }
 
-        if (addressesInUse.Any())
+        if (addressesInUse.Any() && userContext.CanCreateGames)
         {
             foreach (var teamAddress in teams
                          .GroupBy(t => t.Address)
@@ -253,7 +263,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate)
+    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate, UserContext userContext)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
         var hasKnockout = false;
@@ -270,7 +280,7 @@ public class DivisionService : IDivisionService
                 teams.SingleOrDefault(t => t.Id == game.Away.Id));
         }
 
-        if (!anyTournamentGamesForDate)
+        if (!anyTournamentGamesForDate && userContext.CanCreateGames)
         {
             foreach (var remainingTeam in remainingTeams.Values)
             {
@@ -357,6 +367,11 @@ public class DivisionService : IDivisionService
         {
             return GamesForDate.Keys.Union(TournamentGamesForDate.Keys);
         }
+    }
+
+    private class UserContext
+    {
+        public bool CanCreateGames { get; init; }
     }
 
     #region delegating members
