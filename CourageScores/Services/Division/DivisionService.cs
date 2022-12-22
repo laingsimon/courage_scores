@@ -109,7 +109,7 @@ public class DivisionService : IDivisionService
             Id = division.Id,
             Name = division.Name,
             Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
-            AllTeams = allTeams,
+            AllTeams = allTeams.Select(AdaptToDivisionTeamDetailsDto).ToList(),
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context, userContext).OrderByAsync(d => d.Date).ToList(),
             Players = GetPlayers(divisionData, playerIdToTeamLookup).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
@@ -132,6 +132,15 @@ public class DivisionService : IDivisionService
         ApplyRanksAndPointsDifference(divisionDataDto.Teams, divisionDataDto.Players);
 
         return divisionDataDto;
+    }
+
+    private static DivisionTeamDetailsDto AdaptToDivisionTeamDetailsDto(TeamDto team)
+    {
+        return new DivisionTeamDetailsDto
+        {
+            Id = team.Id,
+            Name = team.Name,
+        };
     }
 
     private static void ApplyRanksAndPointsDifference(IReadOnlyCollection<DivisionTeamDto> teams, IReadOnlyCollection<DivisionPlayerDto> players)

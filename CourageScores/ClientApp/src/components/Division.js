@@ -100,7 +100,6 @@ export function Division({ account, apis, divisions }) {
         {effectiveTab === 'teams'
             ? (<DivisionTeams
                 teams={divisionData.teams}
-                allTeams={divisionData.allTeams}
                 teamsWithoutFixtures={divisionData.teamsWithoutFixtures}
                 onTeamSaved={reloadDivisionData}
                 account={account}
