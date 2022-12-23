@@ -6,7 +6,7 @@ using CourageScores.Repository;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
+public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game, EditGameDto>
 {
     private readonly IGenericRepository<Team> _teamRepository;
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
@@ -25,7 +25,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         _teamService = teamService;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(Game game, EditGameDto update, CancellationToken token)
+    protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
     {
         if (update.HomeTeamId == update.AwayTeamId)
         {

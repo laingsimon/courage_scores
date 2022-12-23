@@ -9,12 +9,12 @@ namespace CourageScores.Services.Command;
 public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
 {
     private readonly IGenericRepository<Team> _teamRepository;
-    private readonly IGenericDataService<Game, GameDto> _gameService;
+    private readonly IGenericDataService<Models.Cosmos.Game.Game, GameDto> _gameService;
     private readonly ICommandFactory _commandFactory;
 
     public AddOrUpdateTeamCommand(
         IGenericRepository<Team> teamRepository,
-        IGenericDataService<Game, GameDto> gameService,
+        IGenericDataService<Models.Cosmos.Game.Game, GameDto> gameService,
         ICommandFactory commandFactory)
     {
         _teamRepository = teamRepository;

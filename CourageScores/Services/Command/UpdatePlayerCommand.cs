@@ -13,12 +13,12 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
     private readonly IUserService _userService;
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ISystemClock _clock;
-    private readonly IGenericRepository<Game> _gameRepository;
+    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private Guid? _playerId;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
 
-    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Models.Cosmos.Season> seasonRepository, ISystemClock clock, IGenericRepository<Game> gameRepository)
+    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Models.Cosmos.Season> seasonRepository, ISystemClock clock, IGenericRepository<Models.Cosmos.Game.Game> gameRepository)
     {
         _userService = userService;
         _seasonRepository = seasonRepository;
@@ -105,7 +105,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
         return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season, {updatedGames.Count} game/s updated", player);
     }
 
-    private async IAsyncEnumerable<Game> UpdateGames(Guid playerId, EditTeamPlayerDto player, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<Models.Cosmos.Game.Game> UpdateGames(Guid playerId, EditTeamPlayerDto player, [EnumeratorCancellation] CancellationToken token)
     {
         var games = player.GameId.HasValue
             ? _gameRepository.GetSome($"t.id = '{player.GameId.Value}'", token)

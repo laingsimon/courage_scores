@@ -16,7 +16,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private readonly IUserService _userService;
     private readonly IGenericRepository<Team> _teamRepository;
     private readonly IDivisionService _divisionService;
-    private readonly IGenericRepository<Game> _gameRepository;
+    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
 
     public SeasonService(
         IGenericRepository<Models.Cosmos.Season> repository,
@@ -25,7 +25,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IAuditingHelper auditingHelper,
         IGenericRepository<Team> teamRepository,
         IDivisionService divisionService,
-        IGenericRepository<Game> gameRepository)
+        IGenericRepository<Models.Cosmos.Game.Game> gameRepository)
         : base(repository, adapter, userService, auditingHelper)
     {
         _userService = userService;

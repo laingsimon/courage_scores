@@ -10,10 +10,10 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
-public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
+public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameDto>
 {
     private readonly IUserService _userService;
-    private readonly IAdapter<Game, GameDto> _gameAdapter;
+    private readonly IAdapter<Models.Cosmos.Game.Game, GameDto> _gameAdapter;
     private readonly ISystemClock _systemClock;
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
@@ -22,7 +22,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
 
     public UpdateScoresCommand(
         IUserService userService,
-        IAdapter<Game, GameDto> gameAdapter,
+        IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
         ISystemClock systemClock,
         ISeasonService seasonService,
         ICommandFactory commandFactory,
@@ -42,7 +42,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         return this;
     }
 
-    public async Task<CommandOutcome<GameDto>> ApplyUpdate(Game game, CancellationToken token)
+    public async Task<CommandOutcome<GameDto>> ApplyUpdate(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         if (_scores == null)
         {
@@ -72,8 +72,8 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         } else if (user.Access?.InputResults == true)
         {
             var gameSubmission = user.TeamId == game.Home.Id
-                ? game.HomeSubmission ??= new Game()
-                : game.AwaySubmission ??= new Game();
+                ? game.HomeSubmission ??= new Models.Cosmos.Game.Game()
+                : game.AwaySubmission ??= new Models.Cosmos.Game.Game();
 
             UpdateResults(gameSubmission, user);
 
@@ -118,7 +118,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
     }
 
-    private void UpdateResults(Game game, UserDto user)
+    private void UpdateResults(Models.Cosmos.Game.Game game, UserDto user)
     {
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
         {

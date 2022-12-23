@@ -1,8 +1,7 @@
-﻿using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Dtos;
+﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
-using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Game;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourageScores.Controllers;
@@ -10,10 +9,10 @@ namespace CourageScores.Controllers;
 [ApiController]
 public class GameController : Controller
 {
-    private readonly IGenericDataService<Game, GameDto> _gameService;
+    private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
 
-    public GameController(IGenericDataService<Game, GameDto> gameService, ICommandFactory commandFactory)
+    public GameController(IGameService gameService, ICommandFactory commandFactory)
     {
         _gameService = gameService;
         _commandFactory = commandFactory;

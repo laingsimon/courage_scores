@@ -18,7 +18,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
     private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
-    private readonly IGenericRepository<Game> _gameRepository;
+    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUserService _userService;
@@ -27,7 +27,7 @@ public class DivisionService : IDivisionService
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
         IGenericDataService<Team, TeamDto> genericTeamService,
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
-        IGenericRepository<Game> gameRepository,
+        IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IUserService userService)
@@ -201,7 +201,7 @@ public class DivisionService : IDivisionService
             yield return new DivisionFixtureDateDto
             {
                 Date = date,
-                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false, userContext)
+                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false, userContext)
                     .OrderBy(f => f.HomeTeam.Name).ToList(),
                 TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext, token)
                     .OrderByAsync(f => f.Address).ToList(),
@@ -339,7 +339,7 @@ public class DivisionService : IDivisionService
         };
     }
 
-    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate, UserContext userContext)
+    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Models.Cosmos.Game.Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate, UserContext userContext)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
         var hasKnockout = false;
@@ -378,7 +378,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static DivisionFixtureDto GameToFixture(Game fixture, TeamDto? homeTeam, TeamDto? awayTeam)
+    private static DivisionFixtureDto GameToFixture(Models.Cosmos.Game.Game fixture, TeamDto? homeTeam, TeamDto? awayTeam)
     {
         return new DivisionFixtureDto
         {
@@ -414,11 +414,11 @@ public class DivisionService : IDivisionService
     private class DivisionDataContext
     {
         public IReadOnlyCollection<TeamDto> Teams { get; }
-        public Dictionary<DateTime, Game[]> GamesForDate { get; }
+        public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
         public Dictionary<DateTime, TournamentGame[]> TournamentGamesForDate { get; }
 
         public DivisionDataContext(
-            IReadOnlyCollection<Game> games,
+            IReadOnlyCollection<Models.Cosmos.Game.Game> games,
             IReadOnlyCollection<TeamDto> teams,
             IReadOnlyCollection<TournamentGame> tournamentGames)
         {

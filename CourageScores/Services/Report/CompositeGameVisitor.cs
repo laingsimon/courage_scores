@@ -21,7 +21,7 @@ public class CompositeGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitGame(Game game)
+    public void VisitGame(Models.Cosmos.Game.Game game)
     {
         ForEachVisitor(visitor => visitor.VisitGame(game));
     }

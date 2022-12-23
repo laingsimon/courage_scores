@@ -13,10 +13,10 @@ public class ReportService : IReportService
     private readonly IUserService _userService;
     private readonly ISeasonService _seasonService;
     private readonly IDivisionService _divisionService;
-    private readonly IGenericRepository<Game> _gameRepository;
+    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly ISystemClock _clock;
 
-    public ReportService(IUserService userService, ISeasonService seasonService, IDivisionService divisionService, IGenericRepository<Game> gameRepository, ISystemClock clock)
+    public ReportService(IUserService userService, ISeasonService seasonService, IDivisionService divisionService, IGenericRepository<Models.Cosmos.Game.Game> gameRepository, ISystemClock clock)
     {
         _userService = userService;
         _seasonService = seasonService;
