@@ -1,7 +1,10 @@
 ﻿using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
@@ -14,14 +17,24 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
     private readonly IAdapter<Game, GameDto> _gameAdapter;
     private readonly ISystemClock _systemClock;
     private readonly ISeasonService _seasonService;
+    private readonly ICommandFactory _commandFactory;
+    private readonly ITeamService _teamService;
     private RecordScoresDto? _scores;
 
-    public UpdateScoresCommand(IUserService userService, IAdapter<Game, GameDto> gameAdapter, ISystemClock systemClock, ISeasonService seasonService)
+    public UpdateScoresCommand(
+        IUserService userService,
+        IAdapter<Game, GameDto> gameAdapter,
+        ISystemClock systemClock,
+        ISeasonService seasonService,
+        ICommandFactory commandFactory,
+        ITeamService teamService)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
         _systemClock = systemClock;
         _seasonService = seasonService;
+        _commandFactory = commandFactory;
+        _teamService = teamService;
     }
 
     public UpdateScoresCommand WithData(RecordScoresDto scores)
@@ -79,19 +92,47 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         {
             game.Address = _scores.Address ?? game.Address;
             game.Postponed = _scores.Postponed ?? game.Postponed;
+
+            var dateChanged = _scores.Date != game.Date;
             game.Date = _scores.Date ?? game.Date;
 
-            if (_scores.Date != null)
+            if (dateChanged)
             {
                 var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
-                if (newSeasonId != null && newSeasonId != game.SeasonId)
+                if (newSeasonId != null && (newSeasonId != game.SeasonId || dateChanged))
                 {
                     game.SeasonId = newSeasonId.Value;
+
+                    // register both teams with this season.
+                    var homeResult = await AddSeasonToTeam(game.Home.Id, newSeasonId.Value, token);
+                    var awayResult = await AddSeasonToTeam(game.Away.Id, newSeasonId.Value, token);
+
+                    var success = homeResult.Success && awayResult.Success;
+                    if (!success)
+                    {
+                        return new CommandOutcome<GameDto>(
+                            false,
+                            $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
+                            await _gameAdapter.Adapt(game));
+                    }
                 }
             }
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));
+    }
+
+    private static string FormatActionResult(ActionResultDto<TeamDto> actionResultDto)
+    {
+        return $"Success: {actionResultDto.Success}, Errors: {string.Join(", ", actionResultDto.Errors)}, Warnings: {string.Join(", ", actionResultDto.Warnings)}, Messages: {string.Join(", ", actionResultDto.Messages)}";
+    }
+
+    private async Task<ActionResultDto<TeamDto>> AddSeasonToTeam(Guid teamId, Guid seasonId, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
+        command.ForSeason(seasonId);
+
+        return await _teamService.Upsert(teamId, command, token);
     }
 
     private async Task<Guid?> GetAppropriateSeasonId(DateTime gameDate, CancellationToken token)
