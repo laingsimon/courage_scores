@@ -65,26 +65,19 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             return new CommandOutcome<GameDto>(false, "Game cannot be updated, not permitted", null);
         }
 
-        for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
+        if (user.Access?.ManageScores == true)
         {
-            var updatedMatch = _scores.Matches.ElementAtOrDefault(index);
-            var currentMatch = game.Matches.ElementAtOrDefault(index);
+            // edit the root game record
+            UpdateResults(game, user);
+        } else if (user.Access?.InputResults == true)
+        {
+            var gameSubmission = user.TeamId == game.Home.Id
+                ? game.HomeSubmission ??= new Game()
+                : game.AwaySubmission ??= new Game();
 
-            if (currentMatch == null && updatedMatch != null)
-            {
-                game.Matches.Add(AdaptToMatch(updatedMatch, user));
-            }
-            else if (updatedMatch == null && currentMatch != null)
-            {
-                game.Matches.RemoveAt(index);
-            }
-            else if (currentMatch != null && updatedMatch != null)
-            {
-                game.Matches[index] = UpdateMatch(currentMatch, updatedMatch, user);
-            }
+            UpdateResults(gameSubmission, user);
 
-            game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
-            game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
+            // TODO: #116: If both home/away submissions are the same then record the details in the main game
         }
 
         if (user.Access?.ManageGames == true)
@@ -123,6 +116,31 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
+    }
+
+    private void UpdateResults(Game game, UserDto user)
+    {
+        for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
+        {
+            var updatedMatch = _scores.Matches.ElementAtOrDefault(index);
+            var currentMatch = game.Matches.ElementAtOrDefault(index);
+
+            if (currentMatch == null && updatedMatch != null)
+            {
+                game.Matches.Add(AdaptToMatch(updatedMatch, user));
+            }
+            else if (updatedMatch == null && currentMatch != null)
+            {
+                game.Matches.RemoveAt(index);
+            }
+            else if (currentMatch != null && updatedMatch != null)
+            {
+                game.Matches[index] = UpdateMatch(currentMatch, updatedMatch, user);
+            }
+
+            game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
+            game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
+        }
     }
 
     private static string FormatActionResult(ActionResultDto<TeamDto> actionResultDto)
