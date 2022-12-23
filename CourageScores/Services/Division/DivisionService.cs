@@ -221,7 +221,7 @@ public class DivisionService : IDivisionService
             if (!playerIdToTeamLookup.TryGetValue(id, out var playerTuple))
             {
                 playerTuple = new TeamPlayerTuple(
-                    new TeamPlayerDto { Name = "Not found" },
+                    new TeamPlayerDto { Name = score.Player?.Name ?? "Not found" },
                     new TeamDto { Name = "Not found" });
             }
 
