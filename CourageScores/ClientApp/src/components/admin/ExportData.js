@@ -4,8 +4,9 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
+import {NotPermitted} from "./NotPermitted";
 
-export function ExportData() {
+export function ExportData({account}) {
     const api = new DataApi(new Http(new Settings()));
     const [ exporting, setExporting ] = useState(false);
     const [ exportRequest, setExportRequest ] = useState({
@@ -16,8 +17,13 @@ export function ExportData() {
     const [ zipContent, setZipContent ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
     const [ dataTables, setDataTables ] = useState(null);
+    const isAdmin = account && account.access && account.access.exportData;
 
     async function getTables() {
+        if (!isAdmin) {
+            return;
+        }
+
         const tables = await api.tables();
         setDataTables(tables);
 
@@ -65,6 +71,10 @@ export function ExportData() {
         const newExportRequest = Object.assign({}, exportRequest);
         newExportRequest.tables = selection;
         setExportRequest(newExportRequest);
+    }
+
+    if (!isAdmin) {
+        return (<NotPermitted />);
     }
 
     return (<div className="light-background p-3">

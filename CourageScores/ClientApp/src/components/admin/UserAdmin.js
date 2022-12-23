@@ -3,6 +3,7 @@ import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {AccountApi} from "../../api/account";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {NotPermitted} from "./NotPermitted";
 
 export function UserAdmin({account}) {
     const api = new AccountApi(new Http(new Settings()));
@@ -98,6 +99,10 @@ export function UserAdmin({account}) {
                 <label className="form-check-label" htmlFor={name}>{description}</label>
             </div>
         </div>);
+    }
+
+    if (!isAdmin) {
+        return (<NotPermitted />);
     }
 
     return (<div className="light-background p-3">
