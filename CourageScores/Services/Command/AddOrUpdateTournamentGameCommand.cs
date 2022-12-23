@@ -37,7 +37,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     {
         var allSeasons = await _seasonRepository.GetAll(token).ToList();
         var latestSeason = allSeasons.MaxBy(s => s.EndDate);
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
 
         if (user == null)
         {
@@ -69,8 +69,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         game.Address = update.Address;
         game.Date = update.Date;
         game.SeasonId = latestSeason.Id;
-        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s)).ToList();
-        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round) : null;
+        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, token)).ToList();
+        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, token) : null;
         game.OneEighties = update.OneEighties.Select(p => AdaptToPlayer(p, user)).ToList();
         game.Over100Checkouts = update.Over100Checkouts.Select(p => AdaptToHiCheckPlayer(p, user)).ToList();
 
@@ -80,16 +80,16 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             {
                 side.Id = Guid.NewGuid();
             }
-            await _auditingHelper.SetUpdated(side);
+            await _auditingHelper.SetUpdated(side, token);
 
-            await SetIds(side.Players);
+            await SetIds(side.Players, token);
         }
-        await SetIds(game.Round, game.Sides);
+        await SetIds(game.Round, game.Sides, token);
 
         return CommandResult.SuccessNoMessage;
     }
 
-    private async Task SetIds(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides)
+    private async Task SetIds(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
     {
         if (round == null)
         {
@@ -100,7 +100,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         {
             round.Id = Guid.NewGuid();
         }
-        await _auditingHelper.SetUpdated(round);
+        await _auditingHelper.SetUpdated(round, token);
 
         foreach (var side in round.Sides.Where(s => s.Id == default))
         {
@@ -109,9 +109,9 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             {
                 side.Id = equivalentSide.Id;
             }
-            await _auditingHelper.SetUpdated(side);
+            await _auditingHelper.SetUpdated(side, token);
 
-            await SetIds(side.Players);
+            await SetIds(side.Players, token);
         }
 
         foreach (var match in round.Matches)
@@ -120,17 +120,17 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             {
                 match.Id = Guid.NewGuid();
             }
-            await _auditingHelper.SetUpdated(match);
+            await _auditingHelper.SetUpdated(match, token);
         }
 
-        await SetIds(round.NextRound, sides);
+        await SetIds(round.NextRound, sides, token);
     }
 
-    private async Task SetIds(List<GamePlayer> players)
+    private async Task SetIds(List<GamePlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {
-            await _auditingHelper.SetUpdated(player);
+            await _auditingHelper.SetUpdated(player, token);
         }
     }
 

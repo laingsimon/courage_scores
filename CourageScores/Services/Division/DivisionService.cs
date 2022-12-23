@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
@@ -91,7 +92,7 @@ public class DivisionService : IDivisionService
             game.Accept(gameVisitor);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         var userContext = new UserContext
         {
             CanCreateGames = user?.Access?.ManageGames ?? false
@@ -104,7 +105,7 @@ public class DivisionService : IDivisionService
             Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
             AllTeams = allTeams.Select(AdaptToDivisionTeamDetailsDto).ToList(),
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
-            Fixtures = await GetFixtures(context, userContext).OrderByAsync(d => d.Date).ToList(),
+            Fixtures = await GetFixtures(context, userContext, token).OrderByAsync(d => d.Date).ToList(),
             Players = GetPlayers(divisionData).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
             Season = new DivisionDataSeasonDto
             {
@@ -190,7 +191,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, UserContext userContext)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, UserContext userContext, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var date in context.GetDates())
         {
@@ -200,8 +201,10 @@ public class DivisionService : IDivisionService
             yield return new DivisionFixtureDateDto
             {
                 Date = date,
-                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false, userContext).OrderBy(f => f.HomeTeam.Name).ToList(),
-                TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext).OrderByAsync(f => f.Address).ToList(),
+                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false, userContext)
+                    .OrderBy(f => f.HomeTeam.Name).ToList(),
+                TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext, token)
+                    .OrderByAsync(f => f.Address).ToList(),
                 HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
             };
         }
@@ -239,14 +242,18 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<DivisionTournamentFixtureDetailsDto> TournamentFixturesPerDate(IReadOnlyCollection<TournamentGame> tournamentGames, IReadOnlyCollection<TeamDto> teams, UserContext userContext)
+    private async IAsyncEnumerable<DivisionTournamentFixtureDetailsDto> TournamentFixturesPerDate(
+        IReadOnlyCollection<TournamentGame> tournamentGames,
+        IReadOnlyCollection<TeamDto> teams,
+        UserContext userContext,
+        [EnumeratorCancellation] CancellationToken token)
     {
         var addressesInUse = new HashSet<string>();
 
         foreach (var game in tournamentGames)
         {
             addressesInUse.Add(game.Address);
-            yield return await AdaptToTournamentFixtureDto(game);
+            yield return await AdaptToTournamentFixtureDto(game, token);
         }
 
         if (addressesInUse.Any() && userContext.CanCreateGames)
@@ -269,7 +276,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async Task<DivisionTournamentFixtureDetailsDto> AdaptToTournamentFixtureDto(TournamentGame tournamentGame)
+    private async Task<DivisionTournamentFixtureDetailsDto> AdaptToTournamentFixtureDto(TournamentGame tournamentGame, CancellationToken token)
     {
         TournamentSide? winningSide = null;
         var round = tournamentGame.Round;
@@ -325,7 +332,7 @@ public class DivisionService : IDivisionService
             Address = tournamentGame.Address,
             Date = tournamentGame.Date,
             SeasonId = tournamentGame.SeasonId,
-            WinningSide = winningSide != null ? await _tournamentSideAdapter.Adapt(winningSide) : null,
+            WinningSide = winningSide != null ? await _tournamentSideAdapter.Adapt(winningSide, token) : null,
             Type = tournamentType,
             Proposed = false,
             Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),

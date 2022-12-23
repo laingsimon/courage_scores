@@ -34,7 +34,7 @@ public class DeleteTeamCommand : IUpdateCommand<Team, Team>
             return new CommandOutcome<Team>(false, "Team has already been deleted", model);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
 
         if (user?.Access?.ManageTeams != true)
         {

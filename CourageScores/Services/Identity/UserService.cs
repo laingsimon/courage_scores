@@ -2,7 +2,6 @@
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -30,7 +29,7 @@ public class UserService : IUserService
         _accessAdapter = accessAdapter;
     }
 
-    public async Task<UserDto?> GetUser()
+    public async Task<UserDto?> GetUser(CancellationToken token)
     {
         if (!_userResolved)
         {
@@ -39,13 +38,13 @@ public class UserService : IUserService
         }
 
         return _user != null
-            ? _userAdapter.Adapt(_user)
+            ? await _userAdapter.Adapt(_user, token)
             : null;
     }
 
-    public async Task<UserDto?> GetUser(string emailAddress)
+    public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
     {
-        var loggedInUser = await GetUser();
+        var loggedInUser = await GetUser(token);
         if (loggedInUser?.Access?.ManageAccess != true)
         {
             return null;
@@ -53,13 +52,13 @@ public class UserService : IUserService
 
         var user = await _userRepository.GetUser(emailAddress);
         return user != null
-            ? _userAdapter.Adapt(user)
+            ? await _userAdapter.Adapt(user, token)
             : null;
     }
 
-    public async Task<ActionResultDto<UserDto>> UpdateAccess(UpdateAccessDto user)
+    public async Task<ActionResultDto<UserDto>> UpdateAccess(UpdateAccessDto user, CancellationToken token)
     {
-        var loggedInUser = await GetUser();
+        var loggedInUser = await GetUser(token);
         if (loggedInUser == null)
         {
             return new ActionResultDto<UserDto>
@@ -89,7 +88,7 @@ public class UserService : IUserService
             };
         }
 
-        userToUpdate.Access = _accessAdapter.Adapt(user.Access);
+        userToUpdate.Access = await _accessAdapter.Adapt(user.Access, token);
 
         if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access.ManageAccess == false)
         {
@@ -106,7 +105,7 @@ public class UserService : IUserService
         {
             Success = true,
             Warnings = { "Access updated" },
-            Result = _userAdapter.Adapt(userToUpdate),
+            Result = await _userAdapter.Adapt(userToUpdate, token),
         };
     }
 

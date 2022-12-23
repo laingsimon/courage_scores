@@ -27,7 +27,7 @@ public class ReportService : IReportService
 
     public async Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user?.Access == null || !user.Access.RunReports)
         {
             return UnableToProduceReport("Not permitted", request);

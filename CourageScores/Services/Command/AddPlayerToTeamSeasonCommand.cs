@@ -59,7 +59,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "Cannot edit a team that has been deleted", null);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
@@ -110,7 +110,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),
         };
-        await _auditingHelper.SetUpdated(newPlayer);
+        await _auditingHelper.SetUpdated(newPlayer, token);
         players.Add(newPlayer);
 
         return new CommandOutcome<TeamPlayer>(true, $"Player added to the ${model.Name} team for the {season.Name} season", newPlayer);

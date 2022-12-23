@@ -17,26 +17,26 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
         _sideAdapter = sideAdapter;
     }
 
-    public async Task<TournamentRoundDto> Adapt(TournamentRound model)
+    public async Task<TournamentRoundDto> Adapt(TournamentRound model, CancellationToken token)
     {
         return new TournamentRoundDto
         {
             Id = model.Id,
-            Matches = await model.Matches.SelectAsync(m => _matchAdapter.Adapt(m)).ToList(),
-            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList(),
-            NextRound = model.NextRound != null ? await Adapt(model.NextRound) : null,
+            Matches = await model.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList(),
+            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
+            NextRound = model.NextRound != null ? await Adapt(model.NextRound, token) : null,
             Name = model.Name,
         }.AddAuditProperties(model);
     }
 
-    public async Task<TournamentRound> Adapt(TournamentRoundDto dto)
+    public async Task<TournamentRound> Adapt(TournamentRoundDto dto, CancellationToken token)
     {
         return new TournamentRound
         {
             Id = dto.Id,
-            Matches = await dto.Matches.SelectAsync(m => _matchAdapter.Adapt(m)).ToList(),
-            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList(),
-            NextRound = dto.NextRound != null ? await Adapt(dto.NextRound) : null,
+            Matches = await dto.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList(),
+            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
+            NextRound = dto.NextRound != null ? await Adapt(dto.NextRound, token) : null,
             Name = dto.Name,
         }.AddAuditProperties(dto);
     }

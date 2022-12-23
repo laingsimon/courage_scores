@@ -33,7 +33,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         var item = await _repository.Get(id, token);
         return item != null
-            ? await _adapter.Adapt(item)
+            ? await _adapter.Adapt(item, token)
             : null;
     }
 
@@ -41,7 +41,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         await foreach (var item in _repository.GetAll(token))
         {
-            yield return await _adapter.Adapt(item);
+            yield return await _adapter.Adapt(item, token);
         }
     }
 
@@ -49,13 +49,13 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         await foreach (var item in _repository.GetSome(query, token))
         {
-            yield return await _adapter.Adapt(item);
+            yield return await _adapter.Adapt(item, token);
         }
     }
 
     public async Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
 
         if (user == null)
         {
@@ -84,12 +84,12 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             return Error(outcome.Message);
         }
 
-        await _auditingHelper.SetUpdated(item);
+        await _auditingHelper.SetUpdated(item, token);
         if (outcome.Delete)
         {
             if (item.CanDelete(user))
             {
-                await _auditingHelper.SetDeleted(item);
+                await _auditingHelper.SetDeleted(item, token);
             }
             else
             {
@@ -99,12 +99,12 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         var updatedItem = await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(updatedItem), outcome.Message);
+        return Success(await _adapter.Adapt(updatedItem, token), outcome.Message);
     }
 
     public async Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
 
         if (user == null)
         {
@@ -123,10 +123,10 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             return NotPermitted();
         }
 
-        await _auditingHelper.SetDeleted(item);
+        await _auditingHelper.SetDeleted(item, token);
         await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(item), $"{typeof(TModel).Name} deleted");
+        return Success(await _adapter.Adapt(item, token), $"{typeof(TModel).Name} deleted");
     }
 
     private static ActionResultDto<TDto> Error(string error)

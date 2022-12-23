@@ -7,6 +7,6 @@ public interface IAdapter<TModel, TDto>
     where TModel : AuditedEntity
     where TDto : AuditedDto
 {
-    public Task<TDto> Adapt(TModel model);
-    public Task<TModel> Adapt(TDto dto);
+    public Task<TDto> Adapt(TModel model, CancellationToken token);
+    public Task<TModel> Adapt(TDto dto, CancellationToken token);
 }

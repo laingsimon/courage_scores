@@ -37,7 +37,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
         CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user?.Access?.ManageGames != true)
         {
             return this.Error("Not permitted");

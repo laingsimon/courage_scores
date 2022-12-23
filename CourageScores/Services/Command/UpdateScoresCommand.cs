@@ -54,7 +54,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             return new CommandOutcome<GameDto>(false, "Cannot edit a game that has been deleted", null);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not logged in", null);
@@ -116,13 +116,13 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
                         return new CommandOutcome<GameDto>(
                             false,
                             $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
-                            await _gameAdapter.Adapt(game));
+                            await _gameAdapter.Adapt(game, token));
                     }
                 }
             }
         }
 
-        return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));
+        return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
     }
 
     private static string FormatActionResult(ActionResultDto<TeamDto> actionResultDto)

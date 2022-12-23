@@ -52,7 +52,7 @@ public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "Cannot edit a team that has been deleted", null);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);

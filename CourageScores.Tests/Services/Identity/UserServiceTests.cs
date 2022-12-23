@@ -5,6 +5,7 @@ using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository.Identity;
+using CourageScores.Services;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -26,6 +27,8 @@ public class UserServiceTests
     private Mock<IServiceProvider> _httpContextServices;
     private ISimpleAdapter<User, UserDto> _userAdapter;
     private AccessAdapter _accessAdapter;
+    private Mock<ITeamService> _teamService;
+    private CancellationToken _token;
 #pragma warning restore CS8618
 
     [SetUp]
@@ -35,9 +38,11 @@ public class UserServiceTests
         _userRepository = new Mock<IUserRepository>();
         _authenticationService = new Mock<IAuthenticationService>();
         _accessAdapter = new AccessAdapter();
-        _userAdapter = new UserAdapter(_accessAdapter);
+        _teamService = new Mock<ITeamService>();
+        _userAdapter = new UserAdapter(_accessAdapter, _teamService.Object);
         _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter);
         _httpContextServices = new Mock<IServiceProvider>();
+        _token = new CancellationToken();
 
         _httpContextServices
             .Setup(p => p.GetService(typeof(IAuthenticationService)))
@@ -52,7 +57,7 @@ public class UserServiceTests
     {
         _httpContext = null;
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Null);
     }
@@ -68,7 +73,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.NoResult);
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Null);
     }
@@ -88,7 +93,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
 
-        await _service.GetUser();
+        await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.UpsertUser(It.IsAny<User>()));
     }
@@ -108,7 +113,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Name, Is.EqualTo("Simon Laing"));
@@ -134,7 +139,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Access, Is.Null);
@@ -163,7 +168,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Access, Is.Not.Null);

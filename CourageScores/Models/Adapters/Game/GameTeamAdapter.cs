@@ -13,9 +13,9 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         _userService = userService;
     }
 
-    public async Task<GameTeamDto> Adapt(GameTeam model)
+    public async Task<GameTeamDto> Adapt(GameTeam model, CancellationToken token)
     {
-        var isAdmin = (await _userService.GetUser())?.Access?.ManageScores == true;
+        var isAdmin = (await _userService.GetUser(token))?.Access?.ManageScores == true;
 
         return new GameTeamDto
         {
@@ -29,7 +29,7 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         }.AddAuditProperties(model);
     }
 
-    public Task<GameTeam> Adapt(GameTeamDto dto)
+    public Task<GameTeam> Adapt(GameTeamDto dto, CancellationToken token)
     {
         return Task.FromResult(new GameTeam
         {

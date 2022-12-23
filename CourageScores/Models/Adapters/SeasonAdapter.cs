@@ -23,11 +23,11 @@ public class SeasonAdapter : IAdapter<Season, SeasonDto>
         _teamAdapter = teamAdapter;
     }
 
-    public async Task<SeasonDto> Adapt(Season model)
+    public async Task<SeasonDto> Adapt(Season model, CancellationToken token)
     {
         return new SeasonDto
         {
-            Divisions = await model.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
+            Divisions = await model.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
             Id = model.Id,
             EndDate = model.EndDate,
             StartDate = model.StartDate,
@@ -35,11 +35,11 @@ public class SeasonAdapter : IAdapter<Season, SeasonDto>
         }.AddAuditProperties(model);
     }
 
-    public async Task<Season> Adapt(SeasonDto dto)
+    public async Task<Season> Adapt(SeasonDto dto, CancellationToken token)
     {
         return new Season
         {
-            Divisions = await dto.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
+            Divisions = await dto.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
             Id = dto.Id,
             EndDate = dto.EndDate,
             StartDate = dto.StartDate,

@@ -72,7 +72,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
                 ? GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value)
                 : new List<TeamPlayer>(),
         };
-        await _auditingHelper.SetUpdated(teamSeason);
+        await _auditingHelper.SetUpdated(teamSeason, token);
         model.Seasons.Add(teamSeason);
 
         return new CommandOutcome<TeamSeason>(
