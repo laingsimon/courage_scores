@@ -25,5 +25,10 @@ public class UserDto
     /// What access does this person have?
     /// </summary>
     public AccessDto? Access { get; set; }
+
+    /// <summary>
+    /// The identity of the team this user is attributed to, via their email address
+    /// </summary>
+    public Guid? TeamId { get; set; }
 }
 #pragma warning restore CS8618

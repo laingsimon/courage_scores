@@ -1,7 +1,9 @@
 ﻿using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,6 +16,7 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly ISimpleAdapter<User, UserDto> _userAdapter;
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
+    private readonly IGenericRepository<Team> _teamRepository;
     private User? _user;
     private bool _userResolved;
 
@@ -21,19 +24,21 @@ public class UserService : IUserService
         IHttpContextAccessor httpContextAccessor,
         IUserRepository userRepository,
         ISimpleAdapter<User, UserDto> userAdapter,
-        ISimpleAdapter<Access, AccessDto> accessAdapter)
+        ISimpleAdapter<Access, AccessDto> accessAdapter,
+        IGenericRepository<Team> teamRepository)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
         _userAdapter = userAdapter;
         _accessAdapter = accessAdapter;
+        _teamRepository = teamRepository;
     }
 
     public async Task<UserDto?> GetUser(CancellationToken token)
     {
         if (!_userResolved)
         {
-            _user = await GetUserInternal();
+            _user = await GetUserInternal(token);
             _userResolved = true;
         }
 
@@ -109,7 +114,28 @@ public class UserService : IUserService
         };
     }
 
-    private async Task<User?> GetUserInternal()
+    private async Task<Guid?> GetTeamIdForEmailAddress(string emailAddress, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(emailAddress))
+        {
+            return null;
+        }
+
+        await foreach (var team in _teamRepository.GetAll(token))
+        {
+            var teamHasPlayerWithEmailAddress = team.Seasons.Any(s =>
+                s.Players.Any(p => p.EmailAddress?.Equals(emailAddress, StringComparison.OrdinalIgnoreCase) == true));
+
+            if (teamHasPlayerWithEmailAddress)
+            {
+                return team.Id;
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<User?> GetUserInternal(CancellationToken token)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         if (httpContext == null)
@@ -145,6 +171,7 @@ public class UserService : IUserService
         if (existingUser != null)
         {
             user.Access = existingUser.Access;
+            user.TeamId = existingUser.TeamId ?? await GetTeamIdForEmailAddress(emailAddress, token);
         }
 
         await _userRepository.UpsertUser(user);

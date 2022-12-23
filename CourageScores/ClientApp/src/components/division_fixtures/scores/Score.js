@@ -34,7 +34,7 @@ export function Score({account, apis, divisions}) {
         if (account && account.access) {
             if (account.access.manageScores) {
                 setAccess('admin');
-            } else {
+            } else if (account.teamId) {
                 setAccess('clerk');
             }
         } else {

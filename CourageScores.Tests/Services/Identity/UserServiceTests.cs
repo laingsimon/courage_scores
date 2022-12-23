@@ -3,7 +3,9 @@ using System.Security.Principal;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Identity;
@@ -29,6 +31,7 @@ public class UserServiceTests
     private AccessAdapter _accessAdapter;
     private Mock<ITeamService> _teamService;
     private CancellationToken _token;
+    private Mock<IGenericRepository<Team>> _teamRepository;
 #pragma warning restore CS8618
 
     [SetUp]
@@ -39,8 +42,9 @@ public class UserServiceTests
         _authenticationService = new Mock<IAuthenticationService>();
         _accessAdapter = new AccessAdapter();
         _teamService = new Mock<ITeamService>();
-        _userAdapter = new UserAdapter(_accessAdapter, _teamService.Object);
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter);
+        _userAdapter = new UserAdapter(_accessAdapter);
+        _teamRepository = new Mock<IGenericRepository<Team>>();
+        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter, _teamRepository.Object);
         _httpContextServices = new Mock<IServiceProvider>();
         _token = new CancellationToken();
 
