@@ -76,6 +76,7 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         {
             game.Address = _scores.Address ?? game.Address;
             game.Postponed = _scores.Postponed ?? game.Postponed;
+            game.Date = _scores.Date ?? game.Date;
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));

@@ -332,19 +332,17 @@ export function Score({account, apis, divisions}) {
                 {fixtureData.address || canSave ? (<tr>
                     {canSave
                         ? (<td colSpan="5">
-                               <div className="input-group mb-3">
-                                   <div className="input-group-prepend">
-                                       <span className="input-group-text">Address</span>
-                                   </div>
-                                   <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
-                                   <div className="form-check form-switch margin-right">
+                            <div className="input-group mb-3">
+                                    <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={fixtureData.date.substring(0, 10)} onChange={changeFixtureProperty} />
+                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
+                                    <div className="form-check form-switch margin-right">
                                        <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="postponed">Postponed</label>
-                                   </div>
-                                   <div className="form-check form-switch">
+                                    </div>
+                                    <div className="form-check form-switch">
                                        <input disabled={saving} type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={fixtureData.isKnockout} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="knockout">Knockout</label>
-                                   </div>
+                                    </div>
                                </div>
                            </td>)
                         : (<td colSpan="5">

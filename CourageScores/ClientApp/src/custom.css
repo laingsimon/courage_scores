@@ -111,6 +111,11 @@ input[type="date"] {
   width: 7em;
 }
 
+.input-group > .date-selection {
+  flex: none;
+  width: 9em;
+}
+
 .no-border {
   border: none;
 }

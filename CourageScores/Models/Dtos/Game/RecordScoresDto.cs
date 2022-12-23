@@ -7,6 +7,7 @@ public class RecordScoresDto
     public List<RecordScoresGameMatchDto> Matches { get; set; } = null!;
     public string? Address { get; set; }
     public bool? Postponed { get; set; }
+    public DateTime? Date { get; set; }
 
     public class ManOfTheMatchDto
     {
