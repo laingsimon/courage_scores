@@ -7,11 +7,10 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
     const team = divisionData.teams.filter(t => t.id === player.teamId)[0] || { id: null, name: 'Unknown' };
     const fixtures = divisionData.fixtures.map(fixtureDate => {
         const fixtureId = player.fixtures[fixtureDate.date];
-        const tournamentFixtures = fixtureDate.tournamentFixtures.filter(tournament => tournament.created)
+        const tournamentFixtures = fixtureDate.tournamentFixtures
+            .filter(tournament => !tournament.proposed)
             .filter(tournament => {
-                return tournament.sides.filter(side => {
-                    return side.players.filter(p => p.id === playerId).length > 0;
-                }).length > 0;
+                return tournament.players.filter(id => id === playerId).length > 0;
             });
 
         return {
@@ -64,18 +63,23 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
         </tr>);
     }
 
-    function renderTournamentFixture(tournamentFixture, date) {
+    function renderTournamentFixture(tournament, date) {
         return (<tr>
             <td>
-                <Link to={`/tournament/${date.tournament.id}`}>{new Date(date).toDateString()}</Link>
+                <Link to={`/tournament/${tournament.id}`}>{new Date(date).toDateString()}</Link>
             </td>
             <td className="text-end">
-                {tournamentFixture.address}
+                <Link to={`/tournament/${tournament.id}`}>
+                    {tournament.type} at <strong>{tournament.address}</strong>
+                </Link>
             </td>
-            <td></td>
-            <td>vs</td>
-            <td></td>
-            <td>
+            <td colSpan="2"></td>
+            <td colSpan="2">
+                {tournament.winningSide ? (<td colSpan="2">
+                    {tournament.winningSide
+                        ? (<span className="margin-left">Winner: <strong className="text-primary">{tournament.winningSide.name}</strong></span>)
+                        : null}
+                </td>) : null}
             </td>
         </tr>);
     }

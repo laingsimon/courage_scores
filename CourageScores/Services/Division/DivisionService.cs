@@ -335,6 +335,7 @@ public class DivisionService : IDivisionService
             WinningSide = winningSide != null ? await _tournamentSideAdapter.Adapt(winningSide) : null,
             Type = tournamentType,
             Proposed = false,
+            Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),
         };
     }
 
