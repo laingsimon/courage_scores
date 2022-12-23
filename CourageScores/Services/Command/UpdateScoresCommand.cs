@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
@@ -12,13 +13,15 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
     private readonly IUserService _userService;
     private readonly IAdapter<Game, GameDto> _gameAdapter;
     private readonly ISystemClock _systemClock;
+    private readonly ISeasonService _seasonService;
     private RecordScoresDto? _scores;
 
-    public UpdateScoresCommand(IUserService userService, IAdapter<Game, GameDto> gameAdapter, ISystemClock systemClock)
+    public UpdateScoresCommand(IUserService userService, IAdapter<Game, GameDto> gameAdapter, ISystemClock systemClock, ISeasonService seasonService)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
         _systemClock = systemClock;
+        _seasonService = seasonService;
     }
 
     public UpdateScoresCommand WithData(RecordScoresDto scores)
@@ -77,9 +80,38 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             game.Address = _scores.Address ?? game.Address;
             game.Postponed = _scores.Postponed ?? game.Postponed;
             game.Date = _scores.Date ?? game.Date;
+
+            if (_scores.Date != null)
+            {
+                var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
+                if (newSeasonId != null && newSeasonId != game.SeasonId)
+                {
+                    game.SeasonId = newSeasonId.Value;
+                }
+            }
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game));
+    }
+
+    private async Task<Guid?> GetAppropriateSeasonId(DateTime gameDate, CancellationToken token)
+    {
+        var seasons = await _seasonService.GetAll(token)
+            .WhereAsync(s => s.StartDate <= gameDate && s.EndDate >= gameDate)
+            .ToList();
+
+        switch (seasons.Count)
+        {
+            case 0:
+                // no seasons found for this date
+                return null;
+            case 1:
+                // only one season found, return its id
+                return seasons.Single().Id;
+            default:
+                // multiple seasons found, cannot unambiguously determine which one to use
+                return null;
+        }
     }
 
     private GameMatch AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserDto user)
