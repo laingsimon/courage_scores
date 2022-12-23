@@ -12,6 +12,12 @@ public class DivisionDataGameVisitor : IGameVisitor
         _divisionData = divisionData;
     }
 
+    public void VisitGame(Game game)
+    {
+        var visitor = new PlayerAndGameLookupVisitor(game, _divisionData);
+        game.Accept(visitor);
+    }
+
     public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
     {
         if (players.Count != 1)
@@ -169,6 +175,29 @@ public class DivisionDataGameVisitor : IGameVisitor
         else
         {
             accumulator.Add(entity.Id, new DivisionData.Score { Draw = 1, Player = player, Team = team });
+        }
+    }
+
+    private class PlayerAndGameLookupVisitor : IGameVisitor
+    {
+        private readonly Game _game;
+        private readonly DivisionData _divisionData;
+
+        public PlayerAndGameLookupVisitor(Game game, DivisionData divisionData)
+        {
+            _game = game;
+            _divisionData = divisionData;
+        }
+
+        public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+        {
+            if (!_divisionData.PlayersToFixtures.TryGetValue(player.Id, out var gameLookup))
+            {
+                gameLookup = new Dictionary<DateTime, Guid>();
+                _divisionData.PlayersToFixtures.Add(player.Id, gameLookup);
+            }
+
+            gameLookup.TryAdd(_game.Date, _game.Id);
         }
     }
 }

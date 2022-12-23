@@ -239,6 +239,9 @@ public class DivisionService : IDivisionService
                 Over100Checkouts = score.HiCheckout,
                 TeamId = playerTuple.Team.Id,
                 WinPercentage = score.WinPercentage,
+                Fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
+                    ? divisionData.PlayersToFixtures[id]
+                    : new Dictionary<DateTime, Guid>(),
             };
         }
     }

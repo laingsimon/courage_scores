@@ -4,8 +4,9 @@ namespace CourageScores.Services.Division;
 
 public class DivisionData
 {
-    public readonly Dictionary<Guid, Score> Players = new ();
-    public readonly Dictionary<Guid, Score> Teams = new ();
+    public Dictionary<Guid, Score> Players { get; } = new ();
+    public Dictionary<Guid, Score> Teams { get; } = new();
+    public Dictionary<Guid, Dictionary<DateTime, Guid>> PlayersToFixtures { get; } = new();
 
     public class Score
     {
