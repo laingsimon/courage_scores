@@ -99,6 +99,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             existingPlayer.Updated = _clock.UtcNow.UtcDateTime;
             existingPlayer.Editor = user.Name;
             existingPlayer.Captain = _player.Captain;
+            existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             return new CommandOutcome<TeamPlayer>(true, "Player undeleted from team", existingPlayer);
         }
 
@@ -106,6 +107,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         {
             Name = _player.Name,
             Captain = _player.Captain,
+            EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),
         };
         await _auditingHelper.SetUpdated(newPlayer);

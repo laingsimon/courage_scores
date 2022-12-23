@@ -14,4 +14,10 @@ public class TeamPlayerDto : AuditedDto
     /// Is this player the captain?
     /// </summary>
     public bool Captain { get; set; }
+
+    /// <summary>
+    /// The email address for this player
+    /// Only required if this player will perform any administration of data (e.g. uploading scores)
+    /// </summary>
+    public string? EmailAddress { get; set; }
 }

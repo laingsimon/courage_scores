@@ -101,6 +101,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
         player.Captain = _player.Captain;
         player.Updated = _clock.UtcNow.UtcDateTime;
         player.Editor = user.Name;
+        player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
         return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season, {updatedGames.Count} game/s updated", player);
     }
 
