@@ -23,18 +23,23 @@ export function Score({account, apis, divisions}) {
     const [awayTeam, setAwayTeam] = useState([]);
     const [allPlayers, setAllPlayers] = useState([]);
     const [error, setError] = useState(null);
-    const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
-    const [canSave, setCanSave] = useState(true);
-    const [ saveError, setSaveError ] = useState(null);
+    const [saveError, setSaveError] = useState(null);
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
     const [seasons, setSeasons] = useState(null);
+    const [access, setAccess] = useState(null);
 
     useEffect(() => {
-        const isAdmin = (account && account.access && account.access.manageScores);
-        setDisabled(!isAdmin || false);
-        setCanSave(isAdmin || false);
+        if (account && account.access) {
+            if (account.access.manageScores) {
+                setAccess('admin');
+            } else {
+                setAccess('clerk');
+            }
+        } else {
+            setAccess('readonly');
+        }
     }, [account]);
 
     useEffect(() => {
@@ -230,7 +235,7 @@ export function Score({account, apis, divisions}) {
     }
 
     async function saveScores() {
-        if (disabled) {
+        if (access === 'readonly') {
             return;
         }
 
@@ -250,6 +255,10 @@ export function Score({account, apis, divisions}) {
     }
 
     function changeFixtureProperty(event) {
+        if (access !== 'admin') {
+            return;
+        }
+
         const newFixtureData = Object.assign({}, fixtureData);
         if (event.target.type === 'checkbox') {
             newFixtureData[event.target.name] = event.target.checked;
@@ -328,8 +337,8 @@ export function Score({account, apis, divisions}) {
                         <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.away.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.away.name}</Link>
                     </td>
                 </tr>
-                {fixtureData.address || canSave ? (<tr>
-                    {canSave
+                {fixtureData.address || access === 'admin' ? (<tr>
+                    {access === 'admin'
                         ? (<td colSpan="5">
                             <div className="input-group mb-3">
                                     <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={fixtureData.date.substring(0, 10)} onChange={changeFixtureProperty} />
@@ -357,7 +366,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     match={fixtureData.matches[0]}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={5}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
@@ -372,7 +381,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={1}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={5}
                     match={fixtureData.matches[1]}
@@ -388,7 +397,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={1}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={5}
                     match={fixtureData.matches[2]}
@@ -404,7 +413,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={1}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={5}
                     match={fixtureData.matches[3]}
@@ -420,7 +429,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={1}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={5}
                     match={fixtureData.matches[4]}
@@ -439,7 +448,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={2}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={3}
                     match={fixtureData.matches[5]}
@@ -455,7 +464,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={2}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={3}
                     match={fixtureData.matches[6]}
@@ -474,7 +483,7 @@ export function Score({account, apis, divisions}) {
                     playerCount={3}
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
-                    disabled={disabled}
+                    disabled={access === 'readonly'}
                     readOnly={saving}
                     numberOfLegs={3}
                     match={fixtureData.matches[7]}
@@ -485,12 +494,12 @@ export function Score({account, apis, divisions}) {
                     away={fixtureData.away}
                     gameId={fixtureData.id}
                     divisionId={fixtureData.divisionId} />
-                {canSave ? (<tr>
+                {access !== 'readonly' ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
                         <PlayerSelection
                             players={allPlayers}
-                            disabled={disabled}
+                            disabled={access === 'readonly'}
                             readOnly={saving}
                             selected={{id: fixtureData.home.manOfTheMatch}}
                             onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>
@@ -500,7 +509,7 @@ export function Score({account, apis, divisions}) {
                         Man of the match<br/>
                         <PlayerSelection
                             players={allPlayers}
-                            disabled={disabled}
+                            disabled={access === 'readonly'}
                             readOnly={saving}
                             selected={{id: fixtureData.away.manOfTheMatch}}
                             onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>
@@ -510,7 +519,7 @@ export function Score({account, apis, divisions}) {
                     <td colSpan="2">
                         180s<br/>
                         <MultiPlayerSelection
-                            disabled={disabled}
+                            disabled={access === 'readonly'}
                             readOnly={saving}
                             allPlayers={allPlayers}
                             players={fixtureData.matches[0].oneEighties || []}
@@ -523,7 +532,7 @@ export function Score({account, apis, divisions}) {
                     <td colSpan="2">
                         100+ c/o<br/>
                         <MultiPlayerSelection
-                            disabled={disabled}
+                            disabled={access === 'readonly'}
                             readOnly={saving}
                             allPlayers={allPlayers}
                             players={fixtureData.matches[0].over100Checkouts || []}
@@ -536,7 +545,7 @@ export function Score({account, apis, divisions}) {
                 </tr>
                 </tbody>
             </table>
-            {canSave ? (<button className="btn btn-primary" onClick={saveScores}>
+            {access !== 'readonly' ? (<button className="btn btn-primary" onClick={saveScores}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                  aria-hidden="true"></span>) : null}
                 Save
