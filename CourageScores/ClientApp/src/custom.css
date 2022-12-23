@@ -169,3 +169,7 @@ td.bg-winner {
 .no-list-indent ::marker{
   content: '';
 }
+
+.content-width {
+  width: initial;
+}

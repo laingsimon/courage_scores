@@ -3,7 +3,6 @@ import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 
 export function TeamOverview({ divisionData, teamId, account, seasonId }) {
-    const today = new Date(new Date().toDateString());
     const team = divisionData.teams.filter(t => t.id === teamId)[0];
     const fixtures = divisionData.fixtures.map(fixtureDate => {
        return {
@@ -11,9 +10,6 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
            fixtures: fixtureDate.fixtures.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
        };
     }).filter(fixtureDate => fixtureDate.fixtures.length > 0);
-    const previousFixtures = fixtures.filter(fixtureDate => new Date(fixtureDate.date) < today);
-    const lastFixture = previousFixtures.length > 0 ? previousFixtures[previousFixtures.length - 1] : null;
-    const nextFixture = fixtures.filter(fixtureDate => new Date(fixtureDate.date) >= today)[0];
     const players = divisionData.players.filter(p => p.teamId === teamId);
 
     function renderScore(score, postponed) {
@@ -28,37 +24,49 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
         return score;
     }
 
-    function renderFixture(fixtureDate, titlePrefix) {
+    function renderFixtureAndDate(fixtureDate) {
         const fixture = fixtureDate.fixtures[0];
 
-        return (<div className="col text-center">
-            <p><strong>{titlePrefix}: <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link></strong></p>
-            {fixture.homeTeam.id === teamId
-                ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
-            <strong className="margin-right">
-                {renderScore(fixture.homeScore, fixture.postponed)}
-            </strong>
-            <span className="margin-right">vs</span>
-            <strong className="margin-right">
-                {renderScore(fixture.awayScore, fixture.postponed)}
-            </strong>
-            {fixture.awayTeam.id === teamId
-                ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                : (<Link to={`/division/${divisionData.id}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
-        </div>);
+        return (<tr>
+            <td>
+                <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link>
+                {fixture.isKnockout ? (<span className="margin-left">(Knockout)</span>) : null}
+            </td>
+            <td className="text-end">
+                {fixture.homeTeam.id === teamId
+                    ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
+                    : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+            </td>
+            <td> {renderScore(fixture.homeScore, fixture.postponed)}</td>
+            <td>vs</td>
+            <td>{renderScore(fixture.awayScore, fixture.postponed)}</td>
+            <td>
+                {fixture.awayTeam.id === teamId
+                    ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
+                    : (<Link to={`/division/${divisionData.id}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
+            </td>
+        </tr>);
     }
 
     return (<div className="light-background p-3">
         <h3>{team.name}</h3>
         <p>Address: {team.address}</p>
 
-        <div>
-            <div className="row justify-content-evenly">
-                {lastFixture ? renderFixture(lastFixture, 'Last') : null}
-                {nextFixture ? renderFixture(nextFixture, 'Next') : null}
-            </div>
-        </div>
+        <table className="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th className="text-end">Home</th>
+                    <th className="narrow-column"></th>
+                    <th className="narrow-column">vs</th>
+                    <th className="narrow-column"></th>
+                    <th>Away</th>
+                </tr>
+            </thead>
+            <tbody>
+            {fixtures.map(renderFixtureAndDate)}
+            </tbody>
+        </table>
         <div className="overflow-x-auto">
             <DivisionPlayers players={players} onPlayerSaved={null} account={account} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
         </div>
