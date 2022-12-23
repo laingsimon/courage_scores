@@ -13,6 +13,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
 import {nameSort} from "../../../Utilities";
+import {Loading} from "../../common/Loading";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -259,9 +260,7 @@ export function Score({account, apis, divisions}) {
     }
 
     if (loading !== 'ready') {
-        return (<div className="light-background p-3 loading-background">
-            <div className="mt-2 pt-4 h3">Loading...</div>
-        </div>);
+        return (<Loading />);
     }
 
     if (error) {

@@ -12,6 +12,7 @@ import {DivisionControls} from "./DivisionControls";
 import {DivisionReports} from "./division_reports/DivisionReports";
 import {TeamOverview} from "./division_teams/TeamOverview";
 import {PlayerOverview} from "./division_players/PlayerOverview";
+import {Loading} from "./common/Loading";
 
 export function Division({ account, apis, divisions }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -64,9 +65,7 @@ export function Division({ account, apis, divisions }) {
     [ divisionData, loading, divisionId, seasonId ]);
 
     if (loading || !divisionData) {
-        return (<div className="light-background p-3 loading-background">
-            <div className="mt-2 pt-4 h3">Loading...</div>
-        </div>);
+        return (<Loading />);
     }
 
     return (<div>

@@ -143,9 +143,9 @@ input[type="date"] {
 
 .loading-background {
   background-image: url("../public/loading.gif");
-  background-position: -20px center;
+  background-position: center center;
   background-repeat: no-repeat;
-  min-height: 120px;
+  min-height: 200px;
   background-size: 150px 150px;
   padding-left: 120px !important;
 }

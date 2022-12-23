@@ -11,6 +11,7 @@ import {TournamentSide} from "./TournamentSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {nameSort} from "../../../Utilities";
+import {Loading} from "../../common/Loading";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
@@ -224,9 +225,7 @@ export function Tournament({ account, apis }) {
     }
 
     if (loading !== 'ready') {
-        return (<div className="light-background p-3 loading-background">
-            <div className="mt-2 pt-4 h3">Loading...</div>
-        </div>);
+        return (<Loading />);
     }
 
     if (error) {
