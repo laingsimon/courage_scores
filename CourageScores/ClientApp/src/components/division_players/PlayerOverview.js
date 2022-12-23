@@ -42,7 +42,7 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
     }
 
     function renderNormalFixture(fixture, date) {
-        return (<tr>
+        return (<tr key={fixture.id}>
             <td>
                 <Link to={`/score/${fixture.id}`}>{new Date(date).toDateString()}</Link>
                 {fixture.isKnockout ? (<span className="margin-left">(Knockout)</span>) : null}
@@ -64,7 +64,7 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
     }
 
     function renderTournamentFixture(tournament, date) {
-        return (<tr>
+        return (<tr key={tournament.id}>
             <td>
                 <Link to={`/tournament/${tournament.id}`}>{new Date(date).toDateString()}</Link>
             </td>

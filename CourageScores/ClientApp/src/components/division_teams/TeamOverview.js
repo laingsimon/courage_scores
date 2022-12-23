@@ -27,7 +27,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
     function renderFixtureAndDate(fixtureDate) {
         const fixture = fixtureDate.fixtures[0];
 
-        return (<tr>
+        return (<tr key={fixture.id}>
             <td>
                 <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link>
                 {fixture.isKnockout ? (<span className="margin-left">(Knockout)</span>) : null}
