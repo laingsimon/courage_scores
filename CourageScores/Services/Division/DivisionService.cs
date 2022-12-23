@@ -85,7 +85,7 @@ public class DivisionService : IDivisionService
         var context = new DivisionDataContext(games, teams, tournamentGames);
 
         var divisionData = new DivisionData();
-        var gameVisitor = new DivisionDataGameVisitor(divisionData);
+        var gameVisitor = new DivisionDataGameVisitor(divisionData, teams.ToDictionary(t => t.Id));
         foreach (var game in games)
         {
             game.Accept(gameVisitor);

@@ -7,16 +7,18 @@ namespace CourageScores.Services.Division;
 public class DivisionDataGameVisitor : IGameVisitor
 {
     private readonly DivisionData _divisionData;
+    private readonly Dictionary<Guid, TeamDto> _teamLookup;
 
-    public DivisionDataGameVisitor(DivisionData divisionData)
+    public DivisionDataGameVisitor(DivisionData divisionData, Dictionary<Guid, TeamDto> teamLookup)
     {
         _divisionData = divisionData;
+        _teamLookup = teamLookup;
     }
 
     public void VisitGame(Game game)
     {
         var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
-        var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData);
+        var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
         game.Accept(playerGamesVisitor);
         game.Accept(playerTeamVisitor);
     }
@@ -209,12 +211,15 @@ public class DivisionDataGameVisitor : IGameVisitor
         private readonly TeamDto _home;
         private readonly TeamDto _away;
         private readonly DivisionData _divisionData;
+        private readonly Guid _seasonId;
 
-        public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData)
+        public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData,
+            Dictionary<Guid, TeamDto> teamLookup, Guid seasonId)
         {
-            _home = new TeamDto { Id = home.Id, Name = home.Name };
-            _away = new TeamDto { Id = away.Id, Name = away.Name };
+            _home = teamLookup[home.Id];
+            _away = teamLookup[away.Id];
             _divisionData = divisionData;
+            _seasonId = seasonId;
         }
 
         public void VisitMatch(GameMatch match)
@@ -227,10 +232,13 @@ public class DivisionDataGameVisitor : IGameVisitor
         {
             foreach (var player in players)
             {
+                var teamSeason = team.Seasons?.Single(s => s.SeasonId == _seasonId);
+                var teamPlayer = teamSeason?.Players.SingleOrDefault(p => p.Id == player.Id);
+
                 _divisionData.PlayerIdToTeamLookup.TryAdd(
                     player.Id,
                     new DivisionData.TeamPlayerTuple(
-                        new TeamPlayerDto
+                        teamPlayer ?? new TeamPlayerDto
                         {
                             Name = player.Name,
                             Id = player.Id,

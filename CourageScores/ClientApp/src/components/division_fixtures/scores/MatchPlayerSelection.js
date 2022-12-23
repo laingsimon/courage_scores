@@ -153,11 +153,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
             <EditPlayerDetails
                 id={null}
-                name={newPlayerDetails.name}
+                {...newPlayerDetails}
                 teamId={team.id}
                 seasonId={seasonId}
                 gameId={gameId}
-                captain={newPlayerDetails.captain}
                 teams={[ team ]}
                 onChange={onNewPlayerChanged}
                 onCancel={() => setCreatePlayerFor(null)}
