@@ -58,6 +58,11 @@ public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
         }
 
+        if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
+        {
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not permitted", null);
+        }
+
         var season = await _seasonRepository.Get(_seasonId.Value, token);
         if (season == null)
         {

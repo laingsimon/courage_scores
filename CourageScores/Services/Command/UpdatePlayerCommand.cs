@@ -72,7 +72,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not logged in", null);
         }
 
-        if (user.Access?.ManageTeams != true)
+        if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
         {
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not permitted", null);
         }

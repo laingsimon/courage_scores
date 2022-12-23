@@ -60,9 +60,9 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
             return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not logged in", null);
         }
 
-        if (user.Access?.ManageScores != true)
+        if (!(user.Access?.ManageScores == true || (user.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id))))
         {
-            return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not permitted", null);
+            return new CommandOutcome<GameDto>(false, "Game cannot be updated, not permitted", null);
         }
 
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
