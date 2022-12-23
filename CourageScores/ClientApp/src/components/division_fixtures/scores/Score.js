@@ -505,22 +505,22 @@ export function Score({account, apis, divisions}) {
                 {access !== 'readonly' ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
-                        <PlayerSelection
+                        {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
                             players={allPlayers}
                             disabled={access === 'readonly'}
                             readOnly={saving}
                             selected={{id: fixtureData.home.manOfTheMatch}}
-                            onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>
+                            onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
                     </td>
                     <td></td>
                     <td colSpan="2">
                         Man of the match<br/>
-                        <PlayerSelection
+                        {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
                             players={allPlayers}
                             disabled={access === 'readonly'}
                             readOnly={saving}
                             selected={{id: fixtureData.away.manOfTheMatch}}
-                            onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>
+                            onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
                     </td>
                 </tr>) : null}
                 <tr>
