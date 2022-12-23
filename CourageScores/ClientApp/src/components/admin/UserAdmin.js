@@ -1,53 +1,49 @@
-import React, {useState, useEffect } from 'react';
+import React, {useState } from 'react';
 import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {AccountApi} from "../../api/account";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 
-export function UserAdmin() {
+export function UserAdmin({account}) {
     const api = new AccountApi(new Http(new Settings()));
     const [ saving, setSaving ] = useState(false);
-    const [ account, setAccount ] = useState({
+    const [ userAccount, setUserAccount ] = useState({
         access: { }
     });
     const [ emailAddress, setEmailAddress ] = useState('');
     const [ loading, setLoading ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const isAdmin = account && account.access && account.access.manageAccess;
 
-    useEffect(() => {
+    async function loadAccess() {
         if (loading) {
             return;
         }
 
-        async function loadAccess() {
-            try {
-                if (emailAddress) {
-                    setLoading(true);
-                    const api = new AccountApi(new Http(new Settings()));
-                    const accessDetail = await api.get(emailAddress);
-                    if (accessDetail) {
-                        setAccount(Object.assign({}, account, {
-                            access: accessDetail.access
-                        }));
-                    } else {
-                        setAccount(Object.assign({}, account, {
-                            access: {},
-                        }));
-                    }
-                    setLoading(false);
+        try {
+            if (emailAddress) {
+                setLoading(true);
+                const api = new AccountApi(new Http(new Settings()));
+                const accessDetail = await api.get(emailAddress);
+                if (accessDetail) {
+                    setUserAccount(Object.assign({}, userAccount, {
+                        access: accessDetail.access
+                    }));
+                } else {
+                    setUserAccount(Object.assign({}, userAccount, {
+                        access: {},
+                    }));
                 }
-            } catch (e) {
-                setSaveError(e.toString());
             }
+        } catch (e) {
+            setSaveError(e.toString());
+        } finally {
+            setLoading(false);
         }
-
-        loadAccess();
-    },
-        // eslint-disable-next-line
-[ emailAddress ]);
+    }
 
     function valueChanged(event) {
-        const currentAccount = Object.assign({}, account);
+        const currentAccount = Object.assign({}, userAccount);
         const value = event.target.type === 'checkbox'
             ? event.target.checked
             : event.target.value;
@@ -61,7 +57,7 @@ export function UserAdmin() {
         }
 
         dataObject[name] = value;
-        setAccount(currentAccount);
+        setUserAccount(currentAccount);
     }
 
     async function saveChanges() {
@@ -78,7 +74,7 @@ export function UserAdmin() {
         try {
             const update = {
                 emailAddress: emailAddress,
-                access: account.access,
+                access: userAccount.access,
             };
             const result = await api.update(update);
             if (result.success) {
@@ -98,7 +94,7 @@ export function UserAdmin() {
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} className="form-check-input" type="checkbox" id={name}
-                       name={`access.${name}`} checked={account.access[name] || false} onChange={valueChanged}/>
+                       name={`access.${name}`} checked={userAccount.access[name] || false} onChange={valueChanged}/>
                 <label className="form-check-label" htmlFor={name}>{description}</label>
             </div>
         </div>);
@@ -110,8 +106,8 @@ export function UserAdmin() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Email address</span>
             </div>
-            <input disabled={saving} type="text" className="form-control"
-                   name="emailAddress" value={emailAddress} onChange={(event) => setEmailAddress(event.target.value)}/>
+            <input disabled={saving || !isAdmin} type="text" className="form-control"
+                   name="emailAddress" value={emailAddress} onBlur={loadAccess} onChange={(event) => setEmailAddress(event.target.value)}/>
         </div>
         <h6>
             {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
@@ -128,7 +124,7 @@ export function UserAdmin() {
         {renderAccessOption('exportData', 'Export data (backup)')}
         {renderAccessOption('importData', 'Import data (restore)')}
         <div>
-            <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
+            <button className="btn btn-primary" onClick={saveChanges} disabled={loading || !isAdmin}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Set access
             </button>
