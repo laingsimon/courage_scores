@@ -1,6 +1,5 @@
 ﻿using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
@@ -101,11 +100,15 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
                 var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
                 if (newSeasonId != null && (newSeasonId != game.SeasonId || dateChanged))
                 {
+                    var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
+                    command.ForSeason(newSeasonId.Value);
+                    command.CopyPlayersFromSeasonId(game.SeasonId);
+
                     game.SeasonId = newSeasonId.Value;
 
                     // register both teams with this season.
-                    var homeResult = await AddSeasonToTeam(game.Home.Id, newSeasonId.Value, token);
-                    var awayResult = await AddSeasonToTeam(game.Away.Id, newSeasonId.Value, token);
+                    var homeResult = await AddSeasonToTeam(game.Home.Id, command, token);
+                    var awayResult = await AddSeasonToTeam(game.Away.Id, command, token);
 
                     var success = homeResult.Success && awayResult.Success;
                     if (!success)
@@ -127,11 +130,8 @@ public class UpdateScoresCommand : IUpdateCommand<Game, GameDto>
         return $"Success: {actionResultDto.Success}, Errors: {string.Join(", ", actionResultDto.Errors)}, Warnings: {string.Join(", ", actionResultDto.Warnings)}, Messages: {string.Join(", ", actionResultDto.Messages)}";
     }
 
-    private async Task<ActionResultDto<TeamDto>> AddSeasonToTeam(Guid teamId, Guid seasonId, CancellationToken token)
+    private async Task<ActionResultDto<TeamDto>> AddSeasonToTeam(Guid teamId, AddSeasonToTeamCommand command, CancellationToken token)
     {
-        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
-        command.ForSeason(seasonId);
-
         return await _teamService.Upsert(teamId, command, token);
     }
 

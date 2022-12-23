@@ -1,6 +1,4 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Team;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Services.Command;
@@ -9,19 +7,29 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _seasonService;
-    private readonly ICommandFactory _commandFactory;
+    private readonly ITeamService _teamService;
     private Guid? _seasonId;
+    private Guid? _copyPlayersFromOtherSeasonId;
 
-    public AddSeasonToTeamCommand(IAuditingHelper auditingHelper, IGenericDataService<Models.Cosmos.Season, SeasonDto> seasonService, ICommandFactory commandFactory)
+    public AddSeasonToTeamCommand(
+        IAuditingHelper auditingHelper,
+        IGenericDataService<Models.Cosmos.Season, SeasonDto> seasonService,
+        ITeamService teamService)
     {
         _auditingHelper = auditingHelper;
         _seasonService = seasonService;
-        _commandFactory = commandFactory;
+        _teamService = teamService;
     }
 
     public AddSeasonToTeamCommand ForSeason(Guid seasonId)
     {
         _seasonId = seasonId;
+        return this;
+    }
+
+    public AddSeasonToTeamCommand CopyPlayersFromSeasonId(Guid seasonId)
+    {
+        _copyPlayersFromOtherSeasonId = seasonId;
         return this;
     }
 
@@ -46,6 +54,12 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
         if (teamSeason != null)
         {
+            if (_copyPlayersFromOtherSeasonId.HasValue && teamSeason.Players.Count == 0)
+            {
+                teamSeason.Players = GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value);
+                return new CommandOutcome<TeamSeason>(true, $"Season already exists, {teamSeason.Players.Count} players copied", teamSeason);
+            }
+
             return new CommandOutcome<TeamSeason>(true, "Season already exists", teamSeason);
         }
 
@@ -54,11 +68,26 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         {
             Id = Guid.NewGuid(),
             SeasonId = season.Id,
-            Players = new List<TeamPlayer>(),
+            Players = _copyPlayersFromOtherSeasonId.HasValue
+                ? GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value)
+                : new List<TeamPlayer>(),
         };
         await _auditingHelper.SetUpdated(teamSeason);
         model.Seasons.Add(teamSeason);
 
-        return new CommandOutcome<TeamSeason>(true, "Season added to this team", teamSeason);
+        return new CommandOutcome<TeamSeason>(
+            true,
+            _copyPlayersFromOtherSeasonId.HasValue
+                ? $"Season added to this team, {teamSeason.Players.Count} players copied"
+                : "Season added to this team",
+            teamSeason);
+    }
+
+    private static List<TeamPlayer> GetPlayersFromOtherSeason(Team team, Guid seasonId)
+    {
+        var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == seasonId);
+        return teamSeason == null
+            ? new List<TeamPlayer>()
+            : teamSeason.Players;
     }
 }
