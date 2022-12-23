@@ -12,4 +12,5 @@ public class Access
     public bool RunReports { get; set; }
     public bool ExportData { get; set; }
     public bool ImportData { get; set; }
+    public bool InputResults { get; set; }
 }

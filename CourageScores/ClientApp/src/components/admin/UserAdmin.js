@@ -128,6 +128,7 @@ export function UserAdmin({account}) {
         {renderAccessOption('runReports', 'Run reports')}
         {renderAccessOption('exportData', 'Export data (backup)')}
         {renderAccessOption('importData', 'Import data (restore)')}
+        {renderAccessOption('inputResults', 'Input results')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading || !isAdmin}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

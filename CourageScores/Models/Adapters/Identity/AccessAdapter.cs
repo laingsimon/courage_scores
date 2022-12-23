@@ -19,6 +19,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             RunReports = model.RunReports,
             ExportData = model.ExportData,
             ImportData = model.ImportData,
+            InputResults = model.InputResults,
         };
     }
 
@@ -36,6 +37,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             RunReports = dto.RunReports,
             ExportData = dto.ExportData,
             ImportData = dto.ImportData,
+            InputResults = dto.InputResults,
         };
     }
 }
