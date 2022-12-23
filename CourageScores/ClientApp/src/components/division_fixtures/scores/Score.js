@@ -376,7 +376,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -392,7 +393,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -408,7 +410,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -424,7 +427,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account} />
                 <MatchPlayerSelection
                     playerCount={1}
                     homePlayers={homeTeam}
@@ -440,7 +444,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
                 </tr>
@@ -459,7 +464,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 <MatchPlayerSelection
                     playerCount={2}
                     homePlayers={homeTeam}
@@ -475,7 +481,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
                 </tr>
@@ -493,7 +500,8 @@ export function Score({account, apis, divisions}) {
                     home={fixtureData.home}
                     away={fixtureData.away}
                     gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId} />
+                    divisionId={fixtureData.divisionId}
+                    account={account}  />
                 {access !== 'readonly' ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
