@@ -31,6 +31,8 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             SeasonId = model.SeasonId,
             Postponed = model.Postponed,
             IsKnockout = model.IsKnockout,
+            HomeSubmission = model.HomeSubmission != null ? await Adapt(model.HomeSubmission, token) : null,
+            AwaySubmission = model.AwaySubmission != null ? await Adapt(model.AwaySubmission, token) : null,
         }.AddAuditProperties(model);
     }
 
@@ -48,6 +50,8 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             SeasonId = dto.SeasonId,
             Postponed = dto.Postponed,
             IsKnockout = dto.IsKnockout,
+            HomeSubmission = dto.HomeSubmission != null ? await Adapt(dto.HomeSubmission, token) : null,
+            AwaySubmission = dto.AwaySubmission != null ? await Adapt(dto.AwaySubmission, token) : null,
         }.AddAuditProperties(dto);
     }
 }

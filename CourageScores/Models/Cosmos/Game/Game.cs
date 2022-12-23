@@ -55,6 +55,16 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public bool IsKnockout { get; set; }
 
+    /// <summary>
+    /// The scores as reported by the home team
+    /// </summary>
+    public Game? HomeSubmission { get; set; }
+
+    /// <summary>
+    /// The scores as reported by the away team
+    /// </summary>
+    public Game? AwaySubmission { get; set; }
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;

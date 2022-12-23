@@ -53,4 +53,14 @@ public class GameDto : AuditedDto
     /// Is this a knockout game?
     /// </summary>
     public bool IsKnockout { get; set; }
+
+    /// <summary>
+    /// The scores as reported by the home team
+    /// </summary>
+    public GameDto? HomeSubmission { get; set; }
+
+    /// <summary>
+    /// The scores as reported by the away team
+    /// </summary>
+    public GameDto? AwaySubmission { get; set; }
 }
