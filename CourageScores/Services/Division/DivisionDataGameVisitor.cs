@@ -1,5 +1,6 @@
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Division;
 
@@ -14,8 +15,10 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGame(Game game)
     {
-        var visitor = new PlayerAndGameLookupVisitor(game, _divisionData);
-        game.Accept(visitor);
+        var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
+        var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData);
+        game.Accept(playerGamesVisitor);
+        game.Accept(playerTeamVisitor);
     }
 
     public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
@@ -198,6 +201,42 @@ public class DivisionDataGameVisitor : IGameVisitor
             }
 
             gameLookup.TryAdd(_game.Date, _game.Id);
+        }
+    }
+
+    private class PlayerTeamLookupVisitor : IGameVisitor
+    {
+        private readonly TeamDto _home;
+        private readonly TeamDto _away;
+        private readonly DivisionData _divisionData;
+
+        public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData)
+        {
+            _home = new TeamDto { Id = home.Id, Name = home.Name };
+            _away = new TeamDto { Id = away.Id, Name = away.Name };
+            _divisionData = divisionData;
+        }
+
+        public void VisitMatch(GameMatch match)
+        {
+            ProcessPlayers(match.HomePlayers, _home);
+            ProcessPlayers(match.AwayPlayers, _away);
+        }
+
+        private void ProcessPlayers(IEnumerable<GamePlayer> players, TeamDto team)
+        {
+            foreach (var player in players)
+            {
+                _divisionData.PlayerIdToTeamLookup.TryAdd(
+                    player.Id,
+                    new DivisionData.TeamPlayerTuple(
+                        new TeamPlayerDto
+                        {
+                            Name = player.Name,
+                            Id = player.Id,
+                        },
+                        team));
+            }
         }
     }
 }

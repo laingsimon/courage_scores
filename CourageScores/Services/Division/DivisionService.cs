@@ -72,13 +72,6 @@ public class DivisionService : IDivisionService
             };
         }
 
-        var playerIdToTeamLookup = (from team in teams
-            from teamSeason in team.Seasons
-            where teamSeason.SeasonId == season.Id
-            from player in teamSeason.Players
-            select new TeamPlayerTuple(player, team))
-            .ToDictionary(t => t.Player.Id);
-
         var games = await _gameRepository
             .GetSome($"t.DivisionId = '{divisionId}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
@@ -112,7 +105,7 @@ public class DivisionService : IDivisionService
             AllTeams = allTeams.Select(AdaptToDivisionTeamDetailsDto).ToList(),
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context, userContext).OrderByAsync(d => d.Date).ToList(),
-            Players = GetPlayers(divisionData, playerIdToTeamLookup).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
+            Players = GetPlayers(divisionData).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
             Season = new DivisionDataSeasonDto
             {
                 Id = season.Id,
@@ -214,13 +207,13 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static IEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData, IReadOnlyDictionary<Guid, TeamPlayerTuple> playerIdToTeamLookup)
+    private static IEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData)
     {
         foreach (var (id, score) in divisionData.Players)
         {
-            if (!playerIdToTeamLookup.TryGetValue(id, out var playerTuple))
+            if (!divisionData.PlayerIdToTeamLookup.TryGetValue(id, out var playerTuple))
             {
-                playerTuple = new TeamPlayerTuple(
+                playerTuple = new DivisionData.TeamPlayerTuple(
                     new TeamPlayerDto { Name = score.Player?.Name ?? "Not found" },
                     new TeamDto { Name = "Not found" });
             }
@@ -409,18 +402,6 @@ public class DivisionService : IDivisionService
     private static int CalculatePoints(DivisionData.Score score)
     {
         return (score.Win * 3) + (score.Draw * 1);
-    }
-
-    private class TeamPlayerTuple
-    {
-        public TeamPlayerDto Player { get; }
-        public TeamDto Team { get; }
-
-        public TeamPlayerTuple(TeamPlayerDto player, TeamDto team)
-        {
-            Player = player;
-            Team = team;
-        }
     }
 
     private class DivisionDataContext
