@@ -42,7 +42,7 @@ public class GameDto : AuditedDto
     /// <summary>
     /// The matches that were played
     /// </summary>
-    public List<GameMatchDto> Matches { get; set; } = null!;
+    public List<GameMatchDto> Matches { get; set; } = new();
 
     /// <summary>
     /// Whether the game has been postponed
