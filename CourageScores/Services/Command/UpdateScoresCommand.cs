@@ -71,6 +71,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             UpdateResults(game, user);
         } else if (user.Access?.InputResults == true)
         {
+            if (game.Matches.Any())
+            {
+                return new CommandOutcome<GameDto>(false, "Submissions cannot be accepted, scores have been published", null);
+            }
+
             var gameSubmission = user.TeamId == game.Home.Id
                 ? game.HomeSubmission ??= new Models.Cosmos.Game.Game()
                 : game.AwaySubmission ??= new Models.Cosmos.Game.Game();
