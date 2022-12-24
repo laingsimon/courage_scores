@@ -59,13 +59,13 @@ public class GameService : IGameService
             return game;
         }
 
-        if (user?.TeamId == game.Home.Id)
+        if (user?.TeamId == game.Home.Id && user.Access?.InputResults == true)
         {
             // return the submissions details, with the key game details
             return MergeDetails(game, game.HomeSubmission);
         }
 
-        if (user?.TeamId == game.Away.Id)
+        if (user?.TeamId == game.Away.Id && user.Access?.InputResults == true)
         {
             // return the submissions details, with the key game details
             return MergeDetails(game, game.AwaySubmission);
