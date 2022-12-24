@@ -120,7 +120,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
     private void UpdateResults(Models.Cosmos.Game.Game game, UserDto user)
     {
+#pragma warning disable CS8602
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
+#pragma warning restore CS8602
         {
             var updatedMatch = _scores.Matches.ElementAtOrDefault(index);
             var currentMatch = game.Matches.ElementAtOrDefault(index);
