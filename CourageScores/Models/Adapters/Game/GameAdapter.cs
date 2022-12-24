@@ -33,6 +33,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             IsKnockout = model.IsKnockout,
             HomeSubmission = model.HomeSubmission != null ? await Adapt(model.HomeSubmission, token) : null,
             AwaySubmission = model.AwaySubmission != null ? await Adapt(model.AwaySubmission, token) : null,
+            ResultsPublished = model.Matches.Any(),
         }.AddAuditProperties(model);
     }
 

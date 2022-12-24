@@ -53,7 +53,7 @@ public class GameService : IGameService
             game.AwaySubmission = null;
         }
 
-        if (game.Matches.Any())
+        if (game.ResultsPublished)
         {
             // scores have been published, return the published scores
             return game;

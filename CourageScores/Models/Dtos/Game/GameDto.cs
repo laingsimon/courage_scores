@@ -63,4 +63,9 @@ public class GameDto : AuditedDto
     /// The scores as reported by the away team
     /// </summary>
     public GameDto? AwaySubmission { get; set; }
+
+    /// <summary>
+    /// Have the results been published? If so no submissions are permitted.
+    /// </summary>
+    public bool ResultsPublished { get; set; }
 }
