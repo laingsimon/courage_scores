@@ -367,7 +367,7 @@ export function Score({account, apis, divisions}) {
                     awayPlayers={awayTeam}
                     match={fixtureData.matches[0]}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={5}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
                     otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
@@ -383,7 +383,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={5}
                     match={fixtureData.matches[1]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
@@ -400,7 +400,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={5}
                     match={fixtureData.matches[2]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
@@ -417,7 +417,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={5}
                     match={fixtureData.matches[3]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
@@ -434,7 +434,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={5}
                     match={fixtureData.matches[4]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
@@ -454,7 +454,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={3}
                     match={fixtureData.matches[5]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
@@ -471,7 +471,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={3}
                     match={fixtureData.matches[6]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
@@ -491,7 +491,7 @@ export function Score({account, apis, divisions}) {
                     homePlayers={homeTeam}
                     awayPlayers={awayTeam}
                     disabled={access === 'readonly'}
-                    readOnly={saving}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     numberOfLegs={3}
                     match={fixtureData.matches[7]}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)}
@@ -502,7 +502,7 @@ export function Score({account, apis, divisions}) {
                     gameId={fixtureData.id}
                     divisionId={fixtureData.divisionId}
                     account={account}  />
-                {access !== 'readonly' ? (<tr>
+                {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
                         {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
@@ -528,7 +528,7 @@ export function Score({account, apis, divisions}) {
                         180s<br/>
                         <MultiPlayerSelection
                             disabled={access === 'readonly'}
-                            readOnly={saving}
+                            readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                             allPlayers={allPlayers}
                             players={fixtureData.matches[0].oneEighties || []}
                             onRemovePlayer={removeOneEightyScore}
@@ -541,7 +541,7 @@ export function Score({account, apis, divisions}) {
                         100+ c/o<br/>
                         <MultiPlayerSelection
                             disabled={access === 'readonly'}
-                            readOnly={saving}
+                            readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                             allPlayers={allPlayers}
                             players={fixtureData.matches[0].over100Checkouts || []}
                             onRemovePlayer={removeHiCheck}
@@ -553,7 +553,7 @@ export function Score({account, apis, divisions}) {
                 </tr>
                 </tbody>
             </table>
-            {access !== 'readonly' ? (<button className="btn btn-primary" onClick={saveScores}>
+            {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<button className="btn btn-primary" onClick={saveScores}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                  aria-hidden="true"></span>) : null}
                 Save
