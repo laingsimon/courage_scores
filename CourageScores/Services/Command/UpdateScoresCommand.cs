@@ -75,7 +75,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                 ? game.HomeSubmission ??= new Models.Cosmos.Game.Game()
                 : game.AwaySubmission ??= new Models.Cosmos.Game.Game();
 
-            UpdateResults(gameSubmission, user);
+            UpdateResults(MergeDetails(game, gameSubmission), user);
 
             // TODO: #116: If both home/away submissions are the same then record the details in the main game
         }
@@ -116,6 +116,20 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
+    }
+
+    private Models.Cosmos.Game.Game MergeDetails(Models.Cosmos.Game.Game game, Models.Cosmos.Game.Game submission)
+    {
+        submission.Id = game.Id;
+        submission.Away = game.Away;
+        submission.Home = game.Home;
+        submission.Address = game.Address;
+        submission.Date = game.Date;
+        submission.Postponed = game.Postponed;
+        submission.DivisionId = game.DivisionId;
+        submission.IsKnockout = game.IsKnockout;
+        submission.SeasonId = game.SeasonId;
+        return submission;
     }
 
     private void UpdateResults(Models.Cosmos.Game.Game game, UserDto user)
