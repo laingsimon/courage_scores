@@ -69,58 +69,88 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         {
             // edit the root game record
             UpdateResults(game, user);
-        } else if (user.Access?.InputResults == true)
+        }
+        else if (user.Access?.InputResults == true)
         {
-            if (game.Matches.Any())
+            var result = UpdateSubmission(game, user);
+            if (!result.Success)
             {
-                return new CommandOutcome<GameDto>(false, "Submissions cannot be accepted, scores have been published", null);
+                return result;
             }
-
-            var gameSubmission = user.TeamId == game.Home.Id
-                ? game.HomeSubmission ??= new Models.Cosmos.Game.Game()
-                : game.AwaySubmission ??= new Models.Cosmos.Game.Game();
-
-            UpdateResults(MergeDetails(game, gameSubmission), user);
-
-            // TODO: #116: If both home/away submissions are the same then record the details in the main game
         }
 
         if (user.Access?.ManageGames == true)
         {
-            game.Address = _scores.Address ?? game.Address;
-            game.Postponed = _scores.Postponed ?? game.Postponed;
-
-            var dateChanged = _scores.Date != game.Date;
-            game.Date = _scores.Date ?? game.Date;
-
-            if (dateChanged)
+            var result = await UpdateGameDetails(game, token);
+            if (!result.Success)
             {
-                var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
-                if (newSeasonId != null && (newSeasonId != game.SeasonId || dateChanged))
-                {
-                    var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
-                    command.ForSeason(newSeasonId.Value);
-                    command.CopyPlayersFromSeasonId(game.SeasonId);
-
-                    game.SeasonId = newSeasonId.Value;
-
-                    // register both teams with this season.
-                    var homeResult = await AddSeasonToTeam(game.Home.Id, command, token);
-                    var awayResult = await AddSeasonToTeam(game.Away.Id, command, token);
-
-                    var success = homeResult.Success && awayResult.Success;
-                    if (!success)
-                    {
-                        return new CommandOutcome<GameDto>(
-                            false,
-                            $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
-                            await _gameAdapter.Adapt(game, token));
-                    }
-                }
+                return result;
             }
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
+    }
+
+    private async Task<CommandOutcome<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
+    {
+        game.Address = _scores!.Address ?? game.Address;
+        game.Postponed = _scores.Postponed ?? game.Postponed;
+
+        var dateChanged = _scores.Date != game.Date;
+        game.Date = _scores.Date ?? game.Date;
+
+        if (dateChanged)
+        {
+            var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
+            if (newSeasonId != null && (newSeasonId != game.SeasonId || dateChanged))
+            {
+                var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
+                command.ForSeason(newSeasonId.Value);
+                command.CopyPlayersFromSeasonId(game.SeasonId);
+
+                game.SeasonId = newSeasonId.Value;
+
+                // register both teams with this season.
+                var homeResult = await AddSeasonToTeam(game.Home.Id, command, token);
+                var awayResult = await AddSeasonToTeam(game.Away.Id, command, token);
+
+                var success = homeResult.Success && awayResult.Success;
+                if (!success)
+                {
+                    return new CommandOutcome<GameDto>(
+                        false,
+                        $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
+                        await _gameAdapter.Adapt(game, token));
+                }
+            }
+        }
+
+        return new CommandOutcome<GameDto>(true, "Game details updated", null);
+    }
+
+    private CommandOutcome<GameDto> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user)
+    {
+        if (game.Matches.Any())
+        {
+            return new CommandOutcome<GameDto>(false, "Submissions cannot be accepted, scores have been published", null);
+        }
+
+        if (user.TeamId == game.Home.Id)
+        {
+            UpdateResults(MergeDetails(game, game.HomeSubmission ??= new Models.Cosmos.Game.Game()), user);
+        }
+        else if (user.TeamId == game.Away.Id)
+        {
+            UpdateResults(MergeDetails(game, game.AwaySubmission ??= new Models.Cosmos.Game.Game()), user);
+        }
+        else
+        {
+            return new CommandOutcome<GameDto>(false, "User is not permitted to submit results for home or away teams", null);
+        }
+
+        // TODO: #116: If both home/away submissions are the same then record the details in the main game
+
+        return new CommandOutcome<GameDto>(true, "Submission updated", null);
     }
 
     private Models.Cosmos.Game.Game MergeDetails(Models.Cosmos.Game.Game game, Models.Cosmos.Game.Game submission)
