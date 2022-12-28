@@ -18,6 +18,7 @@ import {Loading} from "../../common/Loading";
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState('init');
+    const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
     const [homeTeam, setHomeTeam] = useState([]);
     const [awayTeam, setAwayTeam] = useState([]);
@@ -29,6 +30,7 @@ export function Score({account, apis, divisions}) {
     const [division, setDivision] = useState(null);
     const [seasons, setSeasons] = useState(null);
     const [access, setAccess] = useState(null);
+    const [submission, setSubmission] = useState(null);
 
     useEffect(() => {
         if (account && account.access) {
@@ -140,6 +142,7 @@ export function Score({account, apis, divisions}) {
 
             setAllPlayers(allPlayers);
             setFixtureData(gameData);
+            setData(gameData);
 
             const seasonsResponse = await seasonApi.getAll();
             const season = seasonsResponse.filter(s => s.id === gameData.seasonId)[0];
@@ -162,7 +165,7 @@ export function Score({account, apis, divisions}) {
         if (division) {
             setDivision(division);
         }
-    }, [ divisions, fixtureData ]);
+    }, [ divisions, fixtureData, data ]);
 
     function onMatchChanged(newMatch, index) {
         const newFixtureData = Object.assign({}, fixtureData);
@@ -259,13 +262,24 @@ export function Score({account, apis, divisions}) {
             return;
         }
 
-        const newFixtureData = Object.assign({}, fixtureData);
+        const newData = Object.assign({}, data);
         if (event.target.type === 'checkbox') {
-            newFixtureData[event.target.name] = event.target.checked;
+            newData[event.target.name] = event.target.checked;
         } else {
-            newFixtureData[event.target.name] = event.target.value;
+            newData[event.target.name] = event.target.value;
         }
-        setFixtureData(newFixtureData);
+        setData(newData);
+    }
+
+    function toggleSubmission(submissionToShow) {
+        if (submissionToShow === submission) {
+            setSubmission(null);
+            setFixtureData(data);
+            return;
+        }
+
+        setSubmission(submissionToShow);
+        setFixtureData(data[submissionToShow + 'Submission']);
     }
 
     if (loading !== 'ready') {
@@ -310,11 +324,11 @@ export function Score({account, apis, divisions}) {
         {fixtureData ? (<ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className="text-light"
-                         to={`/division/${fixtureData.divisionId}/teams`}>Teams</NavLink>
+                         to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className="text-light"
-                         to={`/division/${fixtureData.divisionId}/fixtures`}>Fixtures</NavLink>
+                         to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className="text-dark active"
@@ -322,7 +336,7 @@ export function Score({account, apis, divisions}) {
             </NavItem>
             <NavItem>
                 <NavLink tag={Link} className="text-light"
-                         to={`/division/${fixtureData.divisionId}/players`}>Players</NavLink>
+                         to={`/division/${data.divisionId}/players`}>Players</NavLink>
             </NavItem>
         </ul>) : null}
         <div className="light-background p-3 overflow-auto">
@@ -330,178 +344,116 @@ export function Score({account, apis, divisions}) {
                 <tbody>
                 <tr>
                     <td colSpan="2" className={`text-end fw-bold ${winner === 'home' ? 'bg-winner' : null}`}>
-                        <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.home.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.home.name}</Link>
+                        <Link to={`/division/${data.divisionId}/team:${data.home.id}/${data.seasonId}`} className="margin-right">{data.home.name}</Link>
+                        {data.homeSubmission && (access === 'admin' || (account && data.home && account.teamId === data.home.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('home')} className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
                     </td>
                     <td className="text-center">vs</td>
                     <td colSpan="2" className={`text-start fw-bold ${winner === 'away' ? 'bg-winner' : null}`}>
-                        <Link to={`/division/${fixtureData.divisionId}/team:${fixtureData.away.id}/${fixtureData.seasonId}`} className="margin-right">{fixtureData.away.name}</Link>
+                        <Link to={`/division/${data.divisionId}/team:${data.away.id}/${data.seasonId}`} className="margin-right">{data.away.name}</Link>
+                        {data.awaySubmission && (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('away')} className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
                     </td>
                 </tr>
                 {fixtureData.address || access === 'admin' ? (<tr>
                     {access === 'admin'
                         ? (<td colSpan="5">
                             <div className="input-group mb-3">
-                                    <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={fixtureData.date.substring(0, 10)} onChange={changeFixtureProperty} />
-                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
+                                    <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={data.date.substring(0, 10)} onChange={changeFixtureProperty} />
+                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={data.address} onChange={changeFixtureProperty} />
                                     <div className="form-check form-switch margin-right">
-                                       <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
+                                       <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={data.postponed} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="postponed">Postponed</label>
                                     </div>
                                     <div className="form-check form-switch">
-                                       <input disabled={saving} type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={fixtureData.isKnockout} onChange={changeFixtureProperty} />
+                                       <input disabled={saving} type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={data.isKnockout} onChange={changeFixtureProperty} />
                                        <label className="form-check-label" htmlFor="knockout">Knockout</label>
                                     </div>
                                </div>
                            </td>)
                         : (<td colSpan="5">
-                            {fixtureData.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
-                            {fixtureData.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
+                            {data.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
+                            {data.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
                             </td>)}
                 </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
                 </tr>
                 <MatchPlayerSelection
-                    playerCount={1}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    match={fixtureData.matches[0]}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={5}
+                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    match={fixtureData.matches[0]} account={account}
+                    disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
                     otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
                     onPlayerChanged={loadFixtureData}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
-                    playerCount={1}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={5}
-                    match={fixtureData.matches[1]}
+                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[1]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
                     onPlayerChanged={loadFixtureData}
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
-                    playerCount={1}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={5}
-                    match={fixtureData.matches[2]}
+                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[2]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
                     onPlayerChanged={loadFixtureData}
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
-                    playerCount={1}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={5}
-                    match={fixtureData.matches[3]}
+                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[3]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
                     onPlayerChanged={loadFixtureData}
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account} />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
-                    playerCount={1}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={5}
-                    match={fixtureData.matches[4]}
+                    playerCount={1} numberOfLegs={5} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[4]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
                     onPlayerChanged={loadFixtureData}
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
+                    home={fixtureData.home} away={fixtureData.away} />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
                 </tr>
                 <MatchPlayerSelection
-                    playerCount={2}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={3}
-                    match={fixtureData.matches[5]}
+                    playerCount={2} numberOfLegs={3} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[5]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
                     onPlayerChanged={loadFixtureData}
                     otherMatches={[fixtureData.matches[6]]}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 <MatchPlayerSelection
-                    playerCount={2}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={3}
-                    match={fixtureData.matches[6]}
+                    playerCount={2} numberOfLegs={3} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[6]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
                     onPlayerChanged={loadFixtureData}
                     otherMatches={[fixtureData.matches[5]]}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
                 </tr>
                 <MatchPlayerSelection
-                    playerCount={3}
-                    homePlayers={homeTeam}
-                    awayPlayers={awayTeam}
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    numberOfLegs={3}
-                    match={fixtureData.matches[7]}
+                    playerCount={3} numberOfLegs={3} homePlayers={homeTeam} awayPlayers={awayTeam}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
+                    match={fixtureData.matches[7]} account={account}
                     onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)}
                     onPlayerChanged={loadFixtureData}
-                    seasonId={fixtureData.seasonId}
-                    home={fixtureData.home}
-                    away={fixtureData.away}
-                    gameId={fixtureData.id}
-                    divisionId={fixtureData.divisionId}
-                    account={account}  />
+                    home={fixtureData.home} away={fixtureData.away}
+                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
                 {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
