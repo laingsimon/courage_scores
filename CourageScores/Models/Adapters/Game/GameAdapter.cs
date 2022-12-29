@@ -19,6 +19,12 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
 
     public async Task<GameDto> Adapt(Cosmos.Game.Game model, CancellationToken token)
     {
+        var resultsPublished = model.Matches.Any();
+        return await Adapt(model, resultsPublished, token);
+    }
+
+    private async Task<GameDto> Adapt(Cosmos.Game.Game model, bool resultsPublished, CancellationToken token)
+    {
         return new GameDto
         {
             Address = model.Address,
@@ -31,9 +37,9 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             SeasonId = model.SeasonId,
             Postponed = model.Postponed,
             IsKnockout = model.IsKnockout,
-            HomeSubmission = model.HomeSubmission != null ? await Adapt(model.HomeSubmission, token) : null,
-            AwaySubmission = model.AwaySubmission != null ? await Adapt(model.AwaySubmission, token) : null,
-            ResultsPublished = model.Matches.Any(),
+            HomeSubmission = model.HomeSubmission != null ? await Adapt(model.HomeSubmission, resultsPublished, token) : null,
+            AwaySubmission = model.AwaySubmission != null ? await Adapt(model.AwaySubmission, resultsPublished, token) : null,
+            ResultsPublished = resultsPublished,
         }.AddAuditProperties(model);
     }
 
