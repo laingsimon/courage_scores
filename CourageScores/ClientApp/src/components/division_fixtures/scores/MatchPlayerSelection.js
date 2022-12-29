@@ -230,7 +230,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     readOnly={readOnly}
                     className={readOnly ? 'border-1 border-secondary' : null}
                     type="number" max="5" min="0"
-                    value={match.homeScore === null ? '' : match.homeScore}
+                    value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td className="vertical-align-middle text-center">vs</td>
@@ -242,7 +242,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     readOnly={readOnly}
                     className={readOnly ? 'border-1 border-secondary' : null}
                     type="number" max="5" min="0"
-                    value={match.awayScore === null ? '' : match.awayScore}
+                    value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}>
