@@ -50,7 +50,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     {playerName(p)} {disabled ? '' : '🗑'}
                 </button>)}</li>);
             })}
-            {disabled ? null : (<li>
+            {disabled || readOnly ? null : (<li>
                 {showNotes ? (<input
                     disabled={disabled}
                     readOnly={readOnly}

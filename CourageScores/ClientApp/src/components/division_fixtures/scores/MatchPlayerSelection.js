@@ -191,7 +191,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     }
 
     function canEditOrDelete(teamId) {
-        if (!account || !account.access) {
+        if (!account || !account.access || readOnly) {
             return false;
         }
 
@@ -228,6 +228,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
+                    className={readOnly ? 'border-1 border-secondary' : null}
                     type="number" max="5" min="0"
                     value={match.homeScore === null ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
@@ -239,6 +240,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
+                    className={readOnly ? 'border-1 border-secondary' : null}
                     type="number" max="5" min="0"
                     value={match.awayScore === null ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
