@@ -290,6 +290,13 @@ export function Score({account, apis, divisions}) {
         setFixtureData(newFixtureData);
     }
 
+    function setManOfMatch(team, id) {
+        const newData = Object.assign({}, data);
+        newData[team].manOfTheMatch = id;
+
+        setData(newData);
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -531,7 +538,24 @@ export function Score({account, apis, divisions}) {
                             onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
                     </td>
                 </tr>) : null}
-                {!fixtureData.resultsPublished && access === 'admin' ? (<tr><td>Merge man of match</td></tr>) : null}
+                {!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission) && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))
+                    ? (<tr>
+                        {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
+                            {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
+                                ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.homeSubmission.home.manOfTheMatch)}>
+                                    Use {allPlayers.filter(p => p.id === data.homeSubmission.home.manOfTheMatch)[0].name}
+                                </button>)
+                                : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
+                        </td>)}
+                        <td></td>
+                        {data.away.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
+                            {data.awaySubmission && data.awaySubmission.away.manOfTheMatch
+                                ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.awaySubmission.away.manOfTheMatch)}>
+                                    Use {allPlayers.filter(p => p.id === data.awaySubmission.away.manOfTheMatch)[0].name}
+                                </button>)
+                                : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
+                        </td>)}
+                    </tr>) : null}
                 <tr>
                     <td colSpan="2">
                         180s<br/>
