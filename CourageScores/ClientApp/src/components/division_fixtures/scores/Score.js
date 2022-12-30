@@ -330,6 +330,30 @@ export function Score({account, apis, divisions}) {
         setFixtureData(newFixtureData);
     }
 
+    async function unpublish() {
+        if (saving) {
+            return;
+        }
+
+        try {
+            setSaving(true);
+
+            const newData = Object.assign({}, data);
+            newData.matches = [ {}, {}, {}, {}, {}, {}, {}, {} ];
+            newData.resultsPublished = false;
+            setData(newData);
+            if (submission) {
+                setFixtureData(newData[submission + 'Submission']);
+            } else {
+                setFixtureData(newData);
+            }
+
+            alert('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+        } finally {
+            setSaving(false);
+        }
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -676,11 +700,12 @@ export function Score({account, apis, divisions}) {
                     : null}
                 </tbody>
             </table>
-            {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<button className="btn btn-primary" onClick={saveScores}>
+            {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (<button className="btn btn-primary" onClick={saveScores}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                  aria-hidden="true"></span>) : null}
                 Save
             </button>) : null}
+            {access === 'admin' && data.resultsPublished ? (<button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
         </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score" />) : null}
     </div>);
