@@ -137,11 +137,15 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (user.TeamId == game.Home.Id)
         {
-            UpdateResults(MergeDetails(game, game.HomeSubmission ??= new Models.Cosmos.Game.Game()), user);
+            UpdateResults(MergeDetails(game, game.HomeSubmission ??= new Models.Cosmos.Game.Game { Author = user.Name, Created = _systemClock.UtcNow.UtcDateTime }), user);
+            game.HomeSubmission.Editor = user.Name;
+            game.HomeSubmission.Updated = _systemClock.UtcNow.UtcDateTime;
         }
         else if (user.TeamId == game.Away.Id)
         {
-            UpdateResults(MergeDetails(game, game.AwaySubmission ??= new Models.Cosmos.Game.Game()), user);
+            UpdateResults(MergeDetails(game, game.AwaySubmission ??= new Models.Cosmos.Game.Game { Author = user.Name, Created = _systemClock.UtcNow.UtcDateTime }), user);
+            game.AwaySubmission.Editor = user.Name;
+            game.AwaySubmission.Updated = _systemClock.UtcNow.UtcDateTime;
         }
         else
         {
