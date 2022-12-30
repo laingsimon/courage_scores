@@ -248,10 +248,13 @@ export function Score({account, apis, divisions}) {
             const gameApi = new GameApi(http);
 
             setSaving(true);
-            const result = await gameApi.updateScores(fixtureId, fixtureData);
+            const response = await gameApi.updateScores(fixtureId, fixtureData);
 
-            if (!result.success) {
-                setSaveError(result);
+            if (!response.success) {
+                setSaveError(response);
+            } else {
+                setData(response.result);
+                setFixtureData(response.result);
             }
         } finally {
             setSaving(false);
