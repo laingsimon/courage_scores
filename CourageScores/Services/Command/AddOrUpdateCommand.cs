@@ -34,7 +34,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             model);
     }
 
-    protected abstract Task<CommandResult> ApplyUpdates(TModel team, TDto update, CancellationToken token);
+    protected abstract Task<CommandResult> ApplyUpdates(TModel model, TDto update, CancellationToken token);
 
     public AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {
@@ -44,7 +44,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
     public class CommandResult
     {
-        public static readonly CommandResult SuccessNoMessage = new CommandResult { Success = true };
+        public static readonly CommandResult SuccessNoMessage = new() { Success = true };
 
         public bool Success { get; set; }
         public string? Message { get; set; }

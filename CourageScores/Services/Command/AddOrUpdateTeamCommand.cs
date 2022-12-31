@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
@@ -6,6 +5,7 @@ using CourageScores.Repository;
 
 namespace CourageScores.Services.Command;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
 {
     private readonly IGenericRepository<Team> _teamRepository;
@@ -35,7 +35,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 return new CommandResult
                 {
                     Success = false,
-                    Message = $"Unable to update address, {team.Name} is playing {game.Away.Name} (on {game.Date.ToString("MMM dd yyyy")}) which is registered at the updated address",
+                    Message = $"Unable to update address, {team.Name} is playing {game.Away.Name} (on {game.Date:MMM dd yyyy}) which is registered at the updated address",
                 };
             }
 
@@ -44,7 +44,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 return new CommandResult
                 {
                     Success = false,
-                    Message = $"Unable to update address, {team.Name} is playing {game.Home.Name} (on {game.Date.ToString("MMM dd yyyy")}) which is registered at the updated address",
+                    Message = $"Unable to update address, {team.Name} is playing {game.Home.Name} (on {game.Date:MMM dd yyyy}) which is registered at the updated address",
                 };
             }
 

@@ -5,7 +5,7 @@ public class CommandOutcome<T>
     public bool Success { get; }
     public string Message { get; }
     public T? Result { get; }
-    public bool Delete { get; set; }
+    public bool Delete { get; init; }
 
     public CommandOutcome(bool success, string message, T? result)
     {

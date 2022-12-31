@@ -8,18 +8,15 @@ namespace CourageScores.Services.Command;
 
 public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game, EditGameDto>
 {
-    private readonly IGenericRepository<Team> _teamRepository;
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
     private readonly IGenericDataService<Team, TeamDto> _teamService;
 
     public AddOrUpdateGameCommand(
-        IGenericRepository<Team> teamRepository,
         IGenericRepository<Models.Cosmos.Season> seasonRepository,
         ICommandFactory commandFactory,
         IGenericDataService<Team, TeamDto> teamService)
     {
-        _teamRepository = teamRepository;
         _seasonRepository = seasonRepository;
         _commandFactory = commandFactory;
         _teamService = teamService;
@@ -70,14 +67,14 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
 
     private async Task<GameTeam> UpdateTeam(Guid teamId, Models.Cosmos.Season season, CancellationToken token)
     {
-        var team = await _teamRepository.Get(teamId, token);
+        var teamDto = await _teamService.Get(teamId, token);
 
-        if (team == null)
+        if (teamDto == null)
         {
             throw new InvalidOperationException("Unable to find team with id " + teamId);
         }
 
-        if (team.Seasons.All(s => s.Id != season.Id))
+        if (teamDto.Seasons.All(s => s.SeasonId != season.Id))
         {
             // add team to season
             var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
@@ -89,22 +86,21 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             }
         }
 
-        return Adapt(team);
+        return Adapt(teamDto);
     }
 
-    private static GameTeam Adapt(Team team)
+    private static GameTeam Adapt(TeamDto teamDto)
     {
         return new GameTeam
         {
-            Author = team.Author,
-            Created = team.Created,
-            Deleted = team.Deleted,
-            Editor = team.Editor,
-            Id = team.Id,
-            Name = team.Name,
-            Remover = team.Remover,
-            Updated = team.Updated,
-            Version = team.Version,
+            Author = teamDto.Author!,
+            Created = teamDto.Created.Value,
+            Deleted = teamDto.Deleted,
+            Editor = teamDto.Editor!,
+            Id = teamDto.Id,
+            Name = teamDto.Name,
+            Remover = teamDto.Remover,
+            Updated = teamDto.Updated.Value,
             ManOfTheMatch = null // changing the team resets the man of the match
         };
     }

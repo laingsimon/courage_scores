@@ -1,39 +1,36 @@
 using CourageScores.Models.Cosmos.Team;
-using CourageScores.Models.Dtos.Season;
+using CourageScores.Services.Season;
 
 namespace CourageScores.Services.Command;
 
 public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
 {
     private readonly IAuditingHelper _auditingHelper;
-    private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _seasonService;
-    private readonly ITeamService _teamService;
+    private readonly ISeasonService _seasonService;
     private Guid? _seasonId;
     private Guid? _copyPlayersFromOtherSeasonId;
 
     public AddSeasonToTeamCommand(
         IAuditingHelper auditingHelper,
-        IGenericDataService<Models.Cosmos.Season, SeasonDto> seasonService,
-        ITeamService teamService)
+        ISeasonService seasonService)
     {
         _auditingHelper = auditingHelper;
         _seasonService = seasonService;
-        _teamService = teamService;
     }
 
-    public AddSeasonToTeamCommand ForSeason(Guid seasonId)
+    public virtual AddSeasonToTeamCommand ForSeason(Guid seasonId)
     {
         _seasonId = seasonId;
         return this;
     }
 
-    public AddSeasonToTeamCommand CopyPlayersFromSeasonId(Guid seasonId)
+    public virtual AddSeasonToTeamCommand CopyPlayersFromSeasonId(Guid seasonId)
     {
         _copyPlayersFromOtherSeasonId = seasonId;
         return this;
     }
 
-    public async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team model, CancellationToken token)
+    public virtual async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_seasonId == null)
         {
