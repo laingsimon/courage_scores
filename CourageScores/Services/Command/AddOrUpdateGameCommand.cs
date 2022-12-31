@@ -52,11 +52,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         game.Postponed = update.Postponed;
         game.IsKnockout = update.IsKnockout;
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
             game.Home = await UpdateTeam(update.HomeTeamId, latestSeason, token);
         }
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
             game.Away = await UpdateTeam(update.AwayTeamId, latestSeason, token);
@@ -94,13 +96,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         return new GameTeam
         {
             Author = teamDto.Author!,
-            Created = teamDto.Created.Value,
+            Created = teamDto.Created!.Value,
             Deleted = teamDto.Deleted,
             Editor = teamDto.Editor!,
             Id = teamDto.Id,
             Name = teamDto.Name,
             Remover = teamDto.Remover,
-            Updated = teamDto.Updated.Value,
+            Updated = teamDto.Updated!.Value,
             ManOfTheMatch = null // changing the team resets the man of the match
         };
     }

@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Repository;
 using CourageScores.Services.Division;

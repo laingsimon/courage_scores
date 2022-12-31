@@ -145,7 +145,7 @@ public class UserServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Access, Is.Null);
-        Assert.That(result!.TeamId, Is.Null);
+        Assert.That(result.TeamId, Is.Null);
     }
 
     [Test]

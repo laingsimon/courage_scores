@@ -1,6 +1,5 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;

@@ -1,6 +1,5 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
-using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Services.Season;

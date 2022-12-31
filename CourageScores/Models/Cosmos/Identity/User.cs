@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace CourageScores.Models.Cosmos.Identity;
@@ -23,7 +22,7 @@ public class User
     /// </summary>
     public Access? Access { get; set; }
 
-    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
     [System.Text.Json.Serialization.JsonIgnore]
     public Guid? TeamId { get; set; }
 }

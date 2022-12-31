@@ -1,5 +1,4 @@
-﻿using CourageScores.Models.Cosmos.Team;
-using CourageScores.Models.Dtos;
+﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
 using CourageScores.Services.Command;
