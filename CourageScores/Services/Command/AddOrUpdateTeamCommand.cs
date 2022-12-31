@@ -1,23 +1,22 @@
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Repository;
+using CourageScores.Services.Game;
 
 namespace CourageScores.Services.Command;
 
-// ReSharper disable once ClassNeverInstantiated.Global
 public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
 {
-    private readonly IGenericRepository<Team> _teamRepository;
-    private readonly IGenericDataService<Models.Cosmos.Game.Game, GameDto> _gameService;
+    private readonly ITeamService _teamService;
+    private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
 
     public AddOrUpdateTeamCommand(
-        IGenericRepository<Team> teamRepository,
-        IGenericDataService<Models.Cosmos.Game.Game, GameDto> gameService,
+        ITeamService teamService,
+        IGameService gameService,
         ICommandFactory commandFactory)
     {
-        _teamRepository = teamRepository;
+        _teamService = teamService;
         _gameService = gameService;
         _commandFactory = commandFactory;
     }
@@ -48,17 +47,11 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
                 };
             }
 
-            gamesToUpdate.Add(new EditGameDto
-            {
-                Id = game.Id,
-                Address = game.Address,
-                AwayTeamId = game.Away.Id,
-                HomeTeamId = game.Home.Id,
-                Date = game.Date,
-                DivisionId = game.DivisionId,
-                Postponed = game.Postponed,
-                IsKnockout = game.IsKnockout,
-            });
+            var editGame = EditGameDto.From(game);
+            editGame.Address = update.Address;
+            editGame.DivisionId = update.DivisionId;
+
+            gamesToUpdate.Add(editGame);
         }
 
         foreach (var gameUpdate in gamesToUpdate)
@@ -70,18 +63,12 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
         team.Name = update.Name;
         team.Address = update.Address;
         team.DivisionId = update.DivisionId;
-
         return CommandResult.SuccessNoMessage;
     }
 
     private async Task<bool> TeamAddressesMatch(Guid id, string address, CancellationToken token)
     {
-        var team = await _teamRepository.Get(id, token);
-        if (team == null)
-        {
-            return false;
-        }
-
-        return team.Address.Equals(address, StringComparison.OrdinalIgnoreCase);
+        var team = await _teamService.Get(id, token);
+        return team?.Address.Equals(address, StringComparison.OrdinalIgnoreCase) == true;
     }
 }

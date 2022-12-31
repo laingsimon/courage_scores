@@ -1,5 +1,4 @@
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
@@ -10,12 +9,12 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
 {
     private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
     private readonly ICommandFactory _commandFactory;
-    private readonly IGenericDataService<Team, TeamDto> _teamService;
+    private readonly ITeamService _teamService;
 
     public AddOrUpdateGameCommand(
         IGenericRepository<Models.Cosmos.Season> seasonRepository,
         ICommandFactory commandFactory,
-        IGenericDataService<Team, TeamDto> teamService)
+        ITeamService teamService)
     {
         _seasonRepository = seasonRepository;
         _commandFactory = commandFactory;

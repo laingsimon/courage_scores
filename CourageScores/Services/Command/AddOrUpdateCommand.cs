@@ -36,7 +36,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
     protected abstract Task<CommandResult> ApplyUpdates(TModel model, TDto update, CancellationToken token);
 
-    public AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
+    public virtual AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {
         _update = update;
         return this;
