@@ -95,46 +95,55 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, $"Player does not have a player with this id for the {season.Name} season", null);
         }
 
-        var updatedGames = await UpdateGames(_playerId.Value, _player, token).ToList();
+        var updatedGames = await UpdateGames(token).CountAsync();
 
         player.Name = _player.Name;
         player.Captain = _player.Captain;
         player.Updated = _clock.UtcNow.UtcDateTime;
         player.Editor = user.Name;
         player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
-        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season, {updatedGames.Count} game/s updated", player);
+        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated", player);
     }
 
-    private async IAsyncEnumerable<Models.Cosmos.Game.Game> UpdateGames(Guid playerId, EditTeamPlayerDto player, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<Models.Cosmos.Game.Game> UpdateGames([EnumeratorCancellation] CancellationToken token)
     {
-        var games = player.GameId.HasValue
-            ? _gameRepository.GetSome($"t.id = '{player.GameId.Value}'", token)
+        var games = _player!.GameId.HasValue
+            ? _gameRepository.GetSome($"t.id = '{_player!.GameId!.Value}' and t.seasonId = '{_seasonId}'", token)
             : _gameRepository.GetSome($"t.seasonId = '{_seasonId}'", token);
 
         await foreach (var game in games.WithCancellation(token))
         {
-            var updated = false;
-
-            foreach (var match in game.Matches)
+            if (await UpdatePlayerDetailsInGame(game, token))
             {
-                foreach (var p in match.AwayPlayers.Where(p => p.Id == playerId))
-                {
-                    p.Name = player.Name;
-                    updated = true;
-                }
-
-                foreach (var p in match.HomePlayers.Where(p => p.Id == playerId))
-                {
-                    p.Name = player.Name;
-                    updated = true;
-                }
-            }
-
-            if (updated)
-            {
-                await _gameRepository.Upsert(game, token);
                 yield return game;
             }
         }
+    }
+
+    private async Task<bool> UpdatePlayerDetailsInGame(Models.Cosmos.Game.Game game, CancellationToken token)
+    {
+        var updated = false;
+
+        foreach (var match in game.Matches)
+        {
+            foreach (var p in match.AwayPlayers.Where(p => p.Id == _playerId))
+            {
+                p.Name = _player!.Name;
+                updated = true;
+            }
+
+            foreach (var p in match.HomePlayers.Where(p => p.Id == _playerId))
+            {
+                p.Name = _player!.Name;
+                updated = true;
+            }
+        }
+
+        if (updated)
+        {
+            await _gameRepository.Upsert(game, token);
+        }
+
+        return updated;
     }
 }
