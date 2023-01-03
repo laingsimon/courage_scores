@@ -57,57 +57,79 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         foreach (var side in game.Sides)
         {
-            if (side.Id == default)
-            {
-                side.Id = Guid.NewGuid();
-            }
-            await _auditingHelper.SetUpdated(side, token);
-
-            await SetIds(side.Players, token);
+            await SetSideUpdated(side, token);
         }
-        await SetIds(game.Round, game.Sides, token);
+
+        await SetUpdated(game.Round, game.Sides, token);
 
         return CommandResult.SuccessNoMessage;
     }
 
-    private async Task SetIds(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
+    private async Task SetUpdated(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
     {
         if (round == null)
         {
             return;
         }
 
+        foreach (var side in round.Sides.Where(s => s.Id == default))
+        {
+            await SetSideUpdatedAndLinkToRootSide(side, sides, token);
+        }
+
+        await SetRoundUpdated(round, token);
+
+        await SetUpdated(round.NextRound, sides, token);
+    }
+
+    private async Task SetSideUpdated(TournamentSide side, CancellationToken token)
+    {
+        if (side.Id == default)
+        {
+            side.Id = Guid.NewGuid();
+        }
+        await _auditingHelper.SetUpdated(side, token);
+
+        await SetPlayersUpdated(side.Players, token);
+    }
+
+    private async Task SetSideUpdatedAndLinkToRootSide(TournamentSide side, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
+    {
+        var sideOrderedPlayers = side.Players.OrderBy(p => p.Id).Select(p => p.Id).ToArray();
+        var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).Select(p => p.Id).SequenceEqual(sideOrderedPlayers));
+        if (equivalentSide != null)
+        {
+            side.Id = equivalentSide.Id;
+        }
+        await _auditingHelper.SetUpdated(side, token);
+
+        await SetPlayersUpdated(side.Players, token);
+    }
+
+    private async Task SetRoundUpdated(TournamentRound round, CancellationToken token)
+    {
         if (round.Id == default)
         {
             round.Id = Guid.NewGuid();
         }
         await _auditingHelper.SetUpdated(round, token);
 
-        foreach (var side in round.Sides.Where(s => s.Id == default))
-        {
-            var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).SequenceEqual(side.Players.OrderBy(p => p.Id)));
-            if (equivalentSide != null)
-            {
-                side.Id = equivalentSide.Id;
-            }
-            await _auditingHelper.SetUpdated(side, token);
-
-            await SetIds(side.Players, token);
-        }
-
         foreach (var match in round.Matches)
         {
-            if (match.Id == default)
-            {
-                match.Id = Guid.NewGuid();
-            }
-            await _auditingHelper.SetUpdated(match, token);
+            await SetMatchUpdated(match, token);
         }
-
-        await SetIds(round.NextRound, sides, token);
     }
 
-    private async Task SetIds(List<GamePlayer> players, CancellationToken token)
+    private async Task SetMatchUpdated(TournamentMatch match, CancellationToken token)
+    {
+        if (match.Id == default)
+        {
+            match.Id = Guid.NewGuid();
+        }
+        await _auditingHelper.SetUpdated(match, token);
+    }
+
+    private async Task SetPlayersUpdated(List<GamePlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {
