@@ -51,10 +51,11 @@ public class DivisionService : IDivisionService
 
         var allTeams = await _genericTeamService.GetAll(token).ToList();
         var teams = allTeams.Where(t => t.DivisionId == divisionId).ToList();
-        var allSeasons = await _genericSeasonService.GetAll(token).WhereAsync(m => m.Deleted == null)
+        var allSeasons = await _genericSeasonService
+            .GetAll(token)
             .OrderByDescendingAsync(s => s.EndDate).ToList();
         var season = seasonId == null
-            ? allSeasons.FirstOrDefault()
+            ? allSeasons.MaxBy(s => s.EndDate)
             : await _genericSeasonService.Get(seasonId.Value, token);
 
         if (season == null)
