@@ -1,11 +1,12 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Division;
+using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Season;
@@ -13,24 +14,24 @@ namespace CourageScores.Services.Season;
 public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>, ISeasonService
 {
     private readonly IUserService _userService;
-    private readonly IGenericRepository<Team> _teamRepository;
+    private readonly ITeamService _teamService;
     private readonly IDivisionService _divisionService;
-    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly IGameService _gameService;
 
     public SeasonService(
         IGenericRepository<Models.Cosmos.Season> repository,
         IAdapter<Models.Cosmos.Season, SeasonDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper,
-        IGenericRepository<Team> teamRepository,
+        ITeamService teamService,
         IDivisionService divisionService,
-        IGenericRepository<Models.Cosmos.Game.Game> gameRepository)
+        IGameService gameService)
         : base(repository, adapter, userService, auditingHelper)
     {
         _userService = userService;
-        _teamRepository = teamRepository;
+        _teamService = teamService;
         _divisionService = divisionService;
-        _gameRepository = gameRepository;
+        _gameService = gameService;
     }
 
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
@@ -48,8 +49,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             return this.Error("Season could not be found");
         }
 
-        var allTeams = await _teamRepository
-            .GetSome($"t.DivisionId = '{request.DivisionId}'", token)
+        var allTeams = await _teamService
+            .GetWhere($"t.DivisionId = '{request.DivisionId}'", token)
             .ToList();
 
         try
@@ -86,7 +87,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         return (await GetAll(token).ToList()).MaxBy(s => s.EndDate);
     }
 
-    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
+    private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<TeamDto> allTeams)
     {
         var teamIds = new HashSet<Guid>();
 
@@ -122,7 +123,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private async IAsyncEnumerable<DivisionFixtureDateDto> ProposeGamesInt(
         AutoProvisionGamesRequest request,
         SeasonDto season,
-        List<Team> allTeams,
+        List<TeamDto> allTeams,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
         [EnumeratorCancellation] CancellationToken token)
     {
@@ -184,8 +185,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     {
         try
         {
-            var games = await _gameRepository
-                .GetSome($"t.Date = '{currentDate:yyyy-MM-dd}T00:00:00'", token)
+            var games = await _gameService
+                .GetWhere($"t.Date = '{currentDate:yyyy-MM-dd}T00:00:00'", token)
                 .WhereAsync(game => !string.IsNullOrEmpty(game.Address))
                 .ToList();
 
@@ -257,7 +258,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
     private static List<Proposal> GetProposals(
         AutoProvisionGamesRequest request,
-        IReadOnlyCollection<Team> teamsToPropose,
+        IReadOnlyCollection<TeamDto> teamsToPropose,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
         IReadOnlyCollection<DivisionFixtureDateDto> existingDate)
     {
@@ -290,7 +291,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     return true;
                 }
 
-                string GetMessage(Team home, Team away)
+                string GetMessage(TeamDto home, TeamDto away)
                 {
                     return $"{home.Name} cannot ever play against {away.Name} as they have the same venue - {home.Address}";
                 }

@@ -3,6 +3,7 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
@@ -10,17 +11,17 @@ namespace CourageScores.Services.Command;
 public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
 {
     private readonly IUserService _userService;
-    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
+    private readonly ISeasonService _seasonService;
     private readonly ISystemClock _clock;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private Guid? _playerId;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
 
-    public UpdatePlayerCommand(IUserService userService, IGenericRepository<Models.Cosmos.Season> seasonRepository, ISystemClock clock, IGenericRepository<Models.Cosmos.Game.Game> gameRepository)
+    public UpdatePlayerCommand(IUserService userService, ISeasonService seasonService, ISystemClock clock, IGenericRepository<Models.Cosmos.Game.Game> gameRepository)
     {
         _userService = userService;
-        _seasonRepository = seasonRepository;
+        _seasonService = seasonService;
         _clock = clock;
         _gameRepository = gameRepository;
     }
@@ -76,7 +77,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not permitted", null);
         }
 
-        var season = await _seasonRepository.Get(_seasonId.Value, token);
+        var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
             return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
