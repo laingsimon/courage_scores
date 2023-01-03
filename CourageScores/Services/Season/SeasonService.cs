@@ -81,6 +81,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
+    public async Task<SeasonDto?> GetLatest(CancellationToken token)
+    {
+        return (await GetAll(token).ToList()).MaxBy(s => s.EndDate);
+    }
+
     private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<Team> allTeams)
     {
         var teamIds = new HashSet<Guid>();

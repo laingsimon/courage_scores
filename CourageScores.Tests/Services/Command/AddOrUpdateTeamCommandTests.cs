@@ -1,11 +1,10 @@
-﻿using CourageScores.Models.Cosmos;
-using CourageScores.Models.Cosmos.Team;
+﻿using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
+using CourageScores.Services.Season;
 using Moq;
 using NUnit.Framework;
 
@@ -19,7 +18,7 @@ public class AddOrUpdateTeamCommandTests
     private Mock<ICommandFactory> _commandFactory = null!;
     private AddOrUpdateTeamCommand _command = null!;
     private Mock<AddOrUpdateGameCommand> _addOrUpdateGameCommand = null!;
-    private Mock<IGenericRepository<Season>> _seasonRepository = null!;
+    private Mock<ISeasonService> _seasonService = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private readonly Guid _divisionId = Guid.NewGuid();
     private readonly Guid _seasonId = Guid.NewGuid();
@@ -41,9 +40,9 @@ public class AddOrUpdateTeamCommandTests
         _gameService = new Mock<IGameService>();
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
-        _seasonRepository = new Mock<IGenericRepository<Season>>();
+        _seasonService = new Mock<ISeasonService>();
         _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object);
-        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonRepository.Object, _commandFactory.Object, _teamService.Object);
+        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object);
 
         _addOrUpdateGameCommand
             .Setup(c => c.WithData(It.IsAny<EditGameDto>()))

@@ -1,9 +1,8 @@
-﻿using CourageScores.Models.Cosmos;
-using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season;
@@ -15,17 +14,17 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateGameCommandTests
 {
-    private Mock<IGenericRepository<Season>> _seasonRepository = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
+    private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
+    private Mock<ISeasonService> _seasonService = null!;
     private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
     private readonly Game _game;
-    private readonly Season _season;
+    private readonly SeasonDto _season;
     private readonly TeamDto _homeTeam;
     private readonly TeamDto _awayTeam;
     private readonly TeamSeasonDto _teamSeason;
-    private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
 
     public AddOrUpdateGameCommandTests()
     {
@@ -33,7 +32,7 @@ public class AddOrUpdateGameCommandTests
         {
             Id = Guid.NewGuid(),
         };
-        _season = new Season
+        _season = new SeasonDto
         {
             Id = Guid.NewGuid(),
         };
@@ -48,16 +47,16 @@ public class AddOrUpdateGameCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _seasonRepository = new Mock<IGenericRepository<Season>>();
+        _seasonService = new Mock<ISeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
         _token = new CancellationToken();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, new Mock<ISeasonService>().Object);
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
 
         _command = new AddOrUpdateGameCommand(
-            _seasonRepository.Object,
+            _seasonService.Object,
             _commandFactory.Object,
             _teamService.Object);
     }
@@ -86,7 +85,7 @@ public class AddOrUpdateGameCommandTests
             HomeTeamId = _homeTeam.Id,
             AwayTeamId = _awayTeam.Id,
         };
-        _seasonRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Season>());
+        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
@@ -110,7 +109,7 @@ public class AddOrUpdateGameCommandTests
         };
         _homeTeam.Seasons.Add(_teamSeason);
         _awayTeam.Seasons.Add(_teamSeason);
-        _seasonRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Get(update.AwayTeamId, _token)).ReturnsAsync(_awayTeam);
 
@@ -137,7 +136,7 @@ public class AddOrUpdateGameCommandTests
         {
             Success = true,
         };
-        _seasonRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Get(update.AwayTeamId, _token)).ReturnsAsync(_awayTeam);
         _teamService.Setup(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(success);
@@ -167,7 +166,7 @@ public class AddOrUpdateGameCommandTests
             Warnings = { "Some warning" },
             Messages = { "Some message" },
         };
-        _seasonRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(fail);
 

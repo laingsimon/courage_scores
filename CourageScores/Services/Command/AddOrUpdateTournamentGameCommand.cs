@@ -2,15 +2,15 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Repository;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
 public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGame, EditTournamentGameDto>
 {
-    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
+    private readonly ISeasonService _seasonService;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAuditingHelper _auditingHelper;
@@ -18,14 +18,14 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly IUserService _userService;
 
     public AddOrUpdateTournamentGameCommand(
-        IGenericRepository<Models.Cosmos.Season> seasonRepository,
+        ISeasonService seasonService,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IAdapter<TournamentRound, TournamentRoundDto> tournamentRoundAdapter,
         IAuditingHelper auditingHelper,
         ISystemClock systemClock,
         IUserService userService)
     {
-        _seasonRepository = seasonRepository;
+        _seasonService = seasonService;
         _tournamentSideAdapter = tournamentSideAdapter;
         _tournamentRoundAdapter = tournamentRoundAdapter;
         _auditingHelper = auditingHelper;
@@ -35,27 +35,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
     protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
-        var allSeasons = await _seasonRepository.GetAll(token).ToList();
-        var latestSeason = allSeasons.MaxBy(s => s.EndDate);
-        var user = await _userService.GetUser(token);
-
-        if (user == null)
-        {
-            return new CommandResult
-            {
-                Success = false,
-                Message = "Tournament game cannot be updated, not logged in",
-            };
-        }
-
-        if (user.Access?.ManageScores != true)
-        {
-            return new CommandResult
-            {
-                Success = false,
-                Message = "Tournament game cannot be updated, not permitted",
-            };
-        }
+        var latestSeason = await _seasonService.GetLatest(token);
+        var user = (await _userService.GetUser(token))!;
 
         if (latestSeason == null)
         {
