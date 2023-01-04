@@ -31,6 +31,11 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
             throw new InvalidOperationException($"Data hasn't been set, ensure {nameof(WithData)} is called");
         }
 
+        if (model.Deleted != null)
+        {
+            return new CommandOutcome<TournamentGame>(false, "Cannot modify a deleted tournament game", null);
+        }
+
         model.Round = await UpdateRound(model.Round, _rounds, token);
 
         return new CommandOutcome<TournamentGame>(true, "Tournament game updated", model);
