@@ -87,6 +87,10 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
         </tr>)
     }
 
+    if (!homeSubmissionMatch) {
+        return null;
+    }
+
     return (<tr>
         <td colSpan="2" className="hover-highlight">
             <strong>from {homeSubmissionMatch.author}</strong>
