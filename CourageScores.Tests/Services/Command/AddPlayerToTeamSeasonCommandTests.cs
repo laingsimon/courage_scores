@@ -31,7 +31,7 @@ public class AddPlayerToTeamSeasonCommandTests
     private EditTeamPlayerDto _player = null!;
     private Team _team = null!;
     private AddPlayerToTeamSeasonCommand _command = null!;
-    private UserDto _user = null!;
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
@@ -61,7 +61,7 @@ public class AddPlayerToTeamSeasonCommandTests
         };
         _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _clock.Object, _userService.Object);
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(_user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
@@ -76,6 +76,17 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Cannot edit a team that has been deleted"));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenNotLoggedIn_ReturnsUnsuccessful()
+    {
+        _user = null;
+
+        var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Player cannot be added, not logged in"));
     }
 
     [TestCase(false, false, null)]
