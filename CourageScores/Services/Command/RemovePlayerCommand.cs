@@ -72,7 +72,7 @@ public class RemovePlayerCommand : IUpdateCommand<Team, TeamPlayer>
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Team is not registered to the ${season.Name} season", null);
+            return new CommandOutcome<TeamPlayer>(false, $"Team is not registered to the {season.Name} season", null);
         }
 
         var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
