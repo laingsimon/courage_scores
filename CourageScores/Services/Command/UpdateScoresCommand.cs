@@ -56,7 +56,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandOutcome<GameDto>(false, $"Game cannot be updated, not logged in", null);
+            return new CommandOutcome<GameDto>(false, "Game cannot be updated, not logged in", null);
         }
 
         if (!(user.Access?.ManageScores == true || (user.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id))))

@@ -2,9 +2,9 @@
 
 public class RecordScoresDto
 {
-    public ManOfTheMatchDto? Home { get; set; }
-    public ManOfTheMatchDto? Away { get; set; }
-    public List<RecordScoresGameMatchDto> Matches { get; set; } = null!;
+    public ManOfTheMatchDto? Home { get; set; } = new();
+    public ManOfTheMatchDto? Away { get; set; } = new();
+    public List<RecordScoresGameMatchDto> Matches { get; set; } = new();
     public string? Address { get; set; }
     public bool? Postponed { get; set; }
     public DateTime? Date { get; set; }
