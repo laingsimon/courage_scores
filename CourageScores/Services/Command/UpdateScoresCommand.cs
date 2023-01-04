@@ -6,7 +6,6 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
@@ -14,7 +13,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 {
     private readonly IUserService _userService;
     private readonly IAdapter<Models.Cosmos.Game.Game, GameDto> _gameAdapter;
-    private readonly ISystemClock _systemClock;
+    private readonly IAuditingHelper _auditingHelper;
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly ITeamService _teamService;
@@ -23,14 +22,14 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     public UpdateScoresCommand(
         IUserService userService,
         IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
-        ISystemClock systemClock,
+        IAuditingHelper auditingHelper,
         ISeasonService seasonService,
         ICommandFactory commandFactory,
         ITeamService teamService)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
-        _systemClock = systemClock;
+        _auditingHelper = auditingHelper;
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _teamService = teamService;
@@ -68,11 +67,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         if (user.Access?.ManageScores == true)
         {
             // edit the root game record
-            UpdateResults(game, user);
+            await UpdateResults(game, token);
         }
         else if (user.Access?.InputResults == true)
         {
-            var result = UpdateSubmission(game, user);
+            var result = await UpdateSubmission(game, user, token);
             if (!result.Success)
             {
                 return result;
@@ -128,7 +127,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return new CommandOutcome<GameDto>(true, "Game details updated", null);
     }
 
-    private CommandOutcome<GameDto> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user)
+    private async Task<CommandOutcome<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
     {
         if (game.Matches.Any())
         {
@@ -137,15 +136,13 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (user.TeamId == game.Home.Id)
         {
-            UpdateResults(MergeDetails(game, game.HomeSubmission ??= new Models.Cosmos.Game.Game { Author = user.Name, Created = _systemClock.UtcNow.UtcDateTime }), user);
-            game.HomeSubmission.Editor = user.Name;
-            game.HomeSubmission.Updated = _systemClock.UtcNow.UtcDateTime;
+            await UpdateResults(MergeDetails(game, game.HomeSubmission ??= new Models.Cosmos.Game.Game()), token);
+            await _auditingHelper.SetUpdated(game.HomeSubmission, token);
         }
         else if (user.TeamId == game.Away.Id)
         {
-            UpdateResults(MergeDetails(game, game.AwaySubmission ??= new Models.Cosmos.Game.Game { Author = user.Name, Created = _systemClock.UtcNow.UtcDateTime }), user);
-            game.AwaySubmission.Editor = user.Name;
-            game.AwaySubmission.Updated = _systemClock.UtcNow.UtcDateTime;
+            await UpdateResults(MergeDetails(game, game.AwaySubmission ??= new Models.Cosmos.Game.Game()), token);
+            await _auditingHelper.SetUpdated(game.AwaySubmission, token);
         }
         else
         {
@@ -171,7 +168,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return submission;
     }
 
-    private void UpdateResults(Models.Cosmos.Game.Game game, UserDto user)
+    private async Task UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
     {
 #pragma warning disable CS8602
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
@@ -182,7 +179,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
             if (currentMatch == null && updatedMatch != null)
             {
-                game.Matches.Add(AdaptToMatch(updatedMatch, user));
+                game.Matches.Add(await AdaptToMatch(updatedMatch, token));
             }
             else if (updatedMatch == null && currentMatch != null)
             {
@@ -190,7 +187,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             }
             else if (currentMatch != null && updatedMatch != null)
             {
-                game.Matches[index] = UpdateMatch(currentMatch, updatedMatch, user);
+                game.Matches[index] = await UpdateMatch(currentMatch, updatedMatch, token);
             }
 
             game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
@@ -228,76 +225,69 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         }
     }
 
-    private GameMatch AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserDto user)
+    private async Task<GameMatch> AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
     {
-        return new GameMatch
+        var match = new GameMatch
         {
-            Author = user.Name,
-            Created = _systemClock.UtcNow.UtcDateTime,
-            Deleted = null,
-            Editor = user.Name,
             Id = Guid.NewGuid(),
-            Remover = null,
-            Updated = _systemClock.UtcNow.UtcDateTime,
-            AwayPlayers = updatedMatch.AwayPlayers.Select(p => AdaptToPlayer(p, user)).ToList(),
+            AwayPlayers = await updatedMatch.AwayPlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             AwayScore = updatedMatch.AwayScore,
-            HomePlayers = updatedMatch.HomePlayers.Select(p => AdaptToPlayer(p, user)).ToList(),
+            HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            OneEighties = updatedMatch.OneEighties.Select(p => AdaptToPlayer(p, user)).ToList(),
-            Over100Checkouts = updatedMatch.Over100Checkouts.Select(p => AdaptToHiCheckPlayer(p, user)).ToList(),
+            OneEighties = await updatedMatch.OneEighties.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
+            Over100Checkouts = await updatedMatch.Over100Checkouts.SelectAsync(p => AdaptToHiCheckPlayer(p, token)).ToList(),
             StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
             NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
         };
+
+        await _auditingHelper.SetUpdated(match, token);
+        return match;
     }
 
-    private GameMatch UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, UserDto user)
+    private async Task<GameMatch> UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
     {
-        return new GameMatch
+        var match = new GameMatch
         {
             Author = currentMatch.Author,
             Created = currentMatch.Created,
             Deleted = currentMatch.Deleted,
-            Editor = user.Name,
             Id = currentMatch.Id,
             Remover = currentMatch.Remover,
-            Updated = _systemClock.UtcNow.UtcDateTime,
             Version = currentMatch.Version,
-            AwayPlayers = updatedMatch.AwayPlayers.Select(p => AdaptToPlayer(p, user)).ToList(),
+            AwayPlayers = await updatedMatch.AwayPlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             AwayScore = updatedMatch.AwayScore,
-            HomePlayers = updatedMatch.HomePlayers.Select(p => AdaptToPlayer(p, user)).ToList(),
+            HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            OneEighties = updatedMatch.OneEighties.Select(p => AdaptToPlayer(p, user)).ToList(),
-            Over100Checkouts = updatedMatch.Over100Checkouts.Select(p => AdaptToHiCheckPlayer(p, user)).ToList(),
+            OneEighties = await updatedMatch.OneEighties.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
+            Over100Checkouts = await updatedMatch.Over100Checkouts.SelectAsync(p => AdaptToHiCheckPlayer(p, token)).ToList(),
             StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
             NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
         };
+        await _auditingHelper.SetUpdated(match, token);
+        return match;
     }
 
-    private GamePlayer AdaptToPlayer(RecordScoresDto.RecordScoresGamePlayerDto player, UserDto user)
+    private async Task<GamePlayer> AdaptToPlayer(RecordScoresDto.RecordScoresGamePlayerDto player, CancellationToken token)
     {
-        return new GamePlayer
+        var gamePlayer = new GamePlayer
         {
             Id = player.Id,
             Name = player.Name,
-            Author = user.Name,
-            Created = _systemClock.UtcNow.UtcDateTime,
-            Editor = user.Name,
-            Updated = _systemClock.UtcNow.UtcDateTime,
         };
+        await _auditingHelper.SetUpdated(gamePlayer, token);
+        return gamePlayer;
     }
 
-    private NotablePlayer AdaptToHiCheckPlayer(RecordScoresDto.GameOver100CheckoutDto player, UserDto user)
+    private async Task<NotablePlayer> AdaptToHiCheckPlayer(RecordScoresDto.GameOver100CheckoutDto player, CancellationToken token)
     {
-        return new NotablePlayer
+        var gamePlayer = new NotablePlayer
         {
             Id = player.Id,
             Name = player.Name,
-            Author = user.Name,
-            Created = _systemClock.UtcNow.UtcDateTime,
-            Editor = user.Name,
-            Updated = _systemClock.UtcNow.UtcDateTime,
             Notes = player.Notes,
         };
+        await _auditingHelper.SetUpdated(gamePlayer, token);
+        return gamePlayer;
     }
 
     private static int? GetNumberOfLegs(int homePlayers)
