@@ -436,8 +436,8 @@ export function Score({account, apis, divisions}) {
                                        <label className="form-check-label" htmlFor="postponed">Postponed</label>
                                     </div>
                                     <div className="form-check form-switch">
-                                       <input disabled={saving} type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={data.isKnockout} onChange={changeFixtureProperty} />
-                                       <label className="form-check-label" htmlFor="knockout">Knockout</label>
+                                       <input disabled={saving} type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={data.isKnockout} onChange={changeFixtureProperty} />
+                                       <label className="form-check-label" htmlFor="isKnockout">Knockout</label>
                                     </div>
                                </div>
                            </td>)
