@@ -94,6 +94,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     {
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed ?? game.Postponed;
+        game.IsKnockout = _scores.IsKnockout ?? game.IsKnockout;
 
         var dateChanged = _scores.Date != game.Date;
         game.Date = _scores.Date ?? game.Date;

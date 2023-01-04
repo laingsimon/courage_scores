@@ -310,7 +310,7 @@ public class UpdateScoresCommandTests
         };
         _scores.Address = "new address";
         _scores.Postponed = true;
-        // TODO: Knockout...?
+        _scores.IsKnockout = true;
         _scores.Date = new DateTime(2001, 02, 04);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
@@ -319,7 +319,7 @@ public class UpdateScoresCommandTests
         Assert.That(result.Message, Is.EqualTo("Scores updated"));
         Assert.That(_game.Address, Is.EqualTo("new address"));
         Assert.That(_game.Postponed, Is.True);
-        // Assert.That(_game.IsKnockout, Is.True);
+        Assert.That(_game.IsKnockout, Is.True);
         Assert.That(_game.Date, Is.EqualTo(new DateTime(2001, 02, 04)));
         Assert.That(_game.SeasonId, Is.EqualTo(season.Id));
         _teamService.Verify(c => c.Upsert(_game.Home.Id, _addSeasonToTeamCommand.Object, _token));
