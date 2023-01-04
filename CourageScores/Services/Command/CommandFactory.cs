@@ -13,12 +13,6 @@ public class CommandFactory : ICommandFactory
         where TCommand: class, IUpdateCommand
     {
         var command = _serviceProvider.GetService<TCommand>();
-
-        if (command == null)
-        {
-            throw new InvalidOperationException($"Unable to retrieve command for {typeof(TCommand).Name}");
-        }
-
-        return command;
+        return command ?? throw new InvalidOperationException($"Unable to retrieve command for {typeof(TCommand).Name}");
     }
 }

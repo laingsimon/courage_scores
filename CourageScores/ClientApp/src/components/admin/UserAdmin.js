@@ -78,9 +78,7 @@ export function UserAdmin({account}) {
                 access: userAccount.access,
             };
             const result = await api.update(update);
-            if (result.success) {
-                window.alert('Access updated');
-            } else {
+            if (!result.success) {
                 setSaveError(result);
             }
         } catch (e) {

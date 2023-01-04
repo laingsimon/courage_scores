@@ -1,6 +1,5 @@
 ﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Services;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -34,20 +33,20 @@ public class AccountController : Controller
     }
 
     [HttpGet("/api/Account")]
-    public async Task<UserDto?> GetUser()
+    public async Task<UserDto?> GetUser(CancellationToken token)
     {
-        return await _userService.GetUser();
+        return await _userService.GetUser(token);
     }
 
     [HttpGet("/api/Account/{emailAddress}")]
-    public async Task<UserDto?> GetUser(string emailAddress)
+    public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
     {
-        return await _userService.GetUser(emailAddress);
+        return await _userService.GetUser(emailAddress, token);
     }
 
     [HttpPost("/api/Account/Access")]
-    public async Task<ActionResultDto<UserDto>> UpdateAccess([FromBody] UpdateAccessDto access)
+    public async Task<ActionResultDto<UserDto>> UpdateAccess([FromBody] UpdateAccessDto access, CancellationToken token)
     {
-        return await _userService.UpdateAccess(access);
+        return await _userService.UpdateAccess(access, token);
     }
 }

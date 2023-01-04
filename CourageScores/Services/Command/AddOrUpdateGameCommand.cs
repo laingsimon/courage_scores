@@ -1,31 +1,28 @@
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Repository;
+using CourageScores.Services.Season;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
+public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game, EditGameDto>
 {
-    private readonly IGenericRepository<Team> _teamRepository;
-    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
+    private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
-    private readonly IGenericDataService<Team, TeamDto> _teamService;
+    private readonly ITeamService _teamService;
 
     public AddOrUpdateGameCommand(
-        IGenericRepository<Team> teamRepository,
-        IGenericRepository<Models.Cosmos.Season> seasonRepository,
+        ISeasonService seasonService,
         ICommandFactory commandFactory,
-        IGenericDataService<Team, TeamDto> teamService)
+        ITeamService teamService)
     {
-        _teamRepository = teamRepository;
-        _seasonRepository = seasonRepository;
+        _seasonService = seasonService;
         _commandFactory = commandFactory;
         _teamService = teamService;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(Game game, EditGameDto update, CancellationToken token)
+    protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
     {
         if (update.HomeTeamId == update.AwayTeamId)
         {
@@ -36,9 +33,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
             };
         }
 
-        var allSeasons = await _seasonRepository.GetAll(token).ToList();
-        var latestSeason = allSeasons.MaxBy(s => s.EndDate);
-
+        var latestSeason = await _seasonService.GetLatest(token);
         if (latestSeason == null)
         {
             return new CommandResult
@@ -55,11 +50,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         game.Postponed = update.Postponed;
         game.IsKnockout = update.IsKnockout;
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
             game.Home = await UpdateTeam(update.HomeTeamId, latestSeason, token);
         }
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
             game.Away = await UpdateTeam(update.AwayTeamId, latestSeason, token);
@@ -68,16 +65,16 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
         return CommandResult.SuccessNoMessage;
     }
 
-    private async Task<GameTeam> UpdateTeam(Guid teamId, Models.Cosmos.Season season, CancellationToken token)
+    private async Task<GameTeam> UpdateTeam(Guid teamId, SeasonDto season, CancellationToken token)
     {
-        var team = await _teamRepository.Get(teamId, token);
+        var teamDto = await _teamService.Get(teamId, token);
 
-        if (team == null)
+        if (teamDto == null)
         {
             throw new InvalidOperationException("Unable to find team with id " + teamId);
         }
 
-        if (team.Seasons.All(s => s.Id != season.Id))
+        if (teamDto.Seasons.All(s => s.SeasonId != season.Id))
         {
             // add team to season
             var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
@@ -89,22 +86,21 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Game, EditGameDto>
             }
         }
 
-        return Adapt(team);
+        return Adapt(teamDto);
     }
 
-    private static GameTeam Adapt(Team team)
+    private static GameTeam Adapt(TeamDto teamDto)
     {
         return new GameTeam
         {
-            Author = team.Author,
-            Created = team.Created,
-            Deleted = team.Deleted,
-            Editor = team.Editor,
-            Id = team.Id,
-            Name = team.Name,
-            Remover = team.Remover,
-            Updated = team.Updated,
-            Version = team.Version,
+            Author = teamDto.Author!,
+            Created = teamDto.Created!.Value,
+            Deleted = teamDto.Deleted,
+            Editor = teamDto.Editor!,
+            Id = teamDto.Id,
+            Name = teamDto.Name,
+            Remover = teamDto.Remover,
+            Updated = teamDto.Updated!.Value,
             ManOfTheMatch = null // changing the team resets the man of the match
         };
     }

@@ -2,15 +2,15 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Identity;
-using CourageScores.Repository;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
 public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGame, EditTournamentGameDto>
 {
-    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
+    private readonly ISeasonService _seasonService;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAuditingHelper _auditingHelper;
@@ -18,14 +18,14 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly IUserService _userService;
 
     public AddOrUpdateTournamentGameCommand(
-        IGenericRepository<Models.Cosmos.Season> seasonRepository,
+        ISeasonService seasonService,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IAdapter<TournamentRound, TournamentRoundDto> tournamentRoundAdapter,
         IAuditingHelper auditingHelper,
         ISystemClock systemClock,
         IUserService userService)
     {
-        _seasonRepository = seasonRepository;
+        _seasonService = seasonService;
         _tournamentSideAdapter = tournamentSideAdapter;
         _tournamentRoundAdapter = tournamentRoundAdapter;
         _auditingHelper = auditingHelper;
@@ -35,27 +35,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
     protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
-        var allSeasons = await _seasonRepository.GetAll(token).ToList();
-        var latestSeason = allSeasons.MaxBy(s => s.EndDate);
-        var user = await _userService.GetUser();
-
-        if (user == null)
-        {
-            return new CommandResult
-            {
-                Success = false,
-                Message = "Tournament game cannot be updated, not logged in",
-            };
-        }
-
-        if (user.Access?.ManageScores != true)
-        {
-            return new CommandResult
-            {
-                Success = false,
-                Message = "Tournament game cannot be updated, not permitted",
-            };
-        }
+        var latestSeason = await _seasonService.GetLatest(token);
+        var user = (await _userService.GetUser(token))!;
 
         if (latestSeason == null)
         {
@@ -69,68 +50,90 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         game.Address = update.Address;
         game.Date = update.Date;
         game.SeasonId = latestSeason.Id;
-        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s)).ToList();
-        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round) : null;
+        game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, token)).ToList();
+        game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, token) : null;
         game.OneEighties = update.OneEighties.Select(p => AdaptToPlayer(p, user)).ToList();
         game.Over100Checkouts = update.Over100Checkouts.Select(p => AdaptToHiCheckPlayer(p, user)).ToList();
 
         foreach (var side in game.Sides)
         {
-            if (side.Id == default)
-            {
-                side.Id = Guid.NewGuid();
-            }
-            await _auditingHelper.SetUpdated(side);
-
-            await SetIds(side.Players);
+            await SetSideUpdated(side, token);
         }
-        await SetIds(game.Round, game.Sides);
+
+        await SetUpdated(game.Round, game.Sides, token);
 
         return CommandResult.SuccessNoMessage;
     }
 
-    private async Task SetIds(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides)
+    private async Task SetUpdated(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
     {
         if (round == null)
         {
             return;
         }
 
+        foreach (var side in round.Sides.Where(s => s.Id == default))
+        {
+            await SetSideUpdatedAndLinkToRootSide(side, sides, token);
+        }
+
+        await SetRoundUpdated(round, token);
+
+        await SetUpdated(round.NextRound, sides, token);
+    }
+
+    private async Task SetSideUpdated(TournamentSide side, CancellationToken token)
+    {
+        if (side.Id == default)
+        {
+            side.Id = Guid.NewGuid();
+        }
+        await _auditingHelper.SetUpdated(side, token);
+
+        await SetPlayersUpdated(side.Players, token);
+    }
+
+    private async Task SetSideUpdatedAndLinkToRootSide(TournamentSide side, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
+    {
+        var sideOrderedPlayers = side.Players.OrderBy(p => p.Id).Select(p => p.Id).ToArray();
+        var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).Select(p => p.Id).SequenceEqual(sideOrderedPlayers));
+        if (equivalentSide != null)
+        {
+            side.Id = equivalentSide.Id;
+        }
+        await _auditingHelper.SetUpdated(side, token);
+
+        await SetPlayersUpdated(side.Players, token);
+    }
+
+    private async Task SetRoundUpdated(TournamentRound round, CancellationToken token)
+    {
         if (round.Id == default)
         {
             round.Id = Guid.NewGuid();
         }
-        await _auditingHelper.SetUpdated(round);
-
-        foreach (var side in round.Sides.Where(s => s.Id == default))
-        {
-            var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).SequenceEqual(side.Players.OrderBy(p => p.Id)));
-            if (equivalentSide != null)
-            {
-                side.Id = equivalentSide.Id;
-            }
-            await _auditingHelper.SetUpdated(side);
-
-            await SetIds(side.Players);
-        }
+        await _auditingHelper.SetUpdated(round, token);
 
         foreach (var match in round.Matches)
         {
-            if (match.Id == default)
-            {
-                match.Id = Guid.NewGuid();
-            }
-            await _auditingHelper.SetUpdated(match);
+            await SetMatchUpdated(match, token);
         }
-
-        await SetIds(round.NextRound, sides);
     }
 
-    private async Task SetIds(List<GamePlayer> players)
+    private async Task SetMatchUpdated(TournamentMatch match, CancellationToken token)
+    {
+        if (match.Id == default)
+        {
+            match.Id = Guid.NewGuid();
+        }
+        await _auditingHelper.SetUpdated(match, token);
+    }
+
+    private async Task SetPlayersUpdated(List<GamePlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {
-            await _auditingHelper.SetUpdated(player);
+            await _auditingHelper.SetUpdated(player, token);
         }
     }
 

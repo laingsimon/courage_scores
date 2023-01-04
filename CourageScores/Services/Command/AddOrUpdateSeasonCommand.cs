@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
 
+// ReSharper disable once ClassNeverInstantiated.Global
 public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season, EditSeasonDto>
 {
     protected override Task<CommandResult> ApplyUpdates(Models.Cosmos.Season season, EditSeasonDto update, CancellationToken token)

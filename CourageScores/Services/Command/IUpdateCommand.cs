@@ -4,6 +4,7 @@ public interface IUpdateCommand
 {
 }
 
+// ReSharper disable once UnusedTypeParameter
 public interface IUpdateCommand<in TIn> : IUpdateCommand
 {
 }

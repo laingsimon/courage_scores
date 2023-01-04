@@ -178,3 +178,19 @@ td.bg-winner {
 .content-width {
   width: initial;
 }
+
+.hover-highlight:hover {
+  background-color: #dddddd;
+}
+
+.vertical-text {
+  transform: rotate(-90deg);
+}
+
+.transform-middle {
+  transform-origin: center center;
+}
+
+.transform-top-left {
+  transform-origin: top left;
+}

@@ -5,7 +5,7 @@ namespace CourageScores.Services.Identity;
 
 public interface IUserService
 {
-    Task<UserDto?> GetUser();
-    Task<ActionResultDto<UserDto>> UpdateAccess(UpdateAccessDto user);
-    Task<UserDto?> GetUser(string emailAddress);
+    Task<UserDto?> GetUser(CancellationToken token);
+    Task<ActionResultDto<UserDto>> UpdateAccess(UpdateAccessDto user, CancellationToken token);
+    Task<UserDto?> GetUser(string emailAddress, CancellationToken token);
 }

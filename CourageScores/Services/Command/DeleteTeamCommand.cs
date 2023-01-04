@@ -7,13 +7,13 @@ namespace CourageScores.Services.Command;
 public class DeleteTeamCommand : IUpdateCommand<Team, Team>
 {
     private readonly IUserService _userService;
-    private readonly ISystemClock _systemClock;
+    private readonly IAuditingHelper _auditingHelper;
     private Guid? _seasonId;
 
-    public DeleteTeamCommand(IUserService userService, ISystemClock systemClock)
+    public DeleteTeamCommand(IUserService userService, IAuditingHelper auditingHelper)
     {
         _userService = userService;
-        _systemClock = systemClock;
+        _auditingHelper = auditingHelper;
     }
 
     public DeleteTeamCommand FromSeason(Guid? seasonId)
@@ -31,10 +31,10 @@ public class DeleteTeamCommand : IUpdateCommand<Team, Team>
 
         if (model.Deleted != null)
         {
-            return new CommandOutcome<Team>(false, "Team has already been deleted", model);
+            return new CommandOutcome<Team>(true, "Team has already been deleted", model);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
 
         if (user?.Access?.ManageTeams != true)
         {
@@ -44,8 +44,7 @@ public class DeleteTeamCommand : IUpdateCommand<Team, Team>
         var matchingSeasons = model.Seasons.Where(s => s.SeasonId == _seasonId.Value && s.Deleted == null).ToList();
         foreach (var matchingSeason in matchingSeasons)
         {
-            matchingSeason.Deleted = _systemClock.UtcNow.UtcDateTime;
-            matchingSeason.Remover = user.Name;
+            await _auditingHelper.SetDeleted(matchingSeason, token);
         }
 
         if (model.Seasons.Any(ts => ts.Deleted == null))
@@ -74,11 +73,6 @@ public class DeleteTeamCommand : IUpdateCommand<Team, Team>
             };
         }
 
-        if (!matchingSeasons.Any())
-        {
-            return new CommandOutcome<Team>(false, "Not permitted to delete the team entirely", model);
-        }
-
-        return new CommandOutcome<Team>(true, $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely", model);
+        return new CommandOutcome<Team>(matchingSeasons.Any(), $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely", model);
     }
 }

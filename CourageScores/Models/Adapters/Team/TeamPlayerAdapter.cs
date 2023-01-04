@@ -13,9 +13,9 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         _userService = userService;
     }
 
-    public async Task<TeamPlayerDto> Adapt(TeamPlayer model)
+    public async Task<TeamPlayerDto> Adapt(TeamPlayer model, CancellationToken token)
     {
-        var canShowEmailAddress = await CanShowEmailAddress(model);
+        var canShowEmailAddress = await CanShowEmailAddress(model, token);
 
         return new TeamPlayerDto
         {
@@ -28,7 +28,7 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         }.AddAuditProperties(model);
     }
 
-    public Task<TeamPlayer> Adapt(TeamPlayerDto dto)
+    public Task<TeamPlayer> Adapt(TeamPlayerDto dto, CancellationToken token)
     {
         return Task.FromResult(new TeamPlayer
         {
@@ -39,9 +39,9 @@ public class TeamPlayerAdapter : IAdapter<TeamPlayer, TeamPlayerDto>
         }.AddAuditProperties(dto));
     }
 
-    private async Task<bool> CanShowEmailAddress(TeamPlayer player)
+    private async Task<bool> CanShowEmailAddress(TeamPlayer player, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             return false;

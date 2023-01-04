@@ -13,23 +13,23 @@ public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
         _gamePlayerAdapter = gamePlayerAdapter;
     }
 
-    public async Task<TournamentSideDto> Adapt(TournamentSide model)
+    public async Task<TournamentSideDto> Adapt(TournamentSide model, CancellationToken token)
     {
         return new TournamentSideDto
         {
             Id = model.Id,
             Name = model.Name,
-            Players = await model.Players.SelectAsync(p => _gamePlayerAdapter.Adapt(p)).ToList(),
+            Players = await model.Players.SelectAsync(p => _gamePlayerAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
-    public async Task<TournamentSide> Adapt(TournamentSideDto dto)
+    public async Task<TournamentSide> Adapt(TournamentSideDto dto, CancellationToken token)
     {
         return new TournamentSide
         {
             Id = dto.Id,
             Name = dto.Name,
-            Players = await dto.Players.SelectAsync(p => _gamePlayerAdapter.Adapt(p)).ToList(),
+            Players = await dto.Players.SelectAsync(p => _gamePlayerAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

@@ -53,12 +53,12 @@ public class GenericDataServiceTests
         var model = new Model();
         var dto = new Dto();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _adapter.Setup(a => a.Adapt(model)).ReturnsAsync(() => dto);
+        _adapter.Setup(a => a.Adapt(model, _token)).ReturnsAsync(() => dto);
 
         var result = await _service.Get(id, _token);
 
         Assert.That(result, Is.Not.Null);
-        _adapter.Verify(a => a.Adapt(model));
+        _adapter.Verify(a => a.Adapt(model, _token));
         Assert.That(result, Is.SameAs(dto));
     }
 
@@ -68,7 +68,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var dto = new Dto();
         _repository.Setup(r => r.GetAll(_token)).Returns(() => AsyncEnumerable(model));
-        _adapter.Setup(a => a.Adapt(model)).ReturnsAsync(() => dto);
+        _adapter.Setup(a => a.Adapt(model, _token)).ReturnsAsync(() => dto);
         var returnedItems = new List<Dto>();
 
         await foreach (var returnedItem in _service.GetAll(_token))
@@ -78,7 +78,7 @@ public class GenericDataServiceTests
 
         Assert.That(returnedItems, Is.Not.Empty);
         Assert.That(returnedItems, Is.EquivalentTo(new[] { dto }));
-        _adapter.Verify(a => a.Adapt(model));
+        _adapter.Verify(a => a.Adapt(model, _token));
     }
 
     [Test]
@@ -91,7 +91,7 @@ public class GenericDataServiceTests
             Name = Model.CreatePermitted
         };
         var commandResult = new CommandOutcome<object>(true, "some message", null);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
         command.Setup(c => c.ApplyUpdate(It.IsAny<Model>(), _token)).ReturnsAsync(() => commandResult);
 
@@ -108,7 +108,7 @@ public class GenericDataServiceTests
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<Model, object>>();
         var user = new UserDto();
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
         var result = await _service.Upsert(id, command.Object, _token);
@@ -126,7 +126,7 @@ public class GenericDataServiceTests
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<Model, object>>();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
 
         var result = await _service.Upsert(id, command.Object, _token);
 
@@ -144,7 +144,7 @@ public class GenericDataServiceTests
         var user = new UserDto();
         var command = new Mock<IUpdateCommand<Model, object>>();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
 
         var result = await _service.Upsert(id, command.Object, _token);
 
@@ -168,8 +168,8 @@ public class GenericDataServiceTests
             Name = Model.EditPermitted,
         };
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-        _adapter.Setup(a => a.Adapt(updatedModel)).ReturnsAsync(() => updatedDto);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
+        _adapter.Setup(a => a.Adapt(updatedModel, _token)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
 
@@ -197,8 +197,8 @@ public class GenericDataServiceTests
             Name = Model.EditPermitted,
         };
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
-        _adapter.Setup(a => a.Adapt(updatedModel)).ReturnsAsync(() => updatedDto);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
+        _adapter.Setup(a => a.Adapt(updatedModel, _token)).ReturnsAsync(() => updatedDto);
         _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
         command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
 
@@ -217,7 +217,7 @@ public class GenericDataServiceTests
     {
         var id = Guid.NewGuid();
         var user = new UserDto();
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
 
         var result = await _service.Delete(id, _token);
@@ -234,7 +234,7 @@ public class GenericDataServiceTests
         var id = Guid.NewGuid();
         var model = new Model();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
 
         var result = await _service.Delete(id, _token);
 
@@ -252,7 +252,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var user = new UserDto();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
 
         var result = await _service.Delete(id, _token);
 
@@ -273,14 +273,14 @@ public class GenericDataServiceTests
         {
             Name = Model.DeletePermitted,
         };
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
-        _adapter.Setup(a => a.Adapt(model)).ReturnsAsync(() => deletedDto);
+        _adapter.Setup(a => a.Adapt(model, _token)).ReturnsAsync(() => deletedDto);
 
         var result = await _service.Delete(id, _token);
 
         _repository.Verify(r => r.Upsert(model, _token));
-        _auditingHelper.Verify(a => a.SetDeleted(model));
+        _auditingHelper.Verify(a => a.SetDeleted(model, _token));
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));

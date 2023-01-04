@@ -18,23 +18,23 @@ public class LeagueAdapter : IAdapter<League, LeagueDto>
         _seasonAdapter = seasonAdapter;
     }
 
-    public async Task<LeagueDto> Adapt(League model)
+    public async Task<LeagueDto> Adapt(League model, CancellationToken token)
     {
         return new LeagueDto
         {
-            Divisions = await model.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
+            Divisions = await model.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
             Id = model.Id,
-            Seasons = await model.Seasons.SelectAsync(_seasonAdapter.Adapt).ToList(),
+            Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
-    public async Task<League> Adapt(LeagueDto dto)
+    public async Task<League> Adapt(LeagueDto dto, CancellationToken token)
     {
         return new League
         {
-            Divisions = await dto.Divisions.SelectAsync(_divisionAdapter.Adapt).ToList(),
+            Divisions = await dto.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
             Id = dto.Id,
-            Seasons = await dto.Seasons.SelectAsync(_seasonAdapter.Adapt).ToList(),
+            Seasons = await dto.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

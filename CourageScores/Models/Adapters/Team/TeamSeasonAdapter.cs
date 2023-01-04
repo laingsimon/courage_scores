@@ -13,22 +13,22 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
         _playerAdapter = playerAdapter;
     }
 
-    public async Task<TeamSeasonDto> Adapt(TeamSeason model)
+    public async Task<TeamSeasonDto> Adapt(TeamSeason model, CancellationToken token)
     {
         return new TeamSeasonDto
         {
             Id = model.Id,
-            Players = await model.Players.Where(p => p.Deleted == null).SelectAsync(_playerAdapter.Adapt).ToList(),
+            Players = await model.Players.Where(p => p.Deleted == null).SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
             SeasonId = model.SeasonId,
         }.AddAuditProperties(model);
     }
 
-    public async Task<TeamSeason> Adapt(TeamSeasonDto dto)
+    public async Task<TeamSeason> Adapt(TeamSeasonDto dto, CancellationToken token)
     {
         return new TeamSeason
         {
             Id = dto.Id,
-            Players = await dto.Players.SelectAsync(_playerAdapter.Adapt).ToList(),
+            Players = await dto.Players.SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
             SeasonId = dto.SeasonId,
         }.AddAuditProperties(dto);
     }

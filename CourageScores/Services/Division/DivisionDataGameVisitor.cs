@@ -15,7 +15,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         _teamLookup = teamLookup;
     }
 
-    public void VisitGame(Game game)
+    public void VisitGame(Models.Cosmos.Game.Game game)
     {
         var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
         var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
@@ -185,10 +185,10 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     private class PlayerAndGameLookupVisitor : IGameVisitor
     {
-        private readonly Game _game;
+        private readonly Models.Cosmos.Game.Game _game;
         private readonly DivisionData _divisionData;
 
-        public PlayerAndGameLookupVisitor(Game game, DivisionData divisionData)
+        public PlayerAndGameLookupVisitor(Models.Cosmos.Game.Game game, DivisionData divisionData)
         {
             _game = game;
             _divisionData = divisionData;

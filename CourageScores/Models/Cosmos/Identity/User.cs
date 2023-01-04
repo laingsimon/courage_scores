@@ -21,4 +21,8 @@ public class User
     /// What access does this user have?
     /// </summary>
     public Access? Access { get; set; }
+
+    [JsonIgnore]
+    [System.Text.Json.Serialization.JsonIgnore]
+    public Guid? TeamId { get; set; }
 }
