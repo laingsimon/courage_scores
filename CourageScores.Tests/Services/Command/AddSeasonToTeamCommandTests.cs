@@ -24,7 +24,11 @@ public class AddSeasonToTeamCommandTests
         _auditingHelper = new Mock<IAuditingHelper>();
         _seasonService = new Mock<ISeasonService>();
         _command = new AddSeasonToTeamCommand(_auditingHelper.Object, _seasonService.Object);
-        _team = new Team();
+        _team = new Team
+        {
+            Id = Guid.NewGuid(),
+            Name = "TEAM",
+        };
         _season = new SeasonDto
         {
             Id = Guid.NewGuid(),
@@ -51,6 +55,18 @@ public class AddSeasonToTeamCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Season not found"));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenSkippingSeasonExistingCheck_ReturnsSuccessful()
+    {
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => null);
+
+        var result = await _command.ForSeason(_season.Id).SkipSeasonExistenceCheck().ApplyUpdate(_team, _token);
+
+        _seasonService.Verify(s => s.Get(_season.Id, _token), Times.Never);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Season added to the TEAM team"));
     }
 
     [Test]
@@ -131,7 +147,7 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Season added to this team, 1 players copied"));
+        Assert.That(result.Message, Is.EqualTo("Season added to the TEAM team, 1 players copied"));
         var newTeamSeason = _team.Seasons.SingleOrDefault(s => s.SeasonId == _season.Id);
         Assert.That(newTeamSeason, Is.Not.Null);
         Assert.That(newTeamSeason!.Players, Is.Not.Empty);
@@ -148,7 +164,7 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Season added to this team"));
+        Assert.That(result.Message, Is.EqualTo("Season added to the TEAM team"));
         var newTeamSeason = _team.Seasons.SingleOrDefault(s => s.SeasonId == _season.Id);
         Assert.That(newTeamSeason, Is.Not.Null);
         Assert.That(newTeamSeason!.Players, Is.Empty);

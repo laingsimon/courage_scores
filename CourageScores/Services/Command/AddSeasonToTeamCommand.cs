@@ -9,6 +9,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
     private readonly ISeasonService _seasonService;
     private Guid? _seasonId;
     private Guid? _copyPlayersFromOtherSeasonId;
+    private bool _skipSeasonExistenceCheck;
 
     public AddSeasonToTeamCommand(
         IAuditingHelper auditingHelper,
@@ -30,6 +31,12 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         return this;
     }
 
+    public virtual AddSeasonToTeamCommand SkipSeasonExistenceCheck()
+    {
+        _skipSeasonExistenceCheck = true;
+        return this;
+    }
+
     public virtual async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team model, CancellationToken token)
     {
         if (_seasonId == null)
@@ -42,8 +49,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             return new CommandOutcome<TeamSeason>(false, "Cannot edit a team that has been deleted", null);
         }
 
-        var season = await _seasonService.Get(_seasonId.Value, token);
-        if (season == null)
+        if (_skipSeasonExistenceCheck == false && await _seasonService.Get(_seasonId.Value, token) == null)
         {
             return new CommandOutcome<TeamSeason>(false, "Season not found", null);
         }
@@ -64,7 +70,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         teamSeason = new TeamSeason
         {
             Id = Guid.NewGuid(),
-            SeasonId = season.Id,
+            SeasonId = _seasonId.Value,
             Players = _copyPlayersFromOtherSeasonId.HasValue
                 ? GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value)
                 : new List<TeamPlayer>(),
@@ -75,8 +81,8 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         return new CommandOutcome<TeamSeason>(
             true,
             _copyPlayersFromOtherSeasonId.HasValue
-                ? $"Season added to this team, {teamSeason.Players.Count} players copied"
-                : "Season added to this team",
+                ? $"Season added to the {model.Name} team, {teamSeason.Players.Count} players copied"
+                : $"Season added to the {model.Name} team",
             teamSeason);
     }
 
