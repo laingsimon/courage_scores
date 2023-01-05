@@ -21,4 +21,9 @@ public class EditSeasonDto
     /// The name of this season
     /// </summary>
     public string Name { get; set; } = null!;
+
+    /// <summary>
+    /// Copy the teams from the given season id
+    /// </summary>
+    public Guid? CopyTeamsFromSeasonId { get; set; }
 }
