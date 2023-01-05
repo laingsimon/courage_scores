@@ -15,10 +15,10 @@ public class AuditingHelper : IAuditingHelper
         _userService = userService;
     }
 
-    public async Task SetDeleted<T>(T model)
+    public async Task SetDeleted<T>(T model, CancellationToken token)
         where T: AuditedEntity
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user != null)
         {
             model.Remover = user.Name;
@@ -27,10 +27,10 @@ public class AuditingHelper : IAuditingHelper
         model.Deleted = _clock.UtcNow.UtcDateTime;
     }
 
-    public async Task SetUpdated<T>(T model)
+    public async Task SetUpdated<T>(T model, CancellationToken token)
         where T: AuditedEntity
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user != null)
         {
             model.Editor = user.Name;

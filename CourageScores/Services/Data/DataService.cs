@@ -27,7 +27,7 @@ public class DataService : IDataService
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             return UnsuccessfulExport("Not logged in");
@@ -75,7 +75,7 @@ public class DataService : IDataService
 
     public async Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             return UnsuccessfulImport("Not logged in");
@@ -145,7 +145,7 @@ public class DataService : IDataService
 
                 var partitionKey = table.PartitionKey.Paths.Single();
                 typeLookup.TryGetValue(tableName, out var dataType);
-                var canImport = await CanImportDataType(dataType);
+                var canImport = await CanImportDataType(dataType, token);
 
                 yield return new TableDto
                 {
@@ -159,9 +159,9 @@ public class DataService : IDataService
         }
     }
 
-    private async Task<bool> CanImportDataType(Type? dataType)
+    private async Task<bool> CanImportDataType(Type? dataType, CancellationToken token)
     {
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
             throw new InvalidOperationException("Not logged in");

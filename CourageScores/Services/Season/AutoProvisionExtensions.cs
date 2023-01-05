@@ -1,7 +1,7 @@
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Season;
 
@@ -66,7 +66,7 @@ public static class AutoProvisionExtensions
         };
     }
 
-    private static DivisionFixtureTeamDto AdaptToTeam(this Team team)
+    private static DivisionFixtureTeamDto AdaptToTeam(this TeamDto team)
     {
         return new DivisionFixtureTeamDto
         {

@@ -51,7 +51,9 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
         {hideVenue
             ? null
             : (<td>
-                <Link to={`/division/${divisionId}/team:${team.id}/${seasonId}`} className="margin-right">{player.team}</Link>
+                {team.id === '00000000-0000-0000-0000-000000000000'
+                    ? (<span className="text-warning">{player.team}</span>)
+                    : (<Link to={`/division/${divisionId}/team:${team.id}/${seasonId}`} className="margin-right">{player.team}</Link>)}
             </td>)}
         <td>{player.won}</td>
         <td>{player.lost}</td>

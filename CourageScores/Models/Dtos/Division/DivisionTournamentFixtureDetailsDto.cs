@@ -11,4 +11,5 @@ public class DivisionTournamentFixtureDetailsDto
     public string? Type { get; set; }
     public TournamentSideDto? WinningSide { get; set; }
     public bool Proposed { get; set; }
+    public List<Guid> Players { get; set; } = new();
 }

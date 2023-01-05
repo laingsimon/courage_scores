@@ -52,10 +52,6 @@ export function NavMenu({divisions, appLoading, account, clearError}) {
                           </NavLink>
                         </NavItem>))}
                         {appLoading ? (<NavItem><NavLink><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></NavLink></NavItem>) : null}
-                        <NavItem>
-                            {!appLoading && account ? <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout ({account.name})</a> : null}
-                            {!appLoading && !account ? <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
-                        </NavItem>
                         {account && account.access && account.access.manageAccess
                             ? (<NavItem>
                                 <NavLink tag={Link} onClick={navigate} className={getClassName('/userAdmin')} to={`/userAdmin`}>
@@ -77,6 +73,10 @@ export function NavMenu({divisions, appLoading, account, clearError}) {
                                 </NavLink>
                             </NavItem>)
                             : null}
+                        <NavItem>
+                            {!appLoading && account ? <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout ({account.name})</a> : null}
+                            {!appLoading && !account ? <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
+                        </NavItem>
                     </ul>
                 </Collapse>
             </Navbar>

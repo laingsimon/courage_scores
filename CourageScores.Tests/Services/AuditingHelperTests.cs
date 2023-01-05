@@ -15,12 +15,14 @@ public class AuditingHelperTests
     private Mock<ISystemClock> _clock;
     private Mock<IUserService> _userService;
     private AuditingHelper _helper;
+    private CancellationToken _token;
 #pragma warning restore CS8618
 
     [SetUp]
     public void Setup()
     {
         _clock = new Mock<ISystemClock>();
+        _token = new CancellationToken();
         _userService = new Mock<IUserService>();
         _helper = new AuditingHelper(_clock.Object, _userService.Object);
     }
@@ -35,10 +37,10 @@ public class AuditingHelperTests
             Name = "user"
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => loggedIn ? user : null);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => loggedIn ? user : null);
         _clock.Setup(c => c.UtcNow).Returns(now);
 
-        await _helper.SetUpdated(model);
+        await _helper.SetUpdated(model, _token);
 
         Assert.That(model.Author, Is.EqualTo(expectedAuthor));
         Assert.That(model.Created, Is.EqualTo(now.UtcDateTime));
@@ -58,10 +60,10 @@ public class AuditingHelperTests
             Name = "user"
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => loggedIn ? user : null);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => loggedIn ? user : null);
         _clock.Setup(c => c.UtcNow).Returns(now);
 
-        await _helper.SetUpdated(model);
+        await _helper.SetUpdated(model, _token);
 
         Assert.That(model.Author, Is.EqualTo("author"));
         Assert.That(model.Created, Is.EqualTo(new DateTime(2011, 12, 13, 14, 15, 16)));
@@ -84,10 +86,10 @@ public class AuditingHelperTests
             Name = "user"
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _clock.Setup(c => c.UtcNow).Returns(now);
 
-        await _helper.SetUpdated(model);
+        await _helper.SetUpdated(model, _token);
 
         Assert.That(model.Author, Is.EqualTo("author"));
         Assert.That(model.Created, Is.EqualTo(new DateTime(2011, 12, 13, 14, 15, 16)));
@@ -108,10 +110,10 @@ public class AuditingHelperTests
             Name = "user"
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => user);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _clock.Setup(c => c.UtcNow).Returns(now);
 
-        await _helper.SetDeleted(model);
+        await _helper.SetDeleted(model, _token);
 
         Assert.That(model.Remover, Is.EqualTo("user"));
         Assert.That(model.Deleted, Is.EqualTo(now.UtcDateTime));
@@ -126,10 +128,10 @@ public class AuditingHelperTests
             Created = new DateTime(2011, 12, 13, 14, 15, 16),
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
-        _userService.Setup(s => s.GetUser()).ReturnsAsync(() => null);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
         _clock.Setup(c => c.UtcNow).Returns(now);
 
-        await _helper.SetDeleted(model);
+        await _helper.SetDeleted(model, _token);
 
         Assert.That(model.Remover, Is.Null);
         Assert.That(model.Deleted, Is.EqualTo(now.UtcDateTime));

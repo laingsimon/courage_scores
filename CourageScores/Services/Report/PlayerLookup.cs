@@ -6,7 +6,7 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
 {
     private readonly Dictionary<Guid, PlayerDetails> _playerLookup = new();
 
-    public void VisitGame(Game game)
+    public void VisitGame(Models.Cosmos.Game.Game game)
     {
         AddPlayers(game.Home, game.Matches.SelectMany(m => m.HomePlayers));
         AddPlayers(game.Away, game.Matches.SelectMany(m => m.AwayPlayers));

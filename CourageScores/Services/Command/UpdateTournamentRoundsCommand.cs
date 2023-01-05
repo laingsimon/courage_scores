@@ -31,12 +31,17 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
             throw new InvalidOperationException($"Data hasn't been set, ensure {nameof(WithData)} is called");
         }
 
-        model.Round = await UpdateRound(model.Round, _rounds);
+        if (model.Deleted != null)
+        {
+            return new CommandOutcome<TournamentGame>(false, "Cannot modify a deleted tournament game", null);
+        }
+
+        model.Round = await UpdateRound(model.Round, _rounds, token);
 
         return new CommandOutcome<TournamentGame>(true, "Tournament game updated", model);
     }
 
-    private async Task<TournamentRound?> UpdateRound(TournamentRound? currentRound, TournamentRoundDto? update)
+    private async Task<TournamentRound?> UpdateRound(TournamentRound? currentRound, TournamentRoundDto? update, CancellationToken token)
     {
         if (update == null)
         {
@@ -46,9 +51,9 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
         currentRound ??= new TournamentRound();
 
         currentRound.Name = update.Name;
-        currentRound.Matches = await update.Matches.SelectAsync(m => _matchAdapter.Adapt(m)).ToList();
-        currentRound.Sides = await update.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList();
-        currentRound.NextRound = await UpdateRound(currentRound.NextRound, update.NextRound);
+        currentRound.Matches = await update.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList();
+        currentRound.Sides = await update.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList();
+        currentRound.NextRound = await UpdateRound(currentRound.NextRound, update.NextRound, token);
 
         return currentRound;
     }

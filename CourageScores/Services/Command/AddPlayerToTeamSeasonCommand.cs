@@ -1,14 +1,14 @@
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Repository;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
 public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
 {
-    private readonly IGenericRepository<Models.Cosmos.Season> _seasonRepository;
+    private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISystemClock _clock;
@@ -17,13 +17,13 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
     private Guid? _seasonId;
 
     public AddPlayerToTeamSeasonCommand(
-        IGenericRepository<Models.Cosmos.Season> seasonRepository,
+        ISeasonService seasonService,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
         ISystemClock clock,
         IUserService userService)
     {
-        _seasonRepository = seasonRepository;
+        _seasonService = seasonService;
         _commandFactory = commandFactory;
         _auditingHelper = auditingHelper;
         _clock = clock;
@@ -59,13 +59,18 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             return new CommandOutcome<TeamPlayer>(false, "Cannot edit a team that has been deleted", null);
         }
 
-        var user = await _userService.GetUser();
+        var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be added, not logged in", null);
         }
 
-        var season = await _seasonRepository.Get(_seasonId.Value, token);
+        if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
+        {
+            return new CommandOutcome<TeamPlayer>(false, "Player cannot be added, not permitted", null);
+        }
+
+        var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
             return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
@@ -78,7 +83,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {
-                return new CommandOutcome<TeamPlayer>(false, $"Could not add the ${season.Name} season to team ${model.Name} - ${result.Message}", null);
+                return new CommandOutcome<TeamPlayer>(false, $"Could not add the {season.Name} season to team {model.Name} - {result.Message}", null);
             }
 
             teamSeason = result.Result;
@@ -94,11 +99,9 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
                 return new CommandOutcome<TeamPlayer>(true, "Player already exists with this name, player not added", existingPlayer);
             }
 
-            existingPlayer.Deleted = null;
-            existingPlayer.Remover = null;
-            existingPlayer.Updated = _clock.UtcNow.UtcDateTime;
-            existingPlayer.Editor = user.Name;
+            await _auditingHelper.SetUpdated(existingPlayer, token);
             existingPlayer.Captain = _player.Captain;
+            existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             return new CommandOutcome<TeamPlayer>(true, "Player undeleted from team", existingPlayer);
         }
 
@@ -106,11 +109,12 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         {
             Name = _player.Name,
             Captain = _player.Captain,
+            EmailAddress = _player.EmailAddress,
             Id = Guid.NewGuid(),
         };
-        await _auditingHelper.SetUpdated(newPlayer);
+        await _auditingHelper.SetUpdated(newPlayer, token);
         players.Add(newPlayer);
 
-        return new CommandOutcome<TeamPlayer>(true, $"Player added to the ${model.Name} team for the {season.Name} season", newPlayer);
+        return new CommandOutcome<TeamPlayer>(true, $"Player added to the {model.Name} team for the {season.Name} season", newPlayer);
     }
 }

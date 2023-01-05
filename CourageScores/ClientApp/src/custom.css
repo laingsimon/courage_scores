@@ -111,6 +111,11 @@ input[type="date"] {
   width: 7em;
 }
 
+.input-group > .date-selection {
+  flex: none;
+  width: 9em;
+}
+
 .no-border {
   border: none;
 }
@@ -138,9 +143,9 @@ input[type="date"] {
 
 .loading-background {
   background-image: url("../public/loading.gif");
-  background-position: -20px center;
+  background-position: center center;
   background-repeat: no-repeat;
-  min-height: 120px;
+  min-height: 200px;
   background-size: 150px 150px;
   padding-left: 120px !important;
 }
@@ -168,4 +173,24 @@ td.bg-winner {
 
 .no-list-indent ::marker{
   content: '';
+}
+
+.content-width {
+  width: initial;
+}
+
+.hover-highlight:hover {
+  background-color: #dddddd;
+}
+
+.vertical-text {
+  transform: rotate(-90deg);
+}
+
+.transform-middle {
+  transform-origin: center center;
+}
+
+.transform-top-left {
+  transform-origin: top left;
 }

@@ -15,4 +15,5 @@ public class DivisionPlayerDto
     public int OneEighties { get; set; }
     public int Over100Checkouts { get; set; }
     public bool Captain { get; set; }
+    public Dictionary<DateTime, Guid> Fixtures { get; set; } = new();
 }

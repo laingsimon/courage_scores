@@ -5,9 +5,9 @@ namespace CourageScores.Models.Adapters.Identity;
 
 public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
 {
-    public AccessDto Adapt(Access model)
+    public Task<AccessDto> Adapt(Access model, CancellationToken token)
     {
-        return new AccessDto
+        return Task.FromResult(new AccessDto
         {
             ManageAccess = model.ManageAccess,
             ManageDivisions = model.ManageDivisions,
@@ -19,12 +19,13 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             RunReports = model.RunReports,
             ExportData = model.ExportData,
             ImportData = model.ImportData,
-        };
+            InputResults = model.InputResults,
+        });
     }
 
-    public Access Adapt(AccessDto dto)
+    public Task<Access> Adapt(AccessDto dto, CancellationToken token)
     {
-        return new Access
+        return Task.FromResult(new Access
         {
             ManageAccess = dto.ManageAccess,
             ManageDivisions = dto.ManageDivisions,
@@ -36,6 +37,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             RunReports = dto.RunReports,
             ExportData = dto.ExportData,
             ImportData = dto.ImportData,
-        };
+            InputResults = dto.InputResults,
+        });
     }
 }

@@ -51,9 +51,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
     function renderEditPlayer() {
         return (<Dialog title="Edit player">
             <EditPlayerDetails
-                id={playerDetails.id}
-                name={playerDetails.name}
-                captain={playerDetails.captain}
+                {...playerDetails}
                 onCancel={() => setEditPlayer(null)}
                 onChange={updatePlayerDetails}
                 onSaved={playerUpdated}

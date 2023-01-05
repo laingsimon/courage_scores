@@ -16,13 +16,21 @@ public class TeamService : GenericDataService<Team, TeamDto>, ITeamService
         : base(repository, adapter, userService, auditingHelper)
     { }
 
+    public IAsyncEnumerable<TeamDto> GetTeamsForSeason(Guid seasonId, CancellationToken token)
+    {
+        return GetAll(token)
+            .SelectAsync(t => OnlyForSeason(t, seasonId));
+    }
+
     public IAsyncEnumerable<TeamDto> GetTeamsForSeason(Guid divisionId, Guid seasonId, CancellationToken token)
     {
         return GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .SelectAsync(t =>
-            {
-                t.Seasons.RemoveAll(ts => ts.SeasonId != seasonId);
-                return t;
-            });
+            .SelectAsync(t => OnlyForSeason(t, seasonId));
+    }
+
+    private static TeamDto OnlyForSeason(TeamDto team, Guid seasonId)
+    {
+        team.Seasons.RemoveAll(ts => ts.SeasonId != seasonId);
+        return team;
     }
 }

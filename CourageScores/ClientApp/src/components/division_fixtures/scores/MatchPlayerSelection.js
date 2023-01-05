@@ -6,7 +6,9 @@ import {Link} from "react-router-dom";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled, homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId, onPlayerChanged, divisionId }) {
+export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled,
+                                         homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
+                                         onPlayerChanged, divisionId, account }) {
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
 
@@ -153,11 +155,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
             <EditPlayerDetails
                 id={null}
-                name={newPlayerDetails.name}
+                {...newPlayerDetails}
                 teamId={team.id}
                 seasonId={seasonId}
                 gameId={gameId}
-                captain={newPlayerDetails.captain}
                 teams={[ team ]}
                 onChange={onNewPlayerChanged}
                 onCancel={() => setCreatePlayerFor(null)}
@@ -189,6 +190,18 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         setNewPlayerDetails(newDetails);
     }
 
+    function canEditOrDelete(teamId) {
+        if (!account || !account.access || readOnly) {
+            return false;
+        }
+
+        if (account.access.manageScores) {
+            return true;
+        }
+
+        return (account.access.inputResults && account.teamId === teamId);
+    }
+
     return (<tr>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
@@ -201,8 +214,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 selected={homePlayer(index)}
                 except={exceptPlayers(index, 'homePlayers')}
                 onChange={(elem, player) => homePlayerChanged(index, player)}
-                allowEdit={true}
-                allowDelete={true}
+                allowEdit={canEditOrDelete(home.id)}
+                allowDelete={canEditOrDelete(home.id)}
                 onDelete={playerUpdated}
                 onEdit={playerUpdated}
                 teamId={home.id}
@@ -215,8 +228,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
+                    className={readOnly ? 'border-1 border-secondary' : null}
                     type="number" max="5" min="0"
-                    value={match.homeScore === null ? '' : match.homeScore}
+                    value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td className="vertical-align-middle text-center">vs</td>
@@ -226,8 +240,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
+                    className={readOnly ? 'border-1 border-secondary' : null}
                     type="number" max="5" min="0"
-                    value={match.awayScore === null ? '' : match.awayScore}
+                    value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}>
@@ -240,9 +255,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 selected={awayPlayer(index)}
                 except={exceptPlayers(index, 'awayPlayers')}
                 onChange={(elem, player) => awayPlayerChanged(index, player)}
-                allowEdit={true}
+                allowEdit={canEditOrDelete(away.id)}
                 onEdit={playerUpdated}
-                allowDelete={true}
+                allowDelete={canEditOrDelete(away.id)}
                 onDelete={playerUpdated}
                 teamId={away.id}
                 seasonId={seasonId}

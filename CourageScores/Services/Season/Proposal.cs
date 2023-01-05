@@ -1,13 +1,14 @@
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Season;
 
 public class Proposal : IEquatable<Proposal>
 {
-    public Team Home { get; }
-    public Team Away { get; }
+    public TeamDto Home { get; }
+    public TeamDto Away { get; }
 
-    public Proposal(Team home, Team away)
+    public Proposal(TeamDto home, TeamDto away)
     {
         Home = home;
         Away = away;

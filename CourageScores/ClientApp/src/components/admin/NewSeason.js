@@ -7,12 +7,15 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
 export function NewSeason() {
-    const [ name, setName ] = useState('');
-    const [ startDate, setStartDate ] = useState('');
-    const [ endDate, setEndDate ] = useState('');
     const [ saving, setSaving ] = useState(false);
     const [ newSeasonError, setNewSeasonError] = useState(null);
     const [ seasons, setSeasons ] = useState([]);
+    const [ newSeason, setNewSeason ] = useState({
+        name: '',
+        startDate: '',
+        endDate: '',
+        copyTeamsFromSeasonId: null
+    });
     const api = new SeasonApi(new Http(new Settings()));
     const navigate = useNavigate();
 
@@ -25,12 +28,22 @@ export function NewSeason() {
         setSeasons(seasons.map(s => { return { value: s.id, text: `${s.name} (${new Date(s.startDate).toDateString()} - ${new Date(s.endDate).toDateString()})` } }));
     }
 
+    function onPropertyChange(event) {
+        setProperty(event.target.name, event.target.value);
+    }
+
+    function setProperty(property, value) {
+        const newData = Object.assign({}, newSeason);
+        newData[property] = value;
+        setNewSeason(newData);
+    }
+
     async function createSeason() {
         if (saving) {
             return;
         }
 
-        if (!name) {
+        if (!newSeason.name) {
             window.alert('You must enter a name');
             return;
         }
@@ -38,15 +51,11 @@ export function NewSeason() {
         setSaving(true);
 
         try {
-            const response = await api.update({
-                name: name,
-                startDate: startDate,
-                endDate: endDate,
-            });
+            const response = await api.update(newSeason);
 
             if (response.success) {
-                const seasonId = response.result.id;
-                navigate(`/season/edit/${seasonId}`);
+                window.alert('Season created');
+                navigate(`/home`);
             } else {
                 setNewSeasonError(response);
             }
@@ -62,25 +71,25 @@ export function NewSeason() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
-            <input value={name} onChange={(event) => setName(event.target.value)} />
+            <input name="name" value={newSeason.name} onChange={onPropertyChange} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Start date</span>
             </div>
-            <input value={startDate} type="date" onChange={(event) => setStartDate(event.target.value)} />
+            <input name="startDate" value={newSeason.startDate} type="date" onChange={onPropertyChange} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">End date</span>
             </div>
-            <input value={endDate} type="date" onChange={(event) => setEndDate(event.target.value)} />
+            <input name="endDate" value={newSeason.endDate} type="date" onChange={onPropertyChange} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Use teams from season</span>
             </div>
-            <BootstrapDropdown value={null} options={seasons} />
+            <BootstrapDropdown value={newSeason.copyTeamsFromSeasonId} options={seasons} onChange={(seasonId) => setProperty('copyTeamsFromSeasonId', seasonId)} />
         </div>
 
         <button className="btn btn-primary mt-3" onClick={createSeason}>

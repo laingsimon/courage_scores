@@ -5,7 +5,7 @@ namespace CourageScores.Models.Adapters.Game;
 
 public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
 {
-    public Task<NotablePlayerDto> Adapt(NotablePlayer model)
+    public Task<NotablePlayerDto> Adapt(NotablePlayer model, CancellationToken token)
     {
         return Task.FromResult(new NotablePlayerDto
         {
@@ -15,7 +15,7 @@ public class NotablePlayerAdapter : IAdapter<NotablePlayer, NotablePlayerDto>
         }.AddAuditProperties(model));
     }
 
-    public Task<NotablePlayer> Adapt(NotablePlayerDto dto)
+    public Task<NotablePlayer> Adapt(NotablePlayerDto dto, CancellationToken token)
     {
         return Task.FromResult(new NotablePlayer
         {

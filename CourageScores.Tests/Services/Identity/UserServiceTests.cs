@@ -3,7 +3,9 @@ using System.Security.Principal;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Repository.Identity;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
@@ -26,6 +28,8 @@ public class UserServiceTests
     private Mock<IServiceProvider> _httpContextServices;
     private ISimpleAdapter<User, UserDto> _userAdapter;
     private AccessAdapter _accessAdapter;
+    private CancellationToken _token;
+    private Mock<IGenericRepository<Team>> _teamRepository;
 #pragma warning restore CS8618
 
     [SetUp]
@@ -36,8 +40,10 @@ public class UserServiceTests
         _authenticationService = new Mock<IAuthenticationService>();
         _accessAdapter = new AccessAdapter();
         _userAdapter = new UserAdapter(_accessAdapter);
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter);
+        _teamRepository = new Mock<IGenericRepository<Team>>();
+        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter, _teamRepository.Object);
         _httpContextServices = new Mock<IServiceProvider>();
+        _token = new CancellationToken();
 
         _httpContextServices
             .Setup(p => p.GetService(typeof(IAuthenticationService)))
@@ -52,7 +58,7 @@ public class UserServiceTests
     {
         _httpContext = null;
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Null);
     }
@@ -68,7 +74,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.NoResult);
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Null);
     }
@@ -88,7 +94,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
 
-        await _service.GetUser();
+        await _service.GetUser(_token);
 
         _userRepository.Verify(r => r.UpsertUser(It.IsAny<User>()));
     }
@@ -108,7 +114,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Name, Is.EqualTo("Simon Laing"));
@@ -133,11 +139,95 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Access, Is.Null);
+        Assert.That(result.TeamId, Is.Null);
+    }
+
+    [Test]
+    public async Task GetUser_GivenTeamPlayerWithEmailAddress_ThenReturnsTeamId()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        var user = new User();
+        var team = new Team
+        {
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    Players =
+                    {
+                        new TeamPlayer
+                        {
+                            EmailAddress = "email@somewhere.com"
+                        }
+                    }
+                }
+            },
+            Id = Guid.NewGuid(),
+        };
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(team));
+
+        var result = await _service.GetUser(_token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.TeamId, Is.EqualTo(team.Id));
+    }
+
+    [Test]
+    public async Task GetUser_GivenTeamPlayerWithEmailAddressInDifferentCase_ThenReturnsTeamId()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        var user = new User();
+        var team = new Team
+        {
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    Players =
+                    {
+                        new TeamPlayer
+                        {
+                            EmailAddress = "EMAIL@somewhere.com"
+                        }
+                    }
+                }
+            },
+            Id = Guid.NewGuid(),
+        };
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(team));
+
+        var result = await _service.GetUser(_token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.TeamId, Is.EqualTo(team.Id));
     }
 
     [Test]
@@ -162,8 +252,9 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
 
-        var result = await _service.GetUser();
+        var result = await _service.GetUser(_token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Access, Is.Not.Null);

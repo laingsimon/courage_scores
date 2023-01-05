@@ -23,33 +23,33 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
         _notablePlayerAdapter = notablePlayerAdapter;
     }
 
-    public async Task<TournamentGameDto> Adapt(TournamentGame model)
+    public async Task<TournamentGameDto> Adapt(TournamentGame model, CancellationToken token)
     {
         return new TournamentGameDto
         {
             Id = model.Id,
-            Round = model.Round != null ? await _roundAdapter.Adapt(model.Round) : null,
+            Round = model.Round != null ? await _roundAdapter.Adapt(model.Round, token) : null,
             Date = model.Date,
-            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList(),
+            Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             SeasonId = model.SeasonId,
             Address = model.Address,
-            OneEighties = await model.OneEighties.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
-            Over100Checkouts = await model.Over100Checkouts.SelectAsync(_notablePlayerAdapter.Adapt).ToList(),
+            OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
-    public async Task<TournamentGame> Adapt(TournamentGameDto dto)
+    public async Task<TournamentGame> Adapt(TournamentGameDto dto, CancellationToken token)
     {
         return new TournamentGame
         {
             Id = dto.Id,
-            Round = dto.Round != null ? await _roundAdapter.Adapt(dto.Round) : null,
+            Round = dto.Round != null ? await _roundAdapter.Adapt(dto.Round, token) : null,
             Date = dto.Date,
-            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s)).ToList(),
+            Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             SeasonId = dto.SeasonId,
             Address = dto.Address,
-            OneEighties = await dto.OneEighties.SelectAsync(_gamePlayerAdapter.Adapt).ToList(),
-            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(_notablePlayerAdapter.Adapt).ToList(),
+            OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

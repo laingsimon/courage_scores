@@ -42,7 +42,7 @@ public class GameDto : AuditedDto
     /// <summary>
     /// The matches that were played
     /// </summary>
-    public List<GameMatchDto> Matches { get; set; } = null!;
+    public List<GameMatchDto> Matches { get; set; } = new();
 
     /// <summary>
     /// Whether the game has been postponed
@@ -53,4 +53,19 @@ public class GameDto : AuditedDto
     /// Is this a knockout game?
     /// </summary>
     public bool IsKnockout { get; set; }
+
+    /// <summary>
+    /// The scores as reported by the home team
+    /// </summary>
+    public GameDto? HomeSubmission { get; set; }
+
+    /// <summary>
+    /// The scores as reported by the away team
+    /// </summary>
+    public GameDto? AwaySubmission { get; set; }
+
+    /// <summary>
+    /// Have the results been published? If so no submissions are permitted.
+    /// </summary>
+    public bool ResultsPublished { get; set; }
 }
