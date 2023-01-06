@@ -164,7 +164,7 @@ input[type="date"] {
 
 .bg-winner,
 td.bg-winner {
-  background-image: linear-gradient(180deg, #33ff33, #00cc00);
+  background-color: #bbffbb;
 }
 
 .no-list-indent{
