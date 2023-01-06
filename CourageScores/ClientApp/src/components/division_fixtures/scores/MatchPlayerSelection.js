@@ -9,6 +9,7 @@ export const NEW_PLAYER = 'NEW_PLAYER';
 export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
                                          onPlayerChanged, divisionId, account }) {
+    const SHOW_EDIT_PLAYER_CONTROLS = false;
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
 
@@ -195,7 +196,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return false;
         }
 
-        if (account.access.manageScores) {
+        if (account.access.manageScores && SHOW_EDIT_PLAYER_CONTROLS) {
             return true;
         }
 
@@ -222,7 +223,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 seasonId={seasonId}
                 gameId={gameId} /></div>))}
         </td>
-        <td className={`vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}`}>
+        <td className={`narrow-column vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
                 ? (match.homeScore)
                 : (<input
@@ -234,7 +235,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
         <td className="vertical-align-middle text-center">vs</td>
-        <td className={`vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}`}>
+        <td className={`narrow-column vertical-align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
                 ? (match.awayScore)
                 : (<input
