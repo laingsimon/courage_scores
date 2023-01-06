@@ -357,7 +357,7 @@ export function Score({account, apis, divisions}) {
     function renderMatchPlayerSelection(index, noOfLegs, playerCount) {
         let matchIndex = 0;
         const matchesExceptIndex = fixtureData.matches.filter(match => {
-            return matchIndex++ !== index && match.awayPlayers.length === playerCount;
+            return matchIndex++ !== index && match.awayPlayers && match.awayPlayers.length === playerCount;
         });
 
         return (<MatchPlayerSelection
