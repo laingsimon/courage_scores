@@ -354,6 +354,36 @@ export function Score({account, apis, divisions}) {
         }
     }
 
+    function renderMatchPlayerSelection(index, noOfLegs, playerCount) {
+        let matchIndex = 0;
+        const matchesExceptIndex = fixtureData.matches.filter(match => {
+            return matchIndex++ !== index && match.awayPlayers.length === playerCount;
+        });
+
+        return (<MatchPlayerSelection
+            numberOfLegs={noOfLegs} playerCount={playerCount} homePlayers={homeTeam} awayPlayers={awayTeam}
+            match={fixtureData.matches[index]} account={account}
+            disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
+            onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
+            otherMatches={matchesExceptIndex}
+            onPlayerChanged={loadFixtureData}
+            home={fixtureData.home} away={fixtureData.away}
+            seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />);
+    }
+
+    function renderMergeMatch(index) {
+        if (!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
+            return (<MergeMatch
+                readOnly={saving} matchIndex={index}
+                matches={fixtureData.matches}
+                homeSubmission={fixtureData.homeSubmission}
+                awaySubmission={fixtureData.awaySubmission}
+                acceptSubmission={(match) => setMatch(index, match)} />);
+        }
+
+        return null;
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -449,131 +479,28 @@ export function Score({account, apis, divisions}) {
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
                 </tr>
-                <MatchPlayerSelection
-                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    match={fixtureData.matches[0]} account={account}
-                    disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 0)}
-                    otherMatches={[fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
-                    onPlayerChanged={loadFixtureData}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={0}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(0, match)} />) : null}
-                <MatchPlayerSelection
-                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[1]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 1)}
-                    onPlayerChanged={loadFixtureData}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={1}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(1, match)} />) : null}
-                <MatchPlayerSelection
-                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[2]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 2)}
-                    onPlayerChanged={loadFixtureData}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={2}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(2, match)} />) : null}
-                <MatchPlayerSelection
-                    numberOfLegs={5} playerCount={1} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[3]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 3)}
-                    onPlayerChanged={loadFixtureData}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={3}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(3, match)} />) : null}
-                <MatchPlayerSelection
-                    playerCount={1} numberOfLegs={5} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[4]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 4)}
-                    onPlayerChanged={loadFixtureData}
-                    otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
-                    home={fixtureData.home} away={fixtureData.away} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={4}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(4, match)} />) : null}
+                {renderMatchPlayerSelection(0, 5, 1)}
+                {renderMergeMatch(0)}
+                {renderMatchPlayerSelection(1, 5, 1)}
+                {renderMergeMatch(1)}
+                {renderMatchPlayerSelection(2, 5, 1)}
+                {renderMergeMatch(2)}
+                {renderMatchPlayerSelection(3, 5, 1)}
+                {renderMergeMatch(3)}
+                {renderMatchPlayerSelection(4, 5, 1)}
+                {renderMergeMatch(4)}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
                 </tr>
-                <MatchPlayerSelection
-                    playerCount={2} numberOfLegs={3} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[5]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 5)}
-                    onPlayerChanged={loadFixtureData}
-                    otherMatches={[fixtureData.matches[6]]}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={5}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(5, match)} />) : null}
-                <MatchPlayerSelection
-                    playerCount={2} numberOfLegs={3} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[6]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 6)}
-                    onPlayerChanged={loadFixtureData}
-                    otherMatches={[fixtureData.matches[5]]}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={6}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(6, match)} />) : null}
+                {renderMatchPlayerSelection(5, 3, 2)}
+                {renderMergeMatch(5)}
+                {renderMatchPlayerSelection(6, 3, 2)}
+                {renderMergeMatch(6)}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
                 </tr>
-                <MatchPlayerSelection
-                    playerCount={3} numberOfLegs={3} homePlayers={homeTeam} awayPlayers={awayTeam}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')} disabled={access === 'readonly'}
-                    match={fixtureData.matches[7]} account={account}
-                    onMatchChanged={(newMatch) => onMatchChanged(newMatch, 7)}
-                    onPlayerChanged={loadFixtureData}
-                    home={fixtureData.home} away={fixtureData.away}
-                    seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
-                    readOnly={saving} matchIndex={7}
-                    matches={fixtureData.matches}
-                    homeSubmission={fixtureData.homeSubmission}
-                    awaySubmission={fixtureData.awaySubmission}
-                    acceptSubmission={(match) => setMatch(7, match)} />) : null}
+                {renderMatchPlayerSelection(7, 3, 3)}
+                {renderMergeMatch(7)}
                 {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
                     <td colSpan="2">
                         Man of the match<br/>
