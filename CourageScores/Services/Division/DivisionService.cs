@@ -10,6 +10,7 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Division;
 
@@ -22,6 +23,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUserService _userService;
+    private readonly ISystemClock _clock;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
@@ -30,7 +32,8 @@ public class DivisionService : IDivisionService
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
-        IUserService userService)
+        IUserService userService,
+        ISystemClock clock)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
@@ -39,6 +42,7 @@ public class DivisionService : IDivisionService
         _tournamentGameRepository = tournamentGameRepository;
         _tournamentSideAdapter = tournamentSideAdapter;
         _userService = userService;
+        _clock = clock;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
@@ -55,7 +59,7 @@ public class DivisionService : IDivisionService
             .GetAll(token)
             .OrderByDescendingAsync(s => s.EndDate).ToList();
         var season = seasonId == null
-            ? allSeasons.MaxBy(s => s.EndDate)
+            ? allSeasons.Where(s => s.StartDate <= _clock.UtcNow.Date && s.EndDate >= _clock.UtcNow.Date).MaxBy(s => s.EndDate)
             : await _genericSeasonService.Get(seasonId.Value, token);
 
         if (season == null)
