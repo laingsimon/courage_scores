@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 
 export function TeamOverview({ divisionData, teamId, account, seasonId }) {
-    const team = divisionData.teams.filter(t => t.id === teamId)[0];
+    const team = divisionData.teams.filter(t => t.id === teamId)[0] || divisionData.allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
     const fixtures = divisionData.fixtures.map(fixtureDate => {
        return {
            date: fixtureDate.date,
