@@ -39,6 +39,10 @@ export default class App extends Component {
         };
     }
 
+    shouldExcludeSurround() {
+        return window.excludeSurround;
+    }
+
     static getDerivedStateFromError(error) {
         return {
             error: {
@@ -93,7 +97,7 @@ export default class App extends Component {
 
     render() {
         return (
-            <Layout appLoading={this.state.appLoading} {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
+            <Layout excludeSurround={this.shouldExcludeSurround()} appLoading={this.state.appLoading} {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
                 <Routes>
                     <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
                     <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
