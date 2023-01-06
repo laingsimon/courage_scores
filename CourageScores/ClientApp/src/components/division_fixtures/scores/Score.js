@@ -458,7 +458,7 @@ export function Score({account, apis, divisions}) {
                     onPlayerChanged={loadFixtureData}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={0}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -473,7 +473,7 @@ export function Score({account, apis, divisions}) {
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[2], fixtureData.matches[3], fixtureData.matches[4]]}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={1}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -488,7 +488,7 @@ export function Score({account, apis, divisions}) {
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[3], fixtureData.matches[4]]}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={2}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -503,7 +503,7 @@ export function Score({account, apis, divisions}) {
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[4]]}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={3}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -518,7 +518,7 @@ export function Score({account, apis, divisions}) {
                     otherMatches={[fixtureData.matches[0], fixtureData.matches[1], fixtureData.matches[2], fixtureData.matches[3]]}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
                     home={fixtureData.home} away={fixtureData.away} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={4}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -536,7 +536,7 @@ export function Score({account, apis, divisions}) {
                     otherMatches={[fixtureData.matches[6]]}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={5}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -551,7 +551,7 @@ export function Score({account, apis, divisions}) {
                     otherMatches={[fixtureData.matches[5]]}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={6}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -568,7 +568,7 @@ export function Score({account, apis, divisions}) {
                     onPlayerChanged={loadFixtureData}
                     home={fixtureData.home} away={fixtureData.away}
                     seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />
-                {!fixtureData.resultsPublished && access === 'admin' && submission === null ? (<MergeMatch
+                {!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission) ? (<MergeMatch
                     readOnly={saving} matchIndex={7}
                     matches={fixtureData.matches}
                     homeSubmission={fixtureData.homeSubmission}
@@ -641,7 +641,7 @@ export function Score({account, apis, divisions}) {
                             seasonId={fixtureData.seasonId} />
                     </td>
                 </tr>
-                {!fixtureData.resultsPublished && access === 'admin'
+                {!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)
                     ? (<tr>
                         <td colSpan="2">
                             {(!fixtureData.matches[0].oneEighties || fixtureData.matches[0].oneEighties.length === 0) && (getRecordsToMerge('home', 'oneEighties').length > 0 || getRecordsToMerge('away', 'oneEighties').length > 0)
@@ -705,7 +705,7 @@ export function Score({account, apis, divisions}) {
                                  aria-hidden="true"></span>) : null}
                 Save
             </button>) : null}
-            {access === 'admin' && data.resultsPublished ? (<button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
+            {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (<button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
         </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score" />) : null}
     </div>);
