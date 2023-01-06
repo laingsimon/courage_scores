@@ -160,6 +160,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
 
         var iteration = 1;
+        var prioritisedTeams = new List<TeamDto>();
         while (proposals.Count > 0)
         {
             if (iteration > maxIterations)
@@ -169,9 +170,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             }
 
             token.ThrowIfCancellationRequested();
-            yield return await CreateFixturesForDate(request, result, existingGames, currentDate, proposals, token);
+
+            var fixturesForDate = await CreateFixturesForDate(request, result, existingGames, currentDate, proposals, prioritisedTeams, token);
+            yield return fixturesForDate;
             currentDate = currentDate.AddDays(request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
             iteration++;
+            prioritisedTeams = allTeams.Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id)).ToList();
         }
     }
 
@@ -181,6 +185,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IReadOnlyCollection<DivisionFixtureDateDto> existingGames,
         DateTime currentDate,
         List<Proposal> proposals,
+        IReadOnlyCollection<TeamDto> prioritisedTeams,
         CancellationToken token)
     {
         try
@@ -214,7 +219,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
             while (proposals.Count > 0)
             {
-                var proposal = proposals.GetAndRemove(Random.Shared.Next(0, proposals.Count));
+                var proposal = GetProposalIndex(proposals, prioritisedTeams);
+                proposals.Remove(proposal);
 
                 if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
                 {
@@ -254,6 +260,17 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         {
             throw new InvalidOperationException($"Unable to create fixtures for date {currentDate}: {exc.Message}", exc);
         }
+    }
+
+    private static Proposal GetProposalIndex(IReadOnlyCollection<Proposal> proposals, IReadOnlyCollection<TeamDto> prioritisedTeams)
+    {
+        var prioritisedProposals = prioritisedTeams.Count > 0
+            ? proposals.Where(p => prioritisedTeams.Any(t => t.Id == p.Away.Id || t.Id == p.Home.Id)).ToArray()
+            : Array.Empty<Proposal>();
+
+        return prioritisedProposals.Length > 0
+            ? prioritisedProposals[Random.Shared.Next(0, prioritisedProposals.Length)]
+            : proposals.ElementAt(Random.Shared.Next(0, proposals.Count));
     }
 
     private static List<Proposal> GetProposals(
