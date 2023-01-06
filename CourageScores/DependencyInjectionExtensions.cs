@@ -68,6 +68,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDataService, DataService>();
         services.AddScoped<IGameService, GameService>();
         services.AddScoped<CachingDivisionService>();
+        services.AddScoped<CachingSeasonService>();
+        services.AddScoped<CachingTeamService>();
+        services.AddScoped(typeof(CachingDataService<,>));
     }
 
     private static void AddRepositories(IServiceCollection services)
