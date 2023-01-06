@@ -8,15 +8,19 @@ using CourageScores.Repository;
 using CourageScores.Services.Division;
 using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
+using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Season;
 
 public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>, ISeasonService
 {
+    private const int NumberOfProposalIterations = 25;
+
     private readonly IUserService _userService;
     private readonly ITeamService _teamService;
     private readonly IDivisionService _divisionService;
     private readonly IGameService _gameService;
+    private readonly ISystemClock _clock;
 
     public SeasonService(
         IGenericRepository<Models.Cosmos.Season> repository,
@@ -25,13 +29,15 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IAuditingHelper auditingHelper,
         ITeamService teamService,
         IDivisionService divisionService,
-        IGameService gameService)
+        IGameService gameService,
+        ISystemClock clock)
         : base(repository, adapter, userService, auditingHelper)
     {
         _userService = userService;
         _teamService = teamService;
         _divisionService = divisionService;
         _gameService = gameService;
+        _clock = clock;
     }
 
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
@@ -56,7 +62,9 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         try
         {
             var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
-            var datesAndGames = await ProposeGamesInt(request, season, allTeams, result, token).ToList();
+            var datesAndGames = await RepeatAndReturnSmallest(
+                async () => await ProposeGamesInt(request, season, allTeams, result, token).ToList(),
+                NumberOfProposalIterations);
             result.Result =
                 datesAndGames //regroup the results, in case existing games are reported before proposed games for the same date
                     .GroupBy(d => d.Date)
@@ -82,9 +90,26 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
+    private static async Task<List<T>> RepeatAndReturnSmallest<T>(Func<Task<List<T>>> provider, int times)
+    {
+        List<T>? smallest = null;
+
+        for (var iteration = 0; iteration < times; iteration++)
+        {
+            var current = await provider();
+            if (smallest == null || current.Count < smallest.Count)
+            {
+                smallest = current;
+            }
+        }
+
+        return smallest!;
+    }
+
     public async Task<SeasonDto?> GetLatest(CancellationToken token)
     {
-        return (await GetAll(token).ToList()).MaxBy(s => s.EndDate);
+        var today = _clock.UtcNow.Date;
+        return (await GetAll(token).ToList()).Where(s => s.StartDate <= today && s.EndDate >= today).MaxBy(s => s.EndDate);
     }
 
     private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<TeamDto> allTeams)
