@@ -35,6 +35,7 @@ public static class DependencyInjectionExtensions
         services.AddHttpContextAccessor();
         services.AddSingleton<ISystemClock, SystemClock>();
         services.AddScoped<ICommandFactory, CommandFactory>();
+        services.AddMemoryCache();
 
         AddServices(services);
         AddRepositories(services);
@@ -66,6 +67,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IReportService, ReportService>();
         services.AddScoped<IDataService, DataService>();
         services.AddScoped<IGameService, GameService>();
+        services.AddScoped<CachingDivisionService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

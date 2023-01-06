@@ -9,10 +9,10 @@ namespace CourageScores.Controllers;
 [ApiController]
 public class DivisionController : Controller
 {
-    private readonly IDivisionService _divisionService;
+    private readonly CachingDivisionService _divisionService;
     private readonly ICommandFactory _commandFactory;
 
-    public DivisionController(IDivisionService divisionService, ICommandFactory commandFactory)
+    public DivisionController(CachingDivisionService divisionService, ICommandFactory commandFactory)
     {
         _divisionService = divisionService;
         _commandFactory = commandFactory;
