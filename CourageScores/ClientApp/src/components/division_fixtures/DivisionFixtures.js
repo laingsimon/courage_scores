@@ -206,6 +206,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return today === new Date(date).toDateString();
     }
 
+    function hasProposals(fixtures) {
+        return fixtures.filter(f => f.proposal).length > 0;
+    }
+
     return (<div className="light-background p-3">
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
@@ -224,7 +228,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             </button>) : null}
         </div>) : null}
         <div>
-            {fixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) ? '' : 'opacity-50')}>
+            {fixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'opacity-50')}>
                 <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
                 <table className="table layout-fixed">
                     <tbody>
