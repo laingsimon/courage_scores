@@ -442,40 +442,40 @@ export function Score({account, apis, divisions}) {
             </NavItem>
         </ul>) : null}
         <div className="light-background p-3 overflow-auto">
-            <table className="table">
+            {fixtureData.address || access === 'admin' ? (<div>
+                {access === 'admin'
+                    ? (<div>
+                        <div className="input-group mb-3">
+                            <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={data.date.substring(0, 10)} onChange={changeFixtureProperty} />
+                            <input disabled={saving} type="text" name="address" className="form-control margin-right" value={data.address} onChange={changeFixtureProperty} />
+                            <div className="form-check form-switch margin-right">
+                                <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={data.postponed} onChange={changeFixtureProperty} />
+                                <label className="form-check-label" htmlFor="postponed">Postponed</label>
+                            </div>
+                            <div className="form-check form-switch">
+                                <input disabled={saving} type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={data.isKnockout} onChange={changeFixtureProperty} />
+                                <label className="form-check-label" htmlFor="isKnockout">Knockout</label>
+                            </div>
+                        </div>
+                    </div>)
+                    : (<div>
+                        {data.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
+                        {data.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
+                    </div>)}
+            </div>) : null}
+            <table className="table minimal-padding">
                 <tbody>
                 <tr>
                     <td colSpan="2" className={`text-end fw-bold ${winner === 'home' ? 'bg-winner' : null}`}>
                         <Link to={`/division/${data.divisionId}/team:${data.home.id}/${data.seasonId}`} className="margin-right">{data.home.name}</Link>
                         {data.homeSubmission && (access === 'admin' || (account && data.home && account.teamId === data.home.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('home')} className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
                     </td>
-                    <td className="text-center">vs</td>
+                    <td className="text-center width-1 p-0"></td>
                     <td colSpan="2" className={`text-start fw-bold ${winner === 'away' ? 'bg-winner' : null}`}>
                         <Link to={`/division/${data.divisionId}/team:${data.away.id}/${data.seasonId}`} className="margin-right">{data.away.name}</Link>
                         {data.awaySubmission && (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('away')} className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
                     </td>
                 </tr>
-                {fixtureData.address || access === 'admin' ? (<tr>
-                    {access === 'admin'
-                        ? (<td colSpan="5">
-                            <div className="input-group mb-3">
-                                    <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={data.date.substring(0, 10)} onChange={changeFixtureProperty} />
-                                    <input disabled={saving} type="text" name="address" className="form-control margin-right" value={data.address} onChange={changeFixtureProperty} />
-                                    <div className="form-check form-switch margin-right">
-                                       <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={data.postponed} onChange={changeFixtureProperty} />
-                                       <label className="form-check-label" htmlFor="postponed">Postponed</label>
-                                    </div>
-                                    <div className="form-check form-switch">
-                                       <input disabled={saving} type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={data.isKnockout} onChange={changeFixtureProperty} />
-                                       <label className="form-check-label" htmlFor="isKnockout">Knockout</label>
-                                    </div>
-                               </div>
-                           </td>)
-                        : (<td colSpan="5">
-                            {data.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
-                            {data.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
-                            </td>)}
-                </tr>) : null}
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
                 </tr>
@@ -511,7 +511,7 @@ export function Score({account, apis, divisions}) {
                             selected={{id: fixtureData.home.manOfTheMatch}}
                             onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
                     </td>
-                    <td></td>
+                    <td className="width-1 p-0"></td>
                     <td colSpan="2">
                         Man of the match<br/>
                         {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
@@ -531,7 +531,7 @@ export function Score({account, apis, divisions}) {
                                 </button>)
                                 : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
                         </td>)}
-                        <td></td>
+                        <td className="width-1 p-0"></td>
                         {data.away.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
                             {data.awaySubmission && data.awaySubmission.away.manOfTheMatch
                                 ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.awaySubmission.away.manOfTheMatch)}>
@@ -553,7 +553,7 @@ export function Score({account, apis, divisions}) {
                             divisionId={fixtureData.divisionId}
                             seasonId={fixtureData.seasonId} />
                     </td>
-                    <td></td>
+                    <td className="width-1 p-0"></td>
                     <td colSpan="2">
                         100+ c/o<br/>
                         <MultiPlayerSelection

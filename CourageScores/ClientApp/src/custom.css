@@ -194,3 +194,28 @@ td.bg-winner {
 .transform-top-left {
   transform-origin: top left;
 }
+
+input.single-character-input {
+  width: 100%;
+  min-width: 30px;
+}
+
+.width-10, table .width-10 {
+  width: 10px;
+}
+
+.width-50-pc, table .width-50-pc {
+  width: 50%;
+}
+
+.width-1, table .width-1 {
+  min-width: 1px;
+}
+
+table.minimal-padding td {
+  padding: 2px;
+}
+
+table td.middle-vertical-line {
+  background: #000000;
+}

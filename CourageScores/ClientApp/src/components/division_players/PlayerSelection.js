@@ -105,7 +105,6 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
             disabled={disabled}
             readOnly={readOnly}
             value={(selected || {}).id || ''}
-            className="margin-right"
             onChange={async (value) => onChange ? await onChange(this, findPlayer(value)) : null}
             options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
                     .map(p => { return { value: p.id, text: p.name } })) } />

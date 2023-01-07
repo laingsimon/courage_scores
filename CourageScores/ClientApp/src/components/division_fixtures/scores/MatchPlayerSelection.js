@@ -204,7 +204,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     }
 
     return (<tr>
-        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}>
+        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner text-end width-50-pc' : 'text-end width-50-pc'}>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link></div>)
@@ -229,24 +229,24 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
-                    className={readOnly ? 'border-1 border-secondary' : null}
+                    className={readOnly ? 'border-1 border-secondary single-character-input' : 'single-character-input'}
                     type="number" max="5" min="0"
                     value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
-        <td className="vertical-align-middle text-center">vs</td>
+        <td className="vertical-align-middle text-center width-1 middle-vertical-line p-0"></td>
         <td className={`narrow-column vertical-align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
                 ? (match.awayScore)
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
-                    className={readOnly ? 'border-1 border-secondary' : null}
+                    className={readOnly ? 'border-1 border-secondary single-character-input' : 'single-character-input'}
                     type="number" max="5" min="0"
                     value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
-        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}>
+        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
                 : (<div key={index}><PlayerSelection
