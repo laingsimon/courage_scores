@@ -138,7 +138,7 @@ export function Score({account, apis, divisions}) {
             allPlayers.sort(nameSort);
 
             if (!gameData.matches || !gameData.matches.length) {
-                gameData.matches = [{}, {}, {}, {}, {}, {}, {}, {}];
+                gameData.matches = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
             }
 
             setAllPlayers(allPlayers);
@@ -357,7 +357,7 @@ export function Score({account, apis, divisions}) {
     function renderMatchPlayerSelection(index, noOfLegs, playerCount) {
         let matchIndex = 0;
         const matchesExceptIndex = fixtureData.matches.filter(match => {
-            return matchIndex++ !== index && match.awayPlayers && match.awayPlayers.length === playerCount;
+            return matchIndex++ !== index && match.playerCount === playerCount;
         });
 
         return (<MatchPlayerSelection
