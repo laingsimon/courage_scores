@@ -18,7 +18,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return {};
         }
 
-        return match.homePlayers[index];
+        return match.homePlayers[index] || {};
     }
 
     function awayPlayer(index) {
@@ -26,7 +26,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return {};
         }
 
-        return match.awayPlayers[index];
+        return match.awayPlayers[index] || {};
     }
 
     async function homePlayerChanged(index, player) {
@@ -114,7 +114,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 if (otherMatchPlayers) {
                     for (let otherMatchPlayerIndex = 0; otherMatchPlayerIndex < otherMatchPlayers.length; otherMatchPlayerIndex++) {
                         const otherMatchPlayer = otherMatchPlayers[otherMatchPlayerIndex];
-                        exceptPlayerIds.push(otherMatchPlayer.id);
+                        if (otherMatchPlayer) {
+                            exceptPlayerIds.push(otherMatchPlayer.id);
+                        }
                     }
                 }
             }
@@ -127,7 +129,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
         for (let index = 0; index < playerCount; index++) {
             if (playerIndex !== index && playerList.length > index) {
-                exceptPlayerIds.push(playerList[index].id);
+                if (playerList[index]) {
+                    exceptPlayerIds.push(playerList[index].id);
+                }
             }
         }
 
