@@ -192,15 +192,15 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     }
 
     function canEditOrDelete(teamId) {
-        if (!account || !account.access || readOnly) {
+        if (!account || !account.access || readOnly || !SHOW_EDIT_PLAYER_CONTROLS) {
             return false;
         }
 
-        if (account.access.manageScores && SHOW_EDIT_PLAYER_CONTROLS) {
+        if (account.access.manageScores) {
             return true;
         }
 
-        return (account.access.inputResults && account.teamId === teamId);
+        return account.access.inputResults && account.teamId === teamId;
     }
 
     return (<tr>
