@@ -30,8 +30,7 @@ export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, s
     }
 
     return (<tr>
-        <td colSpan="2">
-            Man of the match<br/>
+        <td colSpan="2" className="text-end">
             {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
                 players={applicablePlayers()}
                 disabled={access === 'readonly'}
@@ -41,7 +40,6 @@ export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, s
         </td>
         <td className="width-1 p-0"></td>
         <td colSpan="2">
-            Man of the match<br/>
             {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
                 players={applicablePlayers()}
                 disabled={access === 'readonly'}

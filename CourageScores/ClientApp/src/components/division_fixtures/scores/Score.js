@@ -391,6 +391,10 @@ export function Score({account, apis, divisions}) {
                 </tr>
                 {renderMatchPlayerSelection(7, 3, 3)}
                 {renderMergeMatch(7)}
+                {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
+                        <td colSpan="5" className="text-center border-0">Man of the match</td>
+                    </tr>
+                ) : null}
                 {renderManOfTheMatchInput()}
                 {renderMergeManOfTheMatch()}
                 {render180sAndHiCheckInput()}
