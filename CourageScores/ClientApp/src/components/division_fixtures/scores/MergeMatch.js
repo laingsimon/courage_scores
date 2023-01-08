@@ -1,11 +1,22 @@
 import React from 'react';
 
-export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, acceptSubmission }) {
+export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData }) {
     const homeSubmissionMatch = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
     const awaySubmissionMatch = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
     const publishedMatch = matches && matches[matchIndex];
     const isPublished = publishedMatch && Object.keys(publishedMatch).length >= 4; // homeScore+homePlayer + awayScore+awayPlayer = 4 properties
     const submissionsMatch = matchEquals(homeSubmissionMatch, awaySubmissionMatch);
+
+    function acceptSubmission(match) {
+        const newFixtureData = Object.assign({}, fixtureData);
+        const matchOnlyProperties = Object.assign({}, match);
+        matchOnlyProperties.oneEighties = [];
+        matchOnlyProperties.over100Checkouts = [];
+
+        newFixtureData.matches[matchIndex] = Object.assign(matchOnlyProperties, newFixtureData.matches[matchIndex]);
+
+        setFixtureData(newFixtureData);
+    }
 
     function matchEquals(x, y) {
         if (!x && !y) {

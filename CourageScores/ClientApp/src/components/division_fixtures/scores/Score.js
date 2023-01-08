@@ -172,13 +172,6 @@ export function Score({account, apis, divisions}) {
         }
     }, [ divisions, fixtureData, data ]);
 
-    function onMatchChanged(newMatch, index) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        newFixtureData.matches[index] = newMatch;
-
-        setFixtureData(newFixtureData);
-    }
-
     async function saveScores() {
         if (access === 'readonly') {
             return;
@@ -200,17 +193,6 @@ export function Score({account, apis, divisions}) {
         } finally {
             setSaving(false);
         }
-    }
-
-    function setMatch(index, match) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        const matchOnlyProperties = Object.assign({}, match);
-        matchOnlyProperties.oneEighties = [];
-        matchOnlyProperties.over100Checkouts = [];
-
-        newFixtureData.matches[index] = Object.assign(matchOnlyProperties, newFixtureData.matches[index]);
-
-        setFixtureData(newFixtureData);
     }
 
     async function unpublish() {
@@ -243,6 +225,13 @@ export function Score({account, apis, divisions}) {
             return matchIndex++ !== index && match.playerCount === playerCount;
         });
 
+        function onMatchChanged(newMatch, index) {
+            const newFixtureData = Object.assign({}, fixtureData);
+            newFixtureData.matches[index] = newMatch;
+
+            setFixtureData(newFixtureData);
+        }
+
         return (<MatchPlayerSelection
             numberOfLegs={noOfLegs} playerCount={playerCount} homePlayers={homeTeam} awayPlayers={awayTeam}
             match={fixtureData.matches[index]} account={account}
@@ -261,7 +250,8 @@ export function Score({account, apis, divisions}) {
                 matches={fixtureData.matches}
                 homeSubmission={fixtureData.homeSubmission}
                 awaySubmission={fixtureData.awaySubmission}
-                acceptSubmission={(match) => setMatch(index, match)} />);
+                setFixtureData={setFixtureData}
+                fixtureData={fixtureData} />);
         }
 
         return null;
