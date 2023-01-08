@@ -17,6 +17,7 @@ import {HiCheckAnd180s} from "./HiCheckAnd180s";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
 import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
+import {ScoreCardHeading} from "./ScoreCardHeading";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -214,17 +215,6 @@ export function Score({account, apis, divisions}) {
         setData(newData);
     }
 
-    function toggleSubmission(submissionToShow) {
-        if (submissionToShow === submission) {
-            setSubmission(null);
-            setFixtureData(data);
-            return;
-        }
-
-        setSubmission(submissionToShow);
-        setFixtureData(data[submissionToShow + 'Submission']);
-    }
-
     function setMatch(index, match) {
         const newFixtureData = Object.assign({}, fixtureData);
         const matchOnlyProperties = Object.assign({}, match);
@@ -305,7 +295,10 @@ export function Score({account, apis, divisions}) {
     }
 
     function renderMergeManOfTheMatch() {
-        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission) && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
+        if (!fixtureData.resultsPublished
+            && access === 'admin'
+            && (data.homeSubmission || data.awaySubmission)
+            && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
             return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers} />);
         }
 
@@ -412,19 +405,7 @@ export function Score({account, apis, divisions}) {
                     </div>)}
             </div>) : null}
             <table className="table minimal-padding">
-                <thead>
-                    <tr>
-                        <td colSpan="2" className={`text-end fw-bold width-50-pc ${winner === 'home' ? 'bg-winner' : ''}`}>
-                            <Link to={`/division/${data.divisionId}/team:${data.home.id}/${data.seasonId}`} className="margin-right">{data.home.name}</Link>
-                            {data.homeSubmission && (access === 'admin' || (account && data.home && account.teamId === data.home.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('home')} className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
-                        </td>
-                        <td className="text-center width-1 p-0"></td>
-                        <td colSpan="2" className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}`}>
-                            <Link to={`/division/${data.divisionId}/team:${data.away.id}/${data.seasonId}`} className="margin-right">{data.away.name}</Link>
-                            {data.awaySubmission && (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('away')} className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
-                        </td>
-                    </tr>
-                </thead>
+                <ScoreCardHeading access={access} data={data} account={account} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
                 {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<tbody>
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
