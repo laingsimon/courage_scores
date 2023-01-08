@@ -1,5 +1,6 @@
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import React from "react";
+import {nameSort} from "../../../Utilities";
 
 export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, saving, setFixtureData }) {
     function manOfTheMatchChanged(player, team) {
@@ -9,11 +10,30 @@ export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, s
         setFixtureData(newFixtureData);
     }
 
+    function applicablePlayers() {
+        const players = {
+        };
+
+        for (let index = 0; index < fixtureData.matches.length; index++) {
+            const match = fixtureData.matches[index];
+
+            (match.homePlayers || []).forEach(player => {
+                players[player.id] = player;
+            });
+
+            (match.awayPlayers || []).forEach(player => {
+                players[player.id] = player;
+            });
+        }
+
+        return Object.values(players).sort(nameSort);
+    }
+
     return (<tr>
         <td colSpan="2">
             Man of the match<br/>
             {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
-                players={allPlayers}
+                players={applicablePlayers()}
                 disabled={access === 'readonly'}
                 readOnly={saving}
                 selected={{id: fixtureData.home.manOfTheMatch}}
@@ -23,7 +43,7 @@ export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, s
         <td colSpan="2">
             Man of the match<br/>
             {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
-                players={allPlayers}
+                players={applicablePlayers()}
                 disabled={access === 'readonly'}
                 readOnly={saving}
                 selected={{id: fixtureData.away.manOfTheMatch}}

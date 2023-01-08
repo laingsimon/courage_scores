@@ -1,7 +1,27 @@
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
+import {nameSort} from "../../../Utilities";
 
 export function HiCheckAnd180s({ access, saving, fixtureData, allPlayers, setFixtureData }){
+    function applicablePlayers() {
+        const players = {
+        };
+
+        for (let index = 0; index < fixtureData.matches.length; index++) {
+            const match = fixtureData.matches[index];
+
+            (match.homePlayers || []).forEach(player => {
+                players[player.id] = player;
+            });
+
+            (match.awayPlayers || []).forEach(player => {
+                players[player.id] = player;
+            });
+        }
+
+        return Object.values(players).sort(nameSort);
+    }
+
     function add180(player) {
         const newFixtureData = Object.assign({}, fixtureData);
         const firstMatch = Object.assign({}, fixtureData.matches[0]);
@@ -63,7 +83,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, allPlayers, setFix
             <MultiPlayerSelection
                 disabled={access === 'readonly'}
                 readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                allPlayers={allPlayers}
+                allPlayers={applicablePlayers()}
                 players={fixtureData.matches[0].oneEighties || []}
                 onRemovePlayer={remove180}
                 onAddPlayer={add180}
@@ -76,7 +96,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, allPlayers, setFix
             <MultiPlayerSelection
                 disabled={access === 'readonly'}
                 readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                allPlayers={allPlayers}
+                allPlayers={applicablePlayers()}
                 players={fixtureData.matches[0].over100Checkouts || []}
                 onRemovePlayer={removeHiCheck}
                 onAddPlayer={addHiCheck}
