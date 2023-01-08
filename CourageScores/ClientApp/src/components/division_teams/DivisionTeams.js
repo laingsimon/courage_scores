@@ -39,7 +39,7 @@ export function DivisionTeams({ teams, teamsWithoutFixtures, account, divisionId
     }
 
     return (<div className="light-background p-3">
-        <div>
+        <div className="overflow-x-auto">
             <table className="table">
                 <thead>
                     <tr>
