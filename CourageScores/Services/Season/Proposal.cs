@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Season;

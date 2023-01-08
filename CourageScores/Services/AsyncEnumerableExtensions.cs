@@ -141,7 +141,7 @@ public static class AsyncEnumerableExtensions
     public static async Task<int> CountAsync<T>(this IAsyncEnumerable<T> items)
     {
         var count = 0;
-        await foreach (var item in items)
+        await foreach (var _ in items)
         {
             count++;
         }

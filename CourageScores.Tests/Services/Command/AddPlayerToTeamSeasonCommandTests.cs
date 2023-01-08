@@ -6,7 +6,6 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -19,7 +18,6 @@ public class AddPlayerToTeamSeasonCommandTests
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<ISystemClock> _clock = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private readonly CancellationToken _token = new CancellationToken();
@@ -39,7 +37,6 @@ public class AddPlayerToTeamSeasonCommandTests
         _seasonService = new Mock<ISeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _clock = new Mock<ISystemClock>();
         _userService = new Mock<IUserService>();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object);
 
@@ -59,7 +56,7 @@ public class AddPlayerToTeamSeasonCommandTests
             TeamId = Guid.Parse(UserTeamId),
             Name = "an admin",
         };
-        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _clock.Object, _userService.Object);
+        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
@@ -94,9 +91,9 @@ public class AddPlayerToTeamSeasonCommandTests
     [TestCase(false, true, "11111111-1111-1111-1111-111111111111")]
     public async Task ApplyUpdate_WhenUserNotPermitted_ReturnsUnsuccessful(bool canManageTeams, bool canInputResults, string? userTeamId)
     {
-        _user.Access!.ManageTeams = canManageTeams;
-        _user.Access!.InputResults = canInputResults;
-        _user.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
+        _user!.Access!.ManageTeams = canManageTeams;
+        _user!.Access!.InputResults = canInputResults;
+        _user!.TeamId = userTeamId != null ? Guid.Parse(userTeamId) : null;
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
