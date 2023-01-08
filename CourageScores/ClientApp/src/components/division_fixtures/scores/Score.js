@@ -384,6 +384,151 @@ export function Score({account, apis, divisions}) {
         return null;
     }
 
+    function renderManOfTheMatchInput() {
+        if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
+            return (<tr>
+                <td colSpan="2">
+                    Man of the match<br/>
+                    {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
+                        players={allPlayers}
+                        disabled={access === 'readonly'}
+                        readOnly={saving}
+                        selected={{id: fixtureData.home.manOfTheMatch}}
+                        onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
+                </td>
+                <td className="width-1 p-0"></td>
+                <td colSpan="2">
+                    Man of the match<br/>
+                    {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
+                        players={allPlayers}
+                        disabled={access === 'readonly'}
+                        readOnly={saving}
+                        selected={{id: fixtureData.away.manOfTheMatch}}
+                        onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
+                </td>
+            </tr>)
+        }
+
+        return null;
+    }
+
+    function renderMergeManOfTheMatch(){
+        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission) && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
+            return (<tr>
+                {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
+                    {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
+                        ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.homeSubmission.home.manOfTheMatch)}>
+                            Use {allPlayers.filter(p => p.id === data.homeSubmission.home.manOfTheMatch)[0].name}
+                        </button>)
+                        : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
+                </td>)}
+                <td className="width-1 p-0"></td>
+                {data.away.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
+                    {data.awaySubmission && data.awaySubmission.away.manOfTheMatch
+                        ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.awaySubmission.away.manOfTheMatch)}>
+                            Use {allPlayers.filter(p => p.id === data.awaySubmission.away.manOfTheMatch)[0].name}
+                        </button>)
+                        : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
+                </td>)}
+            </tr>);
+        }
+
+        return null;
+    }
+
+    function render180sAndHiCheckInput() {
+        return (<tr>
+            <td colSpan="2">
+                180s<br/>
+                <MultiPlayerSelection
+                    disabled={access === 'readonly'}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
+                    allPlayers={allPlayers}
+                    players={fixtureData.matches[0].oneEighties || []}
+                    onRemovePlayer={removeOneEightyScore}
+                    onAddPlayer={add180}
+                    divisionId={fixtureData.divisionId}
+                    seasonId={fixtureData.seasonId} />
+            </td>
+            <td className="width-1 p-0"></td>
+            <td colSpan="2">
+                100+ c/o<br/>
+                <MultiPlayerSelection
+                    disabled={access === 'readonly'}
+                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
+                    allPlayers={allPlayers}
+                    players={fixtureData.matches[0].over100Checkouts || []}
+                    onRemovePlayer={removeHiCheck}
+                    onAddPlayer={addHiCheck}
+                    showNotes={true}
+                    divisionId={fixtureData.divisionId}
+                    seasonId={fixtureData.seasonId} />
+            </td>
+        </tr>);
+    }
+
+    function renderMerge180sAndHiCheck() {
+        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
+            return (<tr>
+                <td colSpan="2">
+                    {(!fixtureData.matches[0].oneEighties || fixtureData.matches[0].oneEighties.length === 0) && (getRecordsToMerge('home', 'oneEighties').length > 0 || getRecordsToMerge('away', 'oneEighties').length > 0)
+                        ? (<div>
+                            {getRecordsToMerge('home', 'oneEighties').length > 0 ? (<div>
+                                <h6>
+                                    from {data.homeSubmission.editor || 'Home'}
+                                    <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'oneEighties')}>Merge</button>
+                                </h6>
+                                <ol>
+                                    {getRecordsToMerge('home', 'oneEighties').map(rec => (<li key={rec.id}>{rec.name}</li>))}
+                                </ol>
+                            </div>) : null}
+                            {getRecordsToMerge('away', 'oneEighties').length > 0 ? (<div>
+                                <h6>
+                                    from {data.homeSubmission.editor || 'Away'}
+                                    <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'oneEighties')}>Merge</button>
+                                </h6>
+                                <ol>
+                                    {getRecordsToMerge('away', 'oneEighties').map(rec => (<li key={rec.id}>{rec.name}</li>))}
+                                </ol>
+                            </div>) : null}
+                        </div>)
+                        : null}
+                </td>
+                <td className="overflow-hidden position-relative">
+                    <div className="vertical-text transform-top-left position-absolute text-nowrap" style={{ marginLeft: '-5px' }}>
+                        <span className="text-nowrap" style={{ marginLeft: '-60px' }}>Merge &rarr;</span>
+                    </div>
+                </td>
+                <td colSpan="2">
+                    {(!fixtureData.matches[0].over100Checkouts || fixtureData.matches[0].over100Checkouts.length === 0) && (getRecordsToMerge('home', 'over100Checkouts').length > 0 || getRecordsToMerge('away', 'over100Checkouts').length > 0)
+                        ? (<div>
+                            {getRecordsToMerge('home', 'over100Checkouts').length > 0 ? (<div>
+                                <h6>
+                                    from {data.homeSubmission.editor || 'Home'}
+                                    <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge</button>
+                                </h6>
+                                <ol>
+                                    {getRecordsToMerge('home', 'over100Checkouts').map(rec => (<li key={rec.id}>{rec.name} ({rec.notes})</li>))}
+                                </ol>
+                            </div>) : null}
+                            {getRecordsToMerge('away', 'over100Checkouts').length > 0 ? (<div>
+                                <h6>
+                                    from {data.homeSubmission.editor || 'Away'}
+                                    <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge</button>
+                                </h6>
+                                <ol>
+                                    {getRecordsToMerge('away', 'over100Checkouts').map(rec => (<li key={rec.id}>{rec.name} ({rec.notes})</li>))}
+                                </ol>
+                            </div>) : null}
+                        </div>)
+                        : null}
+                </td>
+            </tr>);
+        }
+
+        return null;
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -506,130 +651,10 @@ export function Score({account, apis, divisions}) {
                 </tr>
                 {renderMatchPlayerSelection(7, 3, 3)}
                 {renderMergeMatch(7)}
-                {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
-                    <td colSpan="2">
-                        Man of the match<br/>
-                        {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
-                            players={allPlayers}
-                            disabled={access === 'readonly'}
-                            readOnly={saving}
-                            selected={{id: fixtureData.home.manOfTheMatch}}
-                            onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
-                    </td>
-                    <td className="width-1 p-0"></td>
-                    <td colSpan="2">
-                        Man of the match<br/>
-                        {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
-                            players={allPlayers}
-                            disabled={access === 'readonly'}
-                            readOnly={saving}
-                            selected={{id: fixtureData.away.manOfTheMatch}}
-                            onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
-                    </td>
-                </tr>) : null}
-                {!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission) && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))
-                    ? (<tr>
-                        {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
-                            {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
-                                ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.homeSubmission.home.manOfTheMatch)}>
-                                    Use {allPlayers.filter(p => p.id === data.homeSubmission.home.manOfTheMatch)[0].name}
-                                </button>)
-                                : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
-                        </td>)}
-                        <td className="width-1 p-0"></td>
-                        {data.away.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
-                            {data.awaySubmission && data.awaySubmission.away.manOfTheMatch
-                                ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.awaySubmission.away.manOfTheMatch)}>
-                                    Use {allPlayers.filter(p => p.id === data.awaySubmission.away.manOfTheMatch)[0].name}
-                                </button>)
-                                : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
-                        </td>)}
-                    </tr>) : null}
-                <tr>
-                    <td colSpan="2">
-                        180s<br/>
-                        <MultiPlayerSelection
-                            disabled={access === 'readonly'}
-                            readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                            allPlayers={allPlayers}
-                            players={fixtureData.matches[0].oneEighties || []}
-                            onRemovePlayer={removeOneEightyScore}
-                            onAddPlayer={add180}
-                            divisionId={fixtureData.divisionId}
-                            seasonId={fixtureData.seasonId} />
-                    </td>
-                    <td className="width-1 p-0"></td>
-                    <td colSpan="2">
-                        100+ c/o<br/>
-                        <MultiPlayerSelection
-                            disabled={access === 'readonly'}
-                            readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                            allPlayers={allPlayers}
-                            players={fixtureData.matches[0].over100Checkouts || []}
-                            onRemovePlayer={removeHiCheck}
-                            onAddPlayer={addHiCheck}
-                            showNotes={true}
-                            divisionId={fixtureData.divisionId}
-                            seasonId={fixtureData.seasonId} />
-                    </td>
-                </tr>
-                {!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)
-                    ? (<tr>
-                        <td colSpan="2">
-                            {(!fixtureData.matches[0].oneEighties || fixtureData.matches[0].oneEighties.length === 0) && (getRecordsToMerge('home', 'oneEighties').length > 0 || getRecordsToMerge('away', 'oneEighties').length > 0)
-                                ? (<div>
-                                    {getRecordsToMerge('home', 'oneEighties').length > 0 ? (<div>
-                                        <h6>
-                                            from {data.homeSubmission.editor || 'Home'}
-                                            <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'oneEighties')}>Merge</button>
-                                        </h6>
-                                        <ol>
-                                            {getRecordsToMerge('home', 'oneEighties').map(rec => (<li key={rec.id}>{rec.name}</li>))}
-                                        </ol>
-                                    </div>) : null}
-                                    {getRecordsToMerge('away', 'oneEighties').length > 0 ? (<div>
-                                        <h6>
-                                            from {data.homeSubmission.editor || 'Away'}
-                                            <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'oneEighties')}>Merge</button>
-                                        </h6>
-                                        <ol>
-                                            {getRecordsToMerge('away', 'oneEighties').map(rec => (<li key={rec.id}>{rec.name}</li>))}
-                                        </ol>
-                                    </div>) : null}
-                                </div>)
-                                : null}
-                        </td>
-                        <td className="overflow-hidden position-relative">
-                            <div className="vertical-text transform-top-left position-absolute text-nowrap" style={{ marginLeft: '-5px' }}>
-                                <span className="text-nowrap" style={{ marginLeft: '-60px' }}>Merge &rarr;</span>
-                            </div>
-                        </td>
-                        <td colSpan="2">
-                            {(!fixtureData.matches[0].over100Checkouts || fixtureData.matches[0].over100Checkouts.length === 0) && (getRecordsToMerge('home', 'over100Checkouts').length > 0 || getRecordsToMerge('away', 'over100Checkouts').length > 0)
-                                ? (<div>
-                                    {getRecordsToMerge('home', 'over100Checkouts').length > 0 ? (<div>
-                                        <h6>
-                                            from {data.homeSubmission.editor || 'Home'}
-                                            <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge</button>
-                                        </h6>
-                                        <ol>
-                                            {getRecordsToMerge('home', 'over100Checkouts').map(rec => (<li key={rec.id}>{rec.name} ({rec.notes})</li>))}
-                                        </ol>
-                                    </div>) : null}
-                                    {getRecordsToMerge('away', 'over100Checkouts').length > 0 ? (<div>
-                                        <h6>
-                                            from {data.homeSubmission.editor || 'Away'}
-                                            <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge</button>
-                                        </h6>
-                                        <ol>
-                                            {getRecordsToMerge('away', 'over100Checkouts').map(rec => (<li key={rec.id}>{rec.name} ({rec.notes})</li>))}
-                                        </ol>
-                                    </div>) : null}
-                                </div>)
-                                : null}
-                        </td>
-                    </tr>)
-                    : null}
+                {renderManOfTheMatchInput()}
+                {renderMergeManOfTheMatch()}
+                {render180sAndHiCheckInput()}
+                {renderMerge180sAndHiCheck()}
                 </tbody>) : (<tbody><tr><td colSpan="5">No scores, yet</td></tr></tbody>)}
             </table>
             {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (<button className="btn btn-primary" onClick={saveScores}>
