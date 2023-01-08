@@ -448,6 +448,8 @@ export function Score({account, apis, divisions}) {
                         <div className="input-group mb-3">
                             <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={data.date.substring(0, 10)} onChange={changeFixtureProperty} />
                             <input disabled={saving} type="text" name="address" className="form-control margin-right" value={data.address} onChange={changeFixtureProperty} />
+                        </div>
+                        <div className="input-group mb-3">
                             <div className="form-check form-switch margin-right">
                                 <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={data.postponed} onChange={changeFixtureProperty} />
                                 <label className="form-check-label" htmlFor="postponed">Postponed</label>
