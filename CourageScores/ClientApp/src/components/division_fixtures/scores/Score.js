@@ -407,6 +407,7 @@ export function Score({account, apis, divisions}) {
     const winner = finalScore.homeScore > finalScore.awayScore
         ? 'home'
         : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
+    const hasBeenPlayed = fixtureData.matches.filter(m => m.homeScore || m.awayScore).length > 0;
 
     return (<div>
         <DivisionControls
@@ -466,18 +467,20 @@ export function Score({account, apis, divisions}) {
                     </div>)}
             </div>) : null}
             <table className="table minimal-padding">
-                <tbody>
-                <tr>
-                    <td colSpan="2" className={`text-end fw-bold ${winner === 'home' ? 'bg-winner' : null}`}>
-                        <Link to={`/division/${data.divisionId}/team:${data.home.id}/${data.seasonId}`} className="margin-right">{data.home.name}</Link>
-                        {data.homeSubmission && (access === 'admin' || (account && data.home && account.teamId === data.home.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('home')} className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
-                    </td>
-                    <td className="text-center width-1 p-0"></td>
-                    <td colSpan="2" className={`text-start fw-bold ${winner === 'away' ? 'bg-winner' : null}`}>
-                        <Link to={`/division/${data.divisionId}/team:${data.away.id}/${data.seasonId}`} className="margin-right">{data.away.name}</Link>
-                        {data.awaySubmission && (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('away')} className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
-                    </td>
-                </tr>
+                <thead>
+                    <tr>
+                        <td colSpan="2" className={`text-end fw-bold width-50-pc ${winner === 'home' ? 'bg-winner' : ''}`}>
+                            <Link to={`/division/${data.divisionId}/team:${data.home.id}/${data.seasonId}`} className="margin-right">{data.home.name}</Link>
+                            {data.homeSubmission && (access === 'admin' || (account && data.home && account.teamId === data.home.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('home')} className={`btn btn-sm ${submission === 'home' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
+                        </td>
+                        <td className="text-center width-1 p-0"></td>
+                        <td colSpan="2" className={`text-start fw-bold width-50-pc ${winner === 'away' ? 'bg-winner' : ''}`}>
+                            <Link to={`/division/${data.divisionId}/team:${data.away.id}/${data.seasonId}`} className="margin-right">{data.away.name}</Link>
+                            {data.awaySubmission && (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<span onClick={() => toggleSubmission('away')} className={`btn btn-sm ${submission === 'away' ? 'btn-primary' : 'btn-outline-secondary'}`} title="See home submission">📬</span>) : null}
+                        </td>
+                    </tr>
+                </thead>
+                {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<tbody>
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
                 </tr>
@@ -593,7 +596,7 @@ export function Score({account, apis, divisions}) {
                                             {getRecordsToMerge('away', 'oneEighties').map(rec => (<li key={rec.id}>{rec.name}</li>))}
                                         </ol>
                                     </div>) : null}
-                                    </div>)
+                                </div>)
                                 : null}
                         </td>
                         <td className="overflow-hidden position-relative">
@@ -627,7 +630,7 @@ export function Score({account, apis, divisions}) {
                         </td>
                     </tr>)
                     : null}
-                </tbody>
+                </tbody>) : (<tbody><tr><td colSpan="5">No scores, yet</td></tr></tbody>)}
             </table>
             {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (<button className="btn btn-primary" onClick={saveScores}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
