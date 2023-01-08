@@ -361,7 +361,7 @@ export function Score({account, apis, divisions}) {
         </ul>
         <div className="light-background p-3 overflow-auto">
             {fixtureData.address || access === 'admin'
-                ? (<GameDetails data={data} saving={saving} setData={setData} access={access} fixtureData={fixtureData} />)
+                ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access} fixtureData={fixtureData} />)
                 : null}
             <table className="table minimal-padding">
                 <ScoreCardHeading access={access} data={data} account={account} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
