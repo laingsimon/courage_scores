@@ -219,3 +219,15 @@ table.minimal-padding td {
 table td.middle-vertical-line {
   background: #000000;
 }
+
+.tri-character-input {
+  width: 4em;
+}
+
+.hi-check-player-dropdown {
+  /*width: 130px;*/
+}
+
+.hi-check-player-dropdown > button > span {
+  min-width: 40px;
+}

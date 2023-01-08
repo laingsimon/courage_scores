@@ -7,7 +7,7 @@ import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 
-export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete }) {
+export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete, className }) {
     const empty = {
         value: '',
         text: (<span>&nbsp;</span>)
@@ -104,6 +104,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
         <BootstrapDropdown
             disabled={disabled}
             readOnly={readOnly}
+            className={className}
             value={(selected || {}).id || ''}
             onChange={async (value) => onChange ? await onChange(this, findPlayer(value)) : null}
             options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)

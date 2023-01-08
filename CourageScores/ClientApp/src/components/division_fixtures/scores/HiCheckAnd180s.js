@@ -78,7 +78,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, allPlayers, setFix
     }
 
     return (<tr>
-        <td colSpan="2">
+        <td colSpan="2" className="text-end">
             180s<br/>
             <MultiPlayerSelection
                 disabled={access === 'readonly'}
@@ -102,7 +102,8 @@ export function HiCheckAnd180s({ access, saving, fixtureData, allPlayers, setFix
                 onAddPlayer={addHiCheck}
                 showNotes={true}
                 divisionId={fixtureData.divisionId}
-                seasonId={fixtureData.seasonId} />
+                seasonId={fixtureData.seasonId}
+                dropdownClassName="hi-check-player-dropdown" />
         </td>
     </tr>);
 }

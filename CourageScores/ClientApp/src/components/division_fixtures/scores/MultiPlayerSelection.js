@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from "react-router-dom";
 
-export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId }) {
+export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName }) {
     let index = 0;
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
@@ -40,7 +40,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     }
 
     return (<div>
-        <ol>
+        <ol className="no-list-indent">
             {(players || []).map(p => {
                 index++;
                 return (<li key={index}>{disabled ? renderLinkToPlayer(p) : (<button
@@ -56,7 +56,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     readOnly={readOnly}
                     onChange={(elem) => setNotes(elem.target.value)}
                     value={notes}
-                    className="margin-right"
+                    className={`margin-right tri-character-input vertical-align-middle${notesClassName || ''}`}
                     type="number"
                     min="100"
                     max="120"/>) : null}
@@ -65,7 +65,8 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     readOnly={readOnly}
                     players={allPlayers}
                     selected={player}
-                    onChange={(elem, p) => setPlayer(p)}/>
+                    onChange={(elem, p) => setPlayer(p)}
+                    className={dropdownClassName} />
                 <button disabled={disabled || readOnly} onClick={addPlayer}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
                 </button>
