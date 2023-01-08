@@ -339,24 +339,20 @@ export function Score({account, apis, divisions}) {
             divisions={divisions}
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
-        {fixtureData ? (<ul className="nav nav-tabs">
+        <ul className="nav nav-tabs">
             <NavItem>
-                <NavLink tag={Link} className="text-light"
-                         to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
+                <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-light"
-                         to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
+                <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-dark active"
-                         to={`/score/${fixtureId}`}>Fixture</NavLink>
+                <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
             </NavItem>
             <NavItem>
-                <NavLink tag={Link} className="text-light"
-                         to={`/division/${data.divisionId}/players`}>Players</NavLink>
+                <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/players`}>Players</NavLink>
             </NavItem>
-        </ul>) : null}
+        </ul>
         <div className="light-background p-3 overflow-auto">
             {fixtureData.address || access === 'admin'
                 ? (<GameDetails data={data} saving={saving} setData={setData} access={access} fixtureData={fixtureData} />)

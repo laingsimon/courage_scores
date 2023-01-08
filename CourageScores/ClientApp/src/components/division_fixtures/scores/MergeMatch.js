@@ -92,7 +92,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
             <td colSpan="5">
                 {renderSubmissionMatch(homeSubmissionMatch)}
                 <div className="text-center">
-                    <button disabled={readOnly} onClick={async () => await acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
+                    <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
                 </div>
             </td>
         </tr>)
@@ -107,7 +107,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
             <strong>from {homeSubmissionMatch.author}</strong>
             {renderSubmissionMatch(homeSubmissionMatch)}
             <div className="text-center">
-                <button disabled={readOnly} onClick={async () => await acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
+                <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
             </div>
         </td>
         <td>
@@ -119,7 +119,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
             <strong>from {awaySubmissionMatch.author}</strong>
             {renderSubmissionMatch(awaySubmissionMatch)}
             <div className="text-center">
-                <button disabled={readOnly} onClick={async () => await acceptSubmission(awaySubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
+                <button disabled={readOnly} onClick={() => acceptSubmission(awaySubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
             </div>
         </td>
     </tr>);
