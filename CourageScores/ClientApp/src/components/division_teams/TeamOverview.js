@@ -29,21 +29,27 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
 
         return (<tr key={fixture.id}>
             <td>
-                <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link>
-                {fixture.isKnockout ? (<span className="margin-left">(Knockout)</span>) : null}
+                <div className="position-absolute">
+                    <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link>
+                    {fixture.isKnockout ? (<span className="margin-left">(Knockout)</span>) : null}
+                </div>
             </td>
             <td className="text-end">
-                {fixture.homeTeam.id === teamId
-                    ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                    : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+                <div className="mt-4">
+                    {fixture.homeTeam.id === teamId
+                        ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
+                        : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
+                </div>
             </td>
-            <td> {renderScore(fixture.homeScore, fixture.postponed)}</td>
-            <td>vs</td>
-            <td>{renderScore(fixture.awayScore, fixture.postponed)}</td>
+            <td className="vertical-align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
+            <td className="vertical-align-middle">vs</td>
+            <td className="vertical-align-middle">{renderScore(fixture.awayScore, fixture.postponed)}</td>
             <td>
-                {fixture.awayTeam.id === teamId
-                    ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                    : (<Link to={`/division/${divisionData.id}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
+                <div className="mt-4">
+                    {fixture.awayTeam.id === teamId
+                        ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
+                        : (<Link to={`/division/${divisionData.id}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
+                </div>
             </td>
         </tr>);
     }
@@ -52,21 +58,23 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
         <h3>{team.name}</h3>
         <p>Address: {team.address}</p>
 
-        <table className="table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th className="text-end">Home</th>
-                    <th className="narrow-column"></th>
-                    <th className="narrow-column">vs</th>
-                    <th className="narrow-column"></th>
-                    <th>Away</th>
-                </tr>
-            </thead>
-            <tbody>
-            {fixtures.map(renderFixtureAndDate)}
-            </tbody>
-        </table>
+        <div className="overflow-x-auto">
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th className="text-end">Home</th>
+                        <th className="narrow-column"></th>
+                        <th className="narrow-column">vs</th>
+                        <th className="narrow-column"></th>
+                        <th>Away</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {fixtures.map(renderFixtureAndDate)}
+                </tbody>
+            </table>
+        </div>
         <div className="overflow-x-auto">
             <DivisionPlayers players={players} onPlayerSaved={null} account={account} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
         </div>
