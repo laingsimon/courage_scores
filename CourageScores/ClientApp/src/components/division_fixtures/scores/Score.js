@@ -5,7 +5,6 @@ import {GameApi} from "../../../api/game";
 import {Http} from "../../../api/http";
 import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
-import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
@@ -15,6 +14,8 @@ import {nameSort} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
+import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
+import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -175,13 +176,6 @@ export function Score({account, apis, divisions}) {
         setFixtureData(newFixtureData);
     }
 
-    function manOfTheMatchChanged(player, team) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        newFixtureData[team].manOfTheMatch = player ? player.id : undefined;
-
-        setFixtureData(newFixtureData);
-    }
-
     async function saveScores() {
         if (access === 'readonly') {
             return;
@@ -239,13 +233,6 @@ export function Score({account, apis, divisions}) {
         newFixtureData.matches[index] = Object.assign(matchOnlyProperties, newFixtureData.matches[index]);
 
         setFixtureData(newFixtureData);
-    }
-
-    function setManOfMatch(team, id) {
-        const newData = Object.assign({}, data);
-        newData[team].manOfTheMatch = id;
-
-        setData(newData);
     }
 
     function getRecordsToMerge(team, record) {
@@ -330,51 +317,21 @@ export function Score({account, apis, divisions}) {
 
     function renderManOfTheMatchInput() {
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
-            return (<tr>
-                <td colSpan="2">
-                    Man of the match<br/>
-                    {account.teamId === fixtureData.home.id || access === 'admin' ? (<PlayerSelection
-                        players={allPlayers}
-                        disabled={access === 'readonly'}
-                        readOnly={saving}
-                        selected={{id: fixtureData.home.manOfTheMatch}}
-                        onChange={(elem, player) => manOfTheMatchChanged(player, 'home')}/>) : (<span>n/a</span>)}
-                </td>
-                <td className="width-1 p-0"></td>
-                <td colSpan="2">
-                    Man of the match<br/>
-                    {account.teamId === fixtureData.away.id || access === 'admin' ? (<PlayerSelection
-                        players={allPlayers}
-                        disabled={access === 'readonly'}
-                        readOnly={saving}
-                        selected={{id: fixtureData.away.manOfTheMatch}}
-                        onChange={(elem, player) => manOfTheMatchChanged(player, 'away')}/>) : (<span>n/a</span>)}
-                </td>
-            </tr>)
+            return (<ManOfTheMatchInput
+                fixtureData={fixtureData}
+                allPlayers={allPlayers}
+                account={account}
+                saving={saving}
+                access={access}
+                setFixtureData={setFixtureData} />);
         }
 
         return null;
     }
 
-    function renderMergeManOfTheMatch(){
+    function renderMergeManOfTheMatch() {
         if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission) && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
-            return (<tr>
-                {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
-                    {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
-                        ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.homeSubmission.home.manOfTheMatch)}>
-                            Use {allPlayers.filter(p => p.id === data.homeSubmission.home.manOfTheMatch)[0].name}
-                        </button>)
-                        : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
-                </td>)}
-                <td className="width-1 p-0"></td>
-                {data.away.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
-                    {data.awaySubmission && data.awaySubmission.away.manOfTheMatch
-                        ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.awaySubmission.away.manOfTheMatch)}>
-                            Use {allPlayers.filter(p => p.id === data.awaySubmission.away.manOfTheMatch)[0].name}
-                        </button>)
-                        : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}
-                </td>)}
-            </tr>);
+            return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers} />);
         }
 
         return null;
