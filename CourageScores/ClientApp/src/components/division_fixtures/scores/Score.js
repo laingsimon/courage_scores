@@ -141,8 +141,14 @@ export function Score({account, apis, divisions}) {
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
             allPlayers.sort(nameSort);
 
+            const matchPlayerCounts = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
             if (!gameData.matches || !gameData.matches.length) {
-                gameData.matches = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
+                gameData.matches = matchPlayerCounts;
+            } else {
+                for (let index = 0; index < gameData.matches.length; index++) {
+                    const match = gameData.matches[index];
+                    match.playerCount = matchPlayerCounts[index].playerCount;
+                }
             }
 
             setAllPlayers(allPlayers);
