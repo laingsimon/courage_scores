@@ -6,7 +6,6 @@ import {Http} from "../../../api/http";
 import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {PlayerSelection} from "../../division_players/PlayerSelection";
-import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
@@ -15,6 +14,7 @@ import {SeasonApi} from "../../../api/season";
 import {nameSort} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
+import {HiCheckAnd180s} from "./HiCheckAnd180s";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -178,62 +178,6 @@ export function Score({account, apis, divisions}) {
     function manOfTheMatchChanged(player, team) {
         const newFixtureData = Object.assign({}, fixtureData);
         newFixtureData[team].manOfTheMatch = player ? player.id : undefined;
-
-        setFixtureData(newFixtureData);
-    }
-
-    function add180(player) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
-
-        if (!firstMatch.oneEighties) {
-            firstMatch.oneEighties = [];
-        }
-
-        firstMatch.oneEighties.push({
-            id: player.id,
-            name: player.name
-        });
-
-        setFixtureData(newFixtureData);
-
-    }
-
-    function addHiCheck(player, notes) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
-
-        if (!firstMatch.over100Checkouts) {
-            firstMatch.over100Checkouts = [];
-        }
-
-        firstMatch.over100Checkouts.push({
-            id: player.id,
-            name: player.name,
-            notes: notes
-        });
-
-        setFixtureData(newFixtureData);
-    }
-
-    function removeOneEightyScore(playerId, index) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
-
-        firstMatch.oneEighties.splice(index, 1);
-
-        setFixtureData(newFixtureData);
-    }
-
-    function removeHiCheck(playerId, index) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
-
-        firstMatch.over100Checkouts.splice(index, 1);
 
         setFixtureData(newFixtureData);
     }
@@ -437,34 +381,12 @@ export function Score({account, apis, divisions}) {
     }
 
     function render180sAndHiCheckInput() {
-        return (<tr>
-            <td colSpan="2">
-                180s<br/>
-                <MultiPlayerSelection
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    allPlayers={allPlayers}
-                    players={fixtureData.matches[0].oneEighties || []}
-                    onRemovePlayer={removeOneEightyScore}
-                    onAddPlayer={add180}
-                    divisionId={fixtureData.divisionId}
-                    seasonId={fixtureData.seasonId} />
-            </td>
-            <td className="width-1 p-0"></td>
-            <td colSpan="2">
-                100+ c/o<br/>
-                <MultiPlayerSelection
-                    disabled={access === 'readonly'}
-                    readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    allPlayers={allPlayers}
-                    players={fixtureData.matches[0].over100Checkouts || []}
-                    onRemovePlayer={removeHiCheck}
-                    onAddPlayer={addHiCheck}
-                    showNotes={true}
-                    divisionId={fixtureData.divisionId}
-                    seasonId={fixtureData.seasonId} />
-            </td>
-        </tr>);
+        return (<HiCheckAnd180s
+            saving={saving}
+            access={access}
+            fixtureData={fixtureData}
+            setFixtureData={setFixtureData}
+            allPlayers={allPlayers} />);
     }
 
     function renderMerge180sAndHiCheck() {
