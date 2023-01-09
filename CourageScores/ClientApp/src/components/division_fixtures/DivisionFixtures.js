@@ -332,6 +332,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     const renderContext = {};
+    const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
         <FilterFixtures setFilter={setFilter} filter={filter} teams={teams} />
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
@@ -351,7 +352,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             </button>) : null}
         </div>) : null}
         <div>
-            {fixtures.map(renderFixtureDate)}
+            {resultsToRender}
+            {resultsToRender.filter(f => f != null).length === 0 && fixtures.length > 0 ? (<div>No fixtures match your search</div>) : null}
             {fixtures.length === 0 ? (<div>No fixtures, yet</div>) : null}
         </div>
         {isAdmin && !proposingGames ? (<div className="mt-3">
