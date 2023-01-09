@@ -292,8 +292,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
     function renderFixtureDate(date) {
         const filters = getFilters();
-        const fixtures = date.fixtures.filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
-        const tournamentFixtures = date.tournamentFixtures.filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
+        const fixtures = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
+        const tournamentFixtures = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
 
         if (fixtures.length === 0 && tournamentFixtures.length === 0) {
             return null;
