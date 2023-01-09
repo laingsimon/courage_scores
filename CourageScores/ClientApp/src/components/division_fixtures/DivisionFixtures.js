@@ -292,10 +292,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
     function renderFixtureDate(date) {
         const filters = getFilters();
-        const fixtures = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
-        const tournamentFixtures = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
+        const fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
+        const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
 
-        if (fixtures.length === 0 && tournamentFixtures.length === 0) {
+        if (fixturesForDate.length === 0 && tournamentFixturesForDate.length === 0) {
             return null;
         }
 
@@ -303,7 +303,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
             <table className="table layout-fixed">
                 <tbody>
-                {fixtures.map(f => (<DivisionFixture
+                {fixturesForDate.map(f => (<DivisionFixture
                     key={f.id}
                     teams={teams}
                     allTeams={allTeams}
@@ -318,7 +318,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     allowTeamDelete={false}
                     allowTeamEdit={false}
                     isKnockout={f.isKnockout} />))}
-                {tournamentFixtures.map(tournament => (<TournamentFixture
+                {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
                     account={account}
