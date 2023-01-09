@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "./DivisionPlayers";
+import {ShareButton} from "../ShareButton";
 
 export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
     const player = divisionData.players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown', fixtures: {} };
@@ -104,6 +105,9 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
             {player.name}
             <span className="h6 margin-left">
                 <Link to={`/division/${divisionData.id}/team:${team.id}/${seasonId}`} className="margin-right">{team.name}</Link>
+            </span>
+            <span className="margin-left">
+                <ShareButton text={`Courage League: ${player.name}`} />
             </span>
         </h3>
 

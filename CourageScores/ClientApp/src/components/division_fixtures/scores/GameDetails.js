@@ -1,4 +1,5 @@
 import React from "react";
+import {ShareButton} from "../../ShareButton";
 
 export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
     function changeFixtureProperty(event) {
@@ -19,6 +20,9 @@ export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
         return (<div>
             {fixtureData.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
             {fixtureData.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
+            {fixtureData.home && fixtureData.away ? (<span className="margin-left">
+                <ShareButton text={`Courage League: ${fixtureData.home.name} vs ${fixtureData.away.name}`} />
+            </span>) : null}
         </div>);
     }
 

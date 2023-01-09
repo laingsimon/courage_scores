@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
+import {ShareButton} from "../ShareButton";
 
 export function TeamOverview({ divisionData, teamId, account, seasonId }) {
     const team = divisionData.teams.filter(t => t.id === teamId)[0] || divisionData.allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
@@ -55,7 +56,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
     }
 
     return (<div className="light-background p-3">
-        <h3>{team.name}</h3>
+        <h3>{team.name} <ShareButton text={`Courage League: ${team.name}`} /></h3>
         <p>Address: {team.address}</p>
 
         <div className="overflow-x-auto">

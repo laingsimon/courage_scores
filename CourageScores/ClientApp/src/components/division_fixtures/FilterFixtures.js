@@ -1,5 +1,6 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {nameSort} from "../../Utilities";
+import {ShareButton} from "../ShareButton";
 
 export function FilterFixtures({ filter, setFilter, teams }) {
     const teamFilters = teams.sort(nameSort).map(t => { return { value: t.id, text: t.name }; });
@@ -29,5 +30,6 @@ export function FilterFixtures({ filter, setFilter, teams }) {
         <BootstrapDropdown onChange={op => changeFilter('type', op)} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={op => changeFilter('date', op)} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={op => changeFilter('teamId', op)} options={teamFilters} value={filter.teamId || null} className="dynamic-width-dropdown margin-right" />
+        <ShareButton text="Courage League, fixtures" />
     </div>);
 }

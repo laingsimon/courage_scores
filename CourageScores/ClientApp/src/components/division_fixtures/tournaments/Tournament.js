@@ -12,6 +12,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {nameSort} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
+import {ShareButton} from "../../ShareButton";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
@@ -258,7 +259,12 @@ export function Tournament({ account, apis }) {
                         </div>
                         <input className="form-control" disabled={saving} type="text" value={tournamentData.address} onChange={changeAddress} />
                     </div>)
-                : (<p>At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong></p>)}
+                : (<p>
+                    At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
+                    <span className="margin-left">
+                        <ShareButton text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`} />
+                    </span>
+                </p>)}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
                 {tournamentData.sides.map(side => {
