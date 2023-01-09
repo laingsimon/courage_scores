@@ -11,8 +11,11 @@ import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
 import {AndFilter, Filter, OrFilter} from "../Filter";
+import {useLocation, useNavigate} from "react-router-dom";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams }) {
+    const navigate = useNavigate();
+    const location = useLocation();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
     const [ isKnockout, setIsKnockout ] = useState(false);
@@ -33,8 +36,40 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
     const [ savingProposals, setSavingProposals ] = useState(null);
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
-    const [ filter, setFilter ] = useState({});
+    const [ filter, setFilter ] = useState(initFilter());
     const seasonApi = new SeasonApi(new Http(new Settings()));
+
+    function initFilter() {
+        const search = new URLSearchParams(location.search);
+        const filter = {};
+        if (search.has('date')) {
+            filter.date = search.get('date');
+        }
+        if (search.has('type')) {
+            filter.date = search.get('type');
+        }
+        if (search.has('teamId')) {
+            filter.date = search.get('teamId');
+        }
+
+        return filter;
+    }
+
+    function changeFilter(newFilter) {
+        setFilter(newFilter);
+
+        const search = Object.assign({}, newFilter);
+        Object.keys(newFilter).forEach(key => {
+            if (!newFilter[key]) {
+                delete search[key];
+            }
+        })
+
+        navigate({
+            pathname: location.pathname,
+            search: new URLSearchParams(search).toString()
+        });
+    }
 
     async function onNewDateCreated() {
         setNewDate('');
@@ -334,7 +369,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const renderContext = {};
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
-        <FilterFixtures setFilter={setFilter} filter={filter} teams={teams} />
+        <FilterFixtures setFilter={changeFilter} filter={filter} teams={teams} />
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
             onClose={() => setProposalSettingsDialogVisible(false)}
