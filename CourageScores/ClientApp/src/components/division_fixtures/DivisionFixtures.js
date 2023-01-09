@@ -10,6 +10,7 @@ import {GameApi} from "../../api/game";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
+import {AndFilter, Filter, OrFilter} from "../Filter";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams }) {
     const isAdmin = account && account.access && account.access.manageGames;
@@ -244,46 +245,55 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return renderContext.futureDateShown === date;
     }
 
-    function matchesFilter(fixtureDate, fixture, tournamentFixture) {
+    function getFilters() {
+        const filters = [];
+
         switch (filter.date) {
             case 'past':
-                return isInPast(fixtureDate.date);
+                filters.push(new Filter(c => isInPast(c.date)));
+                break;
             case 'future':
-                return isInFuture(fixtureDate.date);
+                filters.push(new Filter(c => isInFuture(c.date)));
+                break;
             case 'last+next':
-                return isToday(fixtureDate.date) || isLastFixtureBeforeToday(fixtureDate.date) || isNextFeatureAfterToday(fixtureDate.date);
+                filters.push(new OrFilter([
+                    new Filter(c => isToday(c.date)),
+                    new Filter(c => isLastFixtureBeforeToday(c.date)),
+                    new Filter(c => isNextFeatureAfterToday(c.date))
+                ]));
+                break;
             default:
                 break;
         }
 
-        if (fixture) {
-            switch (filter.type) {
-                case 'league':
-                    return tournamentFixture === false && fixture.isKnockout === false;
-                case 'knockout':
-                    return fixture.isKnockout === true;
-                case 'tournament':
-                    return tournamentFixture === true;
-                default:
-                    break;
-            }
-
-            if (filter.teamId) {
-                return (fixture.homeTeam && fixture.homeTeam.id === filter.teamId)
-                || (fixture.awayTeam && fixture.awayTeam.id === filter.teamId);
-            }
+        switch (filter.type) {
+            case 'league':
+                filters.push(new Filter(c => c.tournamentFixture === false && c.fixture.isKnockout === false));
+                break;
+            case 'knockout':
+                filters.push(new Filter(c => c.fixture.isKnockout === true));
+                break;
+            case 'tournament':
+                filters.push(new Filter(c => c.tournamentFixture === true));
+                break;
+            default:
+                break;
         }
 
-        return true;
+        if (filter.teamId) {
+            filters.push(new OrFilter([
+                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === filter.teamId),
+                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId)
+            ]));
+        }
+
+        return new AndFilter(filters);
     }
 
     function renderFixtureDate(date) {
-        if (!matchesFilter(date)) {
-            return null;
-        }
-
-        const fixtures = date.fixtures.filter(f => matchesFilter(date, f, false));
-        const tournamentFixtures = date.tournamentFixtures.filter(f => matchesFilter(date, f, true));
+        const filters = getFilters();
+        const fixtures = date.fixtures.filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
+        const tournamentFixtures = date.tournamentFixtures.filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
 
         if (fixtures.length === 0 && tournamentFixtures.length === 0) {
             return null;
