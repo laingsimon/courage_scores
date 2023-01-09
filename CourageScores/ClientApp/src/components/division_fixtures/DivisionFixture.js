@@ -358,7 +358,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             ) : null}
             {renderAwayTeam()}
         </td>
-        {isAdmin ? (<td className="medium-column-width">
+        {isAdmin ? (<td className="medium-column">
             {awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
                 ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
                     <span className="spinner-border spinner-border-sm" role="status"

@@ -133,8 +133,8 @@ input[type="date"] {
   width: 25px;
 }
 
-.medium-column-width {
-  width: 100px;
+.medium-column {
+  width: 50px;
 }
 
 .vertical-align-middle {
