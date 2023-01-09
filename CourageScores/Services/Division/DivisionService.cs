@@ -206,7 +206,7 @@ public class DivisionService : IDivisionService
             yield return new DivisionFixtureDateDto
             {
                 Date = date,
-                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false, userContext)
+                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false)
                     .OrderBy(f => f.HomeTeam.Name).ToList(),
                 TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext, token)
                     .OrderByAsync(f => f.Address).ToList(),
@@ -344,7 +344,7 @@ public class DivisionService : IDivisionService
         };
     }
 
-    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Models.Cosmos.Game.Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate, UserContext userContext)
+    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Models.Cosmos.Game.Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
         var hasKnockout = false;
