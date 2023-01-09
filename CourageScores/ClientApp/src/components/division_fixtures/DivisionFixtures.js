@@ -258,6 +258,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     </tbody>
                 </table>
             </div>))}
+            {fixtures.length === 0 ? (<div>No fixtures, yet</div>) : null}
         </div>
         {isAdmin && !proposingGames ? (<div className="mt-3">
             <div>
