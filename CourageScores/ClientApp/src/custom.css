@@ -224,10 +224,10 @@ table td.middle-vertical-line {
   width: 4em;
 }
 
-.hi-check-player-dropdown {
-  /*width: 130px;*/
-}
-
 .hi-check-player-dropdown > button > span {
   min-width: 40px;
+}
+
+.dynamic-width-dropdown > button > span {
+  min-width: 25px;
 }

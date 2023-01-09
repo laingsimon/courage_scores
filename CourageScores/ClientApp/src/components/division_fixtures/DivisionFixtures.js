@@ -9,6 +9,7 @@ import {ProposeGamesDialog} from "./ProposeGamesDialog";
 import {GameApi} from "../../api/game";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
+import {FilterFixtures} from "./FilterFixtures";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams }) {
     const isAdmin = account && account.access && account.access.manageGames;
@@ -31,6 +32,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
     const [ savingProposals, setSavingProposals ] = useState(null);
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
+    const [ filter, setFilter ] = useState({});
     const seasonApi = new SeasonApi(new Http(new Settings()));
 
     async function onNewDateCreated() {
@@ -201,6 +203,11 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return new Date(date) < today;
     }
 
+    function isInFuture(date) {
+        const today = new Date();
+        return new Date(date) > today;
+    }
+
     function isToday(date) {
         const today = new Date().toDateString();
         return today === new Date(date).toDateString();
@@ -210,7 +217,113 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return fixtures.filter(f => f.proposal).length > 0;
     }
 
+    function isLastFixtureBeforeToday(date) {
+        if (!renderContext.lastFixtureDateBeforeToday) {
+            const dates = fixtures.map(f => f.date).filter(isInPast);
+            // Assumes all dates are sorted
+            if (dates.length > 0) {
+                renderContext.lastFixtureDateBeforeToday = dates[dates.length - 1];
+            } else {
+                renderContext.lastFixtureDateBeforeToday = 'no fixtures in past';
+            }
+        }
+
+        return date === renderContext.lastFixtureDateBeforeToday;
+    }
+
+    function isNextFeatureAfterToday(date) {
+        const inFuture = isInFuture(date);
+        if (!inFuture) {
+            return false;
+        }
+
+        if (!renderContext.futureDateShown) {
+            renderContext.futureDateShown = date;
+        }
+
+        return renderContext.futureDateShown === date;
+    }
+
+    function matchesFilter(fixtureDate, fixture, tournamentFixture) {
+        switch (filter.date) {
+            case 'past':
+                return isInPast(fixtureDate.date);
+            case 'future':
+                return isInFuture(fixtureDate.date);
+            case 'last+next':
+                return isToday(fixtureDate.date) || isLastFixtureBeforeToday(fixtureDate.date) || isNextFeatureAfterToday(fixtureDate.date);
+            default:
+                break;
+        }
+
+        if (fixture) {
+            switch (filter.type) {
+                case 'league':
+                    return tournamentFixture === false && fixture.isKnockout === false;
+                case 'knockout':
+                    return fixture.isKnockout === true;
+                case 'tournament':
+                    return tournamentFixture === true;
+                default:
+                    break;
+            }
+
+            if (filter.teamId) {
+                return (fixture.homeTeam && fixture.homeTeam.id === filter.teamId)
+                || (fixture.awayTeam && fixture.awayTeam.id === filter.teamId);
+            }
+        }
+
+        return true;
+    }
+
+    function renderFixtureDate(date) {
+        if (!matchesFilter(date)) {
+            return null;
+        }
+
+        const fixtures = date.fixtures.filter(f => matchesFilter(date, f, false));
+        const tournamentFixtures = date.tournamentFixtures.filter(f => matchesFilter(date, f, true));
+
+        if (fixtures.length === 0 && tournamentFixtures.length === 0) {
+            return null;
+        }
+
+        return (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'opacity-50')}>
+            <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
+            <table className="table layout-fixed">
+                <tbody>
+                {fixtures.map(f => (<DivisionFixture
+                    key={f.id}
+                    teams={teams}
+                    allTeams={allTeams}
+                    fixtures={fixtures}
+                    divisionId={divisionId}
+                    seasonId={season.id}
+                    onReloadDivision={onReloadDivision}
+                    account={account}
+                    fixture={f}
+                    readOnly={proposingGames}
+                    date={date.date}
+                    allowTeamDelete={false}
+                    allowTeamEdit={false}
+                    isKnockout={f.isKnockout} />))}
+                {tournamentFixtures.map(tournament => (<TournamentFixture
+                    key={tournament.address + '-' + tournament.date}
+                    tournament={tournament}
+                    account={account}
+                    date={date.date}
+                    seasonId={season.id}
+                    divisionId={divisionId}
+                    onTournamentChanged={onTournamentChanged} />))}
+                </tbody>
+            </table>
+        </div>);
+    }
+
+    const renderContext = {};
     return (<div className="light-background p-3">
+        <FilterFixtures setFilter={setFilter} filter={filter} teams={teams} />
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
             onClose={() => setProposalSettingsDialogVisible(false)}
@@ -228,36 +341,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             </button>) : null}
         </div>) : null}
         <div>
-            {fixtures.map(date => (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'opacity-50')}>
-                <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
-                <table className="table layout-fixed">
-                    <tbody>
-                    {date.fixtures.map(f => (<DivisionFixture
-                        key={f.id}
-                        teams={teams}
-                        allTeams={allTeams}
-                        fixtures={fixtures}
-                        divisionId={divisionId}
-                        seasonId={season.id}
-                        onReloadDivision={onReloadDivision}
-                        account={account}
-                        fixture={f}
-                        readOnly={proposingGames}
-                        date={date.date}
-                        allowTeamDelete={false}
-                        allowTeamEdit={false}
-                        isKnockout={f.isKnockout} />))}
-                    {date.tournamentFixtures.map(tournament => (<TournamentFixture
-                        key={tournament.address + '-' + tournament.date}
-                        tournament={tournament}
-                        account={account}
-                        date={date.date}
-                        seasonId={season.id}
-                        divisionId={divisionId}
-                        onTournamentChanged={onTournamentChanged} />))}
-                    </tbody>
-                </table>
-            </div>))}
+            {fixtures.map(renderFixtureDate)}
             {fixtures.length === 0 ? (<div>No fixtures, yet</div>) : null}
         </div>
         {isAdmin && !proposingGames ? (<div className="mt-3">
