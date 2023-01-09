@@ -361,7 +361,7 @@ public class DivisionService : IDivisionService
                 teams.SingleOrDefault(t => t.Id == game.Away.Id));
         }
 
-        if (!anyTournamentGamesForDate && userContext.CanCreateGames)
+        if (!anyTournamentGamesForDate)
         {
             foreach (var remainingTeam in remainingTeams.Values)
             {
