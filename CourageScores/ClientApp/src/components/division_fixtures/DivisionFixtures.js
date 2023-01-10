@@ -46,10 +46,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             filter.date = search.get('date');
         }
         if (search.has('type')) {
-            filter.date = search.get('type');
+            filter.type = search.get('type');
         }
         if (search.has('teamId')) {
-            filter.date = search.get('teamId');
+            filter.teamId = search.get('teamId');
         }
 
         return filter;
