@@ -229,7 +229,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         </td>
         <td className={`narrow-column vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
-                ? (match.homeScore)
+                ? (<strong>{match.homeScore}</strong>)
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
@@ -241,7 +241,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         <td className="vertical-align-middle text-center width-1 middle-vertical-line p-0"></td>
         <td className={`narrow-column vertical-align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
-                ? (match.awayScore)
+                ? (<strong>{match.awayScore}</strong>)
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
