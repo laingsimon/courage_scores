@@ -23,7 +23,7 @@ public class ZipBuilder
         return Task.FromResult(stream.ToArray());
     }
 
-    public async Task AddFile(string tableName, string id, JObject record, CancellationToken token)
+    public async Task AddFile(string tableName, string id, JObject record)
     {
         var fileName = $"{tableName}/{id}.json";
         await AddFile(fileName, record.ToString());

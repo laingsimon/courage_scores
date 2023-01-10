@@ -93,22 +93,22 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
     protected class CacheKey : IEquatable<CacheKey>
     {
-        public Guid? Id { get; }
-        public string? Where { get; }
-        public string Model { get; }
+        private readonly Guid? _id;
+        private readonly string? _where;
+        private readonly string _model;
 
         public CacheKey(Guid? id, string? where)
         {
-            Id = id;
-            Where = where;
-            Model = typeof(TModel).Name;
+            _id = id;
+            _where = where;
+            _model = typeof(TModel).Name;
         }
 
         public bool Equals(CacheKey? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Nullable.Equals(Id, other.Id) && Where == other.Where && Model == other.Model;
+            return Nullable.Equals(_id, other._id) && _where == other._where && _model == other._model;
         }
 
         public override bool Equals(object? obj)
@@ -121,7 +121,7 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Id, Where, Model);
+            return HashCode.Combine(_id, _where, _model);
         }
     }
 }

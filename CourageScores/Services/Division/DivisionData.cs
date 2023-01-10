@@ -12,7 +12,7 @@ public class DivisionData
 
     public class Score
     {
-        public GamePlayer? Player { get; set; }
+        public GamePlayer? Player { get; init; }
         public GameTeam? Team { get; set; }
         public int Win { get; set; }
         public int Draw { get; set; }

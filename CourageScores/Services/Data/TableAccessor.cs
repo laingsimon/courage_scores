@@ -50,6 +50,6 @@ public class TableAccessor
 
         var id = record.Value<string>(_partitionKey.TrimStart('/'));
         result.Tables[_tableName]++;
-        await builder.AddFile(_tableName, id, record, token);
+        await builder.AddFile(_tableName, id, record);
     }
 }

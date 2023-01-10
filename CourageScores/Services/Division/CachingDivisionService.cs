@@ -115,13 +115,13 @@ public class CachingDivisionService : IDivisionService
     private class CacheKey : IEquatable<CacheKey>
     {
         public Guid? DivisionId { get; }
-        public Guid? SeasonId { get; }
+        private readonly Guid? _seasonId;
         public string Type { get; }
 
         public CacheKey(Guid? divisionId, Guid? seasonId, string type)
         {
             DivisionId = divisionId;
-            SeasonId = seasonId;
+            _seasonId = seasonId;
             Type = type;
         }
 
@@ -129,7 +129,7 @@ public class CachingDivisionService : IDivisionService
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Nullable.Equals(DivisionId, other.DivisionId) && Nullable.Equals(SeasonId, other.SeasonId) && Type == other.Type;
+            return Nullable.Equals(DivisionId, other.DivisionId) && Nullable.Equals(_seasonId, other._seasonId) && Type == other.Type;
         }
 
         public override bool Equals(object? obj)
@@ -142,7 +142,7 @@ public class CachingDivisionService : IDivisionService
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(DivisionId, SeasonId, Type);
+            return HashCode.Combine(DivisionId, _seasonId, Type);
         }
     }
 }

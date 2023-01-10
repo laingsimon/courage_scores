@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace CourageScores.Services.Data;
 
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
+[SuppressMessage("ReSharper", "CollectionNeverUpdated.Global")]
 public class ContainerItemJson
 {
     private static readonly JsonSerializer Serialiser = new JsonSerializer();
@@ -16,14 +19,12 @@ public class ContainerItemJson
 
     public List<DocumentCollection> DocumentCollections { get; set; } = new();
 
-    // ReSharper disable once ClassNeverInstantiated.Local
     public class DocumentCollection
     {
         public string Id { get; set; } = null!;
         public PartitionKeyPaths PartitionKey { get; set; } = null!;
     }
 
-    // ReSharper disable once ClassNeverInstantiated.Local
     public class PartitionKeyPaths
     {
         public List<string> Paths { get; set; } = new();
