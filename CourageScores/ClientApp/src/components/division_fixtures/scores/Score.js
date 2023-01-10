@@ -363,7 +363,7 @@ export function Score({account, apis, divisions}) {
             {fixtureData.address || access === 'admin'
                 ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access} fixtureData={fixtureData} />)
                 : null}
-            <table className="table minimal-padding">
+            <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
                 <ScoreCardHeading access={access} data={data} account={account} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
                 {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<tbody>
                 <tr>
