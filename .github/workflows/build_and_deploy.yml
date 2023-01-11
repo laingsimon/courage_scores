@@ -41,6 +41,11 @@ jobs:
       - name: Test with dotnet
         run: dotnet test --configuration Release
 
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
