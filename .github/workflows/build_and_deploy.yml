@@ -50,7 +50,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
         with:
-          nunit_files: "test-results/nunit/**/*.xml"
+          nunit_files: "test-results/**/*.xml"
           check_run_annotations_branch: "*"
 
       - name: dotnet publish
