@@ -52,6 +52,7 @@ jobs:
         with:
           nunit_files: "test-results/*.xml"
           check_run_annotations_branch: "*"
+          comment_mode: off
 
       - name: dotnet publish
         run: dotnet publish --configuration Release -o ${{env.DOTNET_ROOT}}/myapp
