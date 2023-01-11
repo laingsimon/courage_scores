@@ -18,7 +18,7 @@ public class SeasonDto : AuditedDto
     /// <summary>
     /// The divisions applicable to this season
     /// </summary>
-    public List<DivisionDto> Divisions { get; set; } = null!;
+    public List<DivisionDto> Divisions { get; set; } = new();
 
     /// <summary>
     /// The name of this season
