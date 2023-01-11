@@ -32,6 +32,7 @@ public class SeasonAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.Divisions, Is.EqualTo(new[] { DivisionDto }));
     }
 
     [Test]
@@ -51,6 +52,7 @@ public class SeasonAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
+        Assert.That(result.Divisions, Is.EqualTo(new[] { Division }));
     }
 
     [Test]
