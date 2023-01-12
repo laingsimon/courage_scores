@@ -46,13 +46,6 @@ public static class AutoProvisionExtensions
         return referenceDate;
     }
 
-    public static T GetAndRemove<T>(this List<T> list, int index)
-    {
-        var item = list[index];
-        list.RemoveAt(index);
-        return item;
-    }
-
     public static DivisionFixtureDto AdaptToGame(this Proposal proposal)
     {
         return new DivisionFixtureDto

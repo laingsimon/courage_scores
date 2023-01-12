@@ -35,12 +35,12 @@ public class TableAccessor
                     break;
                 }
 
-                await ExportRow(row, result, builder, request, token);
+                await ExportRow(row, result, builder, request);
             }
         }
     }
 
-    private async Task ExportRow(JObject record, ExportDataResultDto result, ZipBuilder builder, ExportDataRequestDto request, CancellationToken token)
+    private async Task ExportRow(JObject record, ExportDataResultDto result, ZipBuilder builder, ExportDataRequestDto request)
     {
         var deleted = record.Value<DateTime?>("Deleted");
         if (deleted.HasValue && !request.IncludeDeletedEntries)
@@ -50,6 +50,6 @@ public class TableAccessor
 
         var id = record.Value<string>(_partitionKey.TrimStart('/'));
         result.Tables[_tableName]++;
-        await builder.AddFile(_tableName, id, record, token);
+        await builder.AddFile(_tableName, id, record);
     }
 }

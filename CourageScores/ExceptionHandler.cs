@@ -21,20 +21,17 @@ public class ExceptionHandler
     public async Task HandleException(HttpContext context)
     {
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-
-        // using static System.Net.Mime.MediaTypeNames;
         context.Response.ContentType = MediaTypeNames.Application.Json;
 
-        var exceptionHandlerPathFeature =
-            context.Features.Get<IExceptionHandlerPathFeature>();
+        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
 
         var content = new ErrorDetails
         {
             Exception = exceptionHandlerPathFeature?.Error != null
-                ? new ExceptionDetails(exceptionHandlerPathFeature.Error, ShouldIncludeStack(context), ShouldIncludeMessage(context))
+                ? FromException(exceptionHandlerPathFeature.Error, ShouldIncludeStack(context), ShouldIncludeMessage(context))
                 : null,
             RequestTimeUtc = DateTime.UtcNow.ToString("O"),
-            Request = new RequestDetails(context.Request, exceptionHandlerPathFeature?.RouteValues),
+            Request = FromRequest(context.Request, exceptionHandlerPathFeature?.RouteValues),
         };
 
         await context.Response.WriteAsJsonAsync(
@@ -47,32 +44,12 @@ public class ExceptionHandler
 
     private bool ShouldIncludeStack(HttpContext httpContext)
     {
-        if (_includeErrorDetails)
-        {
-            return true;
-        }
-
-        if (HasDebugToken(httpContext))
-        {
-            return true;
-        }
-
-        return false;
+        return _includeErrorDetails || HasDebugToken(httpContext);
     }
 
     private bool ShouldIncludeMessage(HttpContext httpContext)
     {
-        if (_includeErrorDetails)
-        {
-            return true;
-        }
-
-        if (HasDebugToken(httpContext))
-        {
-            return true;
-        }
-
-        return false;
+        return _includeErrorDetails || HasDebugToken(httpContext);
     }
 
     private bool HasDebugToken(HttpContext httpContext)
@@ -83,17 +60,41 @@ public class ExceptionHandler
         }
 
         var debugQueryString = (string)httpContext.Request.Query["debugToken"];
-        if (string.IsNullOrEmpty(debugQueryString))
-        {
-            return false;
-        }
+        return !string.IsNullOrEmpty(debugQueryString)
+               && debugQueryString.Equals(_debugToken, StringComparison.OrdinalIgnoreCase);
+    }
 
-        return debugQueryString.Equals(_debugToken, StringComparison.OrdinalIgnoreCase);
+    private static RequestDetails FromRequest(HttpRequest request, RouteValueDictionary? routeValueDictionary)
+    {
+        return new RequestDetails
+        {
+            Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}",
+            Method = request.Method,
+            ContentLength = request.ContentLength,
+            ContentType = request.ContentType,
+            Controller = (string?)routeValueDictionary?["controller"],
+            Action = (string?)routeValueDictionary?["action"],
+        };
+    }
+
+    private static ExceptionDetails FromException(Exception exception, bool includeStack, bool includeMessage)
+    {
+        return new ExceptionDetails
+        {
+            Type = exception.GetType().Name,
+            Message = includeMessage ? exception.Message : null,
+            StackTrace = includeStack
+                ? exception.StackTrace?
+                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .TakeWhile(stackFrame => !stackFrame.Contains("at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker"))
+                    .ToArray()
+                : null,
+        };
     }
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    private class ErrorDetails
+    public class ErrorDetails
     {
         public ExceptionDetails? Exception { get; init; }
         public RequestDetails Request { get; init; } = null!;
@@ -102,46 +103,22 @@ public class ExceptionHandler
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    private class RequestDetails
+    public class RequestDetails
     {
-        public string Url { get; }
-        public string Method { get; }
-        public long? ContentLength { get; }
-        public string? ContentType { get; }
-        public string? Controller { get; }
-        public string? Action { get; }
-
-        public RequestDetails(HttpRequest request, RouteValueDictionary? routeValueDictionary)
-        {
-            Url = $"{request.Scheme}://{request.Host}{request.Path}{request.QueryString}";
-            Method = request.Method;
-            ContentLength = request.ContentLength;
-            ContentType = request.ContentType;
-            Controller = (string?)routeValueDictionary?["controller"];
-            Action = (string?)routeValueDictionary?["action"];
-        }
+        public string Url { get; init; } = null!;
+        public string Method { get; init; } = null!;
+        public long? ContentLength { get; init; }
+        public string? ContentType { get; init; }
+        public string? Controller { get; init; }
+        public string? Action { get; init; }
     }
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Local")]
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
-    private class ExceptionDetails
+    public class ExceptionDetails
     {
-        public string Type { get; }
-        public string? Message { get; }
-        public string[]? StackTrace { get; }
-
-        public ExceptionDetails(Exception exception, bool includeStack, bool includeMessage)
-        {
-            Type = exception.GetType().Name;
-            Message = includeMessage ? exception.Message : null;
-            if (includeStack)
-            {
-                StackTrace = exception.StackTrace?
-                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .TakeWhile(stackFrame =>
-                        !stackFrame.Contains("at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker"))
-                    .ToArray();
-            }
-        }
+        public string Type { get; init; } = null!;
+        public string? Message { get; init; }
+        public string[]? StackTrace { get; init; }
     }
 }

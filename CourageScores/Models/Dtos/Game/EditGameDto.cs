@@ -1,4 +1,3 @@
-using CourageScores.Models.Dtos.Team;
 using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos.Game;

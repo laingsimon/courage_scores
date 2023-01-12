@@ -1,6 +1,5 @@
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Services.Identity;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 

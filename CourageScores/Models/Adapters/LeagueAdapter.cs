@@ -22,6 +22,7 @@ public class LeagueAdapter : IAdapter<League, LeagueDto>
     {
         return new LeagueDto
         {
+            Name = model.Name,
             Divisions = await model.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
             Id = model.Id,
             Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
@@ -32,6 +33,7 @@ public class LeagueAdapter : IAdapter<League, LeagueDto>
     {
         return new League
         {
+            Name = dto.Name.Trim(),
             Divisions = await dto.Divisions.SelectAsync(division => _divisionAdapter.Adapt(division, token)).ToList(),
             Id = dto.Id,
             Seasons = await dto.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),

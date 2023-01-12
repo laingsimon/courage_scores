@@ -13,7 +13,7 @@ public class SeasonController : Controller
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
 
-    public SeasonController(ISeasonService seasonService, ICommandFactory commandFactory)
+    public SeasonController(CachingSeasonService seasonService, ICommandFactory commandFactory)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;

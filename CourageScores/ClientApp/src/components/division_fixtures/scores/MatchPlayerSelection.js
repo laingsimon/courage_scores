@@ -9,6 +9,7 @@ export const NEW_PLAYER = 'NEW_PLAYER';
 export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
                                          onPlayerChanged, divisionId, account }) {
+    const SHOW_EDIT_PLAYER_CONTROLS = false;
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
 
@@ -17,7 +18,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return {};
         }
 
-        return match.homePlayers[index];
+        return match.homePlayers[index] || {};
     }
 
     function awayPlayer(index) {
@@ -25,7 +26,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return {};
         }
 
-        return match.awayPlayers[index];
+        return match.awayPlayers[index] || {};
     }
 
     async function homePlayerChanged(index, player) {
@@ -113,7 +114,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 if (otherMatchPlayers) {
                     for (let otherMatchPlayerIndex = 0; otherMatchPlayerIndex < otherMatchPlayers.length; otherMatchPlayerIndex++) {
                         const otherMatchPlayer = otherMatchPlayers[otherMatchPlayerIndex];
-                        exceptPlayerIds.push(otherMatchPlayer.id);
+                        if (otherMatchPlayer) {
+                            exceptPlayerIds.push(otherMatchPlayer.id);
+                        }
                     }
                 }
             }
@@ -126,7 +129,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
         for (let index = 0; index < playerCount; index++) {
             if (playerIndex !== index && playerList.length > index) {
-                exceptPlayerIds.push(playerList[index].id);
+                if (playerList[index]) {
+                    exceptPlayerIds.push(playerList[index].id);
+                }
             }
         }
 
@@ -191,7 +196,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     }
 
     function canEditOrDelete(teamId) {
-        if (!account || !account.access || readOnly) {
+        if (!account || !account.access || readOnly || !SHOW_EDIT_PLAYER_CONTROLS) {
             return false;
         }
 
@@ -199,11 +204,11 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return true;
         }
 
-        return (account.access.inputResults && account.teamId === teamId);
+        return account.access.inputResults && account.teamId === teamId;
     }
 
     return (<tr>
-        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}>
+        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner text-end width-50-pc' : 'text-end width-50-pc'}>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link></div>)
@@ -222,30 +227,30 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 seasonId={seasonId}
                 gameId={gameId} /></div>))}
         </td>
-        <td className={`vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : null}`}>
+        <td className={`narrow-column vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
-                ? (match.homeScore)
+                ? (<strong>{match.homeScore}</strong>)
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
-                    className={readOnly ? 'border-1 border-secondary' : null}
+                    className={readOnly ? 'border-1 border-secondary single-character-input' : 'single-character-input'}
                     type="number" max="5" min="0"
                     value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
-        <td className="vertical-align-middle text-center">vs</td>
-        <td className={`vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}`}>
+        <td className="vertical-align-middle text-center width-1 middle-vertical-line p-0"></td>
+        <td className={`narrow-column vertical-align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
-                ? (match.awayScore)
+                ? (<strong>{match.awayScore}</strong>)
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
-                    className={readOnly ? 'border-1 border-secondary' : null}
+                    className={readOnly ? 'border-1 border-secondary single-character-input' : 'single-character-input'}
                     type="number" max="5" min="0"
                     value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }
         </td>
-        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : null}>
+        <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
                 : (<div key={index}><PlayerSelection

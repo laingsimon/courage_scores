@@ -133,8 +133,8 @@ input[type="date"] {
   width: 25px;
 }
 
-.medium-column-width {
-  width: 100px;
+.medium-column {
+  width: 50px;
 }
 
 .vertical-align-middle {
@@ -164,7 +164,7 @@ input[type="date"] {
 
 .bg-winner,
 td.bg-winner {
-  background-image: linear-gradient(180deg, #33ff33, #00cc00);
+  background-color: #bbffbb;
 }
 
 .no-list-indent{
@@ -193,4 +193,41 @@ td.bg-winner {
 
 .transform-top-left {
   transform-origin: top left;
+}
+
+input.single-character-input {
+  width: 100%;
+  min-width: 30px;
+}
+
+.width-10, table .width-10 {
+  width: 10px;
+}
+
+.width-50-pc, table .width-50-pc {
+  width: 50%;
+}
+
+.width-1, table .width-1 {
+  min-width: 1px;
+}
+
+table.minimal-padding td {
+  padding: 2px;
+}
+
+table td.middle-vertical-line {
+  background: #000000;
+}
+
+.tri-character-input {
+  width: 4em;
+}
+
+.hi-check-player-dropdown > button > span {
+  min-width: 40px;
+}
+
+.dynamic-width-dropdown > button > span {
+  min-width: 25px;
 }

@@ -12,7 +12,7 @@ public class TeamController : Controller
     private readonly ITeamService _teamService;
     private readonly ICommandFactory _commandFactory;
 
-    public TeamController(ITeamService teamService, ICommandFactory commandFactory)
+    public TeamController(CachingTeamService teamService, ICommandFactory commandFactory)
     {
         _teamService = teamService;
         _commandFactory = commandFactory;

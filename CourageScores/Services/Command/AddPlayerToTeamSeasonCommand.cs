@@ -2,7 +2,6 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
@@ -11,7 +10,6 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
-    private readonly ISystemClock _clock;
     private readonly IUserService _userService;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
@@ -20,13 +18,11 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         ISeasonService seasonService,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
-        ISystemClock clock,
         IUserService userService)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _auditingHelper = auditingHelper;
-        _clock = clock;
         _userService = userService;
     }
 

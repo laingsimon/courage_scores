@@ -7,13 +7,15 @@ namespace CourageScores.Models.Dtos;
 /// </summary>
 public class LeagueDto : AuditedDto
 {
+    public string Name { get; set; } = null!;
+
     /// <summary>
     /// The divisions that have been defined within the league
     /// </summary>
-    public List<DivisionDto> Divisions { get; set; } = null!;
+    public List<DivisionDto> Divisions { get; set; } = new();
 
     /// <summary>
     /// The seasons that have been defined within the league
     /// </summary>
-    public List<SeasonDto> Seasons { get; set; } = null!;
+    public List<SeasonDto> Seasons { get; set; } = new();
 }

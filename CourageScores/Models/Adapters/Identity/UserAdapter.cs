@@ -32,6 +32,7 @@ public class UserAdapter : ISimpleAdapter<User, UserDto>
             EmailAddress = dto.EmailAddress.Trim(),
             GivenName = dto.GivenName.Trim(),
             Access = dto.Access != null ? await _accessAdapter.Adapt(dto.Access, token) : null,
+            TeamId = dto.TeamId,
         };
     }
 }

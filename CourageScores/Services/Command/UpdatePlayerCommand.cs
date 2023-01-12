@@ -4,7 +4,6 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
