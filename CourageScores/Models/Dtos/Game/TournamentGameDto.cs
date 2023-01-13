@@ -33,10 +33,10 @@ public class TournamentGameDto : AuditedDto
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
-    public List<GamePlayerDto> OneEighties { get; set; } = null!;
+    public List<GamePlayerDto> OneEighties { get; set; } = new();
 
     /// <summary>
     /// Who checked out with more than 100
     /// </summary>
-    public List<NotablePlayerDto> Over100Checkouts { get; set; } = null!;
+    public List<NotablePlayerDto> Over100Checkouts { get; set; } = new();
 }

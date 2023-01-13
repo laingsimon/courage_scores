@@ -37,7 +37,7 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
             Matches = await dto.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList(),
             Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             NextRound = dto.NextRound != null ? await Adapt(dto.NextRound, token) : null,
-            Name = dto.Name,
+            Name = dto.Name?.Trim(),
         }.AddAuditProperties(dto);
     }
 }

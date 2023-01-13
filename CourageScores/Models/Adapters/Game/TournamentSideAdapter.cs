@@ -28,7 +28,7 @@ public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
         return new TournamentSide
         {
             Id = dto.Id,
-            Name = dto.Name,
+            Name = dto.Name?.Trim(),
             Players = await dto.Players.SelectAsync(p => _gamePlayerAdapter.Adapt(p, token)).ToList(),
         }.AddAuditProperties(dto);
     }
