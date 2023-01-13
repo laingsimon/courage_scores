@@ -1,12 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
 /// The record of a series of legs of a match between two players
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class GameMatchDto : AuditedDto
 {
     /// <summary>

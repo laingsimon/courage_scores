@@ -1,12 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace CourageScores.Models.Dtos.Game;
+﻿namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class GameDto : AuditedDto
 {
     /// <summary>

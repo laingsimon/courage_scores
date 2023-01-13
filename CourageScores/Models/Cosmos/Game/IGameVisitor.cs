@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace CourageScores.Models.Cosmos.Game;
 
-[SuppressMessage("ReSharper", "UnusedParameter.Global")]
 public interface IGameVisitor
 {
     void VisitGame(Game game)

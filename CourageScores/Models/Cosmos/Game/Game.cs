@@ -1,13 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+﻿using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
     /// <summary>
