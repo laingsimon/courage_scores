@@ -42,7 +42,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers)
+    public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
     {
         if (homePlayers.Count != 1 || awayPlayers.Count != 1)
         {

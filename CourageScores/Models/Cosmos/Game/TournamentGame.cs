@@ -59,7 +59,7 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
 
     public void Accept(IGameVisitor visitor)
     {
-        visitor.VisitTournamentGame(this);
+        visitor.VisitGame(this);
 
         foreach (var player in Over100Checkouts)
         {

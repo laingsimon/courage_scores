@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace CourageScores.Models.Dtos.Identity;
+﻿namespace CourageScores.Models.Dtos.Identity;
 
 #pragma warning disable CS8618
 public class UserDto

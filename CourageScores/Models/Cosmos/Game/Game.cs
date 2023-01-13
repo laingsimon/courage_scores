@@ -134,6 +134,17 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             }
         }
 
+        public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
+        {
+            if (homePlayers.Count == 0)
+            {
+                return;
+            }
+
+            _homeScore += score;
+            _awayScore += score;
+        }
+
         public void Accept(IGameVisitor visitor)
         {
             if (_homeScore > _awayScore)

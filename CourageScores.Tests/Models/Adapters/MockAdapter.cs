@@ -47,9 +47,12 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
 
     public Task<TDto> Adapt(TModel model, CancellationToken token)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (model == null)
         {
+#pragma warning disable CS8625
             return Task.FromResult<TDto>(null);
+#pragma warning restore CS8625
         }
 
         if (_modelToDtoMap.TryGetValue(model, out var dto))
@@ -62,9 +65,12 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
 
     public Task<TModel> Adapt(TDto dto, CancellationToken token)
     {
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (dto == null)
         {
+#pragma warning disable CS8625
             return Task.FromResult<TModel>(null);
+#pragma warning restore CS8625
         }
 
         if (_dtoToModelMap.TryGetValue(dto, out var model))

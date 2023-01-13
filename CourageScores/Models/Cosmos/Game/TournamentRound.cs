@@ -27,7 +27,7 @@ public class TournamentRound : AuditedEntity, IGameVisitable
 
     public void Accept(IGameVisitor visitor)
     {
-        visitor.VisitTournamentRound(this);
+        visitor.VisitRound(this);
 
         foreach (var match in Matches)
         {
@@ -36,19 +36,22 @@ public class TournamentRound : AuditedEntity, IGameVisitable
 
         NextRound?.Accept(visitor);
 
-        if (Sides.Count == 2 && Matches.Count == 1 && Matches[0].ScoreA != null && Matches[0].ScoreB != null)
+        if (Sides.Count == 2 && Matches.Count == 1)
         {
             // get the winner
             var match = Matches.Single();
-            visitor.VisitTournamentFinal(match);
+            visitor.VisitFinal(match);
 
-            if (match.ScoreA > match.ScoreB)
+            if (match.ScoreA != null && match.ScoreB != null)
             {
-                visitor.VisitTournamentWinner(match.SideA);
-            }
-            else if (match.ScoreB > match.ScoreA)
-            {
-                visitor.VisitTournamentWinner(match.SideB);
+                if (match.ScoreA > match.ScoreB)
+                {
+                    visitor.VisitTournamentWinner(match.SideA);
+                }
+                else if (match.ScoreB > match.ScoreA)
+                {
+                    visitor.VisitTournamentWinner(match.SideB);
+                }
             }
         }
     }

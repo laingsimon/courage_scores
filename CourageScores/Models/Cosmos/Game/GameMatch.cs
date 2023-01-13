@@ -76,7 +76,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
             else
             {
-                visitor.VisitMatchDraw(HomePlayers, AwayPlayers);
+                visitor.VisitMatchDraw(HomePlayers, AwayPlayers, HomeScore.Value);
             }
         }
 

@@ -14,6 +14,8 @@ public class TournamentSide : AuditedEntity, IGameVisitable
 
     public void Accept(IGameVisitor visitor)
     {
+        visitor.VisitSide(this);
+
         foreach (var player in Players)
         {
             visitor.VisitPlayer(player, -1); // TODO: Should tournament matches affect the player table?
