@@ -85,6 +85,7 @@ public class GameAdapterTests
             IsKnockout = true,
             HomeSubmission = new GameDto { Address = "address" },
             AwaySubmission = new GameDto { Address = "address" },
+            Matches = { GameMatchDto }
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -98,6 +99,7 @@ public class GameAdapterTests
         Assert.That(result.IsKnockout, Is.EqualTo(dto.IsKnockout));
         Assert.That(result.Home, Is.SameAs(HomeTeam));
         Assert.That(result.Away, Is.SameAs(AwayTeam));
+        Assert.That(result.Matches, Is.EqualTo(new[] { GameMatch }));
         Assert.That(result.HomeSubmission, Is.Not.Null);
         Assert.That(result.AwaySubmission, Is.Not.Null);
     }
