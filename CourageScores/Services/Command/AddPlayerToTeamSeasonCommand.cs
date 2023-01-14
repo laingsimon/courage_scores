@@ -5,7 +5,7 @@ using CourageScores.Services.Season;
 
 namespace CourageScores.Services.Command;
 
-public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
+public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
 {
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
@@ -38,7 +38,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Team, TeamPlayer>
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Team model, CancellationToken token)
+    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_player == null)
         {

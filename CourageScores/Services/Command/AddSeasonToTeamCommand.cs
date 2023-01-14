@@ -3,7 +3,7 @@ using CourageScores.Services.Season;
 
 namespace CourageScores.Services.Command;
 
-public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
+public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamSeason>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISeasonService _seasonService;
@@ -37,7 +37,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         return this;
     }
 
-    public virtual async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team model, CancellationToken token)
+    public virtual async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_seasonId == null)
         {
@@ -86,7 +86,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             teamSeason);
     }
 
-    private static List<TeamPlayer> GetPlayersFromOtherSeason(Team team, Guid seasonId)
+    private static List<TeamPlayer> GetPlayersFromOtherSeason(Models.Cosmos.Team.Team team, Guid seasonId)
     {
         var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == seasonId);
         return teamSeason == null

@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 

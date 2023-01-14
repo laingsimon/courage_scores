@@ -21,6 +21,7 @@ using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 
 namespace CourageScores;

@@ -1,6 +1,5 @@
 ﻿using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Identity;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
@@ -16,7 +15,7 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly ISimpleAdapter<User, UserDto> _userAdapter;
     private readonly ISimpleAdapter<Access, AccessDto> _accessAdapter;
-    private readonly IGenericRepository<Team> _teamRepository;
+    private readonly IGenericRepository<Models.Cosmos.Team.Team> _teamRepository;
     private User? _user;
     private bool _userResolved;
 
@@ -25,7 +24,7 @@ public class UserService : IUserService
         IUserRepository userRepository,
         ISimpleAdapter<User, UserDto> userAdapter,
         ISimpleAdapter<Access, AccessDto> accessAdapter,
-        IGenericRepository<Team> teamRepository)
+        IGenericRepository<Models.Cosmos.Team.Team> teamRepository)
     {
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;

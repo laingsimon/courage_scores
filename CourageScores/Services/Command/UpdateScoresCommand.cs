@@ -6,6 +6,7 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 

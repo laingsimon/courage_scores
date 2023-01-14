@@ -1,16 +1,15 @@
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
 
-namespace CourageScores.Services;
+namespace CourageScores.Services.Team;
 
-public class TeamService : GenericDataService<Team, TeamDto>, ITeamService
+public class TeamService : GenericDataService<Models.Cosmos.Team.Team, TeamDto>, ITeamService
 {
     public TeamService(
-        IGenericRepository<Team> repository,
-        IAdapter<Team, TeamDto> adapter,
+        IGenericRepository<Models.Cosmos.Team.Team> repository,
+        IAdapter<Models.Cosmos.Team.Team, TeamDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper)
         : base(repository, adapter, userService, auditingHelper)

@@ -1,12 +1,11 @@
 using System.Runtime.CompilerServices;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace CourageScores.Services;
+namespace CourageScores.Services.Team;
 
-public class CachingTeamService : CachingDataService<Team, TeamDto>, ITeamService
+public class CachingTeamService : CachingDataService<Models.Cosmos.Team.Team, TeamDto>, ITeamService
 {
     private readonly ITeamService _teamService;
 

@@ -1,11 +1,11 @@
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
+public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team, EditTeamDto>
 {
     private readonly ITeamService _teamService;
     private readonly IGameService _gameService;
@@ -21,7 +21,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Team, EditTeamDto>
         _commandFactory = commandFactory;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(Team team, EditTeamDto update, CancellationToken token)
+    protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
     {
         var games = _gameService
             .GetWhere($"t.DivisionId = '{update.DivisionId}' and t.SeasonId = '{update.SeasonId}'", token);

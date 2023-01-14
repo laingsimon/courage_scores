@@ -9,6 +9,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
 

@@ -1,7 +1,6 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -17,7 +16,7 @@ namespace CourageScores.Services.Division;
 public class DivisionService : IDivisionService
 {
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
-    private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
+    private readonly IGenericDataService<Models.Cosmos.Team.Team, TeamDto> _genericTeamService;
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
@@ -27,7 +26,7 @@ public class DivisionService : IDivisionService
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
-        IGenericDataService<Team, TeamDto> genericTeamService,
+        IGenericDataService<Models.Cosmos.Team.Team, TeamDto> genericTeamService,
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,

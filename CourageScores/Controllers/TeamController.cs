@@ -1,7 +1,7 @@
 ﻿using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
-using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Team;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourageScores.Controllers;

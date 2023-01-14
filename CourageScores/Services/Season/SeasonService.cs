@@ -8,6 +8,7 @@ using CourageScores.Repository;
 using CourageScores.Services.Division;
 using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
+using CourageScores.Services.Team;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Season;
