@@ -46,7 +46,7 @@ public class UpdateScoresCommandTests
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
         _cacheFlags = new ScopedCacheManagementFlags();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object);
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
         _command = new UpdateScoresCommand(
             _userService.Object,
             _gameAdapter.Object,

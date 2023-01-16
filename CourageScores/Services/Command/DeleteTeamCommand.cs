@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Command;
@@ -6,12 +7,14 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 {
     private readonly IUserService _userService;
     private readonly IAuditingHelper _auditingHelper;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
     private Guid? _seasonId;
 
-    public DeleteTeamCommand(IUserService userService, IAuditingHelper auditingHelper)
+    public DeleteTeamCommand(IUserService userService, IAuditingHelper auditingHelper, ScopedCacheManagementFlags cacheFlags)
     {
         _userService = userService;
         _auditingHelper = auditingHelper;
+        _cacheFlags = cacheFlags;
     }
 
     public DeleteTeamCommand FromSeason(Guid? seasonId)
@@ -52,6 +55,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
                 return new CommandOutcome<Models.Cosmos.Team.Team>(false, "Team allocated to other season/s", model);
             }
 
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
             return new CommandOutcome<Models.Cosmos.Team.Team>(true, $"Removed team from {matchingSeasons.Count} season/s", model);
         }
 
@@ -59,18 +63,21 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         {
             if (!matchingSeasons.Any())
             {
+                _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
                 return new CommandOutcome<Models.Cosmos.Team.Team>(true, "Team deleted", model)
                 {
                     Delete = true
                 };
             }
 
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
             return new CommandOutcome<Models.Cosmos.Team.Team>(true, $"Removed team from {matchingSeasons.Count} season/s, and team deleted", model)
             {
                 Delete = true
             };
         }
 
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
         return new CommandOutcome<Models.Cosmos.Team.Team>(matchingSeasons.Any(), $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely", model);
     }
 }

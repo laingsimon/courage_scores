@@ -54,7 +54,7 @@ public class AddOrUpdateGameCommandTests
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
         _token = new CancellationToken();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object);
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
         _cacheFlags = new ScopedCacheManagementFlags();
