@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -21,6 +22,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly IUserService _userService;
     private readonly ISystemClock _clock;
 
@@ -31,6 +33,7 @@ public class DivisionService : IDivisionService
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
         IUserService userService,
         ISystemClock clock)
     {
@@ -40,6 +43,7 @@ public class DivisionService : IDivisionService
         _gameRepository = gameRepository;
         _tournamentGameRepository = tournamentGameRepository;
         _tournamentSideAdapter = tournamentSideAdapter;
+        _noteService = noteService;
         _userService = userService;
         _clock = clock;
     }
@@ -77,17 +81,19 @@ public class DivisionService : IDivisionService
             };
         }
 
+        var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
+            .WhereAsync(n => n.DivisionId == null || n.DivisionId == divisionId)
+            .ToList();
         var games = await _gameRepository
             .GetSome($"t.DivisionId = '{divisionId}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
-
         var tournamentGames = await _tournamentGameRepository
             .GetSome($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
-        var context = new DivisionDataContext(games, teams, tournamentGames);
+        var context = new DivisionDataContext(games, teams, tournamentGames, notes);
 
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData, teams.ToDictionary(t => t.Id));
@@ -201,6 +207,7 @@ public class DivisionService : IDivisionService
         {
             context.GamesForDate.TryGetValue(date, out var gamesForDate);
             context.TournamentGamesForDate.TryGetValue(date, out var tournamentGamesForDate);
+            context.Notes.TryGetValue(date, out var notesForDate);
 
             yield return new DivisionFixtureDateDto
             {
@@ -210,6 +217,7 @@ public class DivisionService : IDivisionService
                 TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext, token)
                     .OrderByAsync(f => f.Address).ToList(),
                 HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
+                Notes = notesForDate ?? new List<FixtureDateNoteDto>(),
             };
         }
     }
@@ -418,22 +426,23 @@ public class DivisionService : IDivisionService
     private class DivisionDataContext
     {
         public IReadOnlyCollection<TeamDto> Teams { get; }
+        public Dictionary<DateTime, List<FixtureDateNoteDto>> Notes { get; }
         public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
         public Dictionary<DateTime, TournamentGame[]> TournamentGamesForDate { get; }
 
-        public DivisionDataContext(
-            IReadOnlyCollection<Models.Cosmos.Game.Game> games,
-            IReadOnlyCollection<TeamDto> teams,
-            IReadOnlyCollection<TournamentGame> tournamentGames)
+        public DivisionDataContext(IReadOnlyCollection<Models.Cosmos.Game.Game> games,
+            IReadOnlyCollection<TeamDto> teams, IReadOnlyCollection<TournamentGame> tournamentGames,
+            IReadOnlyCollection<FixtureDateNoteDto> notes)
         {
             GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
             Teams = teams;
+            Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToList());
             TournamentGamesForDate = tournamentGames.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         }
 
         public IEnumerable<DateTime> GetDates()
         {
-            return GamesForDate.Keys.Union(TournamentGamesForDate.Keys);
+            return GamesForDate.Keys.Union(TournamentGamesForDate.Keys).Union(Notes.Keys);
         }
     }
 
