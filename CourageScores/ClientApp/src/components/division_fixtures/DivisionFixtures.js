@@ -13,6 +13,7 @@ import {FilterFixtures} from "./FilterFixtures";
 import {AndFilter, Filter, OrFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
+import {NoteApi} from "../../api/note";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions }) {
     const navigate = useNavigate();
@@ -39,7 +40,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const [ filter, setFilter ] = useState(initFilter());
     const seasonApi = new SeasonApi(new Http(new Settings()));
-    const [ newNote, setNewNote ] = useState(null);
+    const [ editNote, setEditNote ] = useState(null);
+    const [ deletingNote, setDeletingNote ] = useState(false);
 
     function initFilter() {
         const search = new URLSearchParams(location.search);
@@ -331,6 +333,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         const filters = getFilters();
         const fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
+        const notesForDate = date.notes;
 
         if (fixturesForDate.length === 0 && tournamentFixturesForDate.length === 0) {
             return null;
@@ -363,6 +366,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     seasonId={season.id}
                     divisionId={divisionId}
                     onTournamentChanged={onTournamentChanged} />))}
+                {notesForDate.map(renderNote)}
                 </tbody>
             </table>
         </div>);
@@ -374,25 +378,62 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             return;
         }
 
-        setNewNote({
+        setEditNote({
             date: date,
             divisionId: divisionId,
             seasonId: season.id,
         });
     }
 
+    async function deleteNote(note) {
+        if (deletingNote) {
+            return;
+        }
+
+        if (!window.confirm('Are you sure you want to delete this note?')) {
+            return;
+        }
+
+        setDeletingNote(true);
+        try{
+            const api = new NoteApi(new Http(new Settings()));
+            const response = await api.delete(note.id);
+
+            if (response.success) {
+                await onReloadDivision();
+            } else {
+                alert('Could not delete note');
+            }
+        }
+        finally {
+            setDeletingNote(false);
+        }
+    }
+
     function renderEditNote() {
         return (<EditNote
-            note={newNote}
-            onNoteChanged={setNewNote}
+            note={editNote}
+            onNoteChanged={setEditNote}
             divisions={divisions}
             seasons={seasons}
-            onClose={() => setNewNote(null)}
+            onClose={() => setEditNote(null)}
             onSaved={async () => {
                 setNewDate('');
-                setNewNote(null);
+                setEditNote(null);
                 await onReloadDivision();
             } }/>);
+    }
+
+    function renderNote(note) {
+        return (<tr key={note.id}>
+            <td colSpan="5">
+                {account ? (<button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>📌 Edit</button>) : '📌'}
+                {note.note}
+            </td>
+            {account ? (<td className="medium-column-width">
+                <button className="btn btn-sm btn-danger" onClick={() => deleteNote(note)}>🗑</button>
+            </td>) : null}
+        </tr>);
     }
 
     const renderContext = {};
@@ -419,7 +460,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {resultsToRender}
             {resultsToRender.filter(f => f != null).length === 0 && fixtures.length > 0 ? (<div>No fixtures match your search</div>) : null}
             {fixtures.length === 0 ? (<div>No fixtures, yet</div>) : null}
-            {newNote ? renderEditNote() : null}
+            {editNote ? renderEditNote() : null}
         </div>
         {isAdmin && !proposingGames ? (<div className="mt-3">
             <div>

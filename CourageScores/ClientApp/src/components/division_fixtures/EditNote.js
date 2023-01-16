@@ -58,7 +58,7 @@ export function EditNote({ note, onNoteChanged, divisions, seasons, onClose, onS
                 <div className="input-group-prepend">
                     <span className="input-group-text">Date</span>
                 </div>
-                <input type="date" value={note.date} onChange={event => onValueChanged('date', event)} />
+                <input type="date" value={note.date.substring(0, 10)} onChange={event => onValueChanged('date', event)} />
             </div>
             <div className="form-group my-3 d-flex">
                 <label htmlFor="note-text" className="input-group-text">Note</label>
