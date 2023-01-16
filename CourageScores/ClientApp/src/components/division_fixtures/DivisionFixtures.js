@@ -437,7 +437,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return (<div className="alert alert-warning alert-dismissible fade show" role="alert" key={note.id}>
             <span className="margin-right">📌</span>
             {note.note}
-            <button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>
+            {isNoteAdmin ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>) : null}
             {isNoteAdmin ? (<div className="mt-2">
                 <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
             </div>) : null}
