@@ -64,8 +64,6 @@ jobs:
         env:
           GoogleAuth_ClientId: ${{ secrets.GOOGLEOAUTHID }}
           GoogleAuth_Secret: ${{ secrets.GOOGLEOAUTHSECRET }}
-          CosmosDb_Endpoint: ${{ secrets.COSMOSDBURL }}
-          CosmosDb_Key: ${{ secrets.COSMOSDBKEY }}
           DebugToken: ${{ secrets.DEBUGTOKEN }}
           
       - name: Dev environment variable substitution
@@ -75,6 +73,8 @@ jobs:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
           CosmosDb_DatabaseName: ${{ secrets.COSMOSDB_DATABASENAME_DEV }}          
+          CosmosDb_Key: ${{ secrets.COSMOSDB_KEY_DEV }}
+          CosmosDb_Endpoint: ${{ secrets.COSMOSDB_URL_DEV }}
 
       - name: Prod environment variable substitution
         if: ${{ env.branch_name == 'release' }}
@@ -83,6 +83,8 @@ jobs:
           files: '${{env.DOTNET_ROOT}}/myapp/appsettings.json'
         env:
           CosmosDb_DatabaseName: ${{ secrets.COSMOSDB_DATABASENAME_PROD }}          
+          CosmosDb_Key: ${{ secrets.COSMOSDB_KEY_PROD }}
+          CosmosDb_Endpoint: ${{ secrets.COSMOSDB_URL_PROD }}
 
       - name: Upload artifact for deployment job
         if: ${{ env.branch_name == 'release' || env.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
