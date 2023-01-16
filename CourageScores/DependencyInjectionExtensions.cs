@@ -94,6 +94,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<TournamentSide, TournamentSideDto, TournamentSideAdapter>(services);
         AddAdapter<TournamentMatch, TournamentMatchDto, TournamentMatchAdapter>(services);
         AddAdapter<TournamentRound, TournamentRoundDto, TournamentRoundAdapter>(services);
+        AddAdapter<FixtureDateNote, FixtureDateNoteDto, FixtureDateNoteAdapter>(services);
 
         AddAdapter<Team, TeamDto, TeamAdapter>(services);
         AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);

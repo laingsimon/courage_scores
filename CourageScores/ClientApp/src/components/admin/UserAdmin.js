@@ -119,6 +119,7 @@ export function UserAdmin({account}) {
         {renderAccessOption('manageAccess', 'Manage user access')}
         {renderAccessOption('manageDivisions', 'Manage divisions')}
         {renderAccessOption('manageGames', 'Manage games')}
+        {renderAccessOption('manageNotes', 'Manage fixture/date notes')}
         {renderAccessOption('managePlayers', 'Manage players')}
         {renderAccessOption('manageScores', 'Manage scores')}
         {renderAccessOption('manageSeasons', 'Manage seasons')}
