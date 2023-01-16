@@ -42,6 +42,10 @@ public interface IGameVisitor
     {
     }
 
+    void VisitTournamentPlayer(GamePlayer player)
+    {
+    }
+
     void VisitGameDraw(GameTeam home, GameTeam away)
     {
     }

@@ -25,6 +25,23 @@ public class MostPlayedPlayerReport : IReport
         };
     }
 
+    public void VisitTournamentPlayer(GamePlayer player)
+    {
+        if (_singlesOnly)
+        {
+            return;
+        }
+
+        if (_playerGamesRecord.TryGetValue(player.Id, out var currentCount))
+        {
+            _playerGamesRecord[player.Id] = currentCount + 1;
+        }
+        else
+        {
+            _playerGamesRecord[player.Id] = 1;
+        }
+    }
+
     public void VisitPlayer(GamePlayer player, int matchPlayerCount)
     {
         if (_singlesOnly && matchPlayerCount != 1)
