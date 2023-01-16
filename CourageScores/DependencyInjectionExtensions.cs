@@ -74,6 +74,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<CachingSeasonService>();
         services.AddScoped<CachingTeamService>();
         services.AddScoped(typeof(CachingDataService<,>));
+        services.AddScoped<ICachingDivisionService, CachingDivisionService>();
     }
 
     private static void AddRepositories(IServiceCollection services)

@@ -1,4 +1,4 @@
-using System.Diagnostics;
+using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace CourageScores.Filters;
@@ -6,10 +6,12 @@ namespace CourageScores.Filters;
 public class CacheManagementFilter : IActionFilter
 {
     private readonly ScopedCacheManagementFlags _flags;
+    private readonly ICachingDivisionService _cachingDivisionService;
 
-    public CacheManagementFilter(ScopedCacheManagementFlags flags)
+    public CacheManagementFilter(ScopedCacheManagementFlags flags, ICachingDivisionService cachingDivisionService)
     {
         _flags = flags;
+        _cachingDivisionService = cachingDivisionService;
     }
 
     public void OnActionExecuting(ActionExecutingContext context)
@@ -17,7 +19,11 @@ public class CacheManagementFilter : IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        // react based on the properties in _flags
-        Trace.TraceInformation("Processing cache management flags");
+        if (_flags.EvictDivisionDataCacheForDivisionId != null || _flags.EvictDivisionDataCacheForSeasonId != null)
+        {
+            _cachingDivisionService.InvalidateCaches(
+                _flags.EvictDivisionDataCacheForDivisionId,
+                _flags.EvictDivisionDataCacheForSeasonId).Wait();
+        }
     }
 }
