@@ -112,11 +112,19 @@ public class DivisionService : IDivisionService
         {
             Id = division.Id,
             Name = division.Name,
-            Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            Teams = GetTeams(divisionData, teams)
+                .OrderByDescending(t => t.Points)
+                .ThenBy(t => t.Name).ToList(),
             AllTeams = allTeams.Select(AdaptToDivisionTeamDetailsDto).ToList(),
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context, userContext, token).OrderByAsync(d => d.Date).ToList(),
-            Players = GetPlayers(divisionData).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
+            Players = GetPlayers(divisionData)
+                .OrderByDescending(p => p.Points)
+                .ThenByDescending(p => p.WinPercentage)
+                .ThenByDescending(p => p.PlayedPairs)
+                .ThenByDescending(p => p.PlayedTriples)
+                .ThenBy(p => p.Name)
+                .ToList(),
             Season = new DivisionDataSeasonDto
             {
                 Id = season.Id,
@@ -190,7 +198,7 @@ public class DivisionService : IDivisionService
             {
                 Id = id,
                 Name = team.Name,
-                Played = score.Played,
+                Played = score.TeamPlayed,
                 Points = CalculatePoints(score),
                 Won = score.Win,
                 Lost = score.Lost,
@@ -239,14 +247,16 @@ public class DivisionService : IDivisionService
                 Id = id,
                 Lost = score.Lost,
                 Name = playerTuple.Player.Name,
-                Played = score.Played,
+                PlayedSingles = score.GetPlayedCount(1),
+                PlayedPairs = score.GetPlayedCount(2),
+                PlayedTriples = score.GetPlayedCount(3),
                 Points = CalculatePoints(score),
                 Team = playerTuple.Team.Name,
                 Won = score.Win,
                 OneEighties = score.OneEighty,
                 Over100Checkouts = score.HiCheckout,
                 TeamId = playerTuple.Team.Id,
-                WinPercentage = score.WinPercentage,
+                WinPercentage = score.PlayerWinPercentage,
                 Fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
                     ? divisionData.PlayersToFixtures[id]
                     : new Dictionary<DateTime, Guid>(),

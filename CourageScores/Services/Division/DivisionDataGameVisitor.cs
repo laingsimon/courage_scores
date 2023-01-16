@@ -115,11 +115,11 @@ public class DivisionDataGameVisitor : IGameVisitor
 
         if (_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
-            score.Played++;
+            score.TeamPlayed++;
         }
         else
         {
-            _divisionData.Teams.Add(team.Id, new DivisionData.Score { Played = 1, Team = team });
+            _divisionData.Teams.Add(team.Id, new DivisionData.Score { TeamPlayed = 1, Team = team });
         }
     }
 
@@ -133,11 +133,25 @@ public class DivisionDataGameVisitor : IGameVisitor
 
         if (_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            score.Played++;
+            if (score.PlayerPlayCount.TryGetValue(matchPlayerCount, out var playedCount))
+            {
+                score.PlayerPlayCount[matchPlayerCount] = playedCount + 1;
+            }
+            else
+            {
+                score.PlayerPlayCount[matchPlayerCount] = 1;
+            }
         }
         else
         {
-            _divisionData.Players.Add(player.Id, new DivisionData.Score { Played = 1, Player = player });
+            _divisionData.Players.Add(player.Id, new DivisionData.Score
+            {
+                Player = player,
+                PlayerPlayCount =
+                {
+                    { matchPlayerCount, 1 },
+                }
+            });
         }
     }
 
