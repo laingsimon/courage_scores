@@ -336,7 +336,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
         const notesForDate = date.notes;
 
-        if (!isAdmin && fixturesForDate.filter(f => !f.away).length === fixturesForDate.length) {
+        const hasFixtures = fixturesForDate.filter(f => f.id !== f.homeTeam.id).length > 0;
+        if (!isAdmin && !hasFixtures) {
             fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
         }
 
@@ -349,9 +350,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
                 {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
             </h4>
+            {notesForDate.map(renderNote)}
             <table className="table layout-fixed">
                 <tbody>
-                {notesForDate.map(renderNote)}
                 {fixturesForDate.map(f => (<DivisionFixture
                     key={f.id}
                     teams={teams}
@@ -433,15 +434,14 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     function renderNote(note) {
-        return (<tr key={note.id}>
-            <td colSpan="5">
-                {isNoteAdmin ? (<button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>📌 Edit</button>) : '📌'}
-                {note.note}
-            </td>
-            {isNoteAdmin ? (<td className="medium-column-width">
+        return (<div className="alert alert-warning" key={note.id}>
+            <span className="margin-right">📌</span>
+            {note.note}
+            {isNoteAdmin ? (<div className="medium-column-width">
+                <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
                 <button className="btn btn-sm btn-danger" onClick={() => deleteNote(note)}>🗑</button>
-            </td>) : null}
-        </tr>);
+            </div>) : null}
+        </div>);
     }
 
     const renderContext = {};
