@@ -21,7 +21,7 @@ public class DataImporter
         _currentTables = currentTables;
     }
 
-    public async IAsyncEnumerable<string> ImportData(IReadOnlyCollection<string> tables, ZipFileReader zip, [EnumeratorCancellation] CancellationToken token)
+    public async IAsyncEnumerable<string> ImportData(IReadOnlyCollection<string> tables, IZipFileReader zip, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var table in _currentTables)
         {

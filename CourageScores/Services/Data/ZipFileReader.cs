@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace CourageScores.Services.Data;
 
-public class ZipFileReader
+public class ZipFileReader : IZipFileReader
 {
     private static readonly JsonSerializer Serializer = new JsonSerializer();
     private readonly ZipFile _zip;
@@ -13,7 +13,7 @@ public class ZipFileReader
         _zip = zip;
     }
 
-    public static async Task<ZipFileReader> OpenZipFile(Stream input, string? password)
+    public static async Task<IZipFileReader> OpenZipFile(Stream input, string? password)
     {
         return await Task.Run(() =>
         {
