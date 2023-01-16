@@ -19,6 +19,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = account && account.access && account.access.manageGames;
+    const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
     const [ isKnockout, setIsKnockout ] = useState(false);
     const [ proposingGames, setProposingGames ] = useState(false);
@@ -340,7 +341,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         }
 
         return (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'opacity-50')}>
-            <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
+            <h4>
+                {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
+                {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
+            </h4>
             <table className="table layout-fixed">
                 <tbody>
                 {notesForDate.map(renderNote)}
@@ -427,10 +431,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     function renderNote(note) {
         return (<tr key={note.id}>
             <td colSpan="5">
-                {account ? (<button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>📌 Edit</button>) : '📌'}
+                {isNoteAdmin ? (<button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>📌 Edit</button>) : '📌'}
                 {note.note}
             </td>
-            {account ? (<td className="medium-column-width">
+            {isNoteAdmin ? (<td className="medium-column-width">
                 <button className="btn btn-sm btn-danger" onClick={() => deleteNote(note)}>🗑</button>
             </td>) : null}
         </tr>);
@@ -471,7 +475,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     <input type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
                     <label className="form-check-label" htmlFor="knockout">Knockout fixture</label>
                 </div>
-                {newDate ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌 Add note</button>) : null}
+                {newDate && isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌 Add note</button>) : null}
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
