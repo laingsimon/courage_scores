@@ -343,6 +343,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <h4>{new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}</h4>
             <table className="table layout-fixed">
                 <tbody>
+                {notesForDate.map(renderNote)}
                 {fixturesForDate.map(f => (<DivisionFixture
                     key={f.id}
                     teams={teams}
@@ -366,7 +367,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     seasonId={season.id}
                     divisionId={divisionId}
                     onTournamentChanged={onTournamentChanged} />))}
-                {notesForDate.map(renderNote)}
                 </tbody>
             </table>
         </div>);
