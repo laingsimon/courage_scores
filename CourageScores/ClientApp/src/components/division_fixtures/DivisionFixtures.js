@@ -332,7 +332,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
     function renderFixtureDate(date) {
         const filters = getFilters();
-        const fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
+        let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
         const notesForDate = date.notes;
 
