@@ -89,7 +89,7 @@ export function ExportData({account}) {
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={exporting} type="checkbox" className="form-check-input"
-                       name="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged}/>
+                       name="includeDeletedEntries" id="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged}/>
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>

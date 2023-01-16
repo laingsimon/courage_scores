@@ -108,14 +108,14 @@ export function ImportData({account}) {
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={importing} type="checkbox" className="form-check-input"
-                       name="purgeData" checked={importRequest.purgeData} onChange={valueChanged}/>
+                       name="purgeData" id="purgeData" checked={importRequest.purgeData} onChange={valueChanged}/>
                 <label className="form-check-label" htmlFor="purgeData">Purge data</label>
             </div>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={importing} type="checkbox" className="form-check-input"
-                       name="dryRun" checked={importRequest.dryRun} onChange={valueChanged}/>
+                       name="dryRun" id="dryRun" checked={importRequest.dryRun} onChange={valueChanged}/>
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
