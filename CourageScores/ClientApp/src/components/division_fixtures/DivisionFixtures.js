@@ -12,8 +12,9 @@ import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
 import {AndFilter, Filter, OrFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
+import {EditNote} from "./EditNote";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions }) {
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = account && account.access && account.access.manageGames;
@@ -38,6 +39,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const [ filter, setFilter ] = useState(initFilter());
     const seasonApi = new SeasonApi(new Http(new Settings()));
+    const [ newNote, setNewNote ] = useState(null);
 
     function initFilter() {
         const search = new URLSearchParams(location.search);
@@ -366,6 +368,33 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         </div>);
     }
 
+    function startAddNote(date) {
+        if (!date) {
+            window.alert('Select a date first');
+            return;
+        }
+
+        setNewNote({
+            date: date,
+            divisionId: divisionId,
+            seasonId: season.id,
+        });
+    }
+
+    function renderEditNote() {
+        return (<EditNote
+            note={newNote}
+            onNoteChanged={setNewNote}
+            divisions={divisions}
+            seasons={seasons}
+            onClose={() => setNewNote(null)}
+            onSaved={async () => {
+                setNewDate('');
+                setNewNote(null);
+                await onReloadDivision();
+            } }/>);
+    }
+
     const renderContext = {};
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
@@ -390,16 +419,18 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {resultsToRender}
             {resultsToRender.filter(f => f != null).length === 0 && fixtures.length > 0 ? (<div>No fixtures match your search</div>) : null}
             {fixtures.length === 0 ? (<div>No fixtures, yet</div>) : null}
+            {newNote ? renderEditNote() : null}
         </div>
         {isAdmin && !proposingGames ? (<div className="mt-3">
             <div>
-                <span className="margin-right">New fixture:</span>
+                <span className="margin-right">Select date:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
 
                 <div className="form-check form-switch d-inline-block">
                     <input type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
                     <label className="form-check-label" htmlFor="knockout">Knockout fixture</label>
                 </div>
+                {newDate ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌 Add note</button>) : null}
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
