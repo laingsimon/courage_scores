@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters.Game;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
@@ -14,6 +15,7 @@ public class UpdateTournamentRoundsCommandTests
     private TournamentGame _game = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private TournamentRoundDto _update = null!;
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -21,9 +23,11 @@ public class UpdateTournamentRoundsCommandTests
         var sideAdapter = new TournamentSideAdapter(new GamePlayerAdapter());
         _game = new TournamentGame();
         _update = new TournamentRoundDto();
+        _cacheFlags = new ScopedCacheManagementFlags();
         _command = new UpdateTournamentRoundsCommand(
             sideAdapter,
-            new TournamentMatchAdapter(sideAdapter));
+            new TournamentMatchAdapter(sideAdapter),
+            _cacheFlags);
     }
 
     [Test]
@@ -35,6 +39,8 @@ public class UpdateTournamentRoundsCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Cannot modify a deleted tournament game"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -47,6 +53,8 @@ public class UpdateTournamentRoundsCommandTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Tournament game updated"));
         Assert.That(result.Result!.Round, Is.Not.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -60,6 +68,8 @@ public class UpdateTournamentRoundsCommandTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Tournament game updated"));
         Assert.That(result.Result!.Round, Is.Not.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -126,6 +136,8 @@ public class UpdateTournamentRoundsCommandTests
         Assert.That(result.Result!.Round, new RoundComparisonConstraint(_update));
         Assert.That(result.Result!.Round!.NextRound, new RoundComparisonConstraint(round2));
         Assert.That(result.Result!.Round!.NextRound!.NextRound, new RoundComparisonConstraint(round3));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     private class RoundComparisonConstraint : IConstraint

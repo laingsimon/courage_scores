@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Team;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Command;
@@ -42,7 +43,7 @@ public class AddOrUpdateTeamCommandTests
         _commandFactory = new Mock<ICommandFactory>();
         _seasonService = new Mock<ISeasonService>();
         _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object);
-        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object);
+        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, new ScopedCacheManagementFlags());
 
         _addOrUpdateGameCommand
             .Setup(c => c.WithData(It.IsAny<EditGameDto>()))

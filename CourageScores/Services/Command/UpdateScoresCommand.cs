@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
@@ -18,15 +19,16 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly ITeamService _teamService;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
     private RecordScoresDto? _scores;
 
-    public UpdateScoresCommand(
-        IUserService userService,
+    public UpdateScoresCommand(IUserService userService,
         IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
         IAuditingHelper auditingHelper,
         ISeasonService seasonService,
         ICommandFactory commandFactory,
-        ITeamService teamService)
+        ITeamService teamService,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
@@ -34,6 +36,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _teamService = teamService;
+        _cacheFlags = cacheFlags;
     }
 
     public UpdateScoresCommand WithData(RecordScoresDto scores)
@@ -69,6 +72,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         {
             // edit the root game record
             await UpdateResults(game, token);
+            _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
         else if (user.Access?.InputResults == true)
         {
@@ -86,6 +91,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             {
                 return result;
             }
+
+            _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));

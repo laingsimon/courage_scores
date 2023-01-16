@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Team;
@@ -37,6 +38,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<ISystemClock, SystemClock>();
         services.AddScoped<ICommandFactory, CommandFactory>();
         services.AddMemoryCache();
+        services.AddScoped<ScopedCacheManagementFlags>();
 
         AddServices(services);
         AddRepositories(services);

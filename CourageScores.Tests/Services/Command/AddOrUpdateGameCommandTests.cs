@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
@@ -21,6 +22,7 @@ public class AddOrUpdateGameCommandTests
     private Mock<ISeasonService> _seasonService = null!;
     private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
+    private ScopedCacheManagementFlags _cacheFlags = null!;
     private readonly Game _game;
     private readonly SeasonDto _season;
     private readonly TeamDto _homeTeam;
@@ -55,11 +57,13 @@ public class AddOrUpdateGameCommandTests
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
+        _cacheFlags = new ScopedCacheManagementFlags();
 
         _command = new AddOrUpdateGameCommand(
             _seasonService.Object,
             _commandFactory.Object,
-            _teamService.Object);
+            _teamService.Object,
+            _cacheFlags);
     }
 
     [Test]
@@ -76,6 +80,8 @@ public class AddOrUpdateGameCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Unable to update a game where the home team and away team are the same"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -92,6 +98,8 @@ public class AddOrUpdateGameCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Unable to add or update game, no season exists"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -122,6 +130,8 @@ public class AddOrUpdateGameCommandTests
         Assert.That(_game.Postponed, Is.EqualTo(update.Postponed));
         Assert.That(_game.IsKnockout, Is.EqualTo(update.IsKnockout));
         Assert.That(_game.DivisionId, Is.EqualTo(update.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -149,6 +159,8 @@ public class AddOrUpdateGameCommandTests
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
         _teamService.Verify(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token));
         _teamService.Verify(s => s.Upsert(_awayTeam.Id, _addSeasonToTeamCommand.Object, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -185,5 +197,7 @@ public class AddOrUpdateGameCommandTests
         Assert.That(thrownException!.Message, Is.EqualTo("Could not add season to team: Some error1, Some error2"));
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
         _teamService.Verify(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 }
