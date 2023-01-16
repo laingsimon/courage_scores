@@ -345,9 +345,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             return null;
         }
 
-        return (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'opacity-50')}>
+        return (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'text-secondary-50')}>
             <h4>
-                {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
+                📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
                 {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
             </h4>
             {notesForDate.map(renderNote)}
