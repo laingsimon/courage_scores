@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Team;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Command;
@@ -24,6 +25,7 @@ public class AddOrUpdateTeamCommandTests
     private readonly Guid _seasonId = Guid.NewGuid();
     private List<GameDto> _games = null!;
     private Team _team = null!;
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -36,13 +38,14 @@ public class AddOrUpdateTeamCommandTests
             DivisionId = _divisionId,
         };
         _games = new List<GameDto>();
+        _cacheFlags = new ScopedCacheManagementFlags();
 
         _gameService = new Mock<IGameService>();
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
         _seasonService = new Mock<ISeasonService>();
-        _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object);
-        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object);
+        _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object, _cacheFlags);
+        _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, _cacheFlags);
 
         _addOrUpdateGameCommand
             .Setup(c => c.WithData(It.IsAny<EditGameDto>()))
@@ -73,6 +76,8 @@ public class AddOrUpdateTeamCommandTests
         Assert.That(_team.Address, Is.EqualTo(update.Address));
         Assert.That(_team.DivisionId, Is.EqualTo(update.DivisionId));
         Assert.That(result.Success, Is.True);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
 
     [Test]
@@ -99,6 +104,8 @@ public class AddOrUpdateTeamCommandTests
         _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update))));
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.True);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
 
     [Test]
@@ -125,6 +132,8 @@ public class AddOrUpdateTeamCommandTests
         _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update))));
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.True);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
 
     [TestCase("new address")]
@@ -158,6 +167,8 @@ public class AddOrUpdateTeamCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Unable to update address, old name is playing other team (on Feb 03 2001) which is registered at the updated address"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [TestCase("new address")]
@@ -191,6 +202,8 @@ public class AddOrUpdateTeamCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Unable to update address, old name is playing other team (on Feb 03 2001) which is registered at the updated address"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     private static bool EditGameDtoMatches(EditGameDto editGameDto, GameDto game, EditTeamDto update)

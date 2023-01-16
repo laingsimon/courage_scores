@@ -34,6 +34,6 @@ public class TournamentSideTests
 
         _side.Accept(visitor.Object);
 
-        visitor.Verify(v => v.VisitPlayer(player, -1)); // TODO: Confirm if this is correct...
+        visitor.Verify(v => v.VisitTournamentPlayer(player));
     }
 }

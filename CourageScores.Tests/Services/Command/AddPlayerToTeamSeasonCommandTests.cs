@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
@@ -30,15 +31,17 @@ public class AddPlayerToTeamSeasonCommandTests
     private Team _team = null!;
     private AddPlayerToTeamSeasonCommand _command = null!;
     private UserDto? _user;
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _cacheFlags = new ScopedCacheManagementFlags();
         _seasonService = new Mock<ISeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _userService = new Mock<IUserService>();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object);
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
 
         _player = new EditTeamPlayerDto();
         _team = new Team
@@ -56,7 +59,7 @@ public class AddPlayerToTeamSeasonCommandTests
             TeamId = Guid.Parse(UserTeamId),
             Name = "an admin",
         };
-        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object);
+        _command = new AddPlayerToTeamSeasonCommand(_seasonService.Object, _commandFactory.Object, _auditingHelper.Object, _userService.Object, _cacheFlags);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
@@ -73,6 +76,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Cannot edit a team that has been deleted"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -84,6 +89,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Player cannot be added, not logged in"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [TestCase(false, false, null)]
@@ -99,6 +106,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Player cannot be added, not permitted"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -108,6 +117,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Season could not be found"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -120,6 +131,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
         _addSeasonToTeamCommand.Verify(c => c.ApplyUpdate(_team, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
     [Test]
@@ -132,6 +145,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Could not add the SEASON season to team TEAM - FAILURE"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -144,6 +159,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Could not add the SEASON season to team TEAM - IMPLIED SUCCESS"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -168,6 +185,8 @@ public class AddPlayerToTeamSeasonCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Player already exists with this name, player not added"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -202,6 +221,8 @@ public class AddPlayerToTeamSeasonCommandTests
         Assert.That(teamPlayer.Captain, Is.True);
         Assert.That(teamPlayer.EmailAddress, Is.EqualTo("the_captain@america.com"));
         _auditingHelper.Verify(h => h.SetUpdated(teamPlayer, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
     [Test]
@@ -226,5 +247,7 @@ public class AddPlayerToTeamSeasonCommandTests
         Assert.That(teamPlayer.Captain, Is.True);
         Assert.That(teamPlayer.EmailAddress, Is.EqualTo("the_captain@america.com"));
         _auditingHelper.Verify(h => h.SetUpdated(teamPlayer, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 }

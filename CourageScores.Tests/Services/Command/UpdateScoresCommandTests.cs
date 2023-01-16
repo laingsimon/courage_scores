@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -33,6 +34,7 @@ public class UpdateScoresCommandTests
     private UserDto? _user;
     private SeasonDto[] _seasons = null!;
     private ActionResultDto<TeamDto> _teamUpdate = new ActionResultDto<TeamDto> { Success = true };
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -43,14 +45,16 @@ public class UpdateScoresCommandTests
         _seasonService = new Mock<ISeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object);
+        _cacheFlags = new ScopedCacheManagementFlags();
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
         _command = new UpdateScoresCommand(
             _userService.Object,
             _gameAdapter.Object,
             _auditingHelper.Object,
             _seasonService.Object,
             _commandFactory.Object,
-            _teamService.Object);
+            _teamService.Object,
+            _cacheFlags);
         _game = new Game
         {
             Home = new GameTeam(),
@@ -86,6 +90,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Cannot edit a game that has been deleted"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -97,6 +103,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Game cannot be updated, not logged in"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [TestCase(false, false, null, null, null)]
@@ -116,6 +124,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Game cannot be updated, not permitted"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -162,6 +172,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -212,6 +224,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.Matches[0].Id, Is.EqualTo(_game.Matches.Single().Id));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -244,6 +258,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Submissions cannot be accepted, scores have been published"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -294,6 +310,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.HomeSubmission!.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.HomeSubmission!.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.HomeSubmission!.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -343,6 +361,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission!.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.AwaySubmission!.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.AwaySubmission!.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -376,6 +396,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.SeasonId, Is.EqualTo(season.Id));
         _teamService.Verify(c => c.Upsert(_game.Home.Id, _addSeasonToTeamCommand.Object, _token));
         _teamService.Verify(c => c.Upsert(_game.Away.Id, _addSeasonToTeamCommand.Object, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]

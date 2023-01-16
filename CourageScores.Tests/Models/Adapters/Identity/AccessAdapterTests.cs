@@ -22,6 +22,7 @@ public class AccessAdapterTests
             ManageAccess = true,
             ManageDivisions = true,
             ManageGames = true,
+            ManageNotes = true,
             ManagePlayers = true,
             ManageScores = true,
             ManageSeasons = true,
@@ -31,17 +32,18 @@ public class AccessAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.InputResults, Is.EqualTo(model.ExportData));
-        Assert.That(result.InputResults, Is.EqualTo(model.ImportData));
+        Assert.That(result.ExportData, Is.EqualTo(model.ExportData));
+        Assert.That(result.ImportData, Is.EqualTo(model.ImportData));
         Assert.That(result.InputResults, Is.EqualTo(model.InputResults));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManageAccess));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManageDivisions));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManageGames));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManagePlayers));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManageScores));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManageSeasons));
-        Assert.That(result.InputResults, Is.EqualTo(model.ManageTeams));
-        Assert.That(result.InputResults, Is.EqualTo(model.RunReports));
+        Assert.That(result.ManageAccess, Is.EqualTo(model.ManageAccess));
+        Assert.That(result.ManageDivisions, Is.EqualTo(model.ManageDivisions));
+        Assert.That(result.ManageGames, Is.EqualTo(model.ManageGames));
+        Assert.That(result.ManageNotes, Is.EqualTo(model.ManageNotes));
+        Assert.That(result.ManagePlayers, Is.EqualTo(model.ManagePlayers));
+        Assert.That(result.ManageScores, Is.EqualTo(model.ManageScores));
+        Assert.That(result.ManageSeasons, Is.EqualTo(model.ManageSeasons));
+        Assert.That(result.ManageTeams, Is.EqualTo(model.ManageTeams));
+        Assert.That(result.RunReports, Is.EqualTo(model.RunReports));
     }
 
     [Test]
@@ -55,6 +57,7 @@ public class AccessAdapterTests
             ManageAccess = true,
             ManageDivisions = true,
             ManageGames = true,
+            ManageNotes = true,
             ManagePlayers = true,
             ManageScores = true,
             ManageSeasons = true,
@@ -64,16 +67,16 @@ public class AccessAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.InputResults, Is.EqualTo(dto.ExportData));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ImportData));
+        Assert.That(result.ExportData, Is.EqualTo(dto.ExportData));
+        Assert.That(result.ImportData, Is.EqualTo(dto.ImportData));
         Assert.That(result.InputResults, Is.EqualTo(dto.InputResults));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManageAccess));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManageDivisions));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManageGames));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManagePlayers));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManageScores));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManageSeasons));
-        Assert.That(result.InputResults, Is.EqualTo(dto.ManageTeams));
-        Assert.That(result.InputResults, Is.EqualTo(dto.RunReports));
+        Assert.That(result.ManageAccess, Is.EqualTo(dto.ManageAccess));
+        Assert.That(result.ManageDivisions, Is.EqualTo(dto.ManageDivisions));
+        Assert.That(result.ManageGames, Is.EqualTo(dto.ManageGames));
+        Assert.That(result.ManageNotes, Is.EqualTo(dto.ManageNotes));
+        Assert.That(result.ManagePlayers, Is.EqualTo(dto.ManagePlayers));
+        Assert.That(result.ManageScores, Is.EqualTo(dto.ManageScores));
+        Assert.That(result.ManageSeasons, Is.EqualTo(dto.ManageSeasons));
+        Assert.That(result.RunReports, Is.EqualTo(dto.RunReports));
     }
 }

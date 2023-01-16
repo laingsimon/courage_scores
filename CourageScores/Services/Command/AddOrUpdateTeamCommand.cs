@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
@@ -10,15 +11,18 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
     private readonly ITeamService _teamService;
     private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
 
     public AddOrUpdateTeamCommand(
         ITeamService teamService,
         IGameService gameService,
-        ICommandFactory commandFactory)
+        ICommandFactory commandFactory,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _teamService = teamService;
         _gameService = gameService;
         _commandFactory = commandFactory;
+        _cacheFlags = cacheFlags;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
@@ -63,6 +67,8 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         team.Name = update.Name;
         team.Address = update.Address;
         team.DivisionId = update.DivisionId;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         return CommandResult.SuccessNoMessage;
     }
 

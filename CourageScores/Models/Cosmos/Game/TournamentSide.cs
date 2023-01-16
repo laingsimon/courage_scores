@@ -18,7 +18,7 @@ public class TournamentSide : AuditedEntity, IGameVisitable
 
         foreach (var player in Players)
         {
-            visitor.VisitPlayer(player, -1); // TODO: Should tournament matches affect the player table?
+            visitor.VisitTournamentPlayer(player);
         }
     }
 }

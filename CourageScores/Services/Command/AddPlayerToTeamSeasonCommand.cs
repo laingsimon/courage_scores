@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
@@ -11,6 +12,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
     private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
     private readonly IUserService _userService;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
 
@@ -18,12 +20,14 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         ISeasonService seasonService,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
-        IUserService userService)
+        IUserService userService,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _auditingHelper = auditingHelper;
         _userService = userService;
+        _cacheFlags = cacheFlags;
     }
 
     public AddPlayerToTeamSeasonCommand ForPlayer(EditTeamPlayerDto player)
@@ -82,6 +86,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 return new CommandOutcome<TeamPlayer>(false, $"Could not add the {season.Name} season to team {model.Name} - {result.Message}", null);
             }
 
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
             teamSeason = result.Result;
         }
 
@@ -98,6 +103,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             await _auditingHelper.SetUpdated(existingPlayer, token);
             existingPlayer.Captain = _player.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
             return new CommandOutcome<TeamPlayer>(true, "Player undeleted from team", existingPlayer);
         }
 
@@ -110,6 +116,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         };
         await _auditingHelper.SetUpdated(newPlayer, token);
         players.Add(newPlayer);
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
 
         return new CommandOutcome<TeamPlayer>(true, $"Player added to the {model.Name} team for the {season.Name} season", newPlayer);
     }

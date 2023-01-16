@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Team;
@@ -37,6 +38,7 @@ public static class DependencyInjectionExtensions
         services.AddSingleton<ISystemClock, SystemClock>();
         services.AddScoped<ICommandFactory, CommandFactory>();
         services.AddMemoryCache();
+        services.AddScoped<ScopedCacheManagementFlags>();
 
         AddServices(services);
         AddRepositories(services);
@@ -72,6 +74,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<CachingSeasonService>();
         services.AddScoped<CachingTeamService>();
         services.AddScoped(typeof(CachingDataService<,>));
+        services.AddScoped<ICachingDivisionService, CachingDivisionService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -94,6 +97,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<TournamentSide, TournamentSideDto, TournamentSideAdapter>(services);
         AddAdapter<TournamentMatch, TournamentMatchDto, TournamentMatchAdapter>(services);
         AddAdapter<TournamentRound, TournamentRoundDto, TournamentRoundAdapter>(services);
+        AddAdapter<FixtureDateNote, FixtureDateNoteDto, FixtureDateNoteAdapter>(services);
 
         AddAdapter<Team, TeamDto, TeamAdapter>(services);
         AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);

@@ -18,9 +18,19 @@ public class DivisionData
         public int Draw { get; set; }
         public int OneEighty { get; set; }
         public int HiCheckout { get; set; }
-        public int Played { get; set; }
+        public int TeamPlayed { get; set; }
         public int Lost { get; set; }
-        public double WinPercentage => Math.Round((double)Win / Played * 100, 2);
+        public double PlayerWinPercentage => GetPlayedCount(1) == 0
+            ? 0
+            // ReSharper disable once ArrangeRedundantParentheses
+            : Math.Round(((double)Win / GetPlayedCount(1)) * 100, 2);
+
+        public Dictionary<int, int> PlayerPlayCount { get; } = new();
+
+        public int GetPlayedCount(int playerCount)
+        {
+            return PlayerPlayCount.TryGetValue(playerCount, out var count) ? count : 0;
+        }
     }
 
     public class TeamPlayerTuple
