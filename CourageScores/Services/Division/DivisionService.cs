@@ -281,6 +281,7 @@ public class DivisionService : IDivisionService
         if (addressesInUse.Any() && userContext.CanCreateGames)
         {
             foreach (var teamAddress in teams
+                         .Where(t => !addressesInUse.Contains(t.Name))
                          .GroupBy(t => t.Address)
                          .Where(g => !addressesInUse.Contains(g.Key)))
             {

@@ -30,7 +30,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
         <DropdownToggle caret color={color || 'outline-light'} className="btn-sm text-dark border-dark">
             <span className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? selectedOption.text || value : value}</span>
         </DropdownToggle>
-        <DropdownMenu>
+        <DropdownMenu className="max-height-250 overflow-auto">
             {options.map(o => (<DropdownItem key={o.value}
                                              disabled={o.disabled || false}
                                              className={o.value === value ? 'active' : ''}
