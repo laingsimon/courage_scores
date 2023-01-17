@@ -235,3 +235,7 @@ table td.middle-vertical-line {
 .text-secondary-50 {
   color: #bbbbbb;
 }
+
+.max-height-150 {
+  max-height: 150px;
+}
