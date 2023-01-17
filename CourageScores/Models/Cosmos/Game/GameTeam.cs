@@ -1,12 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// The details of a team that are playing a game, and who they recorded as the player of the match
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class GameTeam : AuditedEntity
 {
     /// <summary>

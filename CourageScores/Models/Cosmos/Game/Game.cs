@@ -1,13 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Identity;
+﻿using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
     /// <summary>
@@ -135,6 +132,17 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
                     _awayScore++;
                     break;
             }
+        }
+
+        public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
+        {
+            if (homePlayers.Count == 0)
+            {
+                return;
+            }
+
+            _homeScore += score;
+            _awayScore += score;
         }
 
         public void Accept(IGameVisitor visitor)

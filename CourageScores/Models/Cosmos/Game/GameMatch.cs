@@ -1,12 +1,8 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// The record of a series of legs of a match between two players
 /// </summary>
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
-[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public class GameMatch : AuditedEntity, IGameVisitable
 {
     /// <summary>
@@ -80,7 +76,7 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
             else
             {
-                visitor.VisitMatchDraw(HomePlayers, AwayPlayers);
+                visitor.VisitMatchDraw(HomePlayers, AwayPlayers, HomeScore.Value);
             }
         }
 

@@ -8,20 +8,56 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
     where TModel : AuditedEntity
     where TDto : AuditedDto
 {
-    private readonly TModel? _model;
-    private readonly TDto? _dto;
+    private readonly Dictionary<TModel, TDto> _modelToDtoMap;
+    private readonly Dictionary<TDto, TModel> _dtoToModelMap;
 
     public MockAdapter(TModel? model = null, TDto? dto = null)
     {
-        _model = model;
-        _dto = dto;
+        if (model != null)
+        {
+            _modelToDtoMap = new Dictionary<TModel, TDto>
+            {
+                { model, dto! }
+            };
+        }
+        else
+        {
+            _modelToDtoMap = new Dictionary<TModel, TDto>();
+        }
+
+        if (dto != null)
+        {
+            _dtoToModelMap = new Dictionary<TDto, TModel>
+            {
+                { dto, model! }
+            };
+        }
+        else
+        {
+            _dtoToModelMap = new Dictionary<TDto, TModel>();
+        }
+    }
+
+    public MockAdapter(IEnumerable<TModel> models, IEnumerable<TDto> dtos)
+    {
+        var zipped = models.Zip(dtos, (model, dto) => new { model, dto }).ToArray();
+        _modelToDtoMap = zipped.ToDictionary(a => a.model, a => a.dto);
+        _dtoToModelMap = zipped.ToDictionary(a => a.dto, a => a.model);
     }
 
     public Task<TDto> Adapt(TModel model, CancellationToken token)
     {
-        if (_dto != null)
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (model == null)
         {
-            return Task.FromResult(_dto);
+#pragma warning disable CS8625
+            return Task.FromResult<TDto>(null);
+#pragma warning restore CS8625
+        }
+
+        if (_modelToDtoMap.TryGetValue(model, out var dto))
+        {
+            return Task.FromResult(dto);
         }
 
         throw new InvalidOperationException($"Unexpected adaption to {typeof(TDto).Name}");
@@ -29,9 +65,17 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
 
     public Task<TModel> Adapt(TDto dto, CancellationToken token)
     {
-        if (_model != null)
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+        if (dto == null)
         {
-            return Task.FromResult(_model);
+#pragma warning disable CS8625
+            return Task.FromResult<TModel>(null);
+#pragma warning restore CS8625
+        }
+
+        if (_dtoToModelMap.TryGetValue(dto, out var model))
+        {
+            return Task.FromResult(model);
         }
 
         throw new InvalidOperationException($"Unexpected adaption to {typeof(TModel).Name}");

@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 
@@ -8,14 +9,16 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
 {
     private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
     private readonly IAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
     private TournamentRoundDto? _rounds;
 
-    public UpdateTournamentRoundsCommand(
-        IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
-        IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter)
+    public UpdateTournamentRoundsCommand(IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
+        IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _sideAdapter = sideAdapter;
         _matchAdapter = matchAdapter;
+        _cacheFlags = cacheFlags;
     }
 
     public UpdateTournamentRoundsCommand WithData(TournamentRoundDto rounds)
@@ -37,7 +40,7 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
         }
 
         model.Round = await UpdateRound(model.Round, _rounds, token);
-
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = model.SeasonId;
         return new CommandOutcome<TournamentGame>(true, "Tournament game updated", model);
     }
 

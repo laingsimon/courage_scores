@@ -1,22 +1,26 @@
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Services.Season;
 
 namespace CourageScores.Services.Command;
 
-public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
+public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamSeason>
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISeasonService _seasonService;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
     private Guid? _seasonId;
     private Guid? _copyPlayersFromOtherSeasonId;
     private bool _skipSeasonExistenceCheck;
 
     public AddSeasonToTeamCommand(
         IAuditingHelper auditingHelper,
-        ISeasonService seasonService)
+        ISeasonService seasonService,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _auditingHelper = auditingHelper;
         _seasonService = seasonService;
+        _cacheFlags = cacheFlags;
     }
 
     public virtual AddSeasonToTeamCommand ForSeason(Guid seasonId)
@@ -37,7 +41,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         return this;
     }
 
-    public virtual async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Team model, CancellationToken token)
+    public virtual async Task<CommandOutcome<TeamSeason>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_seasonId == null)
         {
@@ -60,6 +64,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             if (_copyPlayersFromOtherSeasonId.HasValue && teamSeason.Players.Count == 0)
             {
                 teamSeason.Players = GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value);
+                _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
                 return new CommandOutcome<TeamSeason>(true, $"Season already exists, {teamSeason.Players.Count} players copied", teamSeason);
             }
 
@@ -77,6 +82,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
         };
         await _auditingHelper.SetUpdated(teamSeason, token);
         model.Seasons.Add(teamSeason);
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
 
         return new CommandOutcome<TeamSeason>(
             true,
@@ -86,7 +92,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Team, TeamSeason>
             teamSeason);
     }
 
-    private static List<TeamPlayer> GetPlayersFromOtherSeason(Team team, Guid seasonId)
+    private static List<TeamPlayer> GetPlayersFromOtherSeason(Models.Cosmos.Team.Team team, Guid seasonId)
     {
         var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == seasonId);
         return teamSeason == null

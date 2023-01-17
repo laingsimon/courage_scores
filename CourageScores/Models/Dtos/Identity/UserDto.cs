@@ -1,8 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿namespace CourageScores.Models.Dtos.Identity;
 
-namespace CourageScores.Models.Dtos.Identity;
-
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 #pragma warning disable CS8618
 public class UserDto
 {

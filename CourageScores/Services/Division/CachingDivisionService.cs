@@ -7,7 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Division;
 
-public class CachingDivisionService : IDivisionService
+public class CachingDivisionService : ICachingDivisionService
 {
     private readonly IDivisionService _divisionService;
     private readonly IMemoryCache _memoryCache;
@@ -21,6 +21,35 @@ public class CachingDivisionService : IDivisionService
         _memoryCache = memoryCache;
         _userService = userService;
         _accessor = accessor;
+    }
+
+    public Task InvalidateCaches(Guid? divisionId, Guid? seasonId)
+    {
+        if (divisionId == null && seasonId == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (divisionId != null && seasonId != null)
+        {
+            // invalidate caches where season and division match
+            var keys = CacheKeys.Where(key => key.DivisionId == divisionId.Value && key.SeasonId == seasonId.Value).ToArray();
+            InvalidateCaches(keys);
+        }
+        else if (divisionId != null)
+        {
+            // invalidate caches where division id matches, any season id
+            var keys = CacheKeys.Where(key => key.DivisionId == divisionId.Value).ToArray();
+            InvalidateCaches(keys);
+        }
+        else if (seasonId != null)
+        {
+            // invalidate caches where season id matches, any division id
+            var keys = CacheKeys.Where(key => key.SeasonId == seasonId.Value).ToArray();
+            InvalidateCaches(keys);
+        }
+
+        return Task.CompletedTask;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
@@ -76,7 +105,12 @@ public class CachingDivisionService : IDivisionService
     private void InvalidateCaches(Guid divisionId, string? type)
     {
         var cacheKeys = CacheKeys.Where(k => (k.DivisionId == divisionId || k.DivisionId == null) && (k.Type == type || type == null)).ToArray();
-        foreach (var key in cacheKeys)
+        InvalidateCaches(cacheKeys);
+    }
+
+    private void InvalidateCaches(IReadOnlyCollection<CacheKey> keys)
+    {
+        foreach (var key in keys)
         {
             _memoryCache.Remove(key);
             CacheKeys.Remove(key);
@@ -115,13 +149,13 @@ public class CachingDivisionService : IDivisionService
     private class CacheKey : IEquatable<CacheKey>
     {
         public Guid? DivisionId { get; }
-        private readonly Guid? _seasonId;
+        public Guid? SeasonId { get; }
         public string Type { get; }
 
         public CacheKey(Guid? divisionId, Guid? seasonId, string type)
         {
             DivisionId = divisionId;
-            _seasonId = seasonId;
+            SeasonId = seasonId;
             Type = type;
         }
 
@@ -129,7 +163,7 @@ public class CachingDivisionService : IDivisionService
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Nullable.Equals(DivisionId, other.DivisionId) && Nullable.Equals(_seasonId, other._seasonId) && Type == other.Type;
+            return Nullable.Equals(DivisionId, other.DivisionId) && Nullable.Equals(SeasonId, other.SeasonId) && Type == other.Type;
         }
 
         public override bool Equals(object? obj)
@@ -142,7 +176,7 @@ public class CachingDivisionService : IDivisionService
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(DivisionId, _seasonId, Type);
+            return HashCode.Combine(DivisionId, SeasonId, Type);
         }
     }
 }

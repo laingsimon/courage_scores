@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace CourageScores.Models.Cosmos.Game;
 
-[SuppressMessage("ReSharper", "UnusedParameter.Global")]
 public interface IGameVisitor
 {
     void VisitGame(Game game)
@@ -17,7 +14,7 @@ public interface IGameVisitor
     {
     }
 
-    void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers)
+    void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
     {
     }
 
@@ -45,6 +42,10 @@ public interface IGameVisitor
     {
     }
 
+    void VisitTournamentPlayer(GamePlayer player)
+    {
+    }
+
     void VisitGameDraw(GameTeam home, GameTeam away)
     {
     }
@@ -57,15 +58,15 @@ public interface IGameVisitor
     {
     }
 
-    void VisitTournamentGame(TournamentGame tournamentGame)
+    void VisitGame(TournamentGame tournamentGame)
     {
     }
 
-    void VisitTournamentRound(TournamentRound tournamentRound)
+    void VisitRound(TournamentRound tournamentRound)
     {
     }
 
-    void VisitTournamentFinal(TournamentMatch match)
+    void VisitFinal(TournamentMatch match)
     {
     }
 
@@ -73,7 +74,11 @@ public interface IGameVisitor
     {
     }
 
-    void VisitTournamentMatch(TournamentMatch match)
+    void VisitMatch(TournamentMatch match)
+    {
+    }
+
+    void VisitSide(TournamentSide tournamentSide)
     {
     }
 }

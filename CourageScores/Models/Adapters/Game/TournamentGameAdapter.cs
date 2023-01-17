@@ -47,7 +47,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Date = dto.Date,
             Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             SeasonId = dto.SeasonId,
-            Address = dto.Address,
+            Address = dto.Address.Trim(),
             OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(dto);

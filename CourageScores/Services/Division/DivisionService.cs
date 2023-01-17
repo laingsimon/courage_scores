@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
@@ -17,21 +17,23 @@ namespace CourageScores.Services.Division;
 public class DivisionService : IDivisionService
 {
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
-    private readonly IGenericDataService<Team, TeamDto> _genericTeamService;
+    private readonly IGenericDataService<Models.Cosmos.Team.Team, TeamDto> _genericTeamService;
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly IUserService _userService;
     private readonly ISystemClock _clock;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
-        IGenericDataService<Team, TeamDto> genericTeamService,
+        IGenericDataService<Models.Cosmos.Team.Team, TeamDto> genericTeamService,
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
+        IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
         IUserService userService,
         ISystemClock clock)
     {
@@ -41,6 +43,7 @@ public class DivisionService : IDivisionService
         _gameRepository = gameRepository;
         _tournamentGameRepository = tournamentGameRepository;
         _tournamentSideAdapter = tournamentSideAdapter;
+        _noteService = noteService;
         _userService = userService;
         _clock = clock;
     }
@@ -78,17 +81,19 @@ public class DivisionService : IDivisionService
             };
         }
 
+        var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
+            .WhereAsync(n => n.DivisionId == null || n.DivisionId == divisionId)
+            .ToList();
         var games = await _gameRepository
             .GetSome($"t.DivisionId = '{divisionId}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
-
         var tournamentGames = await _tournamentGameRepository
             .GetSome($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
 
-        var context = new DivisionDataContext(games, teams, tournamentGames);
+        var context = new DivisionDataContext(games, teams, tournamentGames, notes);
 
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData, teams.ToDictionary(t => t.Id));
@@ -107,11 +112,19 @@ public class DivisionService : IDivisionService
         {
             Id = division.Id,
             Name = division.Name,
-            Teams = GetTeams(divisionData, teams).OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            Teams = GetTeams(divisionData, teams)
+                .OrderByDescending(t => t.Points)
+                .ThenBy(t => t.Name).ToList(),
             AllTeams = allTeams.Select(AdaptToDivisionTeamDetailsDto).ToList(),
             TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context, userContext, token).OrderByAsync(d => d.Date).ToList(),
-            Players = GetPlayers(divisionData).OrderByDescending(p => p.Points).ThenByDescending(p => p.WinPercentage).ThenBy(p => p.Name).ToList(),
+            Players = GetPlayers(divisionData)
+                .OrderByDescending(p => p.Points)
+                .ThenByDescending(p => p.WinPercentage)
+                .ThenByDescending(p => p.PlayedPairs)
+                .ThenByDescending(p => p.PlayedTriples)
+                .ThenBy(p => p.Name)
+                .ToList(),
             Season = new DivisionDataSeasonDto
             {
                 Id = season.Id,
@@ -185,7 +198,7 @@ public class DivisionService : IDivisionService
             {
                 Id = id,
                 Name = team.Name,
-                Played = score.Played,
+                Played = score.TeamPlayed,
                 Points = CalculatePoints(score),
                 Won = score.Win,
                 Lost = score.Lost,
@@ -202,6 +215,7 @@ public class DivisionService : IDivisionService
         {
             context.GamesForDate.TryGetValue(date, out var gamesForDate);
             context.TournamentGamesForDate.TryGetValue(date, out var tournamentGamesForDate);
+            context.Notes.TryGetValue(date, out var notesForDate);
 
             yield return new DivisionFixtureDateDto
             {
@@ -211,6 +225,7 @@ public class DivisionService : IDivisionService
                 TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext, token)
                     .OrderByAsync(f => f.Address).ToList(),
                 HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
+                Notes = notesForDate ?? new List<FixtureDateNoteDto>(),
             };
         }
     }
@@ -232,14 +247,16 @@ public class DivisionService : IDivisionService
                 Id = id,
                 Lost = score.Lost,
                 Name = playerTuple.Player.Name,
-                Played = score.Played,
+                PlayedSingles = score.GetPlayedCount(1),
+                PlayedPairs = score.GetPlayedCount(2),
+                PlayedTriples = score.GetPlayedCount(3),
                 Points = CalculatePoints(score),
                 Team = playerTuple.Team.Name,
                 Won = score.Win,
                 OneEighties = score.OneEighty,
                 Over100Checkouts = score.HiCheckout,
                 TeamId = playerTuple.Team.Id,
-                WinPercentage = score.WinPercentage,
+                WinPercentage = score.PlayerWinPercentage,
                 Fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
                     ? divisionData.PlayersToFixtures[id]
                     : new Dictionary<DateTime, Guid>(),
@@ -419,22 +436,23 @@ public class DivisionService : IDivisionService
     private class DivisionDataContext
     {
         public IReadOnlyCollection<TeamDto> Teams { get; }
+        public Dictionary<DateTime, List<FixtureDateNoteDto>> Notes { get; }
         public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
         public Dictionary<DateTime, TournamentGame[]> TournamentGamesForDate { get; }
 
-        public DivisionDataContext(
-            IReadOnlyCollection<Models.Cosmos.Game.Game> games,
-            IReadOnlyCollection<TeamDto> teams,
-            IReadOnlyCollection<TournamentGame> tournamentGames)
+        public DivisionDataContext(IReadOnlyCollection<Models.Cosmos.Game.Game> games,
+            IReadOnlyCollection<TeamDto> teams, IReadOnlyCollection<TournamentGame> tournamentGames,
+            IReadOnlyCollection<FixtureDateNoteDto> notes)
         {
             GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
             Teams = teams;
+            Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToList());
             TournamentGamesForDate = tournamentGames.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         }
 
         public IEnumerable<DateTime> GetDates()
         {
-            return GamesForDate.Keys.Union(TournamentGamesForDate.Keys);
+            return GamesForDate.Keys.Union(TournamentGamesForDate.Keys).Union(Notes.Keys);
         }
     }
 

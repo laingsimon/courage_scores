@@ -32,6 +32,7 @@ public class DataController : Controller
     [RequestSizeLimit(bytes: 1024*1024*20)] // 20MB
     public async Task<ActionResultDto<ImportDataResultDto>> ImportData([FromForm] ImportDataRequestDto request, CancellationToken token)
     {
+        request.Tables = request.Tables.SelectMany(t => t.Split(',')).ToList();
         return await _dataService.ImportData(request, token);
     }
 }

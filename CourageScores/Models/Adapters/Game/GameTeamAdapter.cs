@@ -23,7 +23,7 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         return new GameTeamDto
         {
             Id = model.Id,
-            Name = model.Name.Trim(),
+            Name = model.Name,
             ManOfTheMatch = model.ManOfTheMatch == null
                 ? null
                 : isAdmin || isAbleToInputForThisTeam
@@ -37,7 +37,7 @@ public class GameTeamAdapter : IAdapter<GameTeam, GameTeamDto>
         return Task.FromResult(new GameTeam
         {
             Id = dto.Id,
-            Name = dto.Name,
+            Name = dto.Name.Trim(),
             ManOfTheMatch = dto.ManOfTheMatch,
         }.AddAuditProperties(dto));
     }

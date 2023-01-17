@@ -231,3 +231,7 @@ table td.middle-vertical-line {
 .dynamic-width-dropdown > button > span {
   min-width: 25px;
 }
+
+.text-secondary-50 {
+  color: #bbbbbb;
+}

@@ -114,7 +114,9 @@ export function Division({ account, apis, divisions }) {
                 allTeams={divisionData.allTeams}
                 account={account}
                 onReloadDivision={reloadDivisionData}
-                setNewFixtures={setNewFixtures} />)
+                setNewFixtures={setNewFixtures}
+                seasons={divisionData.seasons}
+                divisions={divisions} />)
             : null}
         {effectiveTab === 'players'
             ? (<DivisionPlayers

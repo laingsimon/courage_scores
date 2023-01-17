@@ -1,8 +1,5 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace CourageScores.Models.Dtos.Game;
 
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 public class NotablePlayerDto : GamePlayerDto
 {
     /// <summary>

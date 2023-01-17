@@ -1,8 +1,10 @@
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 
@@ -11,15 +13,18 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly ITeamService _teamService;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
 
     public AddOrUpdateGameCommand(
         ISeasonService seasonService,
         ICommandFactory commandFactory,
-        ITeamService teamService)
+        ITeamService teamService,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _teamService = teamService;
+        _cacheFlags = cacheFlags;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
@@ -49,6 +54,8 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         game.SeasonId = latestSeason.Id;
         game.Postponed = update.Postponed;
         game.IsKnockout = update.IsKnockout;
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Home == null || game.Home.Id != update.HomeTeamId)

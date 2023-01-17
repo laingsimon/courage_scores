@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Filters;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
@@ -6,6 +7,7 @@ using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 
@@ -17,15 +19,16 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
     private readonly ITeamService _teamService;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
     private RecordScoresDto? _scores;
 
-    public UpdateScoresCommand(
-        IUserService userService,
+    public UpdateScoresCommand(IUserService userService,
         IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
         IAuditingHelper auditingHelper,
         ISeasonService seasonService,
         ICommandFactory commandFactory,
-        ITeamService teamService)
+        ITeamService teamService,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
@@ -33,6 +36,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         _seasonService = seasonService;
         _commandFactory = commandFactory;
         _teamService = teamService;
+        _cacheFlags = cacheFlags;
     }
 
     public UpdateScoresCommand WithData(RecordScoresDto scores)
@@ -68,6 +72,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         {
             // edit the root game record
             await UpdateResults(game, token);
+            _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
         else if (user.Access?.InputResults == true)
         {
@@ -85,6 +91,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             {
                 return result;
             }
+
+            _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
+            _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
 
         return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
@@ -150,7 +159,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new CommandOutcome<GameDto>(false, "User is not permitted to submit results for home or away teams", null);
         }
 
-        // TODO: #116: If both home/away submissions are the same then record the details in the main game
+        // TODO: #123: If both home/away submissions are the same then record the details in the main game
 
         return new CommandOutcome<GameDto>(true, "Submission updated", null);
     }

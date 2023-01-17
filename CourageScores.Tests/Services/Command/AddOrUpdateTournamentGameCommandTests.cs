@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
@@ -29,12 +30,14 @@ public class AddOrUpdateTournamentGameCommandTests
     private readonly SeasonDto _season = new SeasonDto { Id = Guid.NewGuid() };
     private TournamentGame _game = null!;
     private EditTournamentGameDto _update = null!;
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _game = new TournamentGame { Id = Guid.NewGuid() };
         _update = new EditTournamentGameDto();
+        _cacheFlags = new ScopedCacheManagementFlags();
 
         _seasonService = new Mock<ISeasonService>();
         _sideAdapter = new TournamentSideAdapter(new GamePlayerAdapter());
@@ -44,7 +47,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _userService = new Mock<IUserService>();
 
         _command = new AddOrUpdateTournamentGameCommand(_seasonService.Object, _sideAdapter, _roundAdapter, _auditingHelper.Object,
-            _systemClock.Object, _userService.Object);
+            _systemClock.Object, _userService.Object, _cacheFlags);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(_user);
     }
@@ -58,6 +61,8 @@ public class AddOrUpdateTournamentGameCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Unable to add or update game, no season exists"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -80,6 +85,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Date, Is.EqualTo(new DateTime(2001, 02, 03)));
         Assert.That(result.Result!.OneEighties.Select(p => p.Id), Is.EqualTo(new[] { oneEightyPlayerId }));
         Assert.That(result.Result!.Over100Checkouts.Select(p => p.Id), Is.EqualTo(new[] { over100CheckoutPlayerId }));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -93,6 +100,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Round, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -120,6 +129,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Sides.Count, Is.EqualTo(1));
         Assert.That(result.Result!.Sides[0].Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Sides[0].Players.Count, Is.EqualTo(1));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -182,5 +193,7 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Round!.NextRound.Matches.Count, Is.EqualTo(2));
         Assert.That(result.Result!.Round!.NextRound.Matches.Select(m => m.Id), Has.All.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Round!.NextRound.Sides.Select(s => s.Id), Is.EquivalentTo(new[] { side1.Id }));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 }

@@ -1,5 +1,7 @@
+using CourageScores.Filters;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 
@@ -9,12 +11,14 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
     private readonly ISeasonService _seasonService;
     private readonly ITeamService _teamService;
     private readonly ICommandFactory _commandFactory;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
 
-    public AddOrUpdateSeasonCommand(ISeasonService seasonService, ITeamService teamService, ICommandFactory commandFactory)
+    public AddOrUpdateSeasonCommand(ISeasonService seasonService, ITeamService teamService, ICommandFactory commandFactory, ScopedCacheManagementFlags cacheFlags)
     {
         _seasonService = seasonService;
         _teamService = teamService;
         _commandFactory = commandFactory;
+        _cacheFlags = cacheFlags;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Season season, EditSeasonDto update, CancellationToken token)
@@ -29,6 +33,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
             return await AssignTeamsToNewSeason(season.Id, update.CopyTeamsFromSeasonId.Value, token);
         }
 
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
         return CommandResult.SuccessNoMessage;
     }
 

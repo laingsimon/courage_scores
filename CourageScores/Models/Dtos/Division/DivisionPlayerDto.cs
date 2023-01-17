@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace CourageScores.Models.Dtos.Division;
 
 public class DivisionPlayerDto
@@ -7,7 +9,8 @@ public class DivisionPlayerDto
     public int Rank { get; set; }
     public string Name { get; set; } = null!;
     public string Team { get; set; } = null!;
-    public int Played { get; set; }
+    [JsonProperty("Played")]
+    public int PlayedSingles { get; set; }
     public int Won { get; set; }
     public int Lost { get; set; }
     public int Points { get; set; }
@@ -16,4 +19,9 @@ public class DivisionPlayerDto
     public int Over100Checkouts { get; set; }
     public bool Captain { get; set; }
     public Dictionary<DateTime, Guid> Fixtures { get; set; } = new();
+
+    [JsonIgnore]
+    public int PlayedPairs { get; set; }
+    [JsonIgnore]
+    public int PlayedTriples { get; set; }
 }

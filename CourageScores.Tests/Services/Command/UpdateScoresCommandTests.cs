@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
@@ -9,6 +10,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
 
@@ -31,6 +33,8 @@ public class UpdateScoresCommandTests
     private RecordScoresDto _scores = null!;
     private UserDto? _user;
     private SeasonDto[] _seasons = null!;
+    private ActionResultDto<TeamDto> _teamUpdate = new ActionResultDto<TeamDto> { Success = true };
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -41,14 +45,16 @@ public class UpdateScoresCommandTests
         _seasonService = new Mock<ISeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object);
+        _cacheFlags = new ScopedCacheManagementFlags();
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
         _command = new UpdateScoresCommand(
             _userService.Object,
             _gameAdapter.Object,
             _auditingHelper.Object,
             _seasonService.Object,
             _commandFactory.Object,
-            _teamService.Object);
+            _teamService.Object,
+            _cacheFlags);
         _game = new Game
         {
             Home = new GameTeam(),
@@ -72,7 +78,7 @@ public class UpdateScoresCommandTests
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _teamService
             .Setup(s => s.Upsert(It.IsAny<Guid>(), It.IsAny<AddSeasonToTeamCommand>(), _token))
-            .ReturnsAsync(() => new ActionResultDto<TeamDto> { Success = true });
+            .ReturnsAsync(() => _teamUpdate);
     }
 
     [Test]
@@ -84,6 +90,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Cannot edit a game that has been deleted"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -95,6 +103,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Game cannot be updated, not logged in"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [TestCase(false, false, null, null, null)]
@@ -114,6 +124,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Game cannot be updated, not permitted"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -160,6 +172,60 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenUpdatingMatches_UpdatesResultsAndReturnsSuccessful()
+    {
+        _game.Matches.Add(new GameMatch
+        {
+            Id = Guid.NewGuid(),
+        });
+        _user!.Access!.ManageScores = true;
+        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME PLAYER",
+        };
+        var awayPlayer1 = new RecordScoresDto.GameOver100CheckoutDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY PLAYER",
+            Notes = "150",
+        };
+        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
+        {
+            HomePlayers = { homePlayer1 },
+            AwayPlayers = { awayPlayer1 },
+            HomeScore = 1,
+            AwayScore = 2,
+            OneEighties = { homePlayer1 },
+            Over100Checkouts = { awayPlayer1 },
+        };
+        _scores.Matches.Add(match1);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Message, Is.EqualTo("Scores updated"));
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Matches[0].HomeScore, Is.EqualTo(match1.HomeScore));
+        Assert.That(_game.Matches[0].AwayScore, Is.EqualTo(match1.AwayScore));
+        Assert.That(_game.Matches[0].NumberOfLegs, Is.EqualTo(5));
+        Assert.That(_game.Matches[0].StartingScore, Is.EqualTo(501));
+        Assert.That(_game.Matches[0].HomePlayers[0].Id, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo(homePlayer1.Name));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.Matches[0].OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.Matches[0].OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
+        Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
+        Assert.That(_game.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
+        Assert.That(_game.Matches[0].Id, Is.EqualTo(_game.Matches.Single().Id));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -192,6 +258,8 @@ public class UpdateScoresCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Submissions cannot be accepted, scores have been published"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -242,6 +310,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.HomeSubmission!.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.HomeSubmission!.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.HomeSubmission!.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -291,6 +361,8 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission!.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
         Assert.That(_game.AwaySubmission!.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.AwaySubmission!.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
@@ -324,5 +396,101 @@ public class UpdateScoresCommandTests
         Assert.That(_game.SeasonId, Is.EqualTo(season.Id));
         _teamService.Verify(c => c.Upsert(_game.Home.Id, _addSeasonToTeamCommand.Object, _token));
         _teamService.Verify(c => c.Upsert(_game.Away.Id, _addSeasonToTeamCommand.Object, _token));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenUpdateGameDetailsFails_ReturnsFailureDetail()
+    {
+        _teamUpdate = new ActionResultDto<TeamDto>
+        {
+            Success = false,
+            Errors = { "error" },
+            Warnings = { "warning" },
+            Messages = { "message" },
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 02, 03),
+            EndDate = new DateTime(2002, 03, 04),
+        };
+        _game.Date = new DateTime(2001, 02, 03);
+        _user!.Access!.ManageGames = true;
+        _seasons = new[]
+        {
+            season
+        };
+        _scores.Address = "new address";
+        _scores.Postponed = true;
+        _scores.IsKnockout = true;
+        _scores.Date = new DateTime(2001, 02, 04);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Could not add season to home and/or away teams: Home: Success: False, Errors: error, Warnings: warning, Messages: message, Away: Success: False, Errors: error, Warnings: warning, Messages: message"));
+    }
+
+    [TestCase(1, 501)]
+    [TestCase(2, 501)]
+    [TestCase(3, 601)]
+    public async Task Apply_GivenProvidedNumberOfPlayers_UsesCorrectStartingScore(int noOfPlayers, int startingScore)
+    {
+        _user!.Access!.ManageScores = true;
+        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME PLAYER",
+        };
+        var awayPlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME PLAYER",
+        };
+        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
+        {
+            HomePlayers = Enumerable.Repeat(homePlayer1, noOfPlayers).ToList(),
+            AwayPlayers = Enumerable.Repeat(awayPlayer1, noOfPlayers).ToList(),
+        };
+        _scores.Matches.Add(match1);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Message, Is.EqualTo("Scores updated"));
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Matches[0].StartingScore, Is.EqualTo(startingScore));
+    }
+
+    [TestCase(1, 5)]
+    [TestCase(2, 3)]
+    [TestCase(3, 3)]
+    [TestCase(4, null)]
+    public async Task Apply_GivenProvidedNumberOfPlayers_UsesCorrectNumberOfLegs(int noOfPlayers, int? noOfLegs)
+    {
+        _user!.Access!.ManageScores = true;
+        var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME PLAYER",
+        };
+        var awayPlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME PLAYER",
+        };
+        var match1 = new RecordScoresDto.RecordScoresGameMatchDto
+        {
+            HomePlayers = Enumerable.Repeat(homePlayer1, noOfPlayers).ToList(),
+            AwayPlayers = Enumerable.Repeat(awayPlayer1, noOfPlayers).ToList(),
+        };
+        _scores.Matches.Add(match1);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Message, Is.EqualTo("Scores updated"));
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Matches[0].NumberOfLegs, Is.EqualTo(noOfLegs));
     }
 }

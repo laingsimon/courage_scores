@@ -134,6 +134,23 @@ public class ExceptionHandlerTests
         Assert.That(details.Exception!.StackTrace, Is.Null);
     }
 
+    [Test]
+    public async Task HandleException_WhenDebugTokenNotConfigured_ExcludesMessageAndStack()
+    {
+        var exceptionHandler = new ExceptionHandler(false, "");
+        _context.Request.QueryString = new QueryString("?debugToken=");
+
+        await exceptionHandler.HandleException(_context);
+
+        _context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var content = await new StreamReader(_context.Response.Body).ReadToEndAsync();
+        var details = JsonConvert.DeserializeObject<ExceptionHandler.ErrorDetails>(content);
+        Assert.That(details.Exception, Is.Not.Null);
+        Assert.That(details.Exception!.Type, Is.EqualTo("InvalidOperationException"));
+        Assert.That(details.Exception!.Message, Is.Null);
+        Assert.That(details.Exception!.StackTrace, Is.Null);
+    }
+
     [TestCase("debug token")]
     [TestCase("DEBUG TOKEN")]
     public async Task HandleException_WhenErrorDetailsShouldNotBeIncludedAndCorrectDebugToken_IncludesMessageAndStack(string requestToken)

@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
@@ -16,6 +17,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISystemClock _systemClock;
     private readonly IUserService _userService;
+    private readonly ScopedCacheManagementFlags _cacheFlags;
 
     public AddOrUpdateTournamentGameCommand(
         ISeasonService seasonService,
@@ -23,7 +25,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         IAdapter<TournamentRound, TournamentRoundDto> tournamentRoundAdapter,
         IAuditingHelper auditingHelper,
         ISystemClock systemClock,
-        IUserService userService)
+        IUserService userService,
+        ScopedCacheManagementFlags cacheFlags)
     {
         _seasonService = seasonService;
         _tournamentSideAdapter = tournamentSideAdapter;
@@ -31,6 +34,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         _auditingHelper = auditingHelper;
         _systemClock = systemClock;
         _userService = userService;
+        _cacheFlags = cacheFlags;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
@@ -62,6 +66,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         await SetUpdated(game.Round, game.Sides, token);
 
+        _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         return CommandResult.SuccessNoMessage;
     }
 

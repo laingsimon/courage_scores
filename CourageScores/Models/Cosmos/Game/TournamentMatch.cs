@@ -27,6 +27,6 @@ public class TournamentMatch : AuditedEntity, IGameVisitable
 
     public void Accept(IGameVisitor visitor)
     {
-        visitor.VisitTournamentMatch(this);
+        visitor.VisitMatch(this);
     }
 }

@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
@@ -5,9 +6,17 @@ namespace CourageScores.Services.Command;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class AddOrUpdateDivisionCommand : AddOrUpdateCommand<Models.Cosmos.Division, EditDivisionDto>
 {
+    private readonly ScopedCacheManagementFlags _cacheFlags;
+
+    public AddOrUpdateDivisionCommand(ScopedCacheManagementFlags cacheFlags)
+    {
+        _cacheFlags = cacheFlags;
+    }
+
     protected override Task<CommandResult> ApplyUpdates(Models.Cosmos.Division division, EditDivisionDto update, CancellationToken token)
     {
         division.Name = update.Name;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = division.Id;
         return Task.FromResult(CommandResult.SuccessNoMessage);
     }
 }

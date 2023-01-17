@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
@@ -5,6 +6,7 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
 
@@ -20,6 +22,7 @@ public class AddOrUpdateSeasonCommandTests
     private readonly CancellationToken _token = new CancellationToken();
     private AddOrUpdateSeasonCommand _command = null!;
     private Season _season = null!;
+    private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -27,7 +30,7 @@ public class AddOrUpdateSeasonCommandTests
         _seasonService = new Mock<ISeasonService>();
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
-        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object);
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
         _season = new Season
         {
             Id = Guid.NewGuid(),
@@ -35,7 +38,8 @@ public class AddOrUpdateSeasonCommandTests
             StartDate = new DateTime(2001, 02, 03),
             EndDate = new DateTime(2002, 03, 04),
         };
-        _command = new AddOrUpdateSeasonCommand(_seasonService.Object, _teamService.Object, _commandFactory.Object);
+        _cacheFlags = new ScopedCacheManagementFlags();
+        _command = new AddOrUpdateSeasonCommand(_seasonService.Object, _teamService.Object, _commandFactory.Object, _cacheFlags);
 
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
@@ -61,6 +65,8 @@ public class AddOrUpdateSeasonCommandTests
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
         Assert.That(_season.EndDate, Is.EqualTo(new DateTime(2022, 03, 04)));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
     [Test]
@@ -82,6 +88,8 @@ public class AddOrUpdateSeasonCommandTests
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
         Assert.That(_season.EndDate, Is.EqualTo(new DateTime(2022, 03, 04)));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
     [Test]
@@ -103,6 +111,8 @@ public class AddOrUpdateSeasonCommandTests
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
         Assert.That(_season.EndDate, Is.EqualTo(new DateTime(2022, 03, 04)));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
 
     [Test]
@@ -122,6 +132,8 @@ public class AddOrUpdateSeasonCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Could not find season to copy teams from"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
