@@ -87,9 +87,9 @@ export function Tournament({ account, apis }) {
         setTournamentData(newTournamentData);
     }
 
-    async function changeAddress(event) {
+    async function changeProperty(event) {
         const newTournamentData = Object.assign({}, tournamentData);
-        newTournamentData.address = event.target.value;
+        newTournamentData[event.target.name] = event.target.value;
         setTournamentData(newTournamentData);
     }
 
@@ -257,7 +257,7 @@ export function Tournament({ account, apis }) {
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} onChange={changeAddress} />
+                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={changeProperty} />
                     </div>)
                 : (<p>
                     At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
@@ -265,6 +265,14 @@ export function Tournament({ account, apis }) {
                         <ShareButton text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`} />
                     </span>
                 </p>)}
+            {isAdmin
+                ? (<div className="form-group input-group mb-3 d-flex">
+                    <label htmlFor="note-text" className="input-group-text">Notes</label>
+                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={changeProperty}></textarea>
+                </div>)
+                : tournamentData.notes
+                    ? (<div className="alert alert-warning alert-dismissible fade show" role="alert">{tournamentData.notes}</div>)
+                    : null}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
                 {tournamentData.sides.map(side => {
