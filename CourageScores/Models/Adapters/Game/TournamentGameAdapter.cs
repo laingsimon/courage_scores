@@ -35,6 +35,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Address = model.Address,
             OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            Notes = model.Notes,
         }.AddAuditProperties(model);
     }
 
@@ -50,6 +51,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Address = dto.Address.Trim(),
             OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            Notes = dto.Notes?.Trim(),
         }.AddAuditProperties(dto);
     }
 }

@@ -6,6 +6,7 @@ public class DivisionTournamentFixtureDetailsDto
 {
     public Guid Id { get; set; }
     public string Address { get; set; } = null!;
+    public string? Notes { get; set; }
     public DateTime Date { get; set; }
     public Guid SeasonId { get; set; }
     public string? Type { get; set; }

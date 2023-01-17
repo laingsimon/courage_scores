@@ -42,6 +42,11 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public List<NotablePlayer> Over100Checkouts { get; set; } = new();
 
+    /// <summary>
+    /// Notes for this tournament game
+    /// </summary>
+    public string? Notes { get; set; }
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;

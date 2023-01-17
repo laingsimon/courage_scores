@@ -5,6 +5,7 @@ public class EditTournamentGameDto
     public Guid Id { get; set; }
     public string Address { get; set; } = null!;
     public DateTime Date { get; set; }
+    public string? Notes { get; set; }
     public List<TournamentSideDto> Sides { get; set; } = new();
     public TournamentRoundDto? Round { get; set; }
 

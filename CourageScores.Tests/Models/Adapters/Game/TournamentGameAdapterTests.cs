@@ -37,6 +37,7 @@ public class TournamentGameAdapterTests
             Address = "address",
             OneEighties = { OneEightyPlayer },
             Over100Checkouts = { HiCheckPlayer },
+            Notes = "notes",
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -49,6 +50,7 @@ public class TournamentGameAdapterTests
         Assert.That(result.Address, Is.EqualTo(model.Address));
         Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
+        Assert.That(result.Notes, Is.EqualTo(model.Notes));
     }
 
     [Test]
@@ -74,6 +76,7 @@ public class TournamentGameAdapterTests
             Address = "address",
             OneEighties = { OneEightyPlayerDto },
             Over100Checkouts = { HiCheckPlayerDto },
+            Notes = "notes",
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -86,6 +89,7 @@ public class TournamentGameAdapterTests
         Assert.That(result.Address, Is.EqualTo(dto.Address));
         Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayer }));
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
+        Assert.That(result.Notes, Is.EqualTo(dto.Notes));
     }
 
     [Test]
@@ -107,10 +111,12 @@ public class TournamentGameAdapterTests
         var dto = new TournamentGameDto
         {
             Address = "address   ",
+            Notes = "notes   ",
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
+        Assert.That(result.Notes, Is.EqualTo("notes"));
     }
 }
