@@ -31,7 +31,7 @@ public static class DependencyInjectionExtensions
 {
     public static void RegisterServices(this IServiceCollection services)
     {
-        services.AddScoped<ICosmosDatabaseFactory, CosmosDatabaseFactory>();
+        services.AddSingleton<ICosmosDatabaseFactory, CosmosDatabaseFactory>();
         services.AddScoped(p => p.GetService<ICosmosDatabaseFactory>()!.CreateDatabase().Result);
         services.AddScoped<IAuditingHelper, AuditingHelper>();
         services.AddHttpContextAccessor();
