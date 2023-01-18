@@ -47,6 +47,11 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public string? Notes { get; set; }
 
+    /// <summary>
+    /// The type of tournament
+    /// </summary>
+    public string? Type { get; set; }
+
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;
