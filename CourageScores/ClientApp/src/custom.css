@@ -239,3 +239,11 @@ table td.middle-vertical-line {
 .max-height-250 {
   max-height: 250px;
 }
+
+.csv-nodes > *:before {
+    content: ", "
+}
+
+.csv-nodes > *:first-child:before {
+  content: none;
+}

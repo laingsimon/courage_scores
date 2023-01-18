@@ -43,6 +43,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const seasonApi = new SeasonApi(new Http(new Settings()));
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
+    const [ showPlayers, setShowPlayers ] = useState({});
 
     function initFilter() {
         const search = new URLSearchParams(location.search);
@@ -330,6 +331,12 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return new AndFilter(filters);
     }
 
+    function toggleShowPlayers(date) {
+        const newExpandedTournaments = Object.assign({}, showPlayers);
+        newExpandedTournaments[date] = !newExpandedTournaments[date];
+        setShowPlayers(newExpandedTournaments);
+    }
+
     function renderFixtureDate(date) {
         const filters = getFilters();
         let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
@@ -349,6 +356,12 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <h4>
                 📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
                 {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
+                {tournamentFixturesForDate.length > 0 ? (
+                    <span className="margin-left form-switch h6 text-body">
+                        <input type="checkbox" className="form-check-input align-baseline"
+                               id={'showPlayers_' + date.date} checked={showPlayers[date.date]} onChange={() => toggleShowPlayers(date.date)} />
+                        <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Show who's playing</label>
+                    </span>) : null}
             </h4>
             {notesForDate.map(renderNote)}
             <table className="table layout-fixed">
@@ -375,7 +388,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     date={date.date}
                     seasonId={season.id}
                     divisionId={divisionId}
-                    onTournamentChanged={onTournamentChanged} />))}
+                    onTournamentChanged={onTournamentChanged}
+                    expanded={showPlayers[date.date]} />))}
                 </tbody>
             </table>
         </div>);
