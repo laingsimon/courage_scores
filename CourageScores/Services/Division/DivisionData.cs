@@ -31,6 +31,11 @@ public class DivisionData
         {
             return PlayerPlayCount.TryGetValue(playerCount, out var count) ? count : 0;
         }
+
+        public int CalculatePoints()
+        {
+            return (Win * 3) + (Draw * 1);
+        }
     }
 
     public class TeamPlayerTuple
