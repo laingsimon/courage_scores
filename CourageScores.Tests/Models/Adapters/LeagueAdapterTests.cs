@@ -11,11 +11,11 @@ public class LeagueAdapterTests
 {
     private static readonly Season Season = new Season();
     private static readonly SeasonDto SeasonDto = new SeasonDto();
-    private static readonly Division Division = new Division();
+    private static readonly CourageScores.Models.Cosmos.Division Division = new CourageScores.Models.Cosmos.Division();
     private static readonly DivisionDto DivisionDto = new DivisionDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly LeagueAdapter _adapter = new LeagueAdapter(
-        new MockAdapter<Division, DivisionDto>(Division, DivisionDto),
+        new MockAdapter<CourageScores.Models.Cosmos.Division, DivisionDto>(Division, DivisionDto),
         new MockAdapter<Season, SeasonDto>(Season, SeasonDto));
 
     [Test]

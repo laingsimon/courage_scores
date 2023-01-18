@@ -12,34 +12,38 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         _divisionFixtureTeamAdapter = divisionFixtureTeamAdapter;
     }
 
-    public async Task<DivisionFixtureDto> GameToFixture(Models.Cosmos.Game.Game fixture, TeamDto? homeTeam, TeamDto? awayTeam)
+    public async Task<DivisionFixtureDto> Adapt(Cosmos.Game.Game game, TeamDto? homeTeam, TeamDto? awayTeam, CancellationToken token)
     {
+        var matches = game.Matches.Where(m => m.Deleted == null).ToArray();
+
         return new DivisionFixtureDto
         {
-            Id = fixture.Id,
-            AwayTeam = await _divisionFixtureTeamAdapter.Adapt(fixture.Away, awayTeam?.Address),
-            HomeTeam = await _divisionFixtureTeamAdapter.Adapt(fixture.Home, homeTeam?.Address),
-            AwayScore = fixture.Matches.Any()
-                ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.AwayScore > m.HomeScore)
+            Id = game.Id,
+            HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.Address, token),
+            AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.Address, token),
+            HomeScore = game.Matches.Any()
+                ? matches.Count(m => m.HomeScore > m.AwayScore)
                 : null,
-            HomeScore = fixture.Matches.Any()
-                ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.HomeScore > m.AwayScore)
+            AwayScore = game.Matches.Any()
+                ? matches.Count(m => m.AwayScore > m.HomeScore)
                 : null,
-            Postponed = fixture.Postponed,
-            IsKnockout = fixture.IsKnockout,
+            Postponed = game.Postponed,
+            IsKnockout = game.IsKnockout,
         };
     }
 
-    public async Task<DivisionFixtureDto> FoUnselectedTeam(TeamDto remainingTeam, bool isKnockout)
+    public async Task<DivisionFixtureDto> FoUnselectedTeam(TeamDto team, bool isKnockout, CancellationToken token)
     {
         return new DivisionFixtureDto
         {
-            Id = remainingTeam.Id,
+            Id = team.Id,
             AwayScore = null,
             HomeScore = null,
             AwayTeam = null,
-            HomeTeam = await _divisionFixtureTeamAdapter.Adapt(remainingTeam),
+            HomeTeam = await _divisionFixtureTeamAdapter.Adapt(team, token),
             IsKnockout = isKnockout,
+            Postponed = false,
+            Proposal = true,
         };
     }
 }

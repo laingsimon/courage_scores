@@ -38,7 +38,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         return new DivisionFixtureDateDto
         {
             Date = date,
-            Fixtures = (await FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), teams, tournamentGamesForDate?.Any() ?? false).ToList())
+            Fixtures = (await FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), teams, tournamentGamesForDate?.Any() ?? false, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
             TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateGames, token)
                 .OrderByAsync(f => f.Address).ToList(),
@@ -47,7 +47,11 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         };
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Models.Cosmos.Game.Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate)
+    private async IAsyncEnumerable<DivisionFixtureDto> FixturesPerDate(
+        IEnumerable<Models.Cosmos.Game.Game> games,
+        IReadOnlyCollection<TeamDto> teams,
+        bool anyTournamentGamesForDate,
+        [EnumeratorCancellation] CancellationToken token)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
         var hasKnockout = false;
@@ -58,17 +62,18 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             remainingTeams.Remove(game.Away.Id);
             hasKnockout = hasKnockout || game.IsKnockout;
 
-            yield return await _divisionFixtureAdapter.GameToFixture(
+            yield return await _divisionFixtureAdapter.Adapt(
                 game,
                 teams.SingleOrDefault(t => t.Id == game.Home.Id),
-                teams.SingleOrDefault(t => t.Id == game.Away.Id));
+                teams.SingleOrDefault(t => t.Id == game.Away.Id),
+                token);
         }
 
         if (!anyTournamentGamesForDate)
         {
             foreach (var remainingTeam in remainingTeams.Values)
             {
-                yield return await _divisionFixtureAdapter.FoUnselectedTeam(remainingTeam, hasKnockout);
+                yield return await _divisionFixtureAdapter.FoUnselectedTeam(remainingTeam, hasKnockout, token);
             }
         }
     }
@@ -84,7 +89,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         foreach (var game in tournamentGames)
         {
             addressesInUse.Add(game.Address);
-            yield return await _divisionTournamentFixtureDetailsAdapter.AdaptToTournamentFixtureDto(game, token);
+            yield return await _divisionTournamentFixtureDetailsAdapter.Adapt(game, token);
         }
 
         if (addressesInUse.Any() && canCreateGames)
@@ -94,7 +99,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
                          .GroupBy(t => t.Address)
                          .Where(g => !addressesInUse.Contains(g.Key)))
             {
-                yield return await _divisionTournamentFixtureDetailsAdapter.ForUnselectedVenue(teamAddress);
+                yield return await _divisionTournamentFixtureDetailsAdapter.ForUnselectedVenue(teamAddress, token);
             }
         }
     }

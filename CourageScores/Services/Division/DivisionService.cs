@@ -78,7 +78,7 @@ public class DivisionService : IDivisionService
             {
                 Id = division.Id,
                 Name = division.Name,
-                Seasons = await allSeasons.SelectAsync(_divisionDataSeasonAdapter.Adapt).ToList(),
+                Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
             };
         }
 
@@ -107,21 +107,21 @@ public class DivisionService : IDivisionService
         {
             Id = division.Id,
             Name = division.Name,
-            Teams = (await GetTeams(divisionData, teams).ToList())
+            Teams = (await GetTeams(divisionData, teams, token).ToList())
                 .OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
-            AllTeams = await allTeams.SelectAsync(_divisionTeamDetailsAdapter.Adapt).ToList(),
+            AllTeams = await allTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),
             TeamsWithoutFixtures = await GetTeamsWithoutFixtures(divisionData, teams)
-                .SelectAsync(_divisionTeamAdapter.WithoutFixtures)
+                .SelectAsync(t => _divisionTeamAdapter.WithoutFixtures(t, token))
                 .OrderByAsync(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context, token).OrderByAsync(d => d.Date).ToList(),
-            Players = (await GetPlayers(divisionData).ToList())
+            Players = (await GetPlayers(divisionData, token).ToList())
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
                 .ThenByDescending(p => p.PlayedPairs)
                 .ThenByDescending(p => p.PlayedTriples)
                 .ThenBy(p => p.Name).ToList(),
-            Season = await _divisionDataSeasonAdapter.Adapt(season),
-            Seasons = await allSeasons.SelectAsync(_divisionDataSeasonAdapter.Adapt).ToList(),
+            Season = await _divisionDataSeasonAdapter.Adapt(season, token),
+            Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
         };
 
         ApplyRanksAndPointsDifference(divisionDataDto.Teams, divisionDataDto.Players);
@@ -152,13 +152,13 @@ public class DivisionService : IDivisionService
         return teams.Where(t => !divisionData.Teams.ContainsKey(t.Id));
     }
 
-    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
+    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Teams)
         {
             var team = teams.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found", Address = "Not found" };
 
-            yield return await _divisionTeamAdapter.Adapt(team, score);
+            yield return await _divisionTeamAdapter.Adapt(team, score, token);
         }
     }
 
@@ -180,7 +180,7 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData)
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
         {
@@ -195,7 +195,7 @@ public class DivisionService : IDivisionService
                 ? divisionData.PlayersToFixtures[id]
                 : new Dictionary<DateTime, Guid>();
 
-            yield return await _divisionPlayerAdapter.Adapt(id, score, playerTuple, fixtures);
+            yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, token);
         }
     }
 

@@ -5,6 +5,6 @@ namespace CourageScores.Models.Adapters.Division;
 
 public interface IDivisionFixtureAdapter
 {
-    Task<DivisionFixtureDto> GameToFixture(Models.Cosmos.Game.Game fixture, TeamDto? homeTeam, TeamDto? awayTeam);
-    Task<DivisionFixtureDto> FoUnselectedTeam(TeamDto remainingTeam, bool isKnockout);
+    Task<DivisionFixtureDto> Adapt(Models.Cosmos.Game.Game game, TeamDto? homeTeam, TeamDto? awayTeam, CancellationToken token);
+    Task<DivisionFixtureDto> FoUnselectedTeam(TeamDto team, bool isKnockout, CancellationToken token);
 }

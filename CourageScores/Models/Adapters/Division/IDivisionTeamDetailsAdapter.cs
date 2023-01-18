@@ -5,5 +5,5 @@ namespace CourageScores.Models.Adapters.Division;
 
 public interface IDivisionTeamDetailsAdapter
 {
-    Task<DivisionTeamDetailsDto> Adapt(TeamDto team);
+    Task<DivisionTeamDetailsDto> Adapt(TeamDto team, CancellationToken token);
 }

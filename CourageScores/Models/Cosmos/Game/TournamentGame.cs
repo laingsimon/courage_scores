@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game;
 
@@ -52,16 +53,19 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public string? Type { get; set; }
 
+    [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageGames == true;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto user)
     {
         return user.Access?.ManageGames == true;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto user)
     {
         return user.Access?.ManageGames == true;

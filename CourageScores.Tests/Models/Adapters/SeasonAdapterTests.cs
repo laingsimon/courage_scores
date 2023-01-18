@@ -9,11 +9,11 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class SeasonAdapterTests
 {
-    private static readonly Division Division = new Division();
+    private static readonly CourageScores.Models.Cosmos.Division Division = new CourageScores.Models.Cosmos.Division();
     private static readonly DivisionDto DivisionDto = new DivisionDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly SeasonAdapter _adapter = new SeasonAdapter(
-        new MockAdapter<Division, DivisionDto>(Division, DivisionDto));
+        new MockAdapter<CourageScores.Models.Cosmos.Division, DivisionDto>(Division, DivisionDto));
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()

@@ -1,5 +1,4 @@
-﻿using CourageScores.Models.Cosmos;
-using CourageScores.Models.Dtos;
+﻿using CourageScores.Models.Dtos;
 
 namespace CourageScores.Models.Adapters;
 

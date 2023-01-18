@@ -6,7 +6,7 @@ namespace CourageScores.Models.Adapters.Division;
 
 public class DivisionFixtureTeamAdapter : IDivisionFixtureTeamAdapter
 {
-    public Task<DivisionFixtureTeamDto> Adapt(GameTeam team, string? address)
+    public Task<DivisionFixtureTeamDto> Adapt(GameTeam team, string? address, CancellationToken token)
     {
         return Task.FromResult(new DivisionFixtureTeamDto
         {
@@ -16,7 +16,7 @@ public class DivisionFixtureTeamAdapter : IDivisionFixtureTeamAdapter
         });
     }
 
-    public Task<DivisionFixtureTeamDto> Adapt(TeamDto team)
+    public Task<DivisionFixtureTeamDto> Adapt(TeamDto team, CancellationToken token)
     {
         return Task.FromResult(new DivisionFixtureTeamDto
         {

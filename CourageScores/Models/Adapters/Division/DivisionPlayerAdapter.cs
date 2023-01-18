@@ -5,12 +5,13 @@ namespace CourageScores.Models.Adapters.Division;
 
 public class DivisionPlayerAdapter : IDivisionPlayerAdapter
 {
-    public Task<DivisionPlayerDto> Adapt(Guid id, DivisionData.Score score, DivisionData.TeamPlayerTuple playerTuple, Dictionary<DateTime, Guid> fixtures)
+    public Task<DivisionPlayerDto> Adapt(DivisionData.Score score, DivisionData.TeamPlayerTuple playerTuple,
+        Dictionary<DateTime, Guid> fixtures, CancellationToken token)
     {
         return Task.FromResult(new DivisionPlayerDto
         {
             Captain = playerTuple.Player.Captain,
-            Id = id,
+            Id = playerTuple.Player.Id,
             Lost = score.Lost,
             Name = playerTuple.Player.Name,
             PlayedSingles = score.GetPlayedCount(1),

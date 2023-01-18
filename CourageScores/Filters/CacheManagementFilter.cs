@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Services.Division;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -14,6 +15,7 @@ public class CacheManagementFilter : IActionFilter
         _cachingDivisionService = cachingDivisionService;
     }
 
+    [ExcludeFromCodeCoverage]
     public void OnActionExecuting(ActionExecutingContext context)
     { }
 

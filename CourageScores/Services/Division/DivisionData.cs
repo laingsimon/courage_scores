@@ -5,9 +5,24 @@ namespace CourageScores.Services.Division;
 
 public class DivisionData
 {
+    /// <summary>
+    /// PlayerId -> Score map
+    /// </summary>
     public Dictionary<Guid, Score> Players { get; } = new ();
+
+    /// <summary>
+    /// TeamId -> score map
+    /// </summary>
     public Dictionary<Guid, Score> Teams { get; } = new();
+
+    /// <summary>
+    /// PlayerId -> GameId map
+    /// </summary>
     public Dictionary<Guid, Dictionary<DateTime, Guid>> PlayersToFixtures { get; } = new();
+
+    /// <summary>
+    /// PlayerId -> TeamPlayerTuple map
+    /// </summary>
     public Dictionary<Guid, TeamPlayerTuple> PlayerIdToTeamLookup { get; } = new();
 
     public class Score

@@ -5,5 +5,5 @@ namespace CourageScores.Models.Adapters.Division;
 
 public interface IDivisionDataSeasonAdapter
 {
-    Task<DivisionDataSeasonDto> Adapt(SeasonDto season);
+    Task<DivisionDataSeasonDto> Adapt(SeasonDto season, CancellationToken token);
 }
