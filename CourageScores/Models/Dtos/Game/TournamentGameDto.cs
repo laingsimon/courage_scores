@@ -44,4 +44,9 @@ public class TournamentGameDto : AuditedDto
     /// Notes for this tournament game
     /// </summary>
     public string? Notes { get; set; }
+
+    /// <summary>
+    /// The type of tournament
+    /// </summary>
+    public string? Type { get; set; }
 }
