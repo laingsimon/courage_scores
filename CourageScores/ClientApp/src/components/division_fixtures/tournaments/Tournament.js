@@ -270,7 +270,7 @@ export function Tournament({ account, apis }) {
                     <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
-                    <input className="form-control" id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={changeProperty} />
+                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={changeProperty} />
                 </div>)
                 : null}
             {isAdmin
