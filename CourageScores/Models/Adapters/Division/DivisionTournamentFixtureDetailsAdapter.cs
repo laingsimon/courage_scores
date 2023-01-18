@@ -30,6 +30,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
             Type = GetTournamentType(tournamentGame),
             Proposed = false,
             Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),
+            Sides = await tournamentGame.Sides.SelectAsync(side => _tournamentSideAdapter.Adapt(side, token)).ToList(),
         };
     }
 
