@@ -50,6 +50,11 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
 
     private string GetTournamentType(TournamentGame tournamentGame)
     {
+        if (!string.IsNullOrEmpty(tournamentGame.Type))
+        {
+            return tournamentGame.Type;
+        }
+
         if (tournamentGame.Sides.Count > 1)
         {
             var firstSide = tournamentGame.Sides.First();
