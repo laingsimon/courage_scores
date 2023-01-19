@@ -391,7 +391,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     <span className="margin-left form-switch h6 text-body">
                         <input type="checkbox" className="form-check-input align-baseline"
                                id={'showPlayers_' + date.date} checked={showPlayers[date.date]} onChange={() => toggleShowPlayers(date.date)} />
-                        <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Show who's playing</label>
+                        <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                     </span>) : null}
             </h4>
             {notesForDate.map(renderNote)}
