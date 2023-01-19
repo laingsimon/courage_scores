@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Team;
 
@@ -27,16 +28,19 @@ public class Team : AuditedEntity, IPermissionedEntity
     /// </summary>
     public List<TeamSeason> Seasons { get; set; } = new();
 
+    [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageTeams ?? false;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto user)
     {
         return user.Access?.ManageTeams ?? false;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto user)
     {
         return user.Access?.ManageTeams ?? false;

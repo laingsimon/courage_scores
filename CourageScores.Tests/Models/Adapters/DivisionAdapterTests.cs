@@ -1,5 +1,4 @@
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using NUnit.Framework;
 
@@ -14,7 +13,7 @@ public class DivisionAdapterTests
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()
     {
-        var model = new Division
+        var model = new CourageScores.Models.Cosmos.Division
         {
             Id = Guid.NewGuid(),
             Name = "Division 1",

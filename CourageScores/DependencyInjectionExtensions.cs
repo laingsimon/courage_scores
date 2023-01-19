@@ -1,5 +1,6 @@
 ﻿using CourageScores.Filters;
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Team;
@@ -106,6 +107,15 @@ public static class DependencyInjectionExtensions
         AddAdapter<Division, DivisionDto, DivisionAdapter>(services);
         AddAdapter<League, LeagueDto, LeagueAdapter>(services);
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
+
+        services.AddScoped<IDivisionFixtureAdapter, DivisionFixtureAdapter>();
+        services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
+        services.AddScoped<IDivisionPlayerAdapter, DivisionPlayerAdapter>();
+        services.AddScoped<IDivisionTeamAdapter, DivisionTeamAdapter>();
+        services.AddScoped<IDivisionTeamDetailsAdapter, DivisionTeamDetailsAdapter>();
+        services.AddScoped<IDivisionDataSeasonAdapter, DivisionDataSeasonAdapter>();
+        services.AddScoped<IDivisionFixtureDateAdapter, DivisionFixtureDateAdapter>();
+        services.AddScoped<IDivisionFixtureTeamAdapter, DivisionFixtureTeamAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

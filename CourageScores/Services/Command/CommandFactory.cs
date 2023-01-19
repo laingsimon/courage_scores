@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Services.Command;
 
 public class CommandFactory : ICommandFactory
@@ -9,6 +11,7 @@ public class CommandFactory : ICommandFactory
         _serviceProvider = serviceProvider;
     }
 
+    [ExcludeFromCodeCoverage]
     public TCommand GetCommand<TCommand>()
         where TCommand: class, IUpdateCommand
     {

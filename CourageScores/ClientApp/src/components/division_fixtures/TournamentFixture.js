@@ -4,8 +4,9 @@ import {TournamentApi} from "../../api/tournament";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {nameSort} from "../../Utilities";
 
-export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date }) {
+export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded }) {
     const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
@@ -67,6 +68,21 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         }
     }
 
+    function showTournamentSidesPlayers() {
+        tournament.sides.sort(nameSort);
+
+        return (<div>
+            {tournament.sides.map(side => {
+                side.players.sort(nameSort);
+
+                return (<div key={side.id}>
+                    <b>{side.name}</b>
+                    {side.players.length > 0 ? ': ' : null}
+                    {side.players.length > 0 ? (<label className="csv-nodes">{side.players.map(p => (<span key={p.id}>{p.name}</span>))}</label>) : null}
+                </div>); })}
+        </div>);
+    }
+
     if (isProposedTournament && !isAdmin) {
         // don't show proposed tournament addresses when not an admin
         return null;
@@ -92,6 +108,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
             <Link to={`/tournament/${tournament.id}`}>
                 {tournament.type} at <strong>{tournament.address}</strong>
             </Link>
+            {expanded ? showTournamentSidesPlayers() : null}
         </td>
         {tournament.winningSide ? (<td colSpan="2">
             {tournament.winningSide

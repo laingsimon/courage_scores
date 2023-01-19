@@ -1,15 +1,13 @@
 using System.Runtime.CompilerServices;
-using CourageScores.Models.Adapters;
+using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
-using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
-using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Division;
@@ -21,10 +19,13 @@ public class DivisionService : IDivisionService
     private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
-    private readonly IUserService _userService;
     private readonly ISystemClock _clock;
+    private readonly IDivisionPlayerAdapter _divisionPlayerAdapter;
+    private readonly IDivisionTeamAdapter _divisionTeamAdapter;
+    private readonly IDivisionTeamDetailsAdapter _divisionTeamDetailsAdapter;
+    private readonly IDivisionDataSeasonAdapter _divisionDataSeasonAdapter;
+    private readonly IDivisionFixtureDateAdapter _divisionFixtureDateAdapter;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
@@ -32,20 +33,26 @@ public class DivisionService : IDivisionService
         IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
-        IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
-        IUserService userService,
-        ISystemClock clock)
+        ISystemClock clock,
+        IDivisionPlayerAdapter divisionPlayerAdapter,
+        IDivisionTeamAdapter divisionTeamAdapter,
+        IDivisionTeamDetailsAdapter divisionTeamDetailsAdapter,
+        IDivisionDataSeasonAdapter divisionDataSeasonAdapter,
+        IDivisionFixtureDateAdapter divisionFixtureDateAdapter)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
         _genericSeasonService = genericSeasonService;
         _gameRepository = gameRepository;
         _tournamentGameRepository = tournamentGameRepository;
-        _tournamentSideAdapter = tournamentSideAdapter;
         _noteService = noteService;
-        _userService = userService;
         _clock = clock;
+        _divisionPlayerAdapter = divisionPlayerAdapter;
+        _divisionTeamAdapter = divisionTeamAdapter;
+        _divisionTeamDetailsAdapter = divisionTeamDetailsAdapter;
+        _divisionDataSeasonAdapter = divisionDataSeasonAdapter;
+        _divisionFixtureDateAdapter = divisionFixtureDateAdapter;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
@@ -71,13 +78,7 @@ public class DivisionService : IDivisionService
             {
                 Id = division.Id,
                 Name = division.Name,
-                Seasons = allSeasons.Select(s => new DivisionDataSeasonDto
-                {
-                    Id = s.Id,
-                    Name = s.Name,
-                    StartDate = s.StartDate,
-                    EndDate = s.EndDate,
-                }).ToList(),
+                Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
             };
         }
 
@@ -102,57 +103,30 @@ public class DivisionService : IDivisionService
             game.Accept(gameVisitor);
         }
 
-        var user = await _userService.GetUser(token);
-        var userContext = new UserContext
-        {
-            CanCreateGames = user?.Access?.ManageGames ?? false
-        };
-
         var divisionDataDto = new DivisionDataDto
         {
             Id = division.Id,
             Name = division.Name,
-            Teams = GetTeams(divisionData, teams)
-                .OrderByDescending(t => t.Points)
-                .ThenBy(t => t.Name).ToList(),
-            AllTeams = allTeams.Select(AdaptToDivisionTeamDetailsDto).ToList(),
-            TeamsWithoutFixtures = GetTeamsWithoutFixtures(divisionData, teams).OrderBy(t => t.Name).ToList(),
-            Fixtures = await GetFixtures(context, userContext, token).OrderByAsync(d => d.Date).ToList(),
-            Players = GetPlayers(divisionData)
+            Teams = (await GetTeams(divisionData, teams, token).ToList())
+                .OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            AllTeams = await allTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),
+            TeamsWithoutFixtures = await GetTeamsWithoutFixtures(divisionData, teams)
+                .SelectAsync(t => _divisionTeamAdapter.WithoutFixtures(t, token))
+                .OrderByAsync(t => t.Name).ToList(),
+            Fixtures = await GetFixtures(context, token).OrderByAsync(d => d.Date).ToList(),
+            Players = (await GetPlayers(divisionData, token).ToList())
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
                 .ThenByDescending(p => p.PlayedPairs)
                 .ThenByDescending(p => p.PlayedTriples)
-                .ThenBy(p => p.Name)
-                .ToList(),
-            Season = new DivisionDataSeasonDto
-            {
-                Id = season.Id,
-                Name = season.Name,
-                StartDate = season.StartDate,
-                EndDate = season.EndDate,
-            },
-            Seasons = allSeasons.Select(s => new DivisionDataSeasonDto
-            {
-                Id = s.Id,
-                Name = s.Name,
-                StartDate = s.StartDate,
-                EndDate = s.EndDate,
-            }).ToList(),
+                .ThenBy(p => p.Name).ToList(),
+            Season = await _divisionDataSeasonAdapter.Adapt(season, token),
+            Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
         };
 
         ApplyRanksAndPointsDifference(divisionDataDto.Teams, divisionDataDto.Players);
 
         return divisionDataDto;
-    }
-
-    private static DivisionTeamDetailsDto AdaptToDivisionTeamDetailsDto(TeamDto team)
-    {
-        return new DivisionTeamDetailsDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-        };
     }
 
     private static void ApplyRanksAndPointsDifference(IReadOnlyCollection<DivisionTeamDto> teams, IReadOnlyCollection<DivisionPlayerDto> players)
@@ -173,43 +147,22 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private static IEnumerable<DivisionTeamDto> GetTeamsWithoutFixtures(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
+    private IEnumerable<TeamDto> GetTeamsWithoutFixtures(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
     {
-        foreach (var team in teams.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
-        {
-            yield return new DivisionTeamDto
-            {
-                Id = team.Id,
-                Address = team.Address,
-                Played = 0,
-                Name = team.Name,
-                Points = 0,
-            };
-        }
+        return teams.Where(t => !divisionData.Teams.ContainsKey(t.Id));
     }
 
-    private static IEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
+    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Teams)
         {
             var team = teams.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found", Address = "Not found" };
 
-            yield return new DivisionTeamDto
-            {
-                Id = id,
-                Name = team.Name,
-                Played = score.TeamPlayed,
-                Points = CalculatePoints(score),
-                Won = score.Win,
-                Lost = score.Lost,
-                Drawn = score.Draw,
-                Difference = 0,
-                Address = team.Address,
-            };
+            yield return await _divisionTeamAdapter.Adapt(team, score, token);
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, UserContext userContext, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var date in context.GetDates())
         {
@@ -217,20 +170,17 @@ public class DivisionService : IDivisionService
             context.TournamentGamesForDate.TryGetValue(date, out var tournamentGamesForDate);
             context.Notes.TryGetValue(date, out var notesForDate);
 
-            yield return new DivisionFixtureDateDto
-            {
-                Date = date,
-                Fixtures = FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), context.Teams, tournamentGamesForDate?.Any() ?? false)
-                    .OrderBy(f => f.HomeTeam.Name).ToList(),
-                TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), context.Teams, userContext, token)
-                    .OrderByAsync(f => f.Address).ToList(),
-                HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
-                Notes = notesForDate ?? new List<FixtureDateNoteDto>(),
-            };
+            yield return await _divisionFixtureDateAdapter.Adapt(
+                date,
+                gamesForDate,
+                tournamentGamesForDate,
+                notesForDate,
+                context.Teams,
+                token);
         }
     }
 
-    private static IEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData)
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
         {
@@ -241,197 +191,12 @@ public class DivisionService : IDivisionService
                     new TeamDto { Name = "Not found" });
             }
 
-            yield return new DivisionPlayerDto
-            {
-                Captain = playerTuple.Player.Captain,
-                Id = id,
-                Lost = score.Lost,
-                Name = playerTuple.Player.Name,
-                PlayedSingles = score.GetPlayedCount(1),
-                PlayedPairs = score.GetPlayedCount(2),
-                PlayedTriples = score.GetPlayedCount(3),
-                Points = CalculatePoints(score),
-                Team = playerTuple.Team.Name,
-                Won = score.Win,
-                OneEighties = score.OneEighty,
-                Over100Checkouts = score.HiCheckout,
-                TeamId = playerTuple.Team.Id,
-                WinPercentage = score.PlayerWinPercentage,
-                Fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
-                    ? divisionData.PlayersToFixtures[id]
-                    : new Dictionary<DateTime, Guid>(),
-            };
+            var fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
+                ? divisionData.PlayersToFixtures[id]
+                : new Dictionary<DateTime, Guid>();
+
+            yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, token);
         }
-    }
-
-    private async IAsyncEnumerable<DivisionTournamentFixtureDetailsDto> TournamentFixturesPerDate(
-        IReadOnlyCollection<TournamentGame> tournamentGames,
-        IReadOnlyCollection<TeamDto> teams,
-        UserContext userContext,
-        [EnumeratorCancellation] CancellationToken token)
-    {
-        var addressesInUse = new HashSet<string>();
-
-        foreach (var game in tournamentGames)
-        {
-            addressesInUse.Add(game.Address);
-            yield return await AdaptToTournamentFixtureDto(game, token);
-        }
-
-        if (addressesInUse.Any() && userContext.CanCreateGames)
-        {
-            foreach (var teamAddress in teams
-                         .Where(t => !addressesInUse.Contains(t.Name))
-                         .GroupBy(t => t.Address)
-                         .Where(g => !addressesInUse.Contains(g.Key)))
-            {
-                yield return new DivisionTournamentFixtureDetailsDto
-                {
-                    Address = string.Join(", ", teamAddress.Select(t => t.Name)),
-                    Date = default,
-                    Id = default,
-                    SeasonId = default,
-                    WinningSide = null,
-                    Type = null,
-                    Proposed = true,
-                };
-            }
-        }
-    }
-
-    private async Task<DivisionTournamentFixtureDetailsDto> AdaptToTournamentFixtureDto(TournamentGame tournamentGame, CancellationToken token)
-    {
-        TournamentSide? winningSide = null;
-        var round = tournamentGame.Round;
-        var tournamentType = "Tournament";
-
-        if (tournamentGame.Sides.Count > 1)
-        {
-            var firstSide = tournamentGame.Sides.First();
-            switch (firstSide.Players.Count)
-            {
-                case 1:
-                    tournamentType = "Singles";
-                    break;
-                case 2:
-                    tournamentType = "Pairs";
-                    break;
-            }
-        }
-
-        // work out which side won, if any
-        while (round != null)
-        {
-            if (round.NextRound != null)
-            {
-                round = round.NextRound;
-                continue;
-            }
-
-            if (round.Matches.Count == 1)
-            {
-                // the final
-                var match = round.Matches.Single();
-                if (match.ScoreA != null && match.ScoreB != null)
-                {
-                    if (match.ScoreA > match.ScoreB)
-                    {
-                        winningSide = match.SideA;
-                    }
-
-                    if (match.ScoreB > match.ScoreA)
-                    {
-                        winningSide = match.SideB;
-                    }
-                }
-            }
-
-            break;
-        }
-
-        return new DivisionTournamentFixtureDetailsDto
-        {
-            Id = tournamentGame.Id,
-            Address = tournamentGame.Address,
-            Date = tournamentGame.Date,
-            SeasonId = tournamentGame.SeasonId,
-            WinningSide = winningSide != null ? await _tournamentSideAdapter.Adapt(winningSide, token) : null,
-            Type = tournamentType,
-            Proposed = false,
-            Players = tournamentGame.Sides.SelectMany(side => side.Players).Select(p => p.Id).ToList(),
-        };
-    }
-
-    private static IEnumerable<DivisionFixtureDto> FixturesPerDate(IEnumerable<Models.Cosmos.Game.Game> games, IReadOnlyCollection<TeamDto> teams, bool anyTournamentGamesForDate)
-    {
-        var remainingTeams = teams.ToDictionary(t => t.Id);
-        var hasKnockout = false;
-
-        foreach (var game in games)
-        {
-            remainingTeams.Remove(game.Home.Id);
-            remainingTeams.Remove(game.Away.Id);
-            hasKnockout = hasKnockout || game.IsKnockout;
-
-            yield return GameToFixture(
-                game,
-                teams.SingleOrDefault(t => t.Id == game.Home.Id),
-                teams.SingleOrDefault(t => t.Id == game.Away.Id));
-        }
-
-        if (!anyTournamentGamesForDate)
-        {
-            foreach (var remainingTeam in remainingTeams.Values)
-            {
-                yield return new DivisionFixtureDto
-                {
-                    Id = remainingTeam.Id,
-                    AwayScore = null,
-                    HomeScore = null,
-                    AwayTeam = null,
-                    HomeTeam = new DivisionFixtureTeamDto
-                    {
-                        Id = remainingTeam.Id,
-                        Name = remainingTeam.Name,
-                        Address = remainingTeam.Address,
-                    },
-                    IsKnockout = hasKnockout,
-                };
-            }
-        }
-    }
-
-    private static DivisionFixtureDto GameToFixture(Models.Cosmos.Game.Game fixture, TeamDto? homeTeam, TeamDto? awayTeam)
-    {
-        return new DivisionFixtureDto
-        {
-            Id = fixture.Id,
-            AwayTeam = new DivisionFixtureTeamDto
-            {
-                Id = fixture.Away.Id,
-                Name = fixture.Away.Name,
-                Address = awayTeam?.Address,
-            },
-            HomeTeam = new DivisionFixtureTeamDto
-            {
-                Id = fixture.Home.Id,
-                Name = fixture.Home.Name,
-                Address = homeTeam?.Address,
-            },
-            AwayScore = fixture.Matches.Any()
-                ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.AwayScore > m.HomeScore)
-                : null,
-            HomeScore = fixture.Matches.Any()
-                ? fixture.Matches.Where(m => m.Deleted == null).Count(m => m.HomeScore > m.AwayScore)
-                : null,
-            Postponed = fixture.Postponed,
-            IsKnockout = fixture.IsKnockout,
-        };
-    }
-
-    private static int CalculatePoints(DivisionData.Score score)
-    {
-        return (score.Win * 3) + (score.Draw * 1);
     }
 
     private class DivisionDataContext
@@ -455,11 +220,6 @@ public class DivisionService : IDivisionService
         {
             return GamesForDate.Keys.Union(TournamentGamesForDate.Keys).Union(Notes.Keys);
         }
-    }
-
-    private class UserContext
-    {
-        public bool CanCreateGames { get; init; }
     }
 
     #region delegating members

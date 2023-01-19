@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos;
@@ -24,16 +25,19 @@ public class FixtureDateNote : AuditedEntity, IPermissionedEntity
     /// </summary>
     public Guid? DivisionId { get; set; }
 
+    [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
     {
         return user.Access?.ManageNotes == true;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto user)
     {
         return user.Access?.ManageNotes == true;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto user)
     {
         return user.Access?.ManageNotes == true;
