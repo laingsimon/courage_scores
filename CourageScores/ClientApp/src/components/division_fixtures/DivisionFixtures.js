@@ -256,13 +256,14 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     function isInPast(date) {
-        const today = new Date();
+        const today = new Date(new Date().toDateString());
         return new Date(date) < today;
     }
 
     function isInFuture(date) {
-        const today = new Date();
-        return new Date(date) > today;
+        const today = new Date(new Date().toDateString());
+        const tomorrow = new Date(today.setDate(today.getDate() + 1));
+        return new Date(date) >= tomorrow;
     }
 
     function isToday(date) {
