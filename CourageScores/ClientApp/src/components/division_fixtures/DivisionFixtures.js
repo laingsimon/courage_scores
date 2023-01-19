@@ -87,7 +87,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         navigate({
             pathname: location.pathname,
-            search: new URLSearchParams(search).toString()
+            search: new URLSearchParams(search).toString(),
+            hash: location.hash,
         });
     }
 
@@ -318,6 +319,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 ]));
                 break;
             default:
+                if (filter.date.match(/\d{4}-\d{2}/)) {
+                    filters.push(new Filter(c => c.date.indexOf(filter.date) === 0));
+                }
                 break;
         }
 
@@ -356,6 +360,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         navigate({
             pathname: location.pathname,
+            search: location.search,
             hash: Object.keys(newShowPlayers).length > 0
                 ? 'show-who-is-playing'
                 : '',
