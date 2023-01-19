@@ -266,6 +266,14 @@ export function Tournament({ account, apis }) {
                     </span>
                 </p>)}
             {isAdmin
+                ? (<div className="form-group input-group mb-3">
+                    <div className="input-group-prepend">
+                            <span className="input-group-text">Type (optional)</span>
+                        </div>
+                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={changeProperty} />
+                </div>)
+                : null}
+            {isAdmin
                 ? (<div className="form-group input-group mb-3 d-flex">
                     <label htmlFor="note-text" className="input-group-text">Notes</label>
                     <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={changeProperty}></textarea>

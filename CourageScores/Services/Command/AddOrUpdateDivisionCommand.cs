@@ -3,7 +3,6 @@ using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
 
-// ReSharper disable once ClassNeverInstantiated.Global
 public class AddOrUpdateDivisionCommand : AddOrUpdateCommand<Models.Cosmos.Division, EditDivisionDto>
 {
     private readonly ScopedCacheManagementFlags _cacheFlags;

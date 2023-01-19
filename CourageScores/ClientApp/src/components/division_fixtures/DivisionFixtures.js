@@ -43,6 +43,21 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const seasonApi = new SeasonApi(new Http(new Settings()));
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
+    const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
+    
+    function getPlayersToShow() {
+        if (location.hash !== '#show-who-is-playing') {
+            return {};
+        }
+
+        const newShowPlayers = {};
+        fixtures.forEach(fixtureDate => {
+            if (fixtureDate.tournamentFixtures.length > 0) {
+                newShowPlayers[fixtureDate.date] = true;
+            }
+        });
+        return newShowPlayers;
+    }
 
     function initFilter() {
         const search = new URLSearchParams(location.search);
@@ -72,7 +87,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         navigate({
             pathname: location.pathname,
-            search: new URLSearchParams(search).toString()
+            search: new URLSearchParams(search).toString(),
+            hash: location.hash,
         });
     }
 
@@ -303,6 +319,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 ]));
                 break;
             default:
+                if (filter.date.match(/\d{4}-\d{2}/)) {
+                    filters.push(new Filter(c => c.date.indexOf(filter.date) === 0));
+                }
                 break;
         }
 
@@ -330,6 +349,24 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return new AndFilter(filters);
     }
 
+    function toggleShowPlayers(date) {
+        const newShowPlayers = Object.assign({}, showPlayers);
+        if (newShowPlayers[date]) {
+            delete newShowPlayers[date];
+        } else {
+            newShowPlayers[date] = true;
+        }
+        setShowPlayers(newShowPlayers);
+
+        navigate({
+            pathname: location.pathname,
+            search: location.search,
+            hash: Object.keys(newShowPlayers).length > 0
+                ? 'show-who-is-playing'
+                : '',
+        });
+    }
+
     function renderFixtureDate(date) {
         const filters = getFilters();
         let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
@@ -349,6 +386,12 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <h4>
                 📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
                 {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
+                {tournamentFixturesForDate.length > 0 ? (
+                    <span className="margin-left form-switch h6 text-body">
+                        <input type="checkbox" className="form-check-input align-baseline"
+                               id={'showPlayers_' + date.date} checked={showPlayers[date.date]} onChange={() => toggleShowPlayers(date.date)} />
+                        <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Show who's playing</label>
+                    </span>) : null}
             </h4>
             {notesForDate.map(renderNote)}
             <table className="table layout-fixed">
@@ -375,7 +418,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     date={date.date}
                     seasonId={season.id}
                     divisionId={divisionId}
-                    onTournamentChanged={onTournamentChanged} />))}
+                    onTournamentChanged={onTournamentChanged}
+                    expanded={showPlayers[date.date]} />))}
                 </tbody>
             </table>
         </div>);

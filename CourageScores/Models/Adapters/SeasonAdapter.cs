@@ -7,9 +7,9 @@ namespace CourageScores.Models.Adapters;
 
 public class SeasonAdapter : IAdapter<Season, SeasonDto>
 {
-    private readonly IAdapter<Division, DivisionDto> _divisionAdapter;
+    private readonly IAdapter<Cosmos.Division, DivisionDto> _divisionAdapter;
 
-    public SeasonAdapter(IAdapter<Division, DivisionDto> divisionAdapter)
+    public SeasonAdapter(IAdapter<Cosmos.Division, DivisionDto> divisionAdapter)
     {
         _divisionAdapter = divisionAdapter;
     }
