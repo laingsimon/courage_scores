@@ -13,6 +13,7 @@ import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {nameSort} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
+import {DivisionApi} from "../../../api/division";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
@@ -28,6 +29,7 @@ export function Tournament({ account, apis }) {
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
+    const [alreadyPlaying, setAlreadyPlaying] = useState(null);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -51,6 +53,7 @@ export function Tournament({ account, apis }) {
         const tournamentApi = new TournamentApi(http);
         const seasonApi = new SeasonApi(http);
         const teamApi = new TeamApi(http);
+        const divisionApi = new DivisionApi(http);
 
         try {
             const tournamentData = await tournamentApi.get(tournamentId);
@@ -68,8 +71,13 @@ export function Tournament({ account, apis }) {
             const allPlayers = tournamentData.sides
                 ? tournamentData.sides.flatMap(side => side.players)
                 : [];
+            const anyDivisionId = '00000000-0000-0000-0000-000000000000';
+            const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
+            const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
+            const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(nameSort);
 
+            setAlreadyPlaying(tournamentPlayerIds);
             setTeams(teams);
             setSeason(season);
             setSeasons(seasonsResponse);

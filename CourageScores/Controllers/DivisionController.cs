@@ -31,9 +31,14 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division/{divisionId}/{seasonId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionTeams(Guid divisionId, Guid seasonId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionTeams(Guid? divisionId, Guid seasonId, CancellationToken token)
     {
-        return await _divisionService.GetDivisionData(divisionId, seasonId, token);
+        return await _divisionService.GetDivisionData(
+            divisionId == null || divisionId == Guid.Empty
+                ? null
+                : divisionId,
+            seasonId,
+            token);
     }
 
     [HttpGet("/api/Division/")]
