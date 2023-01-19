@@ -18,7 +18,7 @@ export function FilterFixtures({ filter, setFilter, teams }) {
         { value: 'past', text: 'Past dates' },
         { value: 'future', text: 'Future dates' },
         { value: 'last+next', text: 'Prev & next dates' },
-    ]
+    ];
 
     function changeFilter(type, value) {
         const newFilter = Object.assign({}, filter);

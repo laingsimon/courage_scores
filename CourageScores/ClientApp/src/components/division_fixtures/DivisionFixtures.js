@@ -43,7 +43,21 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const seasonApi = new SeasonApi(new Http(new Settings()));
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
-    const [ showPlayers, setShowPlayers ] = useState({});
+    const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
+    
+    function getPlayersToShow() {
+        if (location.hash !== '#show-who-is-playing') {
+            return {};
+        }
+
+        const newShowPlayers = {};
+        fixtures.forEach(fixtureDate => {
+            if (fixtureDate.tournamentFixtures.length > 0) {
+                newShowPlayers[fixtureDate.date] = true;
+            }
+        });
+        return newShowPlayers;
+    }
 
     function initFilter() {
         const search = new URLSearchParams(location.search);
@@ -332,9 +346,20 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     function toggleShowPlayers(date) {
-        const newExpandedTournaments = Object.assign({}, showPlayers);
-        newExpandedTournaments[date] = !newExpandedTournaments[date];
-        setShowPlayers(newExpandedTournaments);
+        const newShowPlayers = Object.assign({}, showPlayers);
+        if (newShowPlayers[date]) {
+            delete newShowPlayers[date];
+        } else {
+            newShowPlayers[date] = true;
+        }
+        setShowPlayers(newShowPlayers);
+
+        navigate({
+            pathname: location.pathname,
+            hash: Object.keys(newShowPlayers).length > 0
+                ? 'show-who-is-playing'
+                : '',
+        });
     }
 
     function renderFixtureDate(date) {
