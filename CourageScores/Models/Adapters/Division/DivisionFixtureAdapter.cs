@@ -43,7 +43,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             HomeTeam = await _divisionFixtureTeamAdapter.Adapt(team, token),
             IsKnockout = isKnockout,
             Postponed = false,
-            Proposal = true,
+            Proposal = false,
         };
     }
 }

@@ -246,7 +246,7 @@ public class DivisionFixtureAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Postponed, Is.False);
-        Assert.That(result.Proposal, Is.True);
+        Assert.That(result.Proposal, Is.False);
         Assert.That(result.AwayScore, Is.Null);
         Assert.That(result.HomeScore, Is.Null);
         Assert.That(result.AwayTeam, Is.Null);
