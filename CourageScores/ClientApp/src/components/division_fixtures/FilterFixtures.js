@@ -20,7 +20,7 @@ export function FilterFixtures({ filter, setFilter, teams }) {
         { value: 'last+next', text: 'Prev & next dates' },
     ];
 
-    if (dateFilters.filter(f => f.value === filter.date).length === 0) {
+    if (filter.date && dateFilters.filter(f => f.value === filter.date).length === 0) {
         if (filter.date.match(/\d{4}-\d{2}-\d{2}/)) {
             dateFilters.push({ value: filter.date, text: new Date(filter.date).toDateString() });
         } else {

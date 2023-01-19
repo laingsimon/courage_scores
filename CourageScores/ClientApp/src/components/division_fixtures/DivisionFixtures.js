@@ -319,7 +319,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 ]));
                 break;
             default:
-                if (filter.date.match(/\d{4}-\d{2}/)) {
+                if (filter.date && filter.date.match(/\d{4}-\d{2}/)) {
                     filters.push(new Filter(c => c.date.indexOf(filter.date) === 0));
                 }
                 break;
