@@ -42,7 +42,7 @@ public class AddOrUpdateDivisionCommandTests
     [Test]
     public async Task ApplyUpdate_GivenDivision_EvictsDivisionDataFromCache()
     {
-        var result = await _command.WithData(_update).ApplyUpdate(_division, _token);
+        await _command.WithData(_update).ApplyUpdate(_division, _token);
 
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
     }
