@@ -36,7 +36,7 @@ export function ImportData({account}) {
         getTables();
     },
     // eslint-disable-next-line
-    []);
+    [ isAdmin ]);
 
     function onTableChange(selection) {
         const newImportRequest = Object.assign({}, importRequest);
