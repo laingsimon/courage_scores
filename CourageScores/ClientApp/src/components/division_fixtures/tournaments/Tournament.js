@@ -77,7 +77,10 @@ export function Tournament({ account, apis }) {
             const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(nameSort);
 
-            setAlreadyPlaying(tournamentPlayerIds);
+            const tournamentPlayerMap = {};
+            tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
+
+            setAlreadyPlaying(tournamentPlayerMap);
             setTeams(teams);
             setSeason(season);
             setSeasons(seasonsResponse);
@@ -294,8 +297,8 @@ export function Tournament({ account, apis }) {
                 {tournamentData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
-                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={tournamentData.sides} />)}
+                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
             {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
             {tournamentData.sides.length >= 2 ? (<table className="table">
