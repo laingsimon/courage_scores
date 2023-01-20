@@ -93,6 +93,7 @@ export function ImportData({account}) {
         return (<NotPermitted />);
     }
 
+    let messageIndex = 0;
     return (<div className="light-background p-3">
         <h3>Import data</h3>
         <div className="input-group mb-3">
@@ -129,13 +130,13 @@ export function ImportData({account}) {
         {response ? (<div className="py-3">
             <h5>Output</h5>
             <ul>
-                {Object.keys(response.result.tables).map(t => (<li><strong>{t}</strong>: {response.result.tables[t]} row/s imported</li>))}
+                {Object.keys(response.result.tables).map(t => (<li key={t}><strong>{t}</strong>: {response.result.tables[t]} row/s imported</li>))}
             </ul>
             <strong>Messages</strong>
             <div className="overflow-auto max-scroll-height">
-                {response.errors.map(error => (<div className="text-danger">{error}</div>))}
-                {response.warnings.map(warning => (<div className="text-warning">{warning}</div>))}
-                {response.messages.map(message => (<div className="text-secondary">{message}</div>))}
+                {response.errors.map(error => (<div key={messageIndex++} className="text-danger">{error}</div>))}
+                {response.warnings.map(warning => (<div key={messageIndex++} className="text-warning">{warning}</div>))}
+                {response.messages.map(message => (<div key={messageIndex++} className="text-secondary">{message}</div>))}
             </div>
         </div>) : null}
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not import data" />) : null}
