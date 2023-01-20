@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
 
-export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly }) {
+export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly, exceptPlayerIds }) {
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
@@ -38,7 +38,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             }
 
             return teamSeason.players
-                .filter(p => !alreadySelectedOnAnotherSide[p.id])
+                .filter(p => !alreadySelectedOnAnotherSide[p.id] && !exceptPlayerIds[p.id])
                 .map(p => {
                     if (side && sidePlayerMap[p.id] && !team.id) {
                         // this player&team have already been selected for this side, retain some details of the team
