@@ -286,7 +286,7 @@ export function Tournament({ account, apis }) {
                 {tournamentData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
-                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || hasStarted} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
             {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
