@@ -220,6 +220,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && round.matches.length > 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && round.matches.length >= 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
     </div>);
 }
