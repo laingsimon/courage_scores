@@ -55,16 +55,21 @@ public class DivisionService : IDivisionService
         _divisionFixtureDateAdapter = divisionFixtureDateAdapter;
     }
 
-    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(Guid? divisionId, Guid? seasonId, CancellationToken token)
     {
-        var division = await _genericDivisionService.Get(divisionId, token);
-        if (division == null || division.Deleted != null)
+        if (divisionId == null && seasonId == null)
+        {
+            return new DivisionDataDto();
+        }
+
+        var division = divisionId == null ? null : await _genericDivisionService.Get(divisionId.Value, token);
+        if (divisionId != null && (division == null || division.Deleted != null))
         {
             return new DivisionDataDto();
         }
 
         var allTeams = await _genericTeamService.GetAll(token).ToList();
-        var teams = allTeams.Where(t => t.DivisionId == divisionId).ToList();
+        var teams = allTeams.Where(t => t.DivisionId == divisionId || divisionId == null).ToList();
         var allSeasons = await _genericSeasonService
             .GetAll(token)
             .OrderByDescendingAsync(s => s.EndDate).ToList();
@@ -76,17 +81,17 @@ public class DivisionService : IDivisionService
         {
             return new DivisionDataDto
             {
-                Id = division.Id,
+                Id = division!.Id,
                 Name = division.Name,
                 Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
             };
         }
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(n => n.DivisionId == null || n.DivisionId == divisionId)
+            .WhereAsync(n => divisionId == null || (n.DivisionId == null || n.DivisionId == divisionId))
             .ToList();
         var games = await _gameRepository
-            .GetSome($"t.DivisionId = '{divisionId}'", token)
+            .GetSome(divisionId != null ? $"t.DivisionId = '{divisionId}'" : $"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
             .ToList();
         var tournamentGames = await _tournamentGameRepository
@@ -105,8 +110,8 @@ public class DivisionService : IDivisionService
 
         var divisionDataDto = new DivisionDataDto
         {
-            Id = division.Id,
-            Name = division.Name,
+            Id = division?.Id ?? Guid.Empty,
+            Name = division?.Name ?? "<all divisions>",
             Teams = (await GetTeams(divisionData, teams, token).ToList())
                 .OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
             AllTeams = await allTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),

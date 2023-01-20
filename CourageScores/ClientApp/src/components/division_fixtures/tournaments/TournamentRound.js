@@ -141,7 +141,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         }
     }
 
-    function getSideName() {
+    function getRoundName() {
         if (sides.length === 2) {
             return 'Final';
         }
@@ -161,8 +161,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
     return (<div className="my-3 p-1">
         {changeRoundName && !readOnly
-            ? (<input type="text" onChange={updateRoundName} value={round.name === null ? getSideName() : round.name} onBlur={() => setChangeRoundName(false)} />)
-            : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getSideName() : (round.name || getSideName())}</strong>)}
+            ? (<input type="text" onChange={updateRoundName} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
+            : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getRoundName() : (round.name || getRoundName())}</strong>)}
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
@@ -220,6 +220,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && round.matches.length > 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && round.matches.length >= 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
     </div>);
 }

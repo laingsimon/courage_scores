@@ -13,6 +13,7 @@ import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {nameSort} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
+import {DivisionApi} from "../../../api/division";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
@@ -28,6 +29,7 @@ export function Tournament({ account, apis }) {
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
+    const [alreadyPlaying, setAlreadyPlaying] = useState(null);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -51,6 +53,7 @@ export function Tournament({ account, apis }) {
         const tournamentApi = new TournamentApi(http);
         const seasonApi = new SeasonApi(http);
         const teamApi = new TeamApi(http);
+        const divisionApi = new DivisionApi(http);
 
         try {
             const tournamentData = await tournamentApi.get(tournamentId);
@@ -68,8 +71,16 @@ export function Tournament({ account, apis }) {
             const allPlayers = tournamentData.sides
                 ? tournamentData.sides.flatMap(side => side.players)
                 : [];
+            const anyDivisionId = '00000000-0000-0000-0000-000000000000';
+            const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
+            const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
+            const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(nameSort);
 
+            const tournamentPlayerMap = {};
+            tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
+
+            setAlreadyPlaying(tournamentPlayerMap);
             setTeams(teams);
             setSeason(season);
             setSeasons(seasonsResponse);
@@ -286,8 +297,8 @@ export function Tournament({ account, apis }) {
                 {tournamentData.sides.map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
-                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly || hasStarted} seasonId={season.id} side={side} teams={teams} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} onChange={sideChanged} otherSides={tournamentData.sides} />)}
+                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
             {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
             {tournamentData.sides.length >= 2 ? (<table className="table">

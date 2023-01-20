@@ -52,7 +52,7 @@ public class CachingDivisionService : ICachingDivisionService
         return Task.CompletedTask;
     }
 
-    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, Guid? seasonId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(Guid? divisionId, Guid? seasonId, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         if (user != null)
