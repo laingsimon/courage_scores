@@ -142,6 +142,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             players={side.players || []}
             allPlayers={allPlayers}
             onAddPlayer={onAddPlayer}
-            onRemovePlayer={onRemovePlayer} />)}
+            onRemovePlayer={onRemovePlayer}
+            placeholder="Select player" />)}
     </div>);
 }
