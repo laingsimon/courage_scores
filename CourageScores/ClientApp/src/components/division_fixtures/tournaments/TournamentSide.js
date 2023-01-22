@@ -133,10 +133,10 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
         return (<div className="bg-yellow p-1 m-1">
+            <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
             <BootstrapDropdown 
                 items={teamItems}
                 onChange={updateTeamId} />
-            <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
             <MultiPlayerSelection
                 allPlayers={allPlayers}
                 onAddPlayer={onAddPlayer}
