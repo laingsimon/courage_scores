@@ -135,7 +135,6 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         return (<div className="bg-yellow p-1 m-1">
             <BootstrapDropdown 
                 items={teamItems}
-                value={side.teamId}
                 onChange={updateTeamId} />
             <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
             <MultiPlayerSelection
