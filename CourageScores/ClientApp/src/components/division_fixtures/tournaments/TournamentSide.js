@@ -6,6 +6,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
+    const teamItems = [];
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -119,10 +120,22 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         }
     }
 
+    async function updateTeamId(id) {
+        const newSide = Object.assign({}, side);
+        newSide.teamId = teamId;
+        if (onChange) {
+            await onChange(newSide);
+        }
+    }
+
     if (!side && !readOnly) {
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
         return (<div className="bg-yellow p-1 m-1">
+            <BootstrapDropdown 
+                items={teamItems}
+                value={side.teamId}
+                onChange={updateTeamId} />
             <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
             <MultiPlayerSelection
                 allPlayers={allPlayers}
@@ -138,6 +151,10 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
+        {readOnly ? (<span>{side.teamId || 'no team'}</span>) : (<BootstrapDropdown 
+            items={teamItems}
+            value={side.teamId}
+            onChange={updateTeamId} />)}
         {readOnly ? (<ol className="no-list-indent">{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
             allPlayers={allPlayers}
