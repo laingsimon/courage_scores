@@ -8,7 +8,6 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
     const teamItems = teams.map(t => { return { value: t.id, text: t.name }; });
-    teamItems.sort(nameSort);
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
