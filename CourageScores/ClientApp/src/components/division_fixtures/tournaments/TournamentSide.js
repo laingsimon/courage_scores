@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
+import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 
 export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly, exceptPlayerIds }) {
     const team = { };
@@ -121,7 +122,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         }
     }
 
-    async function updateTeamId(id) {
+    async function updateTeamId(teamId) {
         const newSide = Object.assign({}, side);
         newSide.teamId = teamId;
         if (onChange) {
