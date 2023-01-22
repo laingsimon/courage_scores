@@ -9,8 +9,8 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 
 export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete, className, placeholder }) {
     const empty = {
-        value: placeholder || '',
-        text: (<span>&nbsp;</span>),
+        value: '',
+        text: (<span>{placeholder || ''}</span>),
         className: 'text-secondary'
     };
     const [ playerDetails, setPlayerDetails ] = useState(null);
