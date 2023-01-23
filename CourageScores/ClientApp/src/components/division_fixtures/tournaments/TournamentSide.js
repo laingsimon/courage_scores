@@ -34,6 +34,10 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
                 return [];
             }
 
+            if (side && side.teamId && t.id !== side.teamId) {
+                return [];
+            }
+
             const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
             if (!teamSeason || !teamSeason.players) {
                 return [];
