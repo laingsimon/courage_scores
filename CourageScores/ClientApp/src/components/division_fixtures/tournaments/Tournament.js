@@ -248,6 +248,7 @@ export function Tournament({ account, apis }) {
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && tournamentData.round.matches.length > 0;
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
+    const playerCount = tournamentData.sides.reduce((curr, next) => curr + (next.players || []).length, 0);
 
     return (<div>
         <DivisionControls
@@ -300,8 +301,9 @@ export function Tournament({ account, apis }) {
                     return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
-            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
-            {tournamentData.sides.length >= 2 ? (<table className="table">
+            {tournamentData.sides.length >= 2 && playerCount >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {tournamentData.sides.length >= 2 && playerCount < 2 ? (<div className="alert-warning p-3 mb-2">Insufficient players selected to start round</div>) : null}
+            {tournamentData.sides.length >= 2 && playerCount >= 2 ? (<table className="table">
                 <tbody>
                 <tr>
                     <td colSpan="2">

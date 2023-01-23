@@ -63,6 +63,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         const newSide = Object.assign({}, side);
         newSide.players = newSide.players || [];
         newSide.id = newSide.id || createTemporaryId();
+        newSide.teamId = player.team.id;
         newSide.players.push({
             id: player.id,
             name: player.originalName
