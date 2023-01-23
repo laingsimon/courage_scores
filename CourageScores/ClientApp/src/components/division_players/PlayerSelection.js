@@ -11,7 +11,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
     const empty = {
         value: '',
         text: (<span>{placeholder || ''}</span>),
-        className: 'text-secondary'
+        className: 'text-warning'
     };
     const [ playerDetails, setPlayerDetails ] = useState(null);
     const [ editPlayer, setEditPlayer ] = useState(false);

@@ -7,7 +7,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
-    const teamOptions = [{ value: '', text: 'Select team', className: 'text-secondary' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
+    const teamOptions = [{ value: '', text: 'Select team', className: 'text-warning' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
     const teamMap = toMap(teams)
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
