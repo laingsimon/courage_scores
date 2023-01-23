@@ -24,6 +24,14 @@ public class UserRepository : IUserRepository
         return default;
     }
 
+    public async IAsyncEnumerable<User> GetAll()
+    {
+        await foreach (var user in Query($"select * from {_tableName} t"))
+        {
+            yield return user;
+        }
+    }
+
     public async Task<User> UpsertUser(User user)
     {
         await _container.UpsertItemAsync(user, new PartitionKey(user.EmailAddress));

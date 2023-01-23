@@ -1,45 +1,44 @@
-import React, {useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {AccountApi} from "../../api/account";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
-export function UserAdmin({account}) {
+export function UserAdmin({ account }) {
     const api = new AccountApi(new Http(new Settings()));
     const [ saving, setSaving ] = useState(false);
-    const [ userAccount, setUserAccount ] = useState({
-        access: { }
-    });
-    const [ emailAddress, setEmailAddress ] = useState('');
-    const [ loading, setLoading ] = useState(false);
+    const [ userAccount, setUserAccount ] = useState(null);
+    const [ emailAddress, setEmailAddress ] = useState(account.emailAddress);
+    const [ loading, setLoading ] = useState(true);
     const [ saveError, setSaveError ] = useState(null);
+    const [ accounts, setAccounts ] = useState(null);
+    const [ showEmailAddress, setShowEmailAddress ] = useState(false);
 
-    async function loadAccess() {
-        if (loading) {
-            return;
-        }
+    async function loadAccounts() {
+        setLoading(true);
 
         try {
+            const accounts = await api.getAll();
+
+            setAccounts(accounts);
+
             if (emailAddress) {
-                setLoading(true);
-                const api = new AccountApi(new Http(new Settings()));
-                const accessDetail = await api.get(emailAddress);
-                if (accessDetail) {
-                    setUserAccount(Object.assign({}, userAccount, {
-                        access: accessDetail.access
-                    }));
-                } else {
-                    setUserAccount(Object.assign({}, userAccount, {
-                        access: {},
-                    }));
-                }
+                showAccess(accounts, emailAddress);
             }
-        } catch (e) {
-            setSaveError(e.toString());
+        }
+        catch (exc) {
+            setSaveError(exc);
         } finally {
             setLoading(false);
         }
     }
+
+    useEffect(() => {
+        loadAccounts();
+    },
+    // eslint-disable-next-line
+    []);
 
     function valueChanged(event) {
         const currentAccount = Object.assign({}, userAccount);
@@ -87,29 +86,58 @@ export function UserAdmin({account}) {
         }
     }
 
+    function changeAccount(emailAddress) {
+        setEmailAddress(emailAddress);
+
+        showAccess(accounts, emailAddress);
+    }
+
+    function showAccess(accounts, emailAddress) {
+        const userAccount = accounts.filter(a => a.emailAddress === emailAddress)[0];
+        setUserAccount(userAccount);
+    }
+
     function renderAccessOption(name, description) {
+        const access = (userAccount ? userAccount : {}).access || {};
+
         return (<div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} className="form-check-input" type="checkbox" id={name}
-                       name={`access.${name}`} checked={userAccount.access[name] || false} onChange={valueChanged}/>
+                       name={`access.${name}`} checked={access[name] || false} onChange={valueChanged}/>
                 <label className="form-check-label" htmlFor={name}>{description}</label>
             </div>
         </div>);
     }
 
+    function toOption(acc) {
+        const name = acc.emailAddress === account.emailAddress
+            ? `You`
+            : acc.name;
+        const className = acc.emailAddress === account.emailAddress
+            ? 'fw-bold'
+            : undefined;
+
+        return { value: acc.emailAddress, text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`, className: className };
+    }
+
     return (<div className="light-background p-3">
-        <h3>Set access for a user</h3>
-        <div className="input-group mb-3">
+        <h3>Manage access</h3>
+        <div className="input-group mb-3 d-flex">
             <div className="input-group-prepend">
-                <span className="input-group-text">Email address</span>
+                <span className="input-group-text">Account</span>
             </div>
-            <input disabled={saving} type="text" className="form-control"
-                   name="emailAddress" value={emailAddress} onBlur={loadAccess} onChange={(event) => setEmailAddress(event.target.value)}/>
+            {loading
+                ? (<div><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></div>)
+                : <BootstrapDropdown
+                    options={accounts ? accounts.map(toOption) : []}
+                    onChange={changeAccount}
+                    value={emailAddress} className="margin-right" />}
+            <div className="form-check form-switch margin-left mt-1">
+                <input className="form-check-input" type="checkbox" id="showEmailAddress" checked={showEmailAddress} onChange={event => setShowEmailAddress(event.target.checked)}/>
+                <label className="form-check-label" htmlFor="showEmailAddress">Show email address</label>
+            </div>
         </div>
-        <h6>
-            {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            Access
-        </h6>
+        <h6>Access</h6>
         {renderAccessOption('manageAccess', 'Manage user access')}
         {renderAccessOption('manageDivisions', 'Manage divisions')}
         {renderAccessOption('manageGames', 'Manage games')}
