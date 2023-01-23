@@ -7,7 +7,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
-    const teamItems = teams.map(t => { return { value: t.id, text: t.name }; });
+    const teamOptions = [{ value: '', text: 'Select team', className: 'text-secondary' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }));
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -135,7 +135,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         return (<div className="bg-yellow p-1 m-1">
             <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
             <BootstrapDropdown 
-                items={teamItems}
+                options={teamOptions}
                 onChange={updateTeamId} />
             <MultiPlayerSelection
                 allPlayers={allPlayers}
@@ -151,10 +151,10 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
-        {readOnly ? (<span>{side.teamId || 'no team'}</span>) : (<BootstrapDropdown 
-            items={teamItems}
+        {readOnly ? (<span>{side.teamId || 'no team'}</span>) : (<div><BootstrapDropdown
+            options={teamOptions}
             value={side.teamId}
-            onChange={updateTeamId} />)}
+            onChange={updateTeamId} /></div>)}
         {readOnly ? (<ol className="no-list-indent">{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
             allPlayers={allPlayers}
