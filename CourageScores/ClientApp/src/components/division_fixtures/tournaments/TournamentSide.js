@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
+import {toMap, nameSort, createTemporaryId, sortBy} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 
 export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly, exceptPlayerIds }) {
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
-    const teamOptions = [{ value: '', text: 'Select team', className: 'text-secondary' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }));
+    const teamOptions = [{ value: '', text: 'Select team', className: 'text-secondary' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -143,9 +143,12 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
         return (<div className="bg-yellow p-1 m-1">
             <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
-            <BootstrapDropdown 
-                options={teamOptions}
-                onChange={updateTeamId} />
+            <div>
+                <BootstrapDropdown
+                    options={teamOptions}
+                    onChange={updateTeamId}
+                    value={''}/>
+            </div>
             <MultiPlayerSelection
                 allPlayers={allPlayers}
                 onAddPlayer={onAddPlayer}
