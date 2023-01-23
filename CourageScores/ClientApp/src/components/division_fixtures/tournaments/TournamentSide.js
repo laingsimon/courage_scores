@@ -11,7 +11,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
-        .flatMap(s => s.players));
+        .flatMap(s => s.players || []));
 
     const playerToTeamMap = toMap(teams.flatMap(t => {
         const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
@@ -24,7 +24,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         });
     }));
 
-    const sidePlayerMap = side ? toMap(side.players) : {};
+    const sidePlayerMap = side ? toMap(side.players || []) : {};
     const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
 
     const teamsAndPlayers = teams
@@ -80,6 +80,10 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }
 
     function exceptSelectedPlayer(tap) {
+        if (!side.players) {
+            return true;
+        }
+
         return side.players.filter(p => p.id === tap.player.id).length === 0;
     }
 
