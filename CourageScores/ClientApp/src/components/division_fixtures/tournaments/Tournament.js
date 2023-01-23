@@ -109,7 +109,7 @@ export function Tournament({ account, apis }) {
         if (sideIndex === undefined) {
             newTournamentData.sides.push(newSide);
         } else {
-            if (newSide.players.length > 0) {
+            if (newSide.players.length > 0 || newSide.teamId) {
                 newTournamentData.sides[sideIndex] = newSide;
                 updateSideDataInRound(newTournamentData.round, newSide);
             } else {
@@ -248,6 +248,7 @@ export function Tournament({ account, apis }) {
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && tournamentData.round.matches.length > 0;
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
+    const playerCount = tournamentData.sides.reduce((curr, next) => curr + (next.players || []).length, 0);
 
     return (<div>
         <DivisionControls
@@ -301,7 +302,7 @@ export function Tournament({ account, apis }) {
                 {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
             {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
-            {tournamentData.sides.length >= 2 ? (<table className="table">
+            {tournamentData.sides.length >= 2 && playerCount >= 1 ? (<table className="table">
                 <tbody>
                 <tr>
                     <td colSpan="2">

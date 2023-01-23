@@ -20,6 +20,22 @@ export function nameSort(x, y) {
         : -1;
 }
 
+export function sortBy(property) {
+    function getValue(item) {
+        return item[property];
+    }
+
+    return function nameSort(x, y) {
+        if (getValue(x).toLowerCase() === getValue(y).toLowerCase()) {
+            return 0;
+        }
+
+        return (getValue(x).toLowerCase() > getValue(y).toLowerCase())
+            ? 1
+            : -1;
+    }
+}
+
 export function createTemporaryId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random()*16|0;

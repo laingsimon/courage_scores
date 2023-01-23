@@ -21,7 +21,8 @@ public class TournamentSideAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "name",
-            Players = { Player }
+            Players = { Player },
+            TeamId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -29,34 +30,37 @@ public class TournamentSideAdapterTests
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
         Assert.That(result.Players, Is.EqualTo(new[] { PlayerDto }));
+        Assert.That(result.TeamId, Is.EqualTo(model.TeamId));
     }
 
     [Test]
     public async Task Adapt_GivenDto_SetsPropertiesCorrectly()
     {
-        var model = new TournamentSideDto
+        var dto = new TournamentSideDto
         {
             Id = Guid.NewGuid(),
             Name = "name",
-            Players = { PlayerDto }
+            Players = { PlayerDto },
+            TeamId = Guid.NewGuid(),
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.Id, Is.EqualTo(dto.Id));
+        Assert.That(result.Name, Is.EqualTo(dto.Name));
         Assert.That(result.Players, Is.EqualTo(new[] { Player }));
+        Assert.That(result.TeamId, Is.EqualTo(dto.TeamId));
     }
 
     [Test]
     public async Task Adapt_GivenDto_TrimsWhitespace()
     {
-        var model = new TournamentSideDto
+        var dto = new TournamentSideDto
         {
             Name = "name   ",
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Name, Is.EqualTo("name"));
     }
@@ -64,13 +68,26 @@ public class TournamentSideAdapterTests
     [Test]
     public async Task Adapt_GivenDto_AcceptsNullName()
     {
-        var model = new TournamentSideDto
+        var dto = new TournamentSideDto
         {
             Name = null,
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Name, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_GivenDto_AcceptsNullTeamId()
+    {
+        var dto = new TournamentSideDto
+        {
+            TeamId = null,
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.TeamId, Is.Null);
     }
 }

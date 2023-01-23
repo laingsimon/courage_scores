@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from "react-router-dom";
 
-export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName }) {
+export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {
     let index = 0;
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
@@ -66,7 +66,8 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     players={allPlayers}
                     selected={player}
                     onChange={(elem, p) => setPlayer(p)}
-                    className={dropdownClassName} />
+                    className={dropdownClassName}
+                    placeholder={placeholder} />
                 <button disabled={disabled || readOnly} onClick={addPlayer}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
                 </button>
