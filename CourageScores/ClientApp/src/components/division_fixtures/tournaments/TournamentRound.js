@@ -159,7 +159,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
     const hasNextRound = round.nextRound && round.nextRound.matches && round.nextRound.matches.length > 0;
 
-    if (!round.matches || round.matches.length === 0) {
+    if ((!round.matches || round.matches.length === 0) && readOnly) {
         return <div className="alert-warning p-3 mb-2">No matches defined</div>
     }
 
