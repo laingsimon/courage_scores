@@ -109,7 +109,7 @@ export function Tournament({ account, apis }) {
         if (sideIndex === undefined) {
             newTournamentData.sides.push(newSide);
         } else {
-            if (newSide.players.length > 0) {
+            if (newSide.players.length > 0 || newSide.teamId) {
                 newTournamentData.sides[sideIndex] = newSide;
                 updateSideDataInRound(newTournamentData.round, newSide);
             } else {
