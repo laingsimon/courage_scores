@@ -8,6 +8,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
     const teamOptions = [{ value: '', text: 'Select team', className: 'text-secondary' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
+    const teamMap = toMap(teams)
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -163,7 +164,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
-        {readOnly ? (<span>{side.teamId || 'no team'}</span>) : (<div><BootstrapDropdown
+        {readOnly ? (<span>{side.teamId ? teamMap[side.teamId].name || 'team-not-found' : 'no team'}</span>) : (<div><BootstrapDropdown
             options={teamOptions}
             value={side.teamId}
             onChange={updateTeamId} /></div>)}
