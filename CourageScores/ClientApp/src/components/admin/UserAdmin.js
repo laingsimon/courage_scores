@@ -3,7 +3,6 @@ import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {AccountApi} from "../../api/account";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {NotPermitted} from "./NotPermitted";
 
 export function UserAdmin({account}) {
     const api = new AccountApi(new Http(new Settings()));
@@ -14,7 +13,6 @@ export function UserAdmin({account}) {
     const [ emailAddress, setEmailAddress ] = useState('');
     const [ loading, setLoading ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
-    const isAdmin = account && account.access && account.access.manageAccess;
 
     async function loadAccess() {
         if (loading) {
@@ -99,17 +97,13 @@ export function UserAdmin({account}) {
         </div>);
     }
 
-    if (!isAdmin) {
-        return (<NotPermitted />);
-    }
-
     return (<div className="light-background p-3">
         <h3>Set access for a user</h3>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Email address</span>
             </div>
-            <input disabled={saving || !isAdmin} type="text" className="form-control"
+            <input disabled={saving} type="text" className="form-control"
                    name="emailAddress" value={emailAddress} onBlur={loadAccess} onChange={(event) => setEmailAddress(event.target.value)}/>
         </div>
         <h6>
@@ -129,7 +123,7 @@ export function UserAdmin({account}) {
         {renderAccessOption('importData', 'Import data (restore)')}
         {renderAccessOption('inputResults', 'Input results')}
         <div>
-            <button className="btn btn-primary" onClick={saveChanges} disabled={loading || !isAdmin}>
+            <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Set access
             </button>

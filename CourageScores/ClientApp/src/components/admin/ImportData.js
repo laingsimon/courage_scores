@@ -4,9 +4,8 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
-import {NotPermitted} from "./NotPermitted";
 
-export function ImportData({account}) {
+export function ImportData() {
     const api = new DataApi(new Http(new Settings()));
     const [importing, setImporting] = useState(false);
     const [importRequest, setImportRequest] = useState({
@@ -18,13 +17,8 @@ export function ImportData({account}) {
     const [response, setResponse] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [ dataTables, setDataTables ] = useState(null);
-    const isAdmin = account && account.access && account.access.importData;
 
     async function getTables() {
-        if (!isAdmin) {
-            return;
-        }
-
         const tables = await api.tables();
         setDataTables(tables);
 
@@ -36,7 +30,7 @@ export function ImportData({account}) {
         getTables();
     },
     // eslint-disable-next-line
-    [ isAdmin ]);
+    [ ]);
 
     function onTableChange(selection) {
         const newImportRequest = Object.assign({}, importRequest);
@@ -87,10 +81,6 @@ export function ImportData({account}) {
         } finally {
             setImporting(false);
         }
-    }
-
-    if (!isAdmin) {
-        return (<NotPermitted />);
     }
 
     let messageIndex = 0;
