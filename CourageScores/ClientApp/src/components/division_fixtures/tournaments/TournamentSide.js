@@ -79,7 +79,18 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         const newSide = Object.assign({}, side);
         newSide.players = newSide.players || [];
         newSide.players = newSide.players.filter(p => p.id !== playerId);
-        newSide.name = newSide.players.length === 1 ? newSide.players[0].name : newSide.name;
+
+        switch (newSide.players.length) {
+            case 1:
+                newSide.name = newSide.players[0].name;
+                break;
+            case 0:
+                newSide.name = teamMap[newSide.teamId].name;
+                break;
+            default:
+                break;
+        }
+
         if (onChange) {
             await onChange(newSide);
         }
