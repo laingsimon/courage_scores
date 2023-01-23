@@ -92,11 +92,11 @@ public class DivisionService : IDivisionService
             .ToList();
         var games = await _gameRepository
             .GetSome(divisionId != null ? $"t.DivisionId = '{divisionId}'" : $"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
+            .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate)
             .ToList();
         var tournamentGames = await _tournamentGameRepository
             .GetSome($"t.SeasonId = '{season.Id}'", token)
-            .WhereAsync(g => g.Date >= season.StartDate && g.Date < season.EndDate)
+            .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate)
             .ToList();
 
         var context = new DivisionDataContext(games, teams, tournamentGames, notes);
