@@ -167,7 +167,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             options={teamOptions}
             value={side.teamId}
             onChange={updateTeamId} /></div>)}
-        {readOnly ? (<ol className="no-list-indent">{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
+        {readOnly ? (<ol className="no-list-indent">{(side.players || []).map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
             players={side.players || []}
             allPlayers={allPlayers}
             onAddPlayer={onAddPlayer}
