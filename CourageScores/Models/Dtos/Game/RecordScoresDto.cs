@@ -9,6 +9,8 @@ public class RecordScoresDto
     public bool? Postponed { get; set; }
     public bool? IsKnockout { get; set; }
     public DateTime? Date { get; set; }
+    public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
+    public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
 
     public class ManOfTheMatchDto
     {
@@ -21,8 +23,6 @@ public class RecordScoresDto
         public int? HomeScore { get; set; }
         public List<RecordScoresGamePlayerDto> AwayPlayers { get; set; } = new();
         public int? AwayScore { get; set; }
-        public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
-        public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
     }
 
     public class RecordScoresGamePlayerDto

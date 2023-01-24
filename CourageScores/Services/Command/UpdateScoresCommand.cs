@@ -200,6 +200,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                 game.Matches[index] = await UpdateMatch(currentMatch, updatedMatch, token);
             }
 
+            game.OneEighties = await _scores.OneEighties.SelectAsync(p => AdaptToPlayer(p, token)).ToList();
+            game.Over100Checkouts = await _scores.Over100Checkouts.SelectAsync(p => AdaptToHiCheckPlayer(p, token)).ToList();
             game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
         }
@@ -244,8 +246,6 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             AwayScore = updatedMatch.AwayScore,
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            OneEighties = await updatedMatch.OneEighties.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
-            Over100Checkouts = await updatedMatch.Over100Checkouts.SelectAsync(p => AdaptToHiCheckPlayer(p, token)).ToList(),
             StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
             NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
         };
@@ -268,8 +268,6 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             AwayScore = updatedMatch.AwayScore,
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            OneEighties = await updatedMatch.OneEighties.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
-            Over100Checkouts = await updatedMatch.Over100Checkouts.SelectAsync(p => AdaptToHiCheckPlayer(p, token)).ToList(),
             StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
             NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
         };
