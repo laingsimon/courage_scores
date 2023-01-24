@@ -162,6 +162,20 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         return (<div>{team.name}</div>);
     }
 
+    function renderPlayers () {
+       if (side.players) {
+           return null;
+       }
+
+       if (side.players.length === 1 && side.players[0].name === side.name) {
+           return null;
+       }
+
+       return (<ol className="no-list-indent">
+           {side.players.map(p => (<li key={p.id}>{p.name}</li>))}
+       </ol>);
+    }
+
     if (!side && !readOnly) {
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
@@ -191,7 +205,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             ? renderTeamName()
             : (<div><BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId} /></div>)}
         {readOnly
-            ? (<ol className="no-list-indent">{(side.players || []).map(p => <li key={p.id}>{p.name}</li>)}</ol>)
+            ? renderPlayers()
             : (<MultiPlayerSelection players={side.players || []} allPlayers={allPlayers} onAddPlayer={onAddPlayer} onRemovePlayer={onRemovePlayer} placeholder="Select player" />)}
     </div>);
 }
