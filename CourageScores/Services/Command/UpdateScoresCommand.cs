@@ -204,6 +204,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             game.Over100Checkouts = await _scores.Over100Checkouts.SelectAsync(p => AdaptToHiCheckPlayer(p, token)).ToList();
             game.Home.ManOfTheMatch = _scores.Home?.ManOfTheMatch;
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
+            game.Version = Models.Cosmos.Game.Game.CurrentVersion;
         }
     }
 

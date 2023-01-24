@@ -8,9 +8,11 @@ namespace CourageScores.Models.Cosmos.Game;
 /// </summary>
 public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
+    public const int CurrentVersion = 2;
+
     public Game()
     {
-        Version = 2;
+        Version = CurrentVersion;
     }
 
     /// <summary>
