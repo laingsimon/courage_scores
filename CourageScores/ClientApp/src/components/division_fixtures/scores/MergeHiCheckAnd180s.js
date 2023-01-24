@@ -7,29 +7,21 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
             return [];
         }
 
-        const firstMatch = submission.matches[0];
-        if (!firstMatch) {
-            return [];
-        }
-
-        return firstMatch[record];
+        return submission[record];
     }
 
     function mergeRecords(team, record) {
         const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, newFixtureData.matches[0]);
         const submission = data[team + 'Submission'];
-        const firstSubmissionMatch = submission.matches[0];
-        newFixtureData.matches[0] = firstMatch;
 
-        firstMatch[record] = firstSubmissionMatch[record];
+        newFixtureData[record] = submission[record];
 
         setFixtureData(newFixtureData);
     }
 
     return (<tr>
         <td colSpan="2">
-            {(!fixtureData.matches[0].oneEighties || fixtureData.matches[0].oneEighties.length === 0) && (getRecordsToMerge('home', 'oneEighties').length > 0 || getRecordsToMerge('away', 'oneEighties').length > 0)
+            {(!fixtureData.oneEighties || fixtureData.oneEighties.length === 0) && (getRecordsToMerge('home', 'oneEighties').length > 0 || getRecordsToMerge('away', 'oneEighties').length > 0)
                 ? (<div>
                     {getRecordsToMerge('home', 'oneEighties').length > 0 ? (<div>
                         <h6>
@@ -58,7 +50,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
             </div>
         </td>
         <td colSpan="2">
-            {(!fixtureData.matches[0].over100Checkouts || fixtureData.matches[0].over100Checkouts.length === 0) && (getRecordsToMerge('home', 'over100Checkouts').length > 0 || getRecordsToMerge('away', 'over100Checkouts').length > 0)
+            {(!fixtureData.over100Checkouts || fixtureData.over100Checkouts.length === 0) && (getRecordsToMerge('home', 'over100Checkouts').length > 0 || getRecordsToMerge('away', 'over100Checkouts').length > 0)
                 ? (<div>
                     {getRecordsToMerge('home', 'over100Checkouts').length > 0 ? (<div>
                         <h6>
