@@ -19,7 +19,7 @@ public class Importer
         {
             if (_settings.Purge)
             {
-                yield return new PurgeDataImporter(log);
+                yield return new PurgeDataImporter();
             }
 
             yield return new ReportTablesImporter(log);

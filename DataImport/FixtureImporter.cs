@@ -9,8 +9,8 @@ public class FixtureImporter : IImporter
         _log = log;
     }
 
-    public Task RunImport(AccessDatabase source, CosmosDatabase destination, CancellationToken token)
+    public async Task RunImport(AccessDatabase source, CosmosDatabase destination, CancellationToken token)
     {
-        return Task.CompletedTask;
+        await _log.WriteLineAsync("TODO: Import fixtures");
     }
 }
