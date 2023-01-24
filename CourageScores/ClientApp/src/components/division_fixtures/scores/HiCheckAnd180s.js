@@ -24,14 +24,12 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
 
     function add180(player) {
         const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
 
-        if (!firstMatch.oneEighties) {
-            firstMatch.oneEighties = [];
+        if (!newFixtureData.oneEighties) {
+            newFixtureData.oneEighties = [];
         }
 
-        firstMatch.oneEighties.push({
+        newFixtureData.oneEighties.push({
             id: player.id,
             name: player.name
         });
@@ -41,24 +39,20 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
 
     function remove180(playerId, index) {
         const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
 
-        firstMatch.oneEighties.splice(index, 1);
+        newFixtureData.oneEighties.splice(index, 1);
 
         setFixtureData(newFixtureData);
     }
 
     function addHiCheck(player, notes) {
         const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
 
-        if (!firstMatch.over100Checkouts) {
-            firstMatch.over100Checkouts = [];
+        if (!newFixtureData.over100Checkouts) {
+            newFixtureData.over100Checkouts = [];
         }
 
-        firstMatch.over100Checkouts.push({
+        newFixtureData.over100Checkouts.push({
             id: player.id,
             name: player.name,
             notes: notes
@@ -69,10 +63,8 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
 
     function removeHiCheck(playerId, index) {
         const newFixtureData = Object.assign({}, fixtureData);
-        const firstMatch = Object.assign({}, fixtureData.matches[0]);
-        newFixtureData.matches[0] = firstMatch;
 
-        firstMatch.over100Checkouts.splice(index, 1);
+        newFixtureData.over100Checkouts.splice(index, 1);
 
         setFixtureData(newFixtureData);
     }
@@ -84,7 +76,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                 disabled={access === 'readonly'}
                 readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                 allPlayers={applicablePlayers()}
-                players={fixtureData.matches[0].oneEighties || []}
+                players={fixtureData.oneEighties || []}
                 onRemovePlayer={remove180}
                 onAddPlayer={add180}
                 divisionId={fixtureData.divisionId}
@@ -97,7 +89,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                 disabled={access === 'readonly'}
                 readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                 allPlayers={applicablePlayers()}
-                players={fixtureData.matches[0].over100Checkouts || []}
+                players={fixtureData.over100Checkouts || []}
                 onRemovePlayer={removeHiCheck}
                 onAddPlayer={addHiCheck}
                 showNotes={true}
