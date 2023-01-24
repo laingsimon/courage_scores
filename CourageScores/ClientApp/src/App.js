@@ -44,7 +44,8 @@ export default class App extends Component {
     static getDerivedStateFromError(error) {
         return {
             error: {
-                message: error.message
+                message: error.message,
+                stack: error.stack,
             },
         };
     }
