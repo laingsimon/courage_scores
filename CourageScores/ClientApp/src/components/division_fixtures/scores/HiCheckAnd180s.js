@@ -2,7 +2,7 @@ import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
 import {nameSort} from "../../../Utilities";
 
-export function HiCheckAnd180s({ access, saving, fixtureData, allPlayers, setFixtureData }){
+export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     function applicablePlayers() {
         const players = {
         };
