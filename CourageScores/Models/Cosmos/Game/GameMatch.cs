@@ -43,11 +43,13 @@ public class GameMatch : AuditedEntity, IGameVisitable
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
+    [Obsolete]
     public List<GamePlayer> OneEighties { get; set; } = new();
 
     /// <summary>
     /// Who checked out with more than 100
     /// </summary>
+    [Obsolete]
     public List<NotablePlayer> Over100Checkouts { get; set; } = new();
 
     public void Accept(IGameVisitor visitor)

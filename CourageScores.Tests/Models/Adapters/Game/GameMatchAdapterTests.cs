@@ -24,6 +24,7 @@ public class GameMatchAdapterTests
         new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
 
     [Test]
+    [Obsolete]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly_v1()
     {
         var model = new GameMatch

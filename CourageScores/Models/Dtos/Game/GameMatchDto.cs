@@ -38,10 +38,12 @@ public class GameMatchDto : AuditedDto
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
+    [Obsolete]
     public List<GamePlayerDto> OneEighties { get; set; } = new();
 
     /// <summary>
     /// Who checked out with more than 100
     /// </summary>
+    [Obsolete]
     public List<NotablePlayerDto> Over100Checkouts { get; set; } = new();
 }

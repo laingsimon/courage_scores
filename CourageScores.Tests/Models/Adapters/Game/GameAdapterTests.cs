@@ -18,11 +18,13 @@ public class GameAdapterTests
     private static readonly GamePlayerDto OneEightyPlayerDto = new GamePlayerDto();
     private static readonly NotablePlayer HiCheckPlayer = new NotablePlayer();
     private static readonly NotablePlayerDto HiCheckPlayerDto = new NotablePlayerDto();
+    [Obsolete]
     private static readonly GameMatch GameMatchWithHiCheckAndOneEighty = new GameMatch
     {
         OneEighties = { OneEightyPlayer },
         Over100Checkouts = { HiCheckPlayer },
     };
+    [Obsolete]
     private static readonly GameMatchDto GameMatchDtoWithHiCheckAndOneEighty = new GameMatchDto
     {
         OneEighties = { OneEightyPlayerDto },
@@ -125,6 +127,7 @@ public class GameAdapterTests
     }
 
     [Test]
+    [Obsolete]
     public async Task Adapt_GivenPublishedModelWithHiCheckAndOneEightyInFirstMatch_SetPropertiesCorrectly_v1()
     {
         var model = new CourageScores.Models.Cosmos.Game.Game
@@ -156,6 +159,7 @@ public class GameAdapterTests
     }
 
     [Test]
+    [Obsolete]
     public async Task Adapt_GivenDtoWithOneEightiesAndHiCheckInFirstMatch_SetPropertiesCorrectly()
     {
         var dto = new GameDto

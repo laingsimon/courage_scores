@@ -147,6 +147,7 @@ public class GameMatchTests
     }
 
     [Test]
+    [Obsolete]
     public void Accept_GivenOneEighties_VisitOneEighties()
     {
         var visitor = new Mock<IGameVisitor>();
@@ -159,6 +160,7 @@ public class GameMatchTests
     }
 
     [Test]
+    [Obsolete]
     public void Accept_GivenHiChecks_VisitHiChecks()
     {
         var visitor = new Mock<IGameVisitor>();
