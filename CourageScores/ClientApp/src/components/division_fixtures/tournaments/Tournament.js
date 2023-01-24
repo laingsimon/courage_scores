@@ -68,9 +68,7 @@ export function Tournament({ account, apis }) {
             const seasonsResponse = await seasonApi.getAll();
             const season = seasonsResponse.filter(s => s.id === tournamentData.seasonId)[0];
             const teams = await teamApi.getAll();
-            const allPlayers = tournamentData.sides
-                ? tournamentData.sides.flatMap(side => side.players)
-                : [];
+            const allPlayers = getAllPlayers(tournamentData, teams);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
@@ -90,6 +88,29 @@ export function Tournament({ account, apis }) {
         } finally {
             setLoading('ready');
         }
+    }
+
+    function getAllPlayers(tournamentData, teams) {
+        const selectedTournamentPlayers = tournamentData.sides
+            ? tournamentData.sides.flatMap(side => side.players)
+            : [];
+
+        if (selectedTournamentPlayers.length > 0) {
+            return selectedTournamentPlayers;
+        }
+
+        const selectedTournamentTeams = tournamentData.sides
+            ? tournamentData.sides.map(side => side.teamId)
+            : [];
+
+        const players = teams
+            .filter(t => selectedTournamentTeams.filter(id => id === t.id).length > 0)
+            .map(t => t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0])
+            .filter(ts => ts)
+            .flatMap(ts => ts.players);
+        players.sort(nameSort);
+
+        return players;
     }
 
     async function onChange(newRound) {
@@ -248,7 +269,6 @@ export function Tournament({ account, apis }) {
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && tournamentData.round.matches.length > 0;
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
-    const playerCount = tournamentData.sides.reduce((curr, next) => curr + (next.players || []).length, 0);
 
     return (<div>
         <DivisionControls
@@ -302,7 +322,7 @@ export function Tournament({ account, apis }) {
                 {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
             {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
-            {tournamentData.sides.length >= 2 && playerCount >= 1 ? (<table className="table">
+            {tournamentData.sides.length >= 2 ? (<table className="table">
                 <tbody>
                 <tr>
                     <td colSpan="2">
