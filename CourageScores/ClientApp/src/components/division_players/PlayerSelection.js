@@ -10,7 +10,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete, className, placeholder }) {
     const empty = {
         value: '',
-        text: (<span>{placeholder || ''}</span>),
+        text: placeholder ? (<span>{placeholder}</span>) : (<span>&nbsp;</span>),
         className: 'text-warning'
     };
     const [ playerDetails, setPlayerDetails ] = useState(null);
