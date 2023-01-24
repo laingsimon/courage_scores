@@ -87,12 +87,16 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
         }
 
+#pragma warning disable CS0612
         foreach (var player in OneEighties)
+#pragma warning restore CS0612
         {
             visitor.VisitOneEighty(player);
         }
 
+#pragma warning disable CS0612
         foreach (var player in Over100Checkouts)
+#pragma warning restore CS0612
         {
             visitor.VisitHiCheckout(player);
         }
