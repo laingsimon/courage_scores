@@ -153,6 +153,15 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         }
     }
 
+    function renderTeamName() {
+        const team = side.teamId ? teamMap[side.teamId] : null;
+        if (!team || team.name === side.name) {
+            return null;
+        }
+
+        return (<div>{team.name}</div>);
+    }
+
     if (!side && !readOnly) {
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
@@ -179,7 +188,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
         {readOnly
-            ? (<div>{side.teamId ? teamMap[side.teamId].name || 'team-not-found' : 'no team'}</div>)
+            ? renderTeamName()
             : (<div><BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId} /></div>)}
         {readOnly
             ? (<ol className="no-list-indent">{(side.players || []).map(p => <li key={p.id}>{p.name}</li>)}</ol>)
