@@ -1,15 +1,18 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, nameSort, createTemporaryId} from "../../../Utilities";
+import {toMap, nameSort, createTemporaryId, sortBy} from "../../../Utilities";
+import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 
 export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly, exceptPlayerIds }) {
     const team = { };
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
+    const teamOptions = [{ value: '', text: 'Select team', className: 'text-warning' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
+    const teamMap = toMap(teams)
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
-        .flatMap(s => s.players));
+        .flatMap(s => s.players || []));
 
     const playerToTeamMap = toMap(teams.flatMap(t => {
         const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
@@ -22,13 +25,17 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         });
     }));
 
-    const sidePlayerMap = side ? toMap(side.players) : {};
+    const sidePlayerMap = side ? toMap(side.players || []) : {};
     const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
 
     const teamsAndPlayers = teams
         .flatMap(t => {
             if (side && sidePlayerTeamMapping && sidePlayerTeamMapping.team.id !== t.id) {
                 // a player is selected from a different team. As players cannot be mixed between teams, skip this team
+                return [];
+            }
+
+            if (side && side.teamId && t.id !== side.teamId) {
                 return [];
             }
 
@@ -57,6 +64,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         const newSide = Object.assign({}, side);
         newSide.players = newSide.players || [];
         newSide.id = newSide.id || createTemporaryId();
+        newSide.teamId = player.team.id;
         newSide.players.push({
             id: player.id,
             name: player.originalName
@@ -71,13 +79,28 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         const newSide = Object.assign({}, side);
         newSide.players = newSide.players || [];
         newSide.players = newSide.players.filter(p => p.id !== playerId);
-        newSide.name = newSide.players.length === 1 ? newSide.players[0].name : newSide.name;
+
+        switch (newSide.players.length) {
+            case 1:
+                newSide.name = newSide.players[0].name;
+                break;
+            case 0:
+                newSide.name = teamMap[newSide.teamId].name;
+                break;
+            default:
+                break;
+        }
+
         if (onChange) {
             await onChange(newSide);
         }
     }
 
     function exceptSelectedPlayer(tap) {
+        if (!side.players) {
+            return true;
+        }
+
         return side.players.filter(p => p.id === tap.player.id).length === 0;
     }
 
@@ -119,15 +142,42 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         }
     }
 
+    async function updateTeamId(teamId) {
+        const newSide = Object.assign({}, side);
+        newSide.teamId = teamId;
+        if (teamId) {
+            newSide.name = teamMap[teamId].name;
+        }
+        if (onChange) {
+            await onChange(newSide);
+        }
+    }
+
+    function renderTeamName() {
+        const team = side.teamId ? teamMap[side.teamId] : null;
+        if (!team || team.name === side.name) {
+            return null;
+        }
+
+        return (<div>{team.name}</div>);
+    }
+
     if (!side && !readOnly) {
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
         return (<div className="bg-yellow p-1 m-1">
             <strong>Add a side</strong> <label><input type="checkbox" checked={sortOption === 'player'} onChange={() => setSortOption(sortOption === 'player' ? 'team' : 'player')} /> Sort by player</label>
+            <div>
+                <BootstrapDropdown
+                    options={teamOptions}
+                    onChange={updateTeamId}
+                    value={''}/>
+            </div>
             <MultiPlayerSelection
                 allPlayers={allPlayers}
                 onAddPlayer={onAddPlayer}
-                onRemovePlayer={onRemovePlayer} />
+                onRemovePlayer={onRemovePlayer}
+                placeholder="Select player" />
         </div>);
     }
 
@@ -137,10 +187,11 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
-        {readOnly ? (<ol className="no-list-indent">{side.players.map(p => <li key={p.id}>{p.name}</li>)}</ol>) : (<MultiPlayerSelection
-            players={side.players || []}
-            allPlayers={allPlayers}
-            onAddPlayer={onAddPlayer}
-            onRemovePlayer={onRemovePlayer} />)}
+        {readOnly
+            ? renderTeamName()
+            : (<div><BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId} /></div>)}
+        {readOnly
+            ? (<ol className="no-list-indent">{(side.players || []).map(p => <li key={p.id}>{p.name}</li>)}</ol>)
+            : (<MultiPlayerSelection players={side.players || []} allPlayers={allPlayers} onAddPlayer={onAddPlayer} onRemovePlayer={onRemovePlayer} placeholder="Select player" />)}
     </div>);
 }

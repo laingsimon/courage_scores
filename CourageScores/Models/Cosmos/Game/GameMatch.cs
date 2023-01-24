@@ -5,6 +5,11 @@ namespace CourageScores.Models.Cosmos.Game;
 /// </summary>
 public class GameMatch : AuditedEntity, IGameVisitable
 {
+    public GameMatch()
+    {
+        Version = 2;
+    }
+
     /// <summary>
     /// The number of legs, typically 3 or 5
     /// </summary>

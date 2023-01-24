@@ -38,6 +38,12 @@ public class AccountController : Controller
         return await _userService.GetUser(token);
     }
 
+    [HttpGet("/api/Account/All")]
+    public IAsyncEnumerable<UserDto> GetAll(CancellationToken token)
+    {
+        return _userService.GetAll(token);
+    }
+
     [HttpGet("/api/Account/{emailAddress}")]
     public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)
     {

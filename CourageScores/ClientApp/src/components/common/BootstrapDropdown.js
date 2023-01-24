@@ -26,6 +26,12 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
         }
     }
 
+    function getItemClassName(o) {
+        return o.value === value 
+            ? `active ${o.className || ''}`
+            : o.className || '';
+    }
+
     return (<ButtonDropdown isOpen={dropdownOpen} toggle={toggleOpen} className={className}>
         <DropdownToggle caret color={color || 'outline-light'} className="btn-sm text-dark border-dark">
             <span className={`text-dark${slim ? '' : ' dropdown-text-min-width'}`}>{selectedOption ? selectedOption.text || value : value}</span>
@@ -33,7 +39,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
         <DropdownMenu className="max-height-250 overflow-auto">
             {options.map(o => (<DropdownItem key={o.value}
                                              disabled={o.disabled || false}
-                                             className={o.value === value ? 'active' : ''}
+                                             className={getItemClassName(o)}
                 onClick={async () => onChange ? await onChange(o.value) : null}>{o.text}</DropdownItem>))}
         </DropdownMenu>
     </ButtonDropdown>);

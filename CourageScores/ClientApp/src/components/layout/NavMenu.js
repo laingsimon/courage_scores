@@ -54,22 +54,8 @@ export function NavMenu({divisions, appLoading, account, clearError}) {
                         {appLoading ? (<NavItem><NavLink><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></NavLink></NavItem>) : null}
                         {account && account.access && account.access.manageAccess
                             ? (<NavItem>
-                                <NavLink tag={Link} onClick={navigate} className={getClassName('/userAdmin')} to={`/userAdmin`}>
-                                    User admin
-                                </NavLink>
-                            </NavItem>)
-                            : null}
-                        {account && account.access && account.access.exportData
-                            ? (<NavItem>
-                                <NavLink tag={Link} onClick={navigate} className={getClassName('/dataAdmin/export')} to={`/dataAdmin/export`}>
-                                    Export data
-                                </NavLink>
-                            </NavItem>)
-                            : null}
-                        {account && account.access && account.access.importData
-                            ? (<NavItem>
-                                <NavLink tag={Link} onClick={navigate} className={getClassName('/dataAdmin/import')} to={`/dataAdmin/import`}>
-                                    Import data
+                                <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
+                                    Admin
                                 </NavLink>
                             </NavItem>)
                             : null}

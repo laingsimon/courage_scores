@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
@@ -44,6 +45,24 @@ public class UserService : IUserService
         return _user != null
             ? await _userAdapter.Adapt(_user, token)
             : null;
+    }
+
+    public async IAsyncEnumerable<UserDto> GetAll([EnumeratorCancellation] CancellationToken token)
+    {
+        if ((await GetUser(token))?.Access?.ManageAccess != true)
+        {
+            yield break;
+        }
+
+        await foreach (var user in _userRepository.GetAll().WithCancellation(token))
+        {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
+
+            yield return await _userAdapter.Adapt(user, token); // NOTE: Includes access
+        }
     }
 
     public async Task<UserDto?> GetUser(string emailAddress, CancellationToken token)

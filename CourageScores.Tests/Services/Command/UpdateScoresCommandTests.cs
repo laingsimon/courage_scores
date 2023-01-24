@@ -149,10 +149,10 @@ public class UpdateScoresCommandTests
             AwayPlayers = { awayPlayer1 },
             HomeScore = 1,
             AwayScore = 2,
-            OneEighties = { homePlayer1 },
-            Over100Checkouts = { awayPlayer1 },
         };
         _scores.Matches.Add(match1);
+        _scores.OneEighties.Add(homePlayer1);
+        _scores.Over100Checkouts.Add(awayPlayer1);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -166,11 +166,10 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo(homePlayer1.Name));
         Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
         Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.Matches[0].OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
-        Assert.That(_game.Matches[0].OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
-        Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
-        Assert.That(_game.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
+        Assert.That(_game.OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
+        Assert.That(_game.Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
@@ -201,10 +200,10 @@ public class UpdateScoresCommandTests
             AwayPlayers = { awayPlayer1 },
             HomeScore = 1,
             AwayScore = 2,
-            OneEighties = { homePlayer1 },
-            Over100Checkouts = { awayPlayer1 },
         };
         _scores.Matches.Add(match1);
+        _scores.OneEighties.Add(homePlayer1);
+        _scores.Over100Checkouts.Add(awayPlayer1);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -218,11 +217,10 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo(homePlayer1.Name));
         Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
         Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.Matches[0].OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
-        Assert.That(_game.Matches[0].OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
-        Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
-        Assert.That(_game.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
+        Assert.That(_game.OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
+        Assert.That(_game.Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.Matches[0].Id, Is.EqualTo(_game.Matches.Single().Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
@@ -286,10 +284,10 @@ public class UpdateScoresCommandTests
             AwayPlayers = { awayPlayer1 },
             HomeScore = 1,
             AwayScore = 2,
-            OneEighties = { homePlayer1 },
-            Over100Checkouts = { awayPlayer1 },
         };
         _scores.Matches.Add(match1);
+        _scores.OneEighties.Add(homePlayer1);
+        _scores.Over100Checkouts.Add(awayPlayer1);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -304,11 +302,10 @@ public class UpdateScoresCommandTests
         Assert.That(_game.HomeSubmission!.Matches[0].HomePlayers[0].Name, Is.EqualTo(homePlayer1.Name));
         Assert.That(_game.HomeSubmission!.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
         Assert.That(_game.HomeSubmission!.Matches[0].AwayPlayers[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.HomeSubmission!.Matches[0].OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
-        Assert.That(_game.HomeSubmission!.Matches[0].OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
-        Assert.That(_game.HomeSubmission!.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
-        Assert.That(_game.HomeSubmission!.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.HomeSubmission!.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
+        Assert.That(_game.HomeSubmission!.OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.HomeSubmission!.OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
+        Assert.That(_game.HomeSubmission!.Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.HomeSubmission!.Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.HomeSubmission!.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -337,10 +334,10 @@ public class UpdateScoresCommandTests
             AwayPlayers = { awayPlayer1 },
             HomeScore = 1,
             AwayScore = 2,
-            OneEighties = { homePlayer1 },
-            Over100Checkouts = { awayPlayer1 },
         };
         _scores.Matches.Add(match1);
+        _scores.OneEighties.Add(homePlayer1);
+        _scores.Over100Checkouts.Add(awayPlayer1);
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
@@ -355,11 +352,10 @@ public class UpdateScoresCommandTests
         Assert.That(_game.AwaySubmission!.Matches[0].HomePlayers[0].Name, Is.EqualTo(homePlayer1.Name));
         Assert.That(_game.AwaySubmission!.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
         Assert.That(_game.AwaySubmission!.Matches[0].AwayPlayers[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.AwaySubmission!.Matches[0].OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
-        Assert.That(_game.AwaySubmission!.Matches[0].OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
-        Assert.That(_game.AwaySubmission!.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
-        Assert.That(_game.AwaySubmission!.Matches[0].Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
-        Assert.That(_game.AwaySubmission!.Matches[0].Over100Checkouts[0].Notes, Is.EqualTo("150"));
+        Assert.That(_game.AwaySubmission!.OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
+        Assert.That(_game.AwaySubmission!.OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
+        Assert.That(_game.AwaySubmission!.Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.AwaySubmission!.Over100Checkouts[0].Notes, Is.EqualTo("150"));
         Assert.That(_game.AwaySubmission!.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);

@@ -343,7 +343,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         if (filter.teamId) {
             filters.push(new OrFilter([
                 new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === filter.teamId),
-                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId)
+                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId),
+                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === filter.teamId).length > 0)
             ]));
         }
 

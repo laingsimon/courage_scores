@@ -26,8 +26,12 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             AwayScore = model.AwayScore,
             HomePlayers = await model.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             HomeScore = model.HomeScore,
-            OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
-            Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            OneEighties = model.Version == 1
+                ? await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList()
+                : new List<GamePlayerDto>(),
+            Over100Checkouts = model.Version == 1
+                ? await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList()
+                : new List<NotablePlayerDto>(),
             StartingScore = model.StartingScore,
             NumberOfLegs = model.NumberOfLegs,
         }.AddAuditProperties(model);

@@ -68,9 +68,7 @@ export function Tournament({ account, apis }) {
             const seasonsResponse = await seasonApi.getAll();
             const season = seasonsResponse.filter(s => s.id === tournamentData.seasonId)[0];
             const teams = await teamApi.getAll();
-            const allPlayers = tournamentData.sides
-                ? tournamentData.sides.flatMap(side => side.players)
-                : [];
+            const allPlayers = getAllPlayers(tournamentData, teams);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
@@ -92,6 +90,29 @@ export function Tournament({ account, apis }) {
         }
     }
 
+    function getAllPlayers(tournamentData, teams) {
+        const selectedTournamentPlayers = tournamentData.sides
+            ? tournamentData.sides.flatMap(side => side.players)
+            : [];
+
+        if (selectedTournamentPlayers.length > 0) {
+            return selectedTournamentPlayers;
+        }
+
+        const selectedTournamentTeams = tournamentData.sides
+            ? tournamentData.sides.map(side => side.teamId)
+            : [];
+
+        const players = teams
+            .filter(t => selectedTournamentTeams.filter(id => id === t.id).length > 0)
+            .map(t => t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0])
+            .filter(ts => ts)
+            .flatMap(ts => ts.players);
+        players.sort(nameSort);
+
+        return players;
+    }
+
     async function onChange(newRound) {
         const newTournamentData = Object.assign({}, tournamentData);
         newTournamentData.round = newRound;
@@ -109,7 +130,7 @@ export function Tournament({ account, apis }) {
         if (sideIndex === undefined) {
             newTournamentData.sides.push(newSide);
         } else {
-            if (newSide.players.length > 0) {
+            if (newSide.players.length > 0 || newSide.teamId) {
                 newTournamentData.sides[sideIndex] = newSide;
                 updateSideDataInRound(newTournamentData.round, newSide);
             } else {

@@ -7,6 +7,10 @@ class AccountApi {
         return this.http.get(`/api/Account/${emailAddress}`, {});
     }
 
+    getAll() {
+        return this.http.get(`/api/Account/All`, {});
+    }
+
     account() {
         return this.http.get(`/api/Account`, {});
     }
