@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Data;
 
-public class TableAccessor
+public class TableAccessor : ITableAccessor
 {
     private readonly string _tableName;
     private readonly string _partitionKey;

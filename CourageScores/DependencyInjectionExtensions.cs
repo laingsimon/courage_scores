@@ -76,6 +76,10 @@ public static class DependencyInjectionExtensions
         services.AddScoped<CachingTeamService>();
         services.AddScoped(typeof(CachingDataService<,>));
         services.AddScoped<ICachingDivisionService, CachingDivisionService>();
+
+        services.AddScoped<ICosmosTableService, CosmosTableService>();
+        services.AddScoped<IDataImporterFactory, DataImporterFactory>();
+        services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)

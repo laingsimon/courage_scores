@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Data;
 
-public class ZipBuilder
+public class ZipBuilder : IZipBuilder
 {
     private readonly ZipFile _zip;
 

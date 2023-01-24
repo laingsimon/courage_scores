@@ -9,10 +9,12 @@ namespace CourageScores.Controllers;
 public class DataController : Controller
 {
     private readonly IDataService _dataService;
+    private readonly ICosmosTableService _cosmosTableService;
 
-    public DataController(IDataService dataService)
+    public DataController(IDataService dataService, ICosmosTableService cosmosTableService)
     {
         _dataService = dataService;
+        _cosmosTableService = cosmosTableService;
     }
 
     [HttpPost("/api/Data/Export")]
@@ -24,7 +26,7 @@ public class DataController : Controller
     [HttpGet("/api/Data/Tables")]
     public IAsyncEnumerable<TableDto> Tables(CancellationToken token)
     {
-        return _dataService.GetTables(token);
+        return _cosmosTableService.GetTables(token);
     }
 
     [HttpPost("/api/Data/Import")]
