@@ -64,4 +64,14 @@ public class GameDto : AuditedDto
     /// Have the results been published? If so no submissions are permitted.
     /// </summary>
     public bool ResultsPublished { get; set; }
+
+    /// <summary>
+    /// Who scored a 180 in the match
+    /// </summary>
+    public List<GamePlayerDto> OneEighties { get; set; } = new();
+
+    /// <summary>
+    /// Who checked out with more than 100
+    /// </summary>
+    public List<NotablePlayerDto> Over100Checkouts { get; set; } = new();
 }

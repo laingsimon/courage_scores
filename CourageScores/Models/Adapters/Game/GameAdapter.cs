@@ -8,13 +8,19 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
 {
     private readonly IAdapter<GameMatch, GameMatchDto> _gameMatchAdapter;
     private readonly IAdapter<GameTeam, GameTeamDto> _gameTeamAdapter;
+    private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
+    private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
 
     public GameAdapter(
         IAdapter<GameMatch, GameMatchDto> gameMatchAdapter,
-        IAdapter<GameTeam, GameTeamDto> gameTeamAdapter)
+        IAdapter<GameTeam, GameTeamDto> gameTeamAdapter,
+        IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
+        IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;
+        _gamePlayerAdapter = gamePlayerAdapter;
+        _notablePlayerAdapter = notablePlayerAdapter;
     }
 
     public async Task<GameDto> Adapt(Cosmos.Game.Game model, CancellationToken token)
@@ -40,6 +46,12 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             HomeSubmission = model.HomeSubmission != null ? await Adapt(model.HomeSubmission, resultsPublished, token) : null,
             AwaySubmission = model.AwaySubmission != null ? await Adapt(model.AwaySubmission, resultsPublished, token) : null,
             ResultsPublished = resultsPublished,
+            OneEighties = await (model.Version >= 2
+                ? model.OneEighties
+                : model.Matches.FirstOrDefault()?.OneEighties ?? new List<GamePlayer>()).SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            Over100Checkouts = await (model.Version >= 2
+                ? model.Over100Checkouts
+                : model.Matches.FirstOrDefault()?.Over100Checkouts ?? new List<NotablePlayer>()).SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
@@ -59,6 +71,10 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             IsKnockout = dto.IsKnockout,
             HomeSubmission = dto.HomeSubmission != null ? await Adapt(dto.HomeSubmission, token) : null,
             AwaySubmission = dto.AwaySubmission != null ? await Adapt(dto.AwaySubmission, token) : null,
+            OneEighties = await (dto.OneEighties.Concat(dto.Matches.FirstOrDefault()?.OneEighties ?? new List<GamePlayerDto>()))
+                .SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            Over100Checkouts = await (dto.Over100Checkouts.Concat(dto.Matches.FirstOrDefault()?.Over100Checkouts ?? new List<NotablePlayerDto>()))
+                .SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

@@ -24,7 +24,37 @@ public class GameMatchAdapterTests
         new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
 
     [Test]
-    public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
+    public async Task Adapt_GivenModel_SetsPropertiesCorrectly_v1()
+    {
+        var model = new GameMatch
+        {
+            HomeScore = 1,
+            AwayScore = 2,
+            Id = Guid.NewGuid(),
+            Over100Checkouts = { HiCheckPlayer },
+            AwayPlayers = { AwayPlayer },
+            HomePlayers = { HomePlayer },
+            OneEighties = { OneEightyPlayer },
+            StartingScore = 501,
+            NumberOfLegs = 3,
+            Version = 1,
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
+        Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
+        Assert.That(result.Id, Is.EqualTo(model.Id));
+        Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
+        Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
+        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
+        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
+        Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayerDto }));
+        Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayerDto }));
+    }
+
+    [Test]
+    public async Task Adapt_GivenModel_SetsPropertiesCorrectly_v2()
     {
         var model = new GameMatch
         {
@@ -46,8 +76,8 @@ public class GameMatchAdapterTests
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
         Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
-        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
+        Assert.That(result.Over100Checkouts, Is.Empty);
+        Assert.That(result.OneEighties, Is.Empty);
         Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayerDto }));
         Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayerDto }));
     }

@@ -8,6 +8,11 @@ namespace CourageScores.Models.Cosmos.Game;
 /// </summary>
 public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 {
+    public Game()
+    {
+        Version = 2;
+    }
+
     /// <summary>
     /// The id of the division
     /// </summary>
@@ -62,6 +67,16 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// The scores as reported by the away team
     /// </summary>
     public Game? AwaySubmission { get; set; }
+
+    /// <summary>
+    /// Who scored a 180 in the match
+    /// </summary>
+    public List<GamePlayer> OneEighties { get; set; } = new();
+
+    /// <summary>
+    /// Who checked out with more than 100
+    /// </summary>
+    public List<NotablePlayer> Over100Checkouts { get; set; } = new();
 
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
