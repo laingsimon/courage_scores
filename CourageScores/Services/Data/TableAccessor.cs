@@ -6,21 +6,22 @@ namespace CourageScores.Services.Data;
 
 public class TableAccessor : ITableAccessor
 {
-    private readonly string _tableName;
     private readonly string _partitionKey;
 
     public TableAccessor(string tableName, string partitionKey = "/id")
     {
-        _tableName = tableName;
+        TableName = tableName;
         _partitionKey = partitionKey;
     }
+
+    public string TableName { get; }
 
     public async Task ExportData(Database database, ExportDataResultDto result, ZipBuilder builder,
         ExportDataRequestDto request, CancellationToken token)
     {
-        result.Tables.Add(_tableName, 0);
+        result.Tables.Add(TableName, 0);
 
-        Container container = await database.CreateContainerIfNotExistsAsync(_tableName, _partitionKey, cancellationToken: token);
+        Container container = await database.CreateContainerIfNotExistsAsync(TableName, _partitionKey, cancellationToken: token);
 
         var records = container.GetItemQueryIterator<JObject>();
 
@@ -49,7 +50,7 @@ public class TableAccessor : ITableAccessor
         }
 
         var id = record.Value<string>(_partitionKey.TrimStart('/'));
-        result.Tables[_tableName]++;
-        await builder.AddFile(_tableName, id, record);
+        result.Tables[TableName]++;
+        await builder.AddFile(TableName, id, record);
     }
 }

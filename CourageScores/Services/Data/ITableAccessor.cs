@@ -7,4 +7,6 @@ public interface ITableAccessor
 {
     Task ExportData(Database database, ExportDataResultDto result, ZipBuilder builder,
         ExportDataRequestDto request, CancellationToken token);
+
+    string TableName { get; }
 }

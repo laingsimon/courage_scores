@@ -57,24 +57,34 @@ public class CosmosTableService : ICosmosTableService
                     PartitionKey = partitionKey,
                     DataType = dataType,
                     CanImport = await CanImportDataType(dataType, token),
-                    CanExport = true,
+                    CanExport = await CanExportDataType(token),
                 };
             }
         }
     }
 
-
-    private async Task<bool> CanImportDataType(Type? dataType, CancellationToken token)
+    private async Task<bool> CanExportDataType(CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            throw new InvalidOperationException("Not logged in");
+            return false;
+        }
+
+        return user.Access?.ExportData == true;
+    }
+
+    private async Task<bool> CanImportDataType(Type? dataType, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user == null || user.Access?.ImportData != true)
+        {
+            return false;
         }
 
         if (dataType == null)
         {
-            return true;
+            return false;
         }
 
         var instance = (IPermissionedEntity) Activator.CreateInstance(dataType)!;
