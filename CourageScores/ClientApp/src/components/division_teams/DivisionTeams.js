@@ -3,7 +3,7 @@ import {DivisionTeam} from "./DivisionTeam";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
 
-export function DivisionTeams({ teams, teamsWithoutFixtures, account, divisionId, seasonId, onTeamSaved }) {
+export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSaved }) {
     const isAdmin = account && account.access && account.access.manageTeams;
     const [ newTeam, setNewTeam ] = useState(false);
     const [ teamDetails, setTeamDetails ] = useState({
@@ -54,13 +54,6 @@ export function DivisionTeams({ teams, teamsWithoutFixtures, account, divisionId
                 </thead>
                 <tbody>
                 {teams.map(team => (<DivisionTeam
-                    key={team.id}
-                    team={team}
-                    seasonId={seasonId}
-                    account={account}
-                    divisionId={divisionId}
-                    onTeamSaved={onTeamSaved} />))}
-                {teamsWithoutFixtures.map(team => (<DivisionTeam
                     key={team.id}
                     team={team}
                     seasonId={seasonId}
