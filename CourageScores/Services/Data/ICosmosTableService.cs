@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using CourageScores.Models.Dtos.Data;
+﻿using CourageScores.Models.Dtos.Data;
 
 namespace CourageScores.Services.Data;
 
