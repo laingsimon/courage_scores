@@ -12,17 +12,20 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
     private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly IJsonSerializerService _serializer;
 
     public AddOrUpdateTeamCommand(
         ITeamService teamService,
         IGameService gameService,
         ICommandFactory commandFactory,
-        ScopedCacheManagementFlags cacheFlags)
+        ScopedCacheManagementFlags cacheFlags,
+        IJsonSerializerService serializer)
     {
         _teamService = teamService;
         _gameService = gameService;
         _commandFactory = commandFactory;
         _cacheFlags = cacheFlags;
+        _serializer = serializer;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
@@ -51,7 +54,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
                 };
             }
 
-            var editGame = EditGameDto.From(game);
+            var editGame = GameDtoToEditGameDto(game);
             editGame.Address = update.Address;
             editGame.DivisionId = update.DivisionId;
 
@@ -76,5 +79,14 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
     {
         var team = await _teamService.Get(id, token);
         return team?.Address.Equals(address, StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    private EditGameDto GameDtoToEditGameDto(GameDto game)
+    {
+        var editGame = _serializer.DeserialiseTo<EditGameDto>(_serializer.SerialiseToString(game));
+        editGame.AwayTeamId = game.Away.Id;
+        editGame.HomeTeamId = game.Home.Id;
+
+        return editGame;
     }
 }

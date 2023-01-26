@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace CourageScores.Models.Dtos.Game;
 
 public class EditGameDto
@@ -12,13 +10,4 @@ public class EditGameDto
     public Guid AwayTeamId { get; set; }
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
-
-    public static EditGameDto From(GameDto game)
-    {
-        var editGame = JsonConvert.DeserializeObject<EditGameDto>(JsonConvert.SerializeObject(game));
-        editGame.AwayTeamId = game.Away.Id;
-        editGame.HomeTeamId = game.Home.Id;
-
-        return editGame;
-    }
 }

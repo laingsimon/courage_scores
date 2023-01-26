@@ -10,11 +10,13 @@ public class CosmosTableService : ICosmosTableService
 {
     private readonly Database _database;
     private readonly IUserService _userService;
+    private readonly IJsonSerializerService _serializer;
 
-    public CosmosTableService(Database database, IUserService userService)
+    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer)
     {
         _database = database;
         _userService = userService;
+        _serializer = serializer;
     }
 
     public async IAsyncEnumerable<ITableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
@@ -42,7 +44,7 @@ public class CosmosTableService : ICosmosTableService
         while (iterator.HasMoreResults)
         {
             var container = await iterator.ReadNextAsync(token);
-            var containerContent = ContainerItemJson.ReadContainerStream(container.Content);
+            var containerContent = _serializer.DeserialiseTo<ContainerItemJson>(container.Content);
 
             foreach (var table in containerContent.DocumentCollections)
             {
