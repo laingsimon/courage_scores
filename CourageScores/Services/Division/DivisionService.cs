@@ -115,9 +115,6 @@ public class DivisionService : IDivisionService
             Teams = (await GetTeams(divisionData, teams, token).ToList())
                 .OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
             AllTeams = await allTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),
-            TeamsWithoutFixtures = await GetTeamsWithoutFixtures(divisionData, teams)
-                .SelectAsync(t => _divisionTeamAdapter.WithoutFixtures(t, token))
-                .OrderByAsync(t => t.Name).ToList(),
             Fixtures = await GetFixtures(context, token).OrderByAsync(d => d.Date).ToList(),
             Players = (await GetPlayers(divisionData, token).ToList())
                 .OrderByDescending(p => p.Points)
@@ -152,11 +149,6 @@ public class DivisionService : IDivisionService
         }
     }
 
-    private IEnumerable<TeamDto> GetTeamsWithoutFixtures(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams)
-    {
-        return teams.Where(t => !divisionData.Teams.ContainsKey(t.Id));
-    }
-
     private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Teams)
@@ -164,6 +156,11 @@ public class DivisionService : IDivisionService
             var team = teams.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found", Address = "Not found" };
 
             yield return await _divisionTeamAdapter.Adapt(team, score, token);
+        }
+
+        foreach (var team in teams.Where(t => !divisionData.Teams.ContainsKey(t.Id)))
+        {
+            yield return await _divisionTeamAdapter.WithoutFixtures(team, token);
         }
     }
 

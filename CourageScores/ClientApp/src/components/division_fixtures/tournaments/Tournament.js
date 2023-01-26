@@ -315,7 +315,7 @@ export function Tournament({ account, apis }) {
                     : null}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
-                {tournamentData.sides.map(side => {
+                {tournamentData.sides.sort(nameSort).map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
                     return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}

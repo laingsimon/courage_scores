@@ -48,10 +48,12 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             ResultsPublished = resultsPublished,
             OneEighties = await (model.Version >= 2
                 ? model.OneEighties
+#pragma warning disable CS0612
                 : model.Matches.FirstOrDefault()?.OneEighties ?? new List<GamePlayer>()).SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await (model.Version >= 2
                 ? model.Over100Checkouts
                 : model.Matches.FirstOrDefault()?.Over100Checkouts ?? new List<NotablePlayer>()).SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+#pragma warning restore CS0612
         }.AddAuditProperties(model);
     }
 
@@ -71,10 +73,8 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             IsKnockout = dto.IsKnockout,
             HomeSubmission = dto.HomeSubmission != null ? await Adapt(dto.HomeSubmission, token) : null,
             AwaySubmission = dto.AwaySubmission != null ? await Adapt(dto.AwaySubmission, token) : null,
-            OneEighties = await (dto.OneEighties.Concat(dto.Matches.FirstOrDefault()?.OneEighties ?? new List<GamePlayerDto>()))
-                .SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
-            Over100Checkouts = await (dto.Over100Checkouts.Concat(dto.Matches.FirstOrDefault()?.Over100Checkouts ?? new List<NotablePlayerDto>()))
-                .SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

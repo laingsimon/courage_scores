@@ -10,8 +10,6 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
     function acceptSubmission(match) {
         const newFixtureData = Object.assign({}, fixtureData);
         const matchOnlyProperties = Object.assign({}, match);
-        matchOnlyProperties.oneEighties = [];
-        matchOnlyProperties.over100Checkouts = [];
 
         newFixtureData.matches[matchIndex] = Object.assign(matchOnlyProperties, newFixtureData.matches[matchIndex]);
 

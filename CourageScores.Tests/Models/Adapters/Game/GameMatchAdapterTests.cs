@@ -14,44 +14,11 @@ public class GameMatchAdapterTests
     private static readonly GamePlayerDto AwayPlayerDto = new GamePlayerDto();
     private static readonly GamePlayer OneEightyPlayer = new GamePlayer();
     private static readonly GamePlayerDto OneEightyPlayerDto = new GamePlayerDto();
-    private static readonly NotablePlayer HiCheckPlayer = new NotablePlayer();
-    private static readonly NotablePlayerDto HiCheckPlayerDto = new NotablePlayerDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly GameMatchAdapter _adapter = new GameMatchAdapter(
         new MockAdapter<GamePlayer, GamePlayerDto>(
             new[] { HomePlayer, AwayPlayer, OneEightyPlayer },
-            new[] { HomePlayerDto, AwayPlayerDto, OneEightyPlayerDto }),
-        new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
-
-    [Test]
-    public async Task Adapt_GivenModel_SetsPropertiesCorrectly_v1()
-    {
-        var model = new GameMatch
-        {
-            HomeScore = 1,
-            AwayScore = 2,
-            Id = Guid.NewGuid(),
-            Over100Checkouts = { HiCheckPlayer },
-            AwayPlayers = { AwayPlayer },
-            HomePlayers = { HomePlayer },
-            OneEighties = { OneEightyPlayer },
-            StartingScore = 501,
-            NumberOfLegs = 3,
-            Version = 1,
-        };
-
-        var result = await _adapter.Adapt(model, _token);
-
-        Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
-        Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
-        Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
-        Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
-        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
-        Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayerDto }));
-        Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayerDto }));
-    }
+            new[] { HomePlayerDto, AwayPlayerDto, OneEightyPlayerDto }));
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly_v2()
@@ -61,10 +28,8 @@ public class GameMatchAdapterTests
             HomeScore = 1,
             AwayScore = 2,
             Id = Guid.NewGuid(),
-            Over100Checkouts = { HiCheckPlayer },
             AwayPlayers = { AwayPlayer },
             HomePlayers = { HomePlayer },
-            OneEighties = { OneEightyPlayer },
             StartingScore = 501,
             NumberOfLegs = 3,
         };
@@ -76,8 +41,6 @@ public class GameMatchAdapterTests
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
         Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
-        Assert.That(result.Over100Checkouts, Is.Empty);
-        Assert.That(result.OneEighties, Is.Empty);
         Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayerDto }));
         Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayerDto }));
     }
@@ -103,10 +66,8 @@ public class GameMatchAdapterTests
             HomeScore = 1,
             AwayScore = 2,
             Id = Guid.NewGuid(),
-            Over100Checkouts = { HiCheckPlayerDto },
             AwayPlayers = { AwayPlayerDto },
             HomePlayers = { HomePlayerDto },
-            OneEighties = { OneEightyPlayerDto },
             StartingScore = 501,
             NumberOfLegs = 3,
         };
@@ -118,9 +79,28 @@ public class GameMatchAdapterTests
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.StartingScore, Is.EqualTo(dto.StartingScore));
         Assert.That(result.NumberOfLegs, Is.EqualTo(dto.NumberOfLegs));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
-        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayer }));
         Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayer }));
         Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayer }));
+    }
+
+    [Test]
+    [Obsolete]
+    public async Task Adapt_GivenDto_SetsLegacyPropertiesToEmpty()
+    {
+        var dto = new GameMatchDto
+        {
+            HomeScore = 1,
+            AwayScore = 2,
+            Id = Guid.NewGuid(),
+            AwayPlayers = { AwayPlayerDto },
+            HomePlayers = { HomePlayerDto },
+            StartingScore = 501,
+            NumberOfLegs = 3,
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.Over100Checkouts, Is.Empty);
+        Assert.That(result.OneEighties, Is.Empty);
     }
 }

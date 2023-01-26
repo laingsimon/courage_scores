@@ -122,6 +122,16 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
         }
 
         gameScore.Accept(visitor);
+
+        foreach (var player in OneEighties)
+        {
+            visitor.VisitOneEighty(player);
+        }
+
+        foreach (var player in Over100Checkouts)
+        {
+            visitor.VisitHiCheckout(player);
+        }
     }
 
     private class GameScoreVisitor : IGameVisitor, IGameVisitable

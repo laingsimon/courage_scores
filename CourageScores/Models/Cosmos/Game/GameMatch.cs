@@ -43,11 +43,13 @@ public class GameMatch : AuditedEntity, IGameVisitable
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
+    [Obsolete]
     public List<GamePlayer> OneEighties { get; set; } = new();
 
     /// <summary>
     /// Who checked out with more than 100
     /// </summary>
+    [Obsolete]
     public List<NotablePlayer> Over100Checkouts { get; set; } = new();
 
     public void Accept(IGameVisitor visitor)
@@ -85,12 +87,16 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
         }
 
+#pragma warning disable CS0612
         foreach (var player in OneEighties)
+#pragma warning restore CS0612
         {
             visitor.VisitOneEighty(player);
         }
 
+#pragma warning disable CS0612
         foreach (var player in Over100Checkouts)
+#pragma warning restore CS0612
         {
             visitor.VisitHiCheckout(player);
         }

@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace CourageScores.Services.Data;
 
-public class DataImporter
+public class DataImporter : IDataImporter
 {
     private readonly Database _database;
     private readonly ImportDataRequestDto _request;
