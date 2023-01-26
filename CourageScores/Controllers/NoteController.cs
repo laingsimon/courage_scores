@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class NoteController : Controller
 {
     private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;

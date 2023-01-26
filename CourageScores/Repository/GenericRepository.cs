@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Azure.Cosmos;
 using CourageScores.Models.Cosmos;
 
 namespace CourageScores.Repository;
 
+[ExcludeFromCodeCoverage]
 public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
     where T : CosmosEntity
 {

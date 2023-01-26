@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Team;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class PlayerController : Controller
 {
     private readonly IGenericDataService<Team, TeamDto> _teamService;

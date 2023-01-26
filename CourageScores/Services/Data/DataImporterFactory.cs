@@ -1,8 +1,10 @@
-﻿using CourageScores.Models.Dtos.Data;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Data;
 using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Services.Data;
 
+[ExcludeFromCodeCoverage]
 public class DataImporterFactory : IDataImporterFactory
 {
     private readonly Database _database;
