@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Cosmos.Identity;
 
+[ExcludeFromCodeCoverage]
 public class Access
 {
     public bool ManageAccess { get; set; }

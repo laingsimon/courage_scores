@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Cosmos;
 
+[ExcludeFromCodeCoverage]
 public abstract class AuditedEntity : CosmosEntity
 {
     /// <summary>

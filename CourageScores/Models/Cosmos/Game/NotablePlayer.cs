@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Cosmos.Game;
 
 [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
+[ExcludeFromCodeCoverage]
 public class NotablePlayer : GamePlayer
 {
     /// <summary>

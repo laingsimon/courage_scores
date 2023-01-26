@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace CourageScores.Models.Cosmos;
 
+[ExcludeFromCodeCoverage]
 public abstract class CosmosEntity
 {
     /// <summary>

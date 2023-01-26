@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Cosmos;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Cosmos;
 
 /// <summary>
 /// A record of all the data within the league
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class League : AuditedEntity
 {
     /// <summary>

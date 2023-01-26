@@ -6,6 +6,7 @@ namespace CourageScores.Models.Cosmos.Team;
 /// <summary>
 /// A record of a team and its players, where 'home' is for them, etc.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class Team : AuditedEntity, IPermissionedEntity
 {
     /// <summary>

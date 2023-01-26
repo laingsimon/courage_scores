@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// The details of a player who was playing
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class GamePlayer : AuditedEntity
 {
     /// <summary>

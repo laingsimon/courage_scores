@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos;
 
+[ExcludeFromCodeCoverage]
 public class FixtureDateNote : AuditedEntity, IPermissionedEntity
 {
     /// <summary>
