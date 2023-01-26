@@ -328,7 +328,16 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         switch (filter.type) {
             case 'league':
-                filters.push(new Filter(c => c.tournamentFixture === false && c.fixture.isKnockout === false));
+                filters.push(new AndFilter([
+                    new Filter(c => c.tournamentFixture === false),
+                    new Filter(c => c.fixture.isKnockout === false)
+                ]));
+                break;
+            case 'not(league)':
+                filters.push(new OrFilter([
+                    new Filter(c => c.tournamentFixture === true),
+                    new Filter(c => c.fixture.isKnockout === true)
+                ]));
                 break;
             case 'knockout':
                 filters.push(new Filter(c => c.fixture.isKnockout === true));
