@@ -7,8 +7,9 @@ export function FilterFixtures({ filter, setFilter, teams }) {
     teamFilters.unshift({ value: null, text: 'All teams' });
 
     const typeFilters = [
-        { value: null,  text: 'All games' },
-        { value: 'league',  text: 'League games' },
+        { value: null,  text: 'All fixtures' },
+        { value: 'league',  text: 'League fixtures' },
+        { value: 'not(league)',  text: 'Excl. league fixtures' },
         { value: 'knockout',  text: 'Knockouts' },
         { value: 'tournament',  text: 'Tournaments' }
     ];
