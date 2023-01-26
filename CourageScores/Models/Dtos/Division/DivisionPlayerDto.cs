@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos.Division;
 
+[ExcludeFromCodeCoverage]
 public class DivisionPlayerDto
 {
     public Guid Id { get; set; }

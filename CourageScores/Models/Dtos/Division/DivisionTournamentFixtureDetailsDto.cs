@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Game;
 
 namespace CourageScores.Models.Dtos.Division;
 
+[ExcludeFromCodeCoverage]
 public class DivisionTournamentFixtureDetailsDto
 {
     public Guid Id { get; set; }

@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Game;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
 /// Representation of a match in a tournament round
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TournamentMatchDto : AuditedDto
 {
     /// <summary>

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Division;
 
+[ExcludeFromCodeCoverage]
 public class DivisionData
 {
     /// <summary>

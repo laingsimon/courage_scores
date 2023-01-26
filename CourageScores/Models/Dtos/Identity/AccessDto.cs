@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos.Identity;
 
+[ExcludeFromCodeCoverage]
 public class AccessDto
 {
     public bool ManageAccess { get; set; }

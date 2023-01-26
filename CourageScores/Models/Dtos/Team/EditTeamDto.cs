@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos.Team;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos.Team;
+
+[ExcludeFromCodeCoverage]
 public class EditTeamDto
 {
     public Guid Id { get; set; }

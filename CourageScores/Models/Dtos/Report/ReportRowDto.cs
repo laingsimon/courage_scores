@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos.Report;
 
 /// <summary>
 /// A row within a report
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class ReportRowDto
 {
     /// <summary>

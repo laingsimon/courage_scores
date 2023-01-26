@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos.Report;
 
 /// <summary>
 /// A report request
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class ReportRequestDto
 {
      public Guid DivisionId { get; set; }

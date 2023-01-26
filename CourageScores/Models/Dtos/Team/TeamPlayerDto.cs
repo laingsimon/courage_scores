@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Team;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Team;
 
 /// <summary>
 /// A record of a player that has played for a team within a season
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TeamPlayerDto : AuditedDto
 {
     /// <summary>

@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Services.Data;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Services.Data;
+
+[ExcludeFromCodeCoverage]
 public class ExportMetaData
 {
     public const string FileName = "meta.json";

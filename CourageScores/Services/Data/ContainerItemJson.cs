@@ -4,6 +4,7 @@ namespace CourageScores.Services.Data;
 
 [SuppressMessage("ReSharper", "ClassNeverInstantiated.Global")]
 [SuppressMessage("ReSharper", "CollectionNeverUpdated.Global")]
+[ExcludeFromCodeCoverage]
 public class ContainerItemJson
 {
     public List<DocumentCollection> DocumentCollections { get; set; } = new();

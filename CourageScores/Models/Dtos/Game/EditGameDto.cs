@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos.Game;
 
+[ExcludeFromCodeCoverage]
 public class EditGameDto
 {
     public Guid Id { get; set; }

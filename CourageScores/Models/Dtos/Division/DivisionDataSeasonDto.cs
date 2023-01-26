@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos.Division;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos.Division;
+
+[ExcludeFromCodeCoverage]
 public class DivisionDataSeasonDto
 {
     public Guid Id { get; set; }

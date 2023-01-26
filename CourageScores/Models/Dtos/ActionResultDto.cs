@@ -1,9 +1,12 @@
-﻿namespace CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos;
 
 /// <summary>
 /// The outcome of an action
 /// </summary>
 /// <typeparam name="TDto"></typeparam>
+[ExcludeFromCodeCoverage]
 public class ActionResultDto<TDto>
 {
     /// <summary>

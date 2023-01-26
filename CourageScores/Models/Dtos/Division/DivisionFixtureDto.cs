@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos.Division;
 
+[ExcludeFromCodeCoverage]
 public class DivisionFixtureDto
 {
     public Guid Id { get; set; }

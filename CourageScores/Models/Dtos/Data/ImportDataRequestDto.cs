@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos.Data;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos.Data;
+
+[ExcludeFromCodeCoverage]
 public class ImportDataRequestDto
 {
     /// <summary>

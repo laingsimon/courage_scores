@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Services.Report;
 
+[ExcludeFromCodeCoverage]
 public class PlayerDetails
 {
     public string PlayerName { get; init; } = null!;

@@ -1,10 +1,12 @@
-﻿using CourageScores.Models.Dtos.Season;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Season;
 
 namespace CourageScores.Models.Dtos;
 
 /// <summary>
 /// A record of all the data within the league
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class LeagueDto : AuditedDto
 {
     public string Name { get; set; } = null!;

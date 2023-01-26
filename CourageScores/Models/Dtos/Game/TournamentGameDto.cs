@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Game;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
 /// The details of a tournament game
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TournamentGameDto : AuditedDto
 {
     /// <summary>

@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace CourageScores.Services;
 
+[ExcludeFromCodeCoverage]
 public class JsonSerializerService : IJsonSerializerService
 {
     private readonly JsonSerializer _serializer;
