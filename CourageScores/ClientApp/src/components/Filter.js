@@ -44,3 +44,14 @@ export class OrFilter {
         return false;
     }
 }
+
+export class NotFilter {
+    _filter;
+    constructor(filter) {
+        this._filter = filter;
+    }
+
+    apply(item) {
+        return !_filter.apply(item);
+    }
+}
