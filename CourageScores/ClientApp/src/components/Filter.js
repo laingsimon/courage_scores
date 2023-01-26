@@ -52,6 +52,6 @@ export class NotFilter {
     }
 
     apply(item) {
-        return !_filter.apply(item);
+        return !this._filter.apply(item);
     }
 }
