@@ -305,59 +305,70 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     function getFilters() {
         const filters = [];
 
-        switch (filter.date) {
-            case 'past':
-                filters.push(new Filter(c => isInPast(c.date)));
-                break;
-            case 'future':
-                filters.push(new Filter(c => isInFuture(c.date)));
-                break;
-            case 'last+next':
-                filters.push(new OrFilter([
-                    new Filter(c => isToday(c.date)),
-                    new Filter(c => isLastFixtureBeforeToday(c.date)),
-                    new Filter(c => isNextFeatureAfterToday(c.date))
-                ]));
-                break;
-            default:
-                if (filter.date && filter.date.match(/\d{4}-\d{2}/)) {
-                    filters.push(new Filter(c => c.date.indexOf(filter.date) === 0));
-                }
-                break;
+        const dateFilter = getDateFilter(filter.date);
+        if (dateFilter) {
+            filters.push(dateFilter);
         }
 
-        switch (filter.type) {
-            case 'league':
-                filters.push(new AndFilter([
-                    new Filter(c => c.tournamentFixture === false),
-                    new Filter(c => c.fixture.isKnockout === false)
-                ]));
-                break;
-            case 'not(league)':
-                filters.push(new OrFilter([
-                    new Filter(c => c.tournamentFixture === true),
-                    new Filter(c => c.fixture.isKnockout === true)
-                ]));
-                break;
-            case 'knockout':
-                filters.push(new Filter(c => c.fixture.isKnockout === true));
-                break;
-            case 'tournament':
-                filters.push(new Filter(c => c.tournamentFixture === true));
-                break;
-            default:
-                break;
+        const typeFilter = getTypeFilter(filter.type);
+        if (typeFilter) {
+            filters.push(typeFilter);
         }
 
         if (filter.teamId) {
-            filters.push(new OrFilter([
-                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === filter.teamId),
-                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId),
-                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === filter.teamId).length > 0)
-            ]));
+            filters.push(getTeamIdFilter(filter.teamId));
         }
 
         return new AndFilter(filters);
+    }
+
+    function getDateFilter(date) {
+        switch (date) {
+            case 'past':
+                return new Filter(c => isInPast(c.date));
+            case 'future':
+                return new Filter(c => isInFuture(c.date));
+            case 'last+next':
+                return new OrFilter([
+                    new Filter(c => isToday(c.date)),
+                    new Filter(c => isLastFixtureBeforeToday(c.date)),
+                    new Filter(c => isNextFeatureAfterToday(c.date))
+                ]);
+            default:
+                if (filter.date && filter.date.match(/\d{4}-\d{2}/)) {
+                    return new Filter(c => c.date.indexOf(filter.date) === 0);
+                }
+
+                return null;
+        }
+    }
+
+    function getTypeFilter(type) {
+        if (type.indexOf('not(') === 0) {
+            return new NotFilter(getTypeFilter(type.substring(4, type.length - 1)));
+        }
+
+        switch (type) {
+            case 'league':
+                return new AndFilter([
+                    new Filter(c => c.tournamentFixture === false),
+                    new Filter(c => c.fixture.isKnockout === false)
+                ]);
+            case 'knockout':
+                return new Filter(c => c.fixture.isKnockout === true);
+            case 'tournament':
+                return new Filter(c => c.tournamentFixture === true);
+            default:
+                return null;
+        }
+    }
+
+    function getTeamIdFilter(teamId) {
+        return new OrFilter([
+                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === filter.teamId),
+                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId),
+                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === filter.teamId).length > 0)
+            ]);
     }
 
     function toggleShowPlayers(date) {
