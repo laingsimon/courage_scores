@@ -10,7 +10,7 @@ import {GameApi} from "../../api/game";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
-import {AndFilter, Filter, OrFilter} from "../Filter";
+import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {NoteApi} from "../../api/note";
@@ -303,23 +303,23 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     function getFilters() {
-        const filters = [];
+        return new AndFilter([
+            optionallyInvertFilter(getDateFilter, filter.date),
+            optionallyInvertFilter(getTypeFilter, filter.type),
+            optionallyInvertFilter(getTeamIdFilter, filter.teamId)
+        ]);
+    }
 
-        const dateFilter = getDateFilter(filter.date);
-        if (dateFilter) {
-            filters.push(dateFilter);
+    function optionallyInvertFilter(getFilter, filterInput) {
+        if (filterInput && filterInput.indexOf('not(') === 0) {
+            const withoutNot = filterInput.substring(4, filterInput.length - 1);
+            const positiveFilter = getFilter(withoutNot);
+            return positiveFilter
+                ? new NotFilter(positiveFilter)
+                : new NullFilter();
         }
 
-        const typeFilter = getTypeFilter(filter.type);
-        if (typeFilter) {
-            filters.push(typeFilter);
-        }
-
-        if (filter.teamId) {
-            filters.push(getTeamIdFilter(filter.teamId));
-        }
-
-        return new AndFilter(filters);
+        return getFilter(filterInput) ?? new NullFilter();
     }
 
     function getDateFilter(date) {
@@ -339,15 +339,11 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     return new Filter(c => c.date.indexOf(filter.date) === 0);
                 }
 
-                return null;
+                return new NullFilter();
         }
     }
 
     function getTypeFilter(type) {
-        if (type.indexOf('not(') === 0) {
-            return new NotFilter(getTypeFilter(type.substring(4, type.length - 1)));
-        }
-
         switch (type) {
             case 'league':
                 return new AndFilter([
@@ -359,15 +355,19 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             case 'tournament':
                 return new Filter(c => c.tournamentFixture === true);
             default:
-                return null;
+                return new NullFilter();
         }
     }
 
     function getTeamIdFilter(teamId) {
+        if (!teamId) {
+            return new NullFilter();
+        }
+
         return new OrFilter([
-                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === filter.teamId),
-                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId),
-                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === filter.teamId).length > 0)
+                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
+                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
+                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === teamId).length > 0)
             ]);
     }
 
