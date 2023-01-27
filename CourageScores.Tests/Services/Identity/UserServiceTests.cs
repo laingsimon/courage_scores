@@ -7,6 +7,7 @@ using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
+using CourageScores.Services;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -578,5 +579,80 @@ public class UserServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
         _userRepository.Verify(r => r.UpsertUser(otherUser));
+    }
+
+    [Test]
+    public async Task GetAll_WhenNotLoggedIn_ReturnsNothing()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.NoResult);
+
+        var result = await _service.GetAll(_token).ToList();
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAll_WhenNotPermitted_ReturnsNothing()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = false,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+
+        var result = await _service.GetAll(_token).ToList();
+
+        Assert.That(result, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAll_WhenPermitted_ReturnsUsersAndAccess()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _userRepository.Setup(u => u.GetAll()).Returns(TestUtilities.AsyncEnumerable(user));
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+
+        var result = await _service.GetAll(_token).ToList();
+
+        Assert.That(result, Is.Not.Empty);
     }
 }
