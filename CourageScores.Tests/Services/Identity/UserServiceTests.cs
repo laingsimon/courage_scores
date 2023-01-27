@@ -370,4 +370,213 @@ public class UserServiceTests
         Assert.That(result!.EmailAddress, Is.EqualTo(otherUser.EmailAddress));
         _userRepository.Verify(r => r.GetUser(otherUser.EmailAddress));
     }
+
+    [Test]
+    public async Task UpdateAccess_WhenNotLoggedIn_ReturnsUnsuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.NoResult);
+        var update = new UpdateAccessDto();
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Not logged in" }));
+    }
+
+    [Test]
+    public async Task UpdateAccess_WhenNotPermitted_ReturnsUnsuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = false,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        var update = new UpdateAccessDto();
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task UpdateAccess_WhenUserToUpdateNotFound_ReturnsUnsuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _userRepository.Setup(u => u.GetUser("update@somewhere.com")).ReturnsAsync(() => null);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        var update = new UpdateAccessDto
+        {
+            EmailAddress = "update@somewhere.com",
+        };
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Not found" }));
+    }
+
+    [Test]
+    public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsUnsuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        var update = new UpdateAccessDto
+        {
+            EmailAddress = "email@somewhere.com",
+            Access =
+            {
+                ManageAccess = false,
+            }
+        };
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Cannot remove your own user access" }));
+    }
+
+    [Test]
+    public async Task UpdateAccess_WhenUpdatingOwnAccess_ReturnsSuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        var update = new UpdateAccessDto
+        {
+            EmailAddress = "email@somewhere.com",
+            Access =
+            {
+                ManageAccess = true,
+                ExportData = true,
+            }
+        };
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
+        _userRepository.Verify(r => r.UpsertUser(user));
+    }
+
+    [Test]
+    public async Task UpdateAccess_WhenOtherUserAccess_ReturnsSuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            }
+        };
+        var otherUser = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = false,
+            }
+        };
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _userRepository.Setup(u => u.GetUser("other@somewhere.com")).ReturnsAsync(() => otherUser);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        var update = new UpdateAccessDto
+        {
+            EmailAddress = "other@somewhere.com",
+            Access =
+            {
+                ExportData = true,
+            }
+        };
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
+        _userRepository.Verify(r => r.UpsertUser(otherUser));
+    }
 }
