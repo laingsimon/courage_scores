@@ -16,7 +16,7 @@ public class TableAccessor : ITableAccessor
 
     public string TableName { get; }
 
-    public async Task ExportData(Database database, ExportDataResultDto result, ZipBuilder builder,
+    public async Task ExportData(Database database, ExportDataResultDto result, IZipBuilder builder,
         ExportDataRequestDto request, CancellationToken token)
     {
         result.Tables.Add(TableName, 0);
@@ -41,7 +41,7 @@ public class TableAccessor : ITableAccessor
         }
     }
 
-    private async Task ExportRow(JObject record, ExportDataResultDto result, ZipBuilder builder, ExportDataRequestDto request)
+    private async Task ExportRow(JObject record, ExportDataResultDto result, IZipBuilder builder, ExportDataRequestDto request)
     {
         var deleted = record.Value<DateTime?>("Deleted");
         if (deleted.HasValue && !request.IncludeDeletedEntries)

@@ -2,5 +2,5 @@ namespace CourageScores.Services.Data;
 
 public interface IZipBuilderFactory
 {
-    Task<ZipBuilder> Create(string? password, CancellationToken token);
+    Task<IZipBuilder> Create(string? password, CancellationToken token);
 }

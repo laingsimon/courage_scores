@@ -22,14 +22,19 @@ public class ZipBuilderFactory : IZipBuilderFactory
         _serializer = serializer;
     }
 
-    public async Task<ZipBuilder> Create(string? password, CancellationToken token)
+    public async Task<IZipBuilder> Create(string? password, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            throw new InvalidOperationException("Not logged in");
+        }
+
         var apiRequest = _httpContextAccessor.HttpContext?.Request;
         var metaData = new ExportMetaData
         {
             Created = _clock.UtcNow.UtcDateTime,
-            Creator = user!.Name,
+            Creator = user.Name,
             Hostname = apiRequest!.Host.ToString(),
         };
 

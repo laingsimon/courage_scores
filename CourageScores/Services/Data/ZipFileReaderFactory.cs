@@ -1,7 +1,9 @@
-﻿using Ionic.Zip;
+﻿using System.Diagnostics.CodeAnalysis;
+using Ionic.Zip;
 
 namespace CourageScores.Services.Data;
 
+[ExcludeFromCodeCoverage]
 public class ZipFileReaderFactory : IZipFileReaderFactory
 {
     private readonly IJsonSerializerService _serializer;
