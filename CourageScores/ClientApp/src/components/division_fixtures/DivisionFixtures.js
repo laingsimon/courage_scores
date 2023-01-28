@@ -395,7 +395,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
         const notesForDate = date.notes;
 
-        const hasFixtures = fixturesForDate.filter(f => f.id !== f.homeTeam.id).length > 0;
+        const hasFixtures = date.fixtures.filter(f => f.id !== f.homeTeam.id).length > 0;
         if (!isAdmin && !hasFixtures) {
             fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
         }
