@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
+
 namespace CourageScores.Tests.Services.Identity;
 
 [TestFixture]
@@ -30,7 +32,7 @@ public class UserServiceTests
     private ISimpleAdapter<User, UserDto> _userAdapter;
     private AccessAdapter _accessAdapter;
     private CancellationToken _token;
-    private Mock<IGenericRepository<Team>> _teamRepository;
+    private Mock<IGenericRepository<CosmosTeam>> _teamRepository;
 #pragma warning restore CS8618
 
     [SetUp]
@@ -41,7 +43,7 @@ public class UserServiceTests
         _authenticationService = new Mock<IAuthenticationService>();
         _accessAdapter = new AccessAdapter();
         _userAdapter = new UserAdapter(_accessAdapter);
-        _teamRepository = new Mock<IGenericRepository<Team>>();
+        _teamRepository = new Mock<IGenericRepository<CosmosTeam>>();
         _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter, _teamRepository.Object);
         _httpContextServices = new Mock<IServiceProvider>();
         _token = new CancellationToken();
@@ -140,7 +142,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetUser(_token);
 
@@ -161,7 +163,7 @@ public class UserServiceTests
         identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
         var user = new User();
-        var team = new Team
+        var team = new CosmosTeam
         {
             Seasons =
             {
@@ -202,7 +204,7 @@ public class UserServiceTests
         identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
         var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
         var user = new User();
-        var team = new Team
+        var team = new CosmosTeam
         {
             Seasons =
             {
@@ -253,7 +255,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetUser(_token);
 
@@ -300,7 +302,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetUser("someoneelse@somewhere.com", _token);
 
@@ -331,7 +333,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
         _userRepository.Setup(u => u.GetUser("someoneelse@somewhere.com")).ReturnsAsync(() => null);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetUser("someoneelse@somewhere.com", _token);
 
@@ -363,7 +365,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
         _userRepository.Setup(u => u.GetUser(otherUser.EmailAddress)).ReturnsAsync(() => otherUser);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetUser(otherUser.EmailAddress, _token);
 
@@ -412,7 +414,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto();
 
         var result = await _service.UpdateAccess(update, _token);
@@ -444,7 +446,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
         _userRepository.Setup(u => u.GetUser("update@somewhere.com")).ReturnsAsync(() => null);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
             EmailAddress = "update@somewhere.com",
@@ -478,7 +480,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
             EmailAddress = "email@somewhere.com",
@@ -516,7 +518,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
             EmailAddress = "email@somewhere.com",
@@ -564,7 +566,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
         _userRepository.Setup(u => u.GetUser("other@somewhere.com")).ReturnsAsync(() => otherUser);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
             EmailAddress = "other@somewhere.com",
@@ -619,7 +621,7 @@ public class UserServiceTests
             .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetAll(_token).ToList();
 
@@ -649,7 +651,7 @@ public class UserServiceTests
             .ReturnsAsync(AuthenticateResult.Success(ticket));
         _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
         _userRepository.Setup(u => u.GetAll()).Returns(TestUtilities.AsyncEnumerable(user));
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<Team>());
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
 
         var result = await _service.GetAll(_token).ToList();
 

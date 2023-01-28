@@ -16,7 +16,7 @@ public class AddSeasonToTeamCommandTests
     private Mock<ISeasonService> _seasonService = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private AddSeasonToTeamCommand _command = null!;
-    private Team _team = null!;
+    private CourageScores.Models.Cosmos.Team.Team _team = null!;
     private SeasonDto _season = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
@@ -27,7 +27,7 @@ public class AddSeasonToTeamCommandTests
         _auditingHelper = new Mock<IAuditingHelper>();
         _seasonService = new Mock<ISeasonService>();
         _command = new AddSeasonToTeamCommand(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
-        _team = new Team
+        _team = new CourageScores.Models.Cosmos.Team.Team
         {
             Id = Guid.NewGuid(),
             Name = "TEAM",

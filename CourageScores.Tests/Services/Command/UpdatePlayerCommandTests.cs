@@ -11,6 +11,8 @@ using CourageScores.Services.Season;
 using Moq;
 using NUnit.Framework;
 
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
+
 namespace CourageScores.Tests.Services.Command;
 
 [TestFixture]
@@ -23,7 +25,7 @@ public class UpdatePlayerCommandTests
     private Mock<IGenericRepository<Game>> _gameRepository = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private UpdatePlayerCommand _command = null!;
-    private Team _team = null!;
+    private CosmosTeam _team = null!;
     private TeamSeason _teamSeason = null!;
     private TeamPlayer _teamPlayer = null!;
     private SeasonDto _season = null!;
@@ -63,7 +65,7 @@ public class UpdatePlayerCommandTests
             SeasonId = _season.Id,
             Players = { _teamPlayer }
         };
-        _team = new Team
+        _team = new CosmosTeam
         {
             Id = Guid.Parse(UserTeamId),
             Seasons = { _teamSeason },

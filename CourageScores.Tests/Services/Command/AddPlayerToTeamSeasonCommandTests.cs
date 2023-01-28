@@ -10,6 +10,8 @@ using CourageScores.Services.Season;
 using Moq;
 using NUnit.Framework;
 
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
+
 namespace CourageScores.Tests.Services.Command;
 
 [TestFixture]
@@ -28,7 +30,7 @@ public class AddPlayerToTeamSeasonCommandTests
         Name = "SEASON",
     };
     private EditTeamPlayerDto _player = null!;
-    private Team _team = null!;
+    private CosmosTeam _team = null!;
     private AddPlayerToTeamSeasonCommand _command = null!;
     private UserDto? _user;
     private ScopedCacheManagementFlags _cacheFlags = null!;
@@ -44,7 +46,7 @@ public class AddPlayerToTeamSeasonCommandTests
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
 
         _player = new EditTeamPlayerDto();
-        _team = new Team
+        _team = new CosmosTeam
         {
             Id = Guid.Parse(UserTeamId),
             Name = "TEAM",

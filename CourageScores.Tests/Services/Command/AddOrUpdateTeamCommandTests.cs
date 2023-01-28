@@ -1,5 +1,4 @@
 ﻿using CourageScores.Filters;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
@@ -27,13 +26,13 @@ public class AddOrUpdateTeamCommandTests
     private readonly Guid _seasonId = Guid.NewGuid();
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
     private List<GameDto> _games = null!;
-    private Team _team = null!;
+    private CourageScores.Models.Cosmos.Team.Team _team = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _team = new Team
+        _team = new CourageScores.Models.Cosmos.Team.Team
         {
             Id = Guid.NewGuid(),
             Name = "old name",

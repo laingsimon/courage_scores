@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
+
 namespace CourageScores.Tests.Services.Command;
 
 [TestFixture]
@@ -24,7 +26,7 @@ public class RemovePlayerCommandTests
         Name = "SEASON",
     };
     private TeamPlayer _teamPlayer = null!;
-    private Team _team = null!;
+    private CosmosTeam _team = null!;
     private UserDto? _user;
     private RemovePlayerCommand _command = null!;
 
@@ -47,7 +49,7 @@ public class RemovePlayerCommandTests
             Id = Guid.NewGuid(),
             Name = "PLAYER",
         };
-        _team = new Team
+        _team = new CosmosTeam
         {
             Id = Guid.Parse(UserTeamId),
             Seasons =
