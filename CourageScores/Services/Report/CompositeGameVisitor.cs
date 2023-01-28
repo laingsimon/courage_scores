@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game;
 
 namespace CourageScores.Services.Report;
 
+[ExcludeFromCodeCoverage]
 public class CompositeGameVisitor : IGameVisitor
 {
     private readonly bool _canAccessManOfTheMatch;

@@ -1,3 +1,4 @@
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Repository;
 using CourageScores.Services.Division;
@@ -44,7 +45,7 @@ public class ReportService : IReportService
             return UnableToProduceReport("Division not found", request);
         }
 
-        var reportVisitors = GetReportVisitors(request).ToArray();
+        var reportVisitors = GetReportVisitors(request, user).ToArray();
         var reportVisitor = new CompositeGameVisitor(reportVisitors, user.Access.ManageScores);
         var games = _gameRepository.GetSome($"t.DivisionId = '{request.DivisionId}' and t.SeasonId = '{request.SeasonId}'", token);
         var gameCount = 0;
@@ -70,9 +71,13 @@ public class ReportService : IReportService
         };
     }
 
-    private static IEnumerable<IReport> GetReportVisitors(ReportRequestDto request)
+    private IEnumerable<IReport> GetReportVisitors(ReportRequestDto request, UserDto user)
     {
-        yield return new ManOfTheMatchReport(request.TopCount);
+        if (user.Access!.ManageScores)
+        {
+            yield return new ManOfTheMatchReport(request.TopCount);
+        }
+
         yield return new MostPlayedPlayerReport(topCount: request.TopCount);
         yield return new MostOneEightiesReport(request.TopCount);
         yield return new HighestCheckoutReport(request.TopCount);
