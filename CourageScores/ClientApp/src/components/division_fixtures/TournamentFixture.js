@@ -78,7 +78,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
                 return (<div key={side.id}>
                     <b>{side.name}</b>
                     {side.players.length > 0 ? ': ' : null}
-                    {side.players.length > 0 ? (<label className="csv-nodes">{side.players.map(p => (<span key={p.id}>{p.name}</span>))}</label>) : null}
+                    {side.players.length > 0 ? (<label className="csv-nodes">{side.players.map(p => (<Link key={p.id} to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{p.name}</Link>))}</label>) : null}
                 </div>); })}
         </div>);
     }
