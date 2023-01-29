@@ -6,7 +6,7 @@ import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {nameSort} from "../../Utilities";
 
-export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded }) {
+export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
     const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
@@ -68,18 +68,32 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         }
     }
 
+    function renderLinkToPlayer(player) {
+        if (allPlayers.filter(p => p.id === player.id).length > 0) {
+            return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${seasonId}`}>{player.name}</Link>);
+        }
+
+        return (<span>{player.name}</span>);
+    }
+
     function showTournamentSidesPlayers() {
         tournament.sides.sort(nameSort);
 
         return (<div>
             {tournament.sides.map(side => {
                 side.players.sort(nameSort);
+                const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
 
                 return (<div key={side.id}>
-                    <b>{side.name}</b>
-                    {side.players.length > 0 ? ': ' : null}
-                    {side.players.length > 0 ? (<label className="csv-nodes">{side.players.map(p => (<Link key={p.id} to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{p.name}</Link>))}</label>) : null}
-                </div>); })}
+                    {side.teamId
+                        ? (<Link to={`/division/${divisionId}/team:${side.teamId}/${seasonId}`}><strong>{side.name}</strong></Link>)
+                        : (<strong>{side.name}</strong>)}
+                    {side.players.length > 0 && !sideNameSameAsPlayerNames ? ': ' : null}
+                    {side.players.length > 0 && !sideNameSameAsPlayerNames
+                        ? (<label className="csv-nodes">{side.players.map(renderLinkToPlayer)}</label>)
+                        : null}
+                </div>);
+            })}
         </div>);
     }
 

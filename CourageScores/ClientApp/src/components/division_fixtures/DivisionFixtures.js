@@ -15,7 +15,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {NoteApi} from "../../api/note";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = account && account.access && account.access.manageGames;
@@ -44,7 +44,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
-    
+
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
             return {};
@@ -441,7 +441,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     seasonId={season.id}
                     divisionId={divisionId}
                     onTournamentChanged={onTournamentChanged}
-                    expanded={showPlayers[date.date]} />))}
+                    expanded={showPlayers[date.date]}
+                    allPlayers={allPlayers} />))}
                 </tbody>
             </table>
         </div>);
