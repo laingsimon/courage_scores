@@ -163,7 +163,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }
 
     function renderPlayers () {
-       if (side.players) {
+       if (!side.players) {
            return null;
        }
 
