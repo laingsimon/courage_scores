@@ -136,7 +136,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     async function updateSideName(event) {
         const newSide = Object.assign({}, side);
-        newSide.name = event.target.value;
+        newSide.newName = event.target.value;
         if (onChange) {
             await onChange(newSide);
         }
@@ -176,6 +176,18 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
        </ol>);
     }
 
+    async function completeSideNameChange() {
+        if (side.name !== (side.newName || side.name)) {
+            const newSide = Object.assign({}, side);
+            newSide.name = side.newName;
+            if (onChange) {
+                await onChange(newSide);
+            }
+        }
+
+        setChangeSideName(false);
+    }
+
     if (!side && !readOnly) {
         teamsAndPlayers.sort(tapSort)
         const allPlayers = teamsAndPlayers.map(toSelectablePlayer);
@@ -199,7 +211,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     allPlayers.sort(nameSort);
     return (<div className={`p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
-            ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
+            ? (<input type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
             : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
         {readOnly
             ? renderTeamName()
