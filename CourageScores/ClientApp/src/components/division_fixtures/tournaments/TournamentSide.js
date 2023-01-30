@@ -144,10 +144,12 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     async function updateTeamId(teamId) {
         const newSide = Object.assign({}, side);
-        newSide.teamId = teamId;
         if (teamId) {
             newSide.name = teamMap[teamId].name;
+        } else {
+            teamId = undefined;
         }
+        newSide.teamId = teamId;
         if (onChange) {
             await onChange(newSide);
         }
