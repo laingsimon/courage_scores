@@ -1,5 +1,4 @@
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;

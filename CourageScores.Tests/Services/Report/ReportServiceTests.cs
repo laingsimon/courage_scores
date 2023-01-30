@@ -79,7 +79,7 @@ public class ReportServiceTests
         _divisionService.Setup(s => s.Get(_division.Id, _token)).ReturnsAsync(_division);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<Game>(_game1, _game2));
+            .Returns(TestUtilities.AsyncEnumerable(_game1, _game2));
     }
 
     [Test]
