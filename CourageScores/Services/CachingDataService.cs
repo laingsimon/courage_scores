@@ -24,6 +24,42 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         _accessor = accessor;
     }
 
+    public Task<TDto?> Get(Guid id, CancellationToken token)
+    {
+        var key = new CacheKey(id, null);
+        return CacheIfNotLoggedIn(key, () => _underlyingService.Get(id, token), token);
+    }
+
+    public async IAsyncEnumerable<TDto> GetAll([EnumeratorCancellation] CancellationToken token)
+    {
+        var key = new CacheKey(null, null);
+        foreach (var item in await CacheIfNotLoggedIn(key, () => _underlyingService.GetAll(token).ToList(), token))
+        {
+            yield return item;
+        }
+    }
+
+    public async IAsyncEnumerable<TDto> GetWhere(string query, [EnumeratorCancellation] CancellationToken token)
+    {
+        var key = new CacheKey(null, query);
+        foreach (var item in await CacheIfNotLoggedIn(key, () => _underlyingService.GetWhere(query, token).ToList(), token))
+        {
+            yield return item;
+        }
+    }
+
+    public Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
+    {
+        InvalidateCaches(new[] { new CacheKey(id, null) });
+        return _underlyingService.Upsert(id, updateCommand, token);
+    }
+
+    public Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
+    {
+        InvalidateCaches(new[] { new CacheKey(id, null) });
+        return _underlyingService.Delete(id, token);
+    }
+
     protected async Task<T> CacheIfNotLoggedIn<T>(CacheKey key, Func<Task<T>> provider, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
@@ -52,44 +88,6 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             _memoryCache.Remove(key);
         }
     }
-
-    public Task<TDto?> Get(Guid id, CancellationToken token)
-    {
-        var key = new CacheKey(id, null);
-        return CacheIfNotLoggedIn(key, () => _underlyingService.Get(id, token), token);
-    }
-
-    public async IAsyncEnumerable<TDto> GetAll([EnumeratorCancellation] CancellationToken token)
-    {
-        var key = new CacheKey(null, null);
-        foreach (var item in await CacheIfNotLoggedIn(key, () => _underlyingService.GetAll(token).ToList(), token))
-        {
-            yield return item;
-        }
-    }
-
-    public async IAsyncEnumerable<TDto> GetWhere(string query, [EnumeratorCancellation] CancellationToken token)
-    {
-        var key = new CacheKey(null, query);
-        foreach (var item in await CacheIfNotLoggedIn(key, () => _underlyingService.GetWhere(query, token).ToList(), token))
-        {
-            yield return item;
-        }
-    }
-
-    #region uncached requests
-    public Task<ActionResultDto<TDto>> Upsert<TOut>(Guid id, IUpdateCommand<TModel, TOut> updateCommand, CancellationToken token)
-    {
-        InvalidateCaches(new[] { new CacheKey(id, null) });
-        return _underlyingService.Upsert(id, updateCommand, token);
-    }
-
-    public Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
-    {
-        InvalidateCaches(new[] { new CacheKey(id, null) });
-        return _underlyingService.Delete(id, token);
-    }
-    #endregion
 
     protected class CacheKey : IEquatable<CacheKey>
     {

@@ -67,16 +67,6 @@ public class CachingTeamServiceTests
     }
 
     [Test]
-    public async Task GetTeamsForSeason_GivenSeasonIdWhenLoggedOut_HydratesCache()
-    {
-        var seasonId = Guid.NewGuid();
-
-        await _service.GetTeamsForSeason(seasonId, _token).ToList();
-
-        _underlyingService.Verify(s => s.GetTeamsForSeason(seasonId, _token), Times.Once);
-    }
-
-    [Test]
     public async Task GetTeamsForSeason_GivenSeasonIdWhenLoggedOut_ReturnsFromCache()
     {
         var seasonId = Guid.NewGuid();
@@ -120,17 +110,6 @@ public class CachingTeamServiceTests
 
         _underlyingService.Verify(s => s.GetTeamsForSeason(seasonId, divisionId, _token));
         Assert.That(result, Is.EquivalentTo(_seasonIdAndDivisionIdTeams));
-    }
-
-    [Test]
-    public async Task GetTeamsForSeason_GivenSeasonAndDivisionIdWhenLoggedOut_HydratesCache()
-    {
-        var seasonId = Guid.NewGuid();
-        var divisionId = Guid.NewGuid();
-
-        await _service.GetTeamsForSeason(seasonId, divisionId, _token).ToList();
-
-        _underlyingService.Verify(s => s.GetTeamsForSeason(seasonId, divisionId, _token), Times.Once);
     }
 
     [Test]
