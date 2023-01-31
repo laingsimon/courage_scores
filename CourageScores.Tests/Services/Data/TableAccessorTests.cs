@@ -1,5 +1,4 @@
 using System.Text;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Data;
 using Microsoft.Azure.Cosmos;
@@ -135,7 +134,7 @@ public class TableAccessorTests
 
     private static JObject Row(DateTime? deleted = null)
     {
-        var row = new Division
+        var row = new CourageScores.Models.Cosmos.Division
         {
             Deleted = deleted,
             Id = Guid.NewGuid(),

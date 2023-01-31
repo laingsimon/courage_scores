@@ -1,5 +1,4 @@
 using System.Net;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
@@ -32,7 +31,7 @@ public class DataImporterTests
         _request = new ImportDataRequestDto();
         _result = new ImportDataResultDto();
         _zip = new Mock<IZipFileReader>();
-        _fileContent = JObject.FromObject(new Division());
+        _fileContent = JObject.FromObject(new CourageScores.Models.Cosmos.Division());
         _zipFiles = new List<string>
         {
             "8AEDEC81-8D28-475B-893E-A34FC60FB0C2.json",

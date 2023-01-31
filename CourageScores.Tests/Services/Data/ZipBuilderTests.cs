@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Services.Data;
 using Ionic.Zip;
 using Newtonsoft.Json.Linq;
@@ -14,7 +13,7 @@ public class ZipBuilderTests
     {
         var zip = new ZipBuilder(null);
 
-        await zip.AddFile("table", "id", JObject.FromObject(new Division()));
+        await zip.AddFile("table", "id", JObject.FromObject(new CourageScores.Models.Cosmos.Division()));
 
         var files = ZipFile.Read(new MemoryStream(await zip.CreateZip())).Entries.Select(e => e.FileName);
         Assert.That(files, Is.EqualTo(new[] { "table/id.json"}));

@@ -1,5 +1,4 @@
 using CourageScores.Filters;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Command;
 using NUnit.Framework;
@@ -13,7 +12,7 @@ public class AddOrUpdateDivisionCommandTests
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private AddOrUpdateDivisionCommand _command = null!;
     private EditDivisionDto _update = null!;
-    private Division _division = null!;
+    private CourageScores.Models.Cosmos.Division _division = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -21,7 +20,7 @@ public class AddOrUpdateDivisionCommandTests
         _cacheFlags = new ScopedCacheManagementFlags();
         _command = new AddOrUpdateDivisionCommand(_cacheFlags);
         _update = new EditDivisionDto();
-        _division = new Division
+        _division = new CourageScores.Models.Cosmos.Division
         {
             Name = "name",
             Id = Guid.NewGuid(),
