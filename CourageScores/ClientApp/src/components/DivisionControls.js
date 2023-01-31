@@ -151,7 +151,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         const index = mode.indexOf(':');
         return index === -1
             ? mode
-            : mode.substring(0, index);
+            : mode.substring(0, index) + 's';
     }
 
     async function createDivision() {
