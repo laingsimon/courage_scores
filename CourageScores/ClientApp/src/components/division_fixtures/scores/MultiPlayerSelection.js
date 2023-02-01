@@ -32,11 +32,11 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     }
 
     function renderLinkToPlayer(p) {
-        if (!divisionId || !seasonId) {
+        if (!(divisionId || p.divisionId) || !seasonId) {
             return playerName(p);
         }
 
-        return (<Link to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
+        return (<Link to={`/division/${(divisionId || p.divisionId)}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
     }
 
     return (<div>
