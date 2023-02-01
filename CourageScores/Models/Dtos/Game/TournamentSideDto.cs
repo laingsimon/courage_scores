@@ -18,5 +18,5 @@ public class TournamentSideDto : AuditedDto
     /// <summary>
     /// The players in this side, e.g. the 2 players from the same team for doubles
     /// </summary>
-    public List<GamePlayerDto> Players { get; set; } = new();
+    public List<TournamentSidePlayerDto> Players { get; set; } = new();
 }

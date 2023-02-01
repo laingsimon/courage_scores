@@ -136,7 +136,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await _auditingHelper.SetUpdated(match, token);
     }
 
-    private async Task SetPlayersUpdated(List<GamePlayer> players, CancellationToken token)
+    private async Task SetPlayersUpdated(List<TournamentSidePlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {

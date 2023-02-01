@@ -8,11 +8,11 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class TournamentSideAdapterTests
 {
-    private static readonly GamePlayer Player = new GamePlayer();
-    private static readonly GamePlayerDto PlayerDto = new GamePlayerDto();
+    private static readonly TournamentSidePlayer Player = new TournamentSidePlayer();
+    private static readonly TournamentSidePlayerDto PlayerDto = new TournamentSidePlayerDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly TournamentSideAdapter _adapter = new TournamentSideAdapter(
-        new MockAdapter<GamePlayer, GamePlayerDto>(Player, PlayerDto));
+        new MockAdapter<TournamentSidePlayer, TournamentSidePlayerDto>(Player, PlayerDto));
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
