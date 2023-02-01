@@ -2,5 +2,5 @@
 
 public interface INotablePlayer : IGamePlayer
 {
-    string Notes { get; }
+    string? Notes { get; }
 }
