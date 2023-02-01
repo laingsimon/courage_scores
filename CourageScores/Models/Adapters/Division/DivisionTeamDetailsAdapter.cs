@@ -10,6 +10,7 @@ public class DivisionTeamDetailsAdapter : IDivisionTeamDetailsAdapter
         return Task.FromResult(new DivisionTeamDetailsDto
         {
             Id = team.Id,
+            DivisionId = team.DivisionId,
             Name = team.Name,
         });
     }

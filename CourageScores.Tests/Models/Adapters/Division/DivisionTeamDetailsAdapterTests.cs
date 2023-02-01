@@ -17,11 +17,13 @@ public class DivisionTeamDetailsAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "team",
+            DivisionId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
     }
 }
