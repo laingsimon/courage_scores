@@ -158,9 +158,9 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         };
     }
 
-    private NotablePlayer AdaptToHiCheckPlayer(EditTournamentGameDto.TournamentOver100CheckoutDto player, UserDto user)
+    private NotableTournamentPlayer AdaptToHiCheckPlayer(EditTournamentGameDto.TournamentOver100CheckoutDto player, UserDto user)
     {
-        return new NotablePlayer
+        return new NotableTournamentPlayer
         {
             Id = player.Id,
             Name = player.Name,
@@ -169,6 +169,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Editor = user.Name,
             Updated = _systemClock.UtcNow.UtcDateTime,
             Notes = player.Notes,
+            DivisionId = player.DivisionId,
         };
     }
 }

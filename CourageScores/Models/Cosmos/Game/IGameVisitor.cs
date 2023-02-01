@@ -26,7 +26,7 @@ public interface IGameVisitor
     {
     }
 
-    void VisitHiCheckout(NotablePlayer player)
+    void VisitHiCheckout(INotablePlayer player)
     {
     }
 

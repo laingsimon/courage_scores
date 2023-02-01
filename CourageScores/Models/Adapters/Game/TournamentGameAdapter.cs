@@ -9,13 +9,13 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
     private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _playerAdapter;
-    private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
+    private readonly IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _notablePlayerAdapter;
 
     public TournamentGameAdapter(
         IAdapter<TournamentRound, TournamentRoundDto> roundAdapter,
         IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
         IAdapter<TournamentPlayer, TournamentPlayerDto> playerAdapter,
-        IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter)
+        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> notablePlayerAdapter)
     {
         _roundAdapter = roundAdapter;
         _sideAdapter = sideAdapter;

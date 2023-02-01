@@ -1,10 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace CourageScores.Models.Cosmos.Game;
+namespace CourageScores.Models.Dtos.Game;
 
-[SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Global")]
 [ExcludeFromCodeCoverage]
-public class NotablePlayer : GamePlayer, INotablePlayer
+public class NotableTournamentPlayerDto : TournamentPlayerDto
 {
     /// <summary>
     /// Any notes about the player, e.g. new player, the checkout amount, etc.
