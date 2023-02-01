@@ -56,7 +56,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
                         team.players = t.players;
                     }
 
-                    return { team: t, player: p };
+                    return { team: t, player: Object.assign({}, p, { divisionId: t.divisionId }) };
                 })
                 .filter(mapping => mapping != null);
     });
@@ -68,7 +68,8 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         newSide.teamId = player.team.id;
         newSide.players.push({
             id: player.id,
-            name: player.originalName
+            name: player.originalName,
+            divisionId: player.divisionId
         });
         newSide.name = newSide.players.length === 1 ? newSide.players[0].name : player.team.name;
         if (onChange) {
@@ -106,11 +107,15 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }
 
     function toSelectablePlayer(tap) {
-        if (side) {
-            return { id: tap.player.id, name: tap.player.name, originalName: tap.player.name, team: tap.team };
-        }
-
-        return { id: tap.player.id, name: `${tap.player.name} (${tap.team.name})`, originalName: tap.player.name, team: tap.team };
+        return {
+            id: tap.player.id,
+            name: side
+                ? tap.player.name
+                : `${tap.player.name} (${tap.team.name})`,
+            originalName: tap.player.name,
+            team: tap.team,
+            divisionId: tap.player.divisionId
+        };
     }
 
     function tapSort(x, y) {
