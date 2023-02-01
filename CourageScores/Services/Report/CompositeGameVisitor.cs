@@ -48,7 +48,7 @@ public class CompositeGameVisitor : IGameVisitor
         ForEachVisitor(visitor => visitor.VisitMatchLost(players, team));
     }
 
-    public void VisitOneEighty(GamePlayer player)
+    public void VisitOneEighty(IGamePlayer player)
     {
         ForEachVisitor(visitor => visitor.VisitOneEighty(player));
     }
@@ -76,7 +76,7 @@ public class CompositeGameVisitor : IGameVisitor
         ForEachVisitor(visitor => visitor.VisitPlayer(player, matchPlayerCount));
     }
 
-    public void VisitTournamentPlayer(TournamentSidePlayer player)
+    public void VisitTournamentPlayer(TournamentPlayer player)
     {
         ForEachVisitor(visitor => visitor.VisitTournamentPlayer(player));
     }

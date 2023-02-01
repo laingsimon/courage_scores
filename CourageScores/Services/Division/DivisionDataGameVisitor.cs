@@ -73,7 +73,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitOneEighty(GamePlayer player)
+    public void VisitOneEighty(IGamePlayer player)
     {
         if (_divisionData.Players.TryGetValue(player.Id, out var score))
         {

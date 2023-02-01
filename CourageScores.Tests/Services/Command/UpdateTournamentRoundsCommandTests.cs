@@ -20,7 +20,7 @@ public class UpdateTournamentRoundsCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        var sideAdapter = new TournamentSideAdapter(new TournamentSidePlayerAdapter());
+        var sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
         _game = new TournamentGame();
         _update = new TournamentRoundDto();
         _cacheFlags = new ScopedCacheManagementFlags();
@@ -82,7 +82,7 @@ public class UpdateTournamentRoundsCommandTests
             Name = "Side 1",
             Players =
             {
-                new TournamentSidePlayerDto
+                new TournamentPlayerDto
                 {
                     Name = "Player",
                     Id = Guid.NewGuid(),
@@ -96,7 +96,7 @@ public class UpdateTournamentRoundsCommandTests
             Name = "Side 2",
             Players =
             {
-                new TournamentSidePlayerDto
+                new TournamentPlayerDto
                 {
                     Name = "Player",
                     Id = Guid.NewGuid(),
@@ -202,13 +202,13 @@ public class UpdateTournamentRoundsCommandTests
                    && IsEqual(side.Players, updateSide.Players);
         }
 
-        private static bool IsEqual(IReadOnlyCollection<TournamentSidePlayer> players, IReadOnlyCollection<TournamentSidePlayerDto> updatePlayers)
+        private static bool IsEqual(IReadOnlyCollection<TournamentPlayer> players, IReadOnlyCollection<TournamentPlayerDto> updatePlayers)
         {
             return players.Count == updatePlayers.Count
                    && players.Zip(updatePlayers, IsEqual).All(doesMatch => doesMatch);
         }
 
-        private static bool IsEqual(TournamentSidePlayer player, TournamentSidePlayerDto updatePlayer)
+        private static bool IsEqual(TournamentPlayer player, TournamentPlayerDto updatePlayer)
         {
             return player.Id == updatePlayer.Id
                    && player.Name == updatePlayer.Name

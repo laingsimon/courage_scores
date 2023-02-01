@@ -116,7 +116,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<TournamentMatch, TournamentMatchDto, TournamentMatchAdapter>(services);
         AddAdapter<TournamentRound, TournamentRoundDto, TournamentRoundAdapter>(services);
         AddAdapter<FixtureDateNote, FixtureDateNoteDto, FixtureDateNoteAdapter>(services);
-        AddAdapter<TournamentSidePlayer, TournamentSidePlayerDto, TournamentSidePlayerAdapter>(services);
+        AddAdapter<TournamentPlayer, TournamentPlayerDto, TournamentPlayerAdapter>(services);
 
         AddAdapter<Team, TeamDto, TeamAdapter>(services);
         AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);

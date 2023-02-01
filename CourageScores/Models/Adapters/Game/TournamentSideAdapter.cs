@@ -6,9 +6,9 @@ namespace CourageScores.Models.Adapters.Game;
 
 public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
 {
-    private readonly IAdapter<TournamentSidePlayer, TournamentSidePlayerDto> _playerAdapter;
+    private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _playerAdapter;
 
-    public TournamentSideAdapter(IAdapter<TournamentSidePlayer, TournamentSidePlayerDto> playerAdapter)
+    public TournamentSideAdapter(IAdapter<TournamentPlayer, TournamentPlayerDto> playerAdapter)
     {
         _playerAdapter = playerAdapter;
     }

@@ -8,18 +8,18 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
 {
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
-    private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
+    private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _playerAdapter;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
 
     public TournamentGameAdapter(
         IAdapter<TournamentRound, TournamentRoundDto> roundAdapter,
         IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
-        IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
+        IAdapter<TournamentPlayer, TournamentPlayerDto> playerAdapter,
         IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter)
     {
         _roundAdapter = roundAdapter;
         _sideAdapter = sideAdapter;
-        _gamePlayerAdapter = gamePlayerAdapter;
+        _playerAdapter = playerAdapter;
         _notablePlayerAdapter = notablePlayerAdapter;
     }
 
@@ -33,7 +33,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             SeasonId = model.SeasonId,
             Address = model.Address,
-            OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            OneEighties = await model.OneEighties.SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             Notes = model.Notes,
             Type = model.Type,
@@ -50,7 +50,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             SeasonId = dto.SeasonId,
             Address = dto.Address.Trim(),
-            OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            OneEighties = await dto.OneEighties.SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             Notes = dto.Notes?.Trim(),
             Type = dto.Type?.Trim(),

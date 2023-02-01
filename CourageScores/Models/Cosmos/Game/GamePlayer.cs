@@ -6,7 +6,7 @@ namespace CourageScores.Models.Cosmos.Game;
 /// The details of a player who was playing
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class GamePlayer : AuditedEntity
+public class GamePlayer : AuditedEntity, IGamePlayer
 {
     /// <summary>
     /// The name of the player

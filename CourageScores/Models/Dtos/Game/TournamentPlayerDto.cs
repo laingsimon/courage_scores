@@ -1,12 +1,12 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace CourageScores.Models.Cosmos.Game;
+namespace CourageScores.Models.Dtos.Game;
 
 /// <summary>
 /// The details of a player who was playing
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class TournamentSidePlayer : AuditedEntity
+public class TournamentPlayerDto : AuditedDto
 {
     /// <summary>
     /// The name of the player

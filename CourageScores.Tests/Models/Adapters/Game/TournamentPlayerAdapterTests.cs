@@ -6,15 +6,15 @@ using NUnit.Framework;
 namespace CourageScores.Tests.Models.Adapters.Game;
 
 [TestFixture]
-public class TournamentSidePlayerAdapterTests
+public class TournamentPlayerAdapterTests
 {
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly TournamentSidePlayerAdapter _adapter = new TournamentSidePlayerAdapter();
+    private readonly TournamentPlayerAdapter _adapter = new TournamentPlayerAdapter();
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()
     {
-        var model = new TournamentSidePlayer
+        var model = new TournamentPlayer
         {
             Id = Guid.NewGuid(),
             Name = "Simon",
@@ -31,7 +31,7 @@ public class TournamentSidePlayerAdapterTests
     [Test]
     public async Task Adapt_GivenDto_MapsPropertiesCorrectly()
     {
-        var dto = new TournamentSidePlayerDto
+        var dto = new TournamentPlayerDto
         {
             Id = Guid.NewGuid(),
             Name = "Simon",
@@ -48,7 +48,7 @@ public class TournamentSidePlayerAdapterTests
     [Test]
     public async Task Adapt_GivenDto_TrimsTrailingWhitespace()
     {
-        var dto = new TournamentSidePlayerDto
+        var dto = new TournamentPlayerDto
         {
             Name = "Simon   ",
         };

@@ -36,7 +36,7 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
-    public List<GamePlayer> OneEighties { get; set; } = new();
+    public List<TournamentPlayer> OneEighties { get; set; } = new();
 
     /// <summary>
     /// Who checked out with more than 100

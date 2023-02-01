@@ -29,7 +29,7 @@ public class TournamentSideTests
     public void Adapt_GivenPlayers_ShouldVisitPlayers()
     {
         var visitor = new Mock<IGameVisitor>();
-        var player = new TournamentSidePlayer();
+        var player = new TournamentPlayer();
         _side.Players.Add(player);
 
         _side.Accept(visitor.Object);

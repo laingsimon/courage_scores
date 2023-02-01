@@ -29,14 +29,14 @@ public class DivisionTournamentFixtureDetailsAdapterTests
         {
             Players =
             {
-                new TournamentSidePlayer { Id = Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357") },
+                new TournamentPlayer { Id = Guid.Parse("B5817736-EF78-4FFE-9701-0B8DF9490357") },
             }
         };
         var runnerUp = new TournamentSide
         {
             Players =
             {
-                new TournamentSidePlayer { Id = Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C") },
+                new TournamentPlayer { Id = Guid.Parse("126B746E-CFF8-4869-8FB9-75D9E0D8AC5C") },
             }
         };
         var game = new TournamentGame
@@ -86,7 +86,7 @@ public class DivisionTournamentFixtureDetailsAdapterTests
             Sides = Enumerable.Range(1, sideCount).Select(sideNo => new TournamentSide
             {
                 Name = sideNo.ToString(),
-                Players = Enumerable.Range(1, playerCount).Select(playerNo => new TournamentSidePlayer { Name = playerNo.ToString() }).ToList(),
+                Players = Enumerable.Range(1, playerCount).Select(playerNo => new TournamentPlayer { Name = playerNo.ToString() }).ToList(),
             }).ToList(),
         };
         var sideDto = new TournamentSideDto();

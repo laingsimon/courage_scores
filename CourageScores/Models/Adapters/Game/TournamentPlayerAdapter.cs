@@ -3,11 +3,11 @@ using CourageScores.Models.Dtos.Game;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class TournamentSidePlayerAdapter : IAdapter<TournamentSidePlayer, TournamentSidePlayerDto>
+public class TournamentPlayerAdapter : IAdapter<TournamentPlayer, TournamentPlayerDto>
 {
-    public Task<TournamentSidePlayerDto> Adapt(TournamentSidePlayer model, CancellationToken token)
+    public Task<TournamentPlayerDto> Adapt(TournamentPlayer model, CancellationToken token)
     {
-        return Task.FromResult(new TournamentSidePlayerDto
+        return Task.FromResult(new TournamentPlayerDto
         {
             Id = model.Id,
             Name = model.Name,
@@ -15,9 +15,9 @@ public class TournamentSidePlayerAdapter : IAdapter<TournamentSidePlayer, Tourna
         }.AddAuditProperties(model));
     }
 
-    public Task<TournamentSidePlayer> Adapt(TournamentSidePlayerDto dto, CancellationToken token)
+    public Task<TournamentPlayer> Adapt(TournamentPlayerDto dto, CancellationToken token)
     {
-        return Task.FromResult(new TournamentSidePlayer
+        return Task.FromResult(new TournamentPlayer
         {
             Id = dto.Id,
             Name = dto.Name.Trim(),

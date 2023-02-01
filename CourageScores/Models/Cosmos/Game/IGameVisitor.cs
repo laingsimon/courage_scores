@@ -22,7 +22,7 @@ public interface IGameVisitor
     {
     }
 
-    void VisitOneEighty(GamePlayer player)
+    void VisitOneEighty(IGamePlayer player)
     {
     }
 
@@ -42,7 +42,7 @@ public interface IGameVisitor
     {
     }
 
-    void VisitTournamentPlayer(TournamentSidePlayer player)
+    void VisitTournamentPlayer(TournamentPlayer player)
     {
     }
 
