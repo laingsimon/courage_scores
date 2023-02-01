@@ -20,7 +20,7 @@ public class UpdateTournamentRoundsCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        var sideAdapter = new TournamentSideAdapter(new GamePlayerAdapter());
+        var sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
         _game = new TournamentGame();
         _update = new TournamentRoundDto();
         _cacheFlags = new ScopedCacheManagementFlags();
@@ -82,10 +82,11 @@ public class UpdateTournamentRoundsCommandTests
             Name = "Side 1",
             Players =
             {
-                new GamePlayerDto
+                new TournamentPlayerDto
                 {
                     Name = "Player",
                     Id = Guid.NewGuid(),
+                    DivisionId = Guid.NewGuid(),
                 }
             }
         };
@@ -95,10 +96,11 @@ public class UpdateTournamentRoundsCommandTests
             Name = "Side 2",
             Players =
             {
-                new GamePlayerDto
+                new TournamentPlayerDto
                 {
                     Name = "Player",
                     Id = Guid.NewGuid(),
+                    DivisionId = Guid.NewGuid(),
                 }
             }
         };
@@ -200,16 +202,17 @@ public class UpdateTournamentRoundsCommandTests
                    && IsEqual(side.Players, updateSide.Players);
         }
 
-        private static bool IsEqual(IReadOnlyCollection<GamePlayer> players, IReadOnlyCollection<GamePlayerDto> updatePlayers)
+        private static bool IsEqual(IReadOnlyCollection<TournamentPlayer> players, IReadOnlyCollection<TournamentPlayerDto> updatePlayers)
         {
             return players.Count == updatePlayers.Count
                    && players.Zip(updatePlayers, IsEqual).All(doesMatch => doesMatch);
         }
 
-        private static bool IsEqual(GamePlayer player, GamePlayerDto updatePlayer)
+        private static bool IsEqual(TournamentPlayer player, TournamentPlayerDto updatePlayer)
         {
             return player.Id == updatePlayer.Id
-                   && player.Name == updatePlayer.Name;
+                   && player.Name == updatePlayer.Name
+                   && player.DivisionId == updatePlayer.DivisionId;
         }
 
         private static bool IsEqual(IReadOnlyCollection<TournamentMatch> matches, IReadOnlyCollection<TournamentMatchDto> updateMatches)

@@ -19,7 +19,19 @@ public class EditTournamentGameDto
     [ExcludeFromCodeCoverage]
     public class RecordTournamentScoresPlayerDto
     {
+        /// <summary>
+        /// The division in which the player plays
+        /// </summary>
+        public Guid DivisionId { get; set; }
+
+        /// <summary>
+        /// The id of the player
+        /// </summary>
         public Guid Id { get; set; }
+
+        /// <summary>
+        /// The name of the player
+        /// </summary>
         public string Name { get; set; } = null!;
     }
 

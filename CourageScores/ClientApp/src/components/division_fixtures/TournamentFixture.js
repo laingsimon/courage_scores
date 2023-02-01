@@ -97,6 +97,16 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         </div>);
     }
 
+    function renderWinner(winningSide) {
+        if (winningSide.teamId) {
+            return (<strong className="text-primary">
+                <Link to={`/division/${divisionId}/team:${winningSide.teamId}/${seasonId}`}>{winningSide.name}</Link>
+            </strong>);
+        }
+
+        return (<strong className="text-primary">{winningSide.name}</strong>);
+    }
+
     if (isProposedTournament && !isAdmin) {
         // don't show proposed tournament addresses when not an admin
         return null;
@@ -126,7 +136,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         </td>
         {tournament.winningSide ? (<td colSpan="2">
             {tournament.winningSide
-                ? (<span className="margin-left">Winner: <strong className="text-primary">{tournament.winningSide.name}</strong></span>)
+                ? (<span className="margin-left">Winner: {renderWinner(tournament.winningSide)}</span>)
                 : null}
         </td>) : null}
         {isAdmin ? (<td className="medium-column-width">

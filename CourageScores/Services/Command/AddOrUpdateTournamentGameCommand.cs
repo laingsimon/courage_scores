@@ -136,7 +136,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await _auditingHelper.SetUpdated(match, token);
     }
 
-    private async Task SetPlayersUpdated(List<GamePlayer> players, CancellationToken token)
+    private async Task SetPlayersUpdated(List<TournamentPlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {
@@ -144,9 +144,9 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
     }
 
-    private GamePlayer AdaptToPlayer(EditTournamentGameDto.RecordTournamentScoresPlayerDto player, UserDto user)
+    private TournamentPlayer AdaptToPlayer(EditTournamentGameDto.RecordTournamentScoresPlayerDto player, UserDto user)
     {
-        return new GamePlayer
+        return new TournamentPlayer
         {
             Id = player.Id,
             Name = player.Name,
@@ -154,12 +154,13 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Created = _systemClock.UtcNow.UtcDateTime,
             Editor = user.Name,
             Updated = _systemClock.UtcNow.UtcDateTime,
+            DivisionId = player.DivisionId,
         };
     }
 
-    private NotablePlayer AdaptToHiCheckPlayer(EditTournamentGameDto.TournamentOver100CheckoutDto player, UserDto user)
+    private NotableTournamentPlayer AdaptToHiCheckPlayer(EditTournamentGameDto.TournamentOver100CheckoutDto player, UserDto user)
     {
-        return new NotablePlayer
+        return new NotableTournamentPlayer
         {
             Id = player.Id,
             Name = player.Name,
@@ -168,6 +169,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Editor = user.Name,
             Updated = _systemClock.UtcNow.UtcDateTime,
             Notes = player.Notes,
+            DivisionId = player.DivisionId,
         };
     }
 }

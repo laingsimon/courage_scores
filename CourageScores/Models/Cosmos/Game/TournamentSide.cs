@@ -15,7 +15,7 @@ public class TournamentSide : AuditedEntity, IGameVisitable
     /// <summary>
     /// The players in this side, e.g. the 2 players from the same team for doubles
     /// </summary>
-    public List<GamePlayer> Players { get; set; } = new();
+    public List<TournamentPlayer> Players { get; set; } = new();
 
     public void Accept(IGameVisitor visitor)
     {

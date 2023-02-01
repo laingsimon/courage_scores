@@ -105,9 +105,13 @@ export function Tournament({ account, apis }) {
 
         const players = teams
             .filter(t => selectedTournamentTeams.filter(id => id === t.id).length > 0)
-            .map(t => t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0])
-            .filter(ts => ts)
-            .flatMap(ts => ts.players);
+            .map(t => {
+                return { teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], divisionId: t.divisionId };
+            })
+            .filter(mapping => mapping.teamSeason)
+            .flatMap(mapping => mapping.teamSeason.players.map(p => {
+                return Object.assign({}, p, mapping.divisionId);
+            }));
         players.sort(nameSort);
 
         return players;

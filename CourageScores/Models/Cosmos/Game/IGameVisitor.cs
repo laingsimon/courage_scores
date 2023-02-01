@@ -22,11 +22,11 @@ public interface IGameVisitor
     {
     }
 
-    void VisitOneEighty(GamePlayer player)
+    void VisitOneEighty(IGamePlayer player)
     {
     }
 
-    void VisitHiCheckout(NotablePlayer player)
+    void VisitHiCheckout(INotablePlayer player)
     {
     }
 
@@ -42,7 +42,7 @@ public interface IGameVisitor
     {
     }
 
-    void VisitTournamentPlayer(GamePlayer player)
+    void VisitTournamentPlayer(TournamentPlayer player)
     {
     }
 
