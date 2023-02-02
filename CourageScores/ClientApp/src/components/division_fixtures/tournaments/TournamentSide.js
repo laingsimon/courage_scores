@@ -86,7 +86,11 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
                 newSide.name = newSide.players[0].name;
                 break;
             case 0:
-                newSide.name = teamMap[newSide.teamId].name;
+                if (teamMap[newSide.teamId]) {
+                    newSide.name = teamMap[newSide.teamId].name;
+                } else {
+                    newSide.team = null;
+                }
                 break;
             default:
                 break;
