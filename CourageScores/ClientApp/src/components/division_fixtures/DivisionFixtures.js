@@ -411,7 +411,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 {tournamentFixturesForDate.length > 0 ? (
                     <span className="margin-left form-switch h6 text-body">
                         <input type="checkbox" className="form-check-input align-baseline"
-                               id={'showPlayers_' + date.date} checked={showPlayers[date.date]} onChange={() => toggleShowPlayers(date.date)} />
+                               id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
                         <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                     </span>) : null}
             </h4>
