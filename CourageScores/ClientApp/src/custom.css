@@ -247,3 +247,7 @@ table td.middle-vertical-line {
 .csv-nodes > *:first-child:before {
   content: none;
 }
+
+.colon-before:before {
+  content: ": ";
+}
