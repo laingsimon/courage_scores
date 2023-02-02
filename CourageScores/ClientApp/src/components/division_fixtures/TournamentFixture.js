@@ -79,16 +79,20 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
     function showTournamentSidesPlayers() {
         tournament.sides.sort(nameSort);
 
-        return (<div>
+        return (<div className="px-3">
             {tournament.sides.map(side => {
                 side.players.sort(nameSort);
                 const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
                 let name = (<strong>{side.name}</strong>);
                 if (side.teamId && side.players.length !== 1) {
-                    name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${seasonId}`}><strong>{side.name}</strong></Link>);
+                    name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${seasonId}`}>{side.name}</Link>);
                 } else if (side.players.length === 1) {
                     const singlePlayer = side.players[0];
-                    name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${seasonId}`}><strong>{side.name}</strong></Link>);
+                    name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${seasonId}`}>{side.name}</Link>);
+                }
+
+                if (sideNameSameAsPlayerNames || side.players.length === 0) {
+                    return (<span className="comma-before-except-first no-wrap" key={side.id}>{name}</span>);
                 }
 
                 return (<div key={side.id}>

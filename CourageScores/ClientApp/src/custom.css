@@ -257,3 +257,12 @@ table td.middle-vertical-line {
   right: 4px;
   bottom: 4px;
 }
+
+.comma-before-except-first:not(:last-child):after {
+  content: ", ";
+  margin-right: 4px;
+}
+.no-wrap {
+  white-space: nowrap;
+  display: inline-block;
+}
