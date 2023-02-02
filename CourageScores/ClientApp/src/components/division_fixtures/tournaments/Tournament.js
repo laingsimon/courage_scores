@@ -220,10 +220,7 @@ export function Tournament({ account, apis }) {
             newTournamentData.oneEighties = [];
         }
 
-        newTournamentData.oneEighties.push({
-            id: player.id,
-            name: player.name
-        });
+        newTournamentData.oneEighties.push(player);
 
         setTournamentData(newTournamentData);
 
@@ -236,11 +233,7 @@ export function Tournament({ account, apis }) {
             newTournamentData.over100Checkouts = [];
         }
 
-        newTournamentData.over100Checkouts.push({
-            id: player.id,
-            name: player.name,
-            notes: notes
-        });
+        newTournamentData.over100Checkouts.push(Object.assign({}, player, { notes: notes }));
 
         setTournamentData(newTournamentData);
     }
