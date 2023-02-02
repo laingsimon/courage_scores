@@ -44,10 +44,11 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
         <ol className="no-list-indent mb-0">
             {(players || []).map(p => {
                 index++;
-                return (<li key={index}>{disabled ? renderLinkToPlayer(p) : (<button
+                const playerIndex = index;
+                return (<li key={playerIndex}>{disabled ? renderLinkToPlayer(p) : (<button
                     disabled={disabled || readOnly}
                     className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
-                    onClick={async () => onRemovePlayer ? await onRemovePlayer(p.id, index - 1) : null}>
+                    onClick={async () => onRemovePlayer ? await onRemovePlayer(p.id, playerIndex - 1) : null}>
                     {playerName(p)} {disabled ? '' : '🗑'}
                 </button>)}</li>);
             })}

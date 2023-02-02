@@ -110,7 +110,7 @@ export function Tournament({ account, apis }) {
             })
             .filter(mapping => mapping.teamSeason)
             .flatMap(mapping => mapping.teamSeason.players.map(p => {
-                return Object.assign({}, p, mapping.divisionId);
+                return Object.assign({}, p, { divisionId: mapping.divisionId });
             }));
         players.sort(nameSort);
 
@@ -220,10 +220,7 @@ export function Tournament({ account, apis }) {
             newTournamentData.oneEighties = [];
         }
 
-        newTournamentData.oneEighties.push({
-            id: player.id,
-            name: player.name
-        });
+        newTournamentData.oneEighties.push(Object.assign({}, player));
 
         setTournamentData(newTournamentData);
 
@@ -236,11 +233,7 @@ export function Tournament({ account, apis }) {
             newTournamentData.over100Checkouts = [];
         }
 
-        newTournamentData.over100Checkouts.push({
-            id: player.id,
-            name: player.name,
-            notes: notes
-        });
+        newTournamentData.over100Checkouts.push(Object.assign({ notes: notes }, player));
 
         setTournamentData(newTournamentData);
     }
