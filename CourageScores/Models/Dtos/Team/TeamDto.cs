@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Team;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Team;
 
 /// <summary>
 /// A record of a team and its players, where 'home' is for them, etc.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TeamDto : AuditedDto
 {
     /// <summary>

@@ -1,8 +1,10 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Azure.Cosmos;
 using User = CourageScores.Models.Cosmos.Identity.User;
 
 namespace CourageScores.Repository.Identity;
 
+[ExcludeFromCodeCoverage]
 public class UserRepository : IUserRepository
 {
     private readonly Container _container;

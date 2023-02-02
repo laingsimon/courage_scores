@@ -29,7 +29,7 @@ public class TournamentGameTests
     public void Accept_GivenHiCheckout_VisitsPlayer()
     {
         var visitor = new Mock<IGameVisitor>();
-        var player = new NotablePlayer();
+        var player = new NotableTournamentPlayer();
         _game.Over100Checkouts.Add(player);
 
         _game.Accept(visitor.Object);
@@ -41,7 +41,7 @@ public class TournamentGameTests
     public void Accept_GivenOneEighties_VisitsPlayer()
     {
         var visitor = new Mock<IGameVisitor>();
-        var player = new GamePlayer();
+        var player = new TournamentPlayer();
         _game.OneEighties.Add(player);
 
         _game.Accept(visitor.Object);

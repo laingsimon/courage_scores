@@ -1,9 +1,11 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Repository;
 
+[ExcludeFromCodeCoverage]
 public abstract class CosmosDbRepository<T> where T : CosmosEntity
 {
     private readonly Container _container;

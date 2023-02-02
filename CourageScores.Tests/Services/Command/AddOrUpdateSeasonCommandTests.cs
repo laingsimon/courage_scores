@@ -1,5 +1,4 @@
 using CourageScores.Filters;
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
@@ -21,7 +20,7 @@ public class AddOrUpdateSeasonCommandTests
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private AddOrUpdateSeasonCommand _command = null!;
-    private Season _season = null!;
+    private CourageScores.Models.Cosmos.Season _season = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
@@ -31,7 +30,7 @@ public class AddOrUpdateSeasonCommandTests
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
-        _season = new Season
+        _season = new CourageScores.Models.Cosmos.Season
         {
             Id = Guid.NewGuid(),
             Name = "SEASON",
@@ -95,7 +94,7 @@ public class AddOrUpdateSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenSeasonDoesNotExist_SetsProperties()
     {
-        _season = new Season();
+        _season = new CourageScores.Models.Cosmos.Season();
         var update = new EditSeasonDto
         {
             Name = "NEW SEASON",

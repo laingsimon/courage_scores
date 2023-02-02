@@ -25,6 +25,8 @@ using CourageScores.Services.Report;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CourageScores;
 
@@ -40,6 +42,17 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ICommandFactory, CommandFactory>();
         services.AddMemoryCache();
         services.AddScoped<ScopedCacheManagementFlags>();
+        services.AddScoped<IZipBuilderFactory, ZipBuilderFactory>();
+        services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
+        services.AddScoped<IDataImporterFactory, DataImporterFactory>();
+        services.AddSingleton(new JsonSerializer
+        {
+            Converters =
+            {
+                new StringEnumConverter(),
+            }
+        });
+        services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
 
         AddServices(services);
         AddRepositories(services);
@@ -103,6 +116,8 @@ public static class DependencyInjectionExtensions
         AddAdapter<TournamentMatch, TournamentMatchDto, TournamentMatchAdapter>(services);
         AddAdapter<TournamentRound, TournamentRoundDto, TournamentRoundAdapter>(services);
         AddAdapter<FixtureDateNote, FixtureDateNoteDto, FixtureDateNoteAdapter>(services);
+        AddAdapter<TournamentPlayer, TournamentPlayerDto, TournamentPlayerAdapter>(services);
+        AddAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto, NotableTournamentPlayerAdapter>(services);
 
         AddAdapter<Team, TeamDto, TeamAdapter>(services);
         AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);

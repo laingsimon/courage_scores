@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos;
 
+[ExcludeFromCodeCoverage]
 public class EditDivisionDto
 {
     /// <summary>

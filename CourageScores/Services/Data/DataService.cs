@@ -2,40 +2,33 @@
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Identity;
 using Ionic.Zip;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.Azure.Cosmos;
-using Newtonsoft.Json;
 
 namespace CourageScores.Services.Data;
 
 public class DataService : IDataService
 {
-    private const string MetaJonFile = "meta.json";
-
     private readonly Database _database;
-    private readonly ISystemClock _clock;
     private readonly IUserService _userService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IZipFileReaderFactory _zipFileReaderFactory;
     private readonly IDataImporterFactory _dataImporterFactory;
     private readonly ICosmosTableService _cosmosTableService;
+    private readonly IZipBuilderFactory _zipBuilderFactory;
 
     public DataService(
         Database database,
-        ISystemClock clock,
         IUserService userService,
-        IHttpContextAccessor httpContextAccessor,
         IZipFileReaderFactory zipFileReaderFactory,
         IDataImporterFactory dataImporterFactory,
-        ICosmosTableService cosmosTableService)
+        ICosmosTableService cosmosTableService,
+        IZipBuilderFactory zipBuilderFactory)
     {
         _database = database;
-        _clock = clock;
         _userService = userService;
-        _httpContextAccessor = httpContextAccessor;
         _zipFileReaderFactory = zipFileReaderFactory;
         _dataImporterFactory = dataImporterFactory;
         _cosmosTableService = cosmosTableService;
+        _zipBuilderFactory = zipBuilderFactory;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -59,15 +52,7 @@ public class DataService : IDataService
 
         try
         {
-            var builder = new ZipBuilder(request.Password);
-            var apiRequest = _httpContextAccessor.HttpContext?.Request;
-            var metaData = new ExportMetaData
-            {
-                Created = _clock.UtcNow.UtcDateTime,
-                Creator = user.Name,
-                Hostname = apiRequest?.Host.ToString() ?? _database.Client.Endpoint.Host,
-            };
-            await builder.AddFile(MetaJonFile, JsonConvert.SerializeObject(metaData));
+            var builder = await _zipBuilderFactory.Create(request.Password, token);
 
             await foreach (var table in _cosmosTableService.GetTables(request, token))
             {
@@ -109,13 +94,13 @@ public class DataService : IDataService
         {
             var zip = await _zipFileReaderFactory.Create(request.Zip.OpenReadStream(), request.Password);
 
-            if (!zip.HasFile(MetaJonFile))
+            if (!zip.HasFile(ExportMetaData.FileName))
             {
-                return Unsuccessful<ImportDataResultDto>($"Zip file does not contain a {MetaJonFile} file");
+                return Unsuccessful<ImportDataResultDto>($"Zip file does not contain a {ExportMetaData.FileName} file");
             }
 
             var tableImporter = await _dataImporterFactory.Create(request, result, _cosmosTableService.GetTables(token));
-            var metaContent = await zip.ReadJson<ExportMetaData>(MetaJonFile);
+            var metaContent = await zip.ReadJson<ExportMetaData>(ExportMetaData.FileName);
             actionResult.Messages.Add(
                 $"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
 

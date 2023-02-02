@@ -6,7 +6,7 @@ import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {nameSort} from "../../Utilities";
 
-export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded }) {
+export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
     const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
@@ -68,19 +68,51 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         }
     }
 
+    function renderLinkToPlayer(player) {
+        if (allPlayers.filter(p => p.id === player.id).length > 0) {
+            return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${seasonId}`}>{player.name}</Link>);
+        }
+
+        return (<span key={player.id}>{player.name}</span>);
+    }
+
     function showTournamentSidesPlayers() {
         tournament.sides.sort(nameSort);
 
-        return (<div>
+        return (<div className="px-3">
             {tournament.sides.map(side => {
                 side.players.sort(nameSort);
+                const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
+                let name = (<strong>{side.name}</strong>);
+                if (side.teamId && side.players.length !== 1) {
+                    name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${seasonId}`}>{side.name}</Link>);
+                } else if (side.players.length === 1) {
+                    const singlePlayer = side.players[0];
+                    name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${seasonId}`}>{side.name}</Link>);
+                }
+
+                if (sideNameSameAsPlayerNames || side.players.length === 0) {
+                    return (<span className="comma-before-except-first no-wrap" key={side.id}>{name}</span>);
+                }
 
                 return (<div key={side.id}>
-                    <b>{side.name}</b>
-                    {side.players.length > 0 ? ': ' : null}
-                    {side.players.length > 0 ? (<label className="csv-nodes">{side.players.map(p => (<span key={p.id}>{p.name}</span>))}</label>) : null}
-                </div>); })}
+                    {name}
+                    {side.players.length > 0 && !sideNameSameAsPlayerNames
+                        ? (<label className="csv-nodes colon-before">{side.players.map(renderLinkToPlayer)}</label>)
+                        : null}
+                </div>);
+            })}
         </div>);
+    }
+
+    function renderWinner(winningSide) {
+        if (winningSide.teamId) {
+            return (<strong className="text-primary">
+                <Link to={`/division/${divisionId}/team:${winningSide.teamId}/${seasonId}`}>{winningSide.name}</Link>
+            </strong>);
+        }
+
+        return (<strong className="text-primary">{winningSide.name}</strong>);
     }
 
     if (isProposedTournament && !isAdmin) {
@@ -112,7 +144,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         </td>
         {tournament.winningSide ? (<td colSpan="2">
             {tournament.winningSide
-                ? (<span className="margin-left">Winner: <strong className="text-primary">{tournament.winningSide.name}</strong></span>)
+                ? (<span className="margin-left">Winner: {renderWinner(tournament.winningSide)}</span>)
                 : null}
         </td>) : null}
         {isAdmin ? (<td className="medium-column-width">

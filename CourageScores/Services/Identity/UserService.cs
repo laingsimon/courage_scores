@@ -118,7 +118,7 @@ public class UserService : IUserService
             return new ActionResultDto<UserDto>
             {
                 Success = false,
-                Errors = { "Cannot remove your own user access" }
+                Warnings = { "Cannot remove your own user access" }
             };
         }
 
@@ -127,7 +127,7 @@ public class UserService : IUserService
         return new ActionResultDto<UserDto>
         {
             Success = true,
-            Warnings = { "Access updated" },
+            Messages = { "Access updated" },
             Result = await _userAdapter.Adapt(userToUpdate, token),
         };
     }

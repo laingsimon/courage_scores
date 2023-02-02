@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos;
+
+[ExcludeFromCodeCoverage]
 public abstract class CosmosDto
 {
     /// <summary>

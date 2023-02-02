@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class TournamentGameController : Controller
 {
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _gameService;

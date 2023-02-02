@@ -1,8 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace CourageScores.Models.Dtos.Season;
 
 /// <summary>
 /// Define the parameters for auto provisioning games
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class AutoProvisionGamesRequest
 {
     /// <summary>

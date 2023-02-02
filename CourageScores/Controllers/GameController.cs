@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class GameController : Controller
 {
     private readonly IGameService _gameService;

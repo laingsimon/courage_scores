@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {toMap, nameSort, createTemporaryId, sortBy} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
+import {Link} from "react-router-dom";
 
 export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly, exceptPlayerIds }) {
     const team = { };
@@ -55,9 +56,8 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
                         team.players = t.players;
                     }
 
-                    return { team: t, player: p };
-                })
-                .filter(mapping => mapping != null);
+                    return { team: t, player: Object.assign({}, p, { divisionId: t.divisionId }) };
+                });
     });
 
     async function onAddPlayer(player) {
@@ -67,7 +67,8 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         newSide.teamId = player.team.id;
         newSide.players.push({
             id: player.id,
-            name: player.originalName
+            name: player.originalName,
+            divisionId: player.divisionId
         });
         newSide.name = newSide.players.length === 1 ? newSide.players[0].name : player.team.name;
         if (onChange) {
@@ -105,11 +106,15 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }
 
     function toSelectablePlayer(tap) {
-        if (side) {
-            return { id: tap.player.id, name: tap.player.name, originalName: tap.player.name, team: tap.team };
-        }
-
-        return { id: tap.player.id, name: `${tap.player.name} (${tap.team.name})`, originalName: tap.player.name, team: tap.team };
+        return {
+            id: tap.player.id,
+            name: side
+                ? tap.player.name
+                : `${tap.player.name} (${tap.team.name})`,
+            originalName: tap.player.name,
+            team: tap.team,
+            divisionId: tap.player.divisionId
+        };
     }
 
     function tapSort(x, y) {
@@ -136,7 +141,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     async function updateSideName(event) {
         const newSide = Object.assign({}, side);
-        newSide.name = event.target.value;
+        newSide.newName = event.target.value;
         if (onChange) {
             await onChange(newSide);
         }
@@ -144,10 +149,12 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     async function updateTeamId(teamId) {
         const newSide = Object.assign({}, side);
-        newSide.teamId = teamId;
         if (teamId) {
             newSide.name = teamMap[teamId].name;
+        } else {
+            teamId = undefined;
         }
+        newSide.teamId = teamId;
         if (onChange) {
             await onChange(newSide);
         }
@@ -159,11 +166,11 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             return null;
         }
 
-        return (<div>{team.name}</div>);
+        return (<div><Link to={`/division/${team.divisionId}/team:${team.id}/${seasonId}`}>{team.name}</Link></div>);
     }
 
     function renderPlayers () {
-       if (side.players) {
+       if (!side.players) {
            return null;
        }
 
@@ -172,8 +179,52 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
        }
 
        return (<ol className="no-list-indent">
-           {side.players.map(p => (<li key={p.id}>{p.name}</li>))}
+           {side.players.map(p => (<li key={p.id}>
+               {p.divisionId && p.divisionId !== '00000000-0000-0000-0000-000000000000' ? (<Link to={`/division/${p.divisionId}/player:${p.id}/${seasonId}`}>{p.name}</Link>) : p.name}
+           </li>))}
        </ol>);
+    }
+
+    function renderSideName() {
+        const singlePlayer = side.players.length === 1
+           ? side.players[0]
+           : null;
+
+        let name = side.name;
+        if (singlePlayer && singlePlayer.divisionId && singlePlayer.divisionId !== '00000000-0000-0000-0000-000000000000') {
+            name = (<Link to={`/division/${singlePlayer.divisionId}/player:${singlePlayer.id}/${seasonId}`}>{side.name}</Link>);
+        } else if (side.teamId && teamMap[side.teamId]) {
+            const team = side.teamId ? teamMap[side.teamId] : null;
+            name = (<Link to={`/division/${team.divisionId}/team:${team.id}/${seasonId}`}>{side.name}</Link>);
+        }
+
+        return (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{name}</strong>);
+    }
+
+    async function removeSide() {
+        if (!window.confirm(`Are you sure you want to remove ${side.name}?`)) {
+            return;
+        }
+
+        const newSide = Object.assign({}, side);
+        newSide.name = undefined;
+        newSide.players = [];
+        newSide.teamId = null;
+        if (onChange) {
+            await onChange(newSide);
+        }
+    }
+
+    async function completeSideNameChange() {
+        if (side.name !== (side.newName || side.name)) {
+            const newSide = Object.assign({}, side);
+            newSide.name = side.newName;
+            if (onChange) {
+                await onChange(newSide);
+            }
+        }
+
+        setChangeSideName(false);
     }
 
     if (!side && !readOnly) {
@@ -197,15 +248,16 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     const allPlayers = teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer);
     allPlayers.sort(nameSort);
-    return (<div className={`p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
+    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
-            ? (<input type="text" onChange={updateSideName} value={side.name} onBlur={() => setChangeSideName(false)} />)
-            : (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{side.name}</strong>)}
+            ? (<input type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
+            : renderSideName()}
         {readOnly
             ? renderTeamName()
             : (<div><BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId} /></div>)}
         {readOnly
             ? renderPlayers()
             : (<MultiPlayerSelection players={side.players || []} allPlayers={allPlayers} onAddPlayer={onAddPlayer} onRemovePlayer={onRemovePlayer} placeholder="Select player" />)}
+        {readOnly ? null : (<button className="btn btn-sm btn-danger position-absolute-bottom-right" onClick={removeSide}>🗑</button>)}
     </div>);
 }

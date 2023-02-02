@@ -1,8 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Division;
 
+[ExcludeFromCodeCoverage]
 public class DivisionData
 {
     /// <summary>
@@ -27,7 +29,7 @@ public class DivisionData
 
     public class Score
     {
-        public GamePlayer? Player { get; init; }
+        public IGamePlayer? Player { get; init; }
         public GameTeam? Team { get; set; }
         public int Win { get; set; }
         public int Draw { get; set; }

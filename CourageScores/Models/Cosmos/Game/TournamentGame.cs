@@ -36,12 +36,12 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// <summary>
     /// Who scored a 180 in the match
     /// </summary>
-    public List<GamePlayer> OneEighties { get; set; } = new();
+    public List<TournamentPlayer> OneEighties { get; set; } = new();
 
     /// <summary>
     /// Who checked out with more than 100
     /// </summary>
-    public List<NotablePlayer> Over100Checkouts { get; set; } = new();
+    public List<NotableTournamentPlayer> Over100Checkouts { get; set; } = new();
 
     /// <summary>
     /// Notes for this tournament game

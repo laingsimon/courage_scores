@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Authentication;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [AllowAnonymous]
+[ExcludeFromCodeCoverage]
 public class AccountController : Controller
 {
     private readonly IUserService _userService;

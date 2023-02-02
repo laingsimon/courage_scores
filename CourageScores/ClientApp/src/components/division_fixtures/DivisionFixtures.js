@@ -10,12 +10,12 @@ import {GameApi} from "../../api/game";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
-import {AndFilter, Filter, OrFilter} from "../Filter";
+import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {NoteApi} from "../../api/note";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions }) {
+export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
     const navigate = useNavigate();
     const location = useLocation();
     const isAdmin = account && account.access && account.access.manageGames;
@@ -44,7 +44,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
-    
+
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
             return {};
@@ -303,52 +303,72 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     function getFilters() {
-        const filters = [];
+        return new AndFilter([
+            optionallyInvertFilter(getDateFilter, filter.date),
+            optionallyInvertFilter(getTypeFilter, filter.type),
+            optionallyInvertFilter(getTeamIdFilter, filter.teamId)
+        ]);
+    }
 
-        switch (filter.date) {
+    function optionallyInvertFilter(getFilter, filterInput) {
+        if (filterInput && filterInput.indexOf('not(') === 0) {
+            const withoutNot = filterInput.substring(4, filterInput.length - 1);
+            const positiveFilter = getFilter(withoutNot);
+            return positiveFilter
+                ? new NotFilter(positiveFilter)
+                : new NullFilter();
+        }
+
+        return getFilter(filterInput) ?? new NullFilter();
+    }
+
+    function getDateFilter(date) {
+        switch (date) {
             case 'past':
-                filters.push(new Filter(c => isInPast(c.date)));
-                break;
+                return new Filter(c => isInPast(c.date));
             case 'future':
-                filters.push(new Filter(c => isInFuture(c.date)));
-                break;
+                return new Filter(c => isInFuture(c.date));
             case 'last+next':
-                filters.push(new OrFilter([
+                return new OrFilter([
                     new Filter(c => isToday(c.date)),
                     new Filter(c => isLastFixtureBeforeToday(c.date)),
                     new Filter(c => isNextFeatureAfterToday(c.date))
-                ]));
-                break;
+                ]);
             default:
                 if (filter.date && filter.date.match(/\d{4}-\d{2}/)) {
-                    filters.push(new Filter(c => c.date.indexOf(filter.date) === 0));
+                    return new Filter(c => c.date.indexOf(filter.date) === 0);
                 }
-                break;
-        }
 
-        switch (filter.type) {
+                return new NullFilter();
+        }
+    }
+
+    function getTypeFilter(type) {
+        switch (type) {
             case 'league':
-                filters.push(new Filter(c => c.tournamentFixture === false && c.fixture.isKnockout === false));
-                break;
+                return new AndFilter([
+                    new Filter(c => c.tournamentFixture === false),
+                    new Filter(c => c.fixture.isKnockout === false)
+                ]);
             case 'knockout':
-                filters.push(new Filter(c => c.fixture.isKnockout === true));
-                break;
+                return new Filter(c => c.fixture.isKnockout === true);
             case 'tournament':
-                filters.push(new Filter(c => c.tournamentFixture === true));
-                break;
+                return new Filter(c => c.tournamentFixture === true);
             default:
-                break;
+                return new NullFilter();
+        }
+    }
+
+    function getTeamIdFilter(teamId) {
+        if (!teamId) {
+            return new NullFilter();
         }
 
-        if (filter.teamId) {
-            filters.push(new OrFilter([
-                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === filter.teamId),
-                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === filter.teamId),
-                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === filter.teamId).length > 0)
-            ]));
-        }
-
-        return new AndFilter(filters);
+        return new OrFilter([
+                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
+                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
+                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === teamId).length > 0)
+            ]);
     }
 
     function toggleShowPlayers(date) {
@@ -375,7 +395,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
         const notesForDate = date.notes;
 
-        const hasFixtures = fixturesForDate.filter(f => f.id !== f.homeTeam.id).length > 0;
+        const hasFixtures = date.fixtures.filter(f => f.id !== f.homeTeam.id).length > 0;
         if (!isAdmin && !hasFixtures) {
             fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
         }
@@ -391,7 +411,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 {tournamentFixturesForDate.length > 0 ? (
                     <span className="margin-left form-switch h6 text-body">
                         <input type="checkbox" className="form-check-input align-baseline"
-                               id={'showPlayers_' + date.date} checked={showPlayers[date.date]} onChange={() => toggleShowPlayers(date.date)} />
+                               id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
                         <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                     </span>) : null}
             </h4>
@@ -421,7 +441,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     seasonId={season.id}
                     divisionId={divisionId}
                     onTournamentChanged={onTournamentChanged}
-                    expanded={showPlayers[date.date]} />))}
+                    expanded={showPlayers[date.date]}
+                    allPlayers={allPlayers} />))}
                 </tbody>
             </table>
         </div>);

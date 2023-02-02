@@ -1,5 +1,4 @@
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
@@ -7,7 +6,6 @@ using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
 using Microsoft.Azure.Cosmos;
 using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Data;
@@ -17,10 +15,11 @@ public class CosmosTableServiceTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<Database> _database = null!;
-    private CosmosTableService _service = null!;
-    private List<string> _tables = null!;
     private Mock<IUserService> _userService = null!;
+    private Mock<IJsonSerializerService> _jsonSerializer = null!;
     private UserDto? _user;
+    private List<string> _tables = null!;
+    private CosmosTableService _service = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -33,7 +32,8 @@ public class CosmosTableServiceTests
         };
         _database = new Mock<Database>();
         _userService = new Mock<IUserService>();
-        _service = new CosmosTableService(_database.Object, _userService.Object);
+        _jsonSerializer = new Mock<IJsonSerializerService>();
+        _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object);
         _user = new UserDto
         {
             Access = new AccessDto
@@ -44,7 +44,7 @@ public class CosmosTableServiceTests
         };
         _database
             .Setup(d => d.GetContainerQueryStreamIterator((string?)null, null, null))
-            .Returns(() => new MockFeedIterator(_tables.ToArray()));
+            .Returns(() => new MockFeedIterator(_jsonSerializer, _tables.ToArray()));
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
@@ -177,31 +177,33 @@ public class CosmosTableServiceTests
 
     private class MockFeedIterator : FeedIterator
     {
+        private readonly Mock<IJsonSerializerService> _serializer;
         private readonly string[] _tables;
         private bool _hasReadTables;
 
-        public MockFeedIterator(params string[] tables)
+        public MockFeedIterator(Mock<IJsonSerializerService> serializer, params string[] tables)
         {
+            _serializer = serializer;
             _tables = tables;
         }
 
-        public override async Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override Task<ResponseMessage> ReadNextAsync(CancellationToken cancellationToken = default)
         {
             _hasReadTables = true;
 
             var stream = new MemoryStream();
-            await WriteTableToStream(stream);
-            stream.Seek(0, SeekOrigin.Begin);
+            var containerItem = CreateContainerItem();
+            _serializer.Setup(s => s.DeserialiseTo<ContainerItemJson>(stream)).Returns(containerItem);
 
-            return new ResponseMessage
+            return Task.FromResult(new ResponseMessage
             {
                 Content = stream
-            };
+            });
         }
 
-        private async Task WriteTableToStream(MemoryStream stream)
+        private ContainerItemJson CreateContainerItem()
         {
-            var containerItem = new ContainerItemJson
+            return new ContainerItemJson
             {
                 DocumentCollections = _tables.Select(t => new ContainerItemJson.DocumentCollection
                 {
@@ -212,12 +214,6 @@ public class CosmosTableServiceTests
                     },
                 }).ToList(),
             };
-
-            var json = JsonConvert.SerializeObject(containerItem);
-            using (var writer = new StreamWriter(stream, leaveOpen: true))
-            {
-                await writer.WriteAsync(json);
-            }
         }
 
         public override bool HasMoreResults => !_hasReadTables;

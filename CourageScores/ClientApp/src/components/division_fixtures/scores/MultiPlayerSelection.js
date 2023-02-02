@@ -32,15 +32,16 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     }
 
     function renderLinkToPlayer(p) {
-        if (!divisionId || !seasonId) {
-            return playerName(p);
+        const divId = (divisionId || p.divisionId);
+        if (divId && divId !== '00000000-0000-0000-0000-000000000000' && seasonId) {
+            return (<Link to={`/division/${divId}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
         }
 
-        return (<Link to={`/division/${divisionId}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
+        return  playerName(p);
     }
 
     return (<div>
-        <ol className="no-list-indent">
+        <ol className="no-list-indent mb-0">
             {(players || []).map(p => {
                 index++;
                 return (<li key={index}>{disabled ? renderLinkToPlayer(p) : (<button
@@ -60,17 +61,17 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     type="number"
                     min="100"
                     max="120"/>) : null}
-                <PlayerSelection
+                {allPlayers.length > 0 ? (<PlayerSelection
                     disabled={disabled}
                     readOnly={readOnly}
                     players={allPlayers}
                     selected={player}
                     onChange={(elem, p) => setPlayer(p)}
                     className={dropdownClassName}
-                    placeholder={placeholder} />
-                <button disabled={disabled || readOnly} onClick={addPlayer}
+                    placeholder={placeholder} />) : null}
+                {allPlayers.length > 0 ? (<button disabled={disabled || readOnly} onClick={addPlayer}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
-                </button>
+                </button>) : null}
             </li>)}
         </ol>
     </div>);

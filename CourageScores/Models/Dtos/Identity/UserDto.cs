@@ -1,22 +1,24 @@
-﻿namespace CourageScores.Models.Dtos.Identity;
+﻿using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable CS8618
+namespace CourageScores.Models.Dtos.Identity;
+
+[ExcludeFromCodeCoverage]
 public class UserDto
 {
     /// <summary>
     /// The full name of the person
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     /// The given name of the person
     /// </summary>
-    public string GivenName { get; set; }
+    public string GivenName { get; set; } = null!;
 
     /// <summary>
     /// The email address for the person
     /// </summary>
-    public string EmailAddress { get; set; }
+    public string EmailAddress { get; set; } = null!;
 
     /// <summary>
     /// What access does this person have?
@@ -28,4 +30,3 @@ public class UserDto
     /// </summary>
     public Guid? TeamId { get; set; }
 }
-#pragma warning restore CS8618

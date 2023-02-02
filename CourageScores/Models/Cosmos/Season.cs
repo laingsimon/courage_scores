@@ -6,6 +6,7 @@ namespace CourageScores.Models.Cosmos;
 /// <summary>
 /// A record of a season within the league
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class Season : AuditedEntity, IPermissionedEntity
 {
     /// <summary>

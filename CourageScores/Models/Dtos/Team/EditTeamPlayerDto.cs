@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos.Team;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos.Team;
+
+[ExcludeFromCodeCoverage]
 public class EditTeamPlayerDto
 {
     public string Name { get; set; } = null!;

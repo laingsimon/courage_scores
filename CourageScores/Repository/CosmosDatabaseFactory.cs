@@ -1,7 +1,9 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Azure.Cosmos;
 
 namespace CourageScores.Repository;
 
+[ExcludeFromCodeCoverage]
 public class CosmosDatabaseFactory : ICosmosDatabaseFactory
 {
     private readonly IConfiguration _configuration;

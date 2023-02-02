@@ -1,7 +1,10 @@
+using System.Diagnostics;
+
 namespace CourageScores.Services;
 
 public static class AsyncEnumerableExtensions
 {
+    [DebuggerStepThrough]
     public static async Task<List<T>> ToList<T>(this IAsyncEnumerable<T> asyncEnumerable)
     {
         var items = new List<T>();
@@ -14,6 +17,7 @@ public static class AsyncEnumerableExtensions
         return items;
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<T> WhereAsync<T>(this IAsyncEnumerable<T> asyncEnumerable,
         Predicate<T> predicate)
     {
@@ -26,6 +30,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IAsyncEnumerable<TIn> asyncEnumerable,
         Func<TIn, TOut> selector)
     {
@@ -35,6 +40,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IEnumerable<TIn> enumerable,
         Func<TIn, Task<TOut>> selector)
     {
@@ -44,6 +50,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<TOut> SelectAsync<TIn, TOut>(this IAsyncEnumerable<TIn> asyncEnumerable,
         Func<TIn, Task<TOut>> selector)
     {
@@ -53,6 +60,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<T> OrderByAsync<T, TKey>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> orderingSelector)
     {
         foreach (var item in (await asyncEnumerable.ToList()).OrderBy(orderingSelector))
@@ -61,6 +69,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<T> OrderByDescendingAsync<T, TKey>(this IAsyncEnumerable<T> asyncEnumerable, Func<T, TKey> orderingSelector)
     {
         foreach (var item in (await asyncEnumerable.ToList()).OrderByDescending(orderingSelector))
@@ -69,6 +78,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async IAsyncEnumerable<T> TakeAsync<T>(this IAsyncEnumerable<T> items, int take)
     {
         var count = 0;
@@ -84,6 +94,7 @@ public static class AsyncEnumerableExtensions
         }
     }
 
+    [DebuggerStepThrough]
     public static async Task<int> CountAsync<T>(this IAsyncEnumerable<T> items)
     {
         var count = 0;

@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class DataController : Controller
 {
     private readonly IDataService _dataService;

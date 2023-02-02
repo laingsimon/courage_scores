@@ -12,17 +12,17 @@ public class TournamentGameAdapterTests
     private static readonly TournamentRoundDto RoundDto = new TournamentRoundDto();
     private static readonly TournamentSide Side = new TournamentSide();
     private static readonly TournamentSideDto SideDto = new TournamentSideDto();
-    private static readonly GamePlayer OneEightyPlayer = new GamePlayer();
-    private static readonly GamePlayerDto OneEightyPlayerDto = new GamePlayerDto();
-    private static readonly NotablePlayer HiCheckPlayer = new NotablePlayer();
-    private static readonly NotablePlayerDto HiCheckPlayerDto = new NotablePlayerDto();
+    private static readonly TournamentPlayer OneEightyPlayer = new TournamentPlayer();
+    private static readonly TournamentPlayerDto OneEightyPlayerDto = new TournamentPlayerDto();
+    private static readonly NotableTournamentPlayer HiCheckPlayer = new NotableTournamentPlayer();
+    private static readonly NotableTournamentPlayerDto HiCheckPlayerDto = new NotableTournamentPlayerDto();
 
     private readonly CancellationToken _token = new CancellationToken();
     private readonly TournamentGameAdapter _adapter = new TournamentGameAdapter(
         new MockAdapter<TournamentRound, TournamentRoundDto>(Round, RoundDto),
         new MockAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
-        new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
-        new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
+        new MockAdapter<TournamentPlayer, TournamentPlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
+        new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
 
     [Test]
     public async Task Adapt_GivenModelWithRound_SetsPropertiesCorrectly()

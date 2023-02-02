@@ -7,6 +7,8 @@ using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
+
 namespace CourageScores.Tests.Services.Command;
 
 [TestFixture]
@@ -17,7 +19,7 @@ public class DeleteTeamCommandTests
     private readonly CancellationToken _token = new CancellationToken();
     private readonly Guid _seasonId = Guid.NewGuid();
     private DeleteTeamCommand _command = null!;
-    private Team _team = null!;
+    private CosmosTeam _team = null!;
     private UserDto? _user;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
@@ -28,7 +30,7 @@ public class DeleteTeamCommandTests
         _userService = new Mock<IUserService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _command = new DeleteTeamCommand(_userService.Object, _auditingHelper.Object, _cacheFlags);
-        _team = new Team();
+        _team = new CosmosTeam();
         _user = new UserDto
         {
             Access = new AccessDto

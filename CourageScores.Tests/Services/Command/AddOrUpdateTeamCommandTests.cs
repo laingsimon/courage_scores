@@ -1,12 +1,13 @@
 ﻿using CourageScores.Filters;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Command;
@@ -23,14 +24,15 @@ public class AddOrUpdateTeamCommandTests
     private readonly CancellationToken _token = new CancellationToken();
     private readonly Guid _divisionId = Guid.NewGuid();
     private readonly Guid _seasonId = Guid.NewGuid();
+    private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
     private List<GameDto> _games = null!;
-    private Team _team = null!;
+    private CourageScores.Models.Cosmos.Team.Team _team = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _team = new Team
+        _team = new CourageScores.Models.Cosmos.Team.Team
         {
             Id = Guid.NewGuid(),
             Name = "old name",
@@ -44,7 +46,7 @@ public class AddOrUpdateTeamCommandTests
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
         _seasonService = new Mock<ISeasonService>();
-        _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object, _cacheFlags);
+        _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object, _cacheFlags, _serializer);
         _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, _cacheFlags);
 
         _addOrUpdateGameCommand

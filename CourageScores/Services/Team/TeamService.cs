@@ -18,13 +18,15 @@ public class TeamService : GenericDataService<Models.Cosmos.Team.Team, TeamDto>,
     public IAsyncEnumerable<TeamDto> GetTeamsForSeason(Guid seasonId, CancellationToken token)
     {
         return GetAll(token)
-            .SelectAsync(t => OnlyForSeason(t, seasonId));
+            .SelectAsync(t => OnlyForSeason(t, seasonId))
+            .WhereAsync(t => t.Seasons.Any());
     }
 
     public IAsyncEnumerable<TeamDto> GetTeamsForSeason(Guid divisionId, Guid seasonId, CancellationToken token)
     {
         return GetWhere($"t.DivisionId = '{divisionId}'", token)
-            .SelectAsync(t => OnlyForSeason(t, seasonId));
+            .SelectAsync(t => OnlyForSeason(t, seasonId))
+            .WhereAsync(t => t.Seasons.Any());
     }
 
     private static TeamDto OnlyForSeason(TeamDto team, Guid seasonId)

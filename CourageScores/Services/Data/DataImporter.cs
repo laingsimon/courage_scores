@@ -8,6 +8,8 @@ namespace CourageScores.Services.Data;
 
 public class DataImporter : IDataImporter
 {
+    private const string DryRunTableSuffix = "_import";
+
     private readonly Database _database;
     private readonly ImportDataRequestDto _request;
     private readonly ImportDataResultDto _result;
@@ -21,7 +23,7 @@ public class DataImporter : IDataImporter
         _currentTables = currentTables;
     }
 
-    public async IAsyncEnumerable<string> ImportData(IReadOnlyCollection<string> tables, IZipFileReader zip, [EnumeratorCancellation] CancellationToken token)
+    public async IAsyncEnumerable<string> ImportData(IReadOnlyCollection<string> tablesToImport, IZipFileReader zip, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var table in _currentTables)
         {
@@ -30,51 +32,65 @@ public class DataImporter : IDataImporter
                 break;
             }
 
-            if (tables.Any() && !tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
+            if (tablesToImport.Any() && !tablesToImport.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
             {
                 // this table isn't in the list of permitted tables
                 continue;
             }
 
             var tableName = _request.DryRun
-                ? table.Name + "_import"
+                ? table.Name + DryRunTableSuffix
                 : table.Name;
 
-            var recordsToImport = zip.EnumerateFiles(table.Name).ToArray();
-            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Importing data into {tableName} ({recordsToImport.Length} record/s)";
+            var files = zip.EnumerateFiles(table.Name).ToArray();
+            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Importing data into {tableName} ({files.Length} record/s)";
 
             Container container = await _database.CreateContainerIfNotExistsAsync(tableName, table.PartitionKey, cancellationToken: token);
-            foreach (var recordToImport in recordsToImport)
+            await foreach (var message in ImportRecordsForTable(container, table, files, zip, token))
             {
-                if (_result.Tables.TryGetValue(table.Name, out var recordCount))
-                {
-                    _result.Tables[table.Name] = recordCount + 1;
-                }
-                else
-                {
-                    _result.Tables.Add(table.Name, 1);
-                }
-
-                Exception? error = null;
-                try
-                {
-                    await ImportRecord(await zip.ReadJson<JObject>(recordToImport), container, token);
-                }
-                catch (Exception exc)
-                {
-                    error = exc;
-                }
-
-                if (error != null)
-                {
-                    yield return $"ERROR: {error.Message}";
-                }
+                yield return message;
             }
 
-            if (_request.DryRun && tableName.EndsWith("_import"))
+            if (_request.DryRun && tableName.EndsWith(DryRunTableSuffix))
             {
                 await container.DeleteContainerAsync(cancellationToken: token);
                 yield return $"DRY RUN: Deleting temporary table: {tableName}";
+            }
+        }
+    }
+
+    private async IAsyncEnumerable<string> ImportRecordsForTable(Container container, TableDto table,
+        IEnumerable<string> files, IZipFileReader zip, [EnumeratorCancellation] CancellationToken token)
+    {
+        foreach (var recordToImport in files)
+        {
+            if (token.IsCancellationRequested)
+            {
+                yield break;
+            }
+
+            if (_result.Tables.TryGetValue(table.Name, out var recordCount))
+            {
+                _result.Tables[table.Name] = recordCount + 1;
+            }
+            else
+            {
+                _result.Tables.Add(table.Name, 1);
+            }
+
+            Exception? error = null;
+            try
+            {
+                await ImportRecord(await zip.ReadJson<JObject>(recordToImport), container, token);
+            }
+            catch (Exception exc)
+            {
+                error = exc;
+            }
+
+            if (error != null)
+            {
+                yield return $"ERROR: {error.Message}";
             }
         }
     }
@@ -88,9 +104,8 @@ public class DataImporter : IDataImporter
                 break;
             }
 
-            if (tables.Any() && tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
+            if (tables.Any() && !tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
             {
-                // this table isn't in the list of permitted tables
                 continue;
             }
 

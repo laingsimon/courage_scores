@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Command;
 using CourageScores.Services.Team;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class TeamController : Controller
 {
     private readonly ITeamService _teamService;

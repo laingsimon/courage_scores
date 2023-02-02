@@ -30,19 +30,14 @@ public class CachingDivisionService : ICachingDivisionService
             return Task.CompletedTask;
         }
 
-        if (divisionId != null && seasonId != null)
-        {
-            // invalidate caches where season and division match
-            var keys = CacheKeys.Where(key => key.DivisionId == divisionId.Value && key.SeasonId == seasonId.Value).ToArray();
-            InvalidateCaches(keys);
-        }
-        else if (divisionId != null)
+        if (divisionId != null)
         {
             // invalidate caches where division id matches, any season id
             var keys = CacheKeys.Where(key => key.DivisionId == divisionId.Value).ToArray();
             InvalidateCaches(keys);
         }
-        else if (seasonId != null)
+
+        if (seasonId != null)
         {
             // invalidate caches where season id matches, any division id
             var keys = CacheKeys.Where(key => key.SeasonId == seasonId.Value).ToArray();

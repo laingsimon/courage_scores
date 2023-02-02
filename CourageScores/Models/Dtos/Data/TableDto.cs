@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace CourageScores.Models.Dtos.Data;
@@ -5,6 +6,7 @@ namespace CourageScores.Models.Dtos.Data;
 /// <summary>
 /// Details of a table in the database
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TableDto
 {
     /// <summary>

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class SeasonController : Controller
 {
     private readonly ISeasonService _seasonService;

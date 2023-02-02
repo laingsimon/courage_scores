@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Season;
 
+[ExcludeFromCodeCoverage]
 public class Proposal : IEquatable<Proposal>
 {
     public TeamDto Home { get; }

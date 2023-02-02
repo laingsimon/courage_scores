@@ -247,3 +247,22 @@ table td.middle-vertical-line {
 .csv-nodes > *:first-child:before {
   content: none;
 }
+
+.colon-before:before {
+  content: ": ";
+}
+
+.position-absolute-bottom-right {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+}
+
+.comma-before-except-first:not(:last-child):after {
+  content: ", ";
+  margin-right: 4px;
+}
+.no-wrap {
+  white-space: nowrap;
+  display: inline-block;
+}

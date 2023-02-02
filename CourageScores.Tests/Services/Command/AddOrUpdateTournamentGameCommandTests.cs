@@ -40,7 +40,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _cacheFlags = new ScopedCacheManagementFlags();
 
         _seasonService = new Mock<ISeasonService>();
-        _sideAdapter = new TournamentSideAdapter(new GamePlayerAdapter());
+        _sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
         _roundAdapter = new TournamentRoundAdapter(new TournamentMatchAdapter(_sideAdapter), _sideAdapter);
         _auditingHelper = new Mock<IAuditingHelper>();
         _systemClock = new Mock<ISystemClock>();
@@ -114,10 +114,11 @@ public class AddOrUpdateTournamentGameCommandTests
             Name = "Side name",
             Players =
             {
-                new GamePlayerDto
+                new TournamentPlayerDto
                 {
                     Id = Guid.NewGuid(),
                     Name = "Player name",
+                    DivisionId = Guid.NewGuid(),
                 },
             },
         };
@@ -138,10 +139,10 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenLatestSeason_UpdatesRoundRecursively()
     {
-        var side1Player1 = new GamePlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 1" };
-        var side1Player2 = new GamePlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 2" };
-        var side2Player1 = new GamePlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 1" };
-        var side2Player2 = new GamePlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 2" };
+        var side1Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 1" };
+        var side1Player2 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 2" };
+        var side2Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 1" };
+        var side2Player2 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 2" };
         var side1 = new TournamentSideDto
         {
             Id = Guid.NewGuid(),

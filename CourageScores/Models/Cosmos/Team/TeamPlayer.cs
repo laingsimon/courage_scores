@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Cosmos.Team;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Cosmos.Team;
 
 /// <summary>
 /// A record of a player that has played for a team within a season
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class TeamPlayer : AuditedEntity
 {
     /// <summary>

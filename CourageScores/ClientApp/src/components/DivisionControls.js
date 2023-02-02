@@ -143,6 +143,17 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         return new Date(dateStr).toLocaleDateString('en-GB', { month: "short", day: "numeric" });
     }
 
+    function stripIdFromMode(mode) {
+        if (!mode) {
+            return mode;
+        }
+
+        const index = mode.indexOf(':');
+        return index === -1
+            ? mode
+            : mode.substring(0, index) + 's';
+    }
+
     async function createDivision() {
         if (creatingDivision) {
             return;
@@ -203,7 +214,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     </DropdownToggle>
                     <DropdownMenu>
                         {divisions.map(d => (<DropdownItem key={d.id}>
-                                <Link className="btn" to={`/division/${d.id}/${overrideMode || mode || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
+                                <Link className="btn" to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
                             </DropdownItem>
                         ))}
                         {isDivisionAdmin ? (<DropdownItem>
