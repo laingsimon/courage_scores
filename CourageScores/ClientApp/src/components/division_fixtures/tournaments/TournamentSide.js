@@ -57,8 +57,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
                     }
 
                     return { team: t, player: Object.assign({}, p, { divisionId: t.divisionId }) };
-                })
-                .filter(mapping => mapping != null);
+                });
     });
 
     async function onAddPlayer(player) {

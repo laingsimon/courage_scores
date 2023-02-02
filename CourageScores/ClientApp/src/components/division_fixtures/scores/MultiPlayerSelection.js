@@ -61,17 +61,17 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     type="number"
                     min="100"
                     max="120"/>) : null}
-                <PlayerSelection
+                {allPlayers.length > 0 ? (<PlayerSelection
                     disabled={disabled}
                     readOnly={readOnly}
                     players={allPlayers}
                     selected={player}
                     onChange={(elem, p) => setPlayer(p)}
                     className={dropdownClassName}
-                    placeholder={placeholder} />
-                <button disabled={disabled || readOnly} onClick={addPlayer}
+                    placeholder={placeholder} />) : null}
+                {allPlayers.length > 0 ? (<button disabled={disabled || readOnly} onClick={addPlayer}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
-                </button>
+                </button>) : null}
             </li>)}
         </ol>
     </div>);
