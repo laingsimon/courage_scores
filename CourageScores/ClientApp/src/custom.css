@@ -251,3 +251,9 @@ table td.middle-vertical-line {
 .colon-before:before {
   content: ": ";
 }
+
+.position-absolute-bottom-right {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+}

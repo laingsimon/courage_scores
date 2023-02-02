@@ -201,6 +201,20 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         return (<strong title="Click to change" onClick={() => setChangeSideName(true)}>{name}</strong>);
     }
 
+    async function removeSide() {
+        if (!window.confirm(`Are you sure you want to remove ${side.name}?`)) {
+            return;
+        }
+
+        const newSide = Object.assign({}, side);
+        newSide.name = undefined;
+        newSide.players = [];
+        newSide.teamId = null;
+        if (onChange) {
+            await onChange(newSide);
+        }
+    }
+
     async function completeSideNameChange() {
         if (side.name !== (side.newName || side.name)) {
             const newSide = Object.assign({}, side);
@@ -234,7 +248,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
 
     const allPlayers = teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer);
     allPlayers.sort(nameSort);
-    return (<div className={`p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
+    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
             : renderSideName()}
@@ -244,5 +258,6 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         {readOnly
             ? renderPlayers()
             : (<MultiPlayerSelection players={side.players || []} allPlayers={allPlayers} onAddPlayer={onAddPlayer} onRemovePlayer={onRemovePlayer} placeholder="Select player" />)}
+        {readOnly ? null : (<button className="btn btn-sm btn-danger position-absolute-bottom-right" onClick={removeSide}>🗑</button>)}
     </div>);
 }

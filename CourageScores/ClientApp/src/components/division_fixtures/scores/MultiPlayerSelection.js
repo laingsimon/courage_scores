@@ -41,7 +41,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     }
 
     return (<div>
-        <ol className="no-list-indent">
+        <ol className="no-list-indent mb-0">
             {(players || []).map(p => {
                 index++;
                 return (<li key={index}>{disabled ? renderLinkToPlayer(p) : (<button
