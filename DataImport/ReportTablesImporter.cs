@@ -1,12 +1,16 @@
+using System.Data;
+
 namespace DataImport;
 
 public class ReportTablesImporter : IImporter
 {
     private readonly TextWriter _log;
+    private readonly bool _reportColumns;
 
-    public ReportTablesImporter(TextWriter log)
+    public ReportTablesImporter(TextWriter log, bool reportColumns = false)
     {
         _log = log;
+        _reportColumns = reportColumns;
     }
 
     public async Task RunImport(AccessDatabase source, CosmosDatabase destination, CancellationToken token)
@@ -14,7 +18,15 @@ public class ReportTablesImporter : IImporter
         await foreach (var table in source.GetTables(token))
         {
             var dataTable = await source.GetTable(table, token);
-            await _log.WriteLineAsync($"Found source table: {table}, {dataTable.Rows.Count} row/s");
+            await _log.WriteLineAsync($"#### {table}, {dataTable.Rows.Count} row/s");
+
+            if (dataTable.Rows.Count > 0 && _reportColumns)
+            {
+                foreach (DataColumn column in dataTable.Columns)
+                {
+                    await _log.WriteLineAsync($"1. `{column.ColumnName}` {column.DataType.Name}");
+                }
+            }
         }
 
         await foreach (var table in destination.GetTables(token))
