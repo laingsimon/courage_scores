@@ -35,11 +35,18 @@ public class AccessDatabase : IDisposable
         {
             var dataSet = new DataSet();
             var command = _connection.CreateCommand();
-            command.CommandText = $"SELECT * FROM {table}";
-            var adapter = new OleDbDataAdapter(command);
-            adapter.Fill(dataSet);
+            command.CommandText = $"SELECT * FROM [{table}]";
+            try
+            {
+                var adapter = new OleDbDataAdapter(command);
+                adapter.Fill(dataSet);
 
-            return dataSet.Tables[0];
+                return dataSet.Tables[0];
+            }
+            catch (OleDbException exc)
+            {
+                throw new InvalidOperationException($"Unable to execute command: '{command.CommandText}'", exc);
+            }
         }, token);
     }
 }
