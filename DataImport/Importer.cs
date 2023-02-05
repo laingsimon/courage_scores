@@ -1,5 +1,6 @@
 using System.Data.OleDb;
 using System.Diagnostics.CodeAnalysis;
+using DataImport.Models;
 
 namespace DataImport;
 
@@ -9,11 +10,13 @@ public class Importer
     private readonly Settings _settings;
     private readonly TextWriter _log;
     private readonly IImporter[] _importers;
+    private AccessRowDeserialiser _deserialiser;
 
-    public Importer(Settings settings, TextWriter log)
+    public Importer(Settings settings, TextWriter log, AccessRowDeserialiser deserialiser)
     {
         _settings = settings;
         _log = log;
+        _deserialiser = deserialiser;
 
         IEnumerable<IImporter> GetImporters()
         {
@@ -66,6 +69,6 @@ public class Importer
 
         await connection.OpenAsync(token);
 
-        return new AccessDatabase(connection);
+        return new AccessDatabase(connection, _deserialiser);
     }
 }

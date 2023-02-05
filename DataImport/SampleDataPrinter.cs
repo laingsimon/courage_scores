@@ -19,7 +19,7 @@ public class SampleDataPrinter
 
         await _log.WriteLineAsync($"#### `{tableName}`");
         await _log.WriteLineAsync("| " + string.Join(" | ", legHistory.Columns.Cast<DataColumn>().Select(c => c.ColumnName)) + " |");
-        await _log.WriteLineAsync("| " + string.Join(" | ", legHistory.Columns.Cast<DataColumn>().Select(c => "----")) + " |");
+        await _log.WriteLineAsync("| " + string.Join(" | ", legHistory.Columns.Cast<DataColumn>().Select(_ => "----")) + " |");
 
         foreach (var row in orderRows(legHistory.Rows.Cast<DataRow>()))
         {
