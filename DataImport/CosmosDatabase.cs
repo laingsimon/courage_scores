@@ -1,4 +1,3 @@
-using System.Data;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
@@ -62,12 +61,10 @@ public class CosmosDatabase
         }
     }
 
-    public async Task<DataTable> GetTable(TableDto table, CancellationToken token)
+    public async IAsyncEnumerable<T> GetTable<T>(TableDto table, [EnumeratorCancellation] CancellationToken token)
     {
         Container container = await _database!.CreateContainerIfNotExistsAsync(table.Name, table.PartitionKey, cancellationToken: token);
         var records = container.GetItemQueryIterator<JObject>();
-
-        var data = new DataTable();
 
         while (records.HasMoreResults && !token.IsCancellationRequested)
         {
@@ -80,37 +77,8 @@ public class CosmosDatabase
                     break;
                 }
 
-                AddRowToTable(row, data, table.DataType);
+                yield return row.ToObject<T>();
             }
         }
-
-        return data;
-    }
-
-    private void AddRowToTable(JObject row, DataTable table, Type? type)
-    {
-        if (!table.Columns.Contains("_raw"))
-        {
-            table.Columns.Add("_raw", typeof(string));
-        }
-
-        if (type != null && !table.Columns.Contains("value"))
-        {
-            table.Columns.Add("value", type);
-        }
-
-        if (type != null)
-        {
-            table.Rows.Add(row.ToString(), Deserialise(row, type));
-        }
-        else
-        {
-            table.Rows.Add(row.ToString());
-        }
-    }
-
-    private static object Deserialise(JToken row, Type type)
-    {
-        return row.ToObject(type);
     }
 }

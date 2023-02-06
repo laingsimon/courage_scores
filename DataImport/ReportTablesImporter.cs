@@ -1,4 +1,5 @@
 using System.Data;
+using CourageScores.Services;
 
 namespace DataImport;
 
@@ -31,8 +32,8 @@ public class ReportTablesImporter : IImporter
 
         await foreach (var table in destination.GetTables(token))
         {
-            var dataTable = await destination.GetTable(table, token);
-            await _log.WriteLineAsync($"Found destination table: {table.Name}, {dataTable.Rows.Count} row/s, {dataTable.Columns.Count} column/s");
+            var dataTable = await destination.GetTable<object>(table, token).ToList();
+            await _log.WriteLineAsync($"Found destination table: {table.Name}, {dataTable.Count} row/s");
         }
     }
 }
