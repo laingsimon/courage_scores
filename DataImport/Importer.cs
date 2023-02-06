@@ -1,5 +1,6 @@
 using System.Data.OleDb;
 using System.Diagnostics.CodeAnalysis;
+using DataImport.Lookup;
 using DataImport.Models;
 
 namespace DataImport;
@@ -25,8 +26,11 @@ public class Importer
                 yield return new PurgeDataImporter();
             }
 
-            yield return new ReportTablesImporter(log);
-            yield return new FixtureImporter(log);
+            // yield return new ReportTablesImporter(log);
+            yield return new FixtureImporter(
+                log,
+                new LookupFactory(_settings.DivisionId),
+                new ImportRequest(_settings.DivisionId, _settings.SeasonId));
         }
 
         _importers = GetImporters().ToArray();
