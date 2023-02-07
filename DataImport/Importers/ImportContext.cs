@@ -1,6 +1,7 @@
 ﻿using CourageScores.Models.Cosmos.Team;
+using DataImport.Lookup;
 
-namespace DataImport;
+namespace DataImport.Importers;
 
 public class ImportContext
 {

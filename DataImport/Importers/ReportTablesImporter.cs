@@ -1,7 +1,7 @@
 using System.Data;
 using CourageScores.Services;
 
-namespace DataImport;
+namespace DataImport.Importers;
 
 public class ReportTablesImporter : IImporter
 {
@@ -14,7 +14,8 @@ public class ReportTablesImporter : IImporter
         _reportColumns = reportColumns;
     }
 
-    public async Task RunImport(AccessDatabase source, CosmosDatabase destination, CancellationToken token)
+    public async Task<bool> RunImport(AccessDatabase source, CosmosDatabase destination, ImportContext importContext,
+        CancellationToken token)
     {
         await foreach (var table in source.GetTables(token))
         {
@@ -35,5 +36,7 @@ public class ReportTablesImporter : IImporter
             var dataTable = await destination.GetTable<object>(table, token).ToList();
             await _log.WriteLineAsync($"Found destination table: {table.Name}, {dataTable.Count} row/s");
         }
+
+        return true;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace DataImport;
+namespace DataImport.Lookup;
 
 public class StatefulLookup<TKey, TValue> : IDictionary<TKey, TValue>
     where TKey : notnull

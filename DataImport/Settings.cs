@@ -3,7 +3,7 @@ using CommandLine;
 namespace DataImport;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-public class Settings
+public class Settings : IImportRequest
 {
     [Option("filePath", Required = true)]
     public string AccessDatabaseFilePath { get; set; } = null!;
@@ -17,14 +17,20 @@ public class Settings
     [Option("purge", Required = false, Default = false)]
     public bool Purge { get; set; }
 
-    [Option("database", Required = false, Default = false)]
+    [Option("database", Required = false)]
     public string? DatabaseName { get; set; }
 
-    [Option("division", Required = false, Default = false)]
+    [Option("division", Required = false)]
     public Guid DivisionId { get; set; }
 
-    [Option("season", Required = false, Default = false)]
+    [Option("season", Required = false)]
     public Guid SeasonId { get; set; }
+
+    [Option("userName", Required = false, Default = "importer")]
+    public string UserName { get; set; } = null!;
+
+    [Option("dryRun", Required = false, Default = true)]
+    public bool DryRun { get; set; }
 
     public static Task Parse(string[] args, Func<Settings, Task> runImport, Action<IEnumerable<Error>>? abort = null)
     {

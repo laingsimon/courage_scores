@@ -2,44 +2,40 @@ using CourageScores.Models.Cosmos.Team;
 using DataImport.Lookup;
 using DataImport.Models;
 
-namespace DataImport;
+namespace DataImport.Importers;
 
-public class FixtureImporter : IImporter
+public class TeamAndPlayerImporter : IImporter
 {
     private readonly TextWriter _log;
-    private readonly LookupFactory _lookupFactory;
-    private readonly ImportRequest _request;
+    private readonly IImportRequest _request;
     private readonly INameComparer _nameComparer;
 
-    public FixtureImporter(TextWriter log, LookupFactory lookupFactory, ImportRequest request, INameComparer nameComparer)
+    public TeamAndPlayerImporter(TextWriter log, IImportRequest request, INameComparer nameComparer)
     {
         _log = log;
-        _lookupFactory = lookupFactory;
         _request = request;
         _nameComparer = nameComparer;
     }
 
-    public async Task RunImport(AccessDatabase source, CosmosDatabase destination, CancellationToken token)
+    public async Task<bool> RunImport(AccessDatabase source, CosmosDatabase destination, ImportContext context, CancellationToken token)
     {
         var players = await source.GetTable<Player>(TableNames.Players, token);
-        var context = new ImportContext
-        {
-            Teams = await _lookupFactory.GetTeamLookup(destination, token),
-        };
 
         await ImportPlayersAndTeams(players.OrderBy(p => p.pubname).ThenBy(p => p.playername), context, token);
+        var totalSuccess = true;
 
-        var scores = await source.GetTable<LegHistory>(TableNames.Scores, token);
-
-        foreach (var change in context.Teams.GetModified())
+        foreach (var change in context.Teams!.GetModified())
         {
             await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
             var result = await destination.UpsertAsync(change.Value, "team", token);
             if (!result.Success)
             {
+                totalSuccess = false;
                 await _log.WriteLineAsync($"Failed to upload change: {result.Success}");
             }
         }
+
+        return totalSuccess;
     }
 
     private async Task ImportPlayersAndTeams(IEnumerable<Player> players, ImportContext context, CancellationToken token)

@@ -1,4 +1,4 @@
-namespace DataImport;
+namespace DataImport.Importers;
 
 public class ImportRecordResult
 {

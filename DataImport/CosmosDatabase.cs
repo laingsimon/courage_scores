@@ -4,6 +4,7 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
+using DataImport.Importers;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,19 +13,23 @@ namespace DataImport;
 
 public class CosmosDatabase
 {
+    private readonly bool _permitUpload;
     private readonly string _host;
     private readonly string _key;
     private readonly string _databaseName;
     private Database? _database;
     private readonly JsonSerializerService _serializer;
 
-    public CosmosDatabase(string host, string key, string? databaseName = null)
+    public CosmosDatabase(string host, string key, string? databaseName = null, bool permitUpload = false)
     {
+        _permitUpload = permitUpload;
         _host = string.IsNullOrEmpty(host) ? GetEnvironmentVariable("CosmosDb_Endpoint") : host;
         _key = string.IsNullOrEmpty(key) ? GetEnvironmentVariable("CosmosDb_Key") : key;
         _databaseName = string.IsNullOrEmpty(databaseName) ? "league" + DateTime.UtcNow.ToString("yyyyMMddHHmm") : databaseName;
         _serializer = new JsonSerializerService(new JsonSerializer());
     }
+
+    public string HostName => _host;
 
     private string GetEnvironmentVariable(string name)
     {
@@ -85,6 +90,12 @@ public class CosmosDatabase
 
     public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, CancellationToken token)
     {
+        if (!_permitUpload)
+        {
+            // simulate success
+            return new ImportRecordResult(true, "Not uploading data: Dry run mode active");
+        }
+
         var container = _database!.GetContainer(tableName);
         var result = await container.UpsertItemAsync(update, cancellationToken: token);
 
