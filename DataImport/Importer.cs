@@ -30,7 +30,8 @@ public class Importer
             yield return new FixtureImporter(
                 log,
                 new LookupFactory(_settings.DivisionId),
-                new ImportRequest(_settings.DivisionId, _settings.SeasonId));
+                new ImportRequest(_settings.DivisionId, _settings.SeasonId),
+                new NameComparer());
         }
 
         _importers = GetImporters().ToArray();

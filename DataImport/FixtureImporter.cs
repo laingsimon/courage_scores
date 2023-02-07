@@ -9,12 +9,14 @@ public class FixtureImporter : IImporter
     private readonly TextWriter _log;
     private readonly LookupFactory _lookupFactory;
     private readonly ImportRequest _request;
+    private readonly INameComparer _nameComparer;
 
-    public FixtureImporter(TextWriter log, LookupFactory lookupFactory, ImportRequest request)
+    public FixtureImporter(TextWriter log, LookupFactory lookupFactory, ImportRequest request, INameComparer nameComparer)
     {
         _log = log;
         _lookupFactory = lookupFactory;
         _request = request;
+        _nameComparer = nameComparer;
     }
 
     public async Task RunImport(AccessDatabase source, CosmosDatabase destination, CancellationToken token)
@@ -45,8 +47,13 @@ public class FixtureImporter : IImporter
             }
 
             var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == _request.SeasonId) ?? await AddSeason(team, context.Teams);
-            var _ = teamSeason.Players.SingleOrDefault(p => p.Name == player.playername) ??
+            var teamPlayer = teamSeason.Players.SingleOrDefault(p => _nameComparer.PlayerNameEquals(p.Name, player.playername!, team.Name)) ??
                              await AddPlayer(teamSeason, team, context.Teams, player);
+            if (teamPlayer.Name != player.playername)
+            {
+                teamPlayer.Name = player.playername!;
+                context.Teams.SetModified(team);
+            }
         }
     }
 

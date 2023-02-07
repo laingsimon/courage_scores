@@ -1,0 +1,30 @@
+{
+  "access_name": {
+    "team": "cosmos_team_name",
+    "player": "cosmos_team_player_name"
+  },
+  "Mark Branson": {
+    "team": "Crown Exiles",
+    "player": "Mike Branson"
+  },
+  "Glyn Bryant": {
+    "team": "Norton SC",
+    "player": "Glynn Bryant"
+  },
+  "Sam Hoddinott": {
+    "team": "Peasedown Posse",
+    "player": "Sam Hoddinot"
+  },
+  "Kev Price": {
+    "team": "Riverside",
+    "player": "Kevin Price"
+  },
+  "Sam Mallon": {
+    "team": "Riverside",
+    "player": "Samuel Mallon"
+  },
+  "Allan Clarke": {
+    "team": "Waldegrave A",
+    "player": "Allan Clarke"
+  }
+}
