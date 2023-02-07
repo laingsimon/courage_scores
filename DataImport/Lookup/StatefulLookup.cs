@@ -15,7 +15,8 @@ public class StatefulLookup<TKey, TValue> : IDictionary<TKey, TValue>
 
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
-        return new CompositeEnumerator<KeyValuePair<TKey, TValue>>(_currentData.GetEnumerator(), _newData.GetEnumerator());
+        var intermediary = _currentData.Concat(_newData).ToList();
+        return intermediary.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -40,7 +41,8 @@ public class StatefulLookup<TKey, TValue> : IDictionary<TKey, TValue>
 
     public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
     {
-        throw new NotSupportedException();
+        var intermediary = _currentData.Concat(_newData).ToList();
+        intermediary.CopyTo(array, arrayIndex);
     }
 
     public bool Remove(KeyValuePair<TKey, TValue> item)

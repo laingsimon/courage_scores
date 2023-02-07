@@ -7,6 +7,10 @@
     "team": "Crown Exiles",
     "player": "Mike Branson"
   },
+  "Mark Bronson": {
+    "team": "Crown Exiles",
+    "player": "Mark Branson"
+  },
   "Glyn Bryant": {
     "team": "Norton SC",
     "player": "Glynn Bryant"
@@ -26,5 +30,13 @@
   "Allan Clarke": {
     "team": "Waldegrave A",
     "player": "Allan Clarke"
+  },
+  "Natheniel Humphrie": {
+    "team": "Crossways",
+    "player": "Natheniel Humphries"
+  },
+  "Daron Willmott": {
+    "team": "Mardons",
+    "player": "Daren Willmott"
   }
 }

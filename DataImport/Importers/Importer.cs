@@ -28,11 +28,15 @@ public class Importer
                 yield return new PurgeDataImporter();
             }
 
+
+            var nameComparer = new NameComparer();
             // yield return new ReportTablesImporter(log);
             yield return new TeamAndPlayerImporter(
                 log,
                 _settings,
-                new NameComparer());
+                nameComparer);
+
+            yield return new ScoresImporter(log, _settings, nameComparer);
         }
 
         _importers = GetImporters().ToArray();
@@ -78,7 +82,7 @@ public class Importer
 
     private async Task<CosmosDatabase> OpenCosmosDatabase(CancellationToken token)
     {
-        var cosmosDatabase = new CosmosDatabase(_settings.AzureCosmosHostName, _settings.AzureCosmosKey, _settings.DatabaseName, _settings.DryRun);
+        var cosmosDatabase = new CosmosDatabase(_settings.AzureCosmosHostName, _settings.AzureCosmosKey, _settings.DatabaseName, _settings.Commit);
         await _log.WriteLineAsync($"Opening cosmos database: {cosmosDatabase.HostName}...");
         await cosmosDatabase.OpenAsync(token);
         return cosmosDatabase;

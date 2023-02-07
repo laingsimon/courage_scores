@@ -26,6 +26,11 @@ public class TeamAndPlayerImporter : IImporter
 
         foreach (var change in context.Teams!.GetModified())
         {
+            if (token.IsCancellationRequested)
+            {
+                return totalSuccess;
+            }
+
             await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
             var result = await destination.UpsertAsync(change.Value, "team", token);
             if (!result.Success)
@@ -60,6 +65,11 @@ public class TeamAndPlayerImporter : IImporter
                 await _log.WriteLineAsync($"Changing player name from {teamPlayer.Name} -> {player.playername}");
                 teamPlayer.Name = player.playername!;
                 context.Teams.SetModified(team);
+            }
+
+            if (player.playcode != null)
+            {
+                context.PlayerNameLookup[player.playcode] = teamPlayer;
             }
         }
     }

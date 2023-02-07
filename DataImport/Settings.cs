@@ -29,8 +29,8 @@ public class Settings : IImportRequest
     [Option("userName", Required = false, Default = "importer")]
     public string UserName { get; set; } = null!;
 
-    [Option("dryRun", Required = false, Default = true)]
-    public bool DryRun { get; set; }
+    [Option("commit", Required = false, Default = false)]
+    public bool Commit { get; set; }
 
     public static Task Parse(string[] args, Func<Settings, Task> runImport, Action<IEnumerable<Error>>? abort = null)
     {

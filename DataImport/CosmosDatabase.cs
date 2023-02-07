@@ -89,7 +89,13 @@ public class CosmosDatabase
     }
 
     public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, CancellationToken token)
+        where T: AuditedEntity
     {
+        if (update.Id == Guid.Empty)
+        {
+            throw new InvalidOperationException($"Cannot upsert an item with no id: {tableName}, {update.Id}");
+        }
+
         if (!_permitUpload)
         {
             // simulate success
