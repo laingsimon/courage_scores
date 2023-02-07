@@ -1,3 +1,4 @@
+using System.Net;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
@@ -80,5 +81,19 @@ public class CosmosDatabase
                 yield return row.ToObject<T>();
             }
         }
+    }
+
+    public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, CancellationToken token)
+    {
+        var container = _database!.GetContainer(tableName);
+        var result = await container.UpsertItemAsync(update, cancellationToken: token);
+
+        if (result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK)
+        {
+            // updated or created
+            return new ImportRecordResult(true);
+        }
+
+        return new ImportRecordResult(false, result.StatusCode.ToString());
     }
 }

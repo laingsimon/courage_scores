@@ -30,6 +30,16 @@ public class FixtureImporter : IImporter
         await ImportPlayersAndTeams(players.OrderBy(p => p.pubname).ThenBy(p => p.playername), context, token);
 
         var scores = await source.GetTable<LegHistory>(TableNames.Scores, token);
+
+        foreach (var change in context.Teams.GetModified())
+        {
+            await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
+            var result = await destination.UpsertAsync(change.Value, "team", token);
+            if (!result.Success)
+            {
+                await _log.WriteLineAsync($"Failed to upload change: {result.Success}");
+            }
+        }
     }
 
     private async Task ImportPlayersAndTeams(IEnumerable<Player> players, ImportContext context, CancellationToken token)
@@ -51,6 +61,7 @@ public class FixtureImporter : IImporter
                              await AddPlayer(teamSeason, team, context.Teams, player);
             if (teamPlayer.Name != player.playername)
             {
+                await _log.WriteLineAsync($"Changing player name from {teamPlayer.Name} -> {player.playername}");
                 teamPlayer.Name = player.playername!;
                 context.Teams.SetModified(team);
             }

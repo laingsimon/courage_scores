@@ -111,4 +111,12 @@ public class StatefulLookup<TKey, TValue> : IDictionary<TKey, TValue>
             throw new InvalidOperationException("Item is not currently tracked, it must be added to the lookup");
         }
     }
+
+    public IEnumerable<KeyValuePair<TKey, TValue>> GetModified()
+    {
+        foreach (var added in _newData)
+        {
+            yield return added;
+        }
+    }
 }
