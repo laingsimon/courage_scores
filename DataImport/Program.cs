@@ -12,14 +12,15 @@ try
     {
         tokenSource.Cancel();
     };
+    var log = Console.Out;
 
     await Settings.Parse(
         args,
         s => new Importer(
             s,
-            Console.Out,
+            log,
             new AccessRowDeserialiser(),
-            new LookupFactory(s.DivisionId)).RunImport(tokenSource.Token));
+            new LookupFactory(log, s)).RunImport(tokenSource.Token));
 }
 catch (Exception exc)
 {

@@ -8,9 +8,9 @@ public class StatefulLookup<TKey, TValue> : IDictionary<TKey, TValue>
     private readonly Dictionary<TKey, TValue> _currentData;
     private readonly Dictionary<TKey, TValue> _newData = new Dictionary<TKey, TValue>();
 
-    public StatefulLookup(Dictionary<TKey, TValue> currentData)
+    public StatefulLookup(Dictionary<TKey, TValue>? currentData = null)
     {
-        _currentData = currentData;
+        _currentData = currentData ?? new Dictionary<TKey, TValue>();
     }
 
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()

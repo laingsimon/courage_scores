@@ -50,10 +50,10 @@ public class Importer
         {
             var cosmos = await OpenCosmosDatabase(token);
 
-            await _log.WriteLineAsync("Creating team lookup...");
             var context = new ImportContext
             {
                 Teams = await _lookupFactory.GetTeamLookup(cosmos, token),
+                Fixtures = await _lookupFactory.GetFixtureLookup(cosmos, token),
             };
 
             await _log.WriteLineAsync($"Running {_importers.Length} importers...");
