@@ -85,7 +85,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitHiCheckout(NotablePlayer player)
+    public void VisitHiCheckout(INotablePlayer player)
     {
         if (!int.TryParse(player.Notes, out var hiCheck))
         {
