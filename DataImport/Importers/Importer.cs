@@ -60,6 +60,21 @@ public class Importer
                 Fixtures = await _lookupFactory.GetFixtureLookup(cosmos, token),
             };
 
+            if (_settings.Commit)
+            {
+                await _log.WriteLineAsync("Running in Commit mode, changes will be uploaded, press enter key to continue or Ctrl+C to exit");
+                await Console.In.ReadLineAsync();
+            }
+            else
+            {
+                await _log.WriteLineAsync("Running in DryRun mode, no changes will be uploaded");
+            }
+
+            if (token.IsCancellationRequested)
+            {
+                return;
+            }
+
             await _log.WriteLineAsync($"Running {_importers.Length} importers...");
             foreach (var importer in _importers)
             {
