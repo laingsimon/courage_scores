@@ -11,11 +11,11 @@ public class DivisionPlayerDto
     public int Rank { get; set; }
     public string Name { get; set; } = null!;
     public string Team { get; set; } = null!;
-    [JsonProperty("Played")]
+    [JsonProperty("played")]
     public int PlayedSingles { get; set; }
-    [JsonProperty("Won")]
+    [JsonProperty("won")]
     public int WonSingles { get; set; }
-    [JsonProperty("Lost")]
+    [JsonProperty("lost")]
     public int LostSingles { get; set; }
     public int Points { get; set; }
     public double WinPercentage { get; set; }
