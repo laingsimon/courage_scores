@@ -1,5 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -11,11 +11,11 @@ public class DivisionPlayerDto
     public int Rank { get; set; }
     public string Name { get; set; } = null!;
     public string Team { get; set; } = null!;
-    [JsonProperty("played")]
+    [JsonPropertyName("played")]
     public int PlayedSingles { get; set; }
-    [JsonProperty("won")]
+    [JsonPropertyName("won")]
     public int WonSingles { get; set; }
-    [JsonProperty("lost")]
+    [JsonPropertyName("lost")]
     public int LostSingles { get; set; }
     public int Points { get; set; }
     public double WinPercentage { get; set; }
@@ -24,16 +24,10 @@ public class DivisionPlayerDto
     public bool Captain { get; set; }
     public Dictionary<DateTime, Guid> Fixtures { get; set; } = new();
 
-    [JsonIgnore]
     public int PlayedPairs { get; set; }
-    [JsonIgnore]
     public int WonPairs { get; set; }
-    [JsonIgnore]
     public int DrawPairs { get; set; }
-    [JsonIgnore]
     public int PlayedTriples { get; set; }
-    [JsonIgnore]
     public int WonTriples { get; set; }
-    [JsonIgnore]
     public int DrawTriples { get; set; }
 }
