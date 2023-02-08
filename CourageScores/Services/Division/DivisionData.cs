@@ -49,9 +49,9 @@ public class DivisionData
             return PlayerPlayCount.TryGetValue(playerCount, out var count) ? count : 0;
         }
 
-        public int CalculatePoints()
+        public int CalculatePoints(int win = 3, int draw = 1)
         {
-            return (Win * 3) + (Draw * 1);
+            return (Win * win) + (Draw * draw);
         }
     }
 

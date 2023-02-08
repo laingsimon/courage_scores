@@ -17,7 +17,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             PlayedSingles = score.GetPlayedCount(1),
             PlayedPairs = score.GetPlayedCount(2),
             PlayedTriples = score.GetPlayedCount(3),
-            Points = score.CalculatePoints(),
+            Points = score.CalculatePoints(win: 3, draw: 1),
             Team = playerTuple.Team.Name,
             Won = score.Win,
             OneEighties = score.OneEighty,

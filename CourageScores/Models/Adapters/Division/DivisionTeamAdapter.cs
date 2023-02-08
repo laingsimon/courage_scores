@@ -13,7 +13,7 @@ public class DivisionTeamAdapter : IDivisionTeamAdapter
             Id = team.Id,
             Name = team.Name,
             Played = score.TeamPlayed,
-            Points = score.CalculatePoints(),
+            Points = score.CalculatePoints(win: 2, draw: 1),
             Won = score.Win,
             Lost = score.Lost,
             Drawn = score.Draw,
