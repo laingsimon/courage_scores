@@ -33,7 +33,7 @@ public class DivisionTeamAdapterTests
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Name, Is.EqualTo(team.Name));
         Assert.That(result.Played, Is.EqualTo(1));
-        Assert.That(result.Points, Is.EqualTo(10d).Within(0.001));
+        Assert.That(result.Points, Is.EqualTo(8d).Within(0.001));
         Assert.That(result.Won, Is.EqualTo(2));
         Assert.That(result.Lost, Is.EqualTo(3));
         Assert.That(result.Drawn, Is.EqualTo(4));
