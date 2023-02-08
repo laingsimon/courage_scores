@@ -138,7 +138,7 @@ public class DivisionService : IDivisionService
             var topTeamPoints = teams.First().Points;
             foreach (var team in teams)
             {
-                team.Difference = team.Points - topTeamPoints;
+                // team.Difference = team.Points - topTeamPoints;
             }
         }
 
