@@ -13,8 +13,10 @@ public class DivisionPlayerDto
     public string Team { get; set; } = null!;
     [JsonProperty("Played")]
     public int PlayedSingles { get; set; }
-    public int Won { get; set; }
-    public int Lost { get; set; }
+    [JsonProperty("Won")]
+    public int WonSingles { get; set; }
+    [JsonProperty("Lost")]
+    public int LostSingles { get; set; }
     public int Points { get; set; }
     public double WinPercentage { get; set; }
     public int OneEighties { get; set; }
@@ -25,5 +27,13 @@ public class DivisionPlayerDto
     [JsonIgnore]
     public int PlayedPairs { get; set; }
     [JsonIgnore]
+    public int WonPairs { get; set; }
+    [JsonIgnore]
+    public int DrawPairs { get; set; }
+    [JsonIgnore]
     public int PlayedTriples { get; set; }
+    [JsonIgnore]
+    public int WonTriples { get; set; }
+    [JsonIgnore]
+    public int DrawTriples { get; set; }
 }

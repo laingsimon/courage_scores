@@ -5,7 +5,7 @@ namespace CourageScores.Models.Adapters.Division;
 
 public interface IDivisionPlayerAdapter
 {
-    Task<DivisionPlayerDto> Adapt(DivisionData.Score score,
+    Task<DivisionPlayerDto> Adapt(DivisionData.PlayerScore score,
         DivisionData.TeamPlayerTuple playerTuple,
         Dictionary<DateTime, Guid> fixtures,
         CancellationToken token);

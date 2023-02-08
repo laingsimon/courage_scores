@@ -10,12 +10,12 @@ public class DivisionData
     /// <summary>
     /// PlayerId -> Score map
     /// </summary>
-    public Dictionary<Guid, Score> Players { get; } = new ();
+    public Dictionary<Guid, PlayerScore> Players { get; } = new ();
 
     /// <summary>
     /// TeamId -> score map
     /// </summary>
-    public Dictionary<Guid, Score> Teams { get; } = new();
+    public Dictionary<Guid, TeamScore> Teams { get; } = new();
 
     /// <summary>
     /// PlayerId -> GameId map
@@ -27,31 +27,68 @@ public class DivisionData
     /// </summary>
     public Dictionary<Guid, TeamPlayerTuple> PlayerIdToTeamLookup { get; } = new();
 
-    public class Score
+    public interface IScore
     {
-        public IGamePlayer? Player { get; init; }
-        public GameTeam? Team { get; set; }
+        int Draw { get; set; }
+    }
+
+    public class PlayerPlayScore : IScore
+    {
         public int Win { get; set; }
         public int Draw { get; set; }
+        public int Lost { get; set; }
+        public int Played { get; set; }
+    }
+
+    public class PlayerScore : IScore
+    {
+        public IGamePlayer? Player { get; init; }
+
+        public int Draw
+        {
+            get => GetScores(1).Draw;
+            set => GetScores(1).Draw = value;
+        }
         public int OneEighty { get; set; }
         public int HiCheckout { get; set; }
-        public int TeamPlayed { get; set; }
-        public int Lost { get; set; }
-        public double PlayerWinPercentage => GetPlayedCount(1) == 0
+        public double PlayerWinPercentage => GetScores(1).Played == 0
             ? 0
             // ReSharper disable once ArrangeRedundantParentheses
-            : Math.Round(((double)Win / GetPlayedCount(1)) * 100, 2);
+            : Math.Round(((double)GetScores(1).Win / GetScores(1).Played) * 100, 2);
 
-        public Dictionary<int, int> PlayerPlayCount { get; } = new();
+        public Dictionary<int, PlayerPlayScore> PlayerPlayCount { get; } = new();
 
-        public int GetPlayedCount(int playerCount)
+        public PlayerPlayScore GetScores(int playerCount)
         {
-            return PlayerPlayCount.TryGetValue(playerCount, out var count) ? count : 0;
+            if (!PlayerPlayCount.TryGetValue(playerCount, out var score))
+            {
+                score = new PlayerPlayScore();
+                PlayerPlayCount.Add(playerCount, score);
+            }
+
+            return score;
         }
 
-        public int CalculatePoints(int win = 3, int draw = 1)
+        public int CalculatePoints()
         {
-            return (Win * win) + (Draw * draw);
+            // ReSharper disable ArrangeRedundantParentheses
+            return (GetScores(1).Win * 3) + (GetScores(1).Draw * 1);
+            // ReSharper restore ArrangeRedundantParentheses
+        }
+    }
+
+    public class TeamScore : IScore
+    {
+        public int Win { get; set; }
+        public int Draw { get; set; }
+        public int Played { get; set; }
+        public int Lost { get; set; }
+
+        public int CalculatePoints()
+        {
+            // ReSharper disable ArrangeRedundantParentheses
+            return (Win * 2) + (Draw * 1);
+            // ReSharper restore ArrangeRedundantParentheses
         }
     }
 

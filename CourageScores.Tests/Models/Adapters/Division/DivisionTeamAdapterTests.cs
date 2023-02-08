@@ -20,9 +20,9 @@ public class DivisionTeamAdapterTests
             Name = "team",
             Address = "address",
         };
-        var score = new DivisionData.Score
+        var score = new DivisionData.TeamScore
         {
-            TeamPlayed = 1,
+            Played = 1,
             Win = 2,
             Lost = 3,
             Draw = 4,

@@ -6,14 +6,14 @@ namespace CourageScores.Models.Adapters.Division;
 
 public class DivisionTeamAdapter : IDivisionTeamAdapter
 {
-    public Task<DivisionTeamDto> Adapt(TeamDto team, DivisionData.Score score, CancellationToken token)
+    public Task<DivisionTeamDto> Adapt(TeamDto team, DivisionData.TeamScore score, CancellationToken token)
     {
         return Task.FromResult(new DivisionTeamDto
         {
             Id = team.Id,
             Name = team.Name,
-            Played = score.TeamPlayed,
-            Points = score.CalculatePoints(win: 2, draw: 1),
+            Played = score.Played,
+            Points = score.CalculatePoints(),
             Won = score.Win,
             Lost = score.Lost,
             Drawn = score.Draw,

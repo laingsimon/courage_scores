@@ -14,19 +14,15 @@ public class DivisionPlayerAdapterTests
     [Test]
     public async Task Adapt_GivenNoFixtures_SetsPropertiesCorrectly()
     {
-        var score = new DivisionData.Score
+        var score = new DivisionData.PlayerScore
         {
-            Lost = 1,
-            Win = 2,
             OneEighty = 3,
             HiCheckout = 4,
-            Draw = 5,
-            TeamPlayed = 6,
             PlayerPlayCount =
             {
-                { 1, 7 }, // singles
-                { 2, 8 }, // pairs
-                { 3, 9 }, // triples
+                { 1, new DivisionData.PlayerPlayScore { Lost = 1, Win = 2, Played = 7, Draw = 5 } }, // singles
+                { 2, new DivisionData.PlayerPlayScore { Lost = 11, Win = 22, Played = 8, Draw = 55 } }, // pairs
+                { 3, new DivisionData.PlayerPlayScore { Lost = 111, Win = 222, Played = 9, Draw = 555 } }, // triples
             }
         };
         var team = new TeamDto
@@ -49,8 +45,8 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Id, Is.EqualTo(player.Id));
         Assert.That(result.Captain, Is.EqualTo(player.Captain));
         Assert.That(result.Name, Is.EqualTo(player.Name));
-        Assert.That(result.Lost, Is.EqualTo(score.Lost));
-        Assert.That(result.Won, Is.EqualTo(score.Win));
+        Assert.That(result.LostSingles, Is.EqualTo(score.GetScores(1).Lost));
+        Assert.That(result.WonSingles, Is.EqualTo(score.GetScores(1).Win));
         Assert.That(result.OneEighties, Is.EqualTo(score.OneEighty));
         Assert.That(result.Over100Checkouts, Is.EqualTo(score.HiCheckout));
         Assert.That(result.PlayedSingles, Is.EqualTo(7));
