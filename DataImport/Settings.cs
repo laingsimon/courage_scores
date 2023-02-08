@@ -32,6 +32,9 @@ public class Settings : IImportRequest
     [Option("commit", Required = false, Default = false)]
     public bool Commit { get; set; }
 
+    [Option("api", Required = false)]
+    public string? ApiHostName { get; set; }
+
     public static Task Parse(string[] args, Func<Settings, Task> runImport, Action<IEnumerable<Error>>? abort = null)
     {
         return Parser.Default.ParseArguments<Settings>(args)

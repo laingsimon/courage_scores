@@ -37,6 +37,8 @@ public class Importer
                 nameComparer);
 
             yield return new ScoresImporter(log, _settings, nameComparer);
+
+            yield return new InvalidateCachesImporter(_settings, log);
         }
 
         _importers = GetImporters().ToArray();
