@@ -142,9 +142,16 @@ public class GameTests
         _game.Matches.Add(new GameMatch
         {
             HomePlayers = { new GamePlayer() },
-            HomeScore = 1,
+            HomeScore = 3,
             AwayPlayers = { new GamePlayer() },
             AwayScore = 1,
+        });
+        _game.Matches.Add(new GameMatch
+        {
+            HomePlayers = { new GamePlayer() },
+            HomeScore = 0,
+            AwayPlayers = { new GamePlayer() },
+            AwayScore = 3,
         });
 
         _game.Accept(visitor.Object);

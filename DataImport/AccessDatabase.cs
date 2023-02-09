@@ -2,6 +2,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using DataImport.Models;
 
 namespace DataImport;
 
@@ -9,10 +10,12 @@ namespace DataImport;
 public class AccessDatabase : IDisposable
 {
     private readonly OleDbConnection _connection;
+    private readonly AccessRowDeserialiser _deserialiser;
 
-    public AccessDatabase(OleDbConnection connection)
+    public AccessDatabase(OleDbConnection connection, AccessRowDeserialiser deserialiser)
     {
         _connection = connection;
+        _deserialiser = deserialiser;
     }
 
     public void Dispose()
@@ -29,17 +32,31 @@ public class AccessDatabase : IDisposable
         }
     }
 
+    public async Task<IReadOnlyCollection<T>> GetTable<T>(string table, CancellationToken token)
+        where T : new()
+    {
+        var data = await GetTable(table, token);
+        return _deserialiser.Deserialise<T>(data, token).ToArray();
+    }
+
     public async Task<DataTable> GetTable(string table, CancellationToken token)
     {
         return await Task.Run(() =>
         {
             var dataSet = new DataSet();
             var command = _connection.CreateCommand();
-            command.CommandText = $"SELECT * FROM {table}";
-            var adapter = new OleDbDataAdapter(command);
-            adapter.Fill(dataSet);
+            command.CommandText = $"SELECT * FROM [{table}]";
+            try
+            {
+                var adapter = new OleDbDataAdapter(command);
+                adapter.Fill(dataSet);
 
-            return dataSet.Tables[0];
+                return dataSet.Tables[0];
+            }
+            catch (OleDbException exc)
+            {
+                throw new InvalidOperationException($"Unable to execute command: '{command.CommandText}'", exc);
+            }
         }, token);
     }
 }

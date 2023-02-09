@@ -13,12 +13,14 @@ import {DivisionReports} from "./division_reports/DivisionReports";
 import {TeamOverview} from "./division_teams/TeamOverview";
 import {PlayerOverview} from "./division_players/PlayerOverview";
 import {Loading} from "./common/Loading";
+import {PageError} from "./PageError";
 
 export function Division({ account, apis, divisions }) {
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ teams, setTeams ] = useState(null);
     const [ loading, setLoading ] = useState(false);
+    const [ error, setError ] = useState(null);
     const effectiveTab = mode || 'teams';
     const divisionApi = new DivisionApi(new Http(new Settings()));
     const teamApi = new TeamApi(new Http(new Settings()));
@@ -40,7 +42,7 @@ export function Division({ account, apis, divisions }) {
     }
 
     useEffect(() => {
-        if (loading) {
+        if (loading || error) {
             return;
         }
 
@@ -51,18 +53,42 @@ export function Division({ account, apis, divisions }) {
         setLoading(true);
 
         async function reloadDivisionData() {
-            const divisionData = await divisionApi.data(divisionId, seasonId);
-            const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
-            setDivisionData(divisionData);
-            setTeams(teams);
-            setLoading(false);
+            try {
+                const divisionData = await divisionApi.data(divisionId, seasonId);
+                const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
+                setDivisionData(divisionData);
+                setTeams(teams);
+            } catch (e) {
+                if (e.message.indexOf('Exception') !== -1) {
+                    const dotnetException = JSON.parse(e.message);
+
+                    setError({
+                        message: dotnetException.Exception.Message,
+                        stack: dotnetException.Exception.StackTrace.join('\n'),
+                        type: dotnetException.Exception.Type
+                    });
+                }
+                else {
+                    setError({
+                        message: e.message,
+                        stack: e.stack
+                    });
+                }
+            }
+            finally {
+                setLoading(false);
+            }
         }
 
         // noinspection JSIgnoredPromiseFromCall
         reloadDivisionData();
     },
     // eslint-disable-next-line
-    [ divisionData, loading, divisionId, seasonId ]);
+    [ divisionData, loading, divisionId, seasonId, error ]);
+
+    if (error) {
+        return (<PageError error={error} clearError={() => setError(null)} />)
+    }
 
     if (loading || !divisionData) {
         return (<Loading />);

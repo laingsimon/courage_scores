@@ -233,7 +233,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
-                    className={readOnly ? 'border-1 border-secondary single-character-input' : 'single-character-input'}
+                    className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                     type="number" max="5" min="0"
                     value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
@@ -245,7 +245,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 : (<input
                     disabled={disabled}
                     readOnly={readOnly}
-                    className={readOnly ? 'border-1 border-secondary single-character-input' : 'single-character-input'}
+                    className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                     type="number" max="5" min="0"
                     value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                     onChange={(event) => awayScoreChanged(event.target.value)} />) }

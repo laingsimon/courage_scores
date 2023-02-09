@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Team;
 
@@ -17,92 +16,94 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGame(Models.Cosmos.Game.Game game)
     {
+        if (game.Postponed)
+        {
+            return;
+        }
+
         var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
         var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
         game.Accept(playerGamesVisitor);
         game.Accept(playerTeamVisitor);
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
-        if (players.Count != 1)
+        var winRateRecorded = false;
+        foreach (var player in players)
         {
-            // only record details of singles matches
-            return;
-        }
+            if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
+            {
+                playerScore = new DivisionData.PlayerScore();
+                _divisionData.Players.Add(player.Id, playerScore);
+            }
 
-        var player = players.Single();
-        if (_divisionData.Players.TryGetValue(player.Id, out var score))
-        {
-            score.Win++;
-        }
-        else
-        {
-            _divisionData.Players.Add(player.Id, new DivisionData.Score { Win = 1, Player = player });
+            var scoreForLegSize = playerScore.GetScores(players.Count);
+            scoreForLegSize.MatchesWon++;
+            if (!winRateRecorded)
+            {
+                scoreForLegSize.TeamWinRate += winningScore;
+                scoreForLegSize.TeamLossRate += losingScore;
+            }
+
+            scoreForLegSize.PlayerWinRate += winningScore;
+            scoreForLegSize.PlayerLossRate += losingScore;
+            winRateRecorded = true;
         }
     }
 
-    public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
+    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
-        if (homePlayers.Count != 1 || awayPlayers.Count != 1)
+        var winRateRecorded = false;
+        foreach (var player in players)
         {
-            // only record details of singles matches
-            return;
-        }
+            if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
+            {
+                playerScore = new DivisionData.PlayerScore();
+                _divisionData.Players.Add(player.Id, playerScore);
+            }
 
-        AddDraw(homePlayers.Single(), _divisionData.Players, homePlayers.Single(), null);
-        AddDraw(awayPlayers.Single(), _divisionData.Players, awayPlayers.Single(), null);
-    }
+            var scoreForLegSize = playerScore.GetScores(players.Count);
+            scoreForLegSize.MatchesLost++;
+            if (!winRateRecorded)
+            {
+                scoreForLegSize.TeamLossRate += winningScore;
+                scoreForLegSize.TeamWinRate += losingScore;
+            }
 
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
-    {
-        if (players.Count != 1)
-        {
-            // only record details of singles matches
-            return;
-        }
-
-        var player = players.Single();
-        if (_divisionData.Players.TryGetValue(player.Id, out var score))
-        {
-            score.Lost++;
-        }
-        else
-        {
-            _divisionData.Players.Add(player.Id, new DivisionData.Score { Lost = 1, Player = player });
+            scoreForLegSize.PlayerLossRate += winningScore;
+            scoreForLegSize.PlayerWinRate += losingScore;
+            winRateRecorded = true;
         }
     }
 
     public void VisitOneEighty(IGamePlayer player)
     {
-        if (_divisionData.Players.TryGetValue(player.Id, out var score))
+        if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            score.OneEighty++;
+            score = new DivisionData.PlayerScore { Player = player };
+            _divisionData.Players.Add(player.Id, score);
         }
-        else
-        {
-            _divisionData.Players.Add(player.Id, new DivisionData.Score { OneEighty = 1, Player = player });
-        }
+
+        score.OneEighty++;
     }
 
-    public void VisitHiCheckout(NotablePlayer player)
+    public void VisitHiCheckout(INotablePlayer player)
     {
         if (!int.TryParse(player.Notes, out var hiCheck))
         {
             return;
         }
 
-        if (_divisionData.Players.TryGetValue(player.Id, out var score))
+        if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            if (hiCheck > score.HiCheckout)
-            {
-                score.HiCheckout = hiCheck;
-            }
-            score.HiCheckout++;
+            score = new DivisionData.PlayerScore { Player = player };
+            _divisionData.Players.Add(player.Id, score);
         }
-        else
+
+        if (hiCheck > score.HiCheckout)
         {
-            _divisionData.Players.Add(player.Id, new DivisionData.Score { HiCheckout = hiCheck, Player = player });
+            score.HiCheckout = hiCheck;
         }
     }
 
@@ -113,88 +114,69 @@ public class DivisionDataGameVisitor : IGameVisitor
             return;
         }
 
-        if (_divisionData.Teams.TryGetValue(team.Id, out var score))
+        if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
-            score.TeamPlayed++;
+            score = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(team.Id, score);
         }
-        else
-        {
-            _divisionData.Teams.Add(team.Id, new DivisionData.Score { TeamPlayed = 1, Team = team });
-        }
+
+        score.FixturesPlayed++;
     }
 
     public void VisitPlayer(GamePlayer player, int matchPlayerCount)
     {
-        if (matchPlayerCount != 1)
+        if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
         {
-            // only record results of singles matches
-            return;
-        }
-
-        if (_divisionData.Players.TryGetValue(player.Id, out var score))
-        {
-            if (score.PlayerPlayCount.TryGetValue(matchPlayerCount, out var playedCount))
-            {
-                score.PlayerPlayCount[matchPlayerCount] = playedCount + 1;
-            }
-            else
-            {
-                score.PlayerPlayCount[matchPlayerCount] = 1;
-            }
-        }
-        else
-        {
-            _divisionData.Players.Add(player.Id, new DivisionData.Score
+            playerScore = new DivisionData.PlayerScore
             {
                 Player = player,
-                PlayerPlayCount =
-                {
-                    { matchPlayerCount, 1 },
-                }
-            });
+            };
+            _divisionData.Players.Add(player.Id, playerScore);
         }
+
+        var score = playerScore.GetScores(matchPlayerCount);
+        score.MatchesPlayed++;
     }
 
     public void VisitGameDraw(GameTeam home, GameTeam away)
     {
-        AddDraw(home, _divisionData.Teams, null, home);
-        AddDraw(away, _divisionData.Teams, null, away);
+        if (!_divisionData.Teams.TryGetValue(home.Id, out var homeScore))
+        {
+            homeScore = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(home.Id, homeScore);
+        }
+
+        homeScore.FixturesDrawn++;
+
+        if (!_divisionData.Teams.TryGetValue(away.Id, out var awayScore))
+        {
+            awayScore = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(away.Id, awayScore);
+        }
+
+        awayScore.FixturesDrawn++;
     }
 
     public void VisitGameWinner(GameTeam team)
     {
-        if (_divisionData.Teams.TryGetValue(team.Id, out var score))
+        if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
-            score.Win++;
+            score = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(team.Id, score);
         }
-        else
-        {
-            _divisionData.Teams.Add(team.Id, new DivisionData.Score { Win = 1, Team = team });
-        }
+
+        score.FixturesWon++;
     }
 
     public void VisitGameLost(GameTeam team)
     {
-        if (_divisionData.Teams.TryGetValue(team.Id, out var score))
+        if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
-            score.Lost++;
+            score = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(team.Id, score);
         }
-        else
-        {
-            _divisionData.Teams.Add(team.Id, new DivisionData.Score { Lost = 1, Team = team });
-        }
-    }
 
-    private static void AddDraw(CosmosEntity entity, IDictionary<Guid, DivisionData.Score> accumulator, GamePlayer? player, GameTeam? team)
-    {
-        if (accumulator.TryGetValue(entity.Id, out var score))
-        {
-            score.Draw++;
-        }
-        else
-        {
-            accumulator.Add(entity.Id, new DivisionData.Score { Draw = 1, Player = player, Team = team });
-        }
+        score.FixturesLost++;
     }
 
     private class PlayerAndGameLookupVisitor : IGameVisitor
@@ -230,8 +212,22 @@ public class DivisionDataGameVisitor : IGameVisitor
         public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData,
             Dictionary<Guid, TeamDto> teamLookup, Guid seasonId)
         {
-            _home = teamLookup[home.Id];
-            _away = teamLookup[away.Id];
+#pragma warning disable CS8601
+            if (!teamLookup.TryGetValue(home.Id, out _home))
+#pragma warning restore CS8601
+            {
+                _home = teamLookup.Values.SingleOrDefault(t => t.Name == home.Name)
+                        ?? throw new InvalidOperationException($"Could not find team data for {home.Name} - {home.Id}");
+            }
+
+#pragma warning disable CS8601
+            if (!teamLookup.TryGetValue(away.Id, out _away))
+#pragma warning restore CS8601
+            {
+                _away = teamLookup.Values.SingleOrDefault(t => t.Name == away.Name)
+                        ?? throw new InvalidOperationException($"Could not find team data for {away.Name} - {away.Id}");
+            }
+
             _divisionData = divisionData;
             _seasonId = seasonId;
         }

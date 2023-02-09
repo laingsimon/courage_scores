@@ -299,7 +299,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return gamePlayer;
     }
 
-    private static int? GetNumberOfLegs(int homePlayers)
+    public static int? GetNumberOfLegs(int homePlayers)
     {
         switch (homePlayers)
         {
@@ -310,7 +310,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         }
     }
 
-    private static int? GetStartingScore(int homePlayers)
+    public static int? GetStartingScore(int homePlayers)
     {
         switch (homePlayers)
         {

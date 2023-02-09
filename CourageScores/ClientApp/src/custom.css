@@ -266,3 +266,13 @@ table td.middle-vertical-line {
   white-space: nowrap;
   display: inline-block;
 }
+
+input.no-spinner::-webkit-outer-spin-button,
+input.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.no-spinner {
+  -moz-appearance: textfield;
+}

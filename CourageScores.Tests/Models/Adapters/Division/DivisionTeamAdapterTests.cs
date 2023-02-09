@@ -1,4 +1,5 @@
 using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
 using NUnit.Framework;
@@ -20,25 +21,38 @@ public class DivisionTeamAdapterTests
             Name = "team",
             Address = "address",
         };
-        var score = new DivisionData.Score
+        var score = new DivisionData.TeamScore
         {
-            TeamPlayed = 1,
-            Win = 2,
-            Lost = 3,
-            Draw = 4,
+            FixturesPlayed = 1,
+            FixturesWon = 2,
+            FixturesLost = 3,
+            FixturesDrawn = 4,
+        };
+        var teamPlayers = new[]
+        {
+            new DivisionPlayerDto
+            {
+                Singles = { WinRate = 1, TeamWinRate = 10, TeamLossRate = 11, MatchesWon = 21, MatchesLost = 31 },
+                Pairs = { WinRate = 2, TeamWinRate = 20, TeamLossRate = 12, MatchesWon = 22, MatchesLost = 32 },
+                Triples = { WinRate = 3, TeamWinRate = 30, TeamLossRate = 13, MatchesWon = 23, MatchesLost = 33 },
+            }
         };
 
-        var result = await _adapter.Adapt(team, score, _token);
+        var result = await _adapter.Adapt(team, score, teamPlayers, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Name, Is.EqualTo(team.Name));
         Assert.That(result.Played, Is.EqualTo(1));
-        Assert.That(result.Points, Is.EqualTo(10d).Within(0.001));
-        Assert.That(result.Won, Is.EqualTo(2));
-        Assert.That(result.Lost, Is.EqualTo(3));
-        Assert.That(result.Drawn, Is.EqualTo(4));
-        Assert.That(result.Difference, Is.EqualTo(0));
+        Assert.That(result.Points, Is.EqualTo(8d).Within(0.001));
+        Assert.That(result.FixturesWon, Is.EqualTo(2));
+        Assert.That(result.FixturesLost, Is.EqualTo(3));
+        Assert.That(result.FixturesDrawn, Is.EqualTo(4));
         Assert.That(result.Address, Is.EqualTo(team.Address));
+        Assert.That(result.MatchesWon, Is.EqualTo(21+22+23));
+        Assert.That(result.MatchesLost, Is.EqualTo(31+32+33));
+        Assert.That(result.WinRate, Is.EqualTo(10+20+30));
+        Assert.That(result.LossRate, Is.EqualTo(11+12+13));
+        Assert.That(result.Difference, Is.EqualTo((10+20+30) - (11+12+13)));
     }
 
     [Test]

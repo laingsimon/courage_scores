@@ -11,6 +11,7 @@ export function DivisionPlayers({ players, account, onPlayerSaved, seasonId, hid
                     <th>Rank</th>
                     <th>Player</th>
                     {hideVenue ? null :(<th>Venue</th>)}
+                    <th>Played</th>
                     <th>Won</th>
                     <th>Lost</th>
                     <th>Points</th>

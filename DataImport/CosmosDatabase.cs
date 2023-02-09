@@ -1,9 +1,10 @@
-using System.Data;
+using System.Net;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
+using DataImport.Importers;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,19 +13,23 @@ namespace DataImport;
 
 public class CosmosDatabase
 {
+    private readonly bool _permitUpload;
     private readonly string _host;
     private readonly string _key;
     private readonly string _databaseName;
     private Database? _database;
     private readonly JsonSerializerService _serializer;
 
-    public CosmosDatabase(string host, string key, string? databaseName = null)
+    public CosmosDatabase(string host, string key, string? databaseName = null, bool permitUpload = false)
     {
+        _permitUpload = permitUpload;
         _host = string.IsNullOrEmpty(host) ? GetEnvironmentVariable("CosmosDb_Endpoint") : host;
         _key = string.IsNullOrEmpty(key) ? GetEnvironmentVariable("CosmosDb_Key") : key;
         _databaseName = string.IsNullOrEmpty(databaseName) ? "league" + DateTime.UtcNow.ToString("yyyyMMddHHmm") : databaseName;
         _serializer = new JsonSerializerService(new JsonSerializer());
     }
+
+    public string HostName => _host;
 
     private string GetEnvironmentVariable(string name)
     {
@@ -62,12 +67,10 @@ public class CosmosDatabase
         }
     }
 
-    public async Task<DataTable> GetTable(TableDto table, CancellationToken token)
+    public async IAsyncEnumerable<T> GetTable<T>(TableDto table, [EnumeratorCancellation] CancellationToken token)
     {
         Container container = await _database!.CreateContainerIfNotExistsAsync(table.Name, table.PartitionKey, cancellationToken: token);
         var records = container.GetItemQueryIterator<JObject>();
-
-        var data = new DataTable();
 
         while (records.HasMoreResults && !token.IsCancellationRequested)
         {
@@ -80,37 +83,34 @@ public class CosmosDatabase
                     break;
                 }
 
-                AddRowToTable(row, data, table.DataType);
+                yield return row.ToObject<T>();
             }
         }
-
-        return data;
     }
 
-    private void AddRowToTable(JObject row, DataTable table, Type? type)
+    public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, string partitionKey, CancellationToken token)
+        where T: AuditedEntity
     {
-        if (!table.Columns.Contains("_raw"))
+        if (update.Id == Guid.Empty)
         {
-            table.Columns.Add("_raw", typeof(string));
+            throw new InvalidOperationException($"Cannot upsert an item with no id: {tableName}, {update.Id}");
         }
 
-        if (type != null && !table.Columns.Contains("value"))
+        if (!_permitUpload)
         {
-            table.Columns.Add("value", type);
+            // simulate success
+            return new ImportRecordResult(true, "Not uploading data: Dry run mode active");
         }
 
-        if (type != null)
-        {
-            table.Rows.Add(row.ToString(), Deserialise(row, type));
-        }
-        else
-        {
-            table.Rows.Add(row.ToString());
-        }
-    }
+        Container container = await _database!.CreateContainerIfNotExistsAsync(tableName, partitionKey, cancellationToken: token);
+        var result = await container.UpsertItemAsync(update, cancellationToken: token);
 
-    private static object Deserialise(JToken row, Type type)
-    {
-        return row.ToObject(type);
+        if (result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK)
+        {
+            // updated or created
+            return new ImportRecordResult(true);
+        }
+
+        return new ImportRecordResult(false, result.StatusCode.ToString());
     }
 }

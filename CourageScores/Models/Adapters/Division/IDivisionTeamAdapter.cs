@@ -6,6 +6,6 @@ namespace CourageScores.Models.Adapters.Division;
 
 public interface IDivisionTeamAdapter
 {
-    Task<DivisionTeamDto> Adapt(TeamDto team, DivisionData.Score score, CancellationToken token);
+    Task<DivisionTeamDto> Adapt(TeamDto team, DivisionData.TeamScore score, IReadOnlyCollection<DivisionPlayerDto> players, CancellationToken token);
     Task<DivisionTeamDto> WithoutFixtures(TeamDto team, CancellationToken token);
 }
