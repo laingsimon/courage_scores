@@ -10,15 +10,11 @@ public interface IGameVisitor
     {
     }
 
-    void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winBy)
+    void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
     }
 
-    void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
-    {
-    }
-
-    void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int lossBy)
+    void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
     }
 

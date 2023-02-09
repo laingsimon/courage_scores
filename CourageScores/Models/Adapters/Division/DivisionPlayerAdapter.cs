@@ -5,22 +5,24 @@ namespace CourageScores.Models.Adapters.Division;
 
 public class DivisionPlayerAdapter : IDivisionPlayerAdapter
 {
-    public Task<DivisionPlayerDto> Adapt(DivisionData.PlayerScore score, DivisionData.TeamPlayerTuple playerTuple,
+    private readonly IPlayerPerformanceAdapter _performanceAdapter;
+
+    public DivisionPlayerAdapter(IPlayerPerformanceAdapter performanceAdapter)
+    {
+        _performanceAdapter = performanceAdapter;
+    }
+
+    public async Task<DivisionPlayerDto> Adapt(DivisionData.PlayerScore score, DivisionData.TeamPlayerTuple playerTuple,
         Dictionary<DateTime, Guid> fixtures, CancellationToken token)
     {
-        return Task.FromResult(new DivisionPlayerDto
+        return new DivisionPlayerDto
         {
             Captain = playerTuple.Player.Captain,
             Id = playerTuple.Player.Id,
             Name = playerTuple.Player.Name,
-            PlayedSingles = score.GetScores(1).Played,
-            WonSingles = score.GetScores(1).Win,
-            LostSingles = score.GetScores(1).Lost,
-            PlayedPairs = score.GetScores(2).Played,
-            WonTriples = score.GetScores(3).Win,
-            PlayedTriples = score.GetScores(3).Played,
-            WonPairs = score.GetScores(2).Win,
-            WinDifference = score.GetScores(1).WinDifference + score.GetScores(2).WinDifference + score.GetScores(3).WinDifference,
+            Singles = await _performanceAdapter.Adapt(score.GetScores(1), token),
+            Pairs = await _performanceAdapter.Adapt(score.GetScores(2), token),
+            Triples = await _performanceAdapter.Adapt(score.GetScores(3), token),
             Points = score.CalculatePoints(),
             Team = playerTuple.Team.Name,
             OneEighties = score.OneEighty,
@@ -28,6 +30,6 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             TeamId = playerTuple.Team.Id,
             WinPercentage = score.PlayerWinPercentage,
             Fixtures = fixtures,
-        });
+        };
     }
 }

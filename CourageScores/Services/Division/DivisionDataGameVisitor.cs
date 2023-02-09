@@ -1,4 +1,3 @@
-using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Team;
 
@@ -28,8 +27,9 @@ public class DivisionDataGameVisitor : IGameVisitor
         game.Accept(playerTeamVisitor);
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winBy)
+    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
+        var winRateRecorded = false;
         foreach (var player in players)
         {
             if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
@@ -39,31 +39,22 @@ public class DivisionDataGameVisitor : IGameVisitor
             }
 
             var scoreForLegSize = playerScore.GetScores(players.Count);
-            scoreForLegSize.Win++;
-            scoreForLegSize.WinDifference += winBy;
+            scoreForLegSize.MatchesWon++;
+            if (!winRateRecorded)
+            {
+                scoreForLegSize.TeamWinRate += winningScore;
+                scoreForLegSize.TeamLossRate += losingScore;
+            }
+
+            scoreForLegSize.PlayerWinRate += winningScore;
+            scoreForLegSize.PlayerLossRate += losingScore;
+            winRateRecorded = true;
         }
     }
 
-    public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
+    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
-        if (homePlayers.Count != 1 || awayPlayers.Count != 1)
-        {
-            // only record details of singles matches
-            return;
-        }
-
-        AddDraw(homePlayers.Single(), _divisionData.Players, () => new DivisionData.PlayerScore
-        {
-            Player = homePlayers.Single(),
-        });
-        AddDraw(awayPlayers.Single(), _divisionData.Players, () => new DivisionData.PlayerScore
-        {
-            Player = awayPlayers.Single(),
-        });
-    }
-
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int lossBy)
-    {
+        var winRateRecorded = false;
         foreach (var player in players)
         {
             if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
@@ -73,8 +64,16 @@ public class DivisionDataGameVisitor : IGameVisitor
             }
 
             var scoreForLegSize = playerScore.GetScores(players.Count);
-            scoreForLegSize.Lost++;
-            scoreForLegSize.WinDifference -= lossBy;
+            scoreForLegSize.MatchesLost++;
+            if (!winRateRecorded)
+            {
+                scoreForLegSize.TeamLossRate += winningScore;
+                scoreForLegSize.TeamWinRate += losingScore;
+            }
+
+            scoreForLegSize.PlayerLossRate += winningScore;
+            scoreForLegSize.PlayerWinRate += losingScore;
+            winRateRecorded = true;
         }
     }
 
@@ -121,7 +120,7 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Teams.Add(team.Id, score);
         }
 
-        score.Played++;
+        score.FixturesPlayed++;
     }
 
     public void VisitPlayer(GamePlayer player, int matchPlayerCount)
@@ -136,13 +135,26 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
 
         var score = playerScore.GetScores(matchPlayerCount);
-        score.Played++;
+        score.MatchesPlayed++;
     }
 
     public void VisitGameDraw(GameTeam home, GameTeam away)
     {
-        AddDraw(home, _divisionData.Teams, () => new DivisionData.TeamScore());
-        AddDraw(away, _divisionData.Teams, () => new DivisionData.TeamScore());
+        if (!_divisionData.Teams.TryGetValue(home.Id, out var homeScore))
+        {
+            homeScore = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(home.Id, homeScore);
+        }
+
+        homeScore.FixturesDrawn++;
+
+        if (!_divisionData.Teams.TryGetValue(away.Id, out var awayScore))
+        {
+            awayScore = new DivisionData.TeamScore();
+            _divisionData.Teams.Add(away.Id, awayScore);
+        }
+
+        awayScore.FixturesDrawn++;
     }
 
     public void VisitGameWinner(GameTeam team)
@@ -153,7 +165,7 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Teams.Add(team.Id, score);
         }
 
-        score.Win++;
+        score.FixturesWon++;
     }
 
     public void VisitGameLost(GameTeam team)
@@ -164,19 +176,7 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Teams.Add(team.Id, score);
         }
 
-        score.Lost++;
-    }
-
-    private static void AddDraw<T>(CosmosEntity entity, IDictionary<Guid, T> accumulator, Func<T> createScore)
-        where T : DivisionData.IScore, new()
-    {
-        if (!accumulator.TryGetValue(entity.Id, out var score))
-        {
-            score = createScore();
-            accumulator.Add(entity.Id, score);
-        }
-
-        score.Draw++;
+        score.FixturesLost++;
     }
 
     private class PlayerAndGameLookupVisitor : IGameVisitor

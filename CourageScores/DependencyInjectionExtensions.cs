@@ -135,6 +135,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDivisionDataSeasonAdapter, DivisionDataSeasonAdapter>();
         services.AddScoped<IDivisionFixtureDateAdapter, DivisionFixtureDateAdapter>();
         services.AddScoped<IDivisionFixtureTeamAdapter, DivisionFixtureTeamAdapter>();
+        services.AddScoped<IPlayerPerformanceAdapter, PlayerPerformanceAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

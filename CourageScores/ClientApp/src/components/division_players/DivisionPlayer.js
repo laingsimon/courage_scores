@@ -94,9 +94,9 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
                         {deleting ? (<s>{player.team}</s>) : player.team}
                     </Link>)}
             </td>)}
-        <td>{player.playedSingles}</td>
-        <td>{player.wonSingles}</td>
-        <td>{player.lostSingles}</td>
+        <td>{player.singles.matchesPlayed}</td>
+        <td>{player.singles.matchesWon}</td>
+        <td>{player.singles.matchesLost}</td>
         <td>{player.points}</td>
         <td>{player.winPercentage}</td>
         <td>{player.oneEighties}</td>

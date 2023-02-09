@@ -109,9 +109,7 @@ public class DivisionService : IDivisionService
         }
 
         var playerResults = await GetPlayers(divisionData, token).ToList();
-        var teamResults = await GetTeams(divisionData, teams, token).ToList();
-
-        ApplyRanksAndPointsDifference(teamResults, playerResults);
+        var teamResults = await GetTeams(divisionData, teams, playerResults, token).ToList();
 
         return new DivisionDataDto
         {
@@ -121,39 +119,37 @@ public class DivisionService : IDivisionService
                 .OrderByDescending(t => t.Points).ThenByDescending(t => t.Difference).ThenBy(t => t.Name).ToList(),
             AllTeams = await allTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),
             Fixtures = await GetFixtures(context, token).OrderByAsync(d => d.Date).ToList(),
-            Players = playerResults
+            Players = ApplyPlayerRanks(playerResults
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
-                .ThenByDescending(p => p.PlayedPairs)
-                .ThenByDescending(p => p.PlayedTriples)
-                .ThenBy(p => p.Name).ToList(),
+                .ThenByDescending(p => p.Pairs.MatchesPlayed)
+                .ThenByDescending(p => p.Triples.MatchesPlayed)
+                .ThenBy(p => p.Name))
+                .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(season, token),
             Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
         };
     }
 
-    private static void ApplyRanksAndPointsDifference(IReadOnlyCollection<DivisionTeamDto> teams, IReadOnlyCollection<DivisionPlayerDto> players)
+    private static IEnumerable<DivisionPlayerDto> ApplyPlayerRanks(IOrderedEnumerable<DivisionPlayerDto> players)
     {
-        foreach (var team in teams)
-        {
-            var playersInTeam = players.Where(p => p.Team == team.Name).ToList();
-            team.Difference = playersInTeam.Sum(p => p.WinDifference);
-        }
-
         var rank = 1;
         foreach (var player in players)
         {
             player.Rank = rank++;
+            yield return player;
         }
     }
 
-    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams,
+        List<DivisionPlayerDto> playerResults, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Teams)
         {
             var team = teams.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found", Address = "Not found" };
+            var playersInTeam = playerResults.Where(p => p.Team == team.Name).ToList();
 
-            yield return await _divisionTeamAdapter.Adapt(team, score, token);
+            yield return await _divisionTeamAdapter.Adapt(team, score, playersInTeam, token);
         }
 
         foreach (var team in teams.Where(t => !divisionData.Teams.ContainsKey(t.Id)))

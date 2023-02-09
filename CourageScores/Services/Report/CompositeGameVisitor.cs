@@ -33,19 +33,15 @@ public class CompositeGameVisitor : IGameVisitor
         ForEachVisitor(visitor => visitor.VisitMatch(match));
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winBy)
+    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
-        ForEachVisitor(visitor => visitor.VisitMatchWin(players, team, winBy));
+        ForEachVisitor(visitor => visitor.VisitMatchWin(players, team, winningScore, losingScore));
     }
 
-    public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
+    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore,
+        int winningScore)
     {
-        ForEachVisitor(visitor => visitor.VisitMatchDraw(homePlayers, awayPlayers, score));
-    }
-
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int lossBy)
-    {
-        ForEachVisitor(visitor => visitor.VisitMatchLost(players, team, lossBy));
+        ForEachVisitor(visitor => visitor.VisitMatchLost(players, team, losingScore, winningScore));
     }
 
     public void VisitOneEighty(IGamePlayer player)

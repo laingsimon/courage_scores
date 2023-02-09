@@ -27,35 +27,29 @@ public class DivisionData
     /// </summary>
     public Dictionary<Guid, TeamPlayerTuple> PlayerIdToTeamLookup { get; } = new();
 
-    public interface IScore
+    public class PlayerPlayScore
     {
-        int Draw { get; set; }
+        public int MatchesWon { get; set; }
+        public int MatchesLost { get; set; }
+        public int MatchesPlayed { get; set; }
+
+        public int TeamLossRate { get; set; }
+        public int TeamWinRate { get; set; }
+
+        public int PlayerLossRate { get; set; }
+        public int PlayerWinRate { get; set; }
     }
 
-    public class PlayerPlayScore : IScore
-    {
-        public int Win { get; set; }
-        public int Draw { get; set; }
-        public int Lost { get; set; }
-        public int Played { get; set; }
-        public int WinDifference { get; set; }
-    }
-
-    public class PlayerScore : IScore
+    public class PlayerScore
     {
         public IGamePlayer? Player { get; init; }
 
-        public int Draw
-        {
-            get => GetScores(1).Draw;
-            set => GetScores(1).Draw = value;
-        }
         public int OneEighty { get; set; }
         public int HiCheckout { get; set; }
-        public double PlayerWinPercentage => GetScores(1).Played == 0
+        public double PlayerWinPercentage => GetScores(1).MatchesPlayed == 0
             ? 0
             // ReSharper disable once ArrangeRedundantParentheses
-            : Math.Round(((double)GetScores(1).Win / GetScores(1).Played) * 100, 2);
+            : Math.Round(((double)GetScores(1).MatchesWon / GetScores(1).MatchesPlayed) * 100, 2);
 
         public Dictionary<int, PlayerPlayScore> PlayerPlayCount { get; } = new();
 
@@ -72,23 +66,21 @@ public class DivisionData
 
         public int CalculatePoints()
         {
-            // ReSharper disable ArrangeRedundantParentheses
-            return (GetScores(1).Win * 3) + (GetScores(1).Draw * 1);
-            // ReSharper restore ArrangeRedundantParentheses
+            return GetScores(1).MatchesWon * 3;
         }
     }
 
-    public class TeamScore : IScore
+    public class TeamScore
     {
-        public int Win { get; set; }
-        public int Draw { get; set; }
-        public int Played { get; set; }
-        public int Lost { get; set; }
+        public int FixturesWon { get; set; }
+        public int FixturesDrawn { get; set; }
+        public int FixturesPlayed { get; set; }
+        public int FixturesLost { get; set; }
 
         public int CalculatePoints()
         {
             // ReSharper disable ArrangeRedundantParentheses
-            return (Win * 2) + (Draw * 1);
+            return (FixturesWon * 2) + (FixturesDrawn * 1);
             // ReSharper restore ArrangeRedundantParentheses
         }
     }

@@ -73,20 +73,16 @@ public class GameMatch : AuditedEntity, IGameVisitable
         {
             if (HomeScore > AwayScore)
             {
-                var homeWinBy = HomeScore - AwayScore;
-                visitor.VisitMatchWin(HomePlayers, TeamDesignation.Home, homeWinBy.Value);
-                visitor.VisitMatchLost(AwayPlayers, TeamDesignation.Away, homeWinBy.Value);
+                visitor.VisitMatchWin(HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
+                visitor.VisitMatchLost(AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
             }
             else if (AwayScore > HomeScore)
             {
-                var awayWinBy = AwayScore - HomeScore;
-                visitor.VisitMatchWin(AwayPlayers, TeamDesignation.Away, awayWinBy.Value);
-                visitor.VisitMatchLost(HomePlayers, TeamDesignation.Home, awayWinBy.Value);
+                visitor.VisitMatchWin(AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
+                visitor.VisitMatchLost(HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
             }
-            else
-            {
-                visitor.VisitMatchDraw(HomePlayers, AwayPlayers, HomeScore.Value);
-            }
+
+            // must be a 0-0 record (i.e. not played) - draw's aren't possible in matches (legs are 3,5 or 7 normally)
         }
 
 #pragma warning disable CS0612
