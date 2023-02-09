@@ -11,7 +11,7 @@ export function ImportData() {
     const [importRequest, setImportRequest] = useState({
         password: '',
         dryRun: true,
-        purgeData: true,
+        purgeData: false,
         tables: []
     });
     const [response, setResponse] = useState(null);
