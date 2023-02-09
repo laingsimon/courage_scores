@@ -211,14 +211,16 @@ public class DivisionDataGameVisitor : IGameVisitor
             if (!teamLookup.TryGetValue(home.Id, out _home))
 #pragma warning restore CS8601
             {
-                throw new InvalidOperationException($"Could not find team data for {home.Name} - {home.Id}");
+                _home = teamLookup.Values.SingleOrDefault(t => t.Name == home.Name)
+                        ?? throw new InvalidOperationException($"Could not find team data for {home.Name} - {home.Id}");
             }
 
 #pragma warning disable CS8601
             if (!teamLookup.TryGetValue(away.Id, out _away))
 #pragma warning restore CS8601
             {
-                throw new InvalidOperationException($"Could not find team data for {away.Name} - {away.Id}");
+                _away = teamLookup.Values.SingleOrDefault(t => t.Name == away.Name)
+                        ?? throw new InvalidOperationException($"Could not find team data for {away.Name} - {away.Id}");
             }
 
             _divisionData = divisionData;
