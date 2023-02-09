@@ -135,10 +135,12 @@ public class DivisionService : IDivisionService
     {
         if (teams.Any())
         {
-            var topTeamPoints = teams.First().Points;
             foreach (var team in teams)
             {
-                // team.Difference = team.Points - topTeamPoints;
+                var playersInTeam = players.Where(p => p.Team == team.Name).ToList();
+                var legsWon = playersInTeam.Sum(p => p.WonSingles + p.WonPairs + p.WonTriples);
+                var legsLost = playersInTeam.Sum(p => p.PlayedSingles + p.PlayedPairs + p.PlayedTriples) - legsWon;
+                team.Difference = legsWon - legsLost;
             }
         }
 
