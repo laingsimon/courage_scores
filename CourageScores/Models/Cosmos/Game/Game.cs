@@ -147,7 +147,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             _away = away;
         }
 
-        public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+        public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winBy)
         {
             if (players.Count == 0)
             {

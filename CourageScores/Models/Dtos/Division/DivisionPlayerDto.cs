@@ -24,4 +24,6 @@ public class DivisionPlayerDto
     public int WonPairs { get; set; }
     public int PlayedTriples { get; set; }
     public int WonTriples { get; set; }
+
+    public int WinDifference { get; set; }
 }

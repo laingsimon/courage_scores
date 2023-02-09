@@ -66,8 +66,8 @@ public class GameMatchTests
 
         _match.Accept(visitor.Object);
 
-        visitor.Verify(v => v.VisitMatchWin(_match.HomePlayers, TeamDesignation.Home));
-        visitor.Verify(v => v.VisitMatchLost(_match.AwayPlayers, TeamDesignation.Away));
+        visitor.Verify(v => v.VisitMatchWin(_match.HomePlayers, TeamDesignation.Home, 1));
+        visitor.Verify(v => v.VisitMatchLost(_match.AwayPlayers, TeamDesignation.Away, 1));
     }
 
     [Test]
@@ -83,8 +83,8 @@ public class GameMatchTests
 
         _match.Accept(visitor.Object);
 
-        visitor.Verify(v => v.VisitMatchLost(_match.HomePlayers, TeamDesignation.Home));
-        visitor.Verify(v => v.VisitMatchWin(_match.AwayPlayers, TeamDesignation.Away));
+        visitor.Verify(v => v.VisitMatchLost(_match.HomePlayers, TeamDesignation.Home, 1));
+        visitor.Verify(v => v.VisitMatchWin(_match.AwayPlayers, TeamDesignation.Away, 1));
     }
 
     [Test]
@@ -115,7 +115,7 @@ public class GameMatchTests
 
         _match.Accept(visitor.Object);
 
-        visitor.Verify(v => v.VisitMatchWin(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>()), Times.Never);
+        visitor.Verify(v => v.VisitMatchWin(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>()), Times.Never);
     }
 
     [Test]
@@ -143,7 +143,8 @@ public class GameMatchTests
         _match.Accept(visitor.Object);
 
         visitor.Verify(v => v.VisitMatchDraw(It.IsAny<List<GamePlayer>>(), It.IsAny<List<GamePlayer>>(), It.IsAny<int>()), Times.Never);
-        visitor.Verify(v => v.VisitMatchWin(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>()), Times.Never);
+        visitor.Verify(v => v.VisitMatchWin(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>()), Times.Never);
+        visitor.Verify(v => v.VisitMatchLost(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>()), Times.Never);
     }
 
     [Test]

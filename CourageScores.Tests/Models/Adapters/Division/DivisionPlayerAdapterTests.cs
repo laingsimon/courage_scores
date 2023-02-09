@@ -20,9 +20,9 @@ public class DivisionPlayerAdapterTests
             HiCheckout = 4,
             PlayerPlayCount =
             {
-                { 1, new DivisionData.PlayerPlayScore { Lost = 1, Win = 2, Played = 7, Draw = 5 } }, // singles
-                { 2, new DivisionData.PlayerPlayScore { Lost = 11, Win = 22, Played = 8, Draw = 55 } }, // pairs
-                { 3, new DivisionData.PlayerPlayScore { Lost = 111, Win = 222, Played = 9, Draw = 555 } }, // triples
+                { 1, new DivisionData.PlayerPlayScore { Lost = 1, Win = 2, Played = 7, Draw = 5, WinDifference = 1 } }, // singles
+                { 2, new DivisionData.PlayerPlayScore { Lost = 11, Win = 22, Played = 8, Draw = 55, WinDifference = 2 } }, // pairs
+                { 3, new DivisionData.PlayerPlayScore { Lost = 111, Win = 222, Played = 9, Draw = 555, WinDifference = 3 } }, // triples
             }
         };
         var team = new TeamDto
@@ -57,5 +57,6 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.TeamId, Is.EqualTo(team.Id));
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.EqualTo(fixtures));
+        Assert.That(result.WinDifference, Is.EqualTo(6));
     }
 }

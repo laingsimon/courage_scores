@@ -108,15 +108,20 @@ public class DivisionService : IDivisionService
             game.Accept(gameVisitor);
         }
 
-        var divisionDataDto = new DivisionDataDto
+        var playerResults = await GetPlayers(divisionData, token).ToList();
+        var teamResults = await GetTeams(divisionData, teams, token).ToList();
+
+        ApplyRanksAndPointsDifference(teamResults, playerResults);
+
+        return new DivisionDataDto
         {
             Id = division?.Id ?? Guid.Empty,
             Name = division?.Name ?? "<all divisions>",
-            Teams = (await GetTeams(divisionData, teams, token).ToList())
-                .OrderByDescending(t => t.Points).ThenBy(t => t.Name).ToList(),
+            Teams = teamResults
+                .OrderByDescending(t => t.Points).ThenByDescending(t => t.Difference).ThenBy(t => t.Name).ToList(),
             AllTeams = await allTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),
             Fixtures = await GetFixtures(context, token).OrderByAsync(d => d.Date).ToList(),
-            Players = (await GetPlayers(divisionData, token).ToList())
+            Players = playerResults
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
                 .ThenByDescending(p => p.PlayedPairs)
@@ -125,23 +130,14 @@ public class DivisionService : IDivisionService
             Season = await _divisionDataSeasonAdapter.Adapt(season, token),
             Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
         };
-
-        ApplyRanksAndPointsDifference(divisionDataDto.Teams, divisionDataDto.Players);
-
-        return divisionDataDto;
     }
 
     private static void ApplyRanksAndPointsDifference(IReadOnlyCollection<DivisionTeamDto> teams, IReadOnlyCollection<DivisionPlayerDto> players)
     {
-        if (teams.Any())
+        foreach (var team in teams)
         {
-            foreach (var team in teams)
-            {
-                var playersInTeam = players.Where(p => p.Team == team.Name).ToList();
-                var legsWon = playersInTeam.Sum(p => p.WonSingles + p.WonPairs + p.WonTriples);
-                var legsLost = playersInTeam.Sum(p => p.PlayedSingles + p.PlayedPairs + p.PlayedTriples) - legsWon;
-                team.Difference = legsWon - legsLost;
-            }
+            var playersInTeam = players.Where(p => p.Team == team.Name).ToList();
+            team.Difference = playersInTeam.Sum(p => p.WinDifference);
         }
 
         var rank = 1;

@@ -73,13 +73,15 @@ public class GameMatch : AuditedEntity, IGameVisitable
         {
             if (HomeScore > AwayScore)
             {
-                visitor.VisitMatchWin(HomePlayers, TeamDesignation.Home);
-                visitor.VisitMatchLost(AwayPlayers, TeamDesignation.Away);
+                var homeWinBy = HomeScore - AwayScore;
+                visitor.VisitMatchWin(HomePlayers, TeamDesignation.Home, homeWinBy.Value);
+                visitor.VisitMatchLost(AwayPlayers, TeamDesignation.Away, homeWinBy.Value);
             }
             else if (AwayScore > HomeScore)
             {
-                visitor.VisitMatchWin(AwayPlayers, TeamDesignation.Away);
-                visitor.VisitMatchLost(HomePlayers, TeamDesignation.Home);
+                var awayWinBy = AwayScore - HomeScore;
+                visitor.VisitMatchWin(AwayPlayers, TeamDesignation.Away, awayWinBy.Value);
+                visitor.VisitMatchLost(HomePlayers, TeamDesignation.Home, awayWinBy.Value);
             }
             else
             {

@@ -23,17 +23,19 @@ public class DivisionDataGameVisitor : IGameVisitor
         game.Accept(playerTeamVisitor);
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winBy)
     {
         foreach (var player in players)
         {
-            if (!_divisionData.Players.TryGetValue(player.Id, out var score))
+            if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
             {
-                score = new DivisionData.PlayerScore();
-                _divisionData.Players.Add(player.Id, score);
+                playerScore = new DivisionData.PlayerScore();
+                _divisionData.Players.Add(player.Id, playerScore);
             }
 
-            score.GetScores(players.Count).Win++;
+            var scoreForLegSize = playerScore.GetScores(players.Count);
+            scoreForLegSize.Win++;
+            scoreForLegSize.WinDifference += winBy;
         }
     }
 
@@ -55,17 +57,19 @@ public class DivisionDataGameVisitor : IGameVisitor
         });
     }
 
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int lossBy)
     {
         foreach (var player in players)
         {
-            if (!_divisionData.Players.TryGetValue(player.Id, out var score))
+            if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
             {
-                score = new DivisionData.PlayerScore();
-                _divisionData.Players.Add(player.Id, score);
+                playerScore = new DivisionData.PlayerScore();
+                _divisionData.Players.Add(player.Id, playerScore);
             }
 
-            score.GetScores(players.Count).Lost++;
+            var scoreForLegSize = playerScore.GetScores(players.Count);
+            scoreForLegSize.Lost++;
+            scoreForLegSize.WinDifference -= lossBy;
         }
     }
 

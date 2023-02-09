@@ -38,6 +38,7 @@ public class DivisionData
         public int Draw { get; set; }
         public int Lost { get; set; }
         public int Played { get; set; }
+        public int WinDifference { get; set; }
     }
 
     public class PlayerScore : IScore

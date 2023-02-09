@@ -20,6 +20,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             WonTriples = score.GetScores(3).Win,
             PlayedTriples = score.GetScores(3).Played,
             WonPairs = score.GetScores(2).Win,
+            WinDifference = score.GetScores(1).WinDifference + score.GetScores(2).WinDifference + score.GetScores(3).WinDifference,
             Points = score.CalculatePoints(),
             Team = playerTuple.Team.Name,
             OneEighties = score.OneEighty,
