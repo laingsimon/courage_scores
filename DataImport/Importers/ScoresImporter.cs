@@ -43,7 +43,7 @@ public class ScoresImporter : IImporter
             }
 
             await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
-            var result = await destination.UpsertAsync(change.Value, "game", token);
+            var result = await destination.UpsertAsync(change.Value, "game", "/id", token);
             if (!result.Success)
             {
                 totalSuccess = false;

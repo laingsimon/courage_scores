@@ -88,7 +88,7 @@ public class CosmosDatabase
         }
     }
 
-    public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, CancellationToken token)
+    public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, string partitionKey, CancellationToken token)
         where T: AuditedEntity
     {
         if (update.Id == Guid.Empty)
@@ -102,7 +102,7 @@ public class CosmosDatabase
             return new ImportRecordResult(true, "Not uploading data: Dry run mode active");
         }
 
-        var container = _database!.GetContainer(tableName);
+        Container container = await _database!.CreateContainerIfNotExistsAsync(tableName, partitionKey, cancellationToken: token);
         var result = await container.UpsertItemAsync(update, cancellationToken: token);
 
         if (result.StatusCode == HttpStatusCode.Created || result.StatusCode == HttpStatusCode.OK)

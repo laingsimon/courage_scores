@@ -32,7 +32,7 @@ public class TeamAndPlayerImporter : IImporter
             }
 
             await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
-            var result = await destination.UpsertAsync(change.Value, "team", token);
+            var result = await destination.UpsertAsync(change.Value, "team", "/id", token);
             if (!result.Success)
             {
                 totalSuccess = false;

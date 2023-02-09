@@ -54,7 +54,7 @@ public class LookupFactory
                 // delete the fixture
                 fixture.Deleted = DateTime.UtcNow;
                 fixture.Remover = _settings.UserName;
-                await cosmos.UpsertAsync(fixture, "game", token);
+                await cosmos.UpsertAsync(fixture, "game", "/id", token);
                 continue;
             }
 
