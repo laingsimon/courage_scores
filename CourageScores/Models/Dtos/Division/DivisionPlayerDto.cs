@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -11,11 +10,8 @@ public class DivisionPlayerDto
     public int Rank { get; set; }
     public string Name { get; set; } = null!;
     public string Team { get; set; } = null!;
-    [JsonPropertyName("played")]
     public int PlayedSingles { get; set; }
-    [JsonPropertyName("won")]
     public int WonSingles { get; set; }
-    [JsonPropertyName("lost")]
     public int LostSingles { get; set; }
     public int Points { get; set; }
     public double WinPercentage { get; set; }
