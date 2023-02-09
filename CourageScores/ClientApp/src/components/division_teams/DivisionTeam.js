@@ -45,9 +45,9 @@ export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }
         </td>
         <td>{team.played}</td>
         <td>{team.points}</td>
-        <td>{team.won}</td>
-        <td>{team.lost}</td>
-        <td>{team.drawn}</td>
+        <td>{team.fixturesWon}</td>
+        <td>{team.fixturesLost}</td>
+        <td>{team.fixturesDrawn}</td>
         <td>{team.difference}</td>
     </tr>);
 }

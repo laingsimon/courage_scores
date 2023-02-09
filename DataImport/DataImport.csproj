@@ -25,4 +25,10 @@
       <ProjectReference Include="..\CourageScores\CourageScores.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="players.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

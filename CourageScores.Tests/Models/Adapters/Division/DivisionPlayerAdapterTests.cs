@@ -1,6 +1,8 @@
 ﻿using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
+using Moq;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Models.Adapters.Division;
@@ -9,24 +11,38 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 public class DivisionPlayerAdapterTests
 {
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionPlayerAdapter _adapter = new DivisionPlayerAdapter();
+    private readonly DivisionData.PlayerPlayScore _singles = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3 };
+    private readonly DivisionData.PlayerPlayScore _pairs = new();
+    private readonly DivisionData.PlayerPlayScore _triples = new();
+    private readonly PlayerPerformanceDto _singlesDto = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3 };
+    private readonly PlayerPerformanceDto _pairsDto = new();
+    private readonly PlayerPerformanceDto _triplesDto = new();
+    private DivisionPlayerAdapter _adapter = null!;
+    private Mock<IPlayerPerformanceAdapter> _performanceAdapter = null!;
+
+    [SetUp]
+    public void SetupEachTest()
+    {
+        _performanceAdapter = new Mock<IPlayerPerformanceAdapter>();
+        _adapter = new DivisionPlayerAdapter(_performanceAdapter.Object);
+
+        _performanceAdapter.Setup(a => a.Adapt(_singles, _token)).ReturnsAsync(_singlesDto);
+        _performanceAdapter.Setup(a => a.Adapt(_pairs, _token)).ReturnsAsync(_pairsDto);
+        _performanceAdapter.Setup(a => a.Adapt(_triples, _token)).ReturnsAsync(_triplesDto);
+    }
 
     [Test]
     public async Task Adapt_GivenNoFixtures_SetsPropertiesCorrectly()
     {
-        var score = new DivisionData.Score
+        var score = new DivisionData.PlayerScore
         {
-            Lost = 1,
-            Win = 2,
             OneEighty = 3,
             HiCheckout = 4,
-            Draw = 5,
-            TeamPlayed = 6,
             PlayerPlayCount =
             {
-                { 1, 7 }, // singles
-                { 2, 8 }, // pairs
-                { 3, 9 }, // triples
+                { 1, _singles },
+                { 2, _pairs },
+                { 3, _triples },
             }
         };
         var team = new TeamDto
@@ -49,15 +65,13 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Id, Is.EqualTo(player.Id));
         Assert.That(result.Captain, Is.EqualTo(player.Captain));
         Assert.That(result.Name, Is.EqualTo(player.Name));
-        Assert.That(result.Lost, Is.EqualTo(score.Lost));
-        Assert.That(result.Won, Is.EqualTo(score.Win));
+        Assert.That(result.Singles, Is.SameAs(_singlesDto));
         Assert.That(result.OneEighties, Is.EqualTo(score.OneEighty));
         Assert.That(result.Over100Checkouts, Is.EqualTo(score.HiCheckout));
-        Assert.That(result.PlayedSingles, Is.EqualTo(7));
-        Assert.That(result.PlayedPairs, Is.EqualTo(8));
-        Assert.That(result.PlayedTriples, Is.EqualTo(9));
-        Assert.That(result.Points, Is.EqualTo(11));
-        Assert.That(result.WinPercentage, Is.EqualTo(28.57d).Within(0.001));
+        Assert.That(result.Pairs, Is.SameAs(_pairsDto));
+        Assert.That(result.Triples, Is.SameAs(_triplesDto));
+        Assert.That(result.Points, Is.EqualTo(6));
+        Assert.That(result.WinPercentage, Is.EqualTo(200.00d).Within(0.001));
         Assert.That(result.TeamId, Is.EqualTo(team.Id));
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.EqualTo(fixtures));

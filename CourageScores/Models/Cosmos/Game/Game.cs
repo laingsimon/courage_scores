@@ -102,6 +102,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     {
         visitor.VisitGame(this);
 
+        if (Postponed)
+        {
+            return;
+        }
+
         visitor.VisitTeam(Home, Matches.Any() ? GameState.Played : GameState.Pending);
         if (Home.ManOfTheMatch != null)
         {
@@ -147,7 +152,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             _away = away;
         }
 
-        public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team)
+        public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
         {
             if (players.Count == 0)
             {
@@ -163,17 +168,6 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
                     _awayScore++;
                     break;
             }
-        }
-
-        public void VisitMatchDraw(IReadOnlyCollection<GamePlayer> homePlayers, IReadOnlyCollection<GamePlayer> awayPlayers, int score)
-        {
-            if (homePlayers.Count == 0)
-            {
-                return;
-            }
-
-            _homeScore += score;
-            _awayScore += score;
         }
 
         public void Accept(IGameVisitor visitor)

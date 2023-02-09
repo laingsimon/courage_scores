@@ -1,6 +1,9 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using DataImport;
+using DataImport.Importers;
+using DataImport.Lookup;
+using DataImport.Models;
 
 try
 {
@@ -9,10 +12,15 @@ try
     {
         tokenSource.Cancel();
     };
+    var log = Console.Out;
 
     await Settings.Parse(
         args,
-        s => new Importer(s, Console.Out).RunImport(tokenSource.Token));
+        s => new Importer(
+            s,
+            log,
+            new AccessRowDeserialiser(),
+            new LookupFactory(log, s)).RunImport(tokenSource.Token));
 }
 catch (Exception exc)
 {

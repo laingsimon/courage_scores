@@ -8,6 +8,11 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
 
     public void VisitGame(Models.Cosmos.Game.Game game)
     {
+        if (game.Postponed)
+        {
+            return;
+        }
+
         AddPlayers(game.Home, game.Matches.SelectMany(m => m.HomePlayers));
         AddPlayers(game.Away, game.Matches.SelectMany(m => m.AwayPlayers));
     }
