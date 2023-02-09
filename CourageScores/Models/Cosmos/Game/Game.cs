@@ -102,6 +102,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     {
         visitor.VisitGame(this);
 
+        if (Postponed)
+        {
+            return;
+        }
+
         visitor.VisitTeam(Home, Matches.Any() ? GameState.Played : GameState.Pending);
         if (Home.ManOfTheMatch != null)
         {

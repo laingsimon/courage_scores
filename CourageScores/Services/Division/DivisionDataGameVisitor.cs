@@ -17,6 +17,11 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGame(Models.Cosmos.Game.Game game)
     {
+        if (game.Postponed)
+        {
+            return;
+        }
+
         var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
         var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
         game.Accept(playerGamesVisitor);
