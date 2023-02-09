@@ -207,8 +207,20 @@ public class DivisionDataGameVisitor : IGameVisitor
         public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData,
             Dictionary<Guid, TeamDto> teamLookup, Guid seasonId)
         {
-            _home = teamLookup[home.Id];
-            _away = teamLookup[away.Id];
+#pragma warning disable CS8601
+            if (!teamLookup.TryGetValue(home.Id, out _home))
+#pragma warning restore CS8601
+            {
+                throw new InvalidOperationException($"Could not find team data for {home.Name} - {home.Id}");
+            }
+
+#pragma warning disable CS8601
+            if (!teamLookup.TryGetValue(away.Id, out _away))
+#pragma warning restore CS8601
+            {
+                throw new InvalidOperationException($"Could not find team data for {away.Name} - {away.Id}");
+            }
+
             _divisionData = divisionData;
             _seasonId = seasonId;
         }
