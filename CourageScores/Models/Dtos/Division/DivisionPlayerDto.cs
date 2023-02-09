@@ -22,8 +22,6 @@ public class DivisionPlayerDto
 
     public int PlayedPairs { get; set; }
     public int WonPairs { get; set; }
-    public int DrawPairs { get; set; }
     public int PlayedTriples { get; set; }
     public int WonTriples { get; set; }
-    public int DrawTriples { get; set; }
 }
