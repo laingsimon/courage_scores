@@ -78,7 +78,12 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
     private async Task<bool> TeamAddressesMatch(Guid id, string address, CancellationToken token)
     {
         var team = await _teamService.Get(id, token);
-        return team?.Address.Equals(address, StringComparison.OrdinalIgnoreCase) == true;
+        if (team == null || string.IsNullOrEmpty(team.Address))
+        {
+            return false;
+        }
+
+        return team.Address.Equals(address, StringComparison.OrdinalIgnoreCase);
     }
 
     private EditGameDto GameDtoToEditGameDto(GameDto game)
