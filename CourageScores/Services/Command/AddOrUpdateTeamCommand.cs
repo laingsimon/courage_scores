@@ -34,31 +34,61 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             .GetWhere($"t.DivisionId = '{update.DivisionId}' and t.SeasonId = '{update.SeasonId}'", token);
 
         var gamesToUpdate = new List<EditGameDto>();
-        await foreach (var game in games.WhereAsync(g => g.Home.Id == update.Id || g.Away.Id == update.Id).WithCancellation(token))
+        var addressLookup = new Dictionary<Guid, TeamDto?>();
+        var gamesWithSameHomeAddressAsUpdate = new Dictionary<DateTime, HashSet<GameDto>>();
+
+        await foreach (var game in games.WithCancellation(token))
         {
-            if (game.Home.Id == update.Id && await TeamAddressesMatch(game.Away.Id, update.Address, token))
+            if (!addressLookup.ContainsKey(game.Home.Id))
             {
-                return new CommandResult
-                {
-                    Success = false,
-                    Message = $"Unable to update address, {team.Name} is playing {game.Away.Name} (on {game.Date:MMM dd yyyy}) which is registered at the updated address",
-                };
+                addressLookup.Add(game.Home.Id, await _teamService.Get(game.Home.Id, token));
             }
 
-            if (game.Away.Id == update.Id && await TeamAddressesMatch(game.Home.Id, update.Address, token))
+            if (!gamesWithSameHomeAddressAsUpdate.ContainsKey(game.Date))
             {
-                return new CommandResult
-                {
-                    Success = false,
-                    Message = $"Unable to update address, {team.Name} is playing {game.Home.Name} (on {game.Date:MMM dd yyyy}) which is registered at the updated address",
-                };
+                gamesWithSameHomeAddressAsUpdate.Add(game.Date, new HashSet<GameDto>());
             }
 
-            var editGame = GameDtoToEditGameDto(game);
-            editGame.Address = update.Address;
-            editGame.DivisionId = update.DivisionId;
+            var homeTeam = addressLookup[game.Home.Id];
+            if (homeTeam?.Id == update.Id)
+            {
+                // the address will be the same
+                gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
+            }
+            else if (homeTeam?.Address != null)
+            {
+                if (homeTeam.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
+                {
+                    gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
+                }
+                else if (game.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
+                {
+                    gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
+                }
+            }
 
-            gamesToUpdate.Add(editGame);
+            if (game.Home.Id == update.Id)
+            {
+                var editGame = GameDtoToEditGameDto(game);
+                editGame.Address = update.Address;
+                editGame.DivisionId = update.DivisionId;
+                gamesToUpdate.Add(editGame);
+            }
+        }
+
+        if (gamesWithSameHomeAddressAsUpdate.Any(date => date.Value.Count > 1))
+        {
+            // multiple games would exist at the same home address, which isn't permitted
+            var detail = gamesWithSameHomeAddressAsUpdate.Where(pair => pair.Value.Count > 1).Select(pair =>
+            {
+                return $"{pair.Key:dd MMM yyyy}: {string.Join(", ", pair.Value.Select(g => $"{g.Home.Name} vs {g.Away.Name}"))}";
+            });
+
+            return new CommandResult
+            {
+                Success = false,
+                Message = $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}",
+            };
         }
 
         foreach (var gameUpdate in gamesToUpdate)
@@ -73,17 +103,6 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         return CommandResult.SuccessNoMessage;
-    }
-
-    private async Task<bool> TeamAddressesMatch(Guid id, string address, CancellationToken token)
-    {
-        var team = await _teamService.Get(id, token);
-        if (team == null || string.IsNullOrEmpty(team.Address))
-        {
-            return false;
-        }
-
-        return team.Address.Equals(address, StringComparison.OrdinalIgnoreCase);
     }
 
     private EditGameDto GameDtoToEditGameDto(GameDto game)
