@@ -175,7 +175,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             };
         }
 
-        var proposals = GetProposals(request, teamsToPropose, result, existingGames);
+        var proposals = GetProposals(request, teamsToPropose, existingGames);
         var maxIterations = 5 * proposals.Count;
         var currentDate = request.WeekDay != null
             ? (request.StartDate ?? season.StartDate).MoveToDay(request.WeekDay.Value)
@@ -302,7 +302,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private static List<Proposal> GetProposals(
         AutoProvisionGamesRequest request,
         IReadOnlyCollection<TeamDto> teamsToPropose,
-        ActionResultDto<List<DivisionFixtureDateDto>> result,
         IReadOnlyCollection<DivisionFixtureDateDto> existingDate)
     {
         var proposals = teamsToPropose
@@ -326,26 +325,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             {
                 return !existingDate.SelectMany(fixtureDate => fixtureDate.Fixtures).Any(f => f.IsKnockout == false &&
                     f.HomeTeam.Id == p.Home.Id && f.AwayTeam != null && f.AwayTeam.Id == p.Away.Id);
-            })
-            .Where(p =>
-            {
-                if (p.Home.Address != p.Away.Address)
-                {
-                    return true;
-                }
-
-                string GetMessage(TeamDto home, TeamDto away)
-                {
-                    return $"{home.Name} cannot ever play against {away.Name} as they have the same venue - {home.Address}";
-                }
-
-                if (!result.Warnings.Contains(GetMessage(p.Away, p.Home)))
-                {
-                    request.LogWarning(result, GetMessage(p.Home, p.Away));
-                }
-
-                return false;
-
             })
             .ToList();
 
