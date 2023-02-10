@@ -208,6 +208,70 @@ public class AddOrUpdateTeamCommandTests
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
+    [Test]
+    public async Task ApplyUpdates_WhenAnExistingTeamHasANullAddress_IgnoresTeamWithNullAddress()
+    {
+        var awayTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Address = null,
+        };
+        var game = new GameDto
+        {
+            Home = new GameTeamDto { Id = _team.Id },
+            Away = new GameTeamDto { Id = awayTeam.Id, Name = "away team" },
+            Id = Guid.NewGuid(),
+            Date = new DateTime(2001, 02, 03),
+        };
+        _games.Add(game);
+        var update = new EditTeamDto
+        {
+            DivisionId = _divisionId,
+            SeasonId = _seasonId,
+            Id = _team.Id,
+            Address = "new address",
+            Name = "new name",
+        };
+        _teamService.Setup(s => s.Get(awayTeam.Id, _token)).ReturnsAsync(awayTeam);
+
+        var result = await _command.WithData(update).ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Team updated"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task? ApplyUpdates_WhenAGameRefersToMissingTeam_IgnoresMissingTeam()
+    {
+        var awayTeamId = Guid.NewGuid();
+        var game = new GameDto
+        {
+            Home = new GameTeamDto { Id = _team.Id },
+            Away = new GameTeamDto { Id = awayTeamId, Name = "away team" },
+            Id = Guid.NewGuid(),
+            Date = new DateTime(2001, 02, 03),
+        };
+        _games.Add(game);
+        var update = new EditTeamDto
+        {
+            DivisionId = _divisionId,
+            SeasonId = _seasonId,
+            Id = _team.Id,
+            Address = "new address",
+            Name = "new name",
+        };
+        _teamService.Setup(s => s.Get(awayTeamId, _token)).ReturnsAsync(() => null);
+
+        var result = await _command.WithData(update).ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Team updated"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
     private static bool EditGameDtoMatches(EditGameDto editGameDto, GameDto game, EditTeamDto update)
     {
         // equal to updated value
