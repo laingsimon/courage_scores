@@ -230,7 +230,7 @@ public class ScoresImporter : IImporter
             return _request.Created(new GamePlayer
             {
                 Id = teamPlayer.Id,
-                Name = playerCode,
+                Name = teamPlayer.Name,
             });
         };
     }
