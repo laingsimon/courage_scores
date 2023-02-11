@@ -4,6 +4,7 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
+import {valueChanged} from "../../Utilities";
 
 export function ExportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -30,14 +31,6 @@ export function ExportData() {
     },
     // eslint-disable-next-line
     []);
-
-    function valueChanged(event) {
-        const newExportRequest = Object.assign({}, exportRequest);
-        newExportRequest[event.target.name] = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
-        setExportRequest(newExportRequest);
-    }
 
     async function startExport() {
         if (exporting) {
@@ -74,12 +67,12 @@ export function ExportData() {
                 <span className="input-group-text">Password</span>
             </div>
             <input disabled={exporting} type="password" className="form-control"
-                   name="password" value={exportRequest.password} onChange={valueChanged}/>
+                   name="password" value={exportRequest.password} onChange={valueChanged(exportRequest, setExportRequest)}/>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={exporting} type="checkbox" className="form-check-input"
-                       name="includeDeletedEntries" id="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged}/>
+                       name="includeDeletedEntries" id="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged(exportRequest, setExportRequest)}/>
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>

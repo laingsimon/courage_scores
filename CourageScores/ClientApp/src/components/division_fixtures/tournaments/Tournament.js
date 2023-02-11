@@ -10,7 +10,7 @@ import {TournamentRound} from "./TournamentRound";
 import {TournamentSide} from "./TournamentSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {sortBy} from "../../../Utilities";
+import {sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {DivisionApi} from "../../../api/division";
@@ -120,12 +120,6 @@ export function Tournament({ account, apis }) {
     async function onChange(newRound) {
         const newTournamentData = Object.assign({}, tournamentData);
         newTournamentData.round = newRound;
-        setTournamentData(newTournamentData);
-    }
-
-    async function changeProperty(event) {
-        const newTournamentData = Object.assign({}, tournamentData);
-        newTournamentData[event.target.name] = event.target.value;
         setTournamentData(newTournamentData);
     }
 
@@ -286,7 +280,7 @@ export function Tournament({ account, apis }) {
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={changeProperty} />
+                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={valueChanged(tournamentData, setTournamentData)} />
                     </div>)
                 : (<p>
                     At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
@@ -299,13 +293,13 @@ export function Tournament({ account, apis }) {
                     <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
-                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={changeProperty} />
+                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={valueChanged(tournamentData, setTournamentData)} />
                 </div>)
                 : null}
             {isAdmin
                 ? (<div className="form-group input-group mb-3 d-flex">
                     <label htmlFor="note-text" className="input-group-text">Notes</label>
-                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={changeProperty}></textarea>
+                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
                 </div>)
                 : tournamentData.notes
                     ? (<div className="alert alert-warning alert-dismissible fade show" role="alert">{tournamentData.notes}</div>)

@@ -1,21 +1,8 @@
 import React from "react";
 import {ShareButton} from "../../ShareButton";
+import {valueChanged} from "../../../Utilities";
 
 export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
-    function changeFixtureProperty(event) {
-        if (access !== 'admin') {
-            return;
-        }
-
-        const newFixtureData = Object.assign({}, fixtureData);
-        if (event.target.type === 'checkbox') {
-            newFixtureData[event.target.name] = event.target.checked;
-        } else {
-            newFixtureData[event.target.name] = event.target.value;
-        }
-        setFixtureData(newFixtureData);
-    }
-
     if (access !== 'admin') {
         return (<div>
             {fixtureData.isKnockout ? (<span className="fw-bold text-primary">Knockout at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
@@ -28,16 +15,16 @@ export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
 
     return (<div>
         <div className="input-group mb-3">
-            <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={fixtureData.date.substring(0, 10)} onChange={changeFixtureProperty} />
-            <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={changeFixtureProperty} />
+            <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={fixtureData.date.substring(0, 10)} onChange={valueChanged(fixtureData, setFixtureData)} />
+            <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={valueChanged(fixtureData, setFixtureData)} />
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
-                <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={changeFixtureProperty} />
+                <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={valueChanged(fixtureData, setFixtureData)} />
                 <label className="form-check-label" htmlFor="postponed">Postponed</label>
             </div>
             <div className="form-check form-switch">
-                <input disabled={saving} type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={fixtureData.isKnockout} onChange={changeFixtureProperty} />
+                <input disabled={saving} type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={fixtureData.isKnockout} onChange={valueChanged(fixtureData, setFixtureData)} />
                 <label className="form-check-label" htmlFor="isKnockout">Knockout</label>
             </div>
         </div>

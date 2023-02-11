@@ -1,5 +1,6 @@
 import {Dialog} from "../common/Dialog";
 import React from "react";
+import {valueChanged} from "../../Utilities";
 
 export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings, proposalResponse, disabled, onPropose, onClose }) {
     let index = 0;
@@ -10,15 +11,6 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                 return (<li key={key}>{key} {errors[key].map(e => (<p key={index++}>{e}</p>))}</li>)
             })}
         </ol>)
-    }
-
-    async function updateProposalSettings(event) {
-        const newProposalSettings = Object.assign({}, proposalSettings);
-        newProposalSettings[event.target.name] = event.target.value;
-
-        if (onUpdateProposalSettings) {
-            await onUpdateProposalSettings(newProposalSettings);
-        }
     }
 
     async function updateNewExclusion(event) {
@@ -60,7 +52,7 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                 <div className="input-group-prepend">
                     <span className="input-group-text">Number of legs</span>
                 </div>
-                <select disabled={disabled} value={proposalSettings.numberOfLegs} onChange={updateProposalSettings} name="numberOfLegs">
+                <select disabled={disabled} value={proposalSettings.numberOfLegs} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} name="numberOfLegs">
                     <option value="1">Single leg</option>
                     <option value="2">Two legs</option>
                 </select>
@@ -69,7 +61,7 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                 <div className="input-group-prepend">
                     <span className="input-group-text">Day of week</span>
                 </div>
-                <select disabled={disabled} value={proposalSettings.weekDay} onChange={updateProposalSettings} name="weekDay">
+                <select disabled={disabled} value={proposalSettings.weekDay} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} name="weekDay">
                     <option value="Monday">Monday</option>
                     <option value="Tuesday">Tuesday</option>
                     <option value="Wednesday">Wednesday</option>
@@ -97,7 +89,7 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                 <div className="input-group-prepend">
                     <span className="input-group-text">Show</span>
                 </div>
-                <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={updateProposalSettings}>
+                <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)}>
                     <option value="Information">Everything</option>
                     <option value="Warning">Warnings and Errors</option>
                     <option value="Error">Errors only</option>
