@@ -14,6 +14,7 @@ import {propChanged, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {DivisionApi} from "../../../api/division";
+import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
@@ -201,47 +202,6 @@ export function Tournament({ account, apis }) {
         }
     }
 
-    function add180(player) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        if (!newTournamentData.oneEighties) {
-            newTournamentData.oneEighties = [];
-        }
-
-        newTournamentData.oneEighties.push(Object.assign({}, player));
-
-        setTournamentData(newTournamentData);
-
-    }
-
-    function addHiCheck(player, notes) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        if (!newTournamentData.over100Checkouts) {
-            newTournamentData.over100Checkouts = [];
-        }
-
-        newTournamentData.over100Checkouts.push(Object.assign({ notes: notes }, player));
-
-        setTournamentData(newTournamentData);
-    }
-
-    function removeOneEightyScore(playerId, index) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        newTournamentData.oneEighties.splice(index, 1);
-
-        setTournamentData(newTournamentData);
-    }
-
-    function removeHiCheck(playerId, index) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        newTournamentData.over100Checkouts.splice(index, 1);
-
-        setTournamentData(newTournamentData);
-    }
-
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -319,8 +279,8 @@ export function Tournament({ account, apis }) {
                             divisionId={tournamentData.divisionId}
                             seasonId={tournamentData.seasonId}
                             players={tournamentData.oneEighties || []}
-                            onRemovePlayer={removeOneEightyScore}
-                            onAddPlayer={add180}/>
+                            onRemovePlayer={remove180(tournamentData, setTournamentData)}
+                            onAddPlayer={add180(tournamentData, setTournamentData)}/>
                     </td>
                     <td colSpan="2">
                         100+ c/o<br/>
@@ -331,8 +291,8 @@ export function Tournament({ account, apis }) {
                             divisionId={tournamentData.divisionId}
                             seasonId={tournamentData.seasonId}
                             players={tournamentData.over100Checkouts || []}
-                            onRemovePlayer={removeHiCheck}
-                            onAddPlayer={addHiCheck}
+                            onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
+                            onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
                             showNotes={true} />
                     </td>
                 </tr>
