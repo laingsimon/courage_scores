@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, nameSort, createTemporaryId, sortBy} from "../../../Utilities";
+import {toMap, createTemporaryId, sortBy} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
 
@@ -250,7 +250,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }
 
     const allPlayers = teamsAndPlayers.filter(exceptSelectedPlayer).map(toSelectablePlayer);
-    allPlayers.sort(nameSort);
+    allPlayers.sort(sortBy('name'));
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
             ? (<input type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)

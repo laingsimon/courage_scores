@@ -10,7 +10,7 @@ import {TournamentRound} from "./TournamentRound";
 import {TournamentSide} from "./TournamentSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {nameSort} from "../../../Utilities";
+import {sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {DivisionApi} from "../../../api/division";
@@ -73,7 +73,7 @@ export function Tournament({ account, apis }) {
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
             const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
-            allPlayers.sort(nameSort);
+            allPlayers.sort(sortBy('name'));
 
             const tournamentPlayerMap = {};
             tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
@@ -112,7 +112,7 @@ export function Tournament({ account, apis }) {
             .flatMap(mapping => mapping.teamSeason.players.map(p => {
                 return Object.assign({}, p, { divisionId: mapping.divisionId });
             }));
-        players.sort(nameSort);
+        players.sort(sortBy('name'));
 
         return players;
     }
@@ -312,7 +312,7 @@ export function Tournament({ account, apis }) {
                     : null}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
-                {tournamentData.sides.sort(nameSort).map(side => {
+                {tournamentData.sides.sort(sortBy('name')).map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
                     return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}

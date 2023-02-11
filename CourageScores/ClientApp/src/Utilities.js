@@ -10,16 +10,6 @@ export function toMap(items) {
     return map;
 }
 
-export function nameSort(x, y) {
-    if (x.name.toLowerCase() === y.name.toLowerCase()) {
-        return 0;
-    }
-
-    return (x.name.toLowerCase() > y.name.toLowerCase())
-        ? 1
-        : -1;
-}
-
 export function sortBy(property) {
     function getValue(item) {
         return item[property];

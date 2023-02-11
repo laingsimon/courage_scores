@@ -1,9 +1,9 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {nameSort} from "../../Utilities";
+import {sortBy} from "../../Utilities";
 import {ShareButton} from "../ShareButton";
 
 export function FilterFixtures({ filter, setFilter, teams }) {
-    const teamFilters = teams.sort(nameSort).map(t => { return { value: t.id, text: t.name }; });
+    const teamFilters = teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name }; });
     teamFilters.unshift({ value: null, text: 'All teams' });
 
     const typeFilters = [

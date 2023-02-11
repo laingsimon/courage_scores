@@ -1,6 +1,6 @@
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
-import {nameSort} from "../../../Utilities";
+import {sortBy} from "../../../Utilities";
 
 export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     function applicablePlayers() {
@@ -19,7 +19,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
             });
         }
 
-        return Object.values(players).sort(nameSort);
+        return Object.values(players).sort(sortBy('name'));
     }
 
     function add180(player) {

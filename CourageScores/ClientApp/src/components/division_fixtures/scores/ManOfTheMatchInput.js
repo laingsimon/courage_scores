@@ -1,6 +1,6 @@
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import React from "react";
-import {nameSort} from "../../../Utilities";
+import {sortBy} from "../../../Utilities";
 
 export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, saving, setFixtureData }) {
     function manOfTheMatchChanged(player, team) {
@@ -26,7 +26,7 @@ export function ManOfTheMatchInput({ account, allPlayers, fixtureData, access, s
             });
         }
 
-        return Object.values(players).sort(nameSort);
+        return Object.values(players).sort(sortBy('name'));
     }
 
     return (<tr>
