@@ -33,37 +33,37 @@ public class CachingDivisionService : ICachingDivisionService
         if (divisionId != null)
         {
             // invalidate caches where division id matches, any season id
-            var keys = CacheKeys.Where(key => key.DivisionId == divisionId.Value).ToArray();
+            var keys = CacheKeys.Where(key => key.Filter.DivisionId == divisionId.Value).ToArray();
             InvalidateCaches(keys);
         }
 
         if (seasonId != null)
         {
             // invalidate caches where season id matches, any division id
-            var keys = CacheKeys.Where(key => key.SeasonId == seasonId.Value).ToArray();
+            var keys = CacheKeys.Where(key => key.Filter.SeasonId == seasonId.Value).ToArray();
             InvalidateCaches(keys);
         }
 
         return Task.CompletedTask;
     }
 
-    public async Task<DivisionDataDto> GetDivisionData(Guid? divisionId, Guid? seasonId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(DivisionDataFilter filter, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         if (user != null)
         {
-            return await _divisionService.GetDivisionData(divisionId, seasonId, token);
+            return await _divisionService.GetDivisionData(filter, token);
         }
 
-        var key = new CacheKey(divisionId, seasonId, "GetDivisionData");
+        var key = new CacheKey(filter, "GetDivisionData");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.Add(key);
-        return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(divisionId, seasonId, token));
+        return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.GetDivisionData(filter, token));
     }
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
-        var key = new CacheKey(id, null, "Get");
+        var key = new CacheKey(new DivisionDataFilter { DivisionId = id }, "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.Add(key);
         return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.Get(id, token));
@@ -87,7 +87,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async IAsyncEnumerable<DivisionDto> GetAll([EnumeratorCancellation] CancellationToken token)
     {
-        var key = new CacheKey(null, null, "Get");
+        var key = new CacheKey(new DivisionDataFilter(), "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.Add(key);
 
@@ -99,7 +99,7 @@ public class CachingDivisionService : ICachingDivisionService
 
     private void InvalidateCaches(Guid divisionId, string? type)
     {
-        var cacheKeys = CacheKeys.Where(k => (k.DivisionId == divisionId || k.DivisionId == null) && (k.Type == type || type == null)).ToArray();
+        var cacheKeys = CacheKeys.Where(k => (k.Filter.DivisionId == divisionId || k.Filter.DivisionId == null) && (k.Type == type || type == null)).ToArray();
         InvalidateCaches(cacheKeys);
     }
 
@@ -143,14 +143,12 @@ public class CachingDivisionService : ICachingDivisionService
 
     private class CacheKey : IEquatable<CacheKey>
     {
-        public Guid? DivisionId { get; }
-        public Guid? SeasonId { get; }
+        public DivisionDataFilter Filter { get; }
         public string Type { get; }
 
-        public CacheKey(Guid? divisionId, Guid? seasonId, string type)
+        public CacheKey(DivisionDataFilter filter, string type)
         {
-            DivisionId = divisionId;
-            SeasonId = seasonId;
+            Filter = filter;
             Type = type;
         }
 
@@ -158,7 +156,7 @@ public class CachingDivisionService : ICachingDivisionService
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Nullable.Equals(DivisionId, other.DivisionId) && Nullable.Equals(SeasonId, other.SeasonId) && Type == other.Type;
+            return Filter.Equals(other.Filter) && Type == other.Type;
         }
 
         public override bool Equals(object? obj)
@@ -171,7 +169,7 @@ public class CachingDivisionService : ICachingDivisionService
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(DivisionId, SeasonId, Type);
+            return HashCode.Combine(Filter, Type);
         }
     }
 }

@@ -162,7 +162,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             yield break;
         }
 
-        var divisionData = await _divisionService.GetDivisionData(request.DivisionId, request.SeasonId, token);
+        var divisionData = await _divisionService.GetDivisionData(new DivisionDataFilter { DivisionId = request.DivisionId, SeasonId = request.SeasonId }, token);
 
         var existingGames = divisionData.Fixtures;
 

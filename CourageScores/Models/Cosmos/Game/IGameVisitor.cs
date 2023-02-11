@@ -77,4 +77,8 @@ public interface IGameVisitor
     void VisitSide(TournamentSide tournamentSide)
     {
     }
+
+    void VisitDataError(string dataError)
+    {
+    }
 }
