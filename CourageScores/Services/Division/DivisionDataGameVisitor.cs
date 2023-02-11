@@ -14,6 +14,11 @@ public class DivisionDataGameVisitor : IGameVisitor
         _teamLookup = teamLookup;
     }
 
+    public void VisitDataError(string dataError)
+    {
+        _divisionData.DataErrors.Add(dataError);
+    }
+
     public void VisitGame(Models.Cosmos.Game.Game game)
     {
         if (game.Postponed)

@@ -27,6 +27,11 @@ public class DivisionData
     /// </summary>
     public Dictionary<Guid, TeamPlayerTuple> PlayerIdToTeamLookup { get; } = new();
 
+    /// <summary>
+    /// A list of all known data errors
+    /// </summary>
+    public HashSet<string> DataErrors { get; } = new HashSet<string>();
+
     public class PlayerPlayScore
     {
         public int MatchesWon { get; set; }

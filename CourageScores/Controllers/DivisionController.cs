@@ -27,20 +27,24 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division/{divisionId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionTeams(Guid divisionId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionTeams(Guid divisionId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
-        return await _divisionService.GetDivisionData(divisionId, null, token);
+        filter ??= new DivisionDataFilter();
+        filter.DivisionId = divisionId;
+
+        return await _divisionService.GetDivisionData(filter, token);
     }
 
     [HttpGet("/api/Division/{divisionId}/{seasonId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionTeams(Guid? divisionId, Guid seasonId, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionTeams(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
-        return await _divisionService.GetDivisionData(
-            divisionId == null || divisionId == Guid.Empty
-                ? null
-                : divisionId,
-            seasonId,
-            token);
+        filter ??= new DivisionDataFilter();
+        filter.DivisionId = divisionId == null || divisionId == Guid.Empty
+            ? null
+            : divisionId;
+        filter.SeasonId = seasonId;
+
+        return await _divisionService.GetDivisionData(filter, token);
     }
 
     [HttpGet("/api/Division/")]

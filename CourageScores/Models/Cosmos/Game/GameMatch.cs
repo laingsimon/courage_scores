@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
@@ -83,6 +85,10 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
 
             // must be a 0-0 record (i.e. not played) - draw's aren't possible in matches (legs are 3,5 or 7 normally)
+        }
+        else
+        {
+            visitor.VisitDataError($"Mismatching number of players: Home players: [{string.Join(", ", HomePlayers.Select(p => p.Name))}] vs Away players: [{string.Join(", ", AwayPlayers.Select(p => p.Name))}]");
         }
 
 #pragma warning disable CS0612
