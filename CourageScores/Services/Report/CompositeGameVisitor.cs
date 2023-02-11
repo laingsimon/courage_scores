@@ -91,4 +91,9 @@ public class CompositeGameVisitor : IGameVisitor
     {
         ForEachVisitor(visitor => visitor.VisitGameLost(team));
     }
+
+    public void VisitDataError(string dataError)
+    {
+        ForEachVisitor(visitor => visitor.VisitDataError(dataError));
+    }
 }

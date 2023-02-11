@@ -128,6 +128,7 @@ public class DivisionService : IDivisionService
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(season, token),
             Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
+            DataErrors = divisionData.DataErrors.ToList(),
         };
     }
 
