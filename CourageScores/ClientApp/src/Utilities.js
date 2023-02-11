@@ -43,3 +43,16 @@ export function createTemporaryId() {
         return v.toString(16);
     });
 }
+
+/*
+* Change a property of a state-object based on on event
+* */
+export function valueChanged(get, set) {
+    return async (event) => {
+        const newData = Object.assign({}, get);
+        newData[event.target.name] = event.target.type === 'checkbox'
+            ? event.target.checked
+            : event.target.value;
+        await set(newData);
+    }
+}
