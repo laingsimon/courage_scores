@@ -23,7 +23,7 @@ export function ExportData() {
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canExport).map(t => t.name);
-        onTableChange(selected);
+        setExportRequest(Object.assign({ tables: selected }, exportRequest));
     }
 
     useEffect(() => {
