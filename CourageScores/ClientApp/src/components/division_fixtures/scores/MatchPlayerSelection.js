@@ -3,6 +3,7 @@ import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {Link} from "react-router-dom";
+import {propChanged} from "../../../Utilities";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
@@ -165,7 +166,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 seasonId={seasonId}
                 gameId={gameId}
                 teams={[ team ]}
-                onChange={onNewPlayerChanged}
+                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={() => setCreatePlayerFor(null)}
                 onSaved={onPlayerCreated}
             />
@@ -187,12 +188,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
 
         setNewPlayerDetails(null);
         setCreatePlayerFor(null);
-    }
-
-    async function onNewPlayerChanged(prop, value) {
-        const newDetails = Object.assign({}, newPlayerDetails);
-        newDetails[prop] = value;
-        setNewPlayerDetails(newDetails);
     }
 
     function canEditOrDelete(teamId) {

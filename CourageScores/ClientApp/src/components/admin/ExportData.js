@@ -4,7 +4,7 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
-import {valueChanged} from "../../Utilities";
+import {propChanged, valueChanged} from "../../Utilities";
 
 export function ExportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -54,12 +54,6 @@ export function ExportData() {
         }
     }
 
-    function onTableChange(selection) {
-        const newExportRequest = Object.assign({}, exportRequest);
-        newExportRequest.tables = selection;
-        setExportRequest(newExportRequest);
-    }
-
     return (<div className="light-background p-3">
         <h3>Export data</h3>
         <div className="input-group mb-3">
@@ -76,7 +70,7 @@ export function ExportData() {
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChange={onTableChange} requireCanExport={true} />
+        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChanged={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

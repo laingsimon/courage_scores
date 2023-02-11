@@ -10,7 +10,7 @@ import {TournamentRound} from "./TournamentRound";
 import {TournamentSide} from "./TournamentSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {sortBy, valueChanged} from "../../../Utilities";
+import {propChanged, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {DivisionApi} from "../../../api/division";
@@ -115,12 +115,6 @@ export function Tournament({ account, apis }) {
         players.sort(sortBy('name'));
 
         return players;
-    }
-
-    async function onChange(newRound) {
-        const newTournamentData = Object.assign({}, tournamentData);
-        newTournamentData.round = newRound;
-        setTournamentData(newTournamentData);
     }
 
     async function sideChanged(newSide, sideIndex) {
@@ -312,7 +306,7 @@ export function Tournament({ account, apis }) {
                     return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
-            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} />) : null}
             {tournamentData.sides.length >= 2 ? (<table className="table">
                 <tbody>
                 <tr>

@@ -5,7 +5,7 @@ import {SeasonApi} from "../../api/season";
 import {useNavigate} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {valueChanged} from "../../Utilities";
+import {propChanged, valueChanged} from "../../Utilities";
 
 export function NewSeason() {
     const [ saving, setSaving ] = useState(false);
@@ -27,12 +27,6 @@ export function NewSeason() {
     async function getSeasons() {
         const seasons = await api.getAll();
         setSeasons(seasons.map(s => { return { value: s.id, text: `${s.name} (${new Date(s.startDate).toDateString()} - ${new Date(s.endDate).toDateString()})` } }));
-    }
-
-    function setProperty(property, value) {
-        const newData = Object.assign({}, newSeason);
-        newData[property] = value;
-        setNewSeason(newData);
     }
 
     async function createSeason() {
@@ -86,7 +80,7 @@ export function NewSeason() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Use teams from season</span>
             </div>
-            <BootstrapDropdown value={newSeason.copyTeamsFromSeasonId} options={seasons} onChange={(seasonId) => setProperty('copyTeamsFromSeasonId', seasonId)} />
+            <BootstrapDropdown value={newSeason.copyTeamsFromSeasonId} options={seasons} onChange={propChanged(newSeason, setNewSeason, 'copyTeamsFromSeasonId')} />
         </div>
 
         <button className="btn btn-primary mt-3" onClick={createSeason}>

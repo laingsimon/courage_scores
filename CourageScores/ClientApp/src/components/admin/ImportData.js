@@ -4,7 +4,7 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
-import {valueChanged} from "../../Utilities";
+import {propChanged, valueChanged} from "../../Utilities";
 
 export function ImportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -24,7 +24,9 @@ export function ImportData() {
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canImport).map(t => t.name);
-        onTableChange(selected);
+        setImportRequest({
+            tables: selected
+        });
     }
 
     useEffect(() => {
@@ -32,12 +34,6 @@ export function ImportData() {
     },
     // eslint-disable-next-line
     [ ]);
-
-    function onTableChange(selection) {
-        const newImportRequest = Object.assign({}, importRequest);
-        newImportRequest.tables = selection;
-        setImportRequest(newImportRequest);
-    }
 
     async function startImport() {
         if (importing) {
@@ -103,7 +99,7 @@ export function ImportData() {
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChange={onTableChange} requireCanImport={true} />
+        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChanged={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
                 {importing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
