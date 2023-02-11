@@ -1,3 +1,6 @@
+/*
+* Convert an array of items to a dictionary, keyed on the id property of each item
+* */
 export function toMap(items) {
     const map = {
         map: items.map.bind(items),
@@ -10,6 +13,9 @@ export function toMap(items) {
     return map;
 }
 
+/*
+* Sort any array by the given property
+* */
 export function sortBy(property) {
     function getValue(item) {
         return item[property];
@@ -26,6 +32,9 @@ export function sortBy(property) {
     }
 }
 
+/*
+* Create a pseudo-random GUID
+* */
 export function createTemporaryId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random()*16|0;
