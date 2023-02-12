@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
