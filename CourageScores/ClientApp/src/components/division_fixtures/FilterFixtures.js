@@ -1,9 +1,9 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {nameSort} from "../../Utilities";
+import {propChanged, sortBy} from "../../Utilities";
 import {ShareButton} from "../ShareButton";
 
 export function FilterFixtures({ filter, setFilter, teams }) {
-    const teamFilters = teams.sort(nameSort).map(t => { return { value: t.id, text: t.name }; });
+    const teamFilters = teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name }; });
     teamFilters.unshift({ value: null, text: 'All teams' });
 
     const typeFilters = [
@@ -29,16 +29,10 @@ export function FilterFixtures({ filter, setFilter, teams }) {
         }
     }
 
-    function changeFilter(type, value) {
-        const newFilter = Object.assign({}, filter);
-        newFilter[type] = value;
-        setFilter(newFilter);
-    }
-
     return (<div className="mb-3">
-        <BootstrapDropdown onChange={op => changeFilter('type', op)} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
-        <BootstrapDropdown onChange={op => changeFilter('date', op)} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
-        <BootstrapDropdown onChange={op => changeFilter('teamId', op)} options={teamFilters} value={filter.teamId || null} className="dynamic-width-dropdown margin-right" />
+        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
+        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'date')} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
+        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'teamId')} options={teamFilters} value={filter.teamId || null} className="dynamic-width-dropdown margin-right" />
         <ShareButton text="Courage League, fixtures" />
     </div>);
 }

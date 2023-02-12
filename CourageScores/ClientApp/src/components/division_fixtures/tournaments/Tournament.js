@@ -10,10 +10,11 @@ import {TournamentRound} from "./TournamentRound";
 import {TournamentSide} from "./TournamentSide";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {nameSort} from "../../../Utilities";
+import {propChanged, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {DivisionApi} from "../../../api/division";
+import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
@@ -73,7 +74,7 @@ export function Tournament({ account, apis }) {
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
             const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
-            allPlayers.sort(nameSort);
+            allPlayers.sort(sortBy('name'));
 
             const tournamentPlayerMap = {};
             tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
@@ -112,21 +113,9 @@ export function Tournament({ account, apis }) {
             .flatMap(mapping => mapping.teamSeason.players.map(p => {
                 return Object.assign({}, p, { divisionId: mapping.divisionId });
             }));
-        players.sort(nameSort);
+        players.sort(sortBy('name'));
 
         return players;
-    }
-
-    async function onChange(newRound) {
-        const newTournamentData = Object.assign({}, tournamentData);
-        newTournamentData.round = newRound;
-        setTournamentData(newTournamentData);
-    }
-
-    async function changeProperty(event) {
-        const newTournamentData = Object.assign({}, tournamentData);
-        newTournamentData[event.target.name] = event.target.value;
-        setTournamentData(newTournamentData);
     }
 
     async function sideChanged(newSide, sideIndex) {
@@ -213,47 +202,6 @@ export function Tournament({ account, apis }) {
         }
     }
 
-    function add180(player) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        if (!newTournamentData.oneEighties) {
-            newTournamentData.oneEighties = [];
-        }
-
-        newTournamentData.oneEighties.push(Object.assign({}, player));
-
-        setTournamentData(newTournamentData);
-
-    }
-
-    function addHiCheck(player, notes) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        if (!newTournamentData.over100Checkouts) {
-            newTournamentData.over100Checkouts = [];
-        }
-
-        newTournamentData.over100Checkouts.push(Object.assign({ notes: notes }, player));
-
-        setTournamentData(newTournamentData);
-    }
-
-    function removeOneEightyScore(playerId, index) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        newTournamentData.oneEighties.splice(index, 1);
-
-        setTournamentData(newTournamentData);
-    }
-
-    function removeHiCheck(playerId, index) {
-        const newTournamentData = Object.assign({}, tournamentData);
-
-        newTournamentData.over100Checkouts.splice(index, 1);
-
-        setTournamentData(newTournamentData);
-    }
-
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -286,7 +234,7 @@ export function Tournament({ account, apis }) {
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={changeProperty} />
+                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={valueChanged(tournamentData, setTournamentData)} />
                     </div>)
                 : (<p>
                     At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
@@ -299,26 +247,26 @@ export function Tournament({ account, apis }) {
                     <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
-                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={changeProperty} />
+                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={valueChanged(tournamentData, setTournamentData)} />
                 </div>)
                 : null}
             {isAdmin
                 ? (<div className="form-group input-group mb-3 d-flex">
                     <label htmlFor="note-text" className="input-group-text">Notes</label>
-                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={changeProperty}></textarea>
+                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
                 </div>)
                 : tournamentData.notes
                     ? (<div className="alert alert-warning alert-dismissible fade show" role="alert">{tournamentData.notes}</div>)
                     : null}
             <div>Sides:</div>
             <div className="my-1 d-flex flex-wrap">
-                {tournamentData.sides.sort(nameSort).map(side => {
+                {tournamentData.sides.sort(sortBy('name')).map(side => {
                     const thisSideIndex = sideIndex;
                     sideIndex++;
                     return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
                 {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
             </div>
-            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={onChange} readOnly={readOnly} depth={1} />) : null}
+            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} />) : null}
             {tournamentData.sides.length >= 2 ? (<table className="table">
                 <tbody>
                 <tr>
@@ -331,8 +279,8 @@ export function Tournament({ account, apis }) {
                             divisionId={tournamentData.divisionId}
                             seasonId={tournamentData.seasonId}
                             players={tournamentData.oneEighties || []}
-                            onRemovePlayer={removeOneEightyScore}
-                            onAddPlayer={add180}/>
+                            onRemovePlayer={remove180(tournamentData, setTournamentData)}
+                            onAddPlayer={add180(tournamentData, setTournamentData)}/>
                     </td>
                     <td colSpan="2">
                         100+ c/o<br/>
@@ -343,8 +291,8 @@ export function Tournament({ account, apis }) {
                             divisionId={tournamentData.divisionId}
                             seasonId={tournamentData.seasonId}
                             players={tournamentData.over100Checkouts || []}
-                            onRemovePlayer={removeHiCheck}
-                            onAddPlayer={addHiCheck}
+                            onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
+                            onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
                             showNotes={true} />
                     </td>
                 </tr>

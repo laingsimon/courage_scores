@@ -1,3 +1,6 @@
+/*
+* Convert an array of items to a dictionary, keyed on the id property of each item
+* */
 export function toMap(items) {
     const map = {
         map: items.map.bind(items),
@@ -10,16 +13,9 @@ export function toMap(items) {
     return map;
 }
 
-export function nameSort(x, y) {
-    if (x.name.toLowerCase() === y.name.toLowerCase()) {
-        return 0;
-    }
-
-    return (x.name.toLowerCase() > y.name.toLowerCase())
-        ? 1
-        : -1;
-}
-
+/*
+* Sort any array by the given property
+* */
 export function sortBy(property) {
     function getValue(item) {
         return item[property];
@@ -36,6 +32,9 @@ export function sortBy(property) {
     }
 }
 
+/*
+* Create a pseudo-random GUID
+* */
 export function createTemporaryId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random()*16|0;
@@ -43,4 +42,39 @@ export function createTemporaryId() {
         const v = c === 'x' ? r : (r&0x3|0x8);
         return v.toString(16);
     });
+}
+
+/*
+* Change a property of a state-object based on on event
+* */
+export function valueChanged(get, set) {
+    return async (event) => {
+        const newData = Object.assign({}, get);
+        newData[event.target.name] = event.target.type === 'checkbox'
+            ? event.target.checked
+            : event.target.value;
+        await set(newData);
+    }
+}
+
+/*
+* Change a property of a state-object.
+* 1: Provide the property name, function taking the value as an input is returned
+* 2: Exclude the property name, function taking the property name and value is returned
+*
+* Returned function will return the newly set data
+* */
+export function propChanged(get, set, prop) {
+    const setProp = (prop, value) => {
+        const newData = Object.assign({}, get);
+        newData[prop] = value;
+        set(newData);
+        return newData;
+    };
+
+    if (prop) {
+        return (value) => setProp(prop, value);
+    }
+
+    return setProp;
 }

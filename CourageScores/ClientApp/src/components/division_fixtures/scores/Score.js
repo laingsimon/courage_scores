@@ -10,7 +10,7 @@ import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
-import {nameSort} from "../../../Utilities";
+import {sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -98,7 +98,7 @@ export function Score({account, apis, divisions}) {
            });
         });
 
-        players.sort(nameSort);
+        players.sort(sortBy('name'));
         players.push({
             id: NEW_PLAYER,
             name: 'Add a player...'
@@ -139,7 +139,7 @@ export function Score({account, apis, divisions}) {
             setAwayTeam(awayTeamPlayers);
 
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
-            allPlayers.sort(nameSort);
+            allPlayers.sort(sortBy('name'));
 
             const matchPlayerCounts = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
             if (!gameData.matches || !gameData.matches.length) {

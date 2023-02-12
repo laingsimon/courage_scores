@@ -2,17 +2,12 @@ import React, {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
 import {Link} from "react-router-dom";
+import {propChanged} from "../../Utilities";
 
 export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }) {
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({}, team));
     const [ editTeam, setEditTeam ] = useState(false);
     const isAdmin = account && account.access && account.access.manageTeams;
-
-    function teamDetailChanged(prop, value) {
-        const newDetails = Object.assign({}, teamDetails);
-        newDetails[prop] = value;
-        setTeamDetails(newDetails);
-    }
 
     async function teamDetailSaved() {
         if (onTeamSaved) {
@@ -31,7 +26,7 @@ export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved }
                 name={teamDetails.name}
                 address={teamDetails.address}
                 onCancel={() => setEditTeam(false)}
-                onChange={teamDetailChanged}
+                onChange={propChanged(teamDetails, setTeamDetails)}
                 onSaved={teamDetailSaved}
             />
         </Dialog>)

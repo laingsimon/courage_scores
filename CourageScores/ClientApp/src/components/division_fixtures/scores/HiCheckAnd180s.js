@@ -1,6 +1,7 @@
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
-import {nameSort} from "../../../Utilities";
+import {sortBy} from "../../../Utilities";
+import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 
 export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     function applicablePlayers() {
@@ -19,54 +20,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
             });
         }
 
-        return Object.values(players).sort(nameSort);
-    }
-
-    function add180(player) {
-        const newFixtureData = Object.assign({}, fixtureData);
-
-        if (!newFixtureData.oneEighties) {
-            newFixtureData.oneEighties = [];
-        }
-
-        newFixtureData.oneEighties.push({
-            id: player.id,
-            name: player.name
-        });
-
-        setFixtureData(newFixtureData);
-    }
-
-    function remove180(playerId, index) {
-        const newFixtureData = Object.assign({}, fixtureData);
-
-        newFixtureData.oneEighties.splice(index, 1);
-
-        setFixtureData(newFixtureData);
-    }
-
-    function addHiCheck(player, notes) {
-        const newFixtureData = Object.assign({}, fixtureData);
-
-        if (!newFixtureData.over100Checkouts) {
-            newFixtureData.over100Checkouts = [];
-        }
-
-        newFixtureData.over100Checkouts.push({
-            id: player.id,
-            name: player.name,
-            notes: notes
-        });
-
-        setFixtureData(newFixtureData);
-    }
-
-    function removeHiCheck(playerId, index) {
-        const newFixtureData = Object.assign({}, fixtureData);
-
-        newFixtureData.over100Checkouts.splice(index, 1);
-
-        setFixtureData(newFixtureData);
+        return Object.values(players).sort(sortBy('name'));
     }
 
     return (<tr>
@@ -77,8 +31,8 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                 readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                 allPlayers={applicablePlayers()}
                 players={fixtureData.oneEighties || []}
-                onRemovePlayer={remove180}
-                onAddPlayer={add180}
+                onRemovePlayer={remove180(fixtureData, setFixtureData)}
+                onAddPlayer={add180(fixtureData, setFixtureData)}
                 divisionId={fixtureData.divisionId}
                 seasonId={fixtureData.seasonId} />
         </td>
@@ -90,8 +44,8 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                 readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
                 allPlayers={applicablePlayers()}
                 players={fixtureData.over100Checkouts || []}
-                onRemovePlayer={removeHiCheck}
-                onAddPlayer={addHiCheck}
+                onRemovePlayer={removeHiCheck(fixtureData, setFixtureData)}
+                onAddPlayer={addHiCheck(fixtureData, setFixtureData)}
                 showNotes={true}
                 divisionId={fixtureData.divisionId}
                 seasonId={fixtureData.seasonId}
