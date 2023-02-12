@@ -1,4 +1,4 @@
-﻿export function add180(fixtureData, setFixtureData) {
+export function add180(fixtureData, setFixtureData) {
     return (player) => {
         const newFixtureData = Object.assign({}, fixtureData);
 
