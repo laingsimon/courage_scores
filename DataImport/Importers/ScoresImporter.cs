@@ -180,12 +180,32 @@ public class ScoresImporter : IImporter
             match.StartingScore = ApplyChange(match.StartingScore, UpdateScoresCommand.GetStartingScore(match.HomePlayers.Count), ref gameModified);
             match.NumberOfLegs = ApplyChange(match.NumberOfLegs, UpdateScoresCommand.GetNumberOfLegs(match.HomePlayers.Count), ref gameModified);
 
+            await ValidateMatch(game, match);
+
             return gameModified;
         }
         catch (Exception exc)
         {
             _log.WriteLineAsync($"Failed to set match for game {game.Home.Name} vs {game.Away.Name}: {exc.Message}");
             return false;
+        }
+    }
+
+    private async Task ValidateMatch(Game game, Match match)
+    {
+        if (match.HomePlayers.Count == 0)
+        {
+            await _log.WriteLineAsync($"No home players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}");
+        }
+
+        if (match.AwayPlayers.Count == 0)
+        {
+            await _log.WriteLineAsync($"No away players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}");
+        }
+
+        if (match.HomePlayers.Count != match.AwayPlayers.Count)
+        {
+            await _log.WriteLineAsync($"Inconsistent number of players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}");
         }
     }
 
