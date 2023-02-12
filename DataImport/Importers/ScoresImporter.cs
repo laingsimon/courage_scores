@@ -126,7 +126,7 @@ public class ScoresImporter : IImporter
         return cosmosFixture;
     }
 
-    private bool SetMatches(Game game, IEnumerable<LegMapping> legMap, ImportContext context, CancellationToken token)
+    private async Task<bool> SetMatches(Game game, IEnumerable<LegMapping> legMap, ImportContext context, CancellationToken token)
     {
         var gameModified = false;
         foreach (var leg in legMap)
@@ -137,14 +137,14 @@ public class ScoresImporter : IImporter
             }
 
             var match = game.Matches.ElementAtOrDefault(leg.LegNo - 1);
-            var modified = SetMatch(game, leg, match, context);
+            var modified = await SetMatch(game, leg, match, context);
             gameModified = modified || gameModified;
         }
 
         return gameModified;
     }
 
-    private bool SetMatch(Game game, LegMapping leg, GameMatch? match, ImportContext context)
+    private async Task<bool> SetMatch(Game game, LegMapping leg, GameMatch? match, ImportContext context)
     {
         try
         {
