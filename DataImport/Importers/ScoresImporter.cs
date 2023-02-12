@@ -191,7 +191,7 @@ public class ScoresImporter : IImporter
         }
     }
 
-    private async Task ValidateMatch(Game game, Match match)
+    private async Task ValidateMatch(Game game, GameMatch match)
     {
         if (match.HomePlayers.Count == 0)
         {
