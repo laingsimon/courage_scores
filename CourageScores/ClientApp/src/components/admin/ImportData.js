@@ -24,9 +24,9 @@ export function ImportData() {
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canImport).map(t => t.name);
-        setImportRequest({
+        setImportRequest(Object.assign({}, importRequest, {
             tables: selected
-        });
+        }));
     }
 
     useEffect(() => {
