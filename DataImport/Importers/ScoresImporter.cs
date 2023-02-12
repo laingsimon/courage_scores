@@ -95,7 +95,7 @@ public class ScoresImporter : IImporter
             cosmosFixture = CreateGame(context, fixtureData.Date.Value, home, away);
         }
 
-        if (SetMatches(cosmosFixture, legMap, context, token))
+        if (await SetMatches(cosmosFixture, legMap, context, token))
         {
             context.Fixtures.SetModified(cosmosFixture);
         }
@@ -186,7 +186,7 @@ public class ScoresImporter : IImporter
         }
         catch (Exception exc)
         {
-            _log.WriteLineAsync($"Failed to set match for game {game.Home.Name} vs {game.Away.Name}: {exc.Message}");
+            await _log.WriteLineAsync($"Failed to set match for game {game.Home.Name} vs {game.Away.Name}: {exc.Message}");
             return false;
         }
     }
