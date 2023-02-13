@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos;
@@ -220,26 +221,31 @@ public class DivisionService : IDivisionService
     }
 
     #region delegating members
+    [ExcludeFromCodeCoverage]
     public Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
         return _genericDivisionService.Get(id, token);
     }
 
+    [ExcludeFromCodeCoverage]
     public IAsyncEnumerable<DivisionDto> GetAll(CancellationToken token)
     {
         return _genericDivisionService.GetAll(token);
     }
 
+    [ExcludeFromCodeCoverage]
     public Task<ActionResultDto<DivisionDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Division, TOut> updateCommand, CancellationToken token)
     {
         return _genericDivisionService.Upsert(id, updateCommand, token);
     }
 
+    [ExcludeFromCodeCoverage]
     public Task<ActionResultDto<DivisionDto>> Delete(Guid id, CancellationToken token)
     {
         return _genericDivisionService.Delete(id, token);
     }
 
+    [ExcludeFromCodeCoverage]
     public IAsyncEnumerable<DivisionDto> GetWhere(string query, CancellationToken token)
     {
         return _genericDivisionService.GetWhere(query, token);
