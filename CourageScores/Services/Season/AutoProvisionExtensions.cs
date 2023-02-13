@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
@@ -7,21 +8,13 @@ namespace CourageScores.Services.Season;
 
 public static class AutoProvisionExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static void LogInfo(this AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
     {
         if (request.LogLevel <= LogLevel.Information)
         {
             result.Messages.Add(message);
-        }
-    }
-
-    public static void LogWarning(this AutoProvisionGamesRequest request,
-        ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
-    {
-        if (request.LogLevel <= LogLevel.Warning)
-        {
-            result.Warnings.Add(message);
         }
     }
 
