@@ -21,14 +21,14 @@ public class ReportServiceTests
     private Mock<IUserService> _userService = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IDivisionService> _divisionService = null!;
-    private Mock<IGenericRepository<Game>> _gameRepository = null!;
+    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>> _gameRepository = null!;
     private Mock<ISystemClock> _clock = null!;
     private ReportService _service = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
     private DivisionDto _division = null!;
-    private Game _game1 = null!;
-    private Game _game2 = null!;
+    private CourageScores.Models.Cosmos.Game.Game _game1 = null!;
+    private CourageScores.Models.Cosmos.Game.Game _game2 = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -36,7 +36,7 @@ public class ReportServiceTests
         _userService = new Mock<IUserService>();
         _seasonService = new Mock<ISeasonService>();
         _divisionService = new Mock<IDivisionService>();
-        _gameRepository = new Mock<IGenericRepository<Game>>();
+        _gameRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>>();
         _clock = new Mock<ISystemClock>();
         _service = new ReportService(
             _userService.Object,
@@ -60,12 +60,12 @@ public class ReportServiceTests
         {
             Id = Guid.NewGuid(),
         };
-        _game1 = new Game
+        _game1 = new CourageScores.Models.Cosmos.Game.Game
         {
             Home = new GameTeam(),
             Away = new GameTeam(),
         };
-        _game2 = new Game
+        _game2 = new CourageScores.Models.Cosmos.Game.Game
         {
             Home = new GameTeam(),
             Away = new GameTeam(),

@@ -10,7 +10,7 @@ public class PlayerLookupTests
     [Test]
     public void VisitGame_GivenGameWithNoMatches_AddsNoPlayers()
     {
-        var game = new Game();
+        var game = new CourageScores.Models.Cosmos.Game.Game();
         var lookup = new PlayerLookup();
 
         Assert.That(() => lookup.VisitGame(game), Throws.Nothing);
@@ -42,7 +42,7 @@ public class PlayerLookupTests
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
         };
-        var game = new Game
+        var game = new CourageScores.Models.Cosmos.Game.Game
         {
             Home = new GameTeam
             {
@@ -87,7 +87,7 @@ public class PlayerLookupTests
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
         };
-        var game = new Game
+        var game = new CourageScores.Models.Cosmos.Game.Game
         {
             Home = new GameTeam
             {
