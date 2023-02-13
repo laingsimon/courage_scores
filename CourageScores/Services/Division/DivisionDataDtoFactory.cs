@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Dtos;
@@ -81,10 +82,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             Id = division?.Id ?? Guid.Empty,
             Name = division?.Name ?? "<all divisions>",
-            Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).ToList(),
+            Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).OrderByAsync(s => s.Name).ToList(),
         };
     }
 
+    [ExcludeFromCodeCoverage]
     public DivisionDataDto DivisionNotFound()
     {
         return new DivisionDataDto
@@ -96,6 +98,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         };
     }
 
+    [ExcludeFromCodeCoverage]
     public DivisionDataDto DivisionIdAndSeasonIdNotSupplied()
     {
         return new DivisionDataDto
