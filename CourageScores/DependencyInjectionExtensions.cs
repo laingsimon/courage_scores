@@ -93,6 +93,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ICosmosTableService, CosmosTableService>();
         services.AddScoped<IDataImporterFactory, DataImporterFactory>();
         services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
+        services.AddScoped<IDivisionDataDtoFactory, DivisionDataDtoFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)
