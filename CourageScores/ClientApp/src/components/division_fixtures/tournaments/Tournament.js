@@ -281,14 +281,19 @@ export function Tournament({ account, apis }) {
             return 'Quarter-Final';
         }
 
-        return `Round: ${depth}`;
+        return `Round: ${depth + 1}`;
     }
 
     function renderPrintModeRound(sideCount, depth) {
-        const noOfMatches = Math.floor(sideCount / 2);
-        const byes = sideCount % 2;
+        let noOfMatches = Math.floor(sideCount / 2);
+        let byes = sideCount % 2;
 
-        if (noOfMatches < 2) {
+        if (noOfMatches === 1) {
+            noOfMatches+= byes;
+            byes = 0;
+        }
+
+        if (noOfMatches + byes < 2) {
             return (<div className="d-flex flex-row m-2 align-items-center">
                 <div className="d-flex flex-column m-2">
                     <div className="text-center fw-bold">Venue winner</div>
@@ -300,7 +305,7 @@ export function Tournament({ account, apis }) {
         return (<div className="d-flex flex-row m-2 align-items-center">
             <div className="d-flex flex-column m-2">
                 <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
-                {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50"></div>))}
+                {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50"><hr /></div>))}
                 {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
                     <span className="float-end px-2 small">Bye</span>
                 </div>) : null}
