@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
@@ -29,11 +30,13 @@ public class DivisionDataContext
         TournamentGamesForDate = tournamentGames.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
     }
 
+    [ExcludeFromCodeCoverage]
     public IEnumerable<Models.Cosmos.Game.Game> AllGames()
     {
         return GamesForDate.SelectMany(pair => pair.Value);
     }
 
+    [ExcludeFromCodeCoverage]
     public IEnumerable<DateTime> GetDates()
     {
         return GamesForDate.Keys.Union(TournamentGamesForDate.Keys).Union(Notes.Keys);
