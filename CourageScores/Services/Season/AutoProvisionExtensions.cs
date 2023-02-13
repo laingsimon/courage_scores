@@ -52,16 +52,7 @@ public static class AutoProvisionExtensions
         };
     }
 
-    private static DivisionFixtureTeamDto AdaptToTeam(this TeamDto team)
-    {
-        return new DivisionFixtureTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Address = team.Address,
-        };
-    }
-
+    [ExcludeFromCodeCoverage]
     public static ActionResultDto<List<DivisionFixtureDateDto>> Error(this SeasonService _, string message)
     {
         return new ActionResultDto<List<DivisionFixtureDateDto>>
@@ -70,6 +61,16 @@ public static class AutoProvisionExtensions
             {
                 message
             }
+        };
+    }
+
+    private static DivisionFixtureTeamDto AdaptToTeam(TeamDto team)
+    {
+        return new DivisionFixtureTeamDto
+        {
+            Id = team.Id,
+            Name = team.Name,
+            Address = team.Address,
         };
     }
 }
