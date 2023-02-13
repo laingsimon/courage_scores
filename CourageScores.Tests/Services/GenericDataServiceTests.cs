@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -287,6 +288,73 @@ public class GenericDataServiceTests
         Assert.That(result.Messages, Is.EquivalentTo(new[] { "Model deleted" }));
     }
 
+    [Test]
+    public async Task Upsert_WhenDeleteRequestedAndNotPermittedToDelete_ThenReturnsNotPermitted()
+    {
+        var id = Guid.NewGuid();
+        var updatedDto = new Dto();
+        var model = new Model();
+        var updatedModel = new Model();
+        var command = new Mock<IUpdateCommand<Model, object>>();
+        var commandResult = new CommandOutcome<object>(true, "some message", null)
+        {
+            Delete = true,
+        };
+        var user = new UserDto
+        {
+            Name = Model.EditPermitted,
+        };
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
+        _adapter.Setup(a => a.Adapt(updatedModel, _token)).ReturnsAsync(() => updatedDto);
+        _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => updatedModel);
+        command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
+
+        var result = await _service.Upsert(id, command.Object, _token);
+
+        _repository.Verify(r => r.Upsert(model, _token), Times.Never);
+        command.Verify(c => c.ApplyUpdate(model, _token));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Result, Is.Null);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(model.Deleted, Is.Null);
+        Assert.That(model.Remover, Is.Null);
+    }
+
+    [Test]
+    public async Task Upsert_WhenDeleteRequestedAndPermittedToDelete_ThenMarksModelAsDeleted()
+    {
+        var id = Guid.NewGuid();
+        var deletedDto = new Dto();
+        var model = new Model();
+        var deletedModel = new Model();
+        var command = new Mock<IUpdateCommand<Model, object>>();
+        var commandResult = new CommandOutcome<object>(true, "some message", null)
+        {
+            Delete = true,
+        };
+        var user = new UserDto
+        {
+            Name = Model.EditAndDeletePermitted,
+        };
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
+        _adapter.Setup(a => a.Adapt(deletedModel, _token)).ReturnsAsync(() => deletedDto);
+        _repository.Setup(r => r.Upsert(model, _token)).ReturnsAsync(() => deletedModel);
+        command.Setup(c => c.ApplyUpdate(model, _token)).ReturnsAsync(() => commandResult);
+
+        var result = await _service.Upsert(id, command.Object, _token);
+
+        _repository.Verify(r => r.Upsert(model, _token));
+        command.Verify(c => c.ApplyUpdate(model, _token));
+        _auditingHelper.Verify(h => h.SetDeleted(model, _token));
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.SameAs(deletedDto));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "some message" }));
+    }
+
 #pragma warning disable CS1998
     private static async IAsyncEnumerable<T> AsyncEnumerable<T>(params T[] items)
 #pragma warning restore CS1998
@@ -297,10 +365,13 @@ public class GenericDataServiceTests
         }
     }
 
+    [SuppressMessage("ReSharper", "ClassWithVirtualMembersNeverInherited.Local")] // virtual members for Mock<>
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class Model : AuditedEntity, IPermissionedEntity
     {
         public const string CreatePermitted = nameof(CreatePermitted);
         public const string EditPermitted = nameof(EditPermitted);
+        public const string EditAndDeletePermitted = nameof(EditAndDeletePermitted);
         public const string DeletePermitted = nameof(DeletePermitted);
 
         public virtual bool CanCreate(UserDto user)
@@ -310,17 +381,17 @@ public class GenericDataServiceTests
 
         public virtual bool CanEdit(UserDto user)
         {
-            return user.Name == EditPermitted;
+            return user.Name == EditPermitted || user.Name == EditAndDeletePermitted;
         }
 
         public virtual bool CanDelete(UserDto user)
         {
-            return user.Name == DeletePermitted;
+            return user.Name == DeletePermitted || user.Name == EditAndDeletePermitted;
         }
     }
 
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     public class Dto : AuditedDto
     {
-
     }
 }
