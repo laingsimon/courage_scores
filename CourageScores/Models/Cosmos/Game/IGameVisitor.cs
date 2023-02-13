@@ -65,7 +65,7 @@ public interface IGameVisitor
     }
 
     [ExcludeFromCodeCoverage]
-    void VisitGameLost(GameTeam team)
+    void VisitGameLoser(GameTeam team)
     {
     }
 
