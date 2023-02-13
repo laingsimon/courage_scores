@@ -36,7 +36,7 @@ public class DivisionPlayerAdapterTests
     {
         var score = new DivisionData.PlayerScore
         {
-            OneEighty = 3,
+            OneEighties = 3,
             HiCheckout = 4,
             PlayerPlayCount =
             {
@@ -66,7 +66,7 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Captain, Is.EqualTo(player.Captain));
         Assert.That(result.Name, Is.EqualTo(player.Name));
         Assert.That(result.Singles, Is.SameAs(_singlesDto));
-        Assert.That(result.OneEighties, Is.EqualTo(score.OneEighty));
+        Assert.That(result.OneEighties, Is.EqualTo(score.OneEighties));
         Assert.That(result.Over100Checkouts, Is.EqualTo(score.HiCheckout));
         Assert.That(result.Pairs, Is.SameAs(_pairsDto));
         Assert.That(result.Triples, Is.SameAs(_triplesDto));

@@ -25,7 +25,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             Triples = await _performanceAdapter.Adapt(score.GetScores(3), token),
             Points = score.CalculatePoints(),
             Team = playerTuple.Team.Name,
-            OneEighties = score.OneEighty,
+            OneEighties = score.OneEighties,
             Over100Checkouts = score.HiCheckout,
             TeamId = playerTuple.Team.Id,
             WinPercentage = score.PlayerWinPercentage,

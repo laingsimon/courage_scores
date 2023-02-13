@@ -49,7 +49,7 @@ public class DivisionData
     {
         public IGamePlayer? Player { get; init; }
 
-        public int OneEighty { get; set; }
+        public int OneEighties { get; set; }
         public int HiCheckout { get; set; }
         public double PlayerWinPercentage => GetScores(1).MatchesPlayed == 0
             ? 0

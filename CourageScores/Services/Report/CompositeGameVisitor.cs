@@ -87,9 +87,9 @@ public class CompositeGameVisitor : IGameVisitor
         ForEachVisitor(visitor => visitor.VisitGameWinner(team));
     }
 
-    public void VisitGameLost(GameTeam team)
+    public void VisitGameLoser(GameTeam team)
     {
-        ForEachVisitor(visitor => visitor.VisitGameLost(team));
+        ForEachVisitor(visitor => visitor.VisitGameLoser(team));
     }
 
     public void VisitDataError(string dataError)

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
@@ -7,21 +8,13 @@ namespace CourageScores.Services.Season;
 
 public static class AutoProvisionExtensions
 {
+    [ExcludeFromCodeCoverage]
     public static void LogInfo(this AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
     {
         if (request.LogLevel <= LogLevel.Information)
         {
             result.Messages.Add(message);
-        }
-    }
-
-    public static void LogWarning(this AutoProvisionGamesRequest request,
-        ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
-    {
-        if (request.LogLevel <= LogLevel.Warning)
-        {
-            result.Warnings.Add(message);
         }
     }
 
@@ -59,16 +52,7 @@ public static class AutoProvisionExtensions
         };
     }
 
-    private static DivisionFixtureTeamDto AdaptToTeam(this TeamDto team)
-    {
-        return new DivisionFixtureTeamDto
-        {
-            Id = team.Id,
-            Name = team.Name,
-            Address = team.Address,
-        };
-    }
-
+    [ExcludeFromCodeCoverage]
     public static ActionResultDto<List<DivisionFixtureDateDto>> Error(this SeasonService _, string message)
     {
         return new ActionResultDto<List<DivisionFixtureDateDto>>
@@ -77,6 +61,32 @@ public static class AutoProvisionExtensions
             {
                 message
             }
+        };
+    }
+
+    public static async Task<List<T>> RepeatAndReturnSmallest<T>(this Func<Task<List<T>>> provider, int times)
+    {
+        List<T>? smallest = null;
+
+        for (var iteration = 0; iteration < times; iteration++)
+        {
+            var current = await provider();
+            if (smallest == null || current.Count < smallest.Count)
+            {
+                smallest = current;
+            }
+        }
+
+        return smallest!;
+    }
+
+    private static DivisionFixtureTeamDto AdaptToTeam(TeamDto team)
+    {
+        return new DivisionFixtureTeamDto
+        {
+            Id = team.Id,
+            Name = team.Name,
+            Address = team.Address,
         };
     }
 }

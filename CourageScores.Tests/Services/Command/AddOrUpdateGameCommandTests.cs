@@ -1,5 +1,4 @@
 ﻿using CourageScores.Filters;
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
@@ -23,7 +22,7 @@ public class AddOrUpdateGameCommandTests
     private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private readonly Game _game;
+    private readonly CourageScores.Models.Cosmos.Game.Game _game;
     private readonly SeasonDto _season;
     private readonly TeamDto _homeTeam;
     private readonly TeamDto _awayTeam;
@@ -31,7 +30,7 @@ public class AddOrUpdateGameCommandTests
 
     public AddOrUpdateGameCommandTests()
     {
-        _game = new Game
+        _game = new CourageScores.Models.Cosmos.Game.Game
         {
             Id = Guid.NewGuid(),
         };

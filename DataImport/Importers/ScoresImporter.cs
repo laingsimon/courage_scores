@@ -24,6 +24,7 @@ public class ScoresImporter : IImporter
         var fixtureCount = 0;
 
         var totalSuccess = true;
+        var initialErrorCount = context.Errors.Count;
         foreach (var accessFixture in scoresGroupedByFixture.OrderBy(g => g.First().fixdate))
         {
             if (token.IsCancellationRequested)
@@ -35,6 +36,22 @@ public class ScoresImporter : IImporter
             totalSuccess = await ImportFixture(accessFixture.ToArray(), context, fixtureCount, token) && totalSuccess;
         }
 
+        if (context.Errors.Count != initialErrorCount)
+        {
+            await _log.WriteLineAsync($"{context.Errors.Count - initialErrorCount}: error/s found in the source data");
+            foreach (var error in context.Errors.Skip(initialErrorCount))
+            {
+                await _log.WriteLineAsync($" - {error}");
+            }
+            await _log.WriteLineAsync("Press enter to continue or Ctrl+C to abort.");
+            await Console.In.ReadLineAsync();
+
+            if (token.IsCancellationRequested)
+            {
+                return false;
+            }
+        }
+
         foreach (var change in context.Fixtures!.GetModified())
         {
             if (token.IsCancellationRequested)
@@ -42,7 +59,7 @@ public class ScoresImporter : IImporter
                 return totalSuccess;
             }
 
-            await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
+            await _log.WriteLineAsync($"Uploading game: {change.Key}: {change.Value.Id}");
             var result = await destination.UpsertAsync(change.Value, "game", "/id", token);
             if (!result.Success)
             {
@@ -180,7 +197,7 @@ public class ScoresImporter : IImporter
             match.StartingScore = ApplyChange(match.StartingScore, UpdateScoresCommand.GetStartingScore(match.HomePlayers.Count), ref gameModified);
             match.NumberOfLegs = ApplyChange(match.NumberOfLegs, UpdateScoresCommand.GetNumberOfLegs(match.HomePlayers.Count), ref gameModified);
 
-            await ValidateMatch(game, match);
+            await ValidateMatch(game, match, context);
 
             return gameModified;
         }
@@ -191,7 +208,7 @@ public class ScoresImporter : IImporter
         }
     }
 
-    private async Task ValidateMatch(Game game, GameMatch match)
+    private async Task ValidateMatch(Game game, GameMatch match, ImportContext context)
     {
         if (match.HomePlayers.Count == 0)
         {
@@ -205,7 +222,7 @@ public class ScoresImporter : IImporter
 
         if (match.HomePlayers.Count != match.AwayPlayers.Count)
         {
-            await _log.WriteLineAsync($"Inconsistent number of players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}");
+            context.Errors.Add($"Inconsistent number of players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}, Leg: {game.Matches.Count}");
         }
     }
 

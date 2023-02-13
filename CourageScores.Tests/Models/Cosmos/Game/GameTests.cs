@@ -96,7 +96,7 @@ public class GameTests
         _game.Accept(visitor.Object);
 
         visitor.Verify(v => v.VisitGameWinner(It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameLost(It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameLoser(It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -113,7 +113,7 @@ public class GameTests
 
         _game.Accept(visitor.Object);
 
-        visitor.Verify(v => v.VisitGameLost(_game.Home));
+        visitor.Verify(v => v.VisitGameLoser(_game.Home));
         visitor.Verify(v => v.VisitGameWinner(_game.Away));
     }
 
@@ -132,7 +132,7 @@ public class GameTests
         _game.Accept(visitor.Object);
 
         visitor.Verify(v => v.VisitGameWinner(_game.Home));
-        visitor.Verify(v => v.VisitGameLost(_game.Away));
+        visitor.Verify(v => v.VisitGameLoser(_game.Away));
     }
 
     [Test]
@@ -175,7 +175,7 @@ public class GameTests
 
         visitor.Verify(v => v.VisitGameDraw(It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
         visitor.Verify(v => v.VisitGameWinner(It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameLost(It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameLoser(It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
