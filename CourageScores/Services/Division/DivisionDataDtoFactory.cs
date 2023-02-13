@@ -46,15 +46,24 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             Id = division?.Id ?? Guid.Empty,
             Name = division?.Name ?? "<all divisions>",
             Teams = teamResults
-                .OrderByDescending(t => t.Points).ThenByDescending(t => t.Difference).ThenBy(t => t.Name).ToList(),
-            AllTeams = await context.AllTeams.SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token)).ToList(),
-            Fixtures = await GetFixtures(context, token).OrderByAsync(d => d.Date).ToList(),
-            Players = ApplyPlayerRanks(playerResults
-                    .OrderByDescending(p => p.Points)
-                    .ThenByDescending(p => p.WinPercentage)
-                    .ThenByDescending(p => p.Pairs.MatchesPlayed)
-                    .ThenByDescending(p => p.Triples.MatchesPlayed)
-                    .ThenBy(p => p.Name))
+                .OrderByDescending(t => t.Points)
+                .ThenByDescending(t => t.Difference)
+                .ThenBy(t => t.Name)
+                .ToList(),
+            AllTeams = await context.AllTeams
+                .SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, token))
+                .OrderByAsync(t => t.Name)
+                .ToList(),
+            Fixtures = await GetFixtures(context, token)
+                .OrderByAsync(d => d.Date)
+                .ToList(),
+            Players = playerResults
+                .OrderByDescending(p => p.Points)
+                .ThenByDescending(p => p.WinPercentage)
+                .ThenByDescending(p => p.Pairs.MatchesPlayed)
+                .ThenByDescending(p => p.Triples.MatchesPlayed)
+                .ThenBy(p => p.Name)
+                .ApplyPlayerRanks()
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
             Seasons = await context.AllSeasons
@@ -96,16 +105,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 "SeasonId and/or DivisionId must be supplied",
             }
         };
-    }
-
-    private static IEnumerable<DivisionPlayerDto> ApplyPlayerRanks(IOrderedEnumerable<DivisionPlayerDto> players)
-    {
-        var rank = 1;
-        foreach (var player in players)
-        {
-            player.Rank = rank++;
-            yield return player;
-        }
     }
 
     private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teams,
