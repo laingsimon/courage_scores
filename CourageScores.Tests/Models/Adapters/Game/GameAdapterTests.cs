@@ -18,19 +18,9 @@ public class GameAdapterTests
     private static readonly GamePlayerDto OneEightyPlayerDto = new GamePlayerDto();
     private static readonly NotablePlayer HiCheckPlayer = new NotablePlayer();
     private static readonly NotablePlayerDto HiCheckPlayerDto = new NotablePlayerDto();
-    [Obsolete]
-    private static readonly GameMatch GameMatchWithHiCheckAndOneEighty = new GameMatch
-    {
-        OneEighties = { OneEightyPlayer },
-        Over100Checkouts = { HiCheckPlayer },
-    };
-    [Obsolete]
-    private static readonly GameMatchDto GameMatchDtoWithHiCheckAndOneEighty = new GameMatchDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly GameAdapter _adapter = new GameAdapter(
-#pragma warning disable CS0612
-        new MockAdapter<GameMatch, GameMatchDto>(new[] { GameMatch, GameMatchWithHiCheckAndOneEighty }, new[] { GameMatchDto, GameMatchDtoWithHiCheckAndOneEighty }),
-#pragma warning restore CS0612
+        new MockAdapter<GameMatch, GameMatchDto>(new[] { GameMatch }, new[] { GameMatchDto }),
         new MockAdapter<GameTeam, GameTeamDto>(
             new[] { HomeTeam, AwayTeam },
             new[] { HomeTeamDto, AwayTeamDto }),
@@ -38,41 +28,7 @@ public class GameAdapterTests
         new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
 
     [Test]
-    public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly_v1()
-    {
-        var model = new CourageScores.Models.Cosmos.Game.Game
-        {
-            Address = "address",
-            Away = AwayTeam,
-            Date = new DateTime(2001, 02, 03),
-            Home = HomeTeam,
-            Id = Guid.NewGuid(),
-            DivisionId = Guid.NewGuid(),
-            SeasonId = Guid.NewGuid(),
-            Postponed = true,
-            IsKnockout = true,
-            HomeSubmission = new CourageScores.Models.Cosmos.Game.Game(),
-            AwaySubmission = new CourageScores.Models.Cosmos.Game.Game(),
-            Version = 1,
-        };
-
-        var result = await _adapter.Adapt(model, _token);
-
-        Assert.That(result.Address, Is.EqualTo(model.Address));
-        Assert.That(result.Date, Is.EqualTo(model.Date));
-        Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
-        Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
-        Assert.That(result.Postponed, Is.EqualTo(model.Postponed));
-        Assert.That(result.IsKnockout, Is.EqualTo(model.IsKnockout));
-        Assert.That(result.Home, Is.SameAs(HomeTeamDto));
-        Assert.That(result.Away, Is.SameAs(AwayTeamDto));
-        Assert.That(result.HomeSubmission, Is.Not.Null);
-        Assert.That(result.AwaySubmission, Is.Not.Null);
-    }
-
-    [Test]
-    public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly_v2()
+    public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly()
     {
         var model = new CourageScores.Models.Cosmos.Game.Game
         {
@@ -109,40 +65,7 @@ public class GameAdapterTests
     }
 
     [Test]
-    public async Task Adapt_GivenPublishedModel_SetPropertiesCorrectly_v1()
-    {
-        var model = new CourageScores.Models.Cosmos.Game.Game
-        {
-            Matches = { GameMatch },
-            Version = 1,
-        };
-
-        var result = await _adapter.Adapt(model, _token);
-
-        Assert.That(result.Matches, Is.EqualTo(new[] { GameMatchDto }));
-        Assert.That(result.HomeSubmission, Is.Null);
-        Assert.That(result.AwaySubmission, Is.Null);
-    }
-
-    [Test]
-    [Obsolete]
-    public async Task Adapt_GivenPublishedModelWithHiCheckAndOneEightyInFirstMatch_SetPropertiesCorrectly_v1()
-    {
-        var model = new CourageScores.Models.Cosmos.Game.Game
-        {
-            Matches = { GameMatchWithHiCheckAndOneEighty },
-            Version = 1,
-        };
-
-        var result = await _adapter.Adapt(model, _token);
-
-        Assert.That(result.Matches, Is.EqualTo(new[] { GameMatchDtoWithHiCheckAndOneEighty }));
-        Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
-        Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
-    }
-
-    [Test]
-    public async Task Adapt_GivenPublishedModel_SetPropertiesCorrectly_v2()
+    public async Task Adapt_GivenPublishedModel_SetPropertiesCorrectly()
     {
         var model = new CourageScores.Models.Cosmos.Game.Game
         {

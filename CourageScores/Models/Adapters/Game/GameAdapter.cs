@@ -46,14 +46,8 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             HomeSubmission = model.HomeSubmission != null ? await Adapt(model.HomeSubmission, resultsPublished, token) : null,
             AwaySubmission = model.AwaySubmission != null ? await Adapt(model.AwaySubmission, resultsPublished, token) : null,
             ResultsPublished = resultsPublished,
-            OneEighties = await (model.Version >= 2
-                ? model.OneEighties
-#pragma warning disable CS0612
-                : model.Matches.FirstOrDefault()?.OneEighties ?? new List<GamePlayer>()).SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
-            Over100Checkouts = await (model.Version >= 2
-                ? model.Over100Checkouts
-                : model.Matches.FirstOrDefault()?.Over100Checkouts ?? new List<NotablePlayer>()).SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
-#pragma warning restore CS0612
+            OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
+            Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
         }.AddAuditProperties(model);
     }
 

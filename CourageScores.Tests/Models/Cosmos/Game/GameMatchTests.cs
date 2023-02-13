@@ -114,30 +114,4 @@ public class GameMatchTests
         visitor.Verify(v => v.VisitMatchWin(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
         visitor.Verify(v => v.VisitMatchLost(It.IsAny<List<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
-
-    [Test]
-    [Obsolete]
-    public void Accept_GivenOneEighties_VisitOneEighties()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        var player = new GamePlayer();
-        _match.OneEighties.Add(player);
-
-        _match.Accept(visitor.Object);
-
-        visitor.Verify(v => v.VisitOneEighty(player));
-    }
-
-    [Test]
-    [Obsolete]
-    public void Accept_GivenHiChecks_VisitHiChecks()
-    {
-        var visitor = new Mock<IGameVisitor>();
-        var player = new NotablePlayer();
-        _match.Over100Checkouts.Add(player);
-
-        _match.Accept(visitor.Object);
-
-        visitor.Verify(v => v.VisitHiCheckout(player));
-    }
 }
