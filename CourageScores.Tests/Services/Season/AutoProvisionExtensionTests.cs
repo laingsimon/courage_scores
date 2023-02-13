@@ -82,4 +82,28 @@ public class AutoProvisionExtensionTests
         Assert.That(result.AwayTeam!.Name, Is.EqualTo("away"));
         Assert.That(result.AwayTeam!.Address, Is.EqualTo("away_address"));
     }
+
+    [Test]
+    public async Task RepeatAndReturnSmallest_GivenFunction_ReturnsSmallestIteration()
+    {
+        var results = new Queue<string[]>(new[]
+        {
+            new[] { "a", "b" },
+            new[] { "a", "b", "c" },
+            new[] { "a", "b", "c", "d" },
+            new[] { "a", "b", "c", "d", "e" },
+            new[] { "a", "b", "c", "d", "e", "f" },
+            new[] { "a", "b", "c", "d", "e", "f", "g" },
+        });
+        Task<List<string>> CreateResults()
+        {
+            return Task.FromResult(results.Dequeue().ToList());
+        }
+        var producer = async () => await CreateResults();
+
+        var result = await producer.RepeatAndReturnSmallest(5);
+
+        Assert.That(result, Is.EquivalentTo(new[] { "a", "b" }));
+        Assert.That(results.Count, Is.EqualTo(1)); // 1 iteration left, 5 run
+    }
 }

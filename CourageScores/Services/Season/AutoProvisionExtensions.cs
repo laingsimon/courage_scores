@@ -64,6 +64,22 @@ public static class AutoProvisionExtensions
         };
     }
 
+    public static async Task<List<T>> RepeatAndReturnSmallest<T>(this Func<Task<List<T>>> provider, int times)
+    {
+        List<T>? smallest = null;
+
+        for (var iteration = 0; iteration < times; iteration++)
+        {
+            var current = await provider();
+            if (smallest == null || current.Count < smallest.Count)
+            {
+                smallest = current;
+            }
+        }
+
+        return smallest!;
+    }
+
     private static DivisionFixtureTeamDto AdaptToTeam(TeamDto team)
     {
         return new DivisionFixtureTeamDto
