@@ -41,7 +41,6 @@ public class DivisionFixtureDateAdapterTests
     public async Task Adapt_WhenNotLoggedIn_DoesNotIncludeTournamentProposals()
     {
         var gamesForDate = Array.Empty<CourageScores.Models.Cosmos.Game.Game>();
-        var notesForDate = new List<FixtureDateNoteDto>();
         var tournamentGameDtoA = new DivisionTournamentFixtureDetailsDto
         {
             Address = "addressA",
@@ -55,7 +54,7 @@ public class DivisionFixtureDateAdapterTests
             .Setup(a => a.Adapt(tournamentGameA, _token))
             .ReturnsAsync(tournamentGameDtoA);
 
-        var result = await _adapter.Adapt(_date, gamesForDate, new[] { tournamentGameA }, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, gamesForDate, new[] { tournamentGameA }, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -69,7 +68,6 @@ public class DivisionFixtureDateAdapterTests
     public async Task Adapt_WhenNotPermittedToCreateGames_DoesNotIncludeTournamentProposals()
     {
         var gamesForDate = Array.Empty<CourageScores.Models.Cosmos.Game.Game>();
-        var notesForDate = new List<FixtureDateNoteDto>();
         var tournamentGameDtoA = new DivisionTournamentFixtureDetailsDto
         {
             Address = "addressA",
@@ -83,7 +81,7 @@ public class DivisionFixtureDateAdapterTests
             .Setup(a => a.Adapt(tournamentGameA, _token))
             .ReturnsAsync(tournamentGameDtoA);
 
-        var result = await _adapter.Adapt(_date, gamesForDate, new[] { tournamentGameA }, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, gamesForDate, new[] { tournamentGameA }, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         _divisionTournamentFixtureDetailsAdapter.Verify(a => a.ForUnselectedVenue(It.IsAny<IEnumerable<TeamDto>>(), _token), Times.Never);
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -97,7 +95,6 @@ public class DivisionFixtureDateAdapterTests
     public async Task Adapt_WhenCanManageGames_IncludesTournamentProposals()
     {
         var gamesForDate = Array.Empty<CourageScores.Models.Cosmos.Game.Game>();
-        var notesForDate = new List<FixtureDateNoteDto>();
         var tournamentGameDtoA = new DivisionTournamentFixtureDetailsDto
         {
             Address = "addressA",
@@ -118,7 +115,7 @@ public class DivisionFixtureDateAdapterTests
             .Setup(a => a.ForUnselectedVenue(new[] { teamB }, _token))
             .ReturnsAsync(tournamentGameDtoB);
 
-        var result = await _adapter.Adapt(_date, gamesForDate, new[] { tournamentGameA }, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, gamesForDate, new[] { tournamentGameA }, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.Empty);
@@ -145,7 +142,6 @@ public class DivisionFixtureDateAdapterTests
             HomeTeam = new DivisionFixtureTeamDto(),
         };
         var tournamentGameA = new TournamentGame { Address = "addressA", };
-        var notesForDate = new List<FixtureDateNoteDto>();
         var tournamentGameDtoA = new DivisionTournamentFixtureDetailsDto
         {
             Address = "addressA",
@@ -171,7 +167,7 @@ public class DivisionFixtureDateAdapterTests
             .ReturnsAsync(tournamentGameDtoC);
         _divisionFixtureAdapter.Setup(a => a.Adapt(game, teamA, teamB, _token)).ReturnsAsync(gameDto);
 
-        var result = await _adapter.Adapt(_date, new[] { game }, new[] { tournamentGameA }, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, new[] { game }, new[] { tournamentGameA }, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         _divisionFixtureAdapter.Verify(a => a.FoUnselectedTeam(It.IsAny<TeamDto>(), It.IsAny<bool>(), _token), Times.Never);
         Assert.That(result.Date, Is.EqualTo(_date));
@@ -205,13 +201,12 @@ public class DivisionFixtureDateAdapterTests
             HomeTeam = new DivisionFixtureTeamDto(),
         };
         var tournamentGamesForDate = Array.Empty<TournamentGame>();
-        var notesForDate = new List<FixtureDateNoteDto>();
         var teams = new[] { teamA, teamB, teamC };
         _user!.Access!.ManageGames = manageGames;
         _divisionFixtureAdapter.Setup(a => a.Adapt(game, teamA, teamB, _token)).ReturnsAsync(gameDto);
         _divisionFixtureAdapter.Setup(a => a.FoUnselectedTeam(teamC, false, _token)).ReturnsAsync(proposedGameDto);
 
-        var result = await _adapter.Adapt(_date, new[] { game }, tournamentGamesForDate, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, new[] { game }, tournamentGamesForDate, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.EqualTo(new[] { gameDto, proposedGameDto }));
@@ -243,13 +238,12 @@ public class DivisionFixtureDateAdapterTests
             HomeTeam = new DivisionFixtureTeamDto(),
         };
         var tournamentGamesForDate = Array.Empty<TournamentGame>();
-        var notesForDate = new List<FixtureDateNoteDto>();
         var teams = new[] { teamA, teamB, teamC };
         _user = null;
         _divisionFixtureAdapter.Setup(a => a.Adapt(game, teamA, teamB, _token)).ReturnsAsync(gameDto);
         _divisionFixtureAdapter.Setup(a => a.FoUnselectedTeam(teamC, false, _token)).ReturnsAsync(proposedGameDto);
 
-        var result = await _adapter.Adapt(_date, new[] { game }, tournamentGamesForDate, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, new[] { game }, tournamentGamesForDate, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.EqualTo(new[] { gameDto, proposedGameDto }));
@@ -282,13 +276,12 @@ public class DivisionFixtureDateAdapterTests
             HomeTeam = new DivisionFixtureTeamDto(),
         };
         var tournamentGamesForDate = Array.Empty<TournamentGame>();
-        var notesForDate = new List<FixtureDateNoteDto>();
         var teams = new[] { teamA, teamB, teamC };
         _user = null;
         _divisionFixtureAdapter.Setup(a => a.Adapt(game, teamA, teamB, _token)).ReturnsAsync(gameDto);
         _divisionFixtureAdapter.Setup(a => a.FoUnselectedTeam(teamC, true, _token)).ReturnsAsync(proposedGameDto);
 
-        var result = await _adapter.Adapt(_date, new[] { game }, tournamentGamesForDate, notesForDate, teams, _token);
+        var result = await _adapter.Adapt(_date, new[] { game }, tournamentGamesForDate, Array.Empty<FixtureDateNoteDto>(), teams, _token);
 
         _divisionFixtureAdapter.Verify(a => a.FoUnselectedTeam(teamC, true, _token));
         Assert.That(result.Date, Is.EqualTo(_date));

@@ -26,9 +26,9 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 
     public async Task<DivisionFixtureDateDto> Adapt(
         DateTime date,
-        Cosmos.Game.Game[]? gamesForDate,
-        TournamentGame[]? tournamentGamesForDate,
-        List<FixtureDateNoteDto>? notesForDate,
+        IReadOnlyCollection<Cosmos.Game.Game>? gamesForDate,
+        IReadOnlyCollection<TournamentGame>? tournamentGamesForDate,
+        IReadOnlyCollection<FixtureDateNoteDto>? notesForDate,
         IReadOnlyCollection<TeamDto> teams,
         CancellationToken token)
     {
@@ -43,7 +43,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateGames, token)
                 .OrderByAsync(f => f.Address).ToList(),
             HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
-            Notes = notesForDate ?? new List<FixtureDateNoteDto>(),
+            Notes = notesForDate?.ToList() ?? new List<FixtureDateNoteDto>(),
         };
     }
 

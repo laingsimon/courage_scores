@@ -42,14 +42,14 @@ public class DivisionDataDtoFactoryTests
         _divisionFixtureDateAdapter
             .Setup(a => a.Adapt(
                 It.IsAny<DateTime>(),
-                It.IsAny<CosmosGame[]>(),
-                It.IsAny<TournamentGame[]>(),
-                It.IsAny<List<FixtureDateNoteDto>>(),
+                It.IsAny<IReadOnlyCollection<CosmosGame>>(),
+                It.IsAny<IReadOnlyCollection<TournamentGame>>(),
+                It.IsAny<IReadOnlyCollection<FixtureDateNoteDto>>(),
                 It.IsAny<IReadOnlyCollection<TeamDto>>(),
                 _token))
             .ReturnsAsync(
-                (DateTime date, CosmosGame[] _, TournamentGame[] _, List<FixtureDateNoteDto> _,
-                    IReadOnlyCollection<TeamDto> _, CancellationToken _) => new DivisionFixtureDateDto
+                (DateTime date, IReadOnlyCollection<CosmosGame> _, IReadOnlyCollection<TournamentGame> _,
+                    IReadOnlyCollection<FixtureDateNoteDto> _, IReadOnlyCollection<TeamDto> _, CancellationToken _) => new DivisionFixtureDateDto
                 {
                     Date = date,
                 });
