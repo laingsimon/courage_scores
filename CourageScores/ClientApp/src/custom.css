@@ -236,6 +236,18 @@ table td.middle-vertical-line {
   color: #bbbbbb;
 }
 
+.outline-dark {
+  outline: solid 1px #000000;
+}
+
+.min-width-150 {
+  min-width: 150px;
+}
+
+.min-height-50 {
+  min-height: 50px;
+}
+
 .max-height-250 {
   max-height: 250px;
 }
@@ -275,4 +287,25 @@ input.no-spinner::-webkit-inner-spin-button {
 
 input.no-spinner {
   -moz-appearance: textfield;
+}
+
+@media print {
+  .full-screen-print-mode {
+    width: 100%;
+    max-width: initial;
+  }
+}
+
+@media screen {
+  .d-screen-none {
+    display: none;
+  }
+}
+
+.bg-light-warning {
+  background: #ffffcc;
+}
+
+.outline-dashed {
+  outline-style: dashed;
 }

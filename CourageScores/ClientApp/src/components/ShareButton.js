@@ -13,5 +13,5 @@ export function ShareButton({ title, text }) {
         await navigator.share(shareData);
     }
 
-    return (<button onClick={share} className="btn btn-sm btn-outline-primary">🔗</button>);
+    return (<button onClick={share} className="btn btn-sm btn-outline-primary d-print-none">🔗</button>);
 }

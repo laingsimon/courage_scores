@@ -202,6 +202,113 @@ export function Tournament({ account, apis }) {
         }
     }
 
+    function renderViewMode() {
+        return (<div className="d-print-none">
+            <div>Sides:</div>
+            <div className="my-1 d-flex flex-wrap">
+                {tournamentData.sides.sort(sortBy('name')).map(side => {
+                    const thisSideIndex = sideIndex;
+                    sideIndex++;
+                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
+            </div>
+            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} />) : null}
+            {tournamentData.sides.length >= 2 ? (<table className="table">
+                <tbody>
+                <tr>
+                    <td colSpan="2">
+                        180s<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            divisionId={tournamentData.divisionId}
+                            seasonId={tournamentData.seasonId}
+                            players={tournamentData.oneEighties || []}
+                            onRemovePlayer={remove180(tournamentData, setTournamentData)}
+                            onAddPlayer={add180(tournamentData, setTournamentData)}/>
+                    </td>
+                    <td colSpan="2">
+                        100+ c/o<br/>
+                        <MultiPlayerSelection
+                            disabled={disabled}
+                            readOnly={saving}
+                            allPlayers={allPlayers}
+                            divisionId={tournamentData.divisionId}
+                            seasonId={tournamentData.seasonId}
+                            players={tournamentData.over100Checkouts || []}
+                            onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
+                            onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
+                            showNotes={true} />
+                    </td>
+                </tr>
+                </tbody>
+            </table>) : null}
+        </div>);
+    }
+
+    function renderPrintMode() {
+        let index = 0;
+
+        return (<div className="d-screen-none">
+            <div className="d-flex flex-row m-2 align-items-center">
+                {renderPrintModeRound(tournamentData.sides.length, 0)}
+                <ul className="float-end list-group">{tournamentData.sides
+                    .sort(sortBy('name'))
+                    .map(s => (<li className="list-group-item my-2 outline-dark py-2" key={s.id}>{++index} - {s.name}</li>))}</ul>
+            </div>
+        </div>);
+    }
+
+    function repeat(count) {
+        const items = [];
+
+        for (let index = 0; index < count; index++) {
+            items.push(index);
+        }
+
+        return items;
+    }
+
+    function getRoundName(sides, depth) {
+        if (sides === 2) {
+            return 'Final';
+        }
+        if (sides === 4) {
+            return 'Semi-Final';
+        }
+        if (sides === 8) {
+            return 'Quarter-Final';
+        }
+
+        return `Round: ${depth}`;
+    }
+
+    function renderPrintModeRound(sideCount, depth) {
+        const noOfMatches = Math.floor(sideCount / 2);
+        const byes = sideCount % 2;
+
+        if (noOfMatches < 2) {
+            return (<div className="d-flex flex-row m-2 align-items-center">
+                <div className="d-flex flex-column m-2">
+                    <div className="text-center fw-bold">Venue winner</div>
+                    <div className="outline-dark m-2 min-width-150 min-height-50"></div>
+                </div>
+            </div>);
+        }
+
+        return (<div className="d-flex flex-row m-2 align-items-center">
+            <div className="d-flex flex-column m-2">
+                <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
+                {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50"></div>))}
+                {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
+                    <span className="float-end px-2 small">Bye</span>
+                </div>) : null}
+            </div>
+            {renderPrintModeRound(noOfMatches + byes, depth + 1)}
+        </div>);
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -258,46 +365,8 @@ export function Tournament({ account, apis }) {
                 : tournamentData.notes
                     ? (<div className="alert alert-warning alert-dismissible fade show" role="alert">{tournamentData.notes}</div>)
                     : null}
-            <div>Sides:</div>
-            <div className="my-1 d-flex flex-wrap">
-                {tournamentData.sides.sort(sortBy('name')).map(side => {
-                    const thisSideIndex = sideIndex;
-                    sideIndex++;
-                    return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-                {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} teams={teams} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
-            </div>
-            {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} />) : null}
-            {tournamentData.sides.length >= 2 ? (<table className="table">
-                <tbody>
-                <tr>
-                    <td colSpan="2">
-                        180s<br/>
-                        <MultiPlayerSelection
-                            disabled={disabled}
-                            readOnly={saving}
-                            allPlayers={allPlayers}
-                            divisionId={tournamentData.divisionId}
-                            seasonId={tournamentData.seasonId}
-                            players={tournamentData.oneEighties || []}
-                            onRemovePlayer={remove180(tournamentData, setTournamentData)}
-                            onAddPlayer={add180(tournamentData, setTournamentData)}/>
-                    </td>
-                    <td colSpan="2">
-                        100+ c/o<br/>
-                        <MultiPlayerSelection
-                            disabled={disabled}
-                            readOnly={saving}
-                            allPlayers={allPlayers}
-                            divisionId={tournamentData.divisionId}
-                            seasonId={tournamentData.seasonId}
-                            players={tournamentData.over100Checkouts || []}
-                            onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
-                            onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
-                            showNotes={true} />
-                    </td>
-                </tr>
-                </tbody>
-            </table>) : null}
+            {renderViewMode()}
+            {renderPrintMode()}
             {isAdmin ? (<button className="btn btn-primary" onClick={saveTournament}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save

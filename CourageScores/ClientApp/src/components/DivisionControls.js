@@ -197,7 +197,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         </Dialog>);
     }
 
-    return (<div className="btn-group py-2">
+    return (<div className="btn-group py-2 d-print-none">
         {newDivisionDialogOpen ? renderNewDivisionDialog() : null}
         {editMode !== 'division' && originalDivisionData && divisions ? (
                 <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => toggleDropdown('division')}>
