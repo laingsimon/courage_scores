@@ -317,3 +317,23 @@ input.no-spinner {
 .outline-dashed {
   outline-style: dashed;
 }
+
+.justify-content-stretch {
+  justify-content: stretch;
+}
+
+.top-negative-15 {
+  top: -15px;
+}
+
+.left-10 {
+  left: 10px;
+}
+
+.border-dashed {
+  border-style: dashed;
+}
+
+.border-solid {
+  border-style: solid;
+}

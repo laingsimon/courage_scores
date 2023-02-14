@@ -34,50 +34,83 @@ export function TournamentSheet({ sides }) {
         return `Round: ${depth + 1}`;
     }
 
-    function renderPrintModeRound(sideCount, depth) {
-        let noOfMatches = Math.floor(sideCount / 2);
-        let byes = sideCount % 2;
-
-        if (noOfMatches === 1) {
-            noOfMatches+= byes;
-            byes = 0;
-        }
-
-        if (noOfMatches + byes < 2) {
-            return (<div className="d-flex flex-row m-2 align-items-center">
-                <div className="d-flex flex-column m-2">
-                    <div className="mb-5">
-                        <div className="text-center fw-bold text-secondary">180s</div>
-                        <div className="outline-dark outline-dashed min-width-200 min-height-100"></div>
-                    </div>
-                    <div className="text-center fw-bold text-primary">Venue winner</div>
-                    <div className="outline-dark m-2 min-width-150 min-height-50"></div>
-                    <div className="mt-5">
-                        <div className="text-center fw-bold text-secondary">Hi checks</div>
-                        <div className="outline-dark outline-dashed min-width-200 min-height-100"></div>
-                    </div>
-                </div>
-            </div>);
-        }
-
-        return (<div className="d-flex flex-row m-2 align-items-center">
-            <div className="d-flex flex-column m-2">
-                <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
-                {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50">
-                    {repeat(maxSideSize - 1).map(playerIndex => (<hr key={playerIndex} className="my-5 border-dark border-bottom-0 opacity-100" />))}
-                </div>))}
-                {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
-                    <span className="float-end px-2 small">Bye</span>
-                </div>) : null}
+    function renderWinner() {
+        return (<div className="d-flex flex-column m-2 flex-grow-1">
+            <div className="mb-5">
+                <div className="text-center fw-bold text-secondary">180s</div>
+                <div className="outline-dark outline-dashed min-width-200 min-height-100"></div>
             </div>
-            {renderPrintModeRound(noOfMatches + byes, depth + 1)}
+            <div className="text-center fw-bold text-primary">Venue winner</div>
+            <div className="outline-dark m-2 min-width-150 min-height-50">
+                {repeat(maxSideSize - 1).map(renderPlayerSplit)}
+            </div>
+            <div className="mt-5">
+                <div className="text-center fw-bold text-secondary">Hi checks</div>
+                <div className="outline-dark outline-dashed min-width-200 min-height-100"></div>
+            </div>
         </div>);
+    }
+
+    function renderVersus(playerIndex) {
+        return (<div key={playerIndex} className="my-5 border-dark border-1 border-solid border-bottom-0 opacity-100 text-center position-relative">
+            <span className="position-absolute light-background left-10 px-1 top-negative-15 text-secondary">vs</span>
+        </div>);
+    }
+
+    function renderPlayerSplit(playerIndex) {
+        return (<div key={playerIndex} className="my-5 border-1 border-dashed border-secondary border-bottom-0 opacity-100 text-center position-relative">
+            <span className="position-absolute light-background left-10 px-1 top-negative-15 text-secondary">and</span>
+        </div>);
+    }
+
+    function renderRound(noOfMatches, byes, depth) {
+        return (<div key={depth} className="d-flex flex-column m-2 flex-grow-1">
+            <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
+            {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50">
+                {repeat((maxSideSize * 2) - 1).map(playerIndex => {
+                    if (playerIndex === (maxSideSize / 2) || maxSideSize === 1) {
+                        return renderVersus(playerIndex);
+                    }
+
+                    return renderPlayerSplit(playerIndex);
+                })}
+            </div>))}
+            {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
+                <span className="float-end px-2 small">Bye</span>
+            </div>) : null}
+        </div>);
+    }
+
+    function renderPrintModeRound(sideCount, depth) {
+        let noOfMatches = sideCount;
+        let byes = 0;
+
+        const rounds = [];
+
+        for (let depth1 = 0; depth1 < 10; depth1++) {
+            byes = noOfMatches % 2;
+            noOfMatches = Math.floor(noOfMatches / 2);
+
+            if (noOfMatches === 1) {
+                noOfMatches+= byes;
+                byes = 0;
+            }
+
+            if (noOfMatches + byes < 2) {
+                rounds.push(renderWinner());
+                break;
+            }
+
+            rounds.push(renderRound(noOfMatches, byes, depth1));
+        }
+
+        return rounds;
     }
 
     let index = 0;
 
     return (<div className="d-screen-none">
-        <div className="d-flex flex-row m-2 align-items-center">
+        <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
             {renderPrintModeRound(sides.length, 0)}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
