@@ -36,10 +36,10 @@ jobs:
           echo "branch_name=$(echo "$GITHUB_REF_NAME" | sed -r 's/\//_/g')" >> $GITHUB_ENV
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build --nologo --configuration Release
 
       - name: Test with dotnet
-        run: dotnet test --configuration Release --logger:nunit
+        run: dotnet test --nologo --configuration Release --logger:nunit
 
       - name: Setup Python
         uses: actions/setup-python@v4
