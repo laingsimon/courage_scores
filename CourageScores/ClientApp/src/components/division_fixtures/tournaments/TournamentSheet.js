@@ -81,15 +81,15 @@ export function TournamentSheet({ sides }) {
         </div>);
     }
 
-    function renderPrintModeRound(sideCount, depth) {
+    function renderPrintModeRound(sideCount) {
         let noOfMatches = sideCount;
         let byes = 0;
 
         const rounds = [];
 
-        for (let depth1 = 0; depth1 < 10; depth1++) {
-            byes = noOfMatches % 2;
-            noOfMatches = Math.floor(noOfMatches / 2);
+        for (let depth = 0; depth < 10; depth++) {
+            byes = (noOfMatches + byes) % 2;
+            noOfMatches = Math.floor((noOfMatches + byes) / 2);
 
             if (noOfMatches === 1) {
                 noOfMatches+= byes;
@@ -101,7 +101,7 @@ export function TournamentSheet({ sides }) {
                 break;
             }
 
-            rounds.push(renderRound(noOfMatches, byes, depth1));
+            rounds.push(renderRound(noOfMatches, byes, depth));
         }
 
         return rounds;
@@ -111,7 +111,7 @@ export function TournamentSheet({ sides }) {
 
     return (<div className="d-screen-none">
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
-            {renderPrintModeRound(sides.length, 0)}
+            {renderPrintModeRound(sides.length)}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
                 .map(s => (<li className="list-group-item outline-dark" key={s.id}>{++index} - {s.name}</li>))}</ul>
