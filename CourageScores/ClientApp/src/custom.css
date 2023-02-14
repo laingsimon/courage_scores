@@ -70,7 +70,7 @@ nav {
   text-align: center;
   padding: 3px;
   color: #928E1F;
-  font-family: 'exo2extrabold';
+  font-family: 'exo2extrabold', "Arial Black", serif;
   font-size: 40px;
   opacity: 0.7;
 }
@@ -89,6 +89,10 @@ nav {
 
 .margin-right {
   margin-right: 4px;
+}
+
+.margin-left {
+  margin-left: 4px;
 }
 
 .layout-fixed {
@@ -116,14 +120,6 @@ input[type="date"] {
   width: 9em;
 }
 
-.no-border {
-  border: none;
-}
-
-.margin-left {
-  margin-left: 5px;
-}
-
 .dropdown-text-min-width {
   min-width: 100px;
   display: inline-block;
@@ -135,10 +131,6 @@ input[type="date"] {
 
 .medium-column {
   width: 50px;
-}
-
-.vertical-align-middle {
-  vertical-align: middle;
 }
 
 .loading-background {
@@ -282,6 +274,7 @@ table td.middle-vertical-line {
   content: ", ";
   margin-right: 4px;
 }
+
 .no-wrap {
   white-space: nowrap;
   display: inline-block;

@@ -58,7 +58,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     readOnly={readOnly}
                     onChange={(elem) => setNotes(elem.target.value)}
                     value={notes}
-                    className={`margin-right tri-character-input vertical-align-middle${notesClassName || ''}`}
+                    className={`margin-right tri-character-input align-middle${notesClassName || ''}`}
                     type="number"
                     min="100"
                     max="120"/>) : null}

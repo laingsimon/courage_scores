@@ -223,7 +223,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 <div className="input-group-prepend">
                     <span className="input-group-text">Name</span>
                 </div>
-                <input readOnly={updatingData} value={divisionName} onChange={updateDivisionName} className="no-border margin-right" />
+                <input readOnly={updatingData} value={divisionName} onChange={updateDivisionName} className="border-0 margin-right" />
                 <button className="btn btn-sm btn-primary" onClick={saveDivisionName}>
                     {updatingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Save
@@ -254,15 +254,15 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 <div className="input-group-prepend">
                     <span className="input-group-text">Name</span>
                 </div>
-                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="name" value={seasonData.name} className="no-border margin-right"/>
+                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="name" value={seasonData.name} className="border-0 margin-right"/>
                 <div className="input-group-prepend">
                     <span className="input-group-text">From</span>
                 </div>
-                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="startDate" value={seasonData.startDate} type="date" className="no-border margin-right"/>
+                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="startDate" value={seasonData.startDate} type="date" className="border-0 margin-right"/>
                 <div className="input-group-prepend">
                     <span className="input-group-text">To</span>
                 </div>
-                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="endDate" value={seasonData.endDate} type="date" className="no-border margin-right"/>
+                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="endDate" value={seasonData.endDate} type="date" className="border-0 margin-right"/>
                 <button className="btn btn-sm btn-primary" onClick={saveSeasonDetails}>
                     {updatingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Save

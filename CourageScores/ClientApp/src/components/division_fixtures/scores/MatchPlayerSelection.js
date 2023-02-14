@@ -222,7 +222,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                 seasonId={seasonId}
                 gameId={gameId} /></div>))}
         </td>
-        <td className={`narrow-column vertical-align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
+        <td className={`narrow-column align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
                 ? (<strong>{match.homeScore}</strong>)
                 : (<input
@@ -233,8 +233,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
                     onChange={(event) => homeScoreChanged(event.target.value)} />)}
         </td>
-        <td className="vertical-align-middle text-center width-1 middle-vertical-line p-0"></td>
-        <td className={`narrow-column vertical-align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
+        <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
+        <td className={`narrow-column align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
                 ? (<strong>{match.awayScore}</strong>)
                 : (<input
