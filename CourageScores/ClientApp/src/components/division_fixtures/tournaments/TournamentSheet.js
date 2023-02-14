@@ -47,7 +47,7 @@ export function TournamentSheet({ sides }) {
         return (<div className="d-flex flex-row m-2 align-items-center">
             <div className="d-flex flex-column m-2">
                 <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
-                {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50"><hr /></div>))}
+                {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50"><hr className="my-5 border-dark border-bottom-0 opacity-100" /></div>))}
                 {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
                     <span className="float-end px-2 small">Bye</span>
                 </div>) : null}
