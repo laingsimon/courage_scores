@@ -93,12 +93,12 @@ jobs:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
 
-  deploy:
+  dev-deploy:
     runs-on: windows-latest
     needs: build
     environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      name: 'Dev'
+      url: ${{ steps.deploy-to-dev.outputs.webapp-url }}
 
     steps:
       - name: Resolve environment variables
@@ -118,17 +118,35 @@ jobs:
         if: ${{ env.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
         with:
           app-name: 'couragescoresdev'
-          slot-name: 'Production'
+          slot-name: 'Dev'
           publish-profile: ${{ secrets.PUBLISHPROFILE_DEV }}
           package: .
 
-      - name: Deploy to production
+  prod-deploy:
+    runs-on: windows-latest
+    needs: build
+    environment:
+      name: 'Prod'
+      url: ${{ steps.deploy-to-prod.outputs.webapp-url }}
+
+    steps:
+      - name: Resolve environment variables
+        shell: bash
+        run: |
+          echo "branch_name=$(echo "$GITHUB_REF_NAME" | sed -r 's/\//_/g')" >> $GITHUB_ENV
+
+      - name: Download artifact from build job
+        if: ${{ env.branch_name == 'release' || env.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
+        uses: actions/download-artifact@v2
+        with:
+          name: .net-app
+
+      - name: Deploy to prod
         id: deploy-to-prod
         uses: azure/webapps-deploy@v2
         if: ${{ env.branch_name == 'release' }}
         with:
           app-name: 'CourageScores'
-          slot-name: 'Production'
+          slot-name: 'Prod'
           publish-profile: ${{ secrets.PUBLISHPROFILE_RELEASE }}
           package: .
-          
