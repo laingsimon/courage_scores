@@ -40,9 +40,9 @@ export function TournamentSheet({ sides }) {
                 <div className="text-center fw-bold text-secondary">180s</div>
                 <div className="outline-dark outline-dashed min-width-200 min-height-100"></div>
             </div>
-            <div className="text-center fw-bold text-primary">Venue winner</div>
+            <div className="text-center fw-bold text-primary">Venue winner{maxSideSize > 1 ? 's' : ''}</div>
             <div className="outline-dark m-2 min-width-150 min-height-50">
-                {repeat(maxSideSize - 1).map(renderPlayerSplit)}
+                {repeat(maxSideSize - 1).map(playerIndex => renderPlayerSplit(playerIndex, true))}
             </div>
             <div className="mt-5">
                 <div className="text-center fw-bold text-secondary">Hi checks</div>
@@ -57,8 +57,8 @@ export function TournamentSheet({ sides }) {
         </div>);
     }
 
-    function renderPlayerSplit(playerIndex) {
-        return (<div key={playerIndex} className="my-5 border-1 border-dashed border-secondary border-bottom-0 opacity-100 text-center position-relative">
+    function renderPlayerSplit(playerIndex, excludeScore) {
+        return (<div key={playerIndex} className={`my-5 border-1 border-dashed border-secondary border-bottom-0 opacity-100 text-center position-relative${excludeScore ? '' : ' margin-right-50'}`}>
             <span className="position-absolute light-background left-10 px-1 top-negative-15 text-secondary">and</span>
         </div>);
     }
@@ -66,7 +66,7 @@ export function TournamentSheet({ sides }) {
     function renderRound(noOfMatches, byes, depth) {
         return (<div key={depth} className="d-flex flex-column m-2 flex-grow-1">
             <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
-            {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50">
+            {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50 position-relative">
                 {repeat((maxSideSize * 2) - 1).map(playerIndex => {
                     if (playerIndex === (maxSideSize / 2) || maxSideSize === 1) {
                         return renderVersus(playerIndex);
@@ -74,10 +74,11 @@ export function TournamentSheet({ sides }) {
 
                     return renderPlayerSplit(playerIndex);
                 })}
+                <div className="position-absolute right-0 top-0 bottom-0 width-50 no-border border-dashed border-primary border-left-1"></div>
             </div>))}
-            {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
+            {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed opacity-50">
                 <span className="float-end px-2 small">Bye</span>
-                {repeat(maxSideSize - 1).map(renderPlayerSplit)}
+                {repeat(maxSideSize - 1).map(playerIndex => renderPlayerSplit(playerIndex, true))}
             </div>) : null}
         </div>);
     }
