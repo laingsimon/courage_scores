@@ -20,14 +20,14 @@ export function TournamentSheet({ sides }) {
         return items;
     }
 
-    function getRoundName(sides, depth) {
-        if (sides === 2) {
+    function getRoundName(matches, depth) {
+        if (matches === 1) {
             return 'Final';
         }
-        if (sides === 4) {
+        if (matches === 2) {
             return 'Semi-Final';
         }
-        if (sides === 8) {
+        if (matches === 3 || matches === 4) {
             return 'Quarter-Final';
         }
 
@@ -35,7 +35,7 @@ export function TournamentSheet({ sides }) {
     }
 
     function renderWinner() {
-        return (<div className="d-flex flex-column m-2 flex-grow-1">
+        return (<div key="winner" className="d-flex flex-column m-2 flex-grow-1">
             <div className="mb-5">
                 <div className="text-center fw-bold text-secondary">180s</div>
                 <div className="outline-dark outline-dashed min-width-200 min-height-100"></div>
@@ -83,26 +83,21 @@ export function TournamentSheet({ sides }) {
     }
 
     function renderPrintModeRound(sideCount) {
-        let noOfMatches = sideCount;
-        let byes = 0;
+        let matches = sideCount;
 
         const rounds = [];
 
         for (let depth = 0; depth < 10; depth++) {
-            byes = (noOfMatches + byes) % 2;
-            noOfMatches = Math.floor((noOfMatches + byes) / 2);
-
-            if (noOfMatches === 1) {
-                noOfMatches+= byes;
-                byes = 0;
-            }
-
-            if (noOfMatches + byes < 2) {
+            if (matches === 1) {
                 rounds.push(renderWinner());
                 break;
             }
 
-            rounds.push(renderRound(noOfMatches, byes, depth));
+            let iterationByes = matches % 2;
+            let iterationMatches = Math.floor(matches / 2);
+
+            rounds.push(renderRound(iterationMatches, iterationByes, depth));
+            matches = iterationMatches + iterationByes;
         }
 
         return rounds;
