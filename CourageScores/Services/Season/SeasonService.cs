@@ -85,7 +85,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
         catch (Exception exc)
         {
-            return this.Error(exc.Message);
+            return this.Error(exc.ToString());
         }
     }
 
