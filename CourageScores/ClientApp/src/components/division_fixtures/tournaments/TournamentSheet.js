@@ -77,6 +77,7 @@ export function TournamentSheet({ sides }) {
             </div>))}
             {byes ? (<div className="outline-dark m-2 min-width-150 min-height-50 bg-light-warning outline-dashed">
                 <span className="float-end px-2 small">Bye</span>
+                {repeat(maxSideSize - 1).map(renderPlayerSplit)}
             </div>) : null}
         </div>);
     }
