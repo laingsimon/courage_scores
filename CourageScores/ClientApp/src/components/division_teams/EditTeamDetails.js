@@ -4,9 +4,11 @@ import {Http} from "../../api/http";
 import {TeamApi} from "../../api/team";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 
-export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId }) {
+export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId, newDivisionId, divisions }) {
+    const noDivision = { value: '00000000-0000-0000-0000-000000000000', text: 'Remove from division' };
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const divisionOptions = divisions.map(division => { return { value: division.id, text: division.name }; });
 
     async function saveChanges() {
         if (saving) {
@@ -22,7 +24,8 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                 name: name,
                 address: address,
                 divisionId: divisionId,
-                seasonId: seasonId
+                seasonId: seasonId,
+                newDivisionId: newDivisionId
             });
 
             if (response.success) {
@@ -58,6 +61,15 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
             </div>
             <input disabled={saving} type="text" className="form-control"
                    name="address" value={address} onChange={valueChanged}/>
+        </div>
+        <div className="input-group mb-3">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Division</span>
+            </div>
+            <BootstrapDropdown 
+                options={divisionOptions.concat([ noDivision ])}
+                value={newDivisionId}
+                onChange={(newDivisionId) => onChange('newDivisionId', newDivisionId)} />
         </div>
         <button className="btn btn-primary margin-right" onClick={() => saveChanges()}>
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
