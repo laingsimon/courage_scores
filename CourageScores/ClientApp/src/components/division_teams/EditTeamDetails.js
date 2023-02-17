@@ -68,6 +68,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                 <span className="input-group-text">Division</span>
             </div>
             <BootstrapDropdown 
+                disabled={saving || !id} 
                 options={divisionOptions.concat([ noDivision ])}
                 value={newDivisionId}
                 onChange={(newDivisionId) => onChange('newDivisionId', newDivisionId)} />
