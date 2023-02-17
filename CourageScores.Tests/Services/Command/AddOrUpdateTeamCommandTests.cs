@@ -111,6 +111,35 @@ public class AddOrUpdateTeamCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdates_WhenHomeGameInDivisionAndSeasonAndDivisionChanged_DoesNotUpdateDivision()
+    {
+        var game = new GameDto
+        {
+            Home = new GameTeamDto { Id = _team.Id },
+            Away = new GameTeamDto { Id = Guid.NewGuid() },
+            Id = Guid.NewGuid(),
+        };
+        _games.Add(game);
+        var update = new EditTeamDto
+        {
+            DivisionId = _divisionId,
+            SeasonId = _seasonId,
+            Id = _team.Id,
+            Address = "new address",
+            Name = "new name",
+            NewDivisionId = Guid.Empty,
+        };
+
+        var result = await _command.WithData(update).ApplyUpdate(_team, _token);
+
+        _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update))));
+        _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
+        Assert.That(result.Success, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
     public async Task ApplyUpdates_WhenAwayGameInDivisionAndSeason_UpdatesTeamProperties()
     {
         var game = new GameDto
@@ -134,8 +163,8 @@ public class AddOrUpdateTeamCommandTests
         _addOrUpdateGameCommand.Verify(c => c.WithData(It.IsAny<EditGameDto>()), Times.Never);
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token), Times.Never);
         Assert.That(result.Success, Is.True);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Empty);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Empty);
     }
 
     [TestCase("the lamb")]
