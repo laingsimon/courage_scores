@@ -91,6 +91,16 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             };
         }
 
+        if (gamesToUpdate.Count > 0 && update.DivisionId != update.NewDivisionId)
+        {
+            // some games assigned to this team in the current division, not possible to change team division as it would require the game division to change too
+            return new CommandResult
+            {
+                Success = false,
+                Message = $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first",
+            };
+        }
+
         foreach (var gameUpdate in gamesToUpdate)
         {
             var command = _commandFactory.GetCommand<AddOrUpdateGameCommand>().WithData(gameUpdate);
@@ -99,7 +109,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
         team.Name = update.Name;
         team.Address = update.Address;
-        team.DivisionId = update.DivisionId;
+        team.DivisionId = update.NewDivisionId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         return CommandResult.SuccessNoMessage;
