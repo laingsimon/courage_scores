@@ -99,6 +99,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = "new address",
             Name = "new name",
+            NewDivisionId = _divisionId,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
@@ -156,6 +157,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = "new address",
             Name = "new name",
+            NewDivisionId = _divisionId,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
@@ -197,6 +199,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = updateAddress,
             Name = "LAMB A",
+            NewDivisionId = _divisionId,
         };
         _teamService.Setup(s => s.Get(lambAOpponent.Id, _token)).ReturnsAsync(lambAOpponent);
         _teamService.Setup(s => s.Get(lambBOpponent.Id, _token)).ReturnsAsync(lambBOpponent);
@@ -235,6 +238,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = updateAddress,
             Name = "new name",
+            NewDivisionId = _divisionId,
         };
         _teamService.Setup(s => s.Get(otherTeam.Id, _token)).ReturnsAsync(otherTeam);
 
@@ -271,6 +275,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = "new address",
             Name = "new name",
+            NewDivisionId = _divisionId,
         };
         _teamService.Setup(s => s.Get(awayTeam.Id, _token)).ReturnsAsync(awayTeam);
 
@@ -301,6 +306,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = "new address",
             Name = "new name",
+            NewDivisionId = _divisionId,
         };
         _teamService.Setup(s => s.Get(awayTeamId, _token)).ReturnsAsync(() => null);
 
