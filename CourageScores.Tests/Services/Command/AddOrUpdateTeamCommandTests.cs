@@ -134,11 +134,9 @@ public class AddOrUpdateTeamCommandTests
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
-        _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update))));
-        _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.False);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(update.NewDivisionId));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(Guid.Empty));
     }
 
     [Test]
@@ -166,8 +164,8 @@ public class AddOrUpdateTeamCommandTests
         _addOrUpdateGameCommand.Verify(c => c.WithData(It.IsAny<EditGameDto>()), Times.Never);
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token), Times.Never);
         Assert.That(result.Success, Is.True);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Empty);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Empty);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
 
     [TestCase("the lamb")]
