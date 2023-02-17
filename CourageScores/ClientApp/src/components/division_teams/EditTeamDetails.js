@@ -3,6 +3,7 @@ import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {TeamApi} from "../../api/team";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
 export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId, newDivisionId, divisions }) {
     const noDivision = { value: '00000000-0000-0000-0000-000000000000', text: 'Remove from division' };
