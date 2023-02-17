@@ -70,6 +70,7 @@ public class AddOrUpdateTeamCommandTests
             DivisionId = _divisionId,
             SeasonId = _seasonId,
             Id = _team.Id,
+            NewDivisionId = _divisionId,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
@@ -128,7 +129,7 @@ public class AddOrUpdateTeamCommandTests
             Id = _team.Id,
             Address = "new address",
             Name = "new name",
-            NewDivisionId = Guid.Empty,
+            NewDivisionId = Guid.NewGuid(),
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
@@ -136,7 +137,7 @@ public class AddOrUpdateTeamCommandTests
         _addOrUpdateGameCommand.Verify(c => c.WithData(It.Is<EditGameDto>(dto => EditGameDtoMatches(dto, game, update))));
         _gameService.Verify(s => s.Upsert(game.Id, _addOrUpdateGameCommand.Object, _token));
         Assert.That(result.Success, Is.False);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(update.NewDivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
 
