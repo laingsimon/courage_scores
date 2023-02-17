@@ -9,6 +9,7 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
     const [ teamDetails, setTeamDetails ] = useState({
         name: '',
         address: '',
+        newDivisionId: divisionId
     });
 
     function onChange(name, value) {
