@@ -58,7 +58,7 @@ export function Division({ account, apis, divisions }) {
 
                     setError({
                         message: dotnetException.Exception.Message,
-                        stack: dotnetException.Exception.StackTrace.join('\n'),
+                        stack: dotnetException.Exception.StackTrace ? dotnetException.Exception.StackTrace.join('\n') : null,
                         type: dotnetException.Exception.Type
                     });
                 }
