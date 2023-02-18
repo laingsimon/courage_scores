@@ -3,7 +3,7 @@ import {DivisionTeam} from "./DivisionTeam";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
 
-export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSaved }) {
+export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSaved, divisions }) {
     const isAdmin = account && account.access && account.access.manageTeams;
     const [ newTeam, setNewTeam ] = useState(false);
     const [ teamDetails, setTeamDetails ] = useState({
@@ -34,6 +34,7 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
                 {...teamDetails}
                 onCancel={() => setNewTeam(false)}
                 id={null}
+                divisions={divisions}
                 onSaved={onTeamCreated}
                 onChange={onChange}/>
         </Dialog>);
@@ -60,6 +61,7 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
                     seasonId={seasonId}
                     account={account}
                     divisionId={divisionId}
+                    divisions={divisions}
                     onTeamSaved={onTeamSaved} />))}
                 </tbody>
             </table>
