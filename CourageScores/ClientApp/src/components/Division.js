@@ -122,6 +122,7 @@ export function Division({ account, apis, divisions }) {
                 onTeamSaved={reloadDivisionData}
                 account={account}
                 seasonId={divisionData.season.id}
+                divisions={divisions}
                 divisionId={divisionId} />)
             : null}
         {effectiveTab === 'fixtures'
