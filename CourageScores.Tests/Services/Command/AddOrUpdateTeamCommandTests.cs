@@ -135,8 +135,8 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(Guid.Empty));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(Guid.Empty));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]
