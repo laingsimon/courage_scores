@@ -17,19 +17,19 @@ public class ErrorController : Controller
         _commandFactory = commandFactory;
     }
 
-    [HttpGet("/api/Get/{since}")]
+    [HttpGet("/api/Error/Since/{since?}")]
     public IAsyncEnumerable<ErrorDetailDto> GetRecent(DateTime? since = null, CancellationToken token = default)
     {
         return _errorDetailService.GetSince(since ?? DateTime.UtcNow.AddHours(-1), token);
     }
 
-    [HttpGet("/api/Get/{id}")]
+    [HttpGet("/api/Error/{id}")]
     public async Task<ErrorDetailDto?> Get(Guid id, CancellationToken token = default)
     {
         return await _errorDetailService.Get(id, token);
     }
 
-    [HttpPut("/api/Get")]
+    [HttpPut("/api/Error")]
     public async Task<ActionResultDto<ErrorDetailDto>> Save(ErrorDetailDto errorDetail, CancellationToken token = default)
     {
         var addErrorCommand = _commandFactory.GetCommand<AddErrorCommand>();
