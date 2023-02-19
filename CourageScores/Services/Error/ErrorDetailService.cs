@@ -37,6 +37,6 @@ public class ErrorDetailService : GenericDataService<ErrorDetail, ErrorDetailDto
         var errorDetails = await _errorDetailAdapter.Adapt(details, token);
         command.WithData(errorDetails);
 
-        await command.ApplyUpdate(new ErrorDetail(), token);
+        await Upsert(errorDetails.Id, command, token);
     }
 }
