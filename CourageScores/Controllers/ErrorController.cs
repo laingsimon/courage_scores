@@ -3,6 +3,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Error;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.CompilerServices;
 
 namespace CourageScores.Controllers;
 
