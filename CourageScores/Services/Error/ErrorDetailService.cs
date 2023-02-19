@@ -28,7 +28,7 @@ public class ErrorDetailService : GenericDataService<ErrorDetail, ErrorDetailDto
 
     public IAsyncEnumerable<ErrorDetailDto> GetSince(DateTime since, CancellationToken token)
     {
-        return GetWhere($"t.Date >= '{since:yyyy-MM-ddTHH:mm:ss}'", token);
+        return GetWhere($"t.Time >= '{since:yyyy-MM-ddTHH:mm:ss}'", token);
     }
 
     public async Task AddError(IExceptionHandlerPathFeature details, CancellationToken token)
