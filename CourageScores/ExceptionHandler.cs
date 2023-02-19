@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using CourageScores.Services.Error;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace CourageScores;
@@ -34,12 +35,23 @@ public class ExceptionHandler
             Request = FromRequest(context.Request, exceptionHandlerPathFeature?.RouteValues),
         };
 
+        if (exceptionHandlerPathFeature != null)
+        {
+            await RecordErrorDetails(exceptionHandlerPathFeature, context.RequestServices, context.RequestAborted);
+        }
+
         await context.Response.WriteAsJsonAsync(
             content,
             new JsonSerializerOptions
             {
                 DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
             });
+    }
+
+    private static async Task RecordErrorDetails(IExceptionHandlerPathFeature details, IServiceProvider services, CancellationToken token)
+    {
+        var service = services.GetService<IErrorDetailService>()!;
+        await service.AddError(details, token);
     }
 
     private bool ShouldIncludeStack(HttpContext httpContext)
