@@ -17,11 +17,11 @@ public class ErrorController : Controller
     {
         _errorDetailService = errorDetailService;
         _commandFactory = commandFactory;
-        _userService = _userService;
+        _userService = userService;
     }
 
     [HttpGet("/api/Error/Since/{since?}")]
-    public async IAsyncEnumerable<ErrorDetailDto> GetRecent(DateTime? since = null, CancellationToken token = default)
+    public async IAsyncEnumerable<ErrorDetailDto> GetRecent(DateTime? since = null, [EnumeratorCancellation] CancellationToken token = default)
     {
         if (!(await CanViewErrors(token)))
         {
@@ -55,7 +55,7 @@ public class ErrorController : Controller
 
     private async Task<bool> CanViewErrors(CancellationToken token)
     {
-        var user = _userService.GetUser(token);
+        var user = await _userService.GetUser(token);
         return user?.Access?.ManageAccess == true;
     }
 }
