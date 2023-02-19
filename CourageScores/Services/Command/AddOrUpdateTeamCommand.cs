@@ -61,7 +61,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
                 {
                     gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
                 }
-                else if (game.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
+                else if (!string.IsNullOrEmpty(game.Address) && game.Address.Equals(update.Address, StringComparison.OrdinalIgnoreCase))
                 {
                     gamesWithSameHomeAddressAsUpdate[game.Date].Add(game);
                 }
