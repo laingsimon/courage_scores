@@ -29,7 +29,7 @@ public class ErrorController : Controller
         }
 
         var errors = _errorDetailService.GetSince(since ?? DateTime.UtcNow.AddHours(-1), token);
-        await foreach (var error in errors.WithCancellation(token))
+        await foreach (var error in errors)
         {
             yield return error;
         }
@@ -53,7 +53,7 @@ public class ErrorController : Controller
         return await _errorDetailService.Upsert(errorDetail.Id, addErrorCommand, token);
     }
 
-    private async Task<> CanViewErrors(CancellationToken token)
+    private async Task<bool> CanViewErrors(CancellationToken token)
     {
         var user = _userService.GetUser(token);
         return user?.Access?.ManageAccess == true;
