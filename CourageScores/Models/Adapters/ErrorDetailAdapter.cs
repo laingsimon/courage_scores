@@ -1,36 +1,30 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
-using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace CourageScores.Models.Adapters;
 
 public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorDetailAdapter
 {
-    private readonly IUserService _userService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public ErrorDetailAdapter(IUserService userService, IHttpContextAccessor httpContextAccessor)
+    public ErrorDetailAdapter(IHttpContextAccessor httpContextAccessor)
     {
-        _userService = userService;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<ErrorDetailDto> Adapt(IExceptionHandlerPathFeature errorDetails, CancellationToken token)
+    public Task<ErrorDetailDto> Adapt(IExceptionHandlerPathFeature errorDetails, CancellationToken token)
     {
-        var user = await _userService.GetUser(token);
-
-        return new ErrorDetailDto
+        return Task.FromResult(new ErrorDetailDto
         {
             Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
             Time = DateTime.UtcNow,
-            UserName = user?.Name,
             UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
             Stack = errorDetails.Error.StackTrace?.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries),
             Type = errorDetails.Error.GetType().Name,
             Message = errorDetails.Error.Message,
-        };
+        });
     }
 
     public Task<ErrorDetail> Adapt(ErrorDetailDto dto, CancellationToken token)
