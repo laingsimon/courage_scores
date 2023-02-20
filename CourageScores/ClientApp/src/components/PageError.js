@@ -25,7 +25,7 @@ export function PageError({ error, clearError }){
             userAgent: Navigator.userAgent
         };
 
-        await api.save(error);
+        await api.add(error);
     }
 
     reportClientSideException();
