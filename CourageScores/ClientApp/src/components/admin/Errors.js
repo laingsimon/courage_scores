@@ -1,4 +1,4 @@
-﻿import {useState} from "react";
+import {useState} from "react";
 import {ErrorApi} from "../../api/error";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
