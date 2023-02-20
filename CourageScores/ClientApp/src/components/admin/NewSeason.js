@@ -46,7 +46,7 @@ export function NewSeason() {
 
             if (response.success) {
                 window.alert('Season created');
-                navigate(`/home`);
+                navigate(`/`);
             } else {
                 setNewSeasonError(response);
             }
