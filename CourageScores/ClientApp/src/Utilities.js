@@ -16,7 +16,7 @@ export function toMap(items) {
 /*
 * Sort any array by the given property
 * */
-export function sortBy(property) {
+export function sortBy(property, descending) {
     function getValue(item) {
         return item[property];
     }
@@ -27,8 +27,8 @@ export function sortBy(property) {
         }
 
         return (getValue(x).toLowerCase() > getValue(y).toLowerCase())
-            ? 1
-            : -1;
+            ? descending ? -1 : 1
+            : descending ? 1 : -1;
     }
 }
 
