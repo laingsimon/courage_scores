@@ -37,6 +37,10 @@ export function Errors() {
                 <span className="input-group-text">Since</span>
             </div>
             <input disabled={loading} className="form-control" value={since} onChange={(event) => setSince(event.target.value)}/>
+            <button className="btn btn-primary margin-right" onClick={retrieveErrors} disabled={loading}>
+                {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                Refresh
+            </button>
         </div>
         <div>
             <ul className="list-group mb-3">
@@ -61,11 +65,5 @@ export function Errors() {
                 {errorToShow.stack.map(frame => <li key={frameIndex++} className="no-wrap">{frame}</li>)}
             </ol>) : null}
         </div>) : null}
-        <div>
-            <button className="btn btn-primary margin-right" onClick={retrieveErrors} disabled={loading}>
-                {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                Get recent errors
-            </button>
-        </div>
     </div>);
 }
