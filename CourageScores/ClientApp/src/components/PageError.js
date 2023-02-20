@@ -11,7 +11,7 @@ export function PageError({ error, clearError }){
     useEffect(() => {
         reportClientSideException();
     }, [errorReported])
-    
+
     async function reportClientSideException() {
         if (errorReported) {
             return; // server side exception
@@ -23,7 +23,7 @@ export function PageError({ error, clearError }){
             source: "UI",
             time: new Date().toISOString(),
             message: error.message,
-            stack: error.stack ? error.stack.split() : null,
+            stack: error.stack ? error.stack.split('\n') : null,
             type: null,
             userName: null,
             userAgent: Navigator.userAgent
