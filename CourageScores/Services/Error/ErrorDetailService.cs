@@ -62,7 +62,11 @@ public class ErrorDetailService : IErrorDetailService
 
     public async Task<ActionResultDto<ErrorDetailDto>> AddError(ErrorDetailDto errorDetail, CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        errorDetail.UserName = user?.Name;
+
         var addErrorCommand = _commandFactory.GetCommand<AddErrorCommand>();
+        addErrorCommand.WithData(errorDetail);
         return await _genericDataService.Upsert(errorDetail.Id, addErrorCommand, token);
     }
 
