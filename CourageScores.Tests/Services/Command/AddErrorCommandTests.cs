@@ -1,6 +1,9 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Command;
+using CourageScores.Services.Identity;
+using Moq;
 using NUnit.Framework;
 
 namespace CourageScores.Tests.Services.Command;
@@ -12,13 +15,22 @@ public class AddErrorCommandTests
     private AddErrorCommand _command = null!;
     private ErrorDetailDto _update = null!;
     private ErrorDetail _error = null!;
+    private Mock<IUserService> _userService = null!;
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _command = new AddErrorCommand();
+        _userService = new Mock<IUserService>();
+        _command = new AddErrorCommand(_userService.Object);
         _update = new ErrorDetailDto();
         _error = new ErrorDetail();
+        _user = new UserDto
+        {
+            Name = "user-name",
+        };
+
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -29,7 +41,7 @@ public class AddErrorCommandTests
         _update.Stack = new[] {"frame1"};
         _update.Type = "type";
         _update.UserAgent = "user agent";
-        _update.UserName = "user";
+        _update.UserName = "update-user-name";
         _update.Time = new DateTime(2001, 02, 03);
 
         var result = await _command.WithData(_update).ApplyUpdate(_error, _token);
@@ -40,7 +52,7 @@ public class AddErrorCommandTests
         Assert.That(_error.Stack, Is.EqualTo(_update.Stack));
         Assert.That(_error.Type, Is.EqualTo(_update.Type));
         Assert.That(_error.UserAgent, Is.EqualTo(_update.UserAgent));
-        Assert.That(_error.UserName, Is.EqualTo(_update.UserName));
+        Assert.That(_error.UserName, Is.EqualTo("user-name"));
         Assert.That(_error.Time, Is.EqualTo(_update.Time));
     }
 
@@ -52,8 +64,8 @@ public class AddErrorCommandTests
         _update.Stack = null;
         _update.Type = null;
         _update.UserAgent = "user agent";
-        _update.UserName = null;
         _update.Time = new DateTime(2001, 02, 03);
+        _user = null;
 
         var result = await _command.WithData(_update).ApplyUpdate(_error, _token);
 

@@ -10,13 +10,13 @@ namespace CourageScores.Services.Error;
 
 public class ErrorDetailService : IErrorDetailService
 {
-    private readonly GenericDataService<ErrorDetail, ErrorDetailDto> _genericDataService;
+    private readonly IGenericDataService<ErrorDetail, ErrorDetailDto> _genericDataService;
     private readonly IUserService _userService;
     private readonly ICommandFactory _commandFactory;
     private readonly IErrorDetailAdapter _errorDetailAdapter;
 
     public ErrorDetailService(
-        GenericDataService<ErrorDetail, ErrorDetailDto> genericDataService,
+        IGenericDataService<ErrorDetail, ErrorDetailDto> genericDataService,
         IUserService userService,
         ICommandFactory commandFactory,
         IErrorDetailAdapter errorDetailAdapter)
