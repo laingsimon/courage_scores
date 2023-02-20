@@ -17,12 +17,12 @@ export function PageError({ error, clearError }){
 
         const error = {
             source: "UI",
-            time: new Date().toUtc(),
+            time: new Date().toUTCString(),
             message: error.message,
             stack: error.stack ? error.stack.split() : null,
             type: null,
             userName: null,
-            userAgent: null
+            userAgent: Navigator.userAgent
         };
 
         await api.save(error);
