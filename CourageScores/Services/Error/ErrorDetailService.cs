@@ -1,34 +1,54 @@
-﻿using CourageScores.Models.Adapters;
+﻿using System.Runtime.CompilerServices;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
-using CourageScores.Repository;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using Microsoft.AspNetCore.Diagnostics;
 
 namespace CourageScores.Services.Error;
 
-public class ErrorDetailService : GenericDataService<ErrorDetail, ErrorDetailDto>, IErrorDetailService
+public class ErrorDetailService : IErrorDetailService
 {
+    private readonly GenericDataService<ErrorDetail, ErrorDetailDto> _genericDataService;
+    private readonly IUserService _userService;
     private readonly ICommandFactory _commandFactory;
     private readonly IErrorDetailAdapter _errorDetailAdapter;
 
     public ErrorDetailService(
-        IGenericRepository<ErrorDetail> repository,
-        IAdapter<ErrorDetail, ErrorDetailDto> adapter,
+        GenericDataService<ErrorDetail, ErrorDetailDto> genericDataService,
         IUserService userService,
-        IAuditingHelper auditingHelper,
         ICommandFactory commandFactory,
         IErrorDetailAdapter errorDetailAdapter)
-        : base(repository, adapter, userService, auditingHelper)
     {
+        _genericDataService = genericDataService;
+        _userService = userService;
         _commandFactory = commandFactory;
         _errorDetailAdapter = errorDetailAdapter;
     }
 
-    public IAsyncEnumerable<ErrorDetailDto> GetSince(DateTime since, CancellationToken token)
+    public async Task<ErrorDetailDto?> Get(Guid id, CancellationToken token)
     {
-        return GetWhere($"t.Time >= '{since:yyyy-MM-ddTHH:mm:ss}'", token);
+        if (!(await CanViewErrors(token)))
+        {
+            return null;
+        }
+
+        return await _genericDataService.Get(id, token);
+    }
+
+    public async IAsyncEnumerable<ErrorDetailDto> GetSince(DateTime since, [EnumeratorCancellation] CancellationToken token)
+    {
+        if (!(await CanViewErrors(token)))
+        {
+            yield break;
+        }
+
+        var errors = _genericDataService.GetWhere($"t.Time >= '{since:yyyy-MM-ddTHH:mm:ss}'", token);
+        await foreach (var error in errors.WithCancellation(token))
+        {
+            yield return error;
+        }
     }
 
     public async Task AddError(IExceptionHandlerPathFeature details, CancellationToken token)
@@ -37,6 +57,18 @@ public class ErrorDetailService : GenericDataService<ErrorDetail, ErrorDetailDto
         var errorDetails = await _errorDetailAdapter.Adapt(details, token);
         command.WithData(errorDetails);
 
-        await Upsert(errorDetails.Id, command, token);
+        await _genericDataService.Upsert(errorDetails.Id, command, token);
+    }
+
+    public async Task<ActionResultDto<ErrorDetailDto>> AddError(ErrorDetailDto errorDetail, CancellationToken token)
+    {
+        var addErrorCommand = _commandFactory.GetCommand<AddErrorCommand>();
+        return await _genericDataService.Upsert(errorDetail.Id, addErrorCommand, token);
+    }
+
+    private async Task<bool> CanViewErrors(CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        return user?.Access?.ViewExceptions == true;
     }
 }
