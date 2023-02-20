@@ -57,6 +57,6 @@ public class ErrorController : Controller
     private async Task<bool> CanViewErrors(CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        return user?.Access?.ManageAccess == true;
+        return user?.Access?.ViewExceptions == true;
     }
 }
