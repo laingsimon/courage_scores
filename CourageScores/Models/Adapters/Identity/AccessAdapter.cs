@@ -21,6 +21,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ExportData = model.ExportData,
             ImportData = model.ImportData,
             InputResults = model.InputResults,
+            ViewExceptions = model.ViewExceptions,
         });
     }
 
@@ -40,6 +41,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ExportData = dto.ExportData,
             ImportData = dto.ImportData,
             InputResults = dto.InputResults,
+            ViewExceptions = dto.ViewExceptions,
         });
     }
 }

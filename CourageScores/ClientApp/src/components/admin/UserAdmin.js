@@ -150,6 +150,7 @@ export function UserAdmin({ account }) {
         {renderAccessOption('exportData', 'Export data (backup)')}
         {renderAccessOption('importData', 'Import data (restore)')}
         {renderAccessOption('inputResults', 'Input results')}
+        {renderAccessOption('viewExceptions', 'View exceptions')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
