@@ -49,7 +49,7 @@ export function Errors() {
 
                     return (<li className={`list-group-item d-flex justify-content-between align-items-center${isFocused ? ' active' : ''}`} onClick={() => setFocusedError(isFocused ? null : error.id)} key={error.id}>
                         {time.toLocaleDateString()} @ {time.toLocaleTimeString()} - {error.message}
-                        <span className="badge rounded-pill bg-primary">{error.source}</span>
+                        <span className={`badge rounded-pill ${error.source === 'Api' ? 'bg-primary' : 'bg-secondary'}`}>{error.source}</span>
                     </li>);
                 })}
             </ul>
