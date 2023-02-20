@@ -20,7 +20,8 @@ export function ErrorDisplay({ errors, messages, warnings, onClose, title, Excep
         return (<div>
             <h5>Server side error</h5>
             <p><strong>{type}</strong>: {message}</p>
-            <pre>{stack.join('\n')}</pre>
+            <pre>{stack ? stack.join('\n') : ''
+}</pre>
         </div>);
     }
 

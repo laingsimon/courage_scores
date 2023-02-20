@@ -1,6 +1,9 @@
+using CourageScores.Services.Error;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Routing;
+using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -10,7 +13,7 @@ namespace CourageScores.Tests;
 public class ExceptionHandlerTests
 {
     private static readonly Exception Exception = GetException("some error");
-    private static readonly IExceptionHandlerPathFeature Feature = new ExceptionHandlerFeature
+    private static readonly IExceptionHandlerPathFeature ExceptionHandlerFeature = new ExceptionHandlerFeature
     {
         Error = Exception,
         Path = "some/path",
@@ -22,6 +25,7 @@ public class ExceptionHandlerTests
     };
 
     private HttpContext _context = null!;
+    private Mock<IErrorDetailService> _errorDetailService = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -45,8 +49,15 @@ public class ExceptionHandlerTests
                 Body = new MemoryStream(),
             }
         };
+        var serviceProvider = new Mock<IServiceProvider>();
+        _errorDetailService = new Mock<IErrorDetailService>();
 
-        _context.Features.Set(Feature);
+        var requestServicesFeature = new Mock<IServiceProvidersFeature>();
+        requestServicesFeature.Setup(f => f.RequestServices).Returns(serviceProvider.Object);
+        serviceProvider.Setup(p => p.GetService(typeof(IErrorDetailService))).Returns(_errorDetailService.Object);
+
+        _context.Features.Set(requestServicesFeature.Object);
+        _context.Features.Set(ExceptionHandlerFeature);
     }
 
     [Test]
