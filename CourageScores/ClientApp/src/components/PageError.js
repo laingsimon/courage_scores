@@ -10,7 +10,9 @@ export function PageError({ error, clearError }){
 
     useEffect(() => {
         reportClientSideException();
-    }, [errorReported])
+    },
+    // eslint-disable-next-line
+    [errorReported])
 
     async function reportClientSideException() {
         if (errorReported) {
