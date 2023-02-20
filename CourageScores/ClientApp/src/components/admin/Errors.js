@@ -40,7 +40,7 @@ export function Errors() {
         </div>
         <div>
             <ul className="list-group mb-3">
-                {errors.sort(sortBy('time')).map(error => {
+                {errors.sort(sortBy('time', true)).map(error => {
                     const time = new Date(error.time);
                     const isFocused = focusedError === error.id;
                     if (isFocused) {
