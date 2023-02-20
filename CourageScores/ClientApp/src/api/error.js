@@ -4,7 +4,7 @@ class ErrorApi {
     }
 
     get(id) {
-        return this.http.get(`/api/Error/${emailAddress}`, {});
+        return this.http.get(`/api/Error/${id}`, {});
     }
 
     getRecent(since) {

@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
-import {ErrorApi} from "../../api/error";
+import {Settings} from "../api/settings";
+import {Http} from "../api/http";
+import {ErrorApi} from "../api/error";
 
 export function PageError({ error, clearError }){
     const [ showStack, setShowStack ] = useState(false);
@@ -9,15 +9,15 @@ export function PageError({ error, clearError }){
     const api = new ErrorApi(new Http(new Settings()));
 
     async function reportClientSideException() {
-        if (Exception || errorReported) {
+        if (errorReported) {
             return; // server side exception
         }
 
         setErrorReported(true);
 
-        const error = {
+        const errorDetail = {
             source: "UI",
-            time: new Date().toUTCString(),
+            time: new Date().toISOString(),
             message: error.message,
             stack: error.stack ? error.stack.split() : null,
             type: null,
@@ -25,7 +25,7 @@ export function PageError({ error, clearError }){
             userAgent: Navigator.userAgent
         };
 
-        await api.add(error);
+        await api.add(errorDetail);
     }
 
     reportClientSideException();

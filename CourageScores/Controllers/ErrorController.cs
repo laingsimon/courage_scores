@@ -21,13 +21,13 @@ public class ErrorController : Controller
     }
 
     [HttpGet("/api/Error/{id}")]
-    public async Task<ErrorDetailDto?> Get(Guid id, CancellationToken token = default)
+    public async Task<ErrorDetailDto?> Get(Guid id, CancellationToken token)
     {
         return await _errorDetailService.Get(id, token);
     }
 
     [HttpPut("/api/Error")]
-    public async Task<ActionResultDto<ErrorDetailDto>> Save(ErrorDetailDto errorDetail, CancellationToken token = default)
+    public async Task<ActionResultDto<ErrorDetailDto>> Save(ErrorDetailDto errorDetail, CancellationToken token)
     {
         return await _errorDetailService.AddError(errorDetail, token);
     }
