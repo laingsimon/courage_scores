@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Settings} from "../api/settings";
 import {Http} from "../api/http";
 import {ErrorApi} from "../api/error";
@@ -8,6 +8,10 @@ export function PageError({ error, clearError }){
     const [ errorReported, setErrorReported ] = useState(false);
     const api = new ErrorApi(new Http(new Settings()));
 
+    useEffect(() => {
+        reportClientSideException();
+    }, [errorReported])
+    
     async function reportClientSideException() {
         if (errorReported) {
             return; // server side exception
@@ -27,8 +31,6 @@ export function PageError({ error, clearError }){
 
         await api.add(errorDetail);
     }
-
-    reportClientSideException();
 
     return (<div className="light-background p-3">
         <h3 className="text-danger">An error occurred</h3>
