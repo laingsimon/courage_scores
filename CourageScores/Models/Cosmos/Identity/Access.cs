@@ -17,4 +17,5 @@ public class Access
     public bool ExportData { get; set; }
     public bool ImportData { get; set; }
     public bool InputResults { get; set; }
+    public bool ViewExceptions { get; set; }
 }
