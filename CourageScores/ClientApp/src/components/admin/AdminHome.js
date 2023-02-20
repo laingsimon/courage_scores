@@ -6,6 +6,7 @@ import {ImportData} from "./ImportData";
 import {ExportData} from "./ExportData";
 import {Loading} from "../common/Loading";
 import {NotPermitted} from "./NotPermitted";
+import {Errors} from "./Errors";
 
 export function AdminHome({ account, appLoading }) {
     const { mode } = useParams();
@@ -15,19 +16,23 @@ export function AdminHome({ account, appLoading }) {
     return (<div>
         {appLoading ? (<Loading />) : null}
         {!appLoading && account ? (<ul className="nav nav-tabs">
-            <NavItem>
+            {access.manageAccess ? (<NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'user' ? ' text-dark active' : 'text-light'} to={`/admin/user`}>User admin</NavLink>
-            </NavItem>
-            <NavItem>
+            </NavItem>) : null}
+            {access.importData ? (<NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'import' ? ' text-dark active' : 'text-light'} to={`/admin/import`}>Import data</NavLink>
-            </NavItem>
-            <NavItem>
+            </NavItem>) : null}
+            {access.exportData ? (<NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'export' ? ' text-dark active' : 'text-light'} to={`/admin/export`}>Export data</NavLink>
-            </NavItem>
+            </NavItem>) : null}
+            {access.viewExceptions ? (<NavItem>
+                <NavLink tag={Link} className={effectiveTab === 'errors' ? ' text-dark active' : 'text-light'} to={`/admin/errors`}>Errors</NavLink>
+            </NavItem>) : null}
         </ul>) : null}
         {!account && !appLoading ? (<NotPermitted />) : null}
         {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin account={account} />): null}
         {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData account={account} />) : null}
         {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData account={account} />) : null}
+        {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors account={account} />) : null}
     </div>);
 }
