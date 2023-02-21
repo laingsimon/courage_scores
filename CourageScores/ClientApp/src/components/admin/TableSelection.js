@@ -1,5 +1,5 @@
 import React from 'react';
-import {nameSort} from "../../Utilities";
+import {sortBy} from "../../Utilities";
 
 export function TableSelection({ allTables, selected, onTableChange, requireCanExport, requireCanImport }) {
     async function toggleTable(table) {
@@ -29,6 +29,6 @@ export function TableSelection({ allTables, selected, onTableChange, requireCanE
     }
 
     return (<ul className="list-group mb-3">
-        {allTables ? allTables.sort(nameSort).map(t => renderTable(t)) : (<li className="list-group-item">Loading tables...</li>)}
+        {allTables ? allTables.sort(sortBy('name')).map(t => renderTable(t)) : (<li className="list-group-item">Loading tables...</li>)}
     </ul>);
 }

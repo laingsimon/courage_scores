@@ -22,7 +22,7 @@ public class UpdatePlayerCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<IGenericRepository<Game>> _gameRepository = null!;
+    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>> _gameRepository = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private UpdatePlayerCommand _command = null!;
     private CosmosTeam _team = null!;
@@ -38,7 +38,7 @@ public class UpdatePlayerCommandTests
         _userService = new Mock<IUserService>();
         _seasonService = new Mock<ISeasonService>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _gameRepository = new Mock<IGenericRepository<Game>>();
+        _gameRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>>();
         _command = new UpdatePlayerCommand(_userService.Object, _seasonService.Object, _auditingHelper.Object, _gameRepository.Object);
 
         _user = new UserDto
@@ -165,7 +165,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenPlayerNotRegisteredToTeamSeason_UpdatesPlayerDetailsAndReturnsSuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
 
         var result = await _command
             .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
@@ -182,7 +182,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAGame_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new Game
+        var game = new CourageScores.Models.Cosmos.Game.Game
         {
             Id = Guid.NewGuid(),
             Matches =
@@ -213,7 +213,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAllGames_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new Game
+        var game = new CourageScores.Models.Cosmos.Game.Game
         {
             Id = Guid.NewGuid(),
             Matches =
@@ -243,7 +243,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPlayerNotFoundInAGame_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new Game
+        var game = new CourageScores.Models.Cosmos.Game.Game
         {
             Id = Guid.NewGuid(),
             Matches =

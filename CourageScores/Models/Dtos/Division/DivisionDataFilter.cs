@@ -1,4 +1,6 @@
-﻿namespace CourageScores.Models.Dtos.Division;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Division;
 
 public class DivisionDataFilter : IEquatable<DivisionDataFilter>
 {
@@ -25,20 +27,17 @@ public class DivisionDataFilter : IEquatable<DivisionDataFilter>
 
     public bool Equals(DivisionDataFilter? other)
     {
-        if (ReferenceEquals(null, other)) return false;
-        if (ReferenceEquals(this, other)) return true;
-        return Nullable.Equals(Date, other.Date)
+        return other != null
+               && Nullable.Equals(Date, other.Date)
                && Nullable.Equals(DivisionId, other.DivisionId)
                && Nullable.Equals(SeasonId, other.SeasonId)
                && Nullable.Equals(TeamId, other.TeamId);
     }
 
+    [ExcludeFromCodeCoverage]
     public override bool Equals(object? obj)
     {
-        if (ReferenceEquals(null, obj)) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((DivisionDataFilter) obj);
+        return Equals(obj as DivisionDataFilter);
     }
 
     public override int GetHashCode()

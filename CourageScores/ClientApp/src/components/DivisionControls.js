@@ -7,6 +7,7 @@ import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
+import {valueChanged} from "../Utilities";
 
 export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll, divisions, overrideMode }) {
     const { mode } = useParams();
@@ -28,12 +29,6 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         } else {
             setOpenDropdown(null);
         }
-    }
-
-    function updateSeasonData(event) {
-        const currentData = Object.assign({}, seasonData);
-        currentData[event.target.name] = event.target.value;
-        setSeasonData(currentData);
     }
 
     function updateDivisionName(event) {
@@ -202,7 +197,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         </Dialog>);
     }
 
-    return (<div className="btn-group py-2">
+    return (<div className="btn-group py-2 d-print-none">
         {newDivisionDialogOpen ? renderNewDivisionDialog() : null}
         {editMode !== 'division' && originalDivisionData && divisions ? (
                 <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => toggleDropdown('division')}>
@@ -228,7 +223,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 <div className="input-group-prepend">
                     <span className="input-group-text">Name</span>
                 </div>
-                <input readOnly={updatingData} value={divisionName} onChange={updateDivisionName} className="no-border margin-right" />
+                <input readOnly={updatingData} value={divisionName} onChange={updateDivisionName} className="border-0 margin-right" />
                 <button className="btn btn-sm btn-primary" onClick={saveDivisionName}>
                     {updatingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Save
@@ -259,15 +254,15 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 <div className="input-group-prepend">
                     <span className="input-group-text">Name</span>
                 </div>
-                <input readOnly={updatingData} onChange={updateSeasonData} name="name" value={seasonData.name} className="no-border margin-right"/>
+                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="name" value={seasonData.name} className="border-0 margin-right"/>
                 <div className="input-group-prepend">
                     <span className="input-group-text">From</span>
                 </div>
-                <input readOnly={updatingData} onChange={updateSeasonData} name="startDate" value={seasonData.startDate} type="date" className="no-border margin-right"/>
+                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="startDate" value={seasonData.startDate} type="date" className="border-0 margin-right"/>
                 <div className="input-group-prepend">
                     <span className="input-group-text">To</span>
                 </div>
-                <input readOnly={updatingData} onChange={updateSeasonData} name="endDate" value={seasonData.endDate} type="date" className="no-border margin-right"/>
+                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="endDate" value={seasonData.endDate} type="date" className="border-0 margin-right"/>
                 <button className="btn btn-sm btn-primary" onClick={saveSeasonDetails}>
                     {updatingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Save

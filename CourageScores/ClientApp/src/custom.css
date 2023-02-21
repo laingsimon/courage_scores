@@ -70,7 +70,7 @@ nav {
   text-align: center;
   padding: 3px;
   color: #928E1F;
-  font-family: 'exo2extrabold';
+  font-family: 'exo2extrabold', "Arial Black", serif;
   font-size: 40px;
   opacity: 0.7;
 }
@@ -89,6 +89,10 @@ nav {
 
 .margin-right {
   margin-right: 4px;
+}
+
+.margin-left {
+  margin-left: 4px;
 }
 
 .layout-fixed {
@@ -116,14 +120,6 @@ input[type="date"] {
   width: 9em;
 }
 
-.no-border {
-  border: none;
-}
-
-.margin-left {
-  margin-left: 5px;
-}
-
 .dropdown-text-min-width {
   min-width: 100px;
   display: inline-block;
@@ -135,10 +131,6 @@ input[type="date"] {
 
 .medium-column {
   width: 50px;
-}
-
-.vertical-align-middle {
-  vertical-align: middle;
 }
 
 .loading-background {
@@ -236,6 +228,26 @@ table td.middle-vertical-line {
   color: #bbbbbb;
 }
 
+.outline-dark {
+  outline: solid 1px #000000;
+}
+
+.min-width-150 {
+  min-width: 150px;
+}
+
+.min-width-200 {
+  min-width: 200px;
+}
+
+.min-height-50 {
+  min-height: 50px;
+}
+
+.min-height-100 {
+  min-height: 100px;
+}
+
 .max-height-250 {
   max-height: 250px;
 }
@@ -262,6 +274,7 @@ table td.middle-vertical-line {
   content: ", ";
   margin-right: 4px;
 }
+
 .no-wrap {
   white-space: nowrap;
   display: inline-block;
@@ -275,4 +288,73 @@ input.no-spinner::-webkit-inner-spin-button {
 
 input.no-spinner {
   -moz-appearance: textfield;
+}
+
+@media print {
+  .full-screen-print-mode {
+    width: 100%;
+    max-width: initial;
+  }
+}
+
+@media screen {
+  .d-screen-none {
+    display: none;
+  }
+}
+
+.bg-light-warning {
+  background: #ffffcc;
+}
+
+.outline-dashed {
+  outline-style: dashed;
+}
+
+.justify-content-stretch {
+  justify-content: stretch;
+}
+
+.top-negative-15 {
+  top: -15px;
+}
+
+.left-10 {
+  left: 10px;
+}
+
+.right-0 {
+  right: 0;
+}
+
+.width-50 {
+  width: 50px;
+}
+
+.right-50 {
+  right: 50px;
+}
+
+.left-0 {
+  left: 0px;
+}
+
+.border-dashed {
+  border-style: dashed;
+}
+
+.border-solid {
+  border-style: solid;
+}
+
+.no-border {
+  border-width: 0;
+}
+
+.border-left-1 {
+  border-left-width: 1px;
+}
+
+.margin-right-50 {
+  margin-right: 50px;
 }

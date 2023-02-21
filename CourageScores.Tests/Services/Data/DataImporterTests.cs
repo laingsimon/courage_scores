@@ -1,4 +1,5 @@
 using System.Net;
+using CourageScores.Filters;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Services;
 using CourageScores.Services.Data;
@@ -23,6 +24,7 @@ public class DataImporterTests
     private List<string> _zipFiles = null!;
     private ItemResponse<JObject> _upsertResult = null!;
     private JObject _fileContent = null!;
+    private ScopedCacheManagementFlags _flags = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -31,6 +33,7 @@ public class DataImporterTests
         _request = new ImportDataRequestDto();
         _result = new ImportDataResultDto();
         _zip = new Mock<IZipFileReader>();
+        _flags = new ScopedCacheManagementFlags();
         _fileContent = JObject.FromObject(new CourageScores.Models.Cosmos.Division());
         _zipFiles = new List<string>
         {
@@ -46,7 +49,7 @@ public class DataImporterTests
             }
         };
         _upsertResult = new MockItemResponse<JObject>(statusCode: HttpStatusCode.Created);
-        _importer = new DataImporter(_database.Object, _request, _result, _currentTables);
+        _importer = new DataImporter(_database.Object, _request, _result, _currentTables, _flags);
         _database
             .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token))
             .ReturnsAsync(new MockContainerResponse(_container));
@@ -111,6 +114,17 @@ public class DataImporterTests
     }
 
     [Test]
+    public async Task ImportData_WhenDryRun_DoesNotEvictDataFromCache()
+    {
+        _request.DryRun = true;
+
+        await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+
+        Assert.That(_flags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_flags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
     public async Task ImportData_WhenNotDryRun_GetsProductionTable()
     {
         _request.DryRun = false;
@@ -120,6 +134,17 @@ public class DataImporterTests
         _database.Verify(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, _token));
         Assert.That(result, Is.Not.Empty);
         Assert.That(result, Has.None.StartsWith("ERROR"));
+    }
+
+    [Test]
+    public async Task ImportData_WhenNotDryRun_EvictsDataFromCache()
+    {
+        _request.DryRun = false;
+
+        await _importer.ImportData(Array.Empty<string>(), _zip.Object, _token).ToList();
+
+        Assert.That(_flags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(Guid.Empty));
+        Assert.That(_flags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(Guid.Empty));
     }
 
     [Test]

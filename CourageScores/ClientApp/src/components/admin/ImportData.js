@@ -4,6 +4,7 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
+import {propChanged, valueChanged} from "../../Utilities";
 
 export function ImportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -23,7 +24,9 @@ export function ImportData() {
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canImport).map(t => t.name);
-        onTableChange(selected);
+        setImportRequest(Object.assign({}, importRequest, {
+            tables: selected
+        }));
     }
 
     useEffect(() => {
@@ -31,20 +34,6 @@ export function ImportData() {
     },
     // eslint-disable-next-line
     [ ]);
-
-    function onTableChange(selection) {
-        const newImportRequest = Object.assign({}, importRequest);
-        newImportRequest.tables = selection;
-        setImportRequest(newImportRequest);
-    }
-
-    function valueChanged(event) {
-        const newImportRequest = Object.assign({}, importRequest);
-        newImportRequest[event.target.name] = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
-        setImportRequest(newImportRequest);
-    }
 
     async function startImport() {
         if (importing) {
@@ -94,23 +83,23 @@ export function ImportData() {
                 <span className="input-group-text">Password</span>
             </div>
             <input disabled={importing} type="password" className="form-control"
-                   name="password" value={importRequest.password} onChange={valueChanged}/>
+                   name="password" value={importRequest.password} onChange={valueChanged(importRequest, setImportRequest)}/>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={importing} type="checkbox" className="form-check-input"
-                       name="purgeData" id="purgeData" checked={importRequest.purgeData} onChange={valueChanged}/>
+                       name="purgeData" id="purgeData" checked={importRequest.purgeData} onChange={valueChanged(importRequest, setImportRequest)}/>
                 <label className="form-check-label" htmlFor="purgeData">Purge data</label>
             </div>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={importing} type="checkbox" className="form-check-input"
-                       name="dryRun" id="dryRun" checked={importRequest.dryRun} onChange={valueChanged}/>
+                       name="dryRun" id="dryRun" checked={importRequest.dryRun} onChange={valueChanged(importRequest, setImportRequest)}/>
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChange={onTableChange} requireCanImport={true} />
+        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChanged={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
                 {importing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

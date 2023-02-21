@@ -1,5 +1,6 @@
 using System.Net;
 using System.Runtime.CompilerServices;
+using CourageScores.Filters;
 using CourageScores.Models.Dtos.Data;
 using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json.Linq;
@@ -14,13 +15,20 @@ public class DataImporter : IDataImporter
     private readonly ImportDataRequestDto _request;
     private readonly ImportDataResultDto _result;
     private readonly IReadOnlyCollection<TableDto> _currentTables;
+    private readonly ScopedCacheManagementFlags _flags;
 
-    public DataImporter(Database database, ImportDataRequestDto request, ImportDataResultDto result, IReadOnlyCollection<TableDto> currentTables)
+    public DataImporter(
+        Database database,
+        ImportDataRequestDto request,
+        ImportDataResultDto result,
+        IReadOnlyCollection<TableDto> currentTables,
+        ScopedCacheManagementFlags flags)
     {
         _database = database;
         _request = request;
         _result = result;
         _currentTables = currentTables;
+        _flags = flags;
     }
 
     public async IAsyncEnumerable<string> ImportData(IReadOnlyCollection<string> tablesToImport, IZipFileReader zip, [EnumeratorCancellation] CancellationToken token)
@@ -41,6 +49,13 @@ public class DataImporter : IDataImporter
             var tableName = _request.DryRun
                 ? table.Name + DryRunTableSuffix
                 : table.Name;
+
+            if (!_request.DryRun)
+            {
+                // evict the cache for all seasons and divisions
+                _flags.EvictDivisionDataCacheForDivisionId = Guid.Empty;
+                _flags.EvictDivisionDataCacheForSeasonId = Guid.Empty;
+            }
 
             var files = zip.EnumerateFiles(table.Name).ToArray();
             yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Importing data into {tableName} ({files.Length} record/s)";

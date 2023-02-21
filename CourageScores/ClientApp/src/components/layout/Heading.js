@@ -1,7 +1,7 @@
 import React from 'react';
 
 export function Heading() {
-    return (<div>
+    return (<div className="d-print-none">
             <div className="d-flex p-2 justify-content-between mid-grey-background">
                 <div className="">
                     <a href="mailto:email@thecourageleague.co.uk" className="white-link no-underline">✉️ email@thecourageleague.co.uk</a>

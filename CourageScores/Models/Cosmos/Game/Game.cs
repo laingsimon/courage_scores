@@ -175,12 +175,12 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             if (_homeScore > _awayScore)
             {
                 visitor.VisitGameWinner(_home);
-                visitor.VisitGameLost(_away);
+                visitor.VisitGameLoser(_away);
             }
             else if (_awayScore > _homeScore)
             {
                 visitor.VisitGameWinner(_away);
-                visitor.VisitGameLost(_home);
+                visitor.VisitGameLoser(_home);
             }
             else if (_homeScore == _awayScore && _homeScore > 0)
             {

@@ -6,6 +6,7 @@ import {PlayerApi} from "../../api/player";
 import {Settings} from "../../api/settings";
 import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {propChanged} from "../../Utilities";
 
 export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue, divisionId }) {
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
@@ -17,12 +18,6 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
         id: player.teamId,
         name: player.team
     };
-
-    function playerDetailChanged(prop, value) {
-        const newDetails = Object.assign({}, playerDetails);
-        newDetails[prop] = value;
-        setPlayerDetails(newDetails);
-    }
 
     async function playerDetailSaved() {
         if (onPlayerSaved) {
@@ -41,7 +36,7 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
                 teams={[ team ]}
                 seasonId={seasonId}
                 onCancel={() => setEditPlayer(false)}
-                onChange={playerDetailChanged}
+                onChange={propChanged(playerDetails, setPlayerDetails)}
                 onSaved={playerDetailSaved}
             />
         </Dialog>)

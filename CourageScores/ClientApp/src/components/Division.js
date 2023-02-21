@@ -14,6 +14,7 @@ import {TeamOverview} from "./division_teams/TeamOverview";
 import {PlayerOverview} from "./division_players/PlayerOverview";
 import {Loading} from "./common/Loading";
 import {PageError} from "./PageError";
+import {propChanged} from "../Utilities";
 
 export function Division({ account, apis, divisions }) {
     const { divisionId, mode, seasonId } = useParams();
@@ -32,13 +33,6 @@ export function Division({ account, apis, divisions }) {
         const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
         setTeams(teams);
         return divisionData;
-    }
-
-    function setNewFixtures(newFixtures) {
-        const newDivisionData = Object.assign({}, divisionData);
-        newDivisionData.fixtures = newFixtures;
-
-        setDivisionData(newDivisionData);
     }
 
     useEffect(() => {
@@ -64,7 +58,7 @@ export function Division({ account, apis, divisions }) {
 
                     setError({
                         message: dotnetException.Exception.Message,
-                        stack: dotnetException.Exception.StackTrace.join('\n'),
+                        stack: dotnetException.Exception.StackTrace ? dotnetException.Exception.StackTrace.join('\n') : null,
                         type: dotnetException.Exception.Type
                     });
                 }
@@ -128,6 +122,7 @@ export function Division({ account, apis, divisions }) {
                 onTeamSaved={reloadDivisionData}
                 account={account}
                 seasonId={divisionData.season.id}
+                divisions={divisions}
                 divisionId={divisionId} />)
             : null}
         {effectiveTab === 'fixtures'
@@ -139,7 +134,7 @@ export function Division({ account, apis, divisions }) {
                 allTeams={divisionData.allTeams}
                 account={account}
                 onReloadDivision={reloadDivisionData}
-                setNewFixtures={setNewFixtures}
+                setNewFixtures={propChanged(divisionData, setDivisionData, 'fixtures')}
                 seasons={divisionData.seasons}
                 divisions={divisions}
                 allPlayers={divisionData.players} />)

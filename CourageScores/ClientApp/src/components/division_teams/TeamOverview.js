@@ -42,9 +42,9 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
                         : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
-            <td className="vertical-align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
-            <td className="vertical-align-middle">vs</td>
-            <td className="vertical-align-middle">{renderScore(fixture.awayScore, fixture.postponed)}</td>
+            <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
+            <td className="align-middle">vs</td>
+            <td className="align-middle">{renderScore(fixture.awayScore, fixture.postponed)}</td>
             <td>
                 <div className="mt-4">
                     {fixture.awayTeam.id === teamId

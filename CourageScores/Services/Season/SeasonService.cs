@@ -63,11 +63,9 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         try
         {
             var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
-            var datesAndGames = await RepeatAndReturnSmallest(
-                async () => await ProposeGamesInt(request, season, allTeams, result, token).ToList(),
-                NumberOfProposalIterations);
+            var provisionIteration = async () => await ProposeGamesInt(request, season, allTeams, result, token).ToList();
             result.Result =
-                datesAndGames //regroup the results, in case existing games are reported before proposed games for the same date
+                (await provisionIteration.RepeatAndReturnSmallest(NumberOfProposalIterations)) //regroup the results, in case existing games are reported before proposed games for the same date
                     .GroupBy(d => d.Date)
                     .OrderBy(g => g.Key)
                     .Select(g =>
@@ -87,24 +85,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
         catch (Exception exc)
         {
-            return this.Error(exc.Message);
+            return this.Error(exc.ToString());
         }
-    }
-
-    private static async Task<List<T>> RepeatAndReturnSmallest<T>(Func<Task<List<T>>> provider, int times)
-    {
-        List<T>? smallest = null;
-
-        for (var iteration = 0; iteration < times; iteration++)
-        {
-            var current = await provider();
-            if (smallest == null || current.Count < smallest.Count)
-            {
-                smallest = current;
-            }
-        }
-
-        return smallest!;
     }
 
     public async Task<SeasonDto?> GetLatest(CancellationToken token)

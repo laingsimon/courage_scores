@@ -8,6 +8,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
+import {propChanged} from "../../Utilities";
 
 export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
     const bye = {
@@ -269,12 +270,6 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         setEditTeamMode(type);
     }
 
-    function teamDetailChanged(prop, value) {
-        const newDetails = Object.assign({}, teamDetails);
-        newDetails[prop] = value;
-        setTeamDetails(newDetails);
-    }
-
     async function teamDetailSaved() {
         if (onReloadDivision) {
             await onReloadDivision();
@@ -296,7 +291,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                 name={teamDetails.name}
                 address={teamDetails.address}
                 onCancel={() => setEditTeamMode(null)}
-                onChange={teamDetailChanged}
+                onChange={propChanged(teamDetails, setTeamDetails)}
                 onSaved={teamDetailSaved}
             />
         </Dialog>)

@@ -6,6 +6,7 @@ import {GameApi} from "../../api/game";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {propChanged} from "../../Utilities";
 
 export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId, isKnockout }) {
     const [ homeTeamId, setHomeTeamId ] = useState(null);
@@ -66,12 +67,6 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         }
     }
 
-    function onChange(name, value) {
-        const newTeamDetails = Object.assign({}, teamDetails);
-        newTeamDetails[name] = value;
-        setTeamDetails(newTeamDetails);
-    }
-
     function renderNewTeamDialog() {
         return (<Dialog title="Create a new team...">
           <EditTeamDetails
@@ -80,7 +75,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
               {...teamDetails}
               onCancel={() => setNewTeamFor(null)} id={null}
               onSaved={teamCreated}
-              onChange={onChange} />
+              onChange={propChanged(teamDetails, setTeamDetails)} />
         </Dialog>)
     }
 

@@ -34,7 +34,7 @@ export function NavMenu({divisions, appLoading, account, clearError}) {
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
-    return (<header>
+    return (<header className="d-print-none">
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container dark>
                 <NavbarBrand onClick={() => setCollapsed(!collapsed)}  className="me-auto">Menu</NavbarBrand>
                 <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>

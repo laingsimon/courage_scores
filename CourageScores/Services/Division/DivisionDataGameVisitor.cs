@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Team;
 
@@ -45,6 +46,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
             var scoreForLegSize = playerScore.GetScores(players.Count);
             scoreForLegSize.MatchesWon++;
+            scoreForLegSize.MatchesPlayed++;
             if (!winRateRecorded)
             {
                 scoreForLegSize.TeamWinRate += winningScore;
@@ -70,6 +72,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
             var scoreForLegSize = playerScore.GetScores(players.Count);
             scoreForLegSize.MatchesLost++;
+            scoreForLegSize.MatchesPlayed++;
             if (!winRateRecorded)
             {
                 scoreForLegSize.TeamLossRate += winningScore;
@@ -90,7 +93,7 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Players.Add(player.Id, score);
         }
 
-        score.OneEighty++;
+        score.OneEighties++;
     }
 
     public void VisitHiCheckout(INotablePlayer player)
@@ -128,21 +131,6 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.FixturesPlayed++;
     }
 
-    public void VisitPlayer(GamePlayer player, int matchPlayerCount)
-    {
-        if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
-        {
-            playerScore = new DivisionData.PlayerScore
-            {
-                Player = player,
-            };
-            _divisionData.Players.Add(player.Id, playerScore);
-        }
-
-        var score = playerScore.GetScores(matchPlayerCount);
-        score.MatchesPlayed++;
-    }
-
     public void VisitGameDraw(GameTeam home, GameTeam away)
     {
         if (!_divisionData.Teams.TryGetValue(home.Id, out var homeScore))
@@ -173,7 +161,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.FixturesWon++;
     }
 
-    public void VisitGameLost(GameTeam team)
+    public void VisitGameLoser(GameTeam team)
     {
         if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
@@ -245,9 +233,15 @@ public class DivisionDataGameVisitor : IGameVisitor
 
         private void ProcessPlayers(IEnumerable<GamePlayer> players, TeamDto team)
         {
+            var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
+            if (teamSeason == null)
+            {
+                Trace.TraceWarning($"Team {team.Id} ({team.Name}) is not registered for season {_seasonId}; cannot build playerId -> teamMap");
+                return;
+            }
+
             foreach (var player in players)
             {
-                var teamSeason = team.Seasons?.Single(s => s.SeasonId == _seasonId);
                 var teamPlayer = teamSeason?.Players.SingleOrDefault(p => p.Id == player.Id);
 
                 _divisionData.PlayerIdToTeamLookup.TryAdd(

@@ -4,7 +4,7 @@ import {TournamentApi} from "../../api/tournament";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {nameSort} from "../../Utilities";
+import {sortBy} from "../../Utilities";
 
 export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
     const isProposedTournament = tournament.proposed;
@@ -77,11 +77,11 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
     }
 
     function showTournamentSidesPlayers() {
-        tournament.sides.sort(nameSort);
+        tournament.sides.sort(sortBy('name'));
 
         return (<div className="px-3">
             {tournament.sides.map(side => {
-                side.players.sort(nameSort);
+                side.players.sort(sortBy('name'));
                 const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
                 let name = (<strong>{side.name}</strong>);
                 if (side.teamId && side.players.length !== 1) {

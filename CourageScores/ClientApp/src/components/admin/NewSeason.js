@@ -5,6 +5,7 @@ import {SeasonApi} from "../../api/season";
 import {useNavigate} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {propChanged, valueChanged} from "../../Utilities";
 
 export function NewSeason() {
     const [ saving, setSaving ] = useState(false);
@@ -28,16 +29,6 @@ export function NewSeason() {
         setSeasons(seasons.map(s => { return { value: s.id, text: `${s.name} (${new Date(s.startDate).toDateString()} - ${new Date(s.endDate).toDateString()})` } }));
     }
 
-    function onPropertyChange(event) {
-        setProperty(event.target.name, event.target.value);
-    }
-
-    function setProperty(property, value) {
-        const newData = Object.assign({}, newSeason);
-        newData[property] = value;
-        setNewSeason(newData);
-    }
-
     async function createSeason() {
         if (saving) {
             return;
@@ -55,7 +46,7 @@ export function NewSeason() {
 
             if (response.success) {
                 window.alert('Season created');
-                navigate(`/home`);
+                navigate(`/`);
             } else {
                 setNewSeasonError(response);
             }
@@ -71,25 +62,25 @@ export function NewSeason() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
-            <input name="name" value={newSeason.name} onChange={onPropertyChange} />
+            <input name="name" value={newSeason.name} onChange={valueChanged(newSeason, setNewSeason)} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Start date</span>
             </div>
-            <input name="startDate" value={newSeason.startDate} type="date" onChange={onPropertyChange} />
+            <input name="startDate" value={newSeason.startDate} type="date" onChange={valueChanged(newSeason, setNewSeason)} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">End date</span>
             </div>
-            <input name="endDate" value={newSeason.endDate} type="date" onChange={onPropertyChange} />
+            <input name="endDate" value={newSeason.endDate} type="date" onChange={valueChanged(newSeason, setNewSeason)} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Use teams from season</span>
             </div>
-            <BootstrapDropdown value={newSeason.copyTeamsFromSeasonId} options={seasons} onChange={(seasonId) => setProperty('copyTeamsFromSeasonId', seasonId)} />
+            <BootstrapDropdown value={newSeason.copyTeamsFromSeasonId} options={seasons} onChange={propChanged(newSeason, setNewSeason, 'copyTeamsFromSeasonId')} />
         </div>
 
         <button className="btn btn-primary mt-3" onClick={createSeason}>

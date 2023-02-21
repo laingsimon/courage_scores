@@ -24,6 +24,7 @@ public class ScoresImporter : IImporter
         var fixtureCount = 0;
 
         var totalSuccess = true;
+        var initialErrorCount = context.Errors.Count;
         foreach (var accessFixture in scoresGroupedByFixture.OrderBy(g => g.First().fixdate))
         {
             if (token.IsCancellationRequested)
@@ -35,6 +36,22 @@ public class ScoresImporter : IImporter
             totalSuccess = await ImportFixture(accessFixture.ToArray(), context, fixtureCount, token) && totalSuccess;
         }
 
+        if (context.Errors.Count != initialErrorCount)
+        {
+            await _log.WriteLineAsync($"{context.Errors.Count - initialErrorCount}: error/s found in the source data");
+            foreach (var error in context.Errors.Skip(initialErrorCount))
+            {
+                await _log.WriteLineAsync($" - {error}");
+            }
+            await _log.WriteLineAsync("Press enter to continue or Ctrl+C to abort.");
+            await Console.In.ReadLineAsync();
+
+            if (token.IsCancellationRequested)
+            {
+                return false;
+            }
+        }
+
         foreach (var change in context.Fixtures!.GetModified())
         {
             if (token.IsCancellationRequested)
@@ -42,7 +59,7 @@ public class ScoresImporter : IImporter
                 return totalSuccess;
             }
 
-            await _log.WriteLineAsync($"Uploading change: {change.Key}: {change.Value.Id}");
+            await _log.WriteLineAsync($"Uploading game: {change.Key}: {change.Value.Id}");
             var result = await destination.UpsertAsync(change.Value, "game", "/id", token);
             if (!result.Success)
             {
@@ -95,7 +112,7 @@ public class ScoresImporter : IImporter
             cosmosFixture = CreateGame(context, fixtureData.Date.Value, home, away);
         }
 
-        if (SetMatches(cosmosFixture, legMap, context, token))
+        if (await SetMatches(cosmosFixture, legMap, context, token))
         {
             context.Fixtures.SetModified(cosmosFixture);
         }
@@ -126,7 +143,7 @@ public class ScoresImporter : IImporter
         return cosmosFixture;
     }
 
-    private bool SetMatches(Game game, IEnumerable<LegMapping> legMap, ImportContext context, CancellationToken token)
+    private async Task<bool> SetMatches(Game game, IEnumerable<LegMapping> legMap, ImportContext context, CancellationToken token)
     {
         var gameModified = false;
         foreach (var leg in legMap)
@@ -137,14 +154,14 @@ public class ScoresImporter : IImporter
             }
 
             var match = game.Matches.ElementAtOrDefault(leg.LegNo - 1);
-            var modified = SetMatch(game, leg, match, context);
+            var modified = await SetMatch(game, leg, match, context);
             gameModified = modified || gameModified;
         }
 
         return gameModified;
     }
 
-    private bool SetMatch(Game game, LegMapping leg, GameMatch? match, ImportContext context)
+    private async Task<bool> SetMatch(Game game, LegMapping leg, GameMatch? match, ImportContext context)
     {
         try
         {
@@ -180,12 +197,32 @@ public class ScoresImporter : IImporter
             match.StartingScore = ApplyChange(match.StartingScore, UpdateScoresCommand.GetStartingScore(match.HomePlayers.Count), ref gameModified);
             match.NumberOfLegs = ApplyChange(match.NumberOfLegs, UpdateScoresCommand.GetNumberOfLegs(match.HomePlayers.Count), ref gameModified);
 
+            await ValidateMatch(game, match, context);
+
             return gameModified;
         }
         catch (Exception exc)
         {
-            _log.WriteLineAsync($"Failed to set match for game {game.Home.Name} vs {game.Away.Name}: {exc.Message}");
+            await _log.WriteLineAsync($"Failed to set match for game {game.Home.Name} vs {game.Away.Name}: {exc.Message}");
             return false;
+        }
+    }
+
+    private async Task ValidateMatch(Game game, GameMatch match, ImportContext context)
+    {
+        if (match.HomePlayers.Count == 0)
+        {
+            await _log.WriteLineAsync($"No home players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}");
+        }
+
+        if (match.AwayPlayers.Count == 0)
+        {
+            await _log.WriteLineAsync($"No away players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}");
+        }
+
+        if (match.HomePlayers.Count != match.AwayPlayers.Count)
+        {
+            context.Errors.Add($"Inconsistent number of players set for match in game {game.Date:dd MMM yyyy} {game.Home.Name} vs {game.Away.Name}, Leg: {game.Matches.Count}");
         }
     }
 

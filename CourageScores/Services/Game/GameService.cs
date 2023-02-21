@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Services.Command;
@@ -90,11 +91,13 @@ public class GameService : IGameService
     }
 
     #region delegating members
+    [ExcludeFromCodeCoverage]
     public Task<ActionResultDto<GameDto>> Upsert<TOut>(Guid id, IUpdateCommand<Models.Cosmos.Game.Game, TOut> updateCommand, CancellationToken token)
     {
         return _underlyingService.Upsert(id, updateCommand, token);
     }
 
+    [ExcludeFromCodeCoverage]
     public Task<ActionResultDto<GameDto>> Delete(Guid id, CancellationToken token)
     {
         return _underlyingService.Delete(id, token);

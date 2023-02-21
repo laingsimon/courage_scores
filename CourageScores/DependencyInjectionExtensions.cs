@@ -19,6 +19,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Data;
 using CourageScores.Services.Division;
+using CourageScores.Services.Error;
 using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
@@ -93,6 +94,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ICosmosTableService, CosmosTableService>();
         services.AddScoped<IDataImporterFactory, DataImporterFactory>();
         services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
+        services.AddScoped<IDivisionDataDtoFactory, DivisionDataDtoFactory>();
+        services.AddScoped<IErrorDetailService, ErrorDetailService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -126,6 +129,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<Division, DivisionDto, DivisionAdapter>(services);
         AddAdapter<League, LeagueDto, LeagueAdapter>(services);
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
+        AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
 
         services.AddScoped<IDivisionFixtureAdapter, DivisionFixtureAdapter>();
         services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
@@ -136,6 +140,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDivisionFixtureDateAdapter, DivisionFixtureDateAdapter>();
         services.AddScoped<IDivisionFixtureTeamAdapter, DivisionFixtureTeamAdapter>();
         services.AddScoped<IPlayerPerformanceAdapter, PlayerPerformanceAdapter>();
+        services.AddScoped<IErrorDetailAdapter, ErrorDetailAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

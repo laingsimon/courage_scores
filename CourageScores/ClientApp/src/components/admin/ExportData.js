@@ -4,6 +4,7 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
+import {propChanged, valueChanged} from "../../Utilities";
 
 export function ExportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -22,7 +23,7 @@ export function ExportData() {
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canExport).map(t => t.name);
-        onTableChange(selected);
+        setExportRequest(Object.assign({ tables: selected }, exportRequest));
     }
 
     useEffect(() => {
@@ -30,14 +31,6 @@ export function ExportData() {
     },
     // eslint-disable-next-line
     []);
-
-    function valueChanged(event) {
-        const newExportRequest = Object.assign({}, exportRequest);
-        newExportRequest[event.target.name] = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
-        setExportRequest(newExportRequest);
-    }
 
     async function startExport() {
         if (exporting) {
@@ -61,12 +54,6 @@ export function ExportData() {
         }
     }
 
-    function onTableChange(selection) {
-        const newExportRequest = Object.assign({}, exportRequest);
-        newExportRequest.tables = selection;
-        setExportRequest(newExportRequest);
-    }
-
     return (<div className="light-background p-3">
         <h3>Export data</h3>
         <div className="input-group mb-3">
@@ -74,16 +61,16 @@ export function ExportData() {
                 <span className="input-group-text">Password</span>
             </div>
             <input disabled={exporting} type="password" className="form-control"
-                   name="password" value={exportRequest.password} onChange={valueChanged}/>
+                   name="password" value={exportRequest.password} onChange={valueChanged(exportRequest, setExportRequest)}/>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={exporting} type="checkbox" className="form-check-input"
-                       name="includeDeletedEntries" id="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged}/>
+                       name="includeDeletedEntries" id="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged(exportRequest, setExportRequest)}/>
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChange={onTableChange} requireCanExport={true} />
+        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChanged={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

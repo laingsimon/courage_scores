@@ -21,7 +21,7 @@ public class UpdateScoresCommandTests
 {
     private const string UserTeamId = "621BADAE-8FB0-4854-8C7A-6BC185117238";
     private Mock<IUserService> _userService = null!;
-    private Mock<IAdapter<Game,GameDto>> _gameAdapter = null!;
+    private Mock<IAdapter<CourageScores.Models.Cosmos.Game.Game, GameDto>> _gameAdapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
@@ -29,7 +29,7 @@ public class UpdateScoresCommandTests
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private UpdateScoresCommand _command = null!;
     private readonly CancellationToken _token = new CancellationToken();
-    private Game _game = null!;
+    private CourageScores.Models.Cosmos.Game.Game _game = null!;
     private RecordScoresDto _scores = null!;
     private UserDto? _user;
     private SeasonDto[] _seasons = null!;
@@ -40,7 +40,7 @@ public class UpdateScoresCommandTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _gameAdapter = new Mock<IAdapter<Game, GameDto>>();
+        _gameAdapter = new Mock<IAdapter<CourageScores.Models.Cosmos.Game.Game, GameDto>>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _seasonService = new Mock<ISeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
@@ -55,7 +55,7 @@ public class UpdateScoresCommandTests
             _commandFactory.Object,
             _teamService.Object,
             _cacheFlags);
-        _game = new Game
+        _game = new CourageScores.Models.Cosmos.Game.Game
         {
             Home = new GameTeam(),
             Away = new GameTeam(),
