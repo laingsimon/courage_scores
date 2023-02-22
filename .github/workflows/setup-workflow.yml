@@ -1,0 +1,63 @@
+name: Setup workflow
+
+on:
+  workflow_call:
+    inputs:
+      branch-name:
+        required: true
+        type: string
+      deploy-requested:
+        required: false
+        type: string
+        default: false
+    outputs:
+      dotnet-root: 
+        value: ${{ jobs.dotnet.outputs.dotnet-root }}
+      deploy:
+        value: ${{ jobs.branch.outputs.deploy }}
+
+jobs:
+  dotnet:
+    runs-on: windows-latest
+
+    outputs:
+      dotnet-root: ${{ steps.export-dotnet-root.outputs.dotnet-root }}
+
+    steps:
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: true
+
+      - name: Export dotnet-root
+        id: export-dotnet-root
+        run: echo "dotnet-root=${{ env.DOTNET_ROOT }}" >> $GITHUB_OUTPUT
+
+  python:
+    runs-on: windows-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+  branch:
+    runs-on: windows-latest
+
+    outputs:
+      deploy: ${{ steps.should-deploy.outputs.deploy }}
+
+    steps:
+      - name: Print branch
+        shell: bash
+        run: |
+          echo "branch-name = ${{ inputs.branch-name }}"
+    
+      - name: Should deploy (branch name)
+        if: ${{ inputs.branch-name == 'release' || inputs.branch-name == 'main' || inputs.deploy-requested == 'true' }}
+        id: should-deploy
+        shell: bash
+        run: |
+          echo "deploy=true" >> $GITHUB_OUTPUT

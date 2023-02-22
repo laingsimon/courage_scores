@@ -1,0 +1,37 @@
+name: PROD
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  setup:
+    uses: ./.github/workflows/setup-workflow.yml
+    with:
+      branch-name: 'release'
+      deploy-requested: true
+
+  build-and-upload:
+    needs: 
+     - setup
+    uses: ./.github/workflows/build.yml
+    with: 
+      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+      upload: true
+    secrets:
+      google-oauth-id: ${{ secrets.GOOGLEOAUTHID }}
+      google-oauth-secret: ${{ secrets.GOOGLEOAUTHSECRET }}
+      debug-token: ${{ secrets.DEBUGTOKEN }}
+      cosmos-databasename: ${{ secrets.COSMOSDB_DATABASENAME_PROD }}
+      cosmos-key: ${{ secrets.COSMOSDB_KEY_PROD }}
+      cosmos-url: ${{ secrets.COSMOSDB_URL_PROD }}
+
+  deploy:
+    needs: build-and-upload
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment-name: 'PROD'
+      app-name: 'CourageScores'
+    secrets:
+      publish-profile: ${{ secrets.PUBLISHPROFILE_RELEASE }}

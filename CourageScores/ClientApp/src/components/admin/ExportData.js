@@ -70,7 +70,7 @@ export function ExportData() {
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChanged={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
+        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChange={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

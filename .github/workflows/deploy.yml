@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      environment-name:
+        required: true
+        type: string
+      app-name:
+        required: true
+        type: string
+    secrets:
+      publish-profile:
+        required: true
+
+jobs:
+  from-github:
+    runs-on: windows-latest
+
+    environment:
+      name: ${{ inputs.environment-name }}
+      url: ${{ steps.deploy-to-env.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v3
+        with:
+          name: .net-app
+
+      - name: Deploy to ${{ inputs.environment-name }}
+        id: deploy-to-env
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ inputs.app-name }}
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.publish-profile }}
+          package: .
+
