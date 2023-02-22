@@ -99,7 +99,7 @@ export function ImportData() {
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChanged={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
+        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChange={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
                 {importing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
