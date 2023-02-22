@@ -58,9 +58,8 @@ jobs:
           CosmosDb_Key: ${{ secrets.cosmos-key }}
           CosmosDb_Endpoint: ${{ secrets.cosmos-url }}
 
-  upload:
-    if: ${{ inputs.upload }}
-    needs: with-dotnet
-    uses: ./.github/workflows/upload.yml
-    with:
-      dotnet-root: ${{ inputs.dotnet-root }}
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: .net-app
+          path: ${{ inputs.dotnet-root }}/myapp
