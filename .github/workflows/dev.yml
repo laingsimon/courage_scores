@@ -16,13 +16,21 @@ on:
 
 jobs:
   setup:
+    needs: 
+     - branch-name
     uses: ./.github/workflows/setup-workflow.yml
+    with:
+      branch-name: ${{ needs.branch-name.outputs.branch-name }}
+      deploy-requested: ${{ github.event.inputs.deploy_dev }}
 
-  build:
-    needs: setup
+  build-and-upload:
+    needs: 
+     - setup
+     - branch-name
     uses: ./.github/workflows/build.yml
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+      upload: ${{ needs.setup.outputs.deploy == 'true' }}
     secrets:
       google-oauth-id: ${{ secrets.GOOGLEOAUTHID }}
       google-oauth-secret: ${{ secrets.GOOGLEOAUTHSECRET }}
@@ -34,19 +42,10 @@ jobs:
   branch-name:
     uses: ./.github/workflows/get-branch-name.yml
 
-  upload:
-    if: ${{ needs.branch-name.outputs.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
-    needs: 
-      - build
-      - branch-name
-    uses: ./.github/workflows/upload.yml
-    with:
-      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
-
   deploy:
-    if: ${{ needs.branch-name.outputs.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
+    if: ${{ needs.setup.outputs.deploy == 'true' }}
     needs: 
-      - upload
+      - build-and-upload
       - branch-name
     uses: ./.github/workflows/deploy.yml
     with:

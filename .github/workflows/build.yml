@@ -6,6 +6,9 @@ on:
       dotnet-root:
         required: true
         type: string
+      upload:
+        required: true
+        type: boolean
     secrets:
       google-oauth-id:
         required: true
@@ -54,3 +57,10 @@ jobs:
           CosmosDb_DatabaseName: ${{ secrets.cosmos-databasename }}
           CosmosDb_Key: ${{ secrets.cosmos-key }}
           CosmosDb_Endpoint: ${{ secrets.cosmos-url }}
+
+  upload:
+    if: ${{ inputs.upload }}
+    needs: with-dotnet
+    uses: ./.github/workflows/upload.yml
+    with:
+      dotnet-root: ${{ inputs.dotnet-root }}

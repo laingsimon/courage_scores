@@ -14,7 +14,7 @@ on:
         required: true
 
 jobs:
-  deploy:
+  from-github:
     runs-on: windows-latest
 
     environment:

@@ -2,9 +2,19 @@ name: Setup workflow
 
 on:
   workflow_call:
+    inputs:
+      branch-name:
+        required: true
+        type: string
+      deploy-requested:
+        required: false
+        type: string
+        default: false
     outputs:
       dotnet-root: 
         value: ${{ jobs.dotnet.outputs.dotnet-root }}
+      deploy:
+        value: ${{ jobs.branch.outputs.deploy }}
 
 jobs:
   dotnet:
@@ -32,3 +42,22 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.8
+
+  branch:
+    runs-on: windows-latest
+
+    outputs:
+      deploy: ${{ steps.should-deploy.outputs.deploy }}
+
+    steps:
+      - name: Print branch
+        shell: bash
+        run: |
+          echo "branch-name = ${{ inputs.branch-name }}"
+    
+      - name: Should deploy (branch name)
+        if: ${{ inputs.branch-name == 'release' || inputs.branch-name == 'main' || inputs.deploy-requested == 'true' }}
+        id: should-deploy
+        shell: bash
+        run: |
+          echo "deploy=true" >> $GITHUB_OUTPUT

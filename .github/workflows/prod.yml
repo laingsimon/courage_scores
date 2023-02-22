@@ -8,12 +8,17 @@ on:
 jobs:
   setup:
     uses: ./.github/workflows/setup-workflow.yml
+    with:
+      branch-name: 'release'
+      deploy-requested: true
 
-  build:
-    needs: setup
+  build-and-upload:
+    needs: 
+     - setup
     uses: ./.github/workflows/build.yml
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+      upload: true
     secrets:
       google-oauth-id: ${{ secrets.GOOGLEOAUTHID }}
       google-oauth-secret: ${{ secrets.GOOGLEOAUTHSECRET }}
@@ -22,14 +27,8 @@ jobs:
       cosmos-key: ${{ secrets.COSMOSDB_KEY_PROD }}
       cosmos-url: ${{ secrets.COSMOSDB_URL_PROD }}
 
-  upload:
-    needs: build
-    uses: ./.github/workflows/upload.yml
-    with:
-      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
-
   deploy:
-    needs: upload
+    needs: build-and-upload
     uses: ./.github/workflows/deploy.yml
     with:
       environment-name: 'PROD'
