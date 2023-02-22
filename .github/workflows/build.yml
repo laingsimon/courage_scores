@@ -46,18 +46,6 @@ jobs:
       - name: dotnet publish
         run: dotnet publish --configuration Release -o ${{ inputs.dotnet-root }}/myapp
 
-      - name: Replace environment variables
-        uses: microsoft/variable-substitution@v1
-        with:
-          files: '${{ inputs.dotnet-root }}/myapp/appsettings.json'
-        env:
-          GoogleAuth_ClientId: ${{ secrets.google-oauth-id }}
-          GoogleAuth_Secret: ${{ secrets.google-oauth-secret }}
-          DebugToken: ${{ secrets.debug-token }}
-          CosmosDb_DatabaseName: ${{ secrets.cosmos-databasename }}
-          CosmosDb_Key: ${{ secrets.cosmos-key }}
-          CosmosDb_Endpoint: ${{ secrets.cosmos-url }}
-
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
