@@ -1,0 +1,56 @@
+name: Build and deploy to DEV
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_dev:
+        description: 'Deploy to dev?'
+        require: false
+        type: boolean
+        default: false
+  pull_request:
+    types: [opened,reopened,synchronize]
+
+jobs:
+  setup:
+    uses: ./.github/workflows/setup-workflow.yml
+
+  build:
+    needs: setup
+    uses: ./.github/workflows/build.yml
+    with: 
+      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+    secrets:
+      google-oauth-id: ${{ secrets.GOOGLEOAUTHID }}
+      google-oauth-secret: ${{ secrets.GOOGLEOAUTHSECRET }}
+      debug-token: ${{ secrets.DEBUGTOKEN }}
+      cosmos-databasename: ${{ secrets.COSMOSDB_DATABASENAME_DEV }}
+      cosmos-key: ${{ secrets.COSMOSDB_KEY_DEV }}
+      cosmos-url: ${{ secrets.COSMOSDB_URL_DEV }}
+
+  branch-name:
+    uses: ./.github/workflows/get-branch-name.yml
+
+  upload:
+    if: ${{ needs.branch-name.outputs.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
+    needs: 
+      - build
+      - branch-name
+    uses: ./.github/workflows/upload.yml
+    with:
+      dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+
+  deploy:
+    if: ${{ needs.branch-name.outputs.branch_name == 'main' || github.event.inputs.deploy_dev == 'true' }}
+    needs: 
+      - upload
+      - branch-name
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment-name: 'DEV'
+      app-name: 'couragescoresdev'
+    secrets:
+      publish-profile: ${{ secrets.PUBLISHPROFILE_DEV }}

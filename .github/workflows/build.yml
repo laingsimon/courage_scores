@@ -1,0 +1,56 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-root:
+        required: true
+        type: string
+    secrets:
+      google-oauth-id:
+        required: true
+      google-oauth-secret:
+        required: true
+      debug-token:
+        required: true
+      cosmos-databasename:
+        required: true
+      cosmos-key:
+        required: true
+      cosmos-url:
+        required: true
+        
+jobs:
+  with-dotnet:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: Test with dotnet
+        run: dotnet test --configuration Release --logger:nunit
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        with:
+          nunit_files: 'CourageScores.Tests/TestResults/*.xml'
+          check_run_annotations_branch: '*'
+          comment_mode: off
+
+      - name: dotnet publish
+        run: dotnet publish --configuration Release -o ${{ inputs.dotnet-root }}/myapp
+
+      - name: Replace environment variables
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: '${{ inputs.dotnet-root }}/myapp/appsettings.json'
+        env:
+          GoogleAuth_ClientId: ${{ secrets.google-oauth-id }}
+          GoogleAuth_Secret: ${{ secrets.google-oauth-secret }}
+          DebugToken: ${{ secrets.debug-token }}
+          CosmosDb_DatabaseName: ${{ secrets.cosmos-databasename }}
+          CosmosDb_Key: ${{ secrets.cosmos-key }}
+          CosmosDb_Endpoint: ${{ secrets.cosmos-url }}
