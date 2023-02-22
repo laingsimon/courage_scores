@@ -1,4 +1,4 @@
-name: Build
+name: Build and upload
 
 on:
   workflow_call:
@@ -9,19 +9,6 @@ on:
       upload:
         required: true
         type: boolean
-    secrets:
-      google-oauth-id:
-        required: true
-      google-oauth-secret:
-        required: true
-      debug-token:
-        required: true
-      cosmos-databasename:
-        required: true
-      cosmos-key:
-        required: true
-      cosmos-url:
-        required: true
         
 jobs:
   with-dotnet:
