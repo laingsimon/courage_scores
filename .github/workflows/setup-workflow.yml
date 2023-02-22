@@ -1,0 +1,34 @@
+name: Setup workflow
+
+on:
+  workflow_call:
+    outputs:
+      dotnet-root: 
+        value: ${{ jobs.dotnet.outputs.dotnet-root }}
+
+jobs:
+  dotnet:
+    runs-on: windows-latest
+
+    outputs:
+      dotnet-root: ${{ steps.export-dotnet-root.outputs.dotnet-root }}
+
+    steps:
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: true
+
+      - name: Export dotnet-root
+        id: export-dotnet-root
+        run: echo "dotnet-root=${{ env.DOTNET_ROOT }}" >> $GITHUB_OUTPUT
+
+  python:
+    runs-on: windows-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
