@@ -31,13 +31,6 @@ jobs:
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
       upload: ${{ needs.setup.outputs.deploy == 'true' }}
-    secrets:
-      google-oauth-id: ${{ secrets.GOOGLEOAUTHID }}
-      google-oauth-secret: ${{ secrets.GOOGLEOAUTHSECRET }}
-      debug-token: ${{ secrets.DEBUGTOKEN }}
-      cosmos-databasename: ${{ secrets.COSMOSDB_DATABASENAME_DEV }}
-      cosmos-key: ${{ secrets.COSMOSDB_KEY_DEV }}
-      cosmos-url: ${{ secrets.COSMOSDB_URL_DEV }}
 
   branch-name:
     uses: ./.github/workflows/get-branch-name.yml
