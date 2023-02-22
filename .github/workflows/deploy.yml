@@ -32,7 +32,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ inputs.app-name }}
-          slot-name: ${{ inputs.environment.name }}
+          slot-name: 'Production'
           publish-profile: ${{ secrets.publish-profile }}
           package: .
 
