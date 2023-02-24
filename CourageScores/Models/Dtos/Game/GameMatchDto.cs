@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -27,4 +28,6 @@ public class GameMatchDto : AuditedDto
     /// What was the away score
     /// </summary>
     public int? AwayScore { get; set; }
+
+    public ScoreAsYouGoDto? Sayg { get; set; }
 }

@@ -2,14 +2,17 @@
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
+using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
@@ -142,6 +145,12 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IPlayerPerformanceAdapter, PlayerPerformanceAdapter>();
         services.AddScoped<IErrorDetailAdapter, ErrorDetailAdapter>();
         services.AddScoped<ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>, GameMatchOptionAdapter>();
+
+        services.AddScoped<ISimpleAdapter<Leg, LegDto>, LegAdapter>();
+        services.AddScoped<ISimpleAdapter<LegCompetitorScoreAdapterContext, LegCompetitorScoreDto>, LegCompetitorScoreAdapter>();
+        services.AddScoped<ISimpleAdapter<LegPlayerSequence, LegPlayerSequenceDto>, LegPlayerSequenceAdapter>();
+        services.AddScoped<ISimpleAdapter<LegThrow, LegThrowDto>, LegThrowAdapter>();
+        services.AddScoped<ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>, ScoreAsYouGoAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

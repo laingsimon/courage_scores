@@ -105,4 +105,16 @@ public static class AsyncEnumerableExtensions
 
         return count;
     }
+
+    [DebuggerStepThrough]
+    public static async Task<Dictionary<TKeyOut, TValueOut>> ToDictionaryAsync<TKeyIn, TValueIn, TKeyOut, TValueOut>(
+        this IReadOnlyDictionary<TKeyIn, TValueIn> sourceDictionary,
+        Func<TKeyIn, TKeyOut> keyTransform,
+        Func<TValueIn, Task<TValueOut>> valueTransform)
+        where TKeyOut: notnull
+    {
+        return new Dictionary<TKeyOut, TValueOut>(await sourceDictionary.SelectAsync(async pair =>
+            new KeyValuePair<TKeyOut,TValueOut>(keyTransform(pair.Key), await valueTransform(pair.Value)))
+            .ToList());
+    }
 }

@@ -1,8 +1,10 @@
 using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
@@ -20,6 +22,8 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class UpdateScoresCommandTests
 {
+    private static readonly ScoreAsYouGo ScoreAsYouGo = new ScoreAsYouGo();
+    private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new ScoreAsYouGoDto();
     private const string UserTeamId = "621BADAE-8FB0-4854-8C7A-6BC185117238";
     private Mock<IUserService> _userService = null!;
     private Mock<IAdapter<CourageScores.Models.Cosmos.Game.Game, GameDto>> _gameAdapter = null!;
@@ -54,6 +58,7 @@ public class UpdateScoresCommandTests
             _userService.Object,
             _gameAdapter.Object,
             _matchOptionAdapter,
+            new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(ScoreAsYouGo, ScoreAsYouGoDto),
             _auditingHelper.Object,
             _seasonService.Object,
             _commandFactory.Object,
@@ -132,10 +137,12 @@ public class UpdateScoresCommandTests
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
-    [Test]
-    public async Task ApplyUpdate_WhenPermittedToManageScores_UpdatesResultsAndReturnsSuccessful()
+    [TestCase(false, false)]
+    [TestCase(true, true)]
+    public async Task ApplyUpdate_WhenPermittedToManageScores_UpdatesResultsAndReturnsSuccessful(bool permittedToRecordScoresAsYouGo, bool saygSet)
     {
         _user!.Access!.ManageScores = true;
+        _user!.Access!.RecordScoresAsYouGo = permittedToRecordScoresAsYouGo;
         var homePlayer1 = new RecordScoresDto.RecordScoresGamePlayerDto
         {
             Id = Guid.NewGuid(),
@@ -153,6 +160,7 @@ public class UpdateScoresCommandTests
             AwayPlayers = { awayPlayer1 },
             HomeScore = 1,
             AwayScore = 2,
+            Sayg = ScoreAsYouGoDto,
         };
         _scores.Matches.Add(match1);
         _scores.OneEighties.Add(homePlayer1);
@@ -168,6 +176,7 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].HomePlayers[0].Name, Is.EqualTo(homePlayer1.Name));
         Assert.That(_game.Matches[0].AwayPlayers[0].Id, Is.EqualTo(awayPlayer1.Id));
         Assert.That(_game.Matches[0].AwayPlayers[0].Name, Is.EqualTo(awayPlayer1.Name));
+        Assert.That(_game.Matches[0].Sayg, Is.EqualTo(saygSet ? ScoreAsYouGo : null));
         Assert.That(_game.OneEighties[0].Id, Is.EqualTo(homePlayer1.Id));
         Assert.That(_game.OneEighties[0].Name, Is.EqualTo(homePlayer1.Name));
         Assert.That(_game.Over100Checkouts[0].Name, Is.EqualTo(awayPlayer1.Name));

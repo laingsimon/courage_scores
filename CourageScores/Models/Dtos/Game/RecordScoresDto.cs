@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -29,6 +30,7 @@ public class RecordScoresDto
         public int? HomeScore { get; set; }
         public List<RecordScoresGamePlayerDto> AwayPlayers { get; set; } = new();
         public int? AwayScore { get; set; }
+        public ScoreAsYouGoDto? Sayg { get; set; }
     }
 
     [ExcludeFromCodeCoverage]
