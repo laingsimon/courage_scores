@@ -56,7 +56,7 @@ jobs:
           echo "branch-name = ${{ inputs.branch-name }}"
     
       - name: Should deploy (branch name)
-        if: ${{ inputs.branch-name == 'release' || inputs.branch-name == 'main' || inputs.deploy-requested == 'true' }}
+        if: ${{ inputs.branch-name == 'release' || inputs.branch-name == 'main' || inputs.deploy-requested == 'true' || inputs.deploy-requested == '' }}
         id: should-deploy
         shell: bash
         run: |
