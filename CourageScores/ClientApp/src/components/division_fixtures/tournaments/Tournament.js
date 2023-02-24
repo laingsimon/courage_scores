@@ -173,7 +173,7 @@ export function Tournament({ account, apis }) {
                     </span>
                 </p>)}
             {isAdmin
-                ? (<div className="form-group input-group mb-3">
+                ? (<div className="form-group input-group mb-3 d-print-none">
                     <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
@@ -200,7 +200,7 @@ export function Tournament({ account, apis }) {
                 isAdmin={isAdmin}
                 setTournamentData={setTournamentData} />
             <TournamentSheet sides={tournamentData.sides} />
-            {isAdmin ? (<button className="btn btn-primary" onClick={saveTournament}>
+            {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save
             </button>) : null}
