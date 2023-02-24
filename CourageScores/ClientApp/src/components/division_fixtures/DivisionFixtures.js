@@ -350,7 +350,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     new Filter(c => c.tournamentFixture === false),
                     new Filter(c => c.fixture.isKnockout === false)
                 ]);
-            case 'knockout':
+            case 'qualifier':
                 return new Filter(c => c.fixture.isKnockout === true);
             case 'tournament':
                 return new Filter(c => c.tournamentFixture === true);
@@ -406,7 +406,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         return (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'text-secondary-50')}>
             <h4>
-                📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (knockout)</span>) : null}
+                📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (Qualifier)</span>) : null}
                 {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
                 {tournamentFixturesForDate.length > 0 ? (
                     <span className="margin-left form-switch h6 text-body">
@@ -543,15 +543,15 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
 
                 <div className="form-check form-switch d-inline-block">
-                    <input type="checkbox" className="form-check-input" name="knockout" id="knockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
-                    <label className="form-check-label" htmlFor="knockout">Knockout fixture</label>
+                    <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
+                    <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                 </div>
                 {newDate && isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌 Add note</button>) : null}
             </div>
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate isKnockout={isKnockout} fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
+                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
                     {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}

@@ -10,7 +10,7 @@ export function FilterFixtures({ filter, setFilter, teams }) {
         { value: null,  text: 'All fixtures' },
         { value: 'league',  text: 'League fixtures' },
         { value: 'not(league)',  text: 'Excl. league fixtures' },
-        { value: 'knockout',  text: 'Knockouts' },
+        { value: 'qualifier',  text: 'Qualifiers' },
         { value: 'tournament',  text: 'Tournaments' }
     ];
 
