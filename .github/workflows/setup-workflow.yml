@@ -9,7 +9,7 @@ on:
       deploy-requested:
         required: false
         type: string
-        default: false
+        default: 'true'
     outputs:
       dotnet-root: 
         value: ${{ jobs.dotnet.outputs.dotnet-root }}
