@@ -253,7 +253,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     allPlayers.sort(sortBy('name'));
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
-            ? (<input type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
+            ? (<input autoFocus type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
             : renderSideName()}
         {readOnly
             ? renderTeamName()
