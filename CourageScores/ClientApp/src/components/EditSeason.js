@@ -6,9 +6,10 @@ import {sortBy, valueChanged} from "../Utilities";
 
 export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions }) {
     const [ saving, setSaving ] = useState(false);
+    const [ deleting, setDeleting ] = useState(false);
 
     async function saveSeason() {
-        if (saving) {
+        if (saving || deleting) {
             return;
         }
 
@@ -29,6 +30,30 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
             }
         } finally {
             setSaving(false);
+        }
+    }
+
+    async function deleteSeason() {
+        if (saving || deleting) {
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to delete the ${seasonData.name} season?`)) {
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            const api = new SeasonApi(new Http(new Settings()));
+            const result = await api.delete(data.id);
+
+            if (result.success) {
+                document.location.href = `https://${document.location.host}`;
+            } else {
+                setSaveError(result);
+            }
+        } finally {
+            setDeleting(false);
         }
     }
 
@@ -77,6 +102,10 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 {data.id ? 'Update season' : 'Create season'}
             </button>
+            {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteSeason}>
+                {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                Delete season
+            </button>) : null}
         </div>
     </div>);
 }
