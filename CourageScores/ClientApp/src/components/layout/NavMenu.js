@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
-import {Link, useLocation} from 'react-router-dom';
+import {Link, useLocation, useParams} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../../api/settings";
 
-export function NavMenu({divisions, appLoading, account, clearError}) {
+export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
     const settings = new Settings();
     const [collapsed, setCollapsed] = useState(true);
     const [ currentLink, setCurrentLink ] = useState(document.location.href);
     const location = useLocation();
+    const { seasonId } = useParams();
 
     useEffect(() => {
         setCurrentLink('https://' + document.location.host + location.pathname);
@@ -34,6 +35,26 @@ export function NavMenu({divisions, appLoading, account, clearError}) {
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
+    function getCurrentSeasonId() {
+        const currentSeason = seasons.filter(s => s.isCurrent === true)[0];
+        return currentSeason ? currentSeason.id : null;
+    }
+
+    function shouldShowDivision(division) {
+        const currentSeasonId = seasonId || getCurrentSeasonId();
+
+        if (!currentSeasonId) {
+            return true;
+        }
+
+        const currentSeason = seasons.filter(s => s.id === currentSeasonId)[0];
+        if (!currentSeason || currentSeason.divisions.length === 0) {
+            return true;
+        }
+
+        return currentSeason.divisions.filter(d => d.id === division.id).length > 0;
+    }
+
     return (<header className="d-print-none">
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container dark>
                 <NavbarBrand onClick={() => setCollapsed(!collapsed)}  className="me-auto">Menu</NavbarBrand>
@@ -46,7 +67,7 @@ export function NavMenu({divisions, appLoading, account, clearError}) {
                         <NavItem>
                             <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
                         </NavItem>
-                        {divisions.map(division => (<NavItem key={division.id}>
+                        {divisions.filter(shouldShowDivision).map(division => (<NavItem key={division.id}>
                           <NavLink tag={Link} onClick={navigate} className={getClassName(`/division/${division.id}`)} to={`/division/${division.id}`}>
                             {division.name}
                           </NavLink>
