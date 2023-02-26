@@ -5,8 +5,8 @@ export function toMap(items) {
     const map = {
         map: items.map.bind(items),
         length: items.length,
-        sort: items.sort,
-        filter: items.filter
+        sort: items.sort.bind(items),
+        filter: items.filter.bind(items),
     };
     for (let index = 0; index < items.length; index++) {
         const item = items[index];

@@ -93,12 +93,7 @@ export function Division({ account, apis, divisions }) {
             reloadAll={apis.reloadAll}
             seasons={divisionData.seasons}
             account={account}
-            originalSeasonData={{
-                id: divisionData.season.id,
-                name: divisionData.season.name,
-                startDate: divisionData.season.startDate.substring(0, 10),
-                endDate: divisionData.season.endDate.substring(0, 10),
-            }}
+            originalSeasonData={divisionData.season}
             originalDivisionData={{ name: divisionData.name, id: divisionData.id }}
             divisions={divisions}
             onReloadDivisionData={reloadDivisionData}

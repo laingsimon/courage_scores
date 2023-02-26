@@ -49,26 +49,24 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
     }
 
     return (<div>
-        <div className="input-group">
+        <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
             <input readOnly={saving} name="name" onChange={valueChanged(data, onUpdateData)} value={data.name || ''} className="form-control margin-right" />
         </div>
-        <div className="input-group">
+        <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">From</span>
             </div>
-            <input readOnly={saving} name="startDate" onChange={valueChanged(data, onUpdateData)} value={data.startDate} type="date" className="border-0 margin-right"/>
-        </div>
-        <div className="input-group">
+            <input readOnly={saving} name="startDate" onChange={valueChanged(data, onUpdateData)} value={(data.startDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
             <div className="input-group-prepend">
                 <span className="input-group-text">To</span>
             </div>
-            <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)} value={data.endDate} type="date" className="border-0 margin-right"/>
+            <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)} value={(data.endDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
         </div>
         <div>
-            <p>Divisions</p>
+            <h6>Divisions</h6>
             <ul className="list-group mb-3">
                 {divisions.sort(sortBy('name')).map(d => (<li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`} onClick={async () => await toggleDivision(d.id)}>{d.name}</li>))}
             </ul>
