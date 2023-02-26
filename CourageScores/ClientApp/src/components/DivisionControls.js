@@ -77,10 +77,10 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     }
 
     function shouldShowDivision(division) {
-        if (isSeasonAdmin && isDivisionAdmin) {
-            return true;
-        }
+        return (isSeasonAdmin && isDivisionAdmin) || isDivisionSelected(division);
+    }
 
+    function isDivisionSelected(division) {
         return originalSeasonData.divisions.length === 0
             || originalSeasonData.divisions.filter(d => d.id === division.id).length > 0;
     }
@@ -103,7 +103,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                 {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
                     {divisions.filter(shouldShowDivision).map(d => (<DropdownItem key={d.id}>
-                        <Link className="btn" to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
+                        <Link className={`btn${isDivisionSelected(d) ? '' : ' text-warning'}`} to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
                     </DropdownItem>))}
                     {isDivisionAdmin ? (<DropdownItem>
                         <span className="btn" onClick={() => setDivisionData({})}>➕ New division</span>
