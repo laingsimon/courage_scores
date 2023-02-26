@@ -81,6 +81,10 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     }
 
     function isDivisionSelected(division) {
+        if (!originalSeasonData) {
+            return false;
+        }
+
         return originalSeasonData.divisions.length === 0
             || originalSeasonData.divisions.filter(d => d.id === division.id).length > 0;
     }
@@ -121,13 +125,13 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         {(!originalDivisionData || !divisions) ? (<div className="btn-group"><button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}>All divisions</button></div>) : null}
         <ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => { if (seasons.length > 0) { toggleDropdown('season') } }}>
             <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : null}>
-                {originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})
+                    {originalSeasonData ? (<span>{originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})</span>) : (<span>No season selected</span>)}
                 {isSeasonAdmin ? '✏' : ''}
             </button>
-            {originalSeasonData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
-            {originalSeasonData ? (<DropdownMenu>
+            {seasons.length > 0 ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+            {seasons.length > 0 ? (<DropdownMenu>
                 {seasons.map(s => (<DropdownItem key={s.id}>
-                    <Link className={`btn${originalSeasonData.id === s.id ? ' text-primary' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s, originalDivisionData.id)}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                    <Link className={`btn${originalSeasonData && originalSeasonData.id === s.id ? ' text-primary' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s, originalDivisionData.id)}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                 </DropdownItem>))}
                 {isSeasonAdmin ? (<DropdownItem>
                     <span onClick={() => setSeasonData({})} className="btn">➕ New season</span>
