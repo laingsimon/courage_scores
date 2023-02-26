@@ -6,9 +6,10 @@ import {valueChanged} from "../Utilities";
 
 export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
+    const [ deleting, setDeleting ] = useState(false);
 
     async function saveDivision() {
-        if (saving) {
+        if (saving || deleting) {
             return;
         }
 
@@ -32,6 +33,30 @@ export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateD
         }
     }
 
+    async function deleteDivision() {
+        if (deleting || saving) {
+            return;
+        }
+
+        if (!window.confirm(`Are you sure you want to delete the ${data.name} division?`)) {
+            return;
+        }
+
+        try {
+            setDeleting(true);
+            const api = new DivisionApi(new Http(new Settings()));
+            const result = await api.delete(data.id);
+
+            if (result.success) {
+                document.location.href = `https://${document.location.host}`;
+            } else {
+                setSaveError(result);
+            }
+        } finally {
+            setDeleting(false);
+        }
+    }
+
     return (<div>
         <div className="input-group">
             <div className="input-group-prepend">
@@ -45,6 +70,10 @@ export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateD
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 {data.id ? 'Update division' : 'Create division'}
             </button>
+            {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteDivision}>
+                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                Delete division
+            </button>) : null}
         </div>
     </div>);
 }
