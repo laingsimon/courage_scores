@@ -128,6 +128,21 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         </Dialog>);
     }
 
+    function shouldShowDivision(division) {
+        if (isSeasonAdmin && isDivisionAdmin) {
+            return true;
+        }
+
+        return originalSeasonData.divisions.length === 0
+            || originalSeasonData.divisions.filter(d => d.id === division.id).length > 0;
+    }
+
+    function toEditableSeason(seasonData) {
+        const data = Object.assign({}, seasonData);
+        data.divisionIds = (seasonData.divisions || []).map(d => d.id);
+        return data;
+    }
+
     return (<div className="btn-group py-2 d-print-none">
         {divisionData ? renderEditDivisionDialog() : null}
         {seasonData ? renderEditSeasonDialog() : null}
@@ -143,7 +158,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     <DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}>
                     </DropdownToggle>
                     <DropdownMenu>
-                        {divisions.map(d => (<DropdownItem key={d.id}>
+                        {divisions.filter(shouldShowDivision).map(d => (<DropdownItem key={d.id}>
                                 <Link className="btn" to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
                             </DropdownItem>
                         ))}
@@ -154,7 +169,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 </ButtonDropdown>) : null}
         {(!originalDivisionData || !divisions) ? (<div className="btn-group"><button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}>All divisions</button></div>) : null}
         <ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => { if (originalDivisionData) { toggleDropdown('season') } }}>
-            <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => setSeasonData(originalSeasonData)}>
+            <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => setSeasonData(toEditableSeason(originalSeasonData))}>
                 {originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})
                 {isSeasonAdmin ? '✏' : ''}
             </button>

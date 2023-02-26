@@ -1,4 +1,5 @@
 ﻿using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using NUnit.Framework;
 
@@ -13,12 +14,17 @@ public class DivisionDataSeasonAdapterTests
     [Test]
     public async Task Adapt_GivenSeasonDto_SetsPropertiesCorrectly()
     {
+        var division = new DivisionDto();
         var model = new SeasonDto
         {
             Id = Guid.NewGuid(),
             Name = "season",
             StartDate = new DateTime(2001, 02, 03),
             EndDate = new DateTime(2002, 03, 04),
+            Divisions =
+            {
+                division,
+            }
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -27,5 +33,6 @@ public class DivisionDataSeasonAdapterTests
         Assert.That(result.Name, Is.EqualTo(model.Name));
         Assert.That(result.StartDate, Is.EqualTo(model.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(model.EndDate));
+        Assert.That(result.Divisions, Is.EqualTo(new[] { division }));
     }
 }
