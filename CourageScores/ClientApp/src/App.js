@@ -9,7 +9,6 @@ import {Http} from "./api/http";
 import {AccountApi} from "./api/account";
 import {DivisionApi} from "./api/division";
 import {Score} from "./components/division_fixtures/scores/Score";
-import {NewSeason} from "./components/admin/NewSeason";
 import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
 import {toMap} from "./Utilities";
 import {AdminHome} from "./components/admin/AdminHome";
@@ -105,7 +104,6 @@ export default class App extends Component {
                     <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/admin' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/admin/:mode' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/season/new' element={<NewSeason {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
             </Layout>

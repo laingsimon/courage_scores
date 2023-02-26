@@ -2,9 +2,10 @@ import {SeasonApi} from "../api/season";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import React, {useState} from "react";
-import {sortBy, valueChanged} from "../Utilities";
+import {propChanged, sortBy, valueChanged} from "../Utilities";
+import {BootstrapDropdown} from "./common/BootstrapDropdown";
 
-export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions }) {
+export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions, seasons }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
 
@@ -90,6 +91,12 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
             </div>
             <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)} value={(data.endDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
         </div>
+        {data.id ? null : (<div className="input-group margin-right mb-3">
+            <div className="input-group-prepend">
+                <span className="input-group-text">Use teams from season</span>
+            </div>
+            <BootstrapDropdown value={data.copyTeamsFromSeasonId} options={seasons.map(s => { return { text: s.name, value: s.id }; })} onChange={propChanged(data, onUpdateData, 'copyTeamsFromSeasonId')} />
+        </div>)}
         <div>
             <h6>Divisions</h6>
             <ul className="list-group mb-3">

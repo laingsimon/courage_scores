@@ -71,7 +71,8 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     setSeasonData(null);
                 }}
                 setSaveError={setSaveError}
-                divisions={divisions} />
+                divisions={divisions}
+                seasons={seasons} />
         </Dialog>);
     }
 
@@ -121,7 +122,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     <Link className="btn" to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                 </DropdownItem>))}
                 {isSeasonAdmin ? (<DropdownItem>
-                    <Link to={`/season/new`} className="btn">➕ New season</Link>
+                    <span onClick={() => setSeasonData({})} className="btn">➕ New season</span>
                 </DropdownItem>) : null}
             </DropdownMenu>) : null}
         </ButtonDropdown>
