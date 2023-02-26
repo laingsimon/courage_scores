@@ -5,9 +5,9 @@ import {SeasonApi} from "../../api/season";
 import {useNavigate} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {propChanged, valueChanged} from "../../Utilities";
+import {propChanged, sortBy, valueChanged} from "../../Utilities";
 
-export function NewSeason() {
+export function NewSeason({divisions}) {
     const [ saving, setSaving ] = useState(false);
     const [ newSeasonError, setNewSeasonError] = useState(null);
     const [ seasons, setSeasons ] = useState([]);
@@ -15,7 +15,8 @@ export function NewSeason() {
         name: '',
         startDate: '',
         endDate: '',
-        copyTeamsFromSeasonId: null
+        copyTeamsFromSeasonId: null,
+        divisionIds: []
     });
     const api = new SeasonApi(new Http(new Settings()));
     const navigate = useNavigate();
@@ -23,6 +24,22 @@ export function NewSeason() {
     useEffect(() => {
         getSeasons();
     });
+
+    function toggleDivision(divisionId) {
+        const newData = Object.assign({}, newSeason);
+
+        if (isDivisionSelected(divisionId)) {
+            newData.divisionIds = newData.divisionIds.filter(id => id !== divisionId)
+        } else {
+            newData.divisionIds = (newData.divisionIds || []).concat(divisionId);
+        }
+
+        setNewSeason(newData);
+    }
+
+    function isDivisionSelected(divisionId) {
+        return (newSeason.divisionIds || []).filter(id => id === divisionId).length > 0;
+    }
 
     async function getSeasons() {
         const seasons = await api.getAll();
@@ -62,25 +79,29 @@ export function NewSeason() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
-            <input name="name" value={newSeason.name} onChange={valueChanged(newSeason, setNewSeason)} />
+            <input name="name" value={newSeason.name} className="form-control" onChange={valueChanged(newSeason, setNewSeason)} />
         </div>
         <div className="input-group margin-right mt-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Start date</span>
             </div>
-            <input name="startDate" value={newSeason.startDate} type="date" onChange={valueChanged(newSeason, setNewSeason)} />
-        </div>
-        <div className="input-group margin-right mt-3">
+            <input name="startDate" value={newSeason.startDate} className="form-control margin-right" type="date" onChange={valueChanged(newSeason, setNewSeason)} />
             <div className="input-group-prepend">
                 <span className="input-group-text">End date</span>
             </div>
-            <input name="endDate" value={newSeason.endDate} type="date" onChange={valueChanged(newSeason, setNewSeason)} />
+            <input name="endDate" value={newSeason.endDate} className="form-control margin-right" type="date" onChange={valueChanged(newSeason, setNewSeason)} />
         </div>
-        <div className="input-group margin-right mt-3">
+        <div className="input-group margin-right my-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Use teams from season</span>
             </div>
             <BootstrapDropdown value={newSeason.copyTeamsFromSeasonId} options={seasons} onChange={propChanged(newSeason, setNewSeason, 'copyTeamsFromSeasonId')} />
+        </div>
+        <div>
+            <h6>Divisions</h6>
+            <ul className="list-group mb-3">
+                {divisions.sort(sortBy('name')).map(d => (<li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`} onClick={() => toggleDivision(d.id)}>{d.name}</li>))}
+            </ul>
         </div>
 
         <button className="btn btn-primary mt-3" onClick={createSeason}>
