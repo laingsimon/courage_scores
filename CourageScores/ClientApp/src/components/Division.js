@@ -101,7 +101,8 @@ export function Division({ account, apis, divisions }) {
             }}
             originalDivisionData={{ name: divisionData.name, id: divisionData.id }}
             divisions={divisions}
-            onReloadDivisionData={reloadDivisionData} />
+            onReloadDivisionData={reloadDivisionData}
+            onReloadSeasonData={reloadDivisionData}/>
         <ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'teams' || effectiveTab.startsWith('team:') ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>

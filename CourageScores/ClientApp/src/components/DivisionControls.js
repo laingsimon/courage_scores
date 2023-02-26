@@ -7,17 +7,19 @@ import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
-import {propChanged, valueChanged} from "../Utilities";
+import {propChanged} from "../Utilities";
 import {EditDivision} from "./EditDivision";
+import {EditSeason} from "./EditSeason";
 
-export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, reloadAll, divisions, overrideMode }) {
+export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, onReloadSeasonData, reloadAll, divisions, overrideMode }) {
     const { mode } = useParams();
+    // noinspection JSUnresolvedVariable
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
+    // noinspection JSUnresolvedVariable
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
-    const [ editMode, setEditMode ] = useState(null);
     const [ updatingData, setUpdatingData ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
-    const [ seasonData, setSeasonData ] = useState(originalSeasonData);
+    const [ seasonData, setSeasonData ] = useState(null);
     const [ openDropdown, setOpenDropdown ] = useState(null);
     const [ divisionData, setDivisionData ] = useState(null);
 
@@ -29,36 +31,12 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         }
     }
 
-    async function saveSeasonDetails() {
+    async function deleteSeason(seasonData) {
         if (updatingData) {
             return;
         }
 
-        try {
-            setUpdatingData(true);
-            const api = new SeasonApi(new Http(new Settings()));
-            const result = await api.update(seasonData);
-
-            if (result.success) {
-                await reloadAll();
-                if (onReloadDivisionData) {
-                    await onReloadDivisionData();
-                }
-                setEditMode(null);
-            } else {
-                setSaveError(result);
-            }
-        } finally {
-            setUpdatingData(false);
-        }
-    }
-
-    async function deleteSeason() {
-        if (updatingData) {
-            return;
-        }
-
-        if (!window.confirm('Are you sure you want to delete this season?')) {
+        if (!window.confirm(`Are you sure you want to delete the ${seasonData.name} season?`)) {
             return;
         }
 
@@ -134,8 +112,29 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         </Dialog>);
     }
 
+    function renderEditSeasonDialog() {
+        return (<Dialog title={seasonData.id ? 'Edit a season' : 'Create a season'} slim={true}>
+            <EditSeason
+                seasonId={seasonData.id}
+                name={seasonData.name}
+                endDate={seasonData.endDate}
+                startDate={seasonData.startDate}
+                onClose={() => setSeasonData(null)}
+                onChange={propChanged(seasonData, setSeasonData)}
+                reloadAll={async () => {
+                    await reloadAll();
+                    if (onReloadSeasonData) {
+                        await onReloadSeasonData();
+                    }
+                    setSeasonData(null);
+                }}
+                setSaveError={setSaveError}/>
+        </Dialog>);
+    }
+
     return (<div className="btn-group py-2 d-print-none">
         {divisionData ? renderEditDivisionDialog() : null}
+        {seasonData ? renderEditSeasonDialog() : null}
         {originalDivisionData && divisions ? (
                 <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => toggleDropdown('division')}>
                     <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isDivisionAdmin ? setDivisionData(Object.assign({}, originalDivisionData)) : null}>
@@ -158,45 +157,25 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     </DropdownMenu>
                 </ButtonDropdown>) : null}
         {(!originalDivisionData || !divisions) ? (<div className="btn-group"><button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}>All divisions</button></div>) : null}
-        {editMode !== 'season' ? (<ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => { if (originalDivisionData) { toggleDropdown('season') } }}>
-                <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => isSeasonAdmin ? setEditMode('season') : null}>
-                    {seasonData.name} ({renderDate(seasonData.startDate)} - {renderDate(seasonData.endDate)})
-                    {isSeasonAdmin ? '✏' : ''}
-                </button>
-                {originalDivisionData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
-                {originalDivisionData ? (<DropdownMenu>
-                    {seasons.map(s => (<DropdownItem key={s.id}>
-                            <Link className="btn" to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
-                        </DropdownItem>
-                    ))}
-                    {isSeasonAdmin ? (<DropdownItem>
-                        <Link to={`/season/new`} className="btn">➕ New season</Link>
-                    </DropdownItem>) : null}
-                </DropdownMenu>) : null}
-            </ButtonDropdown>
-        ) : null}
-        {editMode === 'season'
-            ? (<div className="input-group margin-left">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Name</span>
-                </div>
-                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="name" value={seasonData.name} className="border-0 margin-right"/>
-                <div className="input-group-prepend">
-                    <span className="input-group-text">From</span>
-                </div>
-                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="startDate" value={seasonData.startDate} type="date" className="border-0 margin-right"/>
-                <div className="input-group-prepend">
-                    <span className="input-group-text">To</span>
-                </div>
-                <input readOnly={updatingData} onChange={valueChanged(seasonData, setSeasonData)} name="endDate" value={seasonData.endDate} type="date" className="border-0 margin-right"/>
-                <button className="btn btn-sm btn-primary" onClick={saveSeasonDetails}>
-                    {updatingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                    Save
-                </button>
-                {updatingData ? null : (<button className="btn btn-sm btn-danger" onClick={deleteSeason}>Delete</button>)}
-                {updatingData ? null : (<button className="btn btn-sm btn-warning" onClick={() => setEditMode(null)}>Cancel</button>)}
-            </div>)
-            : null}
+        <ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => { if (originalDivisionData) { toggleDropdown('season') } }}>
+            <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => setSeasonData(originalSeasonData)}>
+                {originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})
+                {isSeasonAdmin ? '✏' : ''}
+            </button>
+            <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={() => deleteSeason(originalSeasonData)}>
+                {isSeasonAdmin ? '🗑' : ''}
+            </button>
+            {originalSeasonData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+            {originalSeasonData ? (<DropdownMenu>
+                {seasons.map(s => (<DropdownItem key={s.id}>
+                        <Link className="btn" to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                    </DropdownItem>
+                ))}
+                {isSeasonAdmin ? (<DropdownItem>
+                    <Link to={`/season/new`} className="btn">➕ New season</Link>
+                </DropdownItem>) : null}
+            </DropdownMenu>) : null}
+        </ButtonDropdown>
         {saveError
             ? (<ErrorDisplay
                 {...saveError}
