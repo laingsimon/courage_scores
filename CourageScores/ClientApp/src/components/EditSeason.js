@@ -2,9 +2,9 @@ import {SeasonApi} from "../api/season";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import React, {useState} from "react";
-import {valueChanged} from "../Utilities";
+import {sortBy, valueChanged} from "../Utilities";
 
-export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData }) {
+export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions }) {
     const [ saving, setSaving ] = useState(false);
 
     async function saveSeason() {
@@ -20,12 +20,7 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
         try {
             setSaving(true);
             const api = new SeasonApi(new Http(new Settings()));
-            const result = await api.update({
-                id: data.id || undefined,
-                name: data.name,
-                startDate: data.startDate,
-                endDate: data.endDate
-            });
+            const result = await api.update(data);
 
             if (result.success) {
                 await reloadAll();
@@ -35,6 +30,22 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
         } finally {
             setSaving(false);
         }
+    }
+
+    async function toggleDivision(divisionId) {
+        const newData = Object.assign({}, data);
+
+        if (isDivisionSelected(divisionId)) {
+            newData.divisionIds = newData.divisionIds.filter(id => id !== divisionId)
+        } else {
+            newData.divisionIds = (newData.divisionIds || []).concat(divisionId);
+        }
+
+        await onUpdateData(newData);
+    }
+
+    function isDivisionSelected(divisionId) {
+        return (data.divisionIds || []).filter(id => id === divisionId).length > 0;
     }
 
     return (<div>
@@ -55,6 +66,12 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
                 <span className="input-group-text">To</span>
             </div>
             <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)} value={data.endDate} type="date" className="border-0 margin-right"/>
+        </div>
+        <div>
+            <p>Divisions</p>
+            <ul className="list-group mb-3">
+                {divisions.sort(sortBy('name')).map(d => (<li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`} onClick={async () => await toggleDivision(d.id)}>{d.name}</li>))}
+            </ul>
         </div>
         <div className="mt-3 text-end">
             <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>

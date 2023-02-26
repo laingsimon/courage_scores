@@ -123,7 +123,8 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     }
                     setSeasonData(null);
                 }}
-                setSaveError={setSaveError}/>
+                setSaveError={setSaveError}
+                divisions={divisions} />
         </Dialog>);
     }
 

@@ -20,10 +20,7 @@ export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateD
         try {
             setSaving(true);
             const api = new DivisionApi(new Http(new Settings()));
-            const result = await api.update({
-                id: data.id || undefined,
-                name: data.name
-            });
+            const result = await api.update(data);
 
             if (result.success) {
                 await reloadAll();
