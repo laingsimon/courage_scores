@@ -103,7 +103,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                 {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
                     {divisions.filter(shouldShowDivision).map(d => (<DropdownItem key={d.id}>
-                        <Link className={`btn${isDivisionSelected(d) ? '' : ' text-warning'}`} to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
+                        <Link className={`btn${originalDivisionData.id === d.id ? ' text-primary' : ''}${isDivisionSelected(d) ? '' : ' text-warning'}`} to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
                     </DropdownItem>))}
                     {isDivisionAdmin ? (<DropdownItem>
                         <span className="btn" onClick={() => setDivisionData({})}>➕ New division</span>
@@ -119,7 +119,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             {originalSeasonData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
             {originalSeasonData ? (<DropdownMenu>
                 {seasons.map(s => (<DropdownItem key={s.id}>
-                    <Link className="btn" to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                    <Link className={`btn${originalSeasonData.id === s.id ? ' text-primary' : ''}`} to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                 </DropdownItem>))}
                 {isSeasonAdmin ? (<DropdownItem>
                     <span onClick={() => setSeasonData({})} className="btn">➕ New season</span>
