@@ -30,54 +30,6 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         }
     }
 
-    async function deleteSeason(seasonData) {
-        if (updatingData) {
-            return;
-        }
-
-        if (!window.confirm(`Are you sure you want to delete the ${seasonData.name} season?`)) {
-            return;
-        }
-
-        try {
-            setUpdatingData(true);
-            const api = new SeasonApi(new Http(new Settings()));
-            const result = await api.delete(seasonData.id);
-
-            if (result.success) {
-                document.location.href = `https://${document.location.host}`;
-            } else {
-                setSaveError(result);
-            }
-        } finally {
-            setUpdatingData(false);
-        }
-    }
-
-    async function deleteDivision(divisionData) {
-        if (updatingData) {
-            return;
-        }
-
-        if (!window.confirm(`Are you sure you want to delete the ${divisionData.name} division?`)) {
-            return;
-        }
-
-        try {
-            setUpdatingData(true);
-            const api = new DivisionApi(new Http(new Settings()));
-            const result = await api.delete(originalDivisionData.id);
-
-            if (result.success) {
-                document.location.href = `https://${document.location.host}`;
-            } else {
-                setSaveError(result);
-            }
-        } finally {
-            setUpdatingData(false);
-        }
-    }
-
     function renderDate(dateStr) {
         return new Date(dateStr).toLocaleDateString('en-GB', { month: "short", day: "numeric" });
     }
@@ -152,7 +104,6 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     {originalDivisionData.name}
                     {isDivisionAdmin ? '✏' : ''}
                 </button>
-                {isDivisionAdmin ? (<button className={`btn btn-danger text-nowrap`} onClick={() => deleteDivision(originalDivisionData)}>🗑</button>) : null}
                 {divisions.filter(shouldShowDivision).length > 0 ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                 {divisions.filter(shouldShowDivision).length > 0 ? (<DropdownMenu>
                     {divisions.filter(shouldShowDivision).map(d => (<DropdownItem key={d.id}>
@@ -169,7 +120,6 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                 {originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})
                 {isSeasonAdmin ? '✏' : ''}
             </button>
-            {isSeasonAdmin ? (<button className={`btn btn-danger text-nowrap`} onClick={isSeasonAdmin ? () => deleteSeason(originalSeasonData) : null}>🗑</button>) : null}
             {originalSeasonData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
             {originalSeasonData ? (<DropdownMenu>
                 {seasons.map(s => (<DropdownItem key={s.id}>
