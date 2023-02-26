@@ -104,8 +104,8 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
                     {originalDivisionData.name}
                     {isDivisionAdmin ? '✏' : ''}
                 </button>
-                {divisions.filter(shouldShowDivision).length > 0 ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
-                {divisions.filter(shouldShowDivision).length > 0 ? (<DropdownMenu>
+                {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+                {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
                     {divisions.filter(shouldShowDivision).map(d => (<DropdownItem key={d.id}>
                         <Link className="btn" to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>
                     </DropdownItem>))}
