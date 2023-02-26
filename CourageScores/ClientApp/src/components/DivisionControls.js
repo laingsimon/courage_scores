@@ -1,10 +1,6 @@
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
 import {Link, useParams} from "react-router-dom";
 import React, {useState} from "react";
-import {SeasonApi} from "../api/season";
-import {Http} from "../api/http";
-import {Settings} from "../api/settings";
-import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
 import {EditDivision} from "./EditDivision";
@@ -16,7 +12,6 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
     const isSeasonAdmin = account && account.access && account.access.manageSeasons;
-    const [ updatingData, setUpdatingData ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ seasonData, setSeasonData ] = useState(null);
     const [ openDropdown, setOpenDropdown ] = useState(null);
