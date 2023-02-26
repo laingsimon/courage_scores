@@ -38,7 +38,7 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
             return;
         }
 
-        if (!window.confirm(`Are you sure you want to delete the ${seasonData.name} season?`)) {
+        if (!window.confirm(`Are you sure you want to delete the ${data.name} season?`)) {
             return;
         }
 
