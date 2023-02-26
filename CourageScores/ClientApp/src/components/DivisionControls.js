@@ -7,7 +7,6 @@ import {Settings} from "../api/settings";
 import {DivisionApi} from "../api/division";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
-import {propChanged} from "../Utilities";
 import {EditDivision} from "./EditDivision";
 import {EditSeason} from "./EditSeason";
 
@@ -97,10 +96,9 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     function renderEditDivisionDialog() {
         return (<Dialog title={divisionData.id ? 'Edit a division' : 'Create a division'} slim={true}>
             <EditDivision
-                divisionId={divisionData.id}
-                name={divisionData.name}
+                data={divisionData}
+                onUpdateData={setDivisionData}
                 onClose={() => setDivisionData(null)}
-                onChange={propChanged(divisionData, setDivisionData)}
                 reloadAll={async () => {
                     await reloadAll();
                     if (onReloadDivisionData) {
@@ -115,12 +113,9 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     function renderEditSeasonDialog() {
         return (<Dialog title={seasonData.id ? 'Edit a season' : 'Create a season'} slim={true}>
             <EditSeason
-                seasonId={seasonData.id}
-                name={seasonData.name}
-                endDate={seasonData.endDate}
-                startDate={seasonData.startDate}
+                data={seasonData}
+                onUpdateData={setSeasonData}
                 onClose={() => setSeasonData(null)}
-                onChange={propChanged(seasonData, setSeasonData)}
                 reloadAll={async () => {
                     await reloadAll();
                     if (onReloadSeasonData) {

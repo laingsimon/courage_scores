@@ -2,8 +2,9 @@ import {DivisionApi} from "../api/division";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import React, {useState} from "react";
+import {valueChanged} from "../Utilities";
 
-export function EditDivision({ divisionId, name, onChange, onClose, reloadAll, setSaveError }) {
+export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
 
     async function saveDivision() {
@@ -11,7 +12,7 @@ export function EditDivision({ divisionId, name, onChange, onClose, reloadAll, s
             return;
         }
 
-        if (!name) {
+        if (!data.name) {
             window.alert('Enter a division name');
             return;
         }
@@ -20,8 +21,8 @@ export function EditDivision({ divisionId, name, onChange, onClose, reloadAll, s
             setSaving(true);
             const api = new DivisionApi(new Http(new Settings()));
             const result = await api.update({
-                id: divisionId || undefined,
-                name: name
+                id: data.id || undefined,
+                name: data.name
             });
 
             if (result.success) {
@@ -39,13 +40,13 @@ export function EditDivision({ divisionId, name, onChange, onClose, reloadAll, s
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
-            <input readOnly={saving} value={name} onChange={(event) => onChange('name', event.target.value)} className="form-control margin-right" />
+            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name" className="form-control margin-right" />
         </div>
         <div className="mt-3 text-end">
             <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
             <button className="btn btn-primary margin-right" onClick={saveDivision}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                {divisionId ? 'Update division' : 'Create division'}
+                {data.id ? 'Update division' : 'Create division'}
             </button>
         </div>
     </div>);
