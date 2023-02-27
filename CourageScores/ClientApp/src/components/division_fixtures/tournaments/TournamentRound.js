@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {any, isEmpty, toMap} from "../../../Utilities";
+import {all, any, isEmpty, toMap} from "../../../Utilities";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
-    const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && hasScore(current.scoreA) && hasScore(current.scoreB), true);
+    const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
     const [changeRoundName, setChangeRoundName] = useState(false);
 
