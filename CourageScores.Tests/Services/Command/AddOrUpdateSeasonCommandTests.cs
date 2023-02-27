@@ -2,6 +2,7 @@ using CourageScores.Filters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season;
@@ -22,6 +23,8 @@ public class AddOrUpdateSeasonCommandTests
     private AddOrUpdateSeasonCommand _command = null!;
     private CourageScores.Models.Cosmos.Season _season = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Division>> _divisionRepository = null!;
+    private CourageScores.Models.Cosmos.Division _division = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -29,21 +32,28 @@ public class AddOrUpdateSeasonCommandTests
         _seasonService = new Mock<ISeasonService>();
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
+        _divisionRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Division>>();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
+        _division = new CourageScores.Models.Cosmos.Division
+        {
+            Id = Guid.NewGuid(),
+        };
         _season = new CourageScores.Models.Cosmos.Season
         {
             Id = Guid.NewGuid(),
             Name = "SEASON",
             StartDate = new DateTime(2001, 02, 03),
             EndDate = new DateTime(2002, 03, 04),
+            Divisions = { _division },
         };
         _cacheFlags = new ScopedCacheManagementFlags();
-        _command = new AddOrUpdateSeasonCommand(_seasonService.Object, _teamService.Object, _commandFactory.Object, _cacheFlags);
+        _command = new AddOrUpdateSeasonCommand(_seasonService.Object, _teamService.Object, _commandFactory.Object, _cacheFlags, _divisionRepository.Object);
 
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.CopyPlayersFromSeasonId(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.SkipSeasonExistenceCheck()).Returns(_addSeasonToTeamCommand.Object);
+        _divisionRepository.Setup(r => r.Get(_division.Id, _token)).ReturnsAsync(_division);
     }
 
     [Test]
@@ -55,6 +65,7 @@ public class AddOrUpdateSeasonCommandTests
             Name = "NEW SEASON",
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
+            DivisionIds = { _division.Id },
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);

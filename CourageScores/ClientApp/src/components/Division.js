@@ -30,8 +30,10 @@ export function Division({ account, apis, divisions }) {
         const divisionData = await divisionApi.data(divisionId, seasonId);
         setDivisionData(divisionData);
 
-        const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
-        setTeams(teams);
+        if (seasonId || divisionData.season) {
+            const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
+            setTeams(teams);
+        }
         return divisionData;
     }
 
@@ -40,7 +42,7 @@ export function Division({ account, apis, divisions }) {
             return;
         }
 
-        if (divisionData && divisionData.id === divisionId && (divisionData.season.id === seasonId || !seasonId)) {
+        if (divisionData && divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
             return;
         }
 
@@ -49,9 +51,11 @@ export function Division({ account, apis, divisions }) {
         async function reloadDivisionData() {
             try {
                 const divisionData = await divisionApi.data(divisionId, seasonId);
-                const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
+                if (seasonId || divisionData.season) {
+                    const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
+                    setTeams(teams);
+                }
                 setDivisionData(divisionData);
-                setTeams(teams);
             } catch (e) {
                 if (e.message.indexOf('Exception') !== -1) {
                     const dotnetException = JSON.parse(e.message);
@@ -93,15 +97,11 @@ export function Division({ account, apis, divisions }) {
             reloadAll={apis.reloadAll}
             seasons={divisionData.seasons}
             account={account}
-            originalSeasonData={{
-                id: divisionData.season.id,
-                name: divisionData.season.name,
-                startDate: divisionData.season.startDate.substring(0, 10),
-                endDate: divisionData.season.endDate.substring(0, 10),
-            }}
+            originalSeasonData={divisionData.season}
             originalDivisionData={{ name: divisionData.name, id: divisionData.id }}
             divisions={divisions}
-            onReloadDivisionData={reloadDivisionData} />
+            onReloadDivisionData={reloadDivisionData}
+            onReloadSeasonData={reloadDivisionData}/>
         <ul className="nav nav-tabs">
             <NavItem>
                 <NavLink tag={Link} className={effectiveTab === 'teams' || effectiveTab.startsWith('team:') ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>
@@ -116,7 +116,7 @@ export function Division({ account, apis, divisions }) {
                 <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
             </NavItem>) : null}
         </ul>
-        {effectiveTab === 'teams'
+        {effectiveTab === 'teams' && divisionData.season
             ? (<DivisionTeams
                 teams={divisionData.teams}
                 onTeamSaved={reloadDivisionData}
@@ -125,7 +125,7 @@ export function Division({ account, apis, divisions }) {
                 divisions={divisions}
                 divisionId={divisionId} />)
             : null}
-        {effectiveTab === 'fixtures'
+        {effectiveTab === 'fixtures' && divisionData.season
             ? (<DivisionFixtures
                 season={divisionData.season}
                 divisionId={divisionData.id}
@@ -139,7 +139,7 @@ export function Division({ account, apis, divisions }) {
                 divisions={divisions}
                 allPlayers={divisionData.players} />)
             : null}
-        {effectiveTab === 'players'
+        {effectiveTab === 'players' && divisionData.season
             ? (<DivisionPlayers
                 players={divisionData.players}
                 account={account}
@@ -151,14 +151,14 @@ export function Division({ account, apis, divisions }) {
             ? (<DivisionReports
                 divisionData={divisionData} />)
             : null}
-        {effectiveTab && effectiveTab.startsWith('team:')
+        {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
             ? (<TeamOverview
                 divisionData={divisionData}
                 teamId={effectiveTab.substring('team:'.length)}
                 account={account}
                 seasonId={divisionData.season.id} />)
             : null}
-        {effectiveTab && effectiveTab.startsWith('player:')
+        {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
             ? (<PlayerOverview
                 divisionData={divisionData}
                 playerId={effectiveTab.substring('player:'.length)}

@@ -4,7 +4,7 @@ import {NavMenu} from './NavMenu';
 import {Heading} from "./Heading";
 import {PageError} from "../PageError";
 
-export function Layout({divisions, appLoading, account, children, error, clearError, excludeSurround}) {
+export function Layout({divisions, appLoading, account, children, error, clearError, excludeSurround, seasons}) {
     function renderError() {
         return (<PageError error={error} clearError={clearError} />)
     }
@@ -20,7 +20,7 @@ export function Layout({divisions, appLoading, account, children, error, clearEr
     return (
         <div>
             <Heading />
-            <NavMenu divisions={divisions} appLoading={appLoading} account={account} clearError={clearError} />
+            <NavMenu divisions={divisions} appLoading={appLoading} account={account} clearError={clearError} seasons={seasons} />
             {error ? renderError() : (<Container className="full-screen-print-mode">
                 {children}
             </Container>)}
