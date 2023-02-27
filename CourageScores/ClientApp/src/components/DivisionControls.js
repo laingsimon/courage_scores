@@ -81,7 +81,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     }
 
     function isDivisionSelected(division) {
-        if (!originalSeasonData) {
+        if (!originalSeasonData || !originalSeasonData.divisions) {
             return false;
         }
 
