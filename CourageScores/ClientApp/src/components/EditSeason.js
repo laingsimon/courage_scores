@@ -105,14 +105,14 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
         </div>
         <div className="mt-3 text-end">
             <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
-            <button className="btn btn-primary margin-right" onClick={saveSeason}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                {data.id ? 'Update season' : 'Create season'}
-            </button>
             {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteSeason}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Delete season
             </button>) : null}
+            <button className="btn btn-success margin-right" onClick={saveSeason}>
+                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {data.id ? 'Update season' : 'Create season'}
+            </button>
         </div>
     </div>);
 }
