@@ -2,6 +2,7 @@ import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../ShareButton";
+import {any} from "../../Utilities";
 
 export function TeamOverview({ divisionData, teamId, account, seasonId }) {
     const team = divisionData.teams.filter(t => t.id === teamId)[0] || divisionData.allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
@@ -10,7 +11,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
            date: fixtureDate.date,
            fixtures: fixtureDate.fixtures.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
        };
-    }).filter(fixtureDate => fixtureDate.fixtures.length > 0);
+    }).filter(fixtureDate => any(fixtureDate.fixtures));
     const players = divisionData.players.filter(p => p.teamId === teamId);
 
     function renderScore(score, postponed) {

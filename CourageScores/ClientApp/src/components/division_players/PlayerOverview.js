@@ -2,6 +2,7 @@ import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "./DivisionPlayers";
 import {ShareButton} from "../ShareButton";
+import {any} from "../../Utilities";
 
 export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
     const player = divisionData.players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown', fixtures: {} };
@@ -11,7 +12,7 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
         const tournamentFixtures = fixtureDate.tournamentFixtures
             .filter(tournament => !tournament.proposed)
             .filter(tournament => {
-                return tournament.players.filter(id => id === playerId).length > 0;
+                return any(tournament.players, id => id === playerId);
             });
 
         return {
@@ -19,7 +20,7 @@ export function PlayerOverview({ divisionData, playerId, account, seasonId }) {
             fixtures: fixtureId ? fixtureDate.fixtures.filter(f => f.id === fixtureId) : [],
             tournamentFixtures: tournamentFixtures
         };
-    }).filter(d => d.fixtures.length > 0 || d.tournamentFixtures.length > 0);
+    }).filter(d => any(d.fixtures) || any(d.tournamentFixtures));
 
     function renderScore(score, postponed) {
         if (postponed) {

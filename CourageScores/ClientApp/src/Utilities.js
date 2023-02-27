@@ -80,3 +80,24 @@ export function propChanged(get, set, prop) {
 
     return setProp;
 }
+
+/*
+* Return true if there are any items (that match the optional predicate)
+* */
+export function any(iterable, predicate) {
+    return count(iterable, predicate || (_ => true)) > 0;
+}
+
+/*
+* Return true if there are no items (that match the optional predicate)
+* */
+export function isEmpty(iterable, predicate) {
+    return count(iterable, predicate || (_ => true)) === 0;
+}
+
+/*
+* Return the number of items (that match the optional predicate)
+* */
+export function count(iterable, predicate) {
+    return iterable.filter(predicate || (_ => true)).length;
+}

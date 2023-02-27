@@ -3,6 +3,7 @@ import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 're
 import {Link, useLocation, useParams} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../../api/settings";
+import {any, isEmpty} from "../../Utilities";
 
 export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
     const settings = new Settings();
@@ -48,11 +49,11 @@ export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
         }
 
         const currentSeason = seasons.filter(s => s.id === currentSeasonId)[0];
-        if (!currentSeason || currentSeason.divisions.length === 0) {
+        if (!currentSeason || isEmpty(currentSeason.divisions)) {
             return true;
         }
 
-        return currentSeason.divisions.filter(d => d.id === division.id).length > 0;
+        return any(currentSeason.divisions, d => d.id === division.id);
     }
 
     return (<header className="d-print-none">

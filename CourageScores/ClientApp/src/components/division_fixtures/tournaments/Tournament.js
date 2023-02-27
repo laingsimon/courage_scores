@@ -7,7 +7,7 @@ import {TournamentApi} from "../../../api/tournament";
 import {DivisionControls} from "../../DivisionControls";
 import {TeamApi} from "../../../api/team";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
-import {sortBy, valueChanged} from "../../../Utilities";
+import {any, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {DivisionApi} from "../../../api/division";
@@ -94,7 +94,7 @@ export function Tournament({ account, apis }) {
             ? tournamentData.sides.flatMap(side => side.players)
             : [];
 
-        if (selectedTournamentPlayers.length > 0) {
+        if (any(selectedTournamentPlayers)) {
             return selectedTournamentPlayers;
         }
 
@@ -103,7 +103,7 @@ export function Tournament({ account, apis }) {
             : [];
 
         const players = teams
-            .filter(t => selectedTournamentTeams.filter(id => id === t.id).length > 0)
+            .filter(t => any(selectedTournamentTeams, id => id === t.id))
             .map(t => {
                 return { teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], divisionId: t.divisionId };
             })

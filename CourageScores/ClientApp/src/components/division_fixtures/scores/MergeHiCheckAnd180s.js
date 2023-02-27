@@ -1,4 +1,5 @@
 import React from "react";
+import {any, isEmpty} from "../../../Utilities";
 
 export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
     function getRecordsToMerge(team, record) {
@@ -21,9 +22,9 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
 
     return (<tr>
         <td colSpan="2">
-            {(!fixtureData.oneEighties || fixtureData.oneEighties.length === 0) && (getRecordsToMerge('home', 'oneEighties').length > 0 || getRecordsToMerge('away', 'oneEighties').length > 0)
+            {(!fixtureData.oneEighties || isEmpty(fixtureData.oneEighties)) && (any(getRecordsToMerge('home', 'oneEighties')) || any(getRecordsToMerge('away', 'oneEighties')))
                 ? (<div>
-                    {getRecordsToMerge('home', 'oneEighties').length > 0 ? (<div>
+                    {any(getRecordsToMerge('home', 'oneEighties')) ? (<div>
                         <h6>
                             from {data.homeSubmission.editor || 'Home'}
                             <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'oneEighties')}>Merge</button>
@@ -32,7 +33,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
                             {getRecordsToMerge('home', 'oneEighties').map(rec => (<li key={rec.id}>{rec.name}</li>))}
                         </ol>
                     </div>) : null}
-                    {getRecordsToMerge('away', 'oneEighties').length > 0 ? (<div>
+                    {any(getRecordsToMerge('away', 'oneEighties')) ? (<div>
                         <h6>
                             from {data.homeSubmission.editor || 'Away'}
                             <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'oneEighties')}>Merge</button>
@@ -50,9 +51,9 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
             </div>
         </td>
         <td colSpan="2">
-            {(!fixtureData.over100Checkouts || fixtureData.over100Checkouts.length === 0) && (getRecordsToMerge('home', 'over100Checkouts').length > 0 || getRecordsToMerge('away', 'over100Checkouts').length > 0)
+            {(!fixtureData.over100Checkouts || isEmpty(fixtureData.over100Checkouts)) && (any(getRecordsToMerge('home', 'over100Checkouts')) || any(getRecordsToMerge('away', 'over100Checkouts')))
                 ? (<div>
-                    {getRecordsToMerge('home', 'over100Checkouts').length > 0 ? (<div>
+                    {any(getRecordsToMerge('home', 'over100Checkouts')) ? (<div>
                         <h6>
                             from {data.homeSubmission.editor || 'Home'}
                             <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('home', 'over100Checkouts')}>Merge</button>
@@ -61,7 +62,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
                             {getRecordsToMerge('home', 'over100Checkouts').map(rec => (<li key={rec.id}>{rec.name} ({rec.notes})</li>))}
                         </ol>
                     </div>) : null}
-                    {getRecordsToMerge('away', 'over100Checkouts').length > 0 ? (<div>
+                    {any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div>
                         <h6>
                             from {data.homeSubmission.editor || 'Away'}
                             <button className="btn btn-sm btn-success margin-left" onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge</button>

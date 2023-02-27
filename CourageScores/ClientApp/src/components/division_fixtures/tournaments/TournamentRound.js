@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {toMap} from "../../../Utilities";
+import {any, isEmpty, toMap} from "../../../Utilities";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
@@ -113,7 +113,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
     function sidesForTheNextRound() {
         const sidesForTheNextRound = sides.filter(side => {
-            const isPlaying = round.matches.filter(m => m.sideA.id === side.id || m.sideB.id === side.id).length;
+            const isPlaying = any(round.matches, m => m.sideA.id === side.id || m.sideB.id === side.id);
             return !isPlaying;
         });
 
@@ -157,9 +157,9 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
     let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
-    const hasNextRound = round.nextRound && round.nextRound.matches && round.nextRound.matches.length > 0;
+    const hasNextRound = round.nextRound && round.nextRound.matches && any(round.nextRound.matches);
 
-    if ((!round.matches || round.matches.length === 0) && readOnly) {
+    if ((!round.matches || isEmpty(round.matches)) && readOnly) {
         return <div className="alert-warning p-3 mb-2">No matches defined</div>
     }
 

@@ -14,6 +14,7 @@ import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {NoteApi} from "../../api/note";
+import {any, isEmpty} from "../../Utilities";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
     const navigate = useNavigate();
@@ -52,7 +53,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         const newShowPlayers = {};
         fixtures.forEach(fixtureDate => {
-            if (fixtureDate.tournamentFixtures.length > 0) {
+            if (any(fixtureDate.tournamentFixtures)) {
                 newShowPlayers[fixtureDate.date] = true;
             }
         });
@@ -139,7 +140,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 setNewFixtures(response.result);
 
                 setProposalResponse(response);
-                if (!response.messages.length && !response.warnings.length && !response.errors.length) {
+                if (isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
                     setProposalSettingsDialogVisible(false);
                 }
             } else {
@@ -272,14 +273,14 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     }
 
     function hasProposals(fixtures) {
-        return fixtures.filter(f => f.proposal).length > 0;
+        return any(fixtures, f => f.proposal);
     }
 
     function isLastFixtureBeforeToday(date) {
         if (!renderContext.lastFixtureDateBeforeToday) {
             const dates = fixtures.map(f => f.date).filter(isInPast);
             // Assumes all dates are sorted
-            if (dates.length > 0) {
+            if (any(dates)) {
                 renderContext.lastFixtureDateBeforeToday = dates[dates.length - 1];
             } else {
                 renderContext.lastFixtureDateBeforeToday = 'no fixtures in past';
@@ -367,7 +368,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return new OrFilter([
                 new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
                 new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
-                new Filter(c => c.tournamentFixture && c.fixture.sides.filter(s => s.teamId === teamId).length > 0)
+                new Filter(c => c.tournamentFixture && any(c.fixture.sides, s => s.teamId === teamId))
             ]);
     }
 
@@ -383,7 +384,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         navigate({
             pathname: location.pathname,
             search: location.search,
-            hash: Object.keys(newShowPlayers).length > 0
+            hash: any(Object.keys(newShowPlayers))
                 ? 'show-who-is-playing'
                 : '',
         });
@@ -395,12 +396,12 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
         const notesForDate = date.notes;
 
-        const hasFixtures = date.fixtures.filter(f => f.id !== f.homeTeam.id).length > 0;
+        const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);
         if (!isAdmin && !hasFixtures) {
             fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
         }
 
-        if (fixturesForDate.length === 0 && tournamentFixturesForDate.length === 0) {
+        if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate)) {
             return null;
         }
 
@@ -408,7 +409,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             <h4>
                 📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (Qualifier)</span>) : null}
                 {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
-                {tournamentFixturesForDate.length > 0 ? (
+                {any(tournamentFixturesForDate) ? (
                     <span className="margin-left form-switch h6 text-body">
                         <input type="checkbox" className="form-check-input align-baseline"
                                id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
@@ -533,8 +534,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         </div>) : null}
         <div>
             {resultsToRender}
-            {resultsToRender.filter(f => f != null).length === 0 && fixtures.length > 0 ? (<div>No fixtures match your search</div>) : null}
-            {fixtures.length === 0 ? (<div>No fixtures, yet</div>) : null}
+            {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (<div>No fixtures match your search</div>) : null}
+            {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
             {editNote ? renderEditNote() : null}
         </div>
         {isAdmin && !proposingGames ? (<div className="mt-3">

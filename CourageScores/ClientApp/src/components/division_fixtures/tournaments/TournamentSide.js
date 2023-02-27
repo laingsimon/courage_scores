@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, createTemporaryId, sortBy} from "../../../Utilities";
+import {toMap, createTemporaryId, sortBy, any, isEmpty} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
 
@@ -27,7 +27,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }));
 
     const sidePlayerMap = side ? toMap(side.players || []) : {};
-    const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
+    const sidePlayerTeamMapping = side && side.players && any(side.players) ? playerToTeamMap[side.players[0].id] : null;
 
     const teamsAndPlayers = teams
         .flatMap(t => {
@@ -105,7 +105,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             return true;
         }
 
-        return side.players.filter(p => p.id === tap.player.id).length === 0;
+        return isEmpty(side.players, p => p.id === tap.player.id);
     }
 
     function toSelectablePlayer(tap) {

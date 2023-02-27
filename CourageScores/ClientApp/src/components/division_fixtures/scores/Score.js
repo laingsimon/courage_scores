@@ -10,7 +10,7 @@ import {NavItem, NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
-import {sortBy} from "../../../Utilities";
+import {any, isEmpty, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -142,7 +142,7 @@ export function Score({account, apis, divisions}) {
             allPlayers.sort(sortBy('name'));
 
             const matchPlayerCounts = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
-            if (!gameData.matches || !gameData.matches.length) {
+            if (!gameData.matches || isEmpty(gameData.matches)) {
                 gameData.matches = matchPlayerCounts;
             } else {
                 for (let index = 0; index < gameData.matches.length; index++) {
@@ -328,7 +328,7 @@ export function Score({account, apis, divisions}) {
     const winner = finalScore.homeScore > finalScore.awayScore
         ? 'home'
         : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
-    const hasBeenPlayed = fixtureData.matches.filter(m => m.homeScore || m.awayScore).length > 0;
+    const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     return (<div>
         <DivisionControls
