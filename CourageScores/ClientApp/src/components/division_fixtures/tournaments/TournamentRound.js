@@ -40,12 +40,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         }
 
         if (round.matches) {
-            for (let index = 0; index < round.matches.length; index++) {
-                const match = round.matches[index];
-
-                if ((match.sideA && match.sideA.id === side.id) || (match.sideB && match.sideB.id === side.id)) {
-                    return false;
-                }
+            if (any(round.matches, match => (match.sideA && match.sideA.id === side.id) || (match.sideB && match.sideB.id === side.id))) {
+                return false;
             }
         }
 
@@ -224,6 +220,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && round.matches.length >= 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1)
+            ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />)
+            : null}
     </div>);
 }
