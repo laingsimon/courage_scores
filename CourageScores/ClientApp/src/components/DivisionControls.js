@@ -91,6 +91,14 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         return data;
     }
 
+    function firstValidDivisionIdForSeason(season, currentDivisionId) {
+        if (season.divisions.length === 0 || season.divisions.filter(d => d.id === currentDivisionId).length > 0) {
+            return currentDivisionId;
+        }
+
+        return season.divisions[0].id;
+    }
+
     return (<div className="btn-group py-2 d-print-none">
         {divisionData ? renderEditDivisionDialog() : null}
         {seasonData ? renderEditSeasonDialog() : null}
@@ -119,7 +127,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             {originalSeasonData ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
             {originalSeasonData ? (<DropdownMenu>
                 {seasons.map(s => (<DropdownItem key={s.id}>
-                    <Link className={`btn${originalSeasonData.id === s.id ? ' text-primary' : ''}`} to={`/division/${originalDivisionData.id}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
+                    <Link className={`btn${originalSeasonData.id === s.id ? ' text-primary' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s, originalDivisionData.id)}/${overrideMode || mode || 'teams'}/${s.id}`}>{s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})</Link>
                 </DropdownItem>))}
                 {isSeasonAdmin ? (<DropdownItem>
                     <span onClick={() => setSeasonData({})} className="btn">➕ New season</span>
