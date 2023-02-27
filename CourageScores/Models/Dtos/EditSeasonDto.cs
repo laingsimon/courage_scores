@@ -29,4 +29,9 @@ public class EditSeasonDto
     /// Copy the teams from the given season id
     /// </summary>
     public Guid? CopyTeamsFromSeasonId { get; set; }
+
+    /// <summary>
+    /// List of divisions attributed to this season
+    /// </summary>
+    public List<Guid> DivisionIds { get; set; } = new();
 }

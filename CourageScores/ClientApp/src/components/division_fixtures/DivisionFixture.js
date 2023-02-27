@@ -32,7 +32,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             return false;
         }
 
-        // intentionally looks at knockout games
+        // intentionally looks at qualifier games
         const realFixtures = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.homeTeam && f.id !== fixture.id);
         const selected = realFixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
         return selected.length > 0

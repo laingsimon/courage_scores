@@ -212,8 +212,8 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
-        Assert.That(result.Season.Id, Is.EqualTo(season.Id));
-        Assert.That(result.Season.Name, Is.EqualTo(season.Name));
+        Assert.That(result.Season!.Id, Is.EqualTo(season.Id));
+        Assert.That(result.Season!.Name, Is.EqualTo(season.Name));
     }
 
     [Test]
@@ -284,6 +284,7 @@ public class DivisionDataDtoFactoryTests
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Name, Is.EqualTo("<all divisions>"));
         Assert.That(result.Seasons.Select(s => s.Name), Is.EqualTo(new[] { "season1", "season2" }));
+        Assert.That(result.Season, Is.Null);
     }
 
     [Test]

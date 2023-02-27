@@ -32,7 +32,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
             <td>
                 <div className="position-absolute">
                     <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link>
-                    {fixture.isKnockout ? (<span className="margin-left">(Knockout)</span>) : null}
+                    {fixture.isKnockout ? (<span className="margin-left">(Qualifier)</span>) : null}
                 </div>
             </td>
             <td className="text-end">

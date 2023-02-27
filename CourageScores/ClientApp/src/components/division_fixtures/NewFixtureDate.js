@@ -8,7 +8,7 @@ import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {propChanged} from "../../Utilities";
 
-export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId, isKnockout }) {
+export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
     const [ homeTeamId, setHomeTeamId ] = useState(null);
     const [ awayTeamId, setAwayTeamId ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);

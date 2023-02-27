@@ -27,4 +27,9 @@ public class SeasonDto : AuditedDto
     /// The name of this season
     /// </summary>
     public string Name { get; set; } = null!;
+
+    /// <summary>
+    /// Is this the current season?
+    /// </summary>
+    public bool IsCurrent { get; set; }
 }

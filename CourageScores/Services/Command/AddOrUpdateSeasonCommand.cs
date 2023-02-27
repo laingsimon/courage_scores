@@ -1,5 +1,6 @@
 using CourageScores.Filters;
 using CourageScores.Models.Dtos;
+using CourageScores.Repository;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
 
@@ -12,13 +13,20 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
     private readonly ITeamService _teamService;
     private readonly ICommandFactory _commandFactory;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly IGenericRepository<Models.Cosmos.Division> _divisionRepository;
 
-    public AddOrUpdateSeasonCommand(ISeasonService seasonService, ITeamService teamService, ICommandFactory commandFactory, ScopedCacheManagementFlags cacheFlags)
+    public AddOrUpdateSeasonCommand(
+        ISeasonService seasonService,
+        ITeamService teamService,
+        ICommandFactory commandFactory,
+        ScopedCacheManagementFlags cacheFlags,
+        IGenericRepository<Models.Cosmos.Division> divisionRepository)
     {
         _seasonService = seasonService;
         _teamService = teamService;
         _commandFactory = commandFactory;
         _cacheFlags = cacheFlags;
+        _divisionRepository = divisionRepository;
     }
 
     protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Season season, EditSeasonDto update, CancellationToken token)
@@ -26,6 +34,9 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
         season.Name = update.Name;
         season.EndDate = update.EndDate;
         season.StartDate = update.StartDate;
+        season.Divisions = await update.DivisionIds
+            .SelectAsync(async id => (await _divisionRepository.Get(id, token))!)
+            .ToList();
 
         if (update.CopyTeamsFromSeasonId.HasValue && update.Id == default)
         {

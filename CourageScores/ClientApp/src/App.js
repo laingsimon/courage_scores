@@ -9,10 +9,10 @@ import {Http} from "./api/http";
 import {AccountApi} from "./api/account";
 import {DivisionApi} from "./api/division";
 import {Score} from "./components/division_fixtures/scores/Score";
-import {NewSeason} from "./components/admin/NewSeason";
 import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
 import {toMap} from "./Utilities";
 import {AdminHome} from "./components/admin/AdminHome";
+import {SeasonApi} from "./api/season";
 
 export default class App extends Component {
     constructor(props) {
@@ -21,7 +21,9 @@ export default class App extends Component {
         this.settings = new Settings();
         this.divisionApi = new DivisionApi(new Http(this.settings));
         this.accountApi = new AccountApi(new Http(this.settings));
+        this.seasonApi = new SeasonApi(new Http(this.settings));
         this.reloadDivisions = this.reloadDivisions.bind(this);
+        this.reloadSeasons = this.reloadSeasons.bind(this);
         this.reloadAccount = this.reloadAccount.bind(this);
         this.reloadAll = this.reloadAll.bind(this);
         this.clearError = this.clearError.bind(this);
@@ -30,6 +32,7 @@ export default class App extends Component {
             appLoading: true,
             subProps: {
                 divisions: [],
+                seasons: [],
                 account: null,
                 divisionData: {}
             },
@@ -66,6 +69,7 @@ export default class App extends Component {
             subProps: {
                 account: await this.reloadAccount(),
                 divisions: await this.reloadDivisions(),
+                seasons: await this.reloadSeasons()
             }
         });
     }
@@ -80,6 +84,18 @@ export default class App extends Component {
             subProps: subProps
         });
         return subProps.divisions;
+    }
+
+    async reloadSeasons() {
+        const subProps = Object.assign(
+            {},
+            this.state.subProps);
+        subProps.seasons = toMap(await this.seasonApi.getAll());
+
+        this.setState({
+            subProps: subProps
+        });
+        return subProps.seasons;
     }
 
     async reloadAccount() {
@@ -105,7 +121,6 @@ export default class App extends Component {
                     <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/admin' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/admin/:mode' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/season/new' element={<NewSeason {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
             </Layout>
