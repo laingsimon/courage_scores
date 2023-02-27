@@ -106,9 +106,11 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
     return (<div className="btn-group py-2 d-print-none">
         {divisionData ? renderEditDivisionDialog() : null}
         {seasonData ? renderEditSeasonDialog() : null}
-        <ButtonDropdown isOpen={openDropdown === 'season'} toggle={() => { if (seasons.length > 0) { toggleDropdown('season') } }}>
+        <ButtonDropdown isOpen={openDropdown === 'season' || !originalSeasonData} toggle={() => { if (seasons.length > 0) { toggleDropdown('season') } }}>
             <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : null}>
-                    {originalSeasonData ? (<span>{originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})</span>) : (<span>No season selected</span>)}
+                    {originalSeasonData
+                        ? (<span>{originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})</span>)
+                        : (<span>Select a season</span>)}
                 {isSeasonAdmin ? '✏' : ''}
             </button>
             {seasons.length > 0 ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
