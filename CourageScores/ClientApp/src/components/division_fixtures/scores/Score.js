@@ -267,7 +267,6 @@ export function Score({account, apis, divisions}) {
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
-                allPlayers={allPlayers}
                 account={account}
                 saving={saving}
                 access={access}

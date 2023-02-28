@@ -553,7 +553,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
                     <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} teams={teams} divisionId={divisionId} seasonId={season.id} />)}
+                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} teams={teams} seasonId={season.id} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}
