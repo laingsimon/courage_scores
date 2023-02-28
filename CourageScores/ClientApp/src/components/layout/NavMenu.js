@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink} from 'reactstrap';
+import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavLink} from 'reactstrap';
 import {Link, useLocation, useParams} from 'react-router-dom';
 import './NavMenu.css';
 import {Settings} from "../../api/settings";
@@ -62,29 +62,29 @@ export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
                 <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
-                        <NavItem>
+                        <li className="nav-item">
                             <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/">Home</NavLink>
-                        </NavItem>
-                        <NavItem>
+                        </li>
+                        <li className="nav-item">
                             <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
-                        </NavItem>
-                        {divisions.filter(shouldShowDivision).map(division => (<NavItem key={division.id}>
+                        </li>
+                        {divisions.filter(shouldShowDivision).map(division => (<li className="nav-item" key={division.id}>
                           <NavLink tag={Link} onClick={navigate} className={getClassName(`/division/${division.id}`)} to={`/division/${division.id}`}>
                             {division.name}
                           </NavLink>
-                        </NavItem>))}
-                        {appLoading ? (<NavItem><NavLink><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></NavLink></NavItem>) : null}
+                        </li>))}
+                        {appLoading ? (<li className="nav-item"><NavLink><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></NavLink></li>) : null}
                         {account && account.access && account.access.manageAccess
-                            ? (<NavItem>
+                            ? (<li className="nav-item">
                                 <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
                                     Admin
                                 </NavLink>
-                            </NavItem>)
+                            </li>)
                             : null}
-                        <NavItem>
+                        <li className="nav-item">
                             {!appLoading && account ? <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout ({account.name})</a> : null}
                             {!appLoading && !account ? <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
-                        </NavItem>
+                        </li>
                     </ul>
                 </Collapse>
             </Navbar>

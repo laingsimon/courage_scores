@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link, useParams} from "react-router-dom";
-import {NavItem, NavLink} from "reactstrap";
+import {NavLink} from "reactstrap";
 import {UserAdmin} from "./UserAdmin";
 import {ImportData} from "./ImportData";
 import {ExportData} from "./ExportData";
@@ -16,18 +16,18 @@ export function AdminHome({ account, appLoading }) {
     return (<div>
         {appLoading ? (<Loading />) : null}
         {!appLoading && account ? (<ul className="nav nav-tabs">
-            {access.manageAccess ? (<NavItem>
+            {access.manageAccess ? (<li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'user' ? ' text-dark active' : 'text-light'} to={`/admin/user`}>User admin</NavLink>
-            </NavItem>) : null}
-            {access.importData ? (<NavItem>
+            </li>) : null}
+            {access.importData ? (<li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'import' ? ' text-dark active' : 'text-light'} to={`/admin/import`}>Import data</NavLink>
-            </NavItem>) : null}
-            {access.exportData ? (<NavItem>
+            </li>) : null}
+            {access.exportData ? (<li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'export' ? ' text-dark active' : 'text-light'} to={`/admin/export`}>Export data</NavLink>
-            </NavItem>) : null}
-            {access.viewExceptions ? (<NavItem>
+            </li>) : null}
+            {access.viewExceptions ? (<li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'errors' ? ' text-dark active' : 'text-light'} to={`/admin/errors`}>Errors</NavLink>
-            </NavItem>) : null}
+            </li>) : null}
         </ul>) : null}
         {!account && !appLoading ? (<NotPermitted />) : null}
         {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin account={account} />): null}

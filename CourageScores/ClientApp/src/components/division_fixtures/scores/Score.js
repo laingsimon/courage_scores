@@ -6,7 +6,7 @@ import {Http} from "../../../api/http";
 import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {Link} from 'react-router-dom';
-import {NavItem, NavLink} from "reactstrap";
+import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
@@ -347,18 +347,18 @@ export function Score({account, apis, divisions}) {
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
         <ul className="nav nav-tabs">
-            <NavItem>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/players`}>Players</NavLink>
-            </NavItem>
+            </li>
         </ul>
         <div className="light-background p-3 overflow-auto">
             {fixtureData.address || access === 'admin'
