@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, createTemporaryId, sortBy, any, isEmpty} from "../../../Utilities";
+import {toMap, createTemporaryId, sortBy, any, isEmpty, valueChanged} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
 
@@ -142,14 +142,6 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         return 0;
     }
 
-    async function updateSideName(event) {
-        const newSide = Object.assign({}, side);
-        newSide.newName = event.target.value;
-        if (onChange) {
-            await onChange(newSide);
-        }
-    }
-
     async function updateTeamId(teamId) {
         const newSide = Object.assign({}, side);
         if (teamId) {
@@ -253,7 +245,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     allPlayers.sort(sortBy('name'));
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
-            ? (<input autoFocus type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
+            ? (<input autoFocus type="text" name="newName" onChange={valueChanged(side, onChange)} value={side.newName || side.name} onBlur={completeSideNameChange} />)
             : renderSideName()}
         {readOnly
             ? renderTeamName()

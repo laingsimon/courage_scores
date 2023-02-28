@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {all, any, isEmpty, toMap} from "../../../Utilities";
+import {all, any, isEmpty, toMap, valueChanged} from "../../../Utilities";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
@@ -129,14 +129,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         return score !== null && score !== undefined;
     }
 
-    async function updateRoundName(event) {
-        const newRound = Object.assign({}, round);
-        newRound.name = event.target.value;
-        if (onChange) {
-            await onChange(newRound);
-        }
-    }
-
     function getRoundName() {
         if (sides.length === 2) {
             return 'Final';
@@ -161,7 +153,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
     return (<div className="my-3 p-1">
         {changeRoundName && !readOnly
-            ? (<input type="text" onChange={updateRoundName} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
+            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getRoundName() : (round.name || getRoundName())}</strong>)}
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
