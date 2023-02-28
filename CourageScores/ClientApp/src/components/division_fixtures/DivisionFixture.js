@@ -309,7 +309,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             });
 
             if (result.success) {
-                setProposal(false);
+                setProposal(null);
             } else {
                 setSaveError(result);
             }
