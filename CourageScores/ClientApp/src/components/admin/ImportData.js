@@ -30,6 +30,7 @@ export function ImportData() {
     }
 
     useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         getTables();
     },
     // eslint-disable-next-line

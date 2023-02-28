@@ -27,6 +27,7 @@ export function ExportData() {
     }
 
     useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         getTables();
     },
     // eslint-disable-next-line

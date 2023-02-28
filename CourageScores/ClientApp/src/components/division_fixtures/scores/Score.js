@@ -55,6 +55,8 @@ export function Score({account, apis, divisions}) {
             }
 
             setLoading('loading');
+
+            // noinspection JSIgnoredPromiseFromCall
             loadFixtureData();
         },
         // eslint-disable-next-line

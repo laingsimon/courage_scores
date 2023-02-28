@@ -198,6 +198,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         }
 
         if (savingProposals.started) {
+            // noinspection JSIgnoredPromiseFromCall
             saveProposal();
         }
     },

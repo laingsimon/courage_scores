@@ -42,6 +42,7 @@ export function Tournament({ account, apis }) {
             }
 
             setLoading('loading');
+            // noinspection JSIgnoredPromiseFromCall
             loadFixtureData();
         },
         // eslint-disable-next-line
