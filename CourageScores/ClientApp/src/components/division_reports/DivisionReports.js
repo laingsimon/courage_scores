@@ -3,7 +3,7 @@ import {ReportApi} from "../../api/report";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {any, isEmpty} from "../../Utilities";
+import {any, isEmpty, stateChanged} from "../../Utilities";
 
 export function DivisionReports({ divisionData }) {
     const [ reportData, setReportData ] = useState(null);
@@ -96,7 +96,7 @@ export function DivisionReports({ divisionData }) {
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>
             </div>
-            <input type="number" min="1" max="100" value={topCount} onChange={(event) => setTopCount(event.target.value)} />
+            <input type="number" min="1" max="100" value={topCount} onChange={stateChanged(setTopCount)} />
             <div className="input-group-prepend margin-right">
                 <span className="input-group-text">records</span>
             </div>

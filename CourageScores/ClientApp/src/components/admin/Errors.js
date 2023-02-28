@@ -2,7 +2,7 @@ import {useState} from "react";
 import {ErrorApi} from "../../api/error";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
-import {sortBy} from "../../Utilities";
+import {sortBy, stateChanged} from "../../Utilities";
 
 export function Errors() {
     const [ since, setSince ] = useState(new Date().toISOString().substring(0, 10));
@@ -36,7 +36,7 @@ export function Errors() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Since</span>
             </div>
-            <input disabled={loading} className="form-control" value={since} onChange={(event) => setSince(event.target.value)}/>
+            <input disabled={loading} className="form-control" value={since} onChange={stateChanged(setSince)}/>
             <button className="btn btn-primary margin-right" onClick={retrieveErrors} disabled={loading}>
                 {loading ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Refresh

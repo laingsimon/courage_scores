@@ -14,7 +14,7 @@ import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {NoteApi} from "../../api/note";
-import {any, isEmpty} from "../../Utilities";
+import {any, isEmpty, stateChanged} from "../../Utilities";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
     const navigate = useNavigate();
@@ -541,10 +541,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         {isAdmin && !proposingGames ? (<div className="mt-3">
             <div>
                 <span className="margin-right">Select date:</span>
-                <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={(event) => setNewDate(event.target.value)} />
+                <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={stateChanged(setNewDate)} />
 
                 <div className="form-check form-switch d-inline-block">
-                    <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={isKnockout} onChange={(event) => setIsKnockout(event.target.checked)} />
+                    <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={isKnockout} onChange={stateChanged(setIsKnockout)} />
                     <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                 </div>
                 {newDate && isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌 Add note</button>) : null}

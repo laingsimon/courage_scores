@@ -82,6 +82,19 @@ export function propChanged(get, set, prop) {
 }
 
 /*
+* Set a state property based on an input changing
+* */
+export function stateChanged(set) {
+    return (event) => {
+        const value = event.target.type === 'checkbox'
+            ? event.target.checked
+            : event.target.value;
+
+        set(value);
+    }
+}
+
+/*
 * Return true if there are any items (that match the optional predicate)
 * */
 export function any(iterable, predicate) {
