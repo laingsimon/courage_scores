@@ -142,3 +142,10 @@ export function max(iterable, selector) {
             : prev;
     }, 0);
 }
+
+/*
+* Round a number to 2 decimal places
+* */
+export function round2dp(number) {
+    return Math.round(number * 100) / 100;
+}
