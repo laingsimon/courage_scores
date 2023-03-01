@@ -10,17 +10,20 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
     private readonly IAdapter<GameTeam, GameTeamDto> _gameTeamAdapter;
     private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
+    private readonly ISimpleAdapter<GameMatchOption, GameMatchOptionDto> _matchOptionAdapter;
 
     public GameAdapter(
         IAdapter<GameMatch, GameMatchDto> gameMatchAdapter,
         IAdapter<GameTeam, GameTeamDto> gameTeamAdapter,
         IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
-        IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter)
+        IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter,
+        ISimpleAdapter<GameMatchOption, GameMatchOptionDto> matchOptionAdapter)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;
         _gamePlayerAdapter = gamePlayerAdapter;
         _notablePlayerAdapter = notablePlayerAdapter;
+        _matchOptionAdapter = matchOptionAdapter;
     }
 
     public async Task<GameDto> Adapt(Cosmos.Game.Game model, CancellationToken token)
@@ -48,6 +51,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             ResultsPublished = resultsPublished,
             OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            MatchOptions = await model.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
@@ -69,6 +73,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             AwaySubmission = dto.AwaySubmission != null ? await Adapt(dto.AwaySubmission, token) : null,
             OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
+            MatchOptions = await dto.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

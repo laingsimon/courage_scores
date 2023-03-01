@@ -77,4 +77,9 @@ public class GameDto : AuditedDto
     /// Who checked out with more than 100
     /// </summary>
     public List<NotablePlayerDto> Over100Checkouts { get; set; } = new();
+
+    /// <summary>
+    /// Options for each match in the game
+    /// </summary>
+    public List<GameMatchOptionDto> MatchOptions { get; set; } = new();
 }

@@ -80,6 +80,11 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public List<NotablePlayer> Over100Checkouts { get; set; } = new();
 
+    /// <summary>
+    /// Options for each match in the game
+    /// </summary>
+    public List<GameMatchOption> MatchOptions { get; set; } = new();
+
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
     {

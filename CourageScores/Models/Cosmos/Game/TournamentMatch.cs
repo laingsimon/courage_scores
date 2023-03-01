@@ -25,6 +25,11 @@ public class TournamentMatch : AuditedEntity, IGameVisitable
     /// </summary>
     public int? ScoreB { get; set; }
 
+    /// <summary>
+    /// Options for each match in the game
+    /// </summary>
+    public List<GameMatchOption> MatchOptions { get; set; } = new();
+
     public void Accept(IGameVisitor visitor)
     {
         visitor.VisitMatch(this);
