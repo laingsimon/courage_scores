@@ -1,5 +1,5 @@
 import React from 'react';
-import {sortBy} from "../../Utilities";
+import {any, sortBy} from "../../Utilities";
 
 export function TableSelection({ allTables, selected, onTableChange, requireCanExport, requireCanImport }) {
     async function toggleTable(table) {
@@ -7,7 +7,7 @@ export function TableSelection({ allTables, selected, onTableChange, requireCanE
             return;
         }
 
-        const isSelected = selected.filter(tableName => tableName === table.name).length >= 1;
+        const isSelected = any(selected, tableName => tableName === table.name);
         if (isSelected) {
             await onTableChange(selected.filter(tableName => tableName !== table.name));
         } else {

@@ -49,12 +49,14 @@ export function createTemporaryId() {
 /*
 * Change a property of a state-object based on on event
 * */
-export function valueChanged(get, set) {
+export function valueChanged(get, set, nullIf) {
     return async (event) => {
         const newData = Object.assign({}, get);
         newData[event.target.name] = event.target.type === 'checkbox'
             ? event.target.checked
-            : event.target.value;
+            : event.target.value === nullIf
+                ? null
+                : event.target.value;
         await set(newData);
     }
 }
@@ -79,4 +81,64 @@ export function propChanged(get, set, prop) {
     }
 
     return setProp;
+}
+
+/*
+* Set a state property based on an input changing
+* */
+export function stateChanged(set) {
+    return (event) => {
+        const value = event.target.type === 'checkbox'
+            ? event.target.checked
+            : event.target.value;
+
+        set(value);
+    }
+}
+
+/*
+* Return true if there are any items (that match the optional predicate)
+* */
+export function any(iterable, predicate) {
+    return count(iterable, predicate || (_ => true)) > 0;
+}
+
+/*
+* Return true if all of the items are true (or match the optional predicate)
+* */
+export function all(iterable, predicate) {
+    return count(iterable, predicate || (item => item)) === iterable.length;
+}
+
+/*
+* Return true if there are no items (that match the optional predicate)
+* */
+export function isEmpty(iterable, predicate) {
+    return count(iterable, predicate || (_ => true)) === 0;
+}
+
+/*
+* Return the number of items (that match the optional predicate)
+* */
+export function count(iterable, predicate) {
+    return iterable.filter(predicate || (_ => true)).length;
+}
+
+/*
+* Return the sum of the given items (using the optional selector)
+* */
+export function sum(iterable, selector) {
+    return iterable.reduce((prev, current) => prev + (selector ? selector(current) : current), 0);
+}
+
+/*
+* Return the value of the item that is greater than all others (using the optional selector)
+* */
+export function max(iterable, selector) {
+    return iterable.reduce((prev, current) => {
+        const currentValue = selector ? selector(current) : current;
+        return currentValue > prev
+            ? currentValue
+            : prev;
+    }, 0);
 }

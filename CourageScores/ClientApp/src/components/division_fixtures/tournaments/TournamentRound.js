@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {toMap} from "../../../Utilities";
+import {all, any, isEmpty, toMap, valueChanged} from "../../../Utilities";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
-    const allMatchesHaveAScore = round.matches && round.matches.reduce((prev, current) => prev && hasScore(current.scoreA) && hasScore(current.scoreB), true);
+    const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
     const [changeRoundName, setChangeRoundName] = useState(false);
 
@@ -40,12 +40,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         }
 
         if (round.matches) {
-            for (let index = 0; index < round.matches.length; index++) {
-                const match = round.matches[index];
-
-                if ((match.sideA && match.sideA.id === side.id) || (match.sideB && match.sideB.id === side.id)) {
-                    return false;
-                }
+            if (any(round.matches, match => (match.sideA && match.sideA.id === side.id) || (match.sideB && match.sideB.id === side.id))) {
+                return false;
             }
         }
 
@@ -113,7 +109,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
     function sidesForTheNextRound() {
         const sidesForTheNextRound = sides.filter(side => {
-            const isPlaying = round.matches.filter(m => m.sideA.id === side.id || m.sideB.id === side.id).length;
+            const isPlaying = any(round.matches, m => m.sideA.id === side.id || m.sideB.id === side.id);
             return !isPlaying;
         });
 
@@ -133,14 +129,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         return score !== null && score !== undefined;
     }
 
-    async function updateRoundName(event) {
-        const newRound = Object.assign({}, round);
-        newRound.name = event.target.value;
-        if (onChange) {
-            await onChange(newRound);
-        }
-    }
-
     function getRoundName() {
         if (sides.length === 2) {
             return 'Final';
@@ -157,15 +145,15 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
     let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
-    const hasNextRound = round.nextRound && round.nextRound.matches && round.nextRound.matches.length > 0;
+    const hasNextRound = round.nextRound && round.nextRound.matches && any(round.nextRound.matches);
 
-    if ((!round.matches || round.matches.length === 0) && readOnly) {
+    if ((!round.matches || isEmpty(round.matches)) && readOnly) {
         return <div className="alert-warning p-3 mb-2">No matches defined</div>
     }
 
     return (<div className="my-3 p-1">
         {changeRoundName && !readOnly
-            ? (<input type="text" onChange={updateRoundName} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
+            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getRoundName() : (round.name || getRoundName())}</strong>)}
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
@@ -224,6 +212,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && round.matches.length >= 1 && sidesForTheNextRound().length > 1) ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />) : null}
+        {hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1)
+            ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} />)
+            : null}
     </div>);
 }

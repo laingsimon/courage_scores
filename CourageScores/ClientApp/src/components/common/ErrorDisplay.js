@@ -1,5 +1,6 @@
 import React from 'react';
 import {Dialog} from "./Dialog";
+import {any, isEmpty} from "../../Utilities";
 
 export function ErrorDisplay({ errors, messages, warnings, onClose, title, Exception }) {
     let index = 0;
@@ -28,8 +29,8 @@ export function ErrorDisplay({ errors, messages, warnings, onClose, title, Excep
     return (<Dialog onClose={onClose} title={title || 'There was an error'}>
         <div>
              {Exception ? renderServerSideException(Exception) : null}
-             {errors && errors.length ? errors.map(e => (<p key={index++} className="text-danger">{e}</p>)) : null}
-             {errors && !errors.length ? (renderValidationErrors(errors)): null}
+             {errors && any(errors) ? errors.map(e => (<p key={index++} className="text-danger">{e}</p>)) : null}
+             {errors && isEmpty(errors) ? (renderValidationErrors(errors)): null}
              {warnings ? warnings.map(w => (<p key={index++} className="text-warning">{w}</p>)) : null}
              {messages ? messages.map(m => (<p key={index++} className="text-primary">{m}</p>)) : null}
        </div>

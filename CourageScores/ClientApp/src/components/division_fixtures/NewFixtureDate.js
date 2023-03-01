@@ -6,7 +6,7 @@ import {GameApi} from "../../api/game";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {propChanged} from "../../Utilities";
+import {any, propChanged, sum} from "../../Utilities";
 
 export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
     const [ homeTeamId, setHomeTeamId ] = useState(null);
@@ -27,9 +27,8 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
 
     const unselectedTeamsInDivision = teams
         .filter(t => {
-            const alreadySelected = fixtures
-                .map(f => f.fixtures.filter(f => (f.homeTeam && f.homeTeam.id === t.id) || (f.awayTeam && f.awayTeam.id === t.id)).length)
-                .reduce((prev, count) => prev + count, 0);
+            const alreadySelected = sum(fixtures
+                .map(f => f.fixtures.filter(f => (f.homeTeam && f.homeTeam.id === t.id) || (f.awayTeam && f.awayTeam.id === t.id)).length));
             return alreadySelected === 0;
         })
         .map(t => { return { value: t.id, text: t.name } });
@@ -57,7 +56,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
     async function teamCreated(team) {
         await onNewTeam();
 
-        const hasFixtures = fixtures.filter(f => f.date === date).length;
+        const hasFixtures = any(fixtures, f => f.date === date);
         if (newTeamFor === 'home') {
             setHomeTeam(hasFixtures ? null : team.id);
             setNewTeamFor(null);

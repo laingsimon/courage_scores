@@ -5,7 +5,7 @@ import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
-export function NewTournamentGame({ date, onNewTournament, teams, divisionId, seasonId }) {
+export function NewTournamentGame({ date, onNewTournament, teams, seasonId }) {
     const [ creating, setCreating ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ address, setAddress ] = useState('');

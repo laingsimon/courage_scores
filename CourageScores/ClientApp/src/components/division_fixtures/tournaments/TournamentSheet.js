@@ -1,14 +1,8 @@
-import {sortBy} from "../../../Utilities";
+import {max, sortBy} from "../../../Utilities";
 import React from "react";
 
 export function TournamentSheet({ sides }) {
-    const maxSideSize = sides.reduce((prev, current) => {
-        if (current.players.length > prev) {
-            return current.players.length;
-        }
-
-        return prev;
-    }, 0);
+    const maxSideSize = max(sides, current => current.players.length);
 
     function repeat(count) {
         const items = [];

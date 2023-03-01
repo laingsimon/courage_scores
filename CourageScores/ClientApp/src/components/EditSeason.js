@@ -2,7 +2,7 @@ import {SeasonApi} from "../api/season";
 import {Http} from "../api/http";
 import {Settings} from "../api/settings";
 import React, {useState} from "react";
-import {propChanged, sortBy, valueChanged} from "../Utilities";
+import {any, propChanged, sortBy, valueChanged} from "../Utilities";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
 
 export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions, seasons }) {
@@ -71,7 +71,7 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
     }
 
     function isDivisionSelected(divisionId) {
-        return (data.divisionIds || []).filter(id => id === divisionId).length > 0;
+        return any((data.divisionIds || []), id => id === divisionId);
     }
 
     return (<div>

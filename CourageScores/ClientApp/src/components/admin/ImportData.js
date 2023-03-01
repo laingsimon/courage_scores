@@ -4,7 +4,7 @@ import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
-import {propChanged, valueChanged} from "../../Utilities";
+import {isEmpty, propChanged, valueChanged} from "../../Utilities";
 
 export function ImportData() {
     const api = new DataApi(new Http(new Settings()));
@@ -30,6 +30,7 @@ export function ImportData() {
     }
 
     useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         getTables();
     },
     // eslint-disable-next-line
@@ -41,7 +42,7 @@ export function ImportData() {
         }
 
         const input = document.querySelector('input[type="file"]');
-        if (input.files.length === 0) {
+        if (isEmpty(input.files)) {
             window.alert(`Select a file first`);
             return;
         }
