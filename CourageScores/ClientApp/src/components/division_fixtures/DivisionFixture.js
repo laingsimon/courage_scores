@@ -8,7 +8,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
-import {propChanged} from "../../Utilities";
+import {any, propChanged} from "../../Utilities";
 
 export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
     const bye = {
@@ -35,7 +35,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
         // intentionally looks at qualifier games
         const realFixtures = fixturesForThisDate.fixtures.filter(f => f.awayTeam && f.homeTeam && f.id !== fixture.id);
         const selected = realFixtures.filter(f => f.homeTeam.id === t.id || f.awayTeam.id === t.id);
-        return selected.length > 0
+        return any(selected)
             ? selected[0]
             : null;
     }
@@ -47,10 +47,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                 continue;
             }
 
-            const fixtureDateFixtures = fixtureDate.fixtures;
-            const equivalentFixtures = fixtureDateFixtures.filter(f => f.isKnockout === false && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
-
-            if (equivalentFixtures.length) {
+            if (any(fixtureDate.fixtures, f => f.isKnockout === false && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id)) {
                 return fixtureDate.date;
             }
         }
@@ -67,11 +64,12 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             }
 
             const fixtureDateFixtures = fixtureDate.fixtures;
-            const equivalentFixtures = fixtureDateFixtures.filter(f => !f.isKnockout).filter(f =>
-                (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
-                || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
+            const equivalentFixtures = fixtureDateFixtures
+                .filter(f => !f.isKnockout)
+                .filter(f => (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
+                    || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
 
-            if (equivalentFixtures.length) {
+            if (any(equivalentFixtures)) {
                 matchingFixtureDates.push(fixtureDate.date);
             }
         }
@@ -311,7 +309,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             });
 
             if (result.success) {
-                setProposal(false);
+                setProposal(null);
             } else {
                 setSaveError(result);
             }

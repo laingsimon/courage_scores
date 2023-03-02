@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {Link, useParams} from "react-router-dom";
-import {NavItem, NavLink} from "reactstrap";
+import {NavLink} from "reactstrap";
 import {DivisionTeams} from "./division_teams/DivisionTeams";
 import {DivisionFixtures} from "./division_fixtures/DivisionFixtures";
 import {DivisionPlayers} from "./division_players/DivisionPlayers";
@@ -103,18 +103,18 @@ export function Division({ account, apis, divisions }) {
             onReloadDivisionData={reloadDivisionData}
             onReloadSeasonData={reloadDivisionData}/>
         <ul className="nav nav-tabs">
-            <NavItem>
+            <li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'teams' || effectiveTab.startsWith('team:') ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/teams`}>Teams</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className={effectiveTab === 'players' || effectiveTab.startsWith('player:') ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/players`}>Players</NavLink>
-            </NavItem>
-            {account && account.access && account.access.runReports ? (<NavItem>
-                <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
-            </NavItem>) : null}
+            </li>
+            {account && account.access && account.access.runReports ? (<li className="nav-item">
+            <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
+            </li>) : null}
         </ul>
         {effectiveTab === 'teams' && divisionData.season
             ? (<DivisionTeams

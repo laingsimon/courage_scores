@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from "react-router-dom";
+import {any} from "../../../Utilities";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {
     let index = 0;
@@ -62,7 +63,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     type="number"
                     min="100"
                     max="120"/>) : null}
-                {allPlayers.length > 0 ? (<PlayerSelection
+                {any(allPlayers) ? (<PlayerSelection
                     disabled={disabled}
                     readOnly={readOnly}
                     players={allPlayers}
@@ -70,7 +71,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
                     onChange={(elem, p) => setPlayer(p)}
                     className={dropdownClassName}
                     placeholder={placeholder} />) : null}
-                {allPlayers.length > 0 ? (<button disabled={disabled || readOnly} onClick={addPlayer}
+                {any(allPlayers) ? (<button disabled={disabled || readOnly} onClick={addPlayer}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-outline-primary'}`}>➕
                 </button>) : null}
             </li>)}

@@ -6,11 +6,11 @@ import {Http} from "../../../api/http";
 import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {Link} from 'react-router-dom';
-import {NavItem, NavLink} from "reactstrap";
+import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
-import {sortBy} from "../../../Utilities";
+import {any, isEmpty, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -55,6 +55,8 @@ export function Score({account, apis, divisions}) {
             }
 
             setLoading('loading');
+
+            // noinspection JSIgnoredPromiseFromCall
             loadFixtureData();
         },
         // eslint-disable-next-line
@@ -142,7 +144,7 @@ export function Score({account, apis, divisions}) {
             allPlayers.sort(sortBy('name'));
 
             const matchPlayerCounts = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
-            if (!gameData.matches || !gameData.matches.length) {
+            if (!gameData.matches || isEmpty(gameData.matches)) {
                 gameData.matches = matchPlayerCounts;
             } else {
                 for (let index = 0; index < gameData.matches.length; index++) {
@@ -267,7 +269,6 @@ export function Score({account, apis, divisions}) {
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
-                allPlayers={allPlayers}
                 account={account}
                 saving={saving}
                 access={access}
@@ -328,7 +329,7 @@ export function Score({account, apis, divisions}) {
     const winner = finalScore.homeScore > finalScore.awayScore
         ? 'home'
         : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
-    const hasBeenPlayed = fixtureData.matches.filter(m => m.homeScore || m.awayScore).length > 0;
+    const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     return (<div>
         <DivisionControls
@@ -346,18 +347,18 @@ export function Score({account, apis, divisions}) {
             onReloadDivisionData={apis.reloadAll}
             overrideMode="fixtures" />
         <ul className="nav nav-tabs">
-            <NavItem>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
-            </NavItem>
-            <NavItem>
+            </li>
+            <li className="nav-item">
                 <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/players`}>Players</NavLink>
-            </NavItem>
+            </li>
         </ul>
         <div className="light-background p-3 overflow-auto">
             {fixtureData.address || access === 'admin'

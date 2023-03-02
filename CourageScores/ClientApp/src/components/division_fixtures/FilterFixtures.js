@@ -1,5 +1,5 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {propChanged, sortBy} from "../../Utilities";
+import {isEmpty, propChanged, sortBy} from "../../Utilities";
 import {ShareButton} from "../ShareButton";
 
 export function FilterFixtures({ filter, setFilter, teams }) {
@@ -21,7 +21,7 @@ export function FilterFixtures({ filter, setFilter, teams }) {
         { value: 'last+next', text: 'Prev & next dates' },
     ];
 
-    if (filter.date && dateFilters.filter(f => f.value === filter.date).length === 0) {
+    if (filter.date && isEmpty(dateFilters, f => f.value === filter.date)) {
         if (filter.date.match(/\d{4}-\d{2}-\d{2}/)) {
             dateFilters.push({ value: filter.date, text: new Date(filter.date).toDateString() });
         } else {

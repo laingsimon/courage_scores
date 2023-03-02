@@ -1,4 +1,4 @@
-import {propChanged, sortBy} from "../../../Utilities";
+import {any, propChanged, sortBy} from "../../../Utilities";
 import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
@@ -8,7 +8,7 @@ import React from "react";
 export function EditTournament({ tournamentData, season, alreadyPlaying, teams, disabled, saving, allPlayers, canSave, isAdmin, setTournamentData }) {
     let sideIndex = 0;
     const readOnly = !isAdmin || !canSave || disabled || saving;
-    const hasStarted = tournamentData.round && tournamentData.round.matches && tournamentData.round.matches.length > 0;
+    const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
 
     function getOtherSides(sideIndex) {
@@ -44,7 +44,7 @@ export function EditTournament({ tournamentData, season, alreadyPlaying, teams, 
         if (sideIndex === undefined) {
             newTournamentData.sides.push(newSide);
         } else {
-            if (newSide.players.length > 0 || newSide.teamId) {
+            if (any(newSide.players) || newSide.teamId) {
                 newTournamentData.sides[sideIndex] = newSide;
                 updateSideDataInRound(newTournamentData.round, newSide);
             } else {

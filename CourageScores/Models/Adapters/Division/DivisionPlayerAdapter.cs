@@ -23,7 +23,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             Singles = await _performanceAdapter.Adapt(score.GetScores(1), token),
             Pairs = await _performanceAdapter.Adapt(score.GetScores(2), token),
             Triples = await _performanceAdapter.Adapt(score.GetScores(3), token),
-            Points = score.CalculatePoints(),
+            Points = score.GetScores(1).PlayerWinRate,
             Team = playerTuple.Team.Name,
             OneEighties = score.OneEighties,
             Over100Checkouts = score.HiCheckout,

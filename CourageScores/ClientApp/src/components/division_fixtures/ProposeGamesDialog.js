@@ -1,6 +1,6 @@
 import {Dialog} from "../common/Dialog";
 import React from "react";
-import {valueChanged} from "../../Utilities";
+import {any, isEmpty, valueChanged} from "../../Utilities";
 
 export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings, proposalResponse, disabled, onPropose, onClose }) {
     let index = 0;
@@ -97,8 +97,8 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
             </div>
         </div>
         {proposalResponse ? (<div className="overflow-auto max-scroll-height"><ul>
-            {proposalResponse.errors && proposalResponse.errors.length ? proposalResponse.errors.map(e => (<li key={index++} className="text-danger">{e}</li>)) : null}
-            {proposalResponse.errors && !proposalResponse.errors.length ? (renderValidationErrors(proposalResponse.errors)): null}
+            {proposalResponse.errors && any(proposalResponse.errors) ? proposalResponse.errors.map(e => (<li key={index++} className="text-danger">{e}</li>)) : null}
+            {proposalResponse.errors && isEmpty(proposalResponse.errors) ? (renderValidationErrors(proposalResponse.errors)): null}
             {proposalResponse.warnings ? proposalResponse.warnings.map(w => (<li key={index++} className="text-warning">{w}</li>)) : null}
             {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
         </ul></div>) : null}

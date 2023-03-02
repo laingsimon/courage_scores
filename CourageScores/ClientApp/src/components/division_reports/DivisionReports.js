@@ -3,6 +3,7 @@ import {ReportApi} from "../../api/report";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {any, isEmpty, stateChanged} from "../../Utilities";
 
 export function DivisionReports({ divisionData }) {
     const [ reportData, setReportData ] = useState(null);
@@ -22,7 +23,7 @@ export function DivisionReports({ divisionData }) {
             };
             const result = await api.getReport(request);
             setReportData(result);
-            if (result.reports.length > 0) {
+            if (any(result.reports)) {
                 setActiveReport(result.reports[0].name);
             } else {
                 setActiveReport(null);
@@ -33,7 +34,7 @@ export function DivisionReports({ divisionData }) {
     }
 
     function renderReportNames() {
-        if (!reportData.reports.length) {
+        if (isEmpty(reportData.reports)) {
             return null;
         }
 
@@ -57,7 +58,7 @@ export function DivisionReports({ divisionData }) {
 
         let rowIndex = 0;
         return (<div>
-            {report.rows.length === 0
+            {isEmpty(report.rows)
                 ? (<p className="text-danger fw-bold">No rows</p>)
                 : (<table className="table table-striped">
                     <thead>
@@ -79,11 +80,11 @@ export function DivisionReports({ divisionData }) {
     }
 
     function renderMessages() {
-        if (!reportData.messages.length) {
+        if (isEmpty(reportData.messages)) {
             return null;
         }
 
-        var index = 0;
+        let index = 0;
         return (<ul>
             {reportData.messages.map(msg => (<li key={index++}>{msg}</li>))}
         </ul>)
@@ -95,7 +96,7 @@ export function DivisionReports({ divisionData }) {
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>
             </div>
-            <input type="number" min="1" max="100" value={topCount} onChange={(event) => setTopCount(event.target.value)} />
+            <input type="number" min="1" max="100" value={topCount} onChange={stateChanged(setTopCount)} />
             <div className="input-group-prepend margin-right">
                 <span className="input-group-text">records</span>
             </div>

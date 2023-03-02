@@ -4,7 +4,7 @@ import {TournamentApi} from "../../api/tournament";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {sortBy} from "../../Utilities";
+import {any, isEmpty, sortBy} from "../../Utilities";
 
 export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
     const isProposedTournament = tournament.proposed;
@@ -69,7 +69,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
     }
 
     function renderLinkToPlayer(player) {
-        if (allPlayers.filter(p => p.id === player.id).length > 0) {
+        if (any(allPlayers, p => p.id === player.id)) {
             return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${seasonId}`}>{player.name}</Link>);
         }
 
@@ -91,13 +91,13 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
                     name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${seasonId}`}>{side.name}</Link>);
                 }
 
-                if (sideNameSameAsPlayerNames || side.players.length === 0) {
+                if (sideNameSameAsPlayerNames || isEmpty(side.players)) {
                     return (<span className="comma-before-except-first no-wrap" key={side.id}>{name}</span>);
                 }
 
                 return (<div key={side.id}>
                     {name}
-                    {side.players.length > 0 && !sideNameSameAsPlayerNames
+                    {any(side.players) && !sideNameSameAsPlayerNames
                         ? (<label className="csv-nodes colon-before">{side.players.map(renderLinkToPlayer)}</label>)
                         : null}
                 </div>);

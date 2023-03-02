@@ -9,6 +9,7 @@ export function PageError({ error, clearError }){
     const api = new ErrorApi(new Http(new Settings()));
 
     useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         reportClientSideException();
     },
     // eslint-disable-next-line

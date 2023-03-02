@@ -57,8 +57,8 @@ public class TeamAndPlayerImporter : IImporter
                 team = await AddTeam(context.Teams, player);
             }
 
-            var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == _request.SeasonId) ?? await AddSeason(team, context.Teams);
-            var teamPlayer = teamSeason.Players.SingleOrDefault(p => _nameComparer.PlayerNameEquals(p.Name, player.playername!, team.Name)) ??
+            var teamSeason = team.Seasons.NotDeleted().SingleOrDefaultWithError(ts => ts.SeasonId == _request.SeasonId) ?? await AddSeason(team, context.Teams);
+            var teamPlayer = teamSeason.Players.NotDeleted().SingleOrDefaultWithError(p => _nameComparer.PlayerNameEquals(p.Name, player.playername!, team.Name)) ??
                              await AddPlayer(teamSeason, team, context.Teams, player);
             if (teamPlayer.Name != player.playername)
             {

@@ -1,3 +1,5 @@
+import {all, any} from "../Utilities";
+
 export class Filter {
     _expression;
     constructor(expression) {
@@ -24,14 +26,7 @@ export class AndFilter {
     }
 
     apply(item) {
-        for (let index = 0; index < this._filters.length; index++) {
-            const filter = this._filters[index];
-            if (!filter.apply(item)) {
-                return false;
-            }
-        }
-
-        return true;
+        return all(this._filters, filter => filter.apply(item));
     }
 }
 
@@ -46,14 +41,7 @@ export class OrFilter {
     }
 
     apply(item) {
-        for (let index = 0; index < this._filters.length; index++) {
-            const filter = this._filters[index];
-            if (filter.apply(item)) {
-                return true;
-            }
-        }
-
-        return false;
+        return any(this._filters, filter => filter.apply(item));
     }
 }
 

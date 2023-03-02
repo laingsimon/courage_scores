@@ -4,20 +4,11 @@ import {NoteApi} from "../../api/note";
 import {Http} from "../../api/http";
 import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {valueChanged} from "../../Utilities";
 
 export function EditNote({ note, onNoteChanged, divisions, seasons, onClose, onSaved }) {
     const [savingNote, setSavingNote] = useState(false);
     const [saveError, setSaveError] = useState(null);
-
-    async function onValueChanged(property, event, nullIf) {
-        const newNote = Object.assign({}, note);
-        newNote[property] = event.target.value === nullIf
-            ? null
-            : event.target.value;
-        if (onNoteChanged) {
-            await onNoteChanged(newNote);
-        }
-    }
 
     async function saveNote() {
         if (savingNote) {
@@ -58,17 +49,17 @@ export function EditNote({ note, onNoteChanged, divisions, seasons, onClose, onS
                 <div className="input-group-prepend">
                     <span className="input-group-text">Date</span>
                 </div>
-                <input type="date" value={note.date.substring(0, 10)} onChange={event => onValueChanged('date', event)} />
+                <input type="date" value={note.date.substring(0, 10)} name="date" onChange={valueChanged(note, onNoteChanged)} />
             </div>
             <div className="form-group my-3 d-flex">
                 <label htmlFor="note-text" className="input-group-text">Note</label>
-                <textarea cols="75" rows="2" id="note-text" value={note.note} onChange={event => onValueChanged('note', event)}></textarea>
+                <textarea cols="75" rows="2" id="note-text" value={note.note} name="note" onChange={valueChanged(note, onNoteChanged)}></textarea>
             </div>
             <div className="input-group my-3">
                 <div className="input-group-prepend">
                     <span className="input-group-text">Season</span>
                 </div>
-                <select value={note.seasonId} onChange={event => onValueChanged('seasonId', event)}>
+                <select value={note.seasonId} name="seasonId" onChange={valueChanged(note, onNoteChanged)}>
                     {seasons.map(season => <option value={season.id} key={season.id}>{season.name}</option>)}
                 </select>
             </div>
@@ -76,7 +67,7 @@ export function EditNote({ note, onNoteChanged, divisions, seasons, onClose, onS
                 <div className="input-group-prepend">
                     <span className="input-group-text">Division (optional)</span>
                 </div>
-                <select value={note.divisionId || 'NULL'} onChange={event => onValueChanged('divisionId', event, 'NULL')}>
+                <select value={note.divisionId || 'NULL'} name="divisionId" onChange={valueChanged(note, onNoteChanged, 'NULL')}>
                     <option key="" value={'NULL'}>All divisions</option>
                     {divisions.map(division => (<option key={division.id} value={division.id}>{division.name}</option>))}
                 </select>

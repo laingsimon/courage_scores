@@ -3,7 +3,7 @@ import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {Link} from "react-router-dom";
-import {propChanged} from "../../../Utilities";
+import {propChanged, stateChanged} from "../../../Utilities";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
@@ -231,7 +231,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                     type="number" max="5" min="0"
                     value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
-                    onChange={(event) => homeScoreChanged(event.target.value)} />)}
+                    onChange={stateChanged(homeScoreChanged)} />)}
         </td>
         <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
         <td className={`narrow-column align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
@@ -243,7 +243,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                     type="number" max="5" min="0"
                     value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
-                    onChange={(event) => awayScoreChanged(event.target.value)} />) }
+                    onChange={stateChanged(awayScoreChanged)} />) }
         </td>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
             {playerIndexes().map(index => disabled

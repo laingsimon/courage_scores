@@ -33,7 +33,9 @@ public class ScoresImporter : IImporter
             }
 
             fixtureCount++;
-            totalSuccess = await ImportFixture(accessFixture.ToArray(), context, fixtureCount, token) && totalSuccess;
+
+            var result = await ImportFixture(accessFixture.ToArray(), context, fixtureCount, token);
+            totalSuccess = (result != ImportResult.Error) && totalSuccess;
         }
 
         if (context.Errors.Count != initialErrorCount)
@@ -71,13 +73,13 @@ public class ScoresImporter : IImporter
         return totalSuccess;
     }
 
-    private async Task<bool> ImportFixture(IReadOnlyCollection<LegHistory> fixtureLegs, ImportContext context, int fixtureNo, CancellationToken token)
+    private async Task<ImportResult> ImportFixture(IReadOnlyCollection<LegHistory> fixtureLegs, ImportContext context, int fixtureNo, CancellationToken token)
     {
         var teams = fixtureLegs.Select(l => l.opponents).Distinct().ToArray();
         if (teams.Length != 2)
         {
             await _log.WriteLineAsync($"Fixture {fixtureLegs.First().fixtureno} has incorrect number of opponents, should be 2 was: {string.Join(", ", teams)}");
-            return false;
+            return ImportResult.Error;
         }
 
         var legMap = fixtureLegs.GroupBy(l => l.position).Select(g =>
@@ -93,14 +95,14 @@ public class ScoresImporter : IImporter
         if (legMap.Length != 8)
         {
             await _log.WriteLineAsync($"Fixture {fixtureLegs.First().fixtureno} has incorrect number of legs, should be 8 was {legMap.Length}");
-            return false;
+            return ImportResult.Error;
         }
 
         var fixtureData = legMap[0];
         if (fixtureData.Date == null)
         {
             await _log.WriteLineAsync($"Fixture {fixtureData.FixtureNo} has no date");
-            return false;
+            return ImportResult.Error;
         }
 
         var home = fixtureData.AwayPerspective.opponents!;
@@ -112,12 +114,13 @@ public class ScoresImporter : IImporter
             cosmosFixture = CreateGame(context, fixtureData.Date.Value, home, away);
         }
 
-        if (await SetMatches(cosmosFixture, legMap, context, token))
+        var result = await SetMatches(cosmosFixture, legMap, context, token);
+        if (result == ImportResult.Modified)
         {
             context.Fixtures.SetModified(cosmosFixture);
         }
 
-        return true;
+        return result;
     }
 
     private Game CreateGame(ImportContext context, DateTime date, string home, string away)
@@ -143,33 +146,40 @@ public class ScoresImporter : IImporter
         return cosmosFixture;
     }
 
-    private async Task<bool> SetMatches(Game game, IEnumerable<LegMapping> legMap, ImportContext context, CancellationToken token)
+    private async Task<ImportResult> SetMatches(Game game, IEnumerable<LegMapping> legMap, ImportContext context, CancellationToken token)
     {
-        var gameModified = false;
+        var gameResult = ImportResult.Unmodified;
         foreach (var leg in legMap)
         {
             if (token.IsCancellationRequested)
             {
-                return gameModified;
+                return gameResult;
             }
 
             var match = game.Matches.ElementAtOrDefault(leg.LegNo - 1);
-            var modified = await SetMatch(game, leg, match, context);
-            gameModified = modified || gameModified;
+            var result = await SetMatch(game, leg, match, context);
+            if (result == ImportResult.Error)
+            {
+                gameResult = ImportResult.Error;
+            }
+            else if (result == ImportResult.Modified)
+            {
+                gameResult = ImportResult.Unmodified;
+            }
         }
 
-        return gameModified;
+        return gameResult;
     }
 
-    private async Task<bool> SetMatch(Game game, LegMapping leg, GameMatch? match, ImportContext context)
+    private async Task<ImportResult> SetMatch(Game game, LegMapping leg, GameMatch? match, ImportContext context)
     {
         try
         {
-            var gameModified = false;
+            var gameModified = ImportResult.Unmodified;
 
             if (match == null)
             {
-                gameModified = true;
+                gameModified = ImportResult.Modified;
                 match = _request.Created(new GameMatch
                 {
                     Id = Guid.NewGuid(),
@@ -204,7 +214,7 @@ public class ScoresImporter : IImporter
         catch (Exception exc)
         {
             await _log.WriteLineAsync($"Failed to set match for game {game.Home.Name} vs {game.Away.Name}: {exc.Message}");
-            return false;
+            return ImportResult.Error;
         }
     }
 
@@ -226,7 +236,7 @@ public class ScoresImporter : IImporter
         }
     }
 
-    private static T ApplyChange<T>(T currentValue, T expectedValue, ref bool modified, IEqualityComparer<T>? equalityComparer = null)
+    private static T ApplyChange<T>(T currentValue, T expectedValue, ref ImportResult modified, IEqualityComparer<T>? equalityComparer = null)
     {
         equalityComparer ??= EqualityComparer<T>.Default;
 
@@ -235,19 +245,19 @@ public class ScoresImporter : IImporter
             return currentValue;
         }
 
-        modified = true;
+        modified = ImportResult.Modified;
         return expectedValue;
     }
 
     private Func<string, GamePlayer> ToPlayer(Guid teamId, ImportContext context)
     {
-        var team = context.Teams!.SingleOrDefault(pair => pair.Value.Id == teamId).Value;
+        var team = context.Teams!.SingleOrDefaultWithError(pair => pair.Value.Id == teamId).Value;
         if (team == null)
         {
             throw new InvalidOperationException($"Cannot find team with id {teamId}");
         }
 
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == _request.SeasonId);
+        var teamSeason = team.Seasons.NotDeleted().SingleOrDefaultWithError(ts => ts.SeasonId == _request.SeasonId);
         if (teamSeason == null)
         {
             throw new InvalidOperationException($"Cannot find teamSeason for team {teamId} and season {_request.SeasonId}");
@@ -257,7 +267,7 @@ public class ScoresImporter : IImporter
         {
             if (!context.PlayerNameLookup.TryGetValue(playerCode, out var teamPlayer))
             {
-                teamPlayer = teamSeason.Players.SingleOrDefault(p => _nameComparer.PlayerNameEquals(p.Name, playerCode, team.Name));
+                teamPlayer = teamSeason.Players.NotDeleted().SingleOrDefaultWithError(p => _nameComparer.PlayerNameEquals(p.Name, playerCode, team.Name));
                 if (teamPlayer == null)
                 {
                     throw new InvalidOperationException($"Cannot find player {playerCode} in team {team.Name}");

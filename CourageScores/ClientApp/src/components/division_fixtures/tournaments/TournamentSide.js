@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, createTemporaryId, sortBy} from "../../../Utilities";
+import {toMap, createTemporaryId, sortBy, any, isEmpty, valueChanged} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
 
@@ -27,7 +27,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }));
 
     const sidePlayerMap = side ? toMap(side.players || []) : {};
-    const sidePlayerTeamMapping = side && side.players && side.players.length > 0 ? playerToTeamMap[side.players[0].id] : null;
+    const sidePlayerTeamMapping = side && side.players && any(side.players) ? playerToTeamMap[side.players[0].id] : null;
 
     const teamsAndPlayers = teams
         .flatMap(t => {
@@ -105,7 +105,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
             return true;
         }
 
-        return side.players.filter(p => p.id === tap.player.id).length === 0;
+        return isEmpty(side.players, p => p.id === tap.player.id);
     }
 
     function toSelectablePlayer(tap) {
@@ -140,14 +140,6 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
         }
 
         return 0;
-    }
-
-    async function updateSideName(event) {
-        const newSide = Object.assign({}, side);
-        newSide.newName = event.target.value;
-        if (onChange) {
-            await onChange(newSide);
-        }
     }
 
     async function updateTeamId(teamId) {
@@ -253,7 +245,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     allPlayers.sort(sortBy('name'));
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {changeSideName && !readOnly
-            ? (<input type="text" onChange={updateSideName} value={side.newName || side.name} onBlur={completeSideNameChange} />)
+            ? (<input autoFocus type="text" name="newName" onChange={valueChanged(side, onChange)} value={side.newName || side.name} onBlur={completeSideNameChange} />)
             : renderSideName()}
         {readOnly
             ? renderTeamName()

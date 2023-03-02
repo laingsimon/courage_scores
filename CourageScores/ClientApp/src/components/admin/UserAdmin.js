@@ -35,6 +35,7 @@ export function UserAdmin({ account }) {
     }
 
     useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
         loadAccounts();
     },
     // eslint-disable-next-line
