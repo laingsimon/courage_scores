@@ -31,7 +31,7 @@ jobs:
           comment_mode: off
 
       - name: dotnet publish
-        run: dotnet publish --configuration Release -o ${{ inputs.dotnet-root }}/myapp
+        run: dotnet publish --configuration Release --property PublishDir=${{ inputs.dotnet-root }}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
