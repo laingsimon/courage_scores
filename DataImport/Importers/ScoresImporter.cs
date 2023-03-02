@@ -241,13 +241,13 @@ public class ScoresImporter : IImporter
 
     private Func<string, GamePlayer> ToPlayer(Guid teamId, ImportContext context)
     {
-        var team = context.Teams!.SingleOrDefault(pair => pair.Value.Id == teamId).Value;
+        var team = context.Teams!.SingleOrDefaultWithError(pair => pair.Value.Id == teamId).Value;
         if (team == null)
         {
             throw new InvalidOperationException($"Cannot find team with id {teamId}");
         }
 
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == _request.SeasonId);
+        var teamSeason = team.Seasons.NotDeleted().SingleOrDefaultWithError(ts => ts.SeasonId == _request.SeasonId);
         if (teamSeason == null)
         {
             throw new InvalidOperationException($"Cannot find teamSeason for team {teamId} and season {_request.SeasonId}");
@@ -257,7 +257,7 @@ public class ScoresImporter : IImporter
         {
             if (!context.PlayerNameLookup.TryGetValue(playerCode, out var teamPlayer))
             {
-                teamPlayer = teamSeason.Players.SingleOrDefault(p => _nameComparer.PlayerNameEquals(p.Name, playerCode, team.Name));
+                teamPlayer = teamSeason.Players.NotDeleted().SingleOrDefaultWithError(p => _nameComparer.PlayerNameEquals(p.Name, playerCode, team.Name));
                 if (teamPlayer == null)
                 {
                     throw new InvalidOperationException($"Cannot find player {playerCode} in team {team.Name}");
