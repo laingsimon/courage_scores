@@ -68,11 +68,6 @@ public class DivisionData
 
             return score;
         }
-
-        public int CalculatePoints()
-        {
-            return GetScores(1).MatchesWon * 3;
-        }
     }
 
     public class TeamScore

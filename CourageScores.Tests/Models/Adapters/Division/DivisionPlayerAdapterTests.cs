@@ -11,10 +11,10 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 public class DivisionPlayerAdapterTests
 {
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionData.PlayerPlayScore _singles = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3 };
+    private readonly DivisionData.PlayerPlayScore _singles = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3, PlayerWinRate = 9, TeamWinRate = 10 };
     private readonly DivisionData.PlayerPlayScore _pairs = new();
     private readonly DivisionData.PlayerPlayScore _triples = new();
-    private readonly PlayerPerformanceDto _singlesDto = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3 };
+    private readonly PlayerPerformanceDto _singlesDto = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3, WinRate = 9, TeamWinRate = 10 };
     private readonly PlayerPerformanceDto _pairsDto = new();
     private readonly PlayerPerformanceDto _triplesDto = new();
     private DivisionPlayerAdapter _adapter = null!;
@@ -70,7 +70,7 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Over100Checkouts, Is.EqualTo(score.HiCheckout));
         Assert.That(result.Pairs, Is.SameAs(_pairsDto));
         Assert.That(result.Triples, Is.SameAs(_triplesDto));
-        Assert.That(result.Points, Is.EqualTo(6));
+        Assert.That(result.Points, Is.EqualTo(9));
         Assert.That(result.WinPercentage, Is.EqualTo(200.00d).Within(0.001));
         Assert.That(result.TeamId, Is.EqualTo(team.Id));
         Assert.That(result.Team, Is.EqualTo(team.Name));
