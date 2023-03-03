@@ -96,9 +96,9 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
         return data;
     }
 
-    function firstValidDivisionIdForSeason(season, currentDivisionId) {
-        if (isEmpty(season.divisions) || any(season.divisions, d => d.id === currentDivisionId)) {
-            return currentDivisionId;
+    function firstValidDivisionIdForSeason(season) {
+        if (originalDivisionData && (isEmpty(season.divisions) || any(season.divisions, d => d.id === originalDivisionData.id))) {
+            return originalDivisionData.id;
         }
 
         return season.divisions[0].id;
@@ -116,7 +116,7 @@ export function DivisionControls({ account, originalSeasonData, seasons, origina
             </button>
             {any(seasons) ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
             {any(seasons) ? (<DropdownMenu>
-                {seasons.map(s => (<Link key={s.id} className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s, originalDivisionData.id)}/${overrideMode || mode || 'teams'}/${s.id}`}>
+                {seasons.map(s => (<Link key={s.id} className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}`}>
                     {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
                 </Link>))}
                 {isSeasonAdmin ? (<DropdownItem>
