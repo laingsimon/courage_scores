@@ -154,7 +154,7 @@ export function round2dp(number) {
 * Return the item at the given index (using the optional selector)
 * */
 export function elementAt(items, index, selector) {
-    if (items.length > index) {
+    if (items.length > index && items[index]) {
         return selector ? selector(items[index]) : items[index];
     }
 

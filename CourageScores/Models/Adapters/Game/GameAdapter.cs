@@ -10,14 +10,14 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
     private readonly IAdapter<GameTeam, GameTeamDto> _gameTeamAdapter;
     private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
     private readonly IAdapter<NotablePlayer, NotablePlayerDto> _notablePlayerAdapter;
-    private readonly ISimpleAdapter<GameMatchOption, GameMatchOptionDto> _matchOptionAdapter;
+    private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter;
 
     public GameAdapter(
         IAdapter<GameMatch, GameMatchDto> gameMatchAdapter,
         IAdapter<GameTeam, GameTeamDto> gameTeamAdapter,
         IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter,
         IAdapter<NotablePlayer, NotablePlayerDto> notablePlayerAdapter,
-        ISimpleAdapter<GameMatchOption, GameMatchOptionDto> matchOptionAdapter)
+        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter)
     {
         _gameMatchAdapter = gameMatchAdapter;
         _gameTeamAdapter = gameTeamAdapter;

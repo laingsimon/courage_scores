@@ -28,7 +28,7 @@ public class GameAdapterTests
             new[] { HomeTeamDto, AwayTeamDto }),
         new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
         new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
-        new MockSimpleAdapter<GameMatchOption, GameMatchOptionDto>(MatchOption, MatchOptionDto));
+        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
 
     [Test]
     public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly()

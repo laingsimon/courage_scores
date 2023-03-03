@@ -15,6 +15,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 {
     private readonly IUserService _userService;
     private readonly IAdapter<Models.Cosmos.Game.Game, GameDto> _gameAdapter;
+    private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionsAdapter;
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
@@ -24,6 +25,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
     public UpdateScoresCommand(IUserService userService,
         IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
+        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionsAdapter,
         IAuditingHelper auditingHelper,
         ISeasonService seasonService,
         ICommandFactory commandFactory,
@@ -32,6 +34,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
+        _matchOptionsAdapter = matchOptionsAdapter;
         _auditingHelper = auditingHelper;
         _seasonService = seasonService;
         _commandFactory = commandFactory;
@@ -104,6 +107,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed ?? game.Postponed;
         game.IsKnockout = _scores.IsKnockout ?? game.IsKnockout;
+        game.MatchOptions = await _scores.MatchOptions.SelectAsync(mo => _matchOptionsAdapter.Adapt(mo, token)).ToList();
 
         var dateChanged = _scores.Date != game.Date;
         game.Date = _scores.Date ?? game.Date;

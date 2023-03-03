@@ -83,7 +83,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// <summary>
     /// Options for each match in the game
     /// </summary>
-    public List<GameMatchOption> MatchOptions { get; set; } = new();
+    public List<GameMatchOption?> MatchOptions { get; set; } = new();
 
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)

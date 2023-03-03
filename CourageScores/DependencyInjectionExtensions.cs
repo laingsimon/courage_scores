@@ -141,7 +141,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDivisionFixtureTeamAdapter, DivisionFixtureTeamAdapter>();
         services.AddScoped<IPlayerPerformanceAdapter, PlayerPerformanceAdapter>();
         services.AddScoped<IErrorDetailAdapter, ErrorDetailAdapter>();
-        services.AddScoped<ISimpleAdapter<GameMatchOption, GameMatchOptionDto>, GameMatchOptionAdapter>();
+        services.AddScoped<ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>, GameMatchOptionAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

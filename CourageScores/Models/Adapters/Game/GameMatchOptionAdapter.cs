@@ -3,20 +3,30 @@ using CourageScores.Models.Dtos.Game;
 
 namespace CourageScores.Models.Adapters.Game;
 
-public class GameMatchOptionAdapter : ISimpleAdapter<GameMatchOption, GameMatchOptionDto>
+public class GameMatchOptionAdapter : ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?>
 {
-    public Task<GameMatchOptionDto> Adapt(GameMatchOption model, CancellationToken token)
+    public Task<GameMatchOptionDto?> Adapt(GameMatchOption? model, CancellationToken token)
     {
-        return Task.FromResult(new GameMatchOptionDto
+        if (model == null)
+        {
+            return Task.FromResult<GameMatchOptionDto?>(null);
+        }
+
+        return Task.FromResult<GameMatchOptionDto?>(new GameMatchOptionDto
         {
             StartingScore = model.StartingScore,
             NumberOfLegs = model.NumberOfLegs,
         });
     }
 
-    public Task<GameMatchOption> Adapt(GameMatchOptionDto dto, CancellationToken token)
+    public Task<GameMatchOption?> Adapt(GameMatchOptionDto? dto, CancellationToken token)
     {
-        return Task.FromResult(new GameMatchOption
+        if (dto == null)
+        {
+            return Task.FromResult<GameMatchOption?>(null);
+        }
+
+        return Task.FromResult<GameMatchOption?>(new GameMatchOption
         {
             StartingScore = dto.StartingScore,
             NumberOfLegs = dto.NumberOfLegs,

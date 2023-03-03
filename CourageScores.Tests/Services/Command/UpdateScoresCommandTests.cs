@@ -11,6 +11,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Services.Team;
+using CourageScores.Tests.Models.Adapters;
 using Moq;
 using NUnit.Framework;
 
@@ -35,6 +36,7 @@ public class UpdateScoresCommandTests
     private SeasonDto[] _seasons = null!;
     private ActionResultDto<TeamDto> _teamUpdate = new ActionResultDto<TeamDto> { Success = true };
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -47,9 +49,11 @@ public class UpdateScoresCommandTests
         _teamService = new Mock<ITeamService>();
         _cacheFlags = new ScopedCacheManagementFlags();
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
+        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
         _command = new UpdateScoresCommand(
             _userService.Object,
             _gameAdapter.Object,
+            _matchOptionAdapter,
             _auditingHelper.Object,
             _seasonService.Object,
             _commandFactory.Object,

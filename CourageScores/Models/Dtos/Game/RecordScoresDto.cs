@@ -14,6 +14,7 @@ public class RecordScoresDto
     public DateTime? Date { get; set; }
     public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
     public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
+    public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
 
     [ExcludeFromCodeCoverage]
     public class ManOfTheMatchDto

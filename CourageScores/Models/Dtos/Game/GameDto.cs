@@ -81,5 +81,5 @@ public class GameDto : AuditedDto
     /// <summary>
     /// Options for each match in the game
     /// </summary>
-    public List<GameMatchOptionDto> MatchOptions { get; set; } = new();
+    public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
 }
