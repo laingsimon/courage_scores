@@ -181,7 +181,7 @@ export function TournamentSide({ seasonId, side, onChange, teams, otherSides, wi
     }
 
     function renderSideName() {
-        const singlePlayer = side.players.length === 1
+        const singlePlayer = side.players && side.players.length === 1
            ? side.players[0]
            : null;
 
