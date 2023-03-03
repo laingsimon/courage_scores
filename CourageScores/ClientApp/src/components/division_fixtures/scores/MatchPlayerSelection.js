@@ -253,7 +253,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         </td>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
             {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
-            <button className="btn btn-sm float-end" onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>
+            <button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`} className="btn btn-sm float-end" onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>
 
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
