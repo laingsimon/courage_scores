@@ -300,7 +300,7 @@ export function Score({account, apis, divisions}) {
         }
 
         return (<MatchPlayerSelection
-            numberOfLegs={noOfLegs} playerCount={playerCount} homePlayers={homeTeam} awayPlayers={awayTeam}
+            homePlayers={homeTeam} awayPlayers={awayTeam}
             match={fixtureData.matches[index]} account={account}
             disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}

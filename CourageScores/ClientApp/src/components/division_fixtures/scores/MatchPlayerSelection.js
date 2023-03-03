@@ -8,7 +8,7 @@ import {EditMatchOptions} from "../EditMatchOptions";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled,
+export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
                                          onPlayerChanged, divisionId, account, matchOptions, onMatchOptionsChanged }) {
     const SHOW_EDIT_PLAYER_CONTROLS = false;
@@ -75,13 +75,13 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     async function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.homeScore = newScore ? Number.parseInt(newScore) : null;
-        newMatch.numberOfLegs = numberOfLegs;
+        newMatch.numberOfLegs = matchOptions.numberOfLegs;
 
-        if (newScore && newMatch.homeScore > numberOfLegs) {
-            newMatch.homeScore = numberOfLegs;
+        if (newScore && newMatch.homeScore > matchOptions.numberOfLegs) {
+            newMatch.homeScore = matchOptions.numberOfLegs;
         }
-        if (newScore && newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
-            newMatch.awayScore = numberOfLegs - newMatch.homeScore;
+        if (newScore && newMatch.awayScore + newMatch.homeScore > matchOptions.numberOfLegs) {
+            newMatch.awayScore = matchOptions.numberOfLegs - newMatch.homeScore;
         }
 
         if (onMatchChanged) {
@@ -92,13 +92,13 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     async function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.awayScore = newScore ? Number.parseInt(newScore) : null;
-        newMatch.numberOfLegs = numberOfLegs;
+        newMatch.numberOfLegs = matchOptions.numberOfLegs;
 
-        if (newScore && newMatch.awayScore > numberOfLegs) {
-            newMatch.awayScore = numberOfLegs;
+        if (newScore && newMatch.awayScore > matchOptions.numberOfLegs) {
+            newMatch.awayScore = matchOptions.numberOfLegs;
         }
-        if (newScore && newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
-            newMatch.homeScore = numberOfLegs - newMatch.awayScore;
+        if (newScore && newMatch.awayScore + newMatch.homeScore > matchOptions.numberOfLegs) {
+            newMatch.homeScore = matchOptions.numberOfLegs - newMatch.awayScore;
         }
 
         if (onMatchChanged) {
@@ -130,7 +130,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return exceptPlayerIds;
         }
 
-        for (let index = 0; index < playerCount; index++) {
+        for (let index = 0; index < matchOptions.playerCount; index++) {
             if (playerIndex !== index && playerList.length > index) {
                 if (playerList[index]) {
                     exceptPlayerIds.push(playerList[index].id);
@@ -144,7 +144,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     function playerIndexes() {
         const indexes = [];
 
-        for (let index = 0; index < playerCount; index++) {
+        for (let index = 0; index < matchOptions.playerCount; index++) {
             indexes.push(index);
         }
 

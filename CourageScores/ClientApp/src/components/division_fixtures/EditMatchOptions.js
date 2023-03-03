@@ -3,12 +3,12 @@ import React from "react";
 
 export function EditMatchOptions({ matchOptions, onMatchOptionsChanged }) {
     return (<div>
-        {/*<div className="input-group my-3">
+        <div className="input-group my-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">No of players</span>
             </div>
-            <input type="number" value={matchOptions.numberOfPlayers} name="numberOfPlayers" onChange={valueChanged(matchOptions, onMatchOptionsChanged)} />
-        </div>*/}
+            <input type="number" className="form-control" value={matchOptions.playerCount} name="playerCount" onChange={valueChanged(matchOptions, onMatchOptionsChanged)} />
+        </div>
         <div className="input-group my-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Starting score</span>
