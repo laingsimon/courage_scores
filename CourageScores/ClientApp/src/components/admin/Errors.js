@@ -60,6 +60,7 @@ export function Errors() {
         </div>
         {focusedError && errorToShow ? (<div className="overflow-auto">
             <h6>Error details @ {new Date(errorToShow.time).toLocaleString()}</h6>
+            {errorToShow.url ? (<p>Url: <a href={errorToShow.url}>{errorToShow.url}</a></p>) : null}
             {errorToShow.type ? (<p>Type: {errorToShow.type}</p>) : null}
             {errorToShow.stack ? (<ol>
                 {errorToShow.stack.map(frame => <li key={frameIndex++} className="no-wrap">{frame}</li>)}

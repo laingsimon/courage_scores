@@ -1,6 +1,7 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace CourageScores.Models.Adapters;
 
@@ -24,6 +25,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
             Stack = errorDetails.Error.StackTrace?.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries),
             Type = errorDetails.Error.GetType().Name,
             Message = errorDetails.Error.Message,
+            Url = _httpContextAccessor.HttpContext?.Request.GetEncodedUrl(),
         });
     }
 
@@ -39,6 +41,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
             Type = dto.Type,
             UserName = dto.UserName,
             UserAgent = dto.UserAgent,
+            Url = dto.Url,
         }.AddAuditProperties(dto));
     }
 
@@ -54,6 +57,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
             Type = model.Type,
             UserName = model.UserName,
             UserAgent = model.UserAgent,
+            Url = model.Url,
         }.AddAuditProperties(model));
     }
 }

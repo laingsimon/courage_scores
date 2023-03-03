@@ -10,5 +10,6 @@ public class ErrorDetailDto : AuditedDto
     public string[]? Stack { get; set; }
     public string? Type { get; set; }
     public string? UserName { get; set; }
-    public string? UserAgent { get; set; } = null!;
+    public string? UserAgent { get; set; }
+    public string? Url { get; set; }
 }

@@ -29,7 +29,8 @@ export function PageError({ error, clearError }){
             stack: error.stack ? error.stack.split('\n') : null,
             type: null,
             userName: null,
-            userAgent: Navigator.userAgent
+            userAgent: Navigator.userAgent,
+            url: window.location.href,
         };
 
         await api.add(errorDetail);
