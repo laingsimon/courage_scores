@@ -27,4 +27,10 @@ public class CachingSeasonService : CachingDataService<Models.Cosmos.Season, Sea
         var key = new CacheKey(null, "GetLatest");
         return CacheIfNotLoggedIn(key, () => _seasonService.GetLatest(token), token);
     }
+
+    public Task<SeasonDto?> GetForDate(DateTime referenceDate, CancellationToken token)
+    {
+        // NOTE: No need for this to be cached
+        return _seasonService.GetForDate(referenceDate, token);
+    }
 }
