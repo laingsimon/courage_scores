@@ -143,23 +143,17 @@ export function Score({account, apis, divisions}) {
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
             allPlayers.sort(sortBy('name'));
 
-            const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
-            const matchPlayerCounts = [
-                getMatchDefaults(0, matchOptions),
-                getMatchDefaults(1, matchOptions),
-                getMatchDefaults(2, matchOptions),
-                getMatchDefaults(3, matchOptions),
-                getMatchDefaults(4, matchOptions),
-                getMatchDefaults(5, matchOptions),
-                getMatchDefaults(6, matchOptions),
-                getMatchDefaults(7, matchOptions) ];
             if (!gameData.matches || isEmpty(gameData.matches)) {
-                gameData.matches = matchPlayerCounts;
-            } else {
-                for (let index = 0; index < gameData.matches.length; index++) {
-                    const match = gameData.matches[index];
-                    match.playerCount = matchPlayerCounts[index].playerCount;
-                }
+                const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
+                gameData.matches = [
+                    getMatchDefaults(0, matchOptions),
+                    getMatchDefaults(1, matchOptions),
+                    getMatchDefaults(2, matchOptions),
+                    getMatchDefaults(3, matchOptions),
+                    getMatchDefaults(4, matchOptions),
+                    getMatchDefaults(5, matchOptions),
+                    getMatchDefaults(6, matchOptions),
+                    getMatchDefaults(7, matchOptions) ];
             }
 
             setAllPlayers(allPlayers);
@@ -281,8 +275,12 @@ export function Score({account, apis, divisions}) {
 
     function renderMatchPlayerSelection(index, noOfLegs, playerCount) {
         let matchIndex = 0;
-        const matchesExceptIndex = fixtureData.matches.filter(match => {
-            return matchIndex++ !== index && match.playerCount === playerCount;
+        const matchesExceptIndex = fixtureData.matches.filter(_ => {
+            let thisMatchIndex = matchIndex;
+            let matchOptions = getMatchDefaults(thisMatchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
+            matchIndex++;
+
+            return thisMatchIndex !== index && matchOptions.playerCount === playerCount;
         });
 
         function onMatchChanged(newMatch, index) {

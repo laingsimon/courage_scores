@@ -36,6 +36,7 @@ public class GameMatchOptionAdapterTests
         var adapter = new GameMatchOptionAdapter();
         var dto = new GameMatchOptionDto
         {
+            PlayerCount = 1,
             NumberOfLegs = 3,
             StartingScore = 501,
         };
@@ -43,16 +44,18 @@ public class GameMatchOptionAdapterTests
         var result = await adapter.Adapt(dto, _token);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.NumberOfLegs, Is.EqualTo(3));
+        Assert.That(result!.PlayerCount, Is.EqualTo(1));
+        Assert.That(result.NumberOfLegs, Is.EqualTo(3));
         Assert.That(result.StartingScore, Is.EqualTo(501));
     }
-    
+
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
     {
         var adapter = new GameMatchOptionAdapter();
         var model = new GameMatchOption
         {
+            PlayerCount = 1,
             NumberOfLegs = 3,
             StartingScore = 501,
         };
@@ -60,7 +63,8 @@ public class GameMatchOptionAdapterTests
         var result = await adapter.Adapt(model, _token);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result!.NumberOfLegs, Is.EqualTo(3));
+        Assert.That(result!.PlayerCount, Is.EqualTo(1));
+        Assert.That(result.NumberOfLegs, Is.EqualTo(3));
         Assert.That(result.StartingScore, Is.EqualTo(501));
     }
 }

@@ -16,6 +16,7 @@ public class GameMatchOptionAdapter : ISimpleAdapter<GameMatchOption?, GameMatch
         {
             StartingScore = model.StartingScore,
             NumberOfLegs = model.NumberOfLegs,
+            PlayerCount = model.PlayerCount,
         });
     }
 
@@ -30,6 +31,7 @@ public class GameMatchOptionAdapter : ISimpleAdapter<GameMatchOption?, GameMatch
         {
             StartingScore = dto.StartingScore,
             NumberOfLegs = dto.NumberOfLegs,
+            PlayerCount = dto.PlayerCount,
         });
     }
 }

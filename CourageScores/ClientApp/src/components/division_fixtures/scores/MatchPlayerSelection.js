@@ -75,7 +75,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     async function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.homeScore = newScore ? Number.parseInt(newScore) : null;
-        newMatch.numberOfLegs = matchOptions.numberOfLegs;
 
         if (newScore && newMatch.homeScore > matchOptions.numberOfLegs) {
             newMatch.homeScore = matchOptions.numberOfLegs;
@@ -92,7 +91,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     async function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.awayScore = newScore ? Number.parseInt(newScore) : null;
-        newMatch.numberOfLegs = matchOptions.numberOfLegs;
 
         if (newScore && newMatch.awayScore > matchOptions.numberOfLegs) {
             newMatch.awayScore = matchOptions.numberOfLegs;
