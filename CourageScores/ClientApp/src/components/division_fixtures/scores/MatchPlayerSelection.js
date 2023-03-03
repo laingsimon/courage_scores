@@ -4,15 +4,17 @@ import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {Link} from "react-router-dom";
 import {propChanged, stateChanged} from "../../../Utilities";
+import {EditMatchOptions} from "../EditMatchOptions";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
 export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
-                                         onPlayerChanged, divisionId, account }) {
+                                         onPlayerChanged, divisionId, account, matchOptions, onMatchOptionsChanged }) {
     const SHOW_EDIT_PLAYER_CONTROLS = false;
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
+    const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
 
     function homePlayer(index) {
         if (!match.homePlayers || match.homePlayers.length <= index) {
@@ -202,6 +204,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         return account.access.inputResults && account.teamId === teamId;
     }
 
+    function renderMatchSettingsDialog() {
+        return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
+            <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} />
+        </Dialog>)
+    }
+
     return (<tr>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner text-end width-50-pc' : 'text-end width-50-pc'}>
             {createPlayerFor ? renderCreatePlayerDialog() : null}
@@ -246,22 +254,27 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={stateChanged(awayScoreChanged)} />) }
         </td>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
+            {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
+            <button className="btn btn-sm float-end" onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>
+
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
-                : (<div key={index}><PlayerSelection
-                disabled={disabled}
-                readOnly={readOnly}
-                players={awayPlayers}
-                selected={awayPlayer(index)}
-                except={exceptPlayers(index, 'awayPlayers')}
-                onChange={(elem, player) => awayPlayerChanged(index, player)}
-                allowEdit={canEditOrDelete(away.id)}
-                onEdit={playerUpdated}
-                allowDelete={canEditOrDelete(away.id)}
-                onDelete={playerUpdated}
-                teamId={away.id}
-                seasonId={seasonId}
-                gameId={gameId} /></div>))}
+                : (<div key={index}>
+                    <PlayerSelection
+                        disabled={disabled}
+                        readOnly={readOnly}
+                        players={awayPlayers}
+                        selected={awayPlayer(index)}
+                        except={exceptPlayers(index, 'awayPlayers')}
+                        onChange={(elem, player) => awayPlayerChanged(index, player)}
+                        allowEdit={canEditOrDelete(away.id)}
+                        onEdit={playerUpdated}
+                        allowDelete={canEditOrDelete(away.id)}
+                        onDelete={playerUpdated}
+                        teamId={away.id}
+                        seasonId={seasonId}
+                        gameId={gameId} />
+                </div>))}
         </td>
     </tr>);
 }
