@@ -30,8 +30,6 @@ public class GameMatchAdapterTests
             Id = Guid.NewGuid(),
             AwayPlayers = { AwayPlayer },
             HomePlayers = { HomePlayer },
-            StartingScore = 501,
-            NumberOfLegs = 3,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -39,8 +37,6 @@ public class GameMatchAdapterTests
         Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
-        Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
         Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayerDto }));
         Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayerDto }));
     }
@@ -68,8 +64,6 @@ public class GameMatchAdapterTests
             Id = Guid.NewGuid(),
             AwayPlayers = { AwayPlayerDto },
             HomePlayers = { HomePlayerDto },
-            StartingScore = 501,
-            NumberOfLegs = 3,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -77,8 +71,6 @@ public class GameMatchAdapterTests
         Assert.That(result.HomeScore, Is.EqualTo(dto.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(dto.AwayScore));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
-        Assert.That(result.StartingScore, Is.EqualTo(dto.StartingScore));
-        Assert.That(result.NumberOfLegs, Is.EqualTo(dto.NumberOfLegs));
         Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayer }));
         Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayer }));
     }

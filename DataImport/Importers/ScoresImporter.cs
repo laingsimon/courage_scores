@@ -1,5 +1,4 @@
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Services.Command;
 using DataImport.Models;
 
 namespace DataImport.Importers;
@@ -183,8 +182,6 @@ public class ScoresImporter : IImporter
                 match = _request.Created(new GameMatch
                 {
                     Id = Guid.NewGuid(),
-                    NumberOfLegs = -1,
-                    StartingScore = -1,
                 });
                 game.Matches.Add(match);
             }
@@ -204,8 +201,6 @@ public class ScoresImporter : IImporter
                 listEqualityComparer);
             match.HomeScore = ApplyChange(match.HomeScore, leg.HomePerspective.legswon, ref gameModified);
             match.AwayScore = ApplyChange(match.AwayScore, leg.HomePerspective.legslost, ref gameModified);
-            match.StartingScore = ApplyChange(match.StartingScore, UpdateScoresCommand.GetStartingScore(match.HomePlayers.Count), ref gameModified);
-            match.NumberOfLegs = ApplyChange(match.NumberOfLegs, UpdateScoresCommand.GetNumberOfLegs(match.HomePlayers.Count), ref gameModified);
 
             await ValidateMatch(game, match, context);
 

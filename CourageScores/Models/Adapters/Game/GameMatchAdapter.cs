@@ -22,8 +22,6 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             AwayScore = model.AwayScore,
             HomePlayers = await model.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             HomeScore = model.HomeScore,
-            StartingScore = model.StartingScore,
-            NumberOfLegs = model.NumberOfLegs,
         }.AddAuditProperties(model);
     }
 
@@ -36,8 +34,6 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             AwayScore = dto.AwayScore,
             HomePlayers = await dto.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             HomeScore = dto.HomeScore,
-            StartingScore = dto.StartingScore,
-            NumberOfLegs = dto.NumberOfLegs,
         }.AddAuditProperties(dto);
     }
 }

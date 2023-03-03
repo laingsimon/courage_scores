@@ -11,16 +11,6 @@ public class GameMatch : AuditedEntity, IGameVisitable
     }
 
     /// <summary>
-    /// The number of legs, typically 3 or 5
-    /// </summary>
-    public int? NumberOfLegs { get; set; }
-
-    /// <summary>
-    /// The starting score, typically 501 or 601 for triples
-    /// </summary>
-    public int? StartingScore { get; set; }
-
-    /// <summary>
     /// Who played from the home team
     /// </summary>
     public List<GamePlayer> HomePlayers { get; set; } = new();

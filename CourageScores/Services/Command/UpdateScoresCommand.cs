@@ -251,8 +251,6 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             AwayScore = updatedMatch.AwayScore,
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
-            NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
         };
 
         await _auditingHelper.SetUpdated(match, token);
@@ -273,8 +271,6 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             AwayScore = updatedMatch.AwayScore,
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
-            NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
         };
         await _auditingHelper.SetUpdated(match, token);
         return match;
@@ -301,25 +297,5 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         };
         await _auditingHelper.SetUpdated(gamePlayer, token);
         return gamePlayer;
-    }
-
-    public static int? GetNumberOfLegs(int homePlayers)
-    {
-        switch (homePlayers)
-        {
-            case 3: return 3;
-            case 2: return 3;
-            case 1: return 5;
-            default: return null;
-        }
-    }
-
-    public static int? GetStartingScore(int homePlayers)
-    {
-        switch (homePlayers)
-        {
-            case 3: return 601;
-            default: return 501;
-        }
     }
 }
