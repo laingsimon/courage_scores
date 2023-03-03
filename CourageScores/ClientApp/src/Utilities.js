@@ -149,3 +149,14 @@ export function max(iterable, selector) {
 export function round2dp(number) {
     return Math.round(number * 100) / 100;
 }
+
+/*
+* Return the item at the given index (using the optional selector)
+* */
+export function elementAt(items, index, selector) {
+    if (items.length > index) {
+        return selector ? selector(items[index]) : items[index];
+    }
+
+    return null;
+}

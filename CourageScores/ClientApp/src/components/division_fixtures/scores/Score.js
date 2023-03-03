@@ -10,7 +10,7 @@ import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
-import {any, isEmpty, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -143,7 +143,16 @@ export function Score({account, apis, divisions}) {
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
             allPlayers.sort(sortBy('name'));
 
-            const matchPlayerCounts = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
+            const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
+            const matchPlayerCounts = [
+                getMatchDefaults(0, matchOptions),
+                getMatchDefaults(1, matchOptions),
+                getMatchDefaults(2, matchOptions),
+                getMatchDefaults(3, matchOptions),
+                getMatchDefaults(4, matchOptions),
+                getMatchDefaults(5, matchOptions),
+                getMatchDefaults(6, matchOptions),
+                getMatchDefaults(7, matchOptions) ];
             if (!gameData.matches || isEmpty(gameData.matches)) {
                 gameData.matches = matchPlayerCounts;
             } else {
@@ -167,6 +176,49 @@ export function Score({account, apis, divisions}) {
         } finally {
             setLoading('ready');
         }
+    }
+
+    function getMatchDefaults(legIndex, matchOptions) {
+        return {
+            playerCount: matchOptions.playerCount[legIndex],
+            startingScore: matchOptions.startingScore[legIndex],
+            numberOfLegs: matchOptions.noOfLegs[legIndex],
+        };
+    }
+
+    function getMatchOptionsLookup(matchOptions) {
+        return {
+            playerCount: {
+                '0': elementAt(matchOptions, 0, op => op.playerCount) || 1,
+                '1': elementAt(matchOptions, 1, op => op.playerCount) || 1,
+                '2': elementAt(matchOptions, 2, op => op.playerCount) || 1,
+                '3': elementAt(matchOptions, 3, op => op.playerCount) || 1,
+                '4': elementAt(matchOptions, 4, op => op.playerCount) || 1,
+                '5': elementAt(matchOptions, 5, op => op.playerCount) || 2,
+                '6': elementAt(matchOptions, 6, op => op.playerCount) || 2,
+                '7': elementAt(matchOptions, 7, op => op.playerCount) || 3
+            },
+            startingScore: {
+                '0': elementAt(matchOptions, 0, op => op.startingScore) || 501,
+                '1': elementAt(matchOptions, 1, op => op.startingScore) || 501,
+                '2': elementAt(matchOptions, 2, op => op.startingScore) || 501,
+                '3': elementAt(matchOptions, 3, op => op.startingScore) || 501,
+                '4': elementAt(matchOptions, 4, op => op.startingScore) || 501,
+                '5': elementAt(matchOptions, 5, op => op.startingScore) || 501,
+                '6': elementAt(matchOptions, 6, op => op.startingScore) || 501,
+                '7': elementAt(matchOptions, 7, op => op.startingScore) || 601
+            },
+            noOfLegs: {
+                '0': elementAt(matchOptions, 0, op => op.numberOfLegs) || 5,
+                '1': elementAt(matchOptions, 1, op => op.numberOfLegs) || 5,
+                '2': elementAt(matchOptions, 2, op => op.numberOfLegs) || 5,
+                '3': elementAt(matchOptions, 3, op => op.numberOfLegs) || 5,
+                '4': elementAt(matchOptions, 4, op => op.numberOfLegs) || 5,
+                '5': elementAt(matchOptions, 5, op => op.numberOfLegs) || 3,
+                '6': elementAt(matchOptions, 6, op => op.numberOfLegs) || 3,
+                '7': elementAt(matchOptions, 7, op => op.numberOfLegs) || 3
+            },
+        };
     }
 
     useEffect(() => {
