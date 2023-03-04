@@ -27,9 +27,4 @@ public class TournamentMatchDto : AuditedDto
     /// The score for side b
     /// </summary>
     public int? ScoreB { get; set; }
-
-    /// <summary>
-    /// Options for each match in the game
-    /// </summary>
-    public List<GameMatchOptionDto> MatchOptions { get; set; } = new();
 }

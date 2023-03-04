@@ -27,4 +27,9 @@ public class TournamentRoundDto : AuditedDto
     /// The details of the next round, winners against winners
     /// </summary>
     public TournamentRoundDto? NextRound { get; set; }
+
+    /// <summary>
+    /// Options for each match in the game
+    /// </summary>
+    public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
 }

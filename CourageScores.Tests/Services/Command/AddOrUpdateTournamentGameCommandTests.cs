@@ -9,6 +9,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Tests.Models.Adapters;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
@@ -31,11 +32,16 @@ public class AddOrUpdateTournamentGameCommandTests
     private TournamentGame _game = null!;
     private EditTournamentGameDto _update = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _game = new TournamentGame { Id = Guid.NewGuid(), Date = new DateTime(2002, 03, 04) };
+        _game = new TournamentGame
+        {
+            Id = Guid.NewGuid(),
+            Date = new DateTime(2002, 03, 04),
+        };
         _update = new EditTournamentGameDto
         {
             Date = new DateTime(2001, 02, 03),
@@ -44,7 +50,8 @@ public class AddOrUpdateTournamentGameCommandTests
 
         _seasonService = new Mock<ISeasonService>();
         _sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
-        _roundAdapter = new TournamentRoundAdapter(new TournamentMatchAdapter(_sideAdapter), _sideAdapter);
+        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
+        _roundAdapter = new TournamentRoundAdapter(new TournamentMatchAdapter(_sideAdapter), _sideAdapter, _matchOptionAdapter);
         _auditingHelper = new Mock<IAuditingHelper>();
         _systemClock = new Mock<ISystemClock>();
         _userService = new Mock<IUserService>();

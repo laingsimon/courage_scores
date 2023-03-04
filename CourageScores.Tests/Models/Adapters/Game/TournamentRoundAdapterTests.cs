@@ -12,10 +12,13 @@ public class TournamentRoundAdapterTests
     private static readonly TournamentSideDto SideDto = new TournamentSideDto();
     private static readonly TournamentMatch Match = new TournamentMatch();
     private static readonly TournamentMatchDto MatchDto = new TournamentMatchDto();
+    private static readonly GameMatchOption MatchOption = new GameMatchOption();
+    private static readonly GameMatchOptionDto MatchOptionDto = new GameMatchOptionDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly TournamentRoundAdapter _adapter = new TournamentRoundAdapter(
         new MockAdapter<TournamentMatch, TournamentMatchDto>(Match, MatchDto),
-        new MockAdapter<TournamentSide, TournamentSideDto>(Side, SideDto));
+        new MockAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
+        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
 
     [Test]
     public async Task Adapt_GivenModelWithoutNextRound_SetsPropertiesCorrectly()
@@ -27,6 +30,10 @@ public class TournamentRoundAdapterTests
             Sides = { Side },
             NextRound = null,
             Name = "name",
+            MatchOptions =
+            {
+                MatchOption
+            }
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -36,6 +43,7 @@ public class TournamentRoundAdapterTests
         Assert.That(result.Sides, Is.EqualTo(new[] { SideDto }));
         Assert.That(result.NextRound, Is.Null);
         Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOptionDto }));
     }
 
     [Test]
@@ -52,12 +60,17 @@ public class TournamentRoundAdapterTests
             Sides = { Side },
             NextRound = nextRound,
             Name = "name",
+            MatchOptions =
+            {
+                MatchOption
+            }
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOptionDto }));
     }
 
     [Test]
@@ -70,6 +83,10 @@ public class TournamentRoundAdapterTests
             Sides = { SideDto },
             NextRound = null,
             Name = "name",
+            MatchOptions =
+            {
+                MatchOptionDto
+            }
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -79,6 +96,7 @@ public class TournamentRoundAdapterTests
         Assert.That(result.Sides, Is.EqualTo(new[] { Side }));
         Assert.That(result.NextRound, Is.Null);
         Assert.That(result.Name, Is.EqualTo(dto.Name));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOption }));
     }
 
     [Test]
@@ -95,12 +113,17 @@ public class TournamentRoundAdapterTests
             Sides = { SideDto },
             NextRound = nextRound,
             Name = "name",
+            MatchOptions =
+            {
+                MatchOptionDto,
+            }
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOption }));
     }
 
     [Test]
@@ -127,5 +150,25 @@ public class TournamentRoundAdapterTests
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Name, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_GivenModelWithNoMatchOptions_AcceptsNoMatchOptions()
+    {
+        var model = new TournamentRound();
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.MatchOptions, Is.Empty);
+    }
+
+    [Test]
+    public async Task Adapt_GivenDtoWithNoMatchOptions_AcceptsNoMatchOptions()
+    {
+        var dto = new TournamentRoundDto();
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.MatchOptions, Is.Empty);
     }
 }
