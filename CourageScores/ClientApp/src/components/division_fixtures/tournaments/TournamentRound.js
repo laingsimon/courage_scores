@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {all, any, isEmpty, toMap, valueChanged} from "../../../Utilities";
+import {all, any, elementAt, isEmpty, toMap, valueChanged} from "../../../Utilities";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
@@ -8,6 +8,10 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
+    const matchOptionDefaults = {
+        startingScore: 501,
+        numberOfLegs: 5,
+    };
     const [changeRoundName, setChangeRoundName] = useState(false);
 
     function sideSelection(side) {
@@ -132,6 +136,15 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
 
+            async function onMatchOptionsChanged(newMatchOptions) {
+                const newRound = Object.assign({}, round);
+                newRound.matchOptions[thisMatchIndex] = newMatchOptions;
+
+                if (onChange) {
+                    await onChange(newRound);
+                }
+            }
+
             return (<TournamentRoundMatch
                 key={thisMatchIndex}
                 hasNextRound={hasNextRound}
@@ -141,7 +154,9 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
                 sideMap={sideMap}
                 exceptSelected={exceptSelected}
                 matchIndex={thisMatchIndex}
-                onChange={onChange} />);
+                onChange={onChange}
+                matchOptions={elementAt(round.matchOptions, thisMatchIndex) || matchOptionDefaults}
+                onMatchOptionsChanged={onMatchOptionsChanged} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>

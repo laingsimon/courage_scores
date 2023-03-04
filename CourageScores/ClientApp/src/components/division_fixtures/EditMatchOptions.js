@@ -1,14 +1,14 @@
 import {valueChanged} from "../../Utilities";
 import React from "react";
 
-export function EditMatchOptions({ matchOptions, onMatchOptionsChanged }) {
+export function EditMatchOptions({ matchOptions, onMatchOptionsChanged, hideNumberOfPlayers }) {
     return (<div>
-        <div className="input-group my-3">
+        {hideNumberOfPlayers ? null : (<div className="input-group my-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">No of players</span>
             </div>
             <input type="number" className="form-control" value={matchOptions.playerCount} name="playerCount" onChange={valueChanged(matchOptions, onMatchOptionsChanged)} />
-        </div>
+        </div>)}
         <div className="input-group my-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Starting score</span>

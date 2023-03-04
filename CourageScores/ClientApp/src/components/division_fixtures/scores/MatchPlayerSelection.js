@@ -205,7 +205,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     function renderMatchSettingsDialog() {
         return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
             <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} />
-        </Dialog>)
+        </Dialog>);
     }
 
     return (<tr>
