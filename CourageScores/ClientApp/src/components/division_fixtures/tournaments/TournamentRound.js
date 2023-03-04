@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {all, any, isEmpty, toMap, valueChanged} from "../../../Utilities";
+import {TournamentRoundMatch} from "./TournamentRoundMatch";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
     const [ newMatch, setNewMatch ] = useState({});
+    // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
     const [changeRoundName, setChangeRoundName] = useState(false);
@@ -64,40 +66,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         }
     }
 
-    async function removeMatch(matchIndex) {
-        if (!window.confirm('Are you sure you want to remove this match?')) {
-            return;
-        }
-
-        const newRound = Object.assign({}, round);
-        newRound.matches = round.matches || [];
-        newRound.matches.splice(matchIndex, 1);
-
-        if (onChange) {
-            await onChange(newRound);
-        }
-    }
-
-    async function updateMatch(matchIndex, property, sideId) {
-        const newRound = Object.assign({}, round);
-        const match = newRound.matches[matchIndex];
-        match[property] = sideMap[sideId];
-
-        if (onChange) {
-            await onChange(newRound);
-        }
-    }
-
-    async function changeScore(event, matchIndex, property) {
-        const newRound = Object.assign({}, round);
-        const match = newRound.matches[matchIndex];
-        match[property] = event.target.value;
-
-        if (onChange) {
-            await onChange(newRound);
-        }
-    }
-
     async function subRoundChange(subRound) {
         const newRound = Object.assign({}, round);
         newRound.nextRound = subRound;
@@ -115,9 +83,14 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
 
         for (let index = 0; index < round.matches.length; index++) {
             const match = round.matches[index];
-            if (Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB)) {
+            // noinspection JSUnresolvedVariable
+            const scoreA = Number.parseInt(match.scoreA);
+            // noinspection JSUnresolvedVariable
+            const scoreB = Number.parseInt(match.scoreB);
+
+            if (scoreA > scoreB) {
                 sidesForTheNextRound.push(match.sideA);
-            } else if (Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA)) {
+            } else if (scoreB > scoreA) {
                 sidesForTheNextRound.push(match.sideB);
             }
         }
@@ -158,38 +131,17 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map(match => {
             const thisMatchIndex = matchIndex++;
-            const scoreARecorded = hasScore(match.scoreA);
-            const scoreBRecorded = hasScore(match.scoreB);
-            const hasBothScores = scoreARecorded && scoreBRecorded;
 
-            return (<tr key={thisMatchIndex} className="bg-light">
-                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'bg-winner' : ''}>
-                    {readOnly || hasNextRound ? (match.sideA.name || sideMap[match.sideA.id].name) : (<BootstrapDropdown readOnly={readOnly}
-                                       value={match.sideA ? match.sideA.id : null}
-                                       options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideA')).map(sideSelection)}
-                                       onChange={(side) => updateMatch(thisMatchIndex, 'sideA', side)}
-                                       slim={true}
-                                       className="margin-right" />)}
-                </td>
-                <td className={hasBothScores && Number.parseInt(match.scoreA) > Number.parseInt(match.scoreB) ? 'narrow-column bg-winner' : 'narrow-column'}>
-                    {readOnly || hasNextRound ? (match.scoreA) : (<input type="number" value={scoreARecorded ? match.scoreA : ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreA')} />)}
-                </td>
-                <td className="narrow-column">vs</td>
-                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'narrow-column bg-winner' : 'narrow-column'}>
-                    {readOnly || hasNextRound ? (match.scoreB) : (<input type="number" value={scoreBRecorded ? match.scoreB : ''} max="5" min="0" onChange={(event) => changeScore(event, thisMatchIndex, 'scoreB')} />)}
-                </td>
-                <td className={hasBothScores && Number.parseInt(match.scoreB) > Number.parseInt(match.scoreA) ? 'bg-winner' : ''}>
-                    {readOnly || hasNextRound ? (match.sideB.name || sideMap[match.sideB.id].name) : (<BootstrapDropdown readOnly={readOnly}
-                                   value={match.sideB ? match.sideB.id : null}
-                                   options={sides.filter(s => exceptSelected(s, thisMatchIndex, 'sideB')).map(sideSelection)}
-                                   onChange={(side) => updateMatch(thisMatchIndex, 'sideB', side)}
-                                   slim={true}
-                                   className="margin-right" />)}
-                </td>
-                {readOnly || hasNextRound ? null : (<td>
-                    <button className="btn btn-danger btn-sm" onClick={() => removeMatch(thisMatchIndex)}>🗑</button>
-                </td>)}
-            </tr>);
+            return (<TournamentRoundMatch
+                key={thisMatchIndex}
+                hasNextRound={hasNextRound}
+                match={match}
+                round={round}
+                readOnly={readOnly}
+                sideMap={sideMap}
+                exceptSelected={exceptSelected}
+                matchIndex={thisMatchIndex}
+                onChange={onChange} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>
