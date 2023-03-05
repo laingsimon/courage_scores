@@ -155,7 +155,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth }) {
                 exceptSelected={exceptSelected}
                 matchIndex={thisMatchIndex}
                 onChange={onChange}
-                matchOptions={elementAt(round.matchOptions, thisMatchIndex) || matchOptionDefaults}
+                matchOptions={elementAt(round.matchOptions || [], thisMatchIndex) || matchOptionDefaults}
                 onMatchOptionsChanged={onMatchOptionsChanged} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
