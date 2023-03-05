@@ -10,7 +10,7 @@ import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
-import {any, elementAt, isEmpty, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -143,17 +143,21 @@ export function Score({account, apis, divisions}) {
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
             allPlayers.sort(sortBy('name'));
 
-            if (!gameData.matches || isEmpty(gameData.matches)) {
+            if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
                 const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
-                gameData.matches = [
-                    getMatchDefaults(0, matchOptions),
-                    getMatchDefaults(1, matchOptions),
-                    getMatchDefaults(2, matchOptions),
-                    getMatchDefaults(3, matchOptions),
-                    getMatchDefaults(4, matchOptions),
-                    getMatchDefaults(5, matchOptions),
-                    getMatchDefaults(6, matchOptions),
-                    getMatchDefaults(7, matchOptions) ];
+                gameData.matchOptions = [
+                    getMatchOptionDefaults(0, matchOptions),
+                    getMatchOptionDefaults(1, matchOptions),
+                    getMatchOptionDefaults(2, matchOptions),
+                    getMatchOptionDefaults(3, matchOptions),
+                    getMatchOptionDefaults(4, matchOptions),
+                    getMatchOptionDefaults(5, matchOptions),
+                    getMatchOptionDefaults(6, matchOptions),
+                    getMatchOptionDefaults(7, matchOptions) ];
+            }
+
+            if (!gameData.matches || isEmpty(gameData.matches)) {
+                gameData.matches = repeat(8, getMatchDefaults);
             }
 
             setAllPlayers(allPlayers);
@@ -172,7 +176,14 @@ export function Score({account, apis, divisions}) {
         }
     }
 
-    function getMatchDefaults(legIndex, matchOptions) {
+    function getMatchDefaults() {
+        return {
+            homePlayers:[],
+            awayPlayers:[]
+        };
+    }
+
+    function getMatchOptionDefaults(legIndex, matchOptions) {
         return {
             playerCount: matchOptions.playerCount[legIndex],
             startingScore: matchOptions.startingScore[legIndex],
@@ -277,7 +288,7 @@ export function Score({account, apis, divisions}) {
         let matchIndex = 0;
         const matchesExceptIndex = fixtureData.matches.filter(_ => {
             let thisMatchIndex = matchIndex;
-            let matchOptions = getMatchDefaults(thisMatchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
+            let matchOptions = getMatchOptionDefaults(thisMatchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
             matchIndex++;
 
             return thisMatchIndex !== index && matchOptions.playerCount === playerCount;
@@ -306,7 +317,7 @@ export function Score({account, apis, divisions}) {
             onPlayerChanged={loadFixtureData}
             home={fixtureData.home} away={fixtureData.away}
             seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
-            matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
+            matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
             onMatchOptionsChanged={onMatchOptionsChanged} />);
     }
 

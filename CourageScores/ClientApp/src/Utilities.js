@@ -160,3 +160,14 @@ export function elementAt(items, index, selector) {
 
     return null;
 }
+
+/*
+* Create a collection of items, containing the given number of items, provided by the given function
+* */
+export function repeat(times, itemProvider) {
+    const items = [];
+    for (let index = 0; index < times; index++) {
+        items.push(itemProvider(index));
+    }
+    return items;
+}
