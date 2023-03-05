@@ -73,7 +73,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 : (<BootstrapDropdown
                      readOnly={readOnly}
                      value={match.sideA ? match.sideA.id : null}
-                     options={Object.values(sideMap).filter(s => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
+                     options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
                      onChange={(side) => updateMatch('sideA', side)}
                      slim={true}
                      className="margin-right" />)}
@@ -95,7 +95,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 : (<BootstrapDropdown
                      readOnly={readOnly}
                      value={match.sideB ? match.sideB.id : null}
-                     options={Object.values(sideMap).filter(s => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
+                     options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
                      onChange={(side) => updateMatch('sideB', side)}
                      slim={true}
                      className="margin-right" />)}
