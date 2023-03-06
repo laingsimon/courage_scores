@@ -1,10 +1,12 @@
-﻿using CourageScores.Models.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos;
 using CourageScores.Services.Error;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourageScores.Controllers;
 
 [ApiController]
+[ExcludeFromCodeCoverage]
 public class ErrorController : Controller
 {
     private readonly IErrorDetailService _errorDetailService;
