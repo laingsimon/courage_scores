@@ -14,6 +14,7 @@ export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
 
     useEffect(() => {
         setCurrentLink('https://' + document.location.host + location.pathname);
+        setCollapsed(true);
     }, [location]);
 
     function isActive(toRegex) {
