@@ -15,6 +15,9 @@ on:
     types: [opened,reopened,synchronize]
 
 jobs:
+  branch-name:
+    uses: ./.github/workflows/get-branch-name.yml
+
   setup:
     needs: 
      - branch-name
@@ -23,23 +26,28 @@ jobs:
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
       deploy-requested: ${{ github.event.inputs.deploy_dev }}
 
-  build-and-upload:
+  build:
     needs: 
      - setup
      - branch-name
     uses: ./.github/workflows/build.yml
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
-      upload: ${{ needs.setup.outputs.deploy == 'true' }}
 
-  branch-name:
-    uses: ./.github/workflows/get-branch-name.yml
+  publish:
+    needs: 
+     - branch-name
+     - setup
+    uses: ./.github/workflows/publish.yml
+    with: 
+      upload: ${{ needs.setup.outputs.deploy == 'true' }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}
     needs: 
-      - build-and-upload
       - branch-name
+      - build
+      - publish
     uses: ./.github/workflows/deploy.yml
     with:
       environment-name: 'DEV'

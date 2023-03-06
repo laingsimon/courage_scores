@@ -1,4 +1,4 @@
-name: Build and upload
+name: Build
 
 on:
   workflow_call:
@@ -6,10 +6,7 @@ on:
       dotnet-root:
         required: true
         type: string
-      upload:
-        required: true
-        type: boolean
-        
+
 jobs:
   with-dotnet:
     runs-on: windows-latest
@@ -29,12 +26,3 @@ jobs:
           nunit_files: 'CourageScores.Tests/TestResults/*.xml'
           check_run_annotations_branch: '*'
           comment_mode: off
-
-      - name: dotnet publish
-        run: dotnet publish --configuration Release --property PublishDir=${{ inputs.dotnet-root }}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
-        with:
-          name: .net-app
-          path: ${{ inputs.dotnet-root }}/myapp
