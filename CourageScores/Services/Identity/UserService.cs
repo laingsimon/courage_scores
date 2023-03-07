@@ -111,9 +111,11 @@ public class UserService : IUserService
             };
         }
 
-        userToUpdate.Access = await _accessAdapter.Adapt(user.Access, token);
+        userToUpdate.Access = user.Access != null
+            ? await _accessAdapter.Adapt(user.Access, token)
+            : null;
 
-        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access.ManageAccess == false)
+        if (loggedInUser.EmailAddress == user.EmailAddress && userToUpdate.Access?.ManageAccess == false)
         {
             return new ActionResultDto<UserDto>
             {

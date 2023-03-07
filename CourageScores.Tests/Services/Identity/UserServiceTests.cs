@@ -484,7 +484,7 @@ public class UserServiceTests
         var update = new UpdateAccessDto
         {
             EmailAddress = "email@somewhere.com",
-            Access =
+            Access = new AccessDto
             {
                 ManageAccess = false,
             }
@@ -522,7 +522,7 @@ public class UserServiceTests
         var update = new UpdateAccessDto
         {
             EmailAddress = "email@somewhere.com",
-            Access =
+            Access = new AccessDto
             {
                 ManageAccess = true,
                 ExportData = true,
@@ -570,7 +570,48 @@ public class UserServiceTests
         var update = new UpdateAccessDto
         {
             EmailAddress = "other@somewhere.com",
-            Access =
+            Access = new AccessDto
+            {
+                ExportData = true,
+            }
+        };
+
+        var result = await _service.UpdateAccess(update, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
+        _userRepository.Verify(r => r.UpsertUser(otherUser));
+    }
+
+    [Test]
+    public async Task UpdateAccess_WhenOtherUserWithoutAnyAccess_ReturnsSuccessful()
+    {
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
+        var user = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            }
+        };
+        var otherUser = new User();
+        var identity = new GenericIdentity("Simon Laing", "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
+        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        _authenticationService
+            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
+        _userRepository.Setup(u => u.GetUser("other@somewhere.com")).ReturnsAsync(() => otherUser);
+        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
+        var update = new UpdateAccessDto
+        {
+            EmailAddress = "other@somewhere.com",
+            Access = new AccessDto
             {
                 ExportData = true,
             }
