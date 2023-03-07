@@ -42,7 +42,7 @@ export function PlayerInput({ home, away, homeScore, awayScore,
         accumulator.bust = false;
 
         const remainingScore = leg.startingScore - (accumulator.score + score);
-        if (remainingScore !== 0 && remainingScore <= 1) {
+        if ((remainingScore !== 0 && remainingScore <= 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
             accumulator.bust = true;
             // bust
         } else {
