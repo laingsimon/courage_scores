@@ -53,6 +53,9 @@ export function UserAdmin({ account }) {
             while (name.indexOf('.') !== -1) {
                 const prefix = name.substring(0, name.indexOf('.'));
                 name = name.substring(prefix.length + 1);
+                if (!dataObject[prefix]) {
+                    dataObject[prefix] = {};
+                }
                 dataObject = dataObject[prefix];
             }
 
