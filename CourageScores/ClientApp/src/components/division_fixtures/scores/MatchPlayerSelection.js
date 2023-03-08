@@ -3,18 +3,21 @@ import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {Link} from "react-router-dom";
-import {propChanged, stateChanged} from "../../../Utilities";
+import {any, propChanged, stateChanged} from "../../../Utilities";
 import {EditMatchOptions} from "../EditMatchOptions";
+import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
 export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
-                                         onPlayerChanged, divisionId, account, matchOptions, onMatchOptionsChanged }) {
+                                         onPlayerChanged, divisionId, account, matchOptions, onMatchOptionsChanged,
+                                         on180, onHiCheck }) {
     const SHOW_EDIT_PLAYER_CONTROLS = false;
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
+    const [ saygOpen, setSaygOpen ] = useState(false);
 
     function homePlayer(index) {
         if (!match.homePlayers || match.homePlayers.length <= index) {
@@ -208,8 +211,72 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         </Dialog>);
     }
 
+    function renderSaygDialog() {
+        const home = match.homePlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
+        const away = match.awayPlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
+
+        const updateMatchScore = async (homeScore, awayScore) => {
+            const newMatch = Object.assign({ }, match);
+            newMatch.homeScore = homeScore;
+            newMatch.awayScore = awayScore;
+
+            if (onMatchChanged) {
+                await onMatchChanged(newMatch);
+            }
+        }
+
+        async function add180IfSingles(sideName) {
+            if (readOnly) {
+                return;
+            }
+
+            const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
+            if (players.length === 1) {
+                if (on180) {
+                    await on180(players[0]);
+                }
+            }
+        }
+
+        async function addHiCheckIfSingles(sideName, score) {
+            if (readOnly) {
+                return;
+            }
+
+            const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
+            if (players.length === 1) {
+                if (onHiCheck) {
+                    await onHiCheck(players[0], score);
+                }
+            }
+        }
+
+        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(false)} className="text-start">
+            <ScoreAsYouGo
+                data={match.sayg || { legs: {} }}
+                home={home}
+                away={away}
+                onChange={propChanged(match, onMatchChanged, 'sayg')}
+                onLegComplete={updateMatchScore}
+                startingScore={matchOptions.startingScore}
+                numberOfLegs={matchOptions.numberOfLegs}
+                homeScore={match.homeScore}
+                awayScore={match.awayScore}
+                on180={add180IfSingles}
+                onHiCheck={addHiCheckIfSingles} />
+        </Dialog>)
+    }
+
+    function canOpenSayg() {
+        return any(match.homePlayers)
+            && any(match.awayPlayers)
+            && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
+    }
+
     return (<tr>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner text-end width-50-pc' : 'text-end width-50-pc'}>
+            {canOpenSayg() ? (<button className="btn btn-sm float-start p-0" onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
+            {saygOpen ? renderSaygDialog() : null}
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link></div>)

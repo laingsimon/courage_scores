@@ -1,18 +1,18 @@
 ﻿using CourageScores.Filters;
 using CourageScores.Models.Adapters;
-using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services.Command;
 using CourageScores.Tests.Models.Adapters;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 
 namespace CourageScores.Tests.Services.Command;
 
 [TestFixture]
 public class UpdateTournamentRoundsCommandTests
 {
+    private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new ScoreAsYouGoDto();
     private UpdateTournamentRoundsCommand _command = null!;
     private TournamentGame _game = null!;
     private readonly CancellationToken _token = new CancellationToken();
@@ -21,20 +21,23 @@ public class UpdateTournamentRoundsCommandTests
     private ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
     private GameMatchOption? _matchOption;
     private GameMatchOptionDto? _matchOptionDto;
+    private MockAdapter<TournamentMatch,TournamentMatchDto> _matchAdapter = null!;
+    private MockAdapter<TournamentSide,TournamentSideDto> _sideAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        var sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
+        _sideAdapter = new MockAdapter<TournamentSide, TournamentSideDto>();
         _game = new TournamentGame();
         _update = new TournamentRoundDto();
         _cacheFlags = new ScopedCacheManagementFlags();
         _matchOption = new GameMatchOption();
         _matchOptionDto = new GameMatchOptionDto();
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOption, _matchOptionDto);
+        _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
         _command = new UpdateTournamentRoundsCommand(
-            sideAdapter,
-            new TournamentMatchAdapter(sideAdapter),
+            _sideAdapter,
+            _matchAdapter,
             _cacheFlags,
             _matchOptionAdapter);
     }
@@ -85,7 +88,7 @@ public class UpdateTournamentRoundsCommandTests
     public async Task ApplyUpdate_WhenUpdateHasNestedRounds_UpdatesNestedRoundsAndReturnsSuccessful()
     {
         _game.Round = new TournamentRound();
-        var side1 = new TournamentSideDto
+        var side1Dto = new TournamentSideDto
         {
             Id = Guid.NewGuid(),
             Name = "Side 1",
@@ -99,7 +102,7 @@ public class UpdateTournamentRoundsCommandTests
                 }
             }
         };
-        var side2 = new TournamentSideDto
+        var side2Dto = new TournamentSideDto
         {
             Id = Guid.NewGuid(),
             Name = "Side 2",
@@ -113,6 +116,15 @@ public class UpdateTournamentRoundsCommandTests
                 }
             }
         };
+        var matchDto = new TournamentMatchDto
+        {
+            SideA = side1Dto,
+            SideB = side1Dto,
+            ScoreA = 1,
+            ScoreB = 2,
+            Id = Guid.NewGuid(),
+            Sayg = ScoreAsYouGoDto,
+        };
         var round3 = new TournamentRoundDto
         {
             Name = "Round 3",
@@ -123,18 +135,11 @@ public class UpdateTournamentRoundsCommandTests
             NextRound = round3,
             Sides =
             {
-                side1, side2
+                side1Dto, side2Dto
             },
             Matches =
             {
-                new TournamentMatchDto
-                {
-                    SideA = side1,
-                    SideB = side1,
-                    ScoreA = 1,
-                    ScoreB = 2,
-                    Id = Guid.NewGuid(),
-                }
+                matchDto
             },
             MatchOptions =
             {
@@ -143,132 +148,34 @@ public class UpdateTournamentRoundsCommandTests
         };
         _update.NextRound = round2;
         _update.Name = "Round 1";
+        _update.Sides.AddRange(new[] { side1Dto, side2Dto });
+        var match = new TournamentMatch { Id = matchDto.Id };
+        var side1 = new TournamentSide { Id = side1Dto.Id };
+        var side2 = new TournamentSide { Id = side2Dto.Id };
+        _matchAdapter.AddMapping(match, matchDto);
+        _sideAdapter.AddMapping(side1, side1Dto);
+        _sideAdapter.AddMapping(side2, side2Dto);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Tournament game updated"));
-        Assert.That(result.Result!.Round, new RoundComparisonConstraint(_update));
-        Assert.That(result.Result!.Round!.NextRound, new RoundComparisonConstraint(round2));
-        Assert.That(result.Result!.Round!.NextRound!.NextRound, new RoundComparisonConstraint(round3));
+        var resultRound1 = result.Result!.Round;
+        Assert.That(resultRound1, Is.Not.Null);
+        Assert.That(resultRound1!.Name, Is.EqualTo("Round 1"));
+        Assert.That(resultRound1.Matches, Is.Empty);
+        Assert.That(resultRound1.Sides, Is.EqualTo(new[] { side1, side2 }));
+        Assert.That(resultRound1.MatchOptions, Is.Empty);
+        var resultRound2 = resultRound1.NextRound;
+        Assert.That(resultRound2, Is.Not.Null);
+        Assert.That(resultRound2!.Name, Is.EqualTo("Round 2"));
+        Assert.That(resultRound2.Matches, Is.EqualTo(new[] { match }));
+        Assert.That(resultRound2.Sides, Is.EqualTo(new[] { side1, side2 }));
+        Assert.That(resultRound2.MatchOptions, Is.EqualTo(new[] { _matchOption }));
+        var resultRound3 = resultRound2.NextRound;
+        Assert.That(resultRound3, Is.Not.Null);
+        Assert.That(resultRound3!.Name, Is.EqualTo("Round 3"));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
-    }
-
-    private class RoundComparisonConstraint : IConstraint
-    {
-        private readonly TournamentRoundDto? _update;
-
-        public RoundComparisonConstraint(TournamentRoundDto? update)
-        {
-            _update = update;
-        }
-
-        public IConstraint Resolve()
-        {
-            return this;
-        }
-
-        public ConstraintResult ApplyTo<TActual>(TActual actual)
-        {
-            if (_update == null && actual == null)
-            {
-                return new ConstraintResult(this, actual, ConstraintStatus.Success);
-            }
-
-            if (_update == null && actual != null)
-            {
-                return new ConstraintResult(this, actual, ConstraintStatus.Failure);
-            }
-
-            if (_update != null && actual == null)
-            {
-                return new ConstraintResult(this, actual, ConstraintStatus.Failure);
-            }
-
-            return new ConstraintResult(this, actual, IsEqual(actual as TournamentRound, _update!) ? ConstraintStatus.Success : ConstraintStatus.Failure);
-        }
-
-        private static bool IsEqual(TournamentRound? actual, TournamentRoundDto update)
-        {
-            if (actual == null)
-            {
-                throw new InvalidOperationException("Actual value isn't a TournamentRound");
-            }
-
-            return actual.Name == update.Name
-                && IsEqual(actual.Sides, update.Sides)
-                && IsEqual(actual.Matches, update.Matches)
-                && (actual.NextRound == null) == (update.NextRound == null)
-                && IsEqual(actual.MatchOptions, update.MatchOptions);
-        }
-
-        private static bool IsEqual(IReadOnlyCollection<TournamentSide> sides, IReadOnlyCollection<TournamentSideDto> updateSides)
-        {
-            return sides.Count == updateSides.Count
-                && sides.Zip(updateSides, IsEqual).All(doesMatch => doesMatch);
-        }
-
-        private static bool IsEqual(TournamentSide side, TournamentSideDto updateSide)
-        {
-            return side.Id == updateSide.Id
-                   && side.Name == updateSide.Name
-                   && IsEqual(side.Players, updateSide.Players);
-        }
-
-        private static bool IsEqual(IReadOnlyCollection<GameMatchOption?> matchOptions, IReadOnlyCollection<GameMatchOptionDto?> updateMatchOptions)
-        {
-            return matchOptions.Count == updateMatchOptions.Count
-                   && matchOptions.Zip(updateMatchOptions, IsEqual).All(doesMatch => doesMatch);
-        }
-
-        private static bool IsEqual(GameMatchOption? matchOption, GameMatchOptionDto? updateMatchOption)
-        {
-            return matchOption?.PlayerCount == updateMatchOption?.PlayerCount
-                   && matchOption?.StartingScore == updateMatchOption?.StartingScore
-                   && matchOption?.NumberOfLegs == updateMatchOption?.NumberOfLegs;
-        }
-
-        private static bool IsEqual(IReadOnlyCollection<TournamentPlayer> players, IReadOnlyCollection<TournamentPlayerDto> updatePlayers)
-        {
-            return players.Count == updatePlayers.Count
-                   && players.Zip(updatePlayers, IsEqual).All(doesMatch => doesMatch);
-        }
-
-        private static bool IsEqual(TournamentPlayer player, TournamentPlayerDto updatePlayer)
-        {
-            return player.Id == updatePlayer.Id
-                   && player.Name == updatePlayer.Name
-                   && player.DivisionId == updatePlayer.DivisionId;
-        }
-
-        private static bool IsEqual(IReadOnlyCollection<TournamentMatch> matches, IReadOnlyCollection<TournamentMatchDto> updateMatches)
-        {
-            return matches.Count == updateMatches.Count
-                   && matches.Zip(updateMatches, IsEqual).All(doesMatch => doesMatch);
-        }
-
-        private static bool IsEqual(TournamentMatch match, TournamentMatchDto updateMatch)
-        {
-            return match.ScoreA == updateMatch.ScoreA
-                   && match.ScoreB == updateMatch.ScoreB
-                   && IsEqual(match.SideA, updateMatch.SideA)
-                   && IsEqual(match.SideB, updateMatch.SideB);
-        }
-
-        public ConstraintResult ApplyTo<TActual>(ActualValueDelegate<TActual> del)
-        {
-            return ApplyTo(del());
-        }
-
-        public ConstraintResult ApplyTo<TActual>(ref TActual actual)
-        {
-            return ApplyTo(actual);
-        }
-
-        public string DisplayName { get; set; } = "??";
-        public string Description { get; set; } = "??";
-        public object[] Arguments { get; set; } = Array.Empty<object>();
-        public ConstraintBuilder Builder { get; set; } = new ConstraintBuilder();
     }
 }

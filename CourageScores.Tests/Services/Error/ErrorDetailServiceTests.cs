@@ -169,6 +169,6 @@ public class ErrorDetailServiceTests
 
     private class ExceptionHandlerPathFeature : IExceptionHandlerPathFeature
     {
-        public Exception Error { get; set; }
+        public Exception Error { get; init; } = null!;
     }
 }

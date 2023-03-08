@@ -1,3 +1,5 @@
+using CourageScores.Models.Cosmos.Game.Sayg;
+
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
@@ -29,6 +31,8 @@ public class GameMatch : AuditedEntity, IGameVisitable
     /// What was the away score
     /// </summary>
     public int? AwayScore { get; set; }
+
+    public ScoreAsYouGo? Sayg { get; set; }
 
     public void Accept(IGameVisitor visitor)
     {

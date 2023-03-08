@@ -18,4 +18,5 @@ public class Access
     public bool ImportData { get; set; }
     public bool InputResults { get; set; }
     public bool ViewExceptions { get; set; }
+    public bool RecordScoresAsYouGo { get; set; }
 }

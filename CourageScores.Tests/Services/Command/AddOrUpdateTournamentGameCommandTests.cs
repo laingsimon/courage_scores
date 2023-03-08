@@ -33,6 +33,7 @@ public class AddOrUpdateTournamentGameCommandTests
     private EditTournamentGameDto _update = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
+    private MockAdapter<TournamentMatch,TournamentMatchDto> _matchAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -51,10 +52,14 @@ public class AddOrUpdateTournamentGameCommandTests
         _seasonService = new Mock<ISeasonService>();
         _sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
-        _roundAdapter = new TournamentRoundAdapter(new TournamentMatchAdapter(_sideAdapter), _sideAdapter, _matchOptionAdapter);
+        _userService = new Mock<IUserService>();
+        _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
+        _roundAdapter = new TournamentRoundAdapter(
+            _matchAdapter,
+            _sideAdapter,
+            _matchOptionAdapter);
         _auditingHelper = new Mock<IAuditingHelper>();
         _systemClock = new Mock<ISystemClock>();
-        _userService = new Mock<IUserService>();
 
         _command = new AddOrUpdateTournamentGameCommand(_seasonService.Object, _sideAdapter, _roundAdapter, _auditingHelper.Object,
             _systemClock.Object, _userService.Object, _cacheFlags);
@@ -193,6 +198,8 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[] { side1, side2 });
         _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
+        secondRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 

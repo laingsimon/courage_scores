@@ -45,6 +45,13 @@ internal class MockAdapter<TModel, TDto> : IAdapter<TModel, TDto>
         _dtoToModelMap = zipped.ToDictionary(a => a.dto, a => a.model);
     }
 
+    public MockAdapter<TModel, TDto> AddMapping(TModel model, TDto dto)
+    {
+        _modelToDtoMap.Add(model, dto);
+        _dtoToModelMap.Add(dto, model);
+        return this;
+    }
+
     public Task<TDto> Adapt(TModel model, CancellationToken token)
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract

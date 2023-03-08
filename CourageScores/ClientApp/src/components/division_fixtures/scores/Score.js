@@ -19,6 +19,7 @@ import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
+import {add180, addHiCheck} from "../../common/Accolades";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -318,7 +319,9 @@ export function Score({account, apis, divisions}) {
             home={fixtureData.home} away={fixtureData.away}
             seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
             matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
-            onMatchOptionsChanged={onMatchOptionsChanged} />);
+            onMatchOptionsChanged={onMatchOptionsChanged}
+            on180={add180(fixtureData, setFixtureData)}
+            onHiCheck={addHiCheck(fixtureData, setFixtureData)} />);
     }
 
     function renderMergeMatch(index) {

@@ -22,6 +22,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ImportData = model.ImportData,
             InputResults = model.InputResults,
             ViewExceptions = model.ViewExceptions,
+            RecordScoresAsYouGo = model.RecordScoresAsYouGo,
         });
     }
 
@@ -42,6 +43,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ImportData = dto.ImportData,
             InputResults = dto.InputResults,
             ViewExceptions = dto.ViewExceptions,
+            RecordScoresAsYouGo = dto.RecordScoresAsYouGo,
         });
     }
 }
