@@ -2,7 +2,7 @@ import React from "react";
 import {PlayerInput} from "./PlayerInput";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 
-export function PlayLeg({ leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore }) {
+export function PlayLeg({ leg, home, away, onChange, onLegComplete, on180, onHiCheck, homeScore, awayScore, singlePlayer }) {
     function playerOptions() {
         return [
             { value: 'home', text: home },
@@ -57,6 +57,7 @@ export function PlayLeg({ leg, home, away, onChange, onLegComplete, on180, onHiC
             onLegComplete={onLegComplete}
             on180={on180}
             onHiCheck={onHiCheck}
-            onChange={onChange} />) : null}
+            onChange={onChange}
+            singlePlayer={singlePlayer} />) : null}
     </div>);
 }

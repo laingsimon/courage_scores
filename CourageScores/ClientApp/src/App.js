@@ -13,6 +13,7 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {toMap} from "./Utilities";
 import {AdminHome} from "./components/admin/AdminHome";
 import {SeasonApi} from "./api/season";
+import {SelfScore} from "./components/SelfScore";
 
 export default class App extends Component {
     constructor(props) {
@@ -122,6 +123,7 @@ export default class App extends Component {
                     <Route path='/admin' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/admin/:mode' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
                     <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
+                    <Route path='/sayg/' element={<SelfScore {...this.combineProps({...this.props})} />} />}/>
                 </Routes>
             </Layout>
         );

@@ -69,6 +69,11 @@ export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
                         <li className="nav-item">
                             <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
                         </li>
+                        <li className="nav-item">
+                            <NavLink tag={Link} className="nav-link text-light" onClick={navigate} to={`/sayg`}>
+                                Your score
+                            </NavLink>
+                        </li>
                         {divisions.filter(shouldShowDivision).map(division => (<li className="nav-item" key={division.id}>
                           <NavLink tag={Link} onClick={navigate} className={getClassName(`/division/${division.id}`)} to={`/division/${division.id}`}>
                             {division.name}

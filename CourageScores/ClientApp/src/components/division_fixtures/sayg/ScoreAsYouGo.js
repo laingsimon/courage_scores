@@ -1,7 +1,8 @@
 import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
 
-export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore, homeScore, on180, onHiCheck }) {
+export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
+                                 homeScore, on180, onHiCheck, singlePlayer }) {
     function getLeg(legIndex) {
         const leg = data.legs[legIndex];
         if (leg) {
@@ -14,11 +15,12 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
     function addLeg(legIndex) {
         const newData = Object.assign({}, data);
         newData.legs[legIndex] = {
-            playerSequence: null,
+            playerSequence: singlePlayer ? [ { value: 'home', text: home }, { value: 'away', text: 'unused-single-player' } ] : null,
             home: { throws: [], score: 0, noOfDarts: 0 },
             away: { throws: [], score: 0, noOfDarts: 0 },
             startingScore: startingScore,
-            isLastLeg: legIndex === numberOfLegs - 1
+            isLastLeg: legIndex === numberOfLegs - 1,
+            currentThrow: singlePlayer ? 'home' : null
         };
         return newData;
     }
@@ -40,8 +42,10 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
             const newData = addLeg(currentLegIndex + 1);
             const newLeg = newData.legs[currentLegIndex + 1];
 
-            newLeg.playerSequence = [ currentLeg.playerSequence[1], currentLeg.playerSequence[0] ];
-            newLeg.currentThrow = newLeg.playerSequence[0].value;
+            if (!singlePlayer) {
+                newLeg.playerSequence = [currentLeg.playerSequence[1], currentLeg.playerSequence[0]];
+                newLeg.currentThrow = newLeg.playerSequence[0].value;
+            }
             onChange(newData);
         }
 
@@ -49,8 +53,8 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
     }
 
     const legIndex = (homeScore || 0) + (awayScore || 0);
-    if ((legIndex === numberOfLegs || (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0))) {
-        return <MatchStatistics legs={data.legs} awayScore={awayScore} homeScore={homeScore} home={home} away={away} />
+    if ((singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0)))) {
+        return <MatchStatistics legs={data.legs} awayScore={awayScore} homeScore={homeScore} home={home} away={away} singlePlayer={singlePlayer} />
     }
 
     const leg = getLeg(legIndex);
@@ -64,5 +68,6 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
         on180={on180}
         onHiCheck={onHiCheck}
         homeScore={homeScore}
-        awayScore={awayScore} />);
+        awayScore={awayScore}
+        singlePlayer={singlePlayer} />);
 }

@@ -1,7 +1,7 @@
 import {isEmpty, repeat, round2dp, stateChanged} from "../../../Utilities";
 import React, {useState} from "react";
 
-export function LegStatistics({ leg, home, away, legNumber }) {
+export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
     const homeStats = leg.home;
     const awayStats = leg.away;
     const [showThrows, setShowThrows] = useState(false);
@@ -61,12 +61,12 @@ export function LegStatistics({ leg, home, away, legNumber }) {
                 : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
             {showThrows ? (renderThrows(leg.home.throws)) : null}
         </td>
-        <td className={leg.winner === 'away' ? 'bg-winner' : ''}>
+        {singlePlayer ? null : (<td className={leg.winner === 'away' ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3))}</strong> ({awayStats.noOfDarts} darts)<br />
             {leg.winner === 'away'
                 ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}
             {showThrows ? (renderThrows(leg.away.throws)) : null}
-        </td>
+        </td>)}
     </tr>);
 }

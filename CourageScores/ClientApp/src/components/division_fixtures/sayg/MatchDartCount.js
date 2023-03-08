@@ -1,4 +1,4 @@
-export function MatchDartCount({ homeCount, awayCount }) {
+export function MatchDartCount({ homeCount, awayCount, singlePlayer }) {
     if (homeCount + awayCount === 0) {
         return null
     }
@@ -10,8 +10,8 @@ export function MatchDartCount({ homeCount, awayCount }) {
         <td className={`${homeCount > awayCount ? '' : 'bg-winner'} fw-bold`}>
             {homeCount}
         </td>
-        <td className={`${homeCount > awayCount ? 'bg-winner' : ''} fw-bold`}>
+        {singlePlayer ? null : (<td className={`${homeCount > awayCount ? 'bg-winner' : ''} fw-bold`}>
             {awayCount}
-        </td>
+        </td>)}
     </tr>);
 }

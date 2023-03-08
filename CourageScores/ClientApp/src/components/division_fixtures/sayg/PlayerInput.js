@@ -1,8 +1,7 @@
 import {round2dp, stateChanged} from "../../../Utilities";
 import {useState} from "react";
 
-export function PlayerInput({ home, away, homeScore, awayScore,
-                                on180, onHiCheck, onChange, onLegComplete, leg }) {
+export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
     const [ score, setScore ] = useState('');
     const accumulator = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore = accumulator ? leg.startingScore - accumulator.score : -1;
@@ -68,7 +67,9 @@ export function PlayerInput({ home, away, homeScore, awayScore,
             }
         }
 
-        newLeg.currentThrow = opposite(accumulatorName);
+        newLeg.currentThrow = singlePlayer
+            ? newLeg.currentThrow
+            : opposite(accumulatorName);
         await onChange(newLeg);
 
         if (newLeg.winner) {
@@ -78,11 +79,19 @@ export function PlayerInput({ home, away, homeScore, awayScore,
         setScore('');
     }
 
+    function requires() {
+        if (singlePlayer) {
+            return 'require';
+        }
+
+        return 'requires';
+    }
+
     return (<div className="text-center">
         <h4>
-            <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
+            <strong>{playerLookup[leg.currentThrow]} </strong> {requires()} <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
         </h4>
-        <h5>{homeScore} - {awayScore}</h5>
+        {singlePlayer ? (<h5>Leg {homeScore + 1}</h5>) : (<h5>{homeScore} - {awayScore}</h5>)}
         {accumulator.noOfDarts ? (<p>
             thrown
             <strong> {accumulator.noOfDarts} </strong>

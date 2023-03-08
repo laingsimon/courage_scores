@@ -1,6 +1,6 @@
 import {round2dp} from "../../../Utilities";
 
-export function MatchAverage({ homeAverage, awayAverage }) {
+export function MatchAverage({ homeAverage, awayAverage, singlePlayer }) {
     if (!homeAverage && !awayAverage) {
         return null;
     }
@@ -12,8 +12,8 @@ export function MatchAverage({ homeAverage, awayAverage }) {
         <td className={`${homeAverage > awayAverage ? 'bg-winner' : ''} fw-bold`}>
             {round2dp(homeAverage)}
         </td>
-        <td className={`${homeAverage > awayAverage ? '' : 'bg-winner'} fw-bold`}>
+        {singlePlayer ? null : (<td className={`${homeAverage > awayAverage ? '' : 'bg-winner'} fw-bold`}>
             {round2dp(awayAverage)}
-        </td>
+        </td>)}
     </tr>);
 }
