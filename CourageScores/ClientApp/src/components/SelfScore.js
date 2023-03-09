@@ -1,6 +1,7 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {stateChanged} from "../Utilities";
+import {ShareButton} from "./ShareButton";
 
 export function SelfScore() {
     const [ startingScore, setStartingScore ] = useState('501');
@@ -10,6 +11,41 @@ export function SelfScore() {
     const [ data, setData ] = useState(null);
     const [ yourName, setYourName ] = useState('you');
     const [ opponentName, setOpponentName ] = useState('');
+
+    useEffect(() => {
+            const hash = document.location.hash;
+            if (hash === '' || hash === '#') {
+                return;
+            }
+
+            const shareData = JSON.parse(atob(hash.substring(1)));
+            setStartingScore(shareData.startingScore);
+            setNumberOfLegs(shareData.numberOfLegs);
+            setHomeScore(shareData.homeScore);
+            setAwayScore(shareData.awayScore);
+            setData(shareData.data);
+            setYourName(shareData.yourName);
+            setOpponentName(shareData.opponentName);
+    },
+    [ ]);
+
+    function createSharableHash() {
+        if (!data) {
+            return '';
+        }
+
+        const shareData = {
+            startingScore,
+            numberOfLegs,
+            homeScore,
+            awayScore,
+            data,
+            yourName,
+            opponentName
+        };
+
+        return '#' + btoa(JSON.stringify(shareData));
+    }
 
     function restart() {
         setData({
@@ -36,6 +72,7 @@ export function SelfScore() {
                 <span className="input-group-text">Starting score</span>
             </div>
             <input type="number" className="form-control" value={startingScore} onChange={stateChanged(setStartingScore)} />
+            <ShareButton text="Practice" getHash={createSharableHash} title="Practice" />
         </div>
         <div className="input-group my-3">
             <div className="input-group-prepend">

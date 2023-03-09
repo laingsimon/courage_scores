@@ -1,13 +1,13 @@
 import {useLocation} from "react-router-dom";
 
-export function ShareButton({ title, text }) {
+export function ShareButton({ title, text, getHash }) {
     const location = useLocation();
 
     async function share() {
         const shareData = {
             text: text || 'Courage League',
             title: title || 'Courage League',
-            url: location.pathname + location.search
+            url: location.pathname + location.search + (getHash ? getHash() : location.hash)
         };
 
         await navigator.share(shareData);
