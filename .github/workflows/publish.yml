@@ -1,0 +1,31 @@
+name: Publish and upload
+
+on:
+  workflow_call:
+    inputs:
+      upload:
+        required: true
+        type: boolean
+  
+jobs:
+  with-dotnet:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: dotnet publish
+        run: dotnet publish --configuration Release --property PublishDir=/myapp
+
+#      - name: Report code coverage
+#        uses: romeovs/lcov-reporter-action@v0.2.11
+#        with:
+#          lcov-file: ./CourageScores/ClientApp/coverage/lcov.info
+#          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact for deployment job
+        if: ${{ inputs.upload == true }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: .net-app
+          path: /myapp

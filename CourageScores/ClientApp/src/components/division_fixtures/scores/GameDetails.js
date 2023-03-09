@@ -16,7 +16,7 @@ export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
     return (<div>
         <div className="input-group mb-3">
             <input disabled={saving} type="date" name="date" className="form-control margin-right date-selection" value={fixtureData.date.substring(0, 10)} onChange={valueChanged(fixtureData, setFixtureData)} />
-            <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address} onChange={valueChanged(fixtureData, setFixtureData)} />
+            <input disabled={saving} type="text" name="address" className="form-control margin-right" value={fixtureData.address || ''} onChange={valueChanged(fixtureData, setFixtureData)} />
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">

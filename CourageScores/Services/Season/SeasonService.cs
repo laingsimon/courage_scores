@@ -92,7 +92,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     public async Task<SeasonDto?> GetLatest(CancellationToken token)
     {
         var today = _clock.UtcNow.Date;
-        return (await GetAll(token).ToList()).Where(s => s.StartDate <= today && s.EndDate >= today).MaxBy(s => s.EndDate);
+        return await GetForDate(today, token);
+    }
+
+    public async Task<SeasonDto?> GetForDate(DateTime referenceDate, CancellationToken token)
+    {
+        return (await GetAll(token).ToList()).Where(s => s.StartDate <= referenceDate && s.EndDate >= referenceDate).MaxBy(s => s.EndDate);
     }
 
     private static IEnumerable<DivisionFixtureDto> AddMissingTeams(IEnumerable<DivisionFixtureDto> fixtures, IEnumerable<TeamDto> allTeams)

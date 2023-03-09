@@ -8,13 +8,16 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
 {
     private readonly IAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
+    private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter;
 
     public TournamentRoundAdapter(
         IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter,
-        IAdapter<TournamentSide, TournamentSideDto> sideAdapter)
+        IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
+        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter)
     {
         _matchAdapter = matchAdapter;
         _sideAdapter = sideAdapter;
+        _matchOptionAdapter = matchOptionAdapter;
     }
 
     public async Task<TournamentRoundDto> Adapt(TournamentRound model, CancellationToken token)
@@ -26,6 +29,7 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
             Sides = await model.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             NextRound = model.NextRound != null ? await Adapt(model.NextRound, token) : null,
             Name = model.Name,
+            MatchOptions = await model.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
         }.AddAuditProperties(model);
     }
 
@@ -38,6 +42,7 @@ public class TournamentRoundAdapter : IAdapter<TournamentRound, TournamentRoundD
             Sides = await dto.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList(),
             NextRound = dto.NextRound != null ? await Adapt(dto.NextRound, token) : null,
             Name = dto.Name?.Trim(),
+            MatchOptions = await dto.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
         }.AddAuditProperties(dto);
     }
 }

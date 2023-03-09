@@ -188,4 +188,162 @@ public class SeasonServiceTests
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Result, Is.Not.Null.And.Not.Empty);
     }
+
+    [Test]
+    public async Task GetLatest_WhenNoSeasons_ReturnsNull()
+    {
+        var today = new DateTime(2001, 02, 03);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosSeason>());
+
+        var result = await _service.GetLatest(_token);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetLatest_WhenSeasonStartsToday_ReturnsSeason()
+    {
+        var today = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = today;
+        _seasonDto.EndDate = today.AddDays(10);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetLatest(_token);
+
+        Assert.That(result, Is.SameAs(_seasonDto));
+    }
+
+    [Test]
+    public async Task GetLatest_WhenSeasonEndsToday_ReturnsSeason()
+    {
+        var today = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = today.AddDays(-10);
+        _seasonDto.EndDate = today;
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetLatest(_token);
+
+        Assert.That(result, Is.SameAs(_seasonDto));
+    }
+
+    [Test]
+    public async Task GetLatest_WhenSeasonStartsBeforeTodayAndEndsAfterToday_ReturnsSeason()
+    {
+        var today = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = today.AddDays(-10);
+        _seasonDto.EndDate = today.AddDays(10);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetLatest(_token);
+
+        Assert.That(result, Is.SameAs(_seasonDto));
+    }
+
+    [Test]
+    public async Task GetLatest_WhenSeasonStartsTomorrow_ReturnsNull()
+    {
+        var today = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = today.AddDays(1);
+        _seasonDto.EndDate = today.AddDays(10);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetLatest(_token);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetLatest_WhenSeasonEndedYesterday_ReturnsNull()
+    {
+        var today = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = today.AddDays(-10);
+        _seasonDto.EndDate = today.AddDays(-1);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(today, TimeSpan.Zero));
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetLatest(_token);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetForDate_WhenNoSeasons_ReturnsNull()
+    {
+        var date = new DateTime(2001, 02, 03);
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosSeason>());
+
+        var result = await _service.GetForDate(date, _token);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetForDate_WhenSeasonStartsToday_ReturnsSeason()
+    {
+        var date = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = date;
+        _seasonDto.EndDate = date.AddDays(10);
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetForDate(date, _token);
+
+        Assert.That(result, Is.SameAs(_seasonDto));
+    }
+
+    [Test]
+    public async Task GetForDate_WhenSeasonEndsToday_ReturnsSeason()
+    {
+        var date = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = date.AddDays(-10);
+        _seasonDto.EndDate = date;
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetForDate(date, _token);
+
+        Assert.That(result, Is.SameAs(_seasonDto));
+    }
+
+    [Test]
+    public async Task GetForDate_WhenSeasonStartsBeforeTodayAndEndsAfterToday_ReturnsSeason()
+    {
+        var date = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = date.AddDays(-10);
+        _seasonDto.EndDate = date.AddDays(10);
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetForDate(date, _token);
+
+        Assert.That(result, Is.SameAs(_seasonDto));
+    }
+
+    [Test]
+    public async Task GetForDate_WhenSeasonStartsTomorrow_ReturnsNull()
+    {
+        var date = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = date.AddDays(1);
+        _seasonDto.EndDate = date.AddDays(10);
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetForDate(date, _token);
+
+        Assert.That(result, Is.Null);
+    }
+
+    [Test]
+    public async Task GetForDate_WhenSeasonEndedYesterday_ReturnsNull()
+    {
+        var date = new DateTime(2001, 02, 03);
+        _seasonDto.StartDate = date.AddDays(-10);
+        _seasonDto.EndDate = date.AddDays(-1);
+        _repository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(_season));
+
+        var result = await _service.GetForDate(date, _token);
+
+        Assert.That(result, Is.Null);
+    }
 }

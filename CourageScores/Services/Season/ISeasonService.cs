@@ -8,4 +8,5 @@ public interface ISeasonService : IGenericDataService<Models.Cosmos.Season, Seas
 {
     Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request, CancellationToken token);
     Task<SeasonDto?> GetLatest(CancellationToken token);
+    Task<SeasonDto?> GetForDate(DateTime referenceDate, CancellationToken token);
 }

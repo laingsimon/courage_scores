@@ -39,8 +39,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
     protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
-        var latestSeason = await _seasonService.GetLatest(token);
-        var user = (await _userService.GetUser(token))!;
+        var latestSeason = await _seasonService.GetForDate(update.Date, token);
 
         if (latestSeason == null)
         {
@@ -51,6 +50,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             };
         }
 
+        var user = (await _userService.GetUser(token))!;
         game.Address = update.Address;
         game.Date = update.Date;
         game.SeasonId = latestSeason.Id;

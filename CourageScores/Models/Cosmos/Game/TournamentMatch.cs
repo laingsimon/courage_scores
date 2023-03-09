@@ -1,4 +1,6 @@
-﻿namespace CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models.Cosmos.Game.Sayg;
+
+namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// Representation of a match in a tournament round
@@ -24,6 +26,8 @@ public class TournamentMatch : AuditedEntity, IGameVisitable
     /// The score for side b
     /// </summary>
     public int? ScoreB { get; set; }
+
+    public ScoreAsYouGo? Sayg { get; set; }
 
     public void Accept(IGameVisitor visitor)
     {

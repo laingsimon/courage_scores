@@ -1,3 +1,5 @@
+using CourageScores.Models.Cosmos.Game.Sayg;
+
 namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
@@ -9,16 +11,6 @@ public class GameMatch : AuditedEntity, IGameVisitable
     {
         Version = 2;
     }
-
-    /// <summary>
-    /// The number of legs, typically 3 or 5
-    /// </summary>
-    public int? NumberOfLegs { get; set; }
-
-    /// <summary>
-    /// The starting score, typically 501 or 601 for triples
-    /// </summary>
-    public int? StartingScore { get; set; }
 
     /// <summary>
     /// Who played from the home team
@@ -39,6 +31,8 @@ public class GameMatch : AuditedEntity, IGameVisitable
     /// What was the away score
     /// </summary>
     public int? AwayScore { get; set; }
+
+    public ScoreAsYouGo? Sayg { get; set; }
 
     public void Accept(IGameVisitor visitor)
     {

@@ -25,6 +25,7 @@ export function Tournament({ account, apis }) {
     const [tournamentData, setTournamentData] = useState(null);
     const [season, setSeason] = useState(null);
     const [seasons, setSeasons] = useState(null);
+    const [divisions, setDivisions] = useState(null);
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
@@ -66,6 +67,7 @@ export function Tournament({ account, apis }) {
             setTournamentData(tournamentData);
 
             const seasonsResponse = await seasonApi.getAll();
+            const divisionsResponse = await divisionApi.getAll();
             const season = seasonsResponse.filter(s => s.id === tournamentData.seasonId)[0];
             const teams = await teamApi.getAll();
             const allPlayers = getAllPlayers(tournamentData, teams);
@@ -82,6 +84,7 @@ export function Tournament({ account, apis }) {
             setTeams(teams);
             setSeason(season);
             setSeasons(seasonsResponse);
+            setDivisions(divisionsResponse);
             setAllPlayers(allPlayers);
         } catch (e) {
             setError(e.toString());
@@ -151,6 +154,7 @@ export function Tournament({ account, apis }) {
             reloadAll={apis.reloadAll}
             seasons={seasons}
             account={account}
+            divisions={divisions}
             originalSeasonData={{
                 id: season.id,
                 name: season.name,
@@ -198,8 +202,8 @@ export function Tournament({ account, apis }) {
                 season={season}
                 alreadyPlaying={alreadyPlaying}
                 canSave={canSave}
-                isAdmin={isAdmin}
-                setTournamentData={setTournamentData} />
+                setTournamentData={setTournamentData}
+                account={account} />
             <TournamentSheet sides={tournamentData.sides} />
             {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

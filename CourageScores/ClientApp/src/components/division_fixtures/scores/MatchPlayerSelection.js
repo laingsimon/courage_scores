@@ -3,16 +3,21 @@ import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {Link} from "react-router-dom";
-import {propChanged, stateChanged} from "../../../Utilities";
+import {any, propChanged, stateChanged} from "../../../Utilities";
+import {EditMatchOptions} from "../EditMatchOptions";
+import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, otherMatches, playerCount, disabled,
+export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
-                                         onPlayerChanged, divisionId, account }) {
+                                         onPlayerChanged, divisionId, account, matchOptions, onMatchOptionsChanged,
+                                         on180, onHiCheck }) {
     const SHOW_EDIT_PLAYER_CONTROLS = false;
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
+    const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
+    const [ saygOpen, setSaygOpen ] = useState(false);
 
     function homePlayer(index) {
         if (!match.homePlayers || match.homePlayers.length <= index) {
@@ -73,13 +78,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     async function homeScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.homeScore = newScore ? Number.parseInt(newScore) : null;
-        newMatch.numberOfLegs = numberOfLegs;
 
-        if (newScore && newMatch.homeScore > numberOfLegs) {
-            newMatch.homeScore = numberOfLegs;
+        if (newScore && newMatch.homeScore > matchOptions.numberOfLegs) {
+            newMatch.homeScore = matchOptions.numberOfLegs;
         }
-        if (newScore && newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
-            newMatch.awayScore = numberOfLegs - newMatch.homeScore;
+        if (newScore && newMatch.awayScore + newMatch.homeScore > matchOptions.numberOfLegs) {
+            newMatch.awayScore = matchOptions.numberOfLegs - newMatch.homeScore;
         }
 
         if (onMatchChanged) {
@@ -90,13 +94,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     async function awayScoreChanged(newScore) {
         const newMatch = Object.assign({ }, match);
         newMatch.awayScore = newScore ? Number.parseInt(newScore) : null;
-        newMatch.numberOfLegs = numberOfLegs;
 
-        if (newScore && newMatch.awayScore > numberOfLegs) {
-            newMatch.awayScore = numberOfLegs;
+        if (newScore && newMatch.awayScore > matchOptions.numberOfLegs) {
+            newMatch.awayScore = matchOptions.numberOfLegs;
         }
-        if (newScore && newMatch.awayScore + newMatch.homeScore > numberOfLegs) {
-            newMatch.homeScore = numberOfLegs - newMatch.awayScore;
+        if (newScore && newMatch.awayScore + newMatch.homeScore > matchOptions.numberOfLegs) {
+            newMatch.homeScore = matchOptions.numberOfLegs - newMatch.awayScore;
         }
 
         if (onMatchChanged) {
@@ -128,7 +131,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
             return exceptPlayerIds;
         }
 
-        for (let index = 0; index < playerCount; index++) {
+        for (let index = 0; index < matchOptions.playerCount; index++) {
             if (playerIndex !== index && playerList.length > index) {
                 if (playerList[index]) {
                     exceptPlayerIds.push(playerList[index].id);
@@ -142,7 +145,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
     function playerIndexes() {
         const indexes = [];
 
-        for (let index = 0; index < playerCount; index++) {
+        for (let index = 0; index < matchOptions.playerCount; index++) {
             indexes.push(index);
         }
 
@@ -202,8 +205,78 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
         return account.access.inputResults && account.teamId === teamId;
     }
 
+    function renderMatchSettingsDialog() {
+        return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
+            <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} />
+        </Dialog>);
+    }
+
+    function renderSaygDialog() {
+        const home = match.homePlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
+        const away = match.awayPlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
+
+        const updateMatchScore = async (homeScore, awayScore) => {
+            const newMatch = Object.assign({ }, match);
+            newMatch.homeScore = homeScore;
+            newMatch.awayScore = awayScore;
+
+            if (onMatchChanged) {
+                await onMatchChanged(newMatch);
+            }
+        }
+
+        async function add180IfSingles(sideName) {
+            if (readOnly) {
+                return;
+            }
+
+            const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
+            if (players.length === 1) {
+                if (on180) {
+                    await on180(players[0]);
+                }
+            }
+        }
+
+        async function addHiCheckIfSingles(sideName, score) {
+            if (readOnly) {
+                return;
+            }
+
+            const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
+            if (players.length === 1) {
+                if (onHiCheck) {
+                    await onHiCheck(players[0], score);
+                }
+            }
+        }
+
+        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(false)} className="text-start">
+            <ScoreAsYouGo
+                data={match.sayg || { legs: {} }}
+                home={home}
+                away={away}
+                onChange={propChanged(match, onMatchChanged, 'sayg')}
+                onLegComplete={updateMatchScore}
+                startingScore={matchOptions.startingScore}
+                numberOfLegs={matchOptions.numberOfLegs}
+                homeScore={match.homeScore}
+                awayScore={match.awayScore}
+                on180={add180IfSingles}
+                onHiCheck={addHiCheckIfSingles} />
+        </Dialog>)
+    }
+
+    function canOpenSayg() {
+        return any(match.homePlayers)
+            && any(match.awayPlayers)
+            && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
+    }
+
     return (<tr>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner text-end width-50-pc' : 'text-end width-50-pc'}>
+            {canOpenSayg() ? (<button className="btn btn-sm float-start p-0" onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
+            {saygOpen ? renderSaygDialog() : null}
             {createPlayerFor ? renderCreatePlayerDialog() : null}
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link></div>)
@@ -246,22 +319,27 @@ export function MatchPlayerSelection({ match, onMatchChanged, numberOfLegs, othe
                     onChange={stateChanged(awayScoreChanged)} />) }
         </td>
         <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
+            {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
+            {readOnly ? null : (<button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`} className="btn btn-sm float-end" onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
+
             {playerIndexes().map(index => disabled
                 ? (<div key={index}><Link to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link></div>)
-                : (<div key={index}><PlayerSelection
-                disabled={disabled}
-                readOnly={readOnly}
-                players={awayPlayers}
-                selected={awayPlayer(index)}
-                except={exceptPlayers(index, 'awayPlayers')}
-                onChange={(elem, player) => awayPlayerChanged(index, player)}
-                allowEdit={canEditOrDelete(away.id)}
-                onEdit={playerUpdated}
-                allowDelete={canEditOrDelete(away.id)}
-                onDelete={playerUpdated}
-                teamId={away.id}
-                seasonId={seasonId}
-                gameId={gameId} /></div>))}
+                : (<div key={index}>
+                    <PlayerSelection
+                        disabled={disabled}
+                        readOnly={readOnly}
+                        players={awayPlayers}
+                        selected={awayPlayer(index)}
+                        except={exceptPlayers(index, 'awayPlayers')}
+                        onChange={(elem, player) => awayPlayerChanged(index, player)}
+                        allowEdit={canEditOrDelete(away.id)}
+                        onEdit={playerUpdated}
+                        allowDelete={canEditOrDelete(away.id)}
+                        onDelete={playerUpdated}
+                        teamId={away.id}
+                        seasonId={seasonId}
+                        gameId={gameId} />
+                </div>))}
         </td>
     </tr>);
 }

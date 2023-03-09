@@ -1,8 +1,10 @@
 ﻿using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
@@ -15,6 +17,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 {
     private readonly IUserService _userService;
     private readonly IAdapter<Models.Cosmos.Game.Game, GameDto> _gameAdapter;
+    private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionsAdapter;
+    private readonly ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter;
     private readonly IAuditingHelper _auditingHelper;
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
@@ -24,6 +28,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
     public UpdateScoresCommand(IUserService userService,
         IAdapter<Models.Cosmos.Game.Game, GameDto> gameAdapter,
+        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionsAdapter,
+        ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> scoreAsYouGoAdapter,
         IAuditingHelper auditingHelper,
         ISeasonService seasonService,
         ICommandFactory commandFactory,
@@ -32,6 +38,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     {
         _userService = userService;
         _gameAdapter = gameAdapter;
+        _matchOptionsAdapter = matchOptionsAdapter;
+        _scoreAsYouGoAdapter = scoreAsYouGoAdapter;
         _auditingHelper = auditingHelper;
         _seasonService = seasonService;
         _commandFactory = commandFactory;
@@ -104,6 +112,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed ?? game.Postponed;
         game.IsKnockout = _scores.IsKnockout ?? game.IsKnockout;
+        game.MatchOptions = await _scores.MatchOptions.SelectAsync(mo => _matchOptionsAdapter.Adapt(mo, token)).ToList();
 
         var dateChanged = _scores.Date != game.Date;
         game.Date = _scores.Date ?? game.Date;
@@ -240,6 +249,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
     private async Task<GameMatch> AdaptToMatch(RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        var permitted = user?.Access?.RecordScoresAsYouGo == true;
+
         var match = new GameMatch
         {
             Id = Guid.NewGuid(),
@@ -247,8 +259,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             AwayScore = updatedMatch.AwayScore,
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
-            NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
+            Sayg = updatedMatch.Sayg != null && permitted
+                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, token)
+                : null,
         };
 
         await _auditingHelper.SetUpdated(match, token);
@@ -257,6 +270,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
     private async Task<GameMatch> UpdateMatch(GameMatch currentMatch, RecordScoresDto.RecordScoresGameMatchDto updatedMatch, CancellationToken token)
     {
+        var user = await _userService.GetUser(token);
+        var permitted = user?.Access?.RecordScoresAsYouGo == true;
+
         var match = new GameMatch
         {
             Author = currentMatch.Author,
@@ -269,8 +285,9 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             AwayScore = updatedMatch.AwayScore,
             HomePlayers = await updatedMatch.HomePlayers.SelectAsync(p => AdaptToPlayer(p, token)).ToList(),
             HomeScore = updatedMatch.HomeScore,
-            StartingScore = GetStartingScore(updatedMatch.HomePlayers.Count),
-            NumberOfLegs = GetNumberOfLegs(updatedMatch.HomePlayers.Count),
+            Sayg = updatedMatch.Sayg != null && permitted
+                ? await _scoreAsYouGoAdapter.Adapt(updatedMatch.Sayg, token)
+                : currentMatch.Sayg,
         };
         await _auditingHelper.SetUpdated(match, token);
         return match;
@@ -297,25 +314,5 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         };
         await _auditingHelper.SetUpdated(gamePlayer, token);
         return gamePlayer;
-    }
-
-    public static int? GetNumberOfLegs(int homePlayers)
-    {
-        switch (homePlayers)
-        {
-            case 3: return 3;
-            case 2: return 3;
-            case 1: return 5;
-            default: return null;
-        }
-    }
-
-    public static int? GetStartingScore(int homePlayers)
-    {
-        switch (homePlayers)
-        {
-            case 3: return 601;
-            default: return 501;
-        }
     }
 }

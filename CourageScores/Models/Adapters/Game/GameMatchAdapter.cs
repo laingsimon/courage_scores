@@ -1,5 +1,7 @@
 ﻿using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game;
@@ -7,10 +9,12 @@ namespace CourageScores.Models.Adapters.Game;
 public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
 {
     private readonly IAdapter<GamePlayer, GamePlayerDto> _gamePlayerAdapter;
+    private readonly ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter;
 
-    public GameMatchAdapter(IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter)
+    public GameMatchAdapter(IAdapter<GamePlayer, GamePlayerDto> gamePlayerAdapter, ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> scoreAsYouGoAdapter)
     {
         _gamePlayerAdapter = gamePlayerAdapter;
+        _scoreAsYouGoAdapter = scoreAsYouGoAdapter;
     }
 
     public async Task<GameMatchDto> Adapt(GameMatch model, CancellationToken token)
@@ -22,8 +26,7 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             AwayScore = model.AwayScore,
             HomePlayers = await model.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             HomeScore = model.HomeScore,
-            StartingScore = model.StartingScore,
-            NumberOfLegs = model.NumberOfLegs,
+            Sayg = model.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(model.Sayg, token) : null,
         }.AddAuditProperties(model);
     }
 
@@ -36,8 +39,7 @@ public class GameMatchAdapter : IAdapter<GameMatch, GameMatchDto>
             AwayScore = dto.AwayScore,
             HomePlayers = await dto.HomePlayers.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             HomeScore = dto.HomeScore,
-            StartingScore = dto.StartingScore,
-            NumberOfLegs = dto.NumberOfLegs,
+            Sayg = dto.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(dto.Sayg, token) : null,
         }.AddAuditProperties(dto);
     }
 }

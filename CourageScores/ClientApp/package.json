@@ -30,6 +30,7 @@
     "workbox-streams": "^6.5.3"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.0.0",
     "ajv": "^8.11.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.18.0",
@@ -48,8 +49,12 @@
     "css-what": "^5.0.1",
     "nth-check": "^3.0.1"
   },
+  "jest": {
+    "coverageReporters": [
+      "text", "lcov"
+    ]
+  },
   "scripts": {
-    "prestart": "node aspnetcore-https && node aspnetcore-react",
     "start": "rimraf ./build && react-scripts start",
     "build": "react-scripts build",
     "test": "cross-env CI=true react-scripts test --env=jsdom",

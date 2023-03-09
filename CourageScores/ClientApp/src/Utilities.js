@@ -149,3 +149,25 @@ export function max(iterable, selector) {
 export function round2dp(number) {
     return Math.round(number * 100) / 100;
 }
+
+/*
+* Return the item at the given index (using the optional selector)
+* */
+export function elementAt(items, index, selector) {
+    if (items.length > index && items[index]) {
+        return selector ? selector(items[index]) : items[index];
+    }
+
+    return null;
+}
+
+/*
+* Create a collection of items, containing the given number of items, provided by the given function
+* */
+export function repeat(times, itemProvider) {
+    const items = [];
+    for (let index = 0; index < times; index++) {
+        items.push(itemProvider(index));
+    }
+    return items;
+}

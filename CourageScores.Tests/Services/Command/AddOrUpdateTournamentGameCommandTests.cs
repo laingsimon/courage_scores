@@ -9,6 +9,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Tests.Models.Adapters;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
@@ -31,20 +32,34 @@ public class AddOrUpdateTournamentGameCommandTests
     private TournamentGame _game = null!;
     private EditTournamentGameDto _update = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
+    private MockAdapter<TournamentMatch,TournamentMatchDto> _matchAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _game = new TournamentGame { Id = Guid.NewGuid() };
-        _update = new EditTournamentGameDto();
+        _game = new TournamentGame
+        {
+            Id = Guid.NewGuid(),
+            Date = new DateTime(2002, 03, 04),
+        };
+        _update = new EditTournamentGameDto
+        {
+            Date = new DateTime(2001, 02, 03),
+        };
         _cacheFlags = new ScopedCacheManagementFlags();
 
         _seasonService = new Mock<ISeasonService>();
         _sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
-        _roundAdapter = new TournamentRoundAdapter(new TournamentMatchAdapter(_sideAdapter), _sideAdapter);
+        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
+        _userService = new Mock<IUserService>();
+        _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
+        _roundAdapter = new TournamentRoundAdapter(
+            _matchAdapter,
+            _sideAdapter,
+            _matchOptionAdapter);
         _auditingHelper = new Mock<IAuditingHelper>();
         _systemClock = new Mock<ISystemClock>();
-        _userService = new Mock<IUserService>();
 
         _command = new AddOrUpdateTournamentGameCommand(_seasonService.Object, _sideAdapter, _roundAdapter, _auditingHelper.Object,
             _systemClock.Object, _userService.Object, _cacheFlags);
@@ -55,7 +70,7 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenNoLatestSeason_ReturnsUnsuccessful()
     {
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => null);
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -76,7 +91,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Notes = "notes";
         _update.OneEighties.Add(new EditTournamentGameDto.RecordTournamentScoresPlayerDto { Id = oneEightyPlayerId, Name = "player" });
         _update.Over100Checkouts.Add(new EditTournamentGameDto.TournamentOver100CheckoutDto { Id = over100CheckoutPlayerId, Name = "player", Notes = "120" });
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -95,7 +110,7 @@ public class AddOrUpdateTournamentGameCommandTests
     public async Task ApplyUpdates_WhenLatestSeasonAndNullRound_UpdatesSides()
     {
         _update.Round = null;
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -123,7 +138,7 @@ public class AddOrUpdateTournamentGameCommandTests
             },
         };
         _update.Sides.Add(side);
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -182,7 +197,9 @@ public class AddOrUpdateTournamentGameCommandTests
         };
         _update.Round = rootRound;
         _update.Sides = new List<TournamentSideDto>(new[] { side1, side2 });
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(_season);
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
+        secondRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch(), matchDto));
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 

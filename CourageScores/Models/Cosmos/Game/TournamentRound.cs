@@ -25,6 +25,11 @@ public class TournamentRound : AuditedEntity, IGameVisitable
     /// </summary>
     public TournamentRound? NextRound { get; set; }
 
+    /// <summary>
+    /// Options for each match in the game
+    /// </summary>
+    public List<GameMatchOption?> MatchOptions { get; set; } = new();
+
     public void Accept(IGameVisitor visitor)
     {
         visitor.VisitRound(this);

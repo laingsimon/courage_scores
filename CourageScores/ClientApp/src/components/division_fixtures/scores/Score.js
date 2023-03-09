@@ -10,7 +10,7 @@ import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {SeasonApi} from "../../../api/season";
-import {any, isEmpty, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -19,6 +19,7 @@ import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
+import {add180, addHiCheck} from "../../common/Accolades";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -143,14 +144,21 @@ export function Score({account, apis, divisions}) {
             const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
             allPlayers.sort(sortBy('name'));
 
-            const matchPlayerCounts = [{ playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 1 }, { playerCount: 2 }, { playerCount: 2 }, { playerCount: 3 }];
+            if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
+                const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
+                gameData.matchOptions = [
+                    getMatchOptionDefaults(0, matchOptions),
+                    getMatchOptionDefaults(1, matchOptions),
+                    getMatchOptionDefaults(2, matchOptions),
+                    getMatchOptionDefaults(3, matchOptions),
+                    getMatchOptionDefaults(4, matchOptions),
+                    getMatchOptionDefaults(5, matchOptions),
+                    getMatchOptionDefaults(6, matchOptions),
+                    getMatchOptionDefaults(7, matchOptions) ];
+            }
+
             if (!gameData.matches || isEmpty(gameData.matches)) {
-                gameData.matches = matchPlayerCounts;
-            } else {
-                for (let index = 0; index < gameData.matches.length; index++) {
-                    const match = gameData.matches[index];
-                    match.playerCount = matchPlayerCounts[index].playerCount;
-                }
+                gameData.matches = repeat(8, getMatchDefaults);
             }
 
             setAllPlayers(allPlayers);
@@ -167,6 +175,56 @@ export function Score({account, apis, divisions}) {
         } finally {
             setLoading('ready');
         }
+    }
+
+    function getMatchDefaults() {
+        return {
+            homePlayers:[],
+            awayPlayers:[]
+        };
+    }
+
+    function getMatchOptionDefaults(legIndex, matchOptions) {
+        return {
+            playerCount: matchOptions.playerCount[legIndex],
+            startingScore: matchOptions.startingScore[legIndex],
+            numberOfLegs: matchOptions.noOfLegs[legIndex],
+        };
+    }
+
+    function getMatchOptionsLookup(matchOptions) {
+        return {
+            playerCount: {
+                '0': elementAt(matchOptions, 0, op => op.playerCount) || 1,
+                '1': elementAt(matchOptions, 1, op => op.playerCount) || 1,
+                '2': elementAt(matchOptions, 2, op => op.playerCount) || 1,
+                '3': elementAt(matchOptions, 3, op => op.playerCount) || 1,
+                '4': elementAt(matchOptions, 4, op => op.playerCount) || 1,
+                '5': elementAt(matchOptions, 5, op => op.playerCount) || 2,
+                '6': elementAt(matchOptions, 6, op => op.playerCount) || 2,
+                '7': elementAt(matchOptions, 7, op => op.playerCount) || 3
+            },
+            startingScore: {
+                '0': elementAt(matchOptions, 0, op => op.startingScore) || 501,
+                '1': elementAt(matchOptions, 1, op => op.startingScore) || 501,
+                '2': elementAt(matchOptions, 2, op => op.startingScore) || 501,
+                '3': elementAt(matchOptions, 3, op => op.startingScore) || 501,
+                '4': elementAt(matchOptions, 4, op => op.startingScore) || 501,
+                '5': elementAt(matchOptions, 5, op => op.startingScore) || 501,
+                '6': elementAt(matchOptions, 6, op => op.startingScore) || 501,
+                '7': elementAt(matchOptions, 7, op => op.startingScore) || 601
+            },
+            noOfLegs: {
+                '0': elementAt(matchOptions, 0, op => op.numberOfLegs) || 5,
+                '1': elementAt(matchOptions, 1, op => op.numberOfLegs) || 5,
+                '2': elementAt(matchOptions, 2, op => op.numberOfLegs) || 5,
+                '3': elementAt(matchOptions, 3, op => op.numberOfLegs) || 5,
+                '4': elementAt(matchOptions, 4, op => op.numberOfLegs) || 5,
+                '5': elementAt(matchOptions, 5, op => op.numberOfLegs) || 3,
+                '6': elementAt(matchOptions, 6, op => op.numberOfLegs) || 3,
+                '7': elementAt(matchOptions, 7, op => op.numberOfLegs) || 3
+            },
+        };
     }
 
     useEffect(() => {
@@ -229,8 +287,12 @@ export function Score({account, apis, divisions}) {
 
     function renderMatchPlayerSelection(index, noOfLegs, playerCount) {
         let matchIndex = 0;
-        const matchesExceptIndex = fixtureData.matches.filter(match => {
-            return matchIndex++ !== index && match.playerCount === playerCount;
+        const matchesExceptIndex = fixtureData.matches.filter(_ => {
+            let thisMatchIndex = matchIndex;
+            let matchOptions = getMatchOptionDefaults(thisMatchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
+            matchIndex++;
+
+            return thisMatchIndex !== index && matchOptions.playerCount === playerCount;
         });
 
         function onMatchChanged(newMatch, index) {
@@ -240,15 +302,26 @@ export function Score({account, apis, divisions}) {
             setFixtureData(newFixtureData);
         }
 
+        function onMatchOptionsChanged(newMatchOptions) {
+            const newFixtureData = Object.assign({}, fixtureData);
+            newFixtureData.matchOptions[index] = newMatchOptions;
+
+            setFixtureData(newFixtureData);
+        }
+
         return (<MatchPlayerSelection
-            numberOfLegs={noOfLegs} playerCount={playerCount} homePlayers={homeTeam} awayPlayers={awayTeam}
+            homePlayers={homeTeam} awayPlayers={awayTeam}
             match={fixtureData.matches[index]} account={account}
             disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
             onPlayerChanged={loadFixtureData}
             home={fixtureData.home} away={fixtureData.away}
-            seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId} />);
+            seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
+            matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
+            onMatchOptionsChanged={onMatchOptionsChanged}
+            on180={add180(fixtureData, setFixtureData)}
+            onHiCheck={addHiCheck(fixtureData, setFixtureData)} />);
     }
 
     function renderMergeMatch(index) {

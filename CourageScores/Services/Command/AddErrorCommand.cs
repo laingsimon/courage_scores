@@ -24,6 +24,7 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
         model.Time = update.Time;
         model.UserName = user?.Name;
         model.Message = update.Message;
+        model.Url = update.Url;
 
         return CommandResult.SuccessNoMessage;
     }

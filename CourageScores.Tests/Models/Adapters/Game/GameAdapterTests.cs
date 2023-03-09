@@ -17,6 +17,8 @@ public class GameAdapterTests
     private static readonly GamePlayer OneEightyPlayer = new GamePlayer();
     private static readonly GamePlayerDto OneEightyPlayerDto = new GamePlayerDto();
     private static readonly NotablePlayer HiCheckPlayer = new NotablePlayer();
+    private static readonly GameMatchOption MatchOption = new GameMatchOption();
+    private static readonly GameMatchOptionDto MatchOptionDto = new GameMatchOptionDto();
     private static readonly NotablePlayerDto HiCheckPlayerDto = new NotablePlayerDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly GameAdapter _adapter = new GameAdapter(
@@ -25,7 +27,8 @@ public class GameAdapterTests
             new[] { HomeTeam, AwayTeam },
             new[] { HomeTeamDto, AwayTeamDto }),
         new MockAdapter<GamePlayer, GamePlayerDto>(OneEightyPlayer, OneEightyPlayerDto),
-        new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto));
+        new MockAdapter<NotablePlayer, NotablePlayerDto>(HiCheckPlayer, HiCheckPlayerDto),
+        new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
 
     [Test]
     public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly()

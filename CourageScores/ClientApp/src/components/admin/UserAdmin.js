@@ -42,21 +42,28 @@ export function UserAdmin({ account }) {
     []);
 
     function valueChanged(event) {
-        const currentAccount = Object.assign({}, userAccount);
-        const value = event.target.type === 'checkbox'
-            ? event.target.checked
-            : event.target.value;
+        try {
+            const currentAccount = Object.assign({}, userAccount);
+            const value = event.target.type === 'checkbox'
+                ? event.target.checked
+                : event.target.value;
 
-        let name = event.target.name;
-        let dataObject = currentAccount;
-        while (name.indexOf('.') !== -1) {
-            const prefix = name.substring(0, name.indexOf('.'));
-            name = name.substring(prefix.length + 1);
-            dataObject = dataObject[prefix];
+            let name = event.target.name;
+            let dataObject = currentAccount;
+            while (name.indexOf('.') !== -1) {
+                const prefix = name.substring(0, name.indexOf('.'));
+                name = name.substring(prefix.length + 1);
+                if (!dataObject[prefix]) {
+                    dataObject[prefix] = {};
+                }
+                dataObject = dataObject[prefix];
+            }
+
+            dataObject[name] = value;
+            setUserAccount(currentAccount);
+        } catch (e) {
+            window.alert(e.message);
         }
-
-        dataObject[name] = value;
-        setUserAccount(currentAccount);
     }
 
     async function saveChanges() {
@@ -152,6 +159,7 @@ export function UserAdmin({ account }) {
         {renderAccessOption('importData', 'Import data (restore)')}
         {renderAccessOption('inputResults', 'Input results')}
         {renderAccessOption('viewExceptions', 'View exceptions')}
+        {renderAccessOption('recordScoresAsYouGo', 'Record scores as you go')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

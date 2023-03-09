@@ -10,15 +10,18 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
     private readonly IAdapter<TournamentSide, TournamentSideDto> _sideAdapter;
     private readonly IAdapter<TournamentMatch, TournamentMatchDto> _matchAdapter;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter;
     private TournamentRoundDto? _rounds;
 
     public UpdateTournamentRoundsCommand(IAdapter<TournamentSide, TournamentSideDto> sideAdapter,
         IAdapter<TournamentMatch, TournamentMatchDto> matchAdapter,
-        ScopedCacheManagementFlags cacheFlags)
+        ScopedCacheManagementFlags cacheFlags,
+        ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionAdapter)
     {
         _sideAdapter = sideAdapter;
         _matchAdapter = matchAdapter;
         _cacheFlags = cacheFlags;
+        _matchOptionAdapter = matchOptionAdapter;
     }
 
     public UpdateTournamentRoundsCommand WithData(TournamentRoundDto rounds)
@@ -57,6 +60,7 @@ public class UpdateTournamentRoundsCommand : IUpdateCommand<TournamentGame, Tour
         currentRound.Matches = await update.Matches.SelectAsync(m => _matchAdapter.Adapt(m, token)).ToList();
         currentRound.Sides = await update.Sides.SelectAsync(s => _sideAdapter.Adapt(s, token)).ToList();
         currentRound.NextRound = await UpdateRound(currentRound.NextRound, update.NextRound, token);
+        currentRound.MatchOptions = await update.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList();
 
         return currentRound;
     }

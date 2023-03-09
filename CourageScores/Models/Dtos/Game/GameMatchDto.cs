@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -8,16 +9,6 @@ namespace CourageScores.Models.Dtos.Game;
 [ExcludeFromCodeCoverage]
 public class GameMatchDto : AuditedDto
 {
-    /// <summary>
-    /// The number of legs, typically 3 or 5
-    /// </summary>
-    public int? NumberOfLegs { get; set; }
-
-    /// <summary>
-    /// The starting score, typically 501 or 601 for triples
-    /// </summary>
-    public int? StartingScore { get; set; }
-
     /// <summary>
     /// Who played from the home team
     /// </summary>
@@ -37,4 +28,6 @@ public class GameMatchDto : AuditedDto
     /// What was the away score
     /// </summary>
     public int? AwayScore { get; set; }
+
+    public ScoreAsYouGoDto? Sayg { get; set; }
 }

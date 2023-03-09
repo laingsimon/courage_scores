@@ -12,16 +12,22 @@ jobs:
       branch-name: 'release'
       deploy-requested: true
 
-  build-and-upload:
+  build:
     needs: 
      - setup
     uses: ./.github/workflows/build.yml
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
+
+  publish:
+    uses: ./.github/workflows/publish.yml
+    with: 
       upload: true
 
   deploy:
-    needs: build-and-upload
+    needs: 
+      - build
+      - publish
     uses: ./.github/workflows/deploy.yml
     with:
       environment-name: 'PROD'
