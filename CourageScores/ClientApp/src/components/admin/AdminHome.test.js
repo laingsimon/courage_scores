@@ -12,7 +12,9 @@ describe('AdminHome', () => {
 
     beforeEach(() => {
         mockDataApi = {
-            tables: async () => { return []; }
+            tables: async () => {
+                return [];
+            }
         };
 
         container = document.createElement('div');
@@ -28,14 +30,14 @@ describe('AdminHome', () => {
         const account = {
             access: access
         };
-        const component = (<MemoryRouter>
-            <IocContainer dataApi={mockDataApi}>
-                <AppContainer account={account} appLoading={false}>
-                    <AdminHome />
-                </AppContainer>
-            </IocContainer>
-        </MemoryRouter>);
         act(() => {
+            const component = (<MemoryRouter>
+                <IocContainer dataApi={mockDataApi}>
+                    <AppContainer account={account} appLoading={false}>
+                        <AdminHome />
+                    </AppContainer>
+                </IocContainer>
+            </MemoryRouter>);
             ReactDOM.createRoot(container).render(component);
         });
 
@@ -51,17 +53,17 @@ describe('AdminHome', () => {
         const account = {
             access: access
         };
-        const component = (<MemoryRouter initialEntries={[address]}>
-            <Routes>
-                <Route path="/admin/:mode" element={
-                    <IocContainer dataApi={mockDataApi}>
-                        <AppContainer appLoading={false} account={account}>
-                         <AdminHome />
-                        </AppContainer>
-                    </IocContainer>} />
-            </Routes>
-        </MemoryRouter>);
         act(() => {
+            const component = (<MemoryRouter initialEntries={[address]}>
+                <Routes>
+                    <Route path="/admin/:mode" element={
+                        <IocContainer dataApi={mockDataApi}>
+                            <AppContainer appLoading={false} account={account}>
+                                <AdminHome />
+                            </AppContainer>
+                        </IocContainer>} />
+                </Routes>
+            </MemoryRouter>);
             ReactDOM.createRoot(container).render(component);
         });
 
@@ -71,12 +73,12 @@ describe('AdminHome', () => {
     }
 
     it('shows loading when appLoading', () => {
-        const component = (<IocContainer dataApi={mockDataApi}>
-            <AppContainer appLoading={true}>
-                <AdminHome />
-            </AppContainer>
-        </IocContainer>);
         act(() => {
+            const component = (<IocContainer dataApi={mockDataApi}>
+                <AppContainer appLoading={true}>
+                    <AdminHome />
+                </AppContainer>
+            </IocContainer>);
             ReactDOM.createRoot(container).render(component);
         });
 
@@ -85,12 +87,12 @@ describe('AdminHome', () => {
     });
 
     it('shows not permitted when finished loading', () => {
-        const component = (<IocContainer dataApi={mockDataApi}>
-            <AppContainer appLoading={false} account={null}>
-                <AdminHome />
-            </AppContainer>
-        </IocContainer>);
         act(() => {
+            const component = (<IocContainer dataApi={mockDataApi}>
+                <AppContainer appLoading={false} account={null}>
+                    <AdminHome />
+                </AppContainer>
+            </IocContainer>);
             ReactDOM.createRoot(container).render(component);
         });
 

@@ -18,6 +18,10 @@ export function ExportData() {
     const [ saveError, setSaveError ] = useState(null);
 
     useEffect(() => {
+        if (!tables) {
+            return;
+        }
+
         const selected = tables.filter(t => t.canExport).map(t => t.name);
         setExportRequest(Object.assign({ tables: selected }, exportRequest));
     },

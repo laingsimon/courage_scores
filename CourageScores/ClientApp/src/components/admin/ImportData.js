@@ -19,6 +19,10 @@ export function ImportData() {
     const [saveError, setSaveError] = useState(null);
 
     useEffect(() => {
+        if (!tables) {
+            return;
+        }
+
         const selected = tables.filter(t => t.canImport).map(t => t.name);
         setImportRequest(Object.assign({}, importRequest, {
             tables: selected
