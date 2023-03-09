@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
-import {GameApi} from "../../api/game";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, propChanged, sum} from "../../Utilities";
+import {useDependencies} from "../../IocContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
+export function NewFixtureDate({ date }) {
+    const { fixtures, id: divisionId, season, teams, onReloadDivision } = useDivisionData();
     const [ homeTeamId, setHomeTeamId ] = useState(null);
     const [ awayTeamId, setAwayTeamId ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);
@@ -20,6 +20,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         address: '',
     });
     const newTeam = { value: 'NEW_TEAM', text: '➕ Add a team...' };
+    const { gameApi } = useDependencies();
 
     function toggleCellClip(isOpen) {
         setClipCellRegion(!isOpen);
@@ -54,7 +55,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
     }
 
     async function teamCreated(team) {
-        await onNewTeam();
+        await onReloadDivision();
 
         const hasFixtures = any(fixtures, f => f.date === date);
         if (newTeamFor === 'home') {
@@ -70,7 +71,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         return (<Dialog title="Create a new team...">
           <EditTeamDetails
               divisionId={divisionId}
-              seasonId={seasonId}
+              seasonId={season.id}
               {...teamDetails}
               onCancel={() => setNewTeamFor(null)} id={null}
               onSaved={teamCreated}
@@ -85,11 +86,10 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
 
         setSaving(true);
         try {
-            const api = new GameApi(new Http(new Settings()));
             const homeTeam = teams.filter(t => t.id === homeTeamId)[0];
             const awayTeam = teams.filter(t => t.id === awayTeamId)[0];
 
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: undefined,
                 address: homeTeam.address,
                 divisionId: divisionId,
@@ -99,8 +99,8 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
             });
 
             if (result.success) {
-                if (onNewTeam) {
-                    await onNewTeam();
+                if (onReloadDivision) {
+                    await onReloadDivision();
                 }
             } else {
                 setSaveError(result);

@@ -1,21 +1,19 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
-import {Http} from "../../../api/http";
-import {Settings} from "../../../api/settings";
-import {SeasonApi} from "../../../api/season";
-import {TournamentApi} from "../../../api/tournament";
 import {DivisionControls} from "../../DivisionControls";
-import {TeamApi} from "../../../api/team";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {any, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
-import {DivisionApi} from "../../../api/division";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
+import {useDependencies} from "../../../IocContainer";
+import {useApp} from "../../../AppContainer";
 
-export function Tournament({ account, apis }) {
+export function Tournament() {
     const { tournamentId } = useParams();
+    const {account, reloadAll, seasons} = useApp();
+    const { divisionApi, teamApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
     const [error, setError] = useState(null);
@@ -24,8 +22,6 @@ export function Tournament({ account, apis }) {
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
     const [season, setSeason] = useState(null);
-    const [seasons, setSeasons] = useState(null);
-    const [divisions, setDivisions] = useState(null);
     const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
@@ -50,12 +46,6 @@ export function Tournament({ account, apis }) {
         [loading]);
 
     async function loadFixtureData() {
-        const http = new Http(new Settings());
-        const tournamentApi = new TournamentApi(http);
-        const seasonApi = new SeasonApi(http);
-        const teamApi = new TeamApi(http);
-        const divisionApi = new DivisionApi(http);
-
         try {
             const tournamentData = await tournamentApi.get(tournamentId);
 
@@ -66,9 +56,7 @@ export function Tournament({ account, apis }) {
 
             setTournamentData(tournamentData);
 
-            const seasonsResponse = await seasonApi.getAll();
-            const divisionsResponse = await divisionApi.getAll();
-            const season = seasonsResponse.filter(s => s.id === tournamentData.seasonId)[0];
+            const season = seasons[tournamentData.seasonId];
             const teams = await teamApi.getAll();
             const allPlayers = getAllPlayers(tournamentData, teams);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
@@ -83,8 +71,6 @@ export function Tournament({ account, apis }) {
             setAlreadyPlaying(tournamentPlayerMap);
             setTeams(teams);
             setSeason(season);
-            setSeasons(seasonsResponse);
-            setDivisions(divisionsResponse);
             setAllPlayers(allPlayers);
         } catch (e) {
             setError(e.toString());
@@ -128,10 +114,6 @@ export function Tournament({ account, apis }) {
         setSaving(true);
 
         try {
-
-            const http = new Http(new Settings());
-            const tournamentApi = new TournamentApi(http);
-
             const response = await tournamentApi.update(tournamentData);
             if (!response.success) {
                 setSaveError(response);
@@ -151,17 +133,14 @@ export function Tournament({ account, apis }) {
 
     return (<div>
         <DivisionControls
-            reloadAll={apis.reloadAll}
-            seasons={seasons}
-            account={account}
-            divisions={divisions}
+            seasons={seasons.map(a => a)}
             originalSeasonData={{
                 id: season.id,
                 name: season.name,
                 startDate: season.startDate.substring(0, 10),
                 endDate: season.endDate.substring(0, 10),
             }}
-            onReloadDivisionData={apis.reloadAll}
+            onReloadDivisionData={reloadAll}
             overrideMode="fixtures" />
         <div className="light-background p-3">
             {isAdmin
@@ -202,8 +181,7 @@ export function Tournament({ account, apis }) {
                 season={season}
                 alreadyPlaying={alreadyPlaying}
                 canSave={canSave}
-                setTournamentData={setTournamentData}
-                account={account} />
+                setTournamentData={setTournamentData} />
             <TournamentSheet sides={tournamentData.sides} />
             {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

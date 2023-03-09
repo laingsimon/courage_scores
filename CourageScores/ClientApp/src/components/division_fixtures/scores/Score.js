@@ -1,15 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from "react-router-dom";
-import {Settings} from "../../../api/settings";
-import {GameApi} from "../../../api/game";
-import {Http} from "../../../api/http";
-import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {SeasonApi} from "../../../api/season";
 import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
@@ -20,8 +15,10 @@ import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
+import {useDependencies} from "../../../IocContainer";
+import {useApp} from "../../../AppContainer";
 
-export function Score({account, apis, divisions}) {
+export function Score() {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
@@ -34,9 +31,10 @@ export function Score({account, apis, divisions}) {
     const [saveError, setSaveError] = useState(null);
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
-    const [seasons, setSeasons] = useState(null);
     const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
+    const { teamApi, gameApi } = useDependencies();
+    const { account, divisions, reloadAll, seasons } = useApp();
 
     useEffect(() => {
         if (account && account.access) {
@@ -64,8 +62,6 @@ export function Score({account, apis, divisions}) {
         [loading]);
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
-        const http = new Http(new Settings());
-        const teamApi = new TeamApi(http);
         const teamData = await teamApi.get(teamId);
 
         if (!teamData) {
@@ -110,9 +106,6 @@ export function Score({account, apis, divisions}) {
     }
 
     async function loadFixtureData() {
-        const http = new Http(new Settings());
-        const gameApi = new GameApi(http);
-        const seasonApi = new SeasonApi(http);
         const gameData = await gameApi.get(fixtureId);
 
         try {
@@ -165,11 +158,9 @@ export function Score({account, apis, divisions}) {
             setFixtureData(gameData);
             setData(gameData);
 
-            const seasonsResponse = await seasonApi.getAll();
-            const season = seasonsResponse.filter(s => s.id === gameData.seasonId)[0];
+            const season = seasons[gameData.seasonId];
 
             setSeason(season);
-            setSeasons(seasonsResponse);
         } catch (e) {
             setError(e.toString());
         } finally {
@@ -244,9 +235,6 @@ export function Score({account, apis, divisions}) {
         }
 
         try {
-            const http = new Http(new Settings());
-            const gameApi = new GameApi(http);
-
             setSaving(true);
             const response = await gameApi.updateScores(fixtureId, fixtureData);
 
@@ -311,7 +299,7 @@ export function Score({account, apis, divisions}) {
 
         return (<MatchPlayerSelection
             homePlayers={homeTeam} awayPlayers={awayTeam}
-            match={fixtureData.matches[index]} account={account}
+            match={fixtureData.matches[index]}
             disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
@@ -342,7 +330,6 @@ export function Score({account, apis, divisions}) {
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
-                account={account}
                 saving={saving}
                 access={access}
                 setFixtureData={setFixtureData} />);
@@ -406,9 +393,7 @@ export function Score({account, apis, divisions}) {
 
     return (<div>
         <DivisionControls
-            reloadAll={apis.reloadAll}
-            seasons={seasons}
-            account={account}
+            seasons={seasons.map(a => a)}
             originalSeasonData={{
                 id: season.id,
                 name: season.name,
@@ -416,8 +401,7 @@ export function Score({account, apis, divisions}) {
                 endDate: season.endDate.substring(0, 10),
             }}
             originalDivisionData={division}
-            divisions={divisions}
-            onReloadDivisionData={apis.reloadAll}
+            onReloadDivisionData={reloadAll}
             overrideMode="fixtures" />
         <ul className="nav nav-tabs">
             <li className="nav-item">
@@ -438,7 +422,7 @@ export function Score({account, apis, divisions}) {
                 ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access} fixtureData={fixtureData} />)
                 : null}
             <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
-                <ScoreCardHeading access={access} data={data} account={account} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
+                <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
                 {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<tbody>
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>

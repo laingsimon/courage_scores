@@ -1,17 +1,20 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
-import {TournamentApi} from "../../api/tournament";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, isEmpty, sortBy} from "../../Utilities";
+import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
+export function TournamentFixture({ tournament, onTournamentChanged, date, expanded }) {
+    const { id: divisionId, season, players: allPlayers } = useDivisionData();
+    const { account } = useApp();
     const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const isAdmin = account && account.access && account.access.manageGames;
+    const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
         if (creating || deleting) {
@@ -21,12 +24,11 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         try {
             setCreating(true);
 
-            const api = new TournamentApi(new Http(new Settings()));
-            const response = await api.update({
+            const response = await tournamentApi.update({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
-                seasonId: seasonId
+                seasonId: season.id
             });
 
             if (response.success) {
@@ -53,8 +55,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         try {
             setDeleting(true);
 
-            const api = new TournamentApi(new Http(new Settings()));
-            const response = await api.delete(tournament.id);
+            const response = await tournamentApi.delete(tournament.id);
 
             if (response.success) {
                 if (onTournamentChanged) {
@@ -70,7 +71,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
 
     function renderLinkToPlayer(player) {
         if (any(allPlayers, p => p.id === player.id)) {
-            return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${seasonId}`}>{player.name}</Link>);
+            return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.name}</Link>);
         }
 
         return (<span key={player.id}>{player.name}</span>);
@@ -85,10 +86,10 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
                 const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
                 let name = (<strong>{side.name}</strong>);
                 if (side.teamId && side.players.length !== 1) {
-                    name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${seasonId}`}>{side.name}</Link>);
+                    name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
                 } else if (side.players.length === 1) {
                     const singlePlayer = side.players[0];
-                    name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${seasonId}`}>{side.name}</Link>);
+                    name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</Link>);
                 }
 
                 if (sideNameSameAsPlayerNames || isEmpty(side.players)) {
@@ -108,7 +109,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
     function renderWinner(winningSide) {
         if (winningSide.teamId) {
             return (<strong className="text-primary">
-                <Link to={`/division/${divisionId}/team:${winningSide.teamId}/${seasonId}`}>{winningSide.name}</Link>
+                <Link to={`/division/${divisionId}/team:${winningSide.teamId}/${season.id}`}>{winningSide.name}</Link>
             </strong>);
         }
 

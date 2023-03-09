@@ -2,23 +2,23 @@ import React, {useEffect, useState} from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {NewFixtureDate} from "./NewFixtureDate";
 import {Dialog} from "../common/Dialog";
-import {SeasonApi} from "../../api/season";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
-import {GameApi} from "../../api/game";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
 import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
-import {NoteApi} from "../../api/note";
 import {any, isEmpty, stateChanged} from "../../Utilities";
+import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
+export function DivisionFixtures({ setNewFixtures }) {
+    const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
+    const { account } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
@@ -41,10 +41,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ savingProposals, setSavingProposals ] = useState(null);
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const [ filter, setFilter ] = useState(initFilter());
-    const seasonApi = new SeasonApi(new Http(new Settings()));
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
+    const { seasonApi, gameApi, noteApi } = useDependencies();
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -113,13 +113,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         return (<DivisionFixture
             key={team.id}
-            onReloadDivision={onNewDateCreated}
-            fixtures={fixtures}
-            teams={teams}
-            allTeams={allTeams}
-            seasonId={season.id}
-            divisionId={divisionId}
-            account={account}
+            onReloadDivisionOverride={onNewDateCreated}
             fixture={newFixture}
             date={newDate}
             allowTeamDelete={false}
@@ -154,10 +148,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     async function saveProposal() {
         try {
             const index = savingProposals.saved;
-            const api = new GameApi(new Http(new Settings()));
             const fixture = savingProposals.proposals[index];
 
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: fixture.id,
                 address: fixture.homeTeam.address,
                 date: fixture.date,
@@ -422,13 +415,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 <tbody>
                 {fixturesForDate.map(f => (<DivisionFixture
                     key={f.id}
-                    teams={teams}
-                    allTeams={allTeams}
-                    fixtures={fixtures}
-                    divisionId={divisionId}
-                    seasonId={season.id}
-                    onReloadDivision={onReloadDivision}
-                    account={account}
                     fixture={f}
                     readOnly={proposingGames}
                     date={date.date}
@@ -438,13 +424,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
-                    account={account}
                     date={date.date}
-                    seasonId={season.id}
-                    divisionId={divisionId}
                     onTournamentChanged={onTournamentChanged}
-                    expanded={showPlayers[date.date]}
-                    allPlayers={allPlayers} />))}
+                    expanded={showPlayers[date.date]} />))}
                 </tbody>
             </table>
         </div>);
@@ -474,8 +456,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         setDeletingNote(true);
         try{
-            const api = new NoteApi(new Http(new Settings()));
-            const response = await api.delete(note.id);
+            const response = await noteApi.delete(note.id);
 
             if (response.success) {
                 await onReloadDivision();
@@ -492,8 +473,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return (<EditNote
             note={editNote}
             onNoteChanged={setEditNote}
-            divisions={divisions}
-            seasons={seasons}
             onClose={() => setEditNote(null)}
             onSaved={async () => {
                 setNewDate('');
@@ -516,7 +495,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const renderContext = {};
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
-        <FilterFixtures setFilter={changeFilter} filter={filter} teams={teams} />
+        <FilterFixtures setFilter={changeFilter} filter={filter} />
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
             onClose={() => setProposalSettingsDialogVisible(false)}
@@ -553,8 +532,8 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} teams={teams} seasonId={season.id} />)}
+                    <NewFixtureDate date={newDate} />
+                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}

@@ -2,8 +2,12 @@ import React, {useState} from 'react';
 import {DivisionTeam} from "./DivisionTeam";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
+import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSaved, divisions }) {
+export function DivisionTeams() {
+    const { id: divisionId, season, teams, onReloadDivision } = useDivisionData();
+    const { account } = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
     const [ newTeam, setNewTeam ] = useState(false);
     const [ teamDetails, setTeamDetails ] = useState({
@@ -19,8 +23,8 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
     }
 
     async function onTeamCreated() {
-        if (onTeamSaved) {
-            await onTeamSaved();
+        if (onReloadDivision) {
+            await onReloadDivision();
         }
 
         setNewTeam(false);
@@ -30,11 +34,10 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
         return (<Dialog title="Create a new team...">
             <EditTeamDetails
                 divisionId={divisionId}
-                seasonId={seasonId}
+                seasonId={season.id}
                 {...teamDetails}
                 onCancel={() => setNewTeam(false)}
                 id={null}
-                divisions={divisions}
                 onSaved={onTeamCreated}
                 onChange={onChange}/>
         </Dialog>);
@@ -57,12 +60,7 @@ export function DivisionTeams({ teams, account, divisionId, seasonId, onTeamSave
                 <tbody>
                 {teams.map(team => (<DivisionTeam
                     key={team.id}
-                    team={team}
-                    seasonId={seasonId}
-                    account={account}
-                    divisionId={divisionId}
-                    divisions={divisions}
-                    onTeamSaved={onTeamSaved} />))}
+                    team={team} />))}
                 </tbody>
             </table>
         </div>

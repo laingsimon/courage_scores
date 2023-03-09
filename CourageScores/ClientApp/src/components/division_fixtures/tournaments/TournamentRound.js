@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {all, any, elementAt, isEmpty, toMap, valueChanged} from "../../../Utilities";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, account }) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180 }) {
     const [ newMatch, setNewMatch ] = useState({});
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
@@ -157,8 +157,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
                 onChange={onChange}
                 matchOptions={elementAt(round.matchOptions || [], thisMatchIndex) || matchOptionDefaults}
                 onMatchOptionsChanged={onMatchOptionsChanged}
-                on180={on180} onHiCheck={onHiCheck}
-                account={account} />);
+                on180={on180} onHiCheck={onHiCheck} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>
@@ -182,7 +181,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         </tr>)}
         </tbody></table>
         {hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1)
-            ? (<TournamentRound account={account} round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} />)
+            ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} />)
             : null}
     </div>);
 }

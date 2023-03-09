@@ -1,7 +1,9 @@
 import {Link} from "react-router-dom";
 import React from "react";
+import {useApp} from "../../../AppContainer";
 
-export function ScoreCardHeading({ data, account, access, winner, submission, setSubmission, setFixtureData }) {
+export function ScoreCardHeading({ data, access, winner, submission, setSubmission, setFixtureData }) {
+    const { account } = useApp();
     function toggleSubmission(submissionToShow) {
         if (submissionToShow === submission) {
             setSubmission(null);

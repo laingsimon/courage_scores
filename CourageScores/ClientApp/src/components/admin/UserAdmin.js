@@ -1,28 +1,23 @@
 import React, {useEffect, useState} from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
-import {AccountApi} from "../../api/account";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
+import {useAdmin} from "./AdminContainer";
 
-export function UserAdmin({ account }) {
-    const api = new AccountApi(new Http(new Settings()));
+export function UserAdmin() {
+    const { account } = useApp();
+    const { accountApi } = useDependencies();
+    const { accounts } = useAdmin();
     const [ saving, setSaving ] = useState(false);
     const [ userAccount, setUserAccount ] = useState(null);
     const [ emailAddress, setEmailAddress ] = useState(account.emailAddress);
     const [ loading, setLoading ] = useState(true);
     const [ saveError, setSaveError ] = useState(null);
-    const [ accounts, setAccounts ] = useState(null);
     const [ showEmailAddress, setShowEmailAddress ] = useState(false);
 
-    async function loadAccounts() {
-        setLoading(true);
-
+    useEffect(() => {
         try {
-            const accounts = await api.getAll();
-
-            setAccounts(accounts);
-
             if (emailAddress) {
                 showAccess(accounts, emailAddress);
             }
@@ -32,14 +27,9 @@ export function UserAdmin({ account }) {
         } finally {
             setLoading(false);
         }
-    }
-
-    useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        loadAccounts();
     },
     // eslint-disable-next-line
-    []);
+    [ accounts ]);
 
     function valueChanged(event) {
         try {
@@ -82,7 +72,7 @@ export function UserAdmin({ account }) {
                 emailAddress: emailAddress,
                 access: userAccount.access,
             };
-            const result = await api.update(update);
+            const result = await accountApi.update(update);
             if (!result.success) {
                 setSaveError(result);
             }

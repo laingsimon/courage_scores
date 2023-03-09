@@ -2,10 +2,8 @@ import React, {useState} from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
-import {PlayerApi} from "../../api/player";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {useDependencies} from "../../IocContainer";
 
 export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete, className, placeholder }) {
     const empty = {
@@ -17,6 +15,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
     const [ editPlayer, setEditPlayer ] = useState(false);
     const [ deletingPlayer, setDeletingPlayer ] = useState(false);
     const [ deleteError, setDeleteError ] = useState(null);
+    const { playerApi } = useDependencies();
 
     function findPlayer(playerId) {
         if (!playerId) {
@@ -75,8 +74,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
 
         setDeletingPlayer(true);
         try {
-            const api = new PlayerApi(new Http(new Settings()));
-            const response = await api.delete(seasonId, teamId, selected.id);
+            const response = await playerApi.delete(seasonId, teamId, selected.id);
 
             if (response.success) {
                 if (onDelete) {

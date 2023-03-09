@@ -1,20 +1,21 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
-import {GameApi} from "../../api/game";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 import {any, propChanged} from "../../Utilities";
+import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
+export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout, onReloadDivisionOverride }) {
     const bye = {
         text: 'Bye',
         value: '',
     };
+    const { account } = useApp();
+    const { id: divisionId, fixtures, season, allTeams, teams, onReloadDivision } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
@@ -25,6 +26,15 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     const [editTeamMode, setEditTeamMode] = useState(null);
     const [teamDetails, setTeamDetails] = useState(null);
     const [proposal, setProposal] = useState(fixture.proposal);
+    const { gameApi, teamApi } = useDependencies();
+
+    async function doReloadDivision() {
+        if (onReloadDivisionOverride) {
+            await onReloadDivisionOverride();
+        } else {
+            await onReloadDivision();
+        }
+    }
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = fixtures.filter(f => f.date === date)[0];
@@ -173,22 +183,19 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                 return;
             }
 
-            const api = new GameApi(new Http(new Settings()));
             setSaving(true);
             if (awayTeamId === '') {
-                const result = await api.delete(fixture.id);
+                const result = await gameApi.delete(fixture.id);
 
                 if (result.success) {
-                    if (onReloadDivision) {
-                        await onReloadDivision();
-                    }
+                    await doReloadDivision();
                 } else {
                     setSaveError(result);
                 }
                 return;
             }
 
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
                 divisionId: divisionId,
@@ -199,9 +206,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             });
 
             if (result.success) {
-                if (onReloadDivision) {
-                    await onReloadDivision();
-                }
+                await doReloadDivision();
             } else {
                 setSaveError(result);
             }
@@ -221,12 +226,9 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
         setDeleting(true);
         try {
-            const api = new GameApi(new Http(new Settings()));
-            const result = await api.delete(fixture.id);
+            const result = await gameApi.delete(fixture.id);
             if (result.success) {
-                if (onReloadDivision) {
-                    await onReloadDivision();
-                }
+                await doReloadDivision();
             } else {
                 setSaveError(result);
             }
@@ -246,11 +248,10 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
         setDeletingHomeTeam(true);
         try {
-            const api = new TeamApi(new Http(new Settings()));
-            const response = await api.delete(fixture.homeTeam.id, seasonId);
+            const response = await teamApi.delete(fixture.homeTeam.id, season.id);
 
             if (response.success) {
-                await onReloadDivision();
+                await doReloadDivision();
             } else {
                 setSaveError(response);
             }
@@ -269,9 +270,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     }
 
     async function teamDetailSaved() {
-        if (onReloadDivision) {
-            await onReloadDivision();
-        }
+        await doReloadDivision();
 
         setEditTeamMode(null);
     }
@@ -285,7 +284,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             <EditTeamDetails
                 id={teamDetails.id}
                 divisionId={divisionId}
-                seasonId={seasonId}
+                seasonId={season.id}
                 name={teamDetails.name}
                 address={teamDetails.address}
                 onCancel={() => setEditTeamMode(null)}
@@ -298,8 +297,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     async function saveProposal() {
         setSaving(true);
         try {
-            const api = new GameApi(new Http(new Settings()));
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: fixture.id,
                 address: fixture.homeTeam.address,
                 date: date,
@@ -333,7 +331,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
             ) : null}
             {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
-               : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+               : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
 
             {editTeamMode ? renderEditTeam() : null}
         </td>

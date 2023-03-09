@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {Settings} from "../api/settings";
-import {Http} from "../api/http";
-import {ErrorApi} from "../api/error";
+import {useDependencies} from "../IocContainer";
+import {useApp} from "../AppContainer";
 
-export function PageError({ error, clearError }){
+export function PageError({ error }){
     const [ showStack, setShowStack ] = useState(false);
     const [ errorReported, setErrorReported ] = useState(false);
-    const api = new ErrorApi(new Http(new Settings()));
+    const { errorApi } = useDependencies();
+    const { clearError } = useApp();
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
@@ -33,7 +33,7 @@ export function PageError({ error, clearError }){
             url: window.location.href,
         };
 
-        await api.add(errorDetail);
+        await errorApi.add(errorDetail);
     }
 
     return (<div className="light-background p-3">
@@ -46,6 +46,6 @@ export function PageError({ error, clearError }){
                 </span>
         </p>
         {showStack ? (<pre>{error.stack}</pre>) : null}
-        <button className="btn btn-warning" onClick={() => clearError ? clearError() : null}>Clear error</button>
+        <button className="btn btn-warning" onClick={clearError}>Clear error</button>
     </div>);
 }

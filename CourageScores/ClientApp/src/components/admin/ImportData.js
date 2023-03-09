@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
 import {isEmpty, propChanged, valueChanged} from "../../Utilities";
+import {useDependencies} from "../../IocContainer";
+import {useAdmin} from "./AdminContainer";
 
 export function ImportData() {
-    const api = new DataApi(new Http(new Settings()));
+    const { dataApi } = useDependencies();
+    const { tables } = useAdmin();
     const [importing, setImporting] = useState(false);
     const [importRequest, setImportRequest] = useState({
         password: '',
@@ -17,24 +17,15 @@ export function ImportData() {
     });
     const [response, setResponse] = useState(null);
     const [saveError, setSaveError] = useState(null);
-    const [ dataTables, setDataTables ] = useState(null);
 
-    async function getTables() {
-        const tables = await api.tables();
-        setDataTables(tables);
-
+    useEffect(() => {
         const selected = tables.filter(t => t.canImport).map(t => t.name);
         setImportRequest(Object.assign({}, importRequest, {
             tables: selected
         }));
-    }
-
-    useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        getTables();
     },
     // eslint-disable-next-line
-    [ ]);
+    [ tables ]);
 
     async function startImport() {
         if (importing) {
@@ -50,7 +41,7 @@ export function ImportData() {
         setImporting(true);
         setResponse(null);
         try {
-            const response = await api.import(importRequest, input.files[0]);
+            const response = await dataApi.import(importRequest, input.files[0]);
 
             if (response.success) {
                 setResponse(response);
@@ -100,7 +91,7 @@ export function ImportData() {
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChange={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
+        <TableSelection allTables={tables} selected={importRequest.tables} onTableChange={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
                 {importing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

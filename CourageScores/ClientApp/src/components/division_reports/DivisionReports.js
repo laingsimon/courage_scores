@@ -1,27 +1,27 @@
 import React, { useState } from 'react';
-import {ReportApi} from "../../api/report";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {any, isEmpty, stateChanged} from "../../Utilities";
+import {useDependencies} from "../../IocContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionReports({ divisionData }) {
+export function DivisionReports() {
+    const { name: divisionName, id: divisionId, season } = useDivisionData();
     const [ reportData, setReportData ] = useState(null);
     const [ gettingData, setGettingData ] = useState(false);
     const [ topCount, setTopCount ] = useState(3);
     const [ activeReport, setActiveReport ] = useState(null);
-    const api = new ReportApi(new Http(new Settings()));
+    const { reportApi } = useDependencies();
 
     async function getReports() {
         setGettingData(true);
 
         try {
             const request = {
-                divisionId: divisionData.id,
-                seasonId: divisionData.season.id,
+                divisionId: divisionId,
+                seasonId: season.id,
                 topCount: topCount
             };
-            const result = await api.getReport(request);
+            const result = await reportApi.getReport(request);
             setReportData(result);
             if (any(result.reports)) {
                 setActiveReport(result.reports[0].name);
@@ -91,7 +91,7 @@ export function DivisionReports({ divisionData }) {
     }
 
     return (<div className="light-background p-3">
-        <p>Run reports for the <strong>{divisionData.name}</strong> division and <strong>{divisionData.season.name}</strong> season</p>
+        <p>Run reports for the <strong>{divisionName}</strong> division and <strong>{season.name}</strong> season</p>
         <div className="input-group">
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>

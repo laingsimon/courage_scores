@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Link, useParams} from "react-router-dom";
 import {NavLink} from "reactstrap";
 import {UserAdmin} from "./UserAdmin";
@@ -7,11 +7,33 @@ import {ExportData} from "./ExportData";
 import {Loading} from "../common/Loading";
 import {NotPermitted} from "./NotPermitted";
 import {Errors} from "./Errors";
+import {useApp} from "../../AppContainer";
+import {useDependencies} from "../../IocContainer";
+import {AdminContainer} from "./AdminContainer";
 
-export function AdminHome({ account, appLoading }) {
+export function AdminHome() {
     const { mode } = useParams();
+    const { dataApi, accountApi } = useDependencies();
+    const { account, appLoading } = useApp();
     const effectiveTab = mode || 'user';
     const access = (account ? account.access : null) || {};
+    const [ dataTables, setDataTables ] = useState(null);
+    const [ accounts, setAccounts ] = useState(null);
+
+    async function loadTables() {
+        const tables = await dataApi.tables();
+        setDataTables(tables);
+
+        const accounts = await accountApi.getAll();
+        setAccounts(accounts);
+    }
+
+    useEffect(() => {
+        // noinspection JSIgnoredPromiseFromCall
+        loadTables();
+    },
+    // eslint-disable-next-line
+    [])
 
     return (<div>
         {appLoading ? (<Loading />) : null}
@@ -29,10 +51,12 @@ export function AdminHome({ account, appLoading }) {
                 <NavLink tag={Link} className={effectiveTab === 'errors' ? ' text-dark active' : 'text-light'} to={`/admin/errors`}>Errors</NavLink>
             </li>) : null}
         </ul>) : null}
-        {!account && !appLoading ? (<NotPermitted />) : null}
-        {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin account={account} />): null}
-        {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData account={account} />) : null}
-        {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData account={account} />) : null}
-        {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors account={account} />) : null}
+        <AdminContainer tables={dataTables} accounts={accounts}>
+            {!account && !appLoading ? (<NotPermitted />) : null}
+            {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin />): null}
+            {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData />) : null}
+            {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData />) : null}
+            {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors />) : null}
+        </AdminContainer>
     </div>);
 }
