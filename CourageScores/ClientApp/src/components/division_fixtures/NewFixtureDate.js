@@ -7,8 +7,8 @@ import {any, propChanged, sum} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function NewFixtureDate({ date, onNewTeam }) {
-    const { fixtures, id: divisionId, season, teams } = useDivisionData();
+export function NewFixtureDate({ date }) {
+    const { fixtures, id: divisionId, season, teams, onReloadDivision } = useDivisionData();
     const [ homeTeamId, setHomeTeamId ] = useState(null);
     const [ awayTeamId, setAwayTeamId ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);
@@ -55,7 +55,7 @@ export function NewFixtureDate({ date, onNewTeam }) {
     }
 
     async function teamCreated(team) {
-        await onNewTeam();
+        await onReloadDivision();
 
         const hasFixtures = any(fixtures, f => f.date === date);
         if (newTeamFor === 'home') {
@@ -99,8 +99,8 @@ export function NewFixtureDate({ date, onNewTeam }) {
             });
 
             if (result.success) {
-                if (onNewTeam) {
-                    await onNewTeam();
+                if (onReloadDivision) {
+                    await onReloadDivision();
                 }
             } else {
                 setSaveError(result);

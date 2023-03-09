@@ -102,17 +102,16 @@ export function Division() {
             <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
             </li>) : null}
         </ul>
-        <DivisionDataContainer {...divisionData}>
+        <DivisionDataContainer {...divisionData} onReloadDivision={reloadDivisionData}>
             {effectiveTab === 'teams' && divisionData.season
-                ? (<DivisionTeams onTeamSaved={reloadDivisionData} />)
+                ? (<DivisionTeams />)
                 : null}
             {effectiveTab === 'fixtures' && divisionData.season
                 ? (<DivisionFixtures
-                    onReloadDivision={reloadDivisionData}
                     setNewFixtures={propChanged(divisionData, setDivisionData, 'fixtures')} />)
                 : null}
             {effectiveTab === 'players' && divisionData.season
-                ? (<DivisionPlayers onPlayerSaved={reloadDivisionData} />)
+                ? (<DivisionPlayers />)
                 : null}
             {effectiveTab === 'reports'
                 ? (<DivisionReports />)

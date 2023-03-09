@@ -2,7 +2,7 @@ import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionPlayers({ onPlayerSaved, hideVenue, hideHeading }) {
+export function DivisionPlayers({ hideVenue, hideHeading }) {
     const { players } = useDivisionData();
 
     return (<div className="light-background p-3 overflow-x-auto">
@@ -27,7 +27,6 @@ export function DivisionPlayers({ onPlayerSaved, hideVenue, hideHeading }) {
                 {players.map(player => (<DivisionPlayer
                     key={player.id}
                     player={player}
-                    onPlayerSaved={onPlayerSaved}
                     hideVenue={hideVenue} />))}
                 </tbody>
             </table>

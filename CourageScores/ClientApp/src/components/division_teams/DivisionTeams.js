@@ -5,8 +5,8 @@ import {EditTeamDetails} from "./EditTeamDetails";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionTeams({ onTeamSaved }) {
-    const { id: divisionId, season, teams } = useDivisionData();
+export function DivisionTeams() {
+    const { id: divisionId, season, teams, onReloadDivision } = useDivisionData();
     const { account } = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
     const [ newTeam, setNewTeam ] = useState(false);
@@ -23,8 +23,8 @@ export function DivisionTeams({ onTeamSaved }) {
     }
 
     async function onTeamCreated() {
-        if (onTeamSaved) {
-            await onTeamSaved();
+        if (onReloadDivision) {
+            await onReloadDivision();
         }
 
         setNewTeam(false);
@@ -60,8 +60,7 @@ export function DivisionTeams({ onTeamSaved }) {
                 <tbody>
                 {teams.map(team => (<DivisionTeam
                     key={team.id}
-                    team={team}
-                    onTeamSaved={onTeamSaved} />))}
+                    team={team} />))}
                 </tbody>
             </table>
         </div>

@@ -9,13 +9,13 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout }) {
+export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout, onReloadDivisionOverride }) {
     const bye = {
         text: 'Bye',
         value: '',
     };
     const { account } = useApp();
-    const { id: divisionId, fixtures, season, allTeams, teams } = useDivisionData();
+    const { id: divisionId, fixtures, season, allTeams, teams, onReloadDivision } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
@@ -27,6 +27,14 @@ export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allo
     const [teamDetails, setTeamDetails] = useState(null);
     const [proposal, setProposal] = useState(fixture.proposal);
     const { gameApi, teamApi } = useDependencies();
+
+    async function doReloadDivision() {
+        if (onReloadDivisionOverride) {
+            await onReloadDivisionOverride();
+        } else {
+            await onReloadDivision();
+        }
+    }
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = fixtures.filter(f => f.date === date)[0];
@@ -180,9 +188,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allo
                 const result = await gameApi.delete(fixture.id);
 
                 if (result.success) {
-                    if (onReloadDivision) {
-                        await onReloadDivision();
-                    }
+                    await doReloadDivision();
                 } else {
                     setSaveError(result);
                 }
@@ -200,9 +206,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allo
             });
 
             if (result.success) {
-                if (onReloadDivision) {
-                    await onReloadDivision();
-                }
+                await doReloadDivision();
             } else {
                 setSaveError(result);
             }
@@ -224,9 +228,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allo
         try {
             const result = await gameApi.delete(fixture.id);
             if (result.success) {
-                if (onReloadDivision) {
-                    await onReloadDivision();
-                }
+                await doReloadDivision();
             } else {
                 setSaveError(result);
             }
@@ -249,7 +251,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allo
             const response = await teamApi.delete(fixture.homeTeam.id, season.id);
 
             if (response.success) {
-                await onReloadDivision();
+                await doReloadDivision();
             } else {
                 setSaveError(response);
             }
@@ -268,9 +270,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allo
     }
 
     async function teamDetailSaved() {
-        if (onReloadDivision) {
-            await onReloadDivision();
-        }
+        await doReloadDivision();
 
         setEditTeamMode(null);
     }

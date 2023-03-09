@@ -8,9 +8,9 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionPlayer({player, onPlayerSaved, hideVenue }) {
+export function DivisionPlayer({player, hideVenue }) {
     const { account } = useApp();
-    const { id: divisionId, season } = useDivisionData();
+    const { id: divisionId, season, onReloadDivision } = useDivisionData();
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
     const [ editPlayer, setEditPlayer ] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -23,8 +23,8 @@ export function DivisionPlayer({player, onPlayerSaved, hideVenue }) {
     const { playerApi } = useDependencies();
 
     async function playerDetailSaved() {
-        if (onPlayerSaved) {
-            await onPlayerSaved();
+        if (onReloadDivision) {
+            await onReloadDivision();
         }
 
         setEditPlayer(false);
@@ -58,8 +58,8 @@ export function DivisionPlayer({player, onPlayerSaved, hideVenue }) {
         try {
             const response = await playerApi.delete(season.id, player.teamId, player.id);
             if (response.success) {
-                if (onPlayerSaved) {
-                    await onPlayerSaved();
+                if (onReloadDivision) {
+                    await onReloadDivision();
                 }
             } else {
                 setSaveError(response);
@@ -72,12 +72,12 @@ export function DivisionPlayer({player, onPlayerSaved, hideVenue }) {
     return (<tr>
         <td>{player.rank}</td>
         <td>
-            {isAdmin && onPlayerSaved ? (<button disabled={deleting} onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {isAdmin && onPlayerSaved ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
+            {isAdmin && onReloadDivision ? (<button disabled={deleting} onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+            {isAdmin && onReloadDivision ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
                 {deleting ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '🗑️'}
             </button>) : null}
             {deleting ? (<s>{player.name}</s>) : (<Link to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>)}
-            {editPlayer && isAdmin && onPlayerSaved ? renderEditPlayer() : null}
+            {editPlayer && isAdmin && onReloadDivision ? renderEditPlayer() : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not delete player"/>) : null}
         </td>

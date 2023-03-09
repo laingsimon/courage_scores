@@ -14,8 +14,8 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixtures({ onReloadDivision, setNewFixtures }) {
-    const { id: divisionId, season, fixtures, teams } = useDivisionData();
+export function DivisionFixtures({ setNewFixtures }) {
+    const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
     const { account } = useApp();
@@ -113,7 +113,7 @@ export function DivisionFixtures({ onReloadDivision, setNewFixtures }) {
 
         return (<DivisionFixture
             key={team.id}
-            onReloadDivision={onNewDateCreated}
+            onReloadDivisionOverride={onNewDateCreated}
             fixture={newFixture}
             date={newDate}
             allowTeamDelete={false}
@@ -415,7 +415,6 @@ export function DivisionFixtures({ onReloadDivision, setNewFixtures }) {
                 <tbody>
                 {fixturesForDate.map(f => (<DivisionFixture
                     key={f.id}
-                    onReloadDivision={onReloadDivision}
                     fixture={f}
                     readOnly={proposingGames}
                     date={date.date}
@@ -533,7 +532,7 @@ export function DivisionFixtures({ onReloadDivision, setNewFixtures }) {
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate onNewTeam={onReloadDivision} date={newDate} />
+                    <NewFixtureDate date={newDate} />
                     {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} />)}
                 </tbody>
             </table>) : null}
