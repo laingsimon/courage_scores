@@ -16,11 +16,10 @@ import {useApp} from "../AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
 
 export function Division() {
-    const { divisionApi, teamApi } = useDependencies();
+    const { divisionApi } = useDependencies();
     const { account } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
-    const [ teams, setTeams ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState(null);
     const effectiveTab = mode || 'teams';
@@ -28,11 +27,6 @@ export function Division() {
     async function reloadDivisionData() {
         const divisionData = await divisionApi.data(divisionId, seasonId);
         setDivisionData(divisionData);
-
-        if (seasonId || divisionData.season) {
-            const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
-            setTeams(teams);
-        }
         return divisionData;
     }
 
@@ -50,10 +44,6 @@ export function Division() {
         async function reloadDivisionData() {
             try {
                 const divisionData = await divisionApi.data(divisionId, seasonId);
-                if (seasonId || divisionData.season) {
-                    const teams = await teamApi.getForDivisionAndSeason(divisionId, seasonId || divisionData.season.id);
-                    setTeams(teams);
-                }
                 setDivisionData(divisionData);
             } catch (e) {
                 if (e.message.indexOf('Exception') !== -1) {
