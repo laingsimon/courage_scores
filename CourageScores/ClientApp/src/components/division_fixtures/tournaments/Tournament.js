@@ -7,7 +7,7 @@ import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
-import {useDependencies} from "../../../Dependencies";
+import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 
 export function Tournament() {

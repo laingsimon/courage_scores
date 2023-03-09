@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
 import {isEmpty, propChanged, valueChanged} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 
 export function ImportData() {
     const { dataApi } = useDependencies();

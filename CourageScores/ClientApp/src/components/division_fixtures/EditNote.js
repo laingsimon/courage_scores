@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {valueChanged} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 
 export function EditNote({ note, onNoteChanged, onClose, onSaved }) {

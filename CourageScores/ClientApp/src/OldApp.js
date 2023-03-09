@@ -9,7 +9,7 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {toMap} from "./Utilities";
 import {AdminHome} from "./components/admin/AdminHome";
 import {SelfScore} from "./components/SelfScore";
-import {IocContainer} from "./Dependencies";
+import {IocContainer} from "./IocContainer";
 import {DivisionApi} from "./api/division";
 import {Http} from "./api/http";
 import {Settings} from "./api/settings";

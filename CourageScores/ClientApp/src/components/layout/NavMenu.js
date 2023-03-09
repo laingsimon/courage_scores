@@ -3,7 +3,7 @@ import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavLink} from 'reactstrap'
 import {Link, useLocation, useParams} from 'react-router-dom';
 import './NavMenu.css';
 import {any, isEmpty} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 
 export function NavMenu() {

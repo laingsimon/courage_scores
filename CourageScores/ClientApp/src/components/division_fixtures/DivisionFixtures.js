@@ -10,10 +10,12 @@ import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, stateChanged} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, allPlayers }) {
+export function DivisionFixtures({ onReloadDivision, setNewFixtures }) {
+    const { id: divisionId, season, fixtures, teams } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
     const { account } = useApp();
@@ -112,11 +114,6 @@ export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures
         return (<DivisionFixture
             key={team.id}
             onReloadDivision={onNewDateCreated}
-            fixtures={fixtures}
-            teams={teams}
-            allTeams={allTeams}
-            seasonId={season.id}
-            divisionId={divisionId}
             fixture={newFixture}
             date={newDate}
             allowTeamDelete={false}
@@ -418,11 +415,6 @@ export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures
                 <tbody>
                 {fixturesForDate.map(f => (<DivisionFixture
                     key={f.id}
-                    teams={teams}
-                    allTeams={allTeams}
-                    fixtures={fixtures}
-                    divisionId={divisionId}
-                    seasonId={season.id}
                     onReloadDivision={onReloadDivision}
                     fixture={f}
                     readOnly={proposingGames}
@@ -434,11 +426,8 @@ export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
                     date={date.date}
-                    seasonId={season.id}
-                    divisionId={divisionId}
                     onTournamentChanged={onTournamentChanged}
-                    expanded={showPlayers[date.date]}
-                    allPlayers={allPlayers} />))}
+                    expanded={showPlayers[date.date]} />))}
                 </tbody>
             </table>
         </div>);
@@ -507,7 +496,7 @@ export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures
     const renderContext = {};
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
-        <FilterFixtures setFilter={changeFilter} filter={filter} teams={teams} />
+        <FilterFixtures setFilter={changeFilter} filter={filter} />
         {proposalSettingsDialogVisible ? (<ProposeGamesDialog
             onPropose={proposeFixtures}
             onClose={() => setProposalSettingsDialogVisible(false)}
@@ -544,8 +533,8 @@ export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures
             {newDate ? (<table className="table layout-fixed">
                 <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate fixtures={fixtures} teams={teams} onNewTeam={onReloadDivision} date={newDate} divisionId={divisionId} seasonId={season.id} />
-                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} teams={teams} seasonId={season.id} />)}
+                    <NewFixtureDate onNewTeam={onReloadDivision} date={newDate} />
+                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} />)}
                 </tbody>
             </table>) : null}
         </div>) : null}

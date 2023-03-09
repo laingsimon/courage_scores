@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function NewTournamentGame({ date, onNewTournament, teams, seasonId }) {
+export function NewTournamentGame({ date, onNewTournament }) {
+    const { season, teams } = useDivisionData();
     const [ creating, setCreating ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ address, setAddress ] = useState('');
@@ -21,7 +23,7 @@ export function NewTournamentGame({ date, onNewTournament, teams, seasonId }) {
             const response = await tournamentApi.update({
                 date: date,
                 address: teamsAtAddress,
-                seasonId: seasonId
+                seasonId: season.id
             });
 
             if (response.success) {

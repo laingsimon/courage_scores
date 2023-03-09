@@ -4,9 +4,11 @@ import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, propChanged, sum} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
+export function NewFixtureDate({ date, onNewTeam }) {
+    const { fixtures, id: divisionId, season, teams } = useDivisionData();
     const [ homeTeamId, setHomeTeamId ] = useState(null);
     const [ awayTeamId, setAwayTeamId ] = useState(null);
     const [ newTeamFor, setNewTeamFor ] = useState(null);
@@ -69,7 +71,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         return (<Dialog title="Create a new team...">
           <EditTeamDetails
               divisionId={divisionId}
-              seasonId={seasonId}
+              seasonId={season.id}
               {...teamDetails}
               onCancel={() => setNewTeamFor(null)} id={null}
               onSaved={teamCreated}

@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 
 export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete, className, placeholder }) {
     const empty = {

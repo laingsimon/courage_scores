@@ -4,8 +4,10 @@ import {Dialog} from "../common/Dialog";
 import {Link} from "react-router-dom";
 import {propChanged} from "../../Utilities";
 import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionTeam({team, divisionId, seasonId, onTeamSaved }) {
+export function DivisionTeam({team, onTeamSaved }) {
+    const { id: divisionId, season } = useDivisionData();
     const { account } = useApp();
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));
     const [ editTeam, setEditTeam ] = useState(false);
@@ -24,7 +26,7 @@ export function DivisionTeam({team, divisionId, seasonId, onTeamSaved }) {
             <EditTeamDetails
                 id={teamDetails.id}
                 divisionId={divisionId}
-                seasonId={seasonId}
+                seasonId={season.id}
                 {...teamDetails}
                 onCancel={() => setEditTeam(false)}
                 onChange={propChanged(teamDetails, setTeamDetails)}

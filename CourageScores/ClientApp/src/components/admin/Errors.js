@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {sortBy, stateChanged} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 
 export function Errors() {
     const [ since, setSince ] = useState(new Date().toISOString().substring(0, 10));

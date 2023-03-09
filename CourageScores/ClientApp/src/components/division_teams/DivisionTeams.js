@@ -3,8 +3,10 @@ import {DivisionTeam} from "./DivisionTeam";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
 import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionTeams({ teams, divisionId, seasonId, onTeamSaved }) {
+export function DivisionTeams({ onTeamSaved }) {
+    const { id: divisionId, season, teams } = useDivisionData();
     const { account } = useApp();
     const isAdmin = account && account.access && account.access.manageTeams;
     const [ newTeam, setNewTeam ] = useState(false);
@@ -32,7 +34,7 @@ export function DivisionTeams({ teams, divisionId, seasonId, onTeamSaved }) {
         return (<Dialog title="Create a new team...">
             <EditTeamDetails
                 divisionId={divisionId}
-                seasonId={seasonId}
+                seasonId={season.id}
                 {...teamDetails}
                 onCancel={() => setNewTeam(false)}
                 id={null}
@@ -59,8 +61,6 @@ export function DivisionTeams({ teams, divisionId, seasonId, onTeamSaved }) {
                 {teams.map(team => (<DivisionTeam
                     key={team.id}
                     team={team}
-                    seasonId={seasonId}
-                    divisionId={divisionId}
                     onTeamSaved={onTeamSaved} />))}
                 </tbody>
             </table>

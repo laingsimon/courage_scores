@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {any, propChanged, sortBy, valueChanged} from "../Utilities";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
-import {useDependencies} from "../Dependencies";
+import {useDependencies} from "../IocContainer";
 
 export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions, seasons }) {
     const [ saving, setSaving ] = useState(false);

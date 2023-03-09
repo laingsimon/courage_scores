@@ -1,8 +1,10 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {isEmpty, propChanged, sortBy} from "../../Utilities";
 import {ShareButton} from "../ShareButton";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function FilterFixtures({ filter, setFilter, teams }) {
+export function FilterFixtures({ filter, setFilter }) {
+    const { teams } = useDivisionData();
     const teamFilters = teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name }; });
     teamFilters.unshift({ value: null, text: 'All teams' });
 

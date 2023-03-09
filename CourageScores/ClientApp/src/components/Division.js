@@ -11,12 +11,13 @@ import {PlayerOverview} from "./division_players/PlayerOverview";
 import {Loading} from "./common/Loading";
 import {PageError} from "./PageError";
 import {propChanged} from "../Utilities";
-import {useDependencies} from "../Dependencies";
+import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
+import {DivisionDataContainer} from "./DivisionDataContainer";
 
 export function Division() {
     const { divisionApi, teamApi } = useDependencies();
-    const { account, divisions } = useApp();
+    const { account } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ teams, setTeams ] = useState(null);
@@ -111,49 +112,27 @@ export function Division() {
             <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'} to={`/division/${divisionId}/reports`}>Reports</NavLink>
             </li>) : null}
         </ul>
-        {effectiveTab === 'teams' && divisionData.season
-            ? (<DivisionTeams
-                teams={divisionData.teams}
-                onTeamSaved={reloadDivisionData}
-                seasonId={divisionData.season.id}
-                divisions={divisions}
-                divisionId={divisionId} />)
-            : null}
-        {effectiveTab === 'fixtures' && divisionData.season
-            ? (<DivisionFixtures
-                season={divisionData.season}
-                divisionId={divisionData.id}
-                fixtures={divisionData.fixtures}
-                teams={teams}
-                allTeams={divisionData.allTeams}
-                onReloadDivision={reloadDivisionData}
-                setNewFixtures={propChanged(divisionData, setDivisionData, 'fixtures')}
-                seasons={divisionData.seasons}
-                divisions={divisions}
-                allPlayers={divisionData.players} />)
-            : null}
-        {effectiveTab === 'players' && divisionData.season
-            ? (<DivisionPlayers
-                players={divisionData.players}
-                onPlayerSaved={reloadDivisionData}
-                seasonId={divisionData.season.id}
-                divisionId={divisionData.id} />)
-            : null}
-        {effectiveTab === 'reports'
-            ? (<DivisionReports
-                divisionData={divisionData} />)
-            : null}
-        {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
-            ? (<TeamOverview
-                divisionData={divisionData}
-                teamId={effectiveTab.substring('team:'.length)}
-                seasonId={divisionData.season.id} />)
-            : null}
-        {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
-            ? (<PlayerOverview
-                divisionData={divisionData}
-                playerId={effectiveTab.substring('player:'.length)}
-                seasonId={divisionData.season.id} />)
-            : null}
+        <DivisionDataContainer {...divisionData}>
+            {effectiveTab === 'teams' && divisionData.season
+                ? (<DivisionTeams onTeamSaved={reloadDivisionData} />)
+                : null}
+            {effectiveTab === 'fixtures' && divisionData.season
+                ? (<DivisionFixtures
+                    onReloadDivision={reloadDivisionData}
+                    setNewFixtures={propChanged(divisionData, setDivisionData, 'fixtures')} />)
+                : null}
+            {effectiveTab === 'players' && divisionData.season
+                ? (<DivisionPlayers onPlayerSaved={reloadDivisionData} />)
+                : null}
+            {effectiveTab === 'reports'
+                ? (<DivisionReports />)
+                : null}
+            {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
+                ? (<TeamOverview teamId={effectiveTab.substring('team:'.length)} />)
+                : null}
+            {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
+                ? (<PlayerOverview playerId={effectiveTab.substring('player:'.length)} />)
+                : null}
+        </DivisionDataContainer>
     </div>);
 }

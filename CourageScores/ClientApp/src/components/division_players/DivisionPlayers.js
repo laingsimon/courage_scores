@@ -1,7 +1,10 @@
 import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionPlayers({ players, onPlayerSaved, seasonId, hideVenue, divisionId, hideHeading }) {
+export function DivisionPlayers({ onPlayerSaved, hideVenue, hideHeading }) {
+    const { players } = useDivisionData();
+
     return (<div className="light-background p-3 overflow-x-auto">
         <div>
             {hideHeading ? null : (<p>Only players that have played a singles match will appear here</p>)}
@@ -24,10 +27,8 @@ export function DivisionPlayers({ players, onPlayerSaved, seasonId, hideVenue, d
                 {players.map(player => (<DivisionPlayer
                     key={player.id}
                     player={player}
-                    seasonId={seasonId}
                     onPlayerSaved={onPlayerSaved}
-                    hideVenue={hideVenue}
-                    divisionId={divisionId} />))}
+                    hideVenue={hideVenue} />))}
                 </tbody>
             </table>
         </div>

@@ -4,7 +4,7 @@ import {AdminHome} from "./AdminHome";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route, Routes} from 'react-router-dom';
 import {AppContainer} from "../../AppContainer";
-import {IocContainer} from "../../Dependencies";
+import {IocContainer} from "../../IocContainer";
 
 describe('AdminHome', () => {
     let container;

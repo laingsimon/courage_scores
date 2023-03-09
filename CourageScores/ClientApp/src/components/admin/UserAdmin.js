@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 
 export function UserAdmin() {

@@ -15,7 +15,7 @@ import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
-import {useDependencies} from "../../../Dependencies";
+import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 
 export function Score() {

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {useDependencies} from "../Dependencies";
+import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 
 export function PageError({ error }){

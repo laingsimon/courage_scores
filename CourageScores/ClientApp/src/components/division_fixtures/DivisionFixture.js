@@ -5,15 +5,17 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 import {any, propChanged} from "../../Utilities";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
+export function DivisionFixture({fixture, onReloadDivision, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout }) {
     const bye = {
         text: 'Bye',
         value: '',
     };
     const { account } = useApp();
+    const { id: divisionId, fixtures, season, allTeams, teams } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
@@ -244,7 +246,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, divisionId, fi
 
         setDeletingHomeTeam(true);
         try {
-            const response = await teamApi.delete(fixture.homeTeam.id, seasonId);
+            const response = await teamApi.delete(fixture.homeTeam.id, season.id);
 
             if (response.success) {
                 await onReloadDivision();
@@ -282,7 +284,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, divisionId, fi
             <EditTeamDetails
                 id={teamDetails.id}
                 divisionId={divisionId}
-                seasonId={seasonId}
+                seasonId={season.id}
                 name={teamDetails.name}
                 address={teamDetails.address}
                 onCancel={() => setEditTeamMode(null)}
@@ -329,7 +331,7 @@ export function DivisionFixture({fixture, onReloadDivision, date, divisionId, fi
             ) : null}
             {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
-               : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+               : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
 
             {editTeamMode ? renderEditTeam() : null}
         </td>

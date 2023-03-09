@@ -3,16 +3,18 @@ import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../ShareButton";
 import {any} from "../../Utilities";
+import {useDivisionData} from "../DivisionDataContainer";
 
-export function TeamOverview({ divisionData, teamId, seasonId }) {
-    const team = divisionData.teams.filter(t => t.id === teamId)[0] || divisionData.allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
-    const fixtures = divisionData.fixtures.map(fixtureDate => {
+export function TeamOverview({ teamId }) {
+    const { id: divisionId, teams, allTeams, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
+    const team = teams.filter(t => t.id === teamId)[0] || allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
+    const fixtures = divisionDataFixtures.map(fixtureDate => {
        return {
            date: fixtureDate.date,
            fixtures: fixtureDate.fixtures.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
        };
     }).filter(fixtureDate => any(fixtureDate.fixtures));
-    const players = divisionData.players.filter(p => p.teamId === teamId);
+    const players = divisionDataPlayers.filter(p => p.teamId === teamId);
 
     function renderScore(score, postponed) {
         if (postponed) {
@@ -40,7 +42,7 @@ export function TeamOverview({ divisionData, teamId, seasonId }) {
                 <div className="mt-4">
                     {fixture.homeTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionData.id}/team:${fixture.homeTeam.id}/${seasonId}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
+                        : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -50,7 +52,7 @@ export function TeamOverview({ divisionData, teamId, seasonId }) {
                 <div className="mt-4">
                     {fixture.awayTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionData.id}/team:${fixture.awayTeam.id}/${seasonId}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
+                        : (<Link to={`/division/${divisionId}/team:${fixture.awayTeam.id}/${season.id}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -78,7 +80,7 @@ export function TeamOverview({ divisionData, teamId, seasonId }) {
             </table>
         </div>
         <div className="overflow-x-auto">
-            <DivisionPlayers players={players} onPlayerSaved={null} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
+            <DivisionPlayers players={players} onPlayerSaved={null} hideVenue={true} />
         </div>
     </div>)
 }

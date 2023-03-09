@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {valueChanged} from "../Utilities";
-import {useDependencies} from "../Dependencies";
+import {useDependencies} from "../IocContainer";
 
 export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);

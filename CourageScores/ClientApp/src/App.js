@@ -1,5 +1,5 @@
 import './custom.css';
-import {useDependencies} from "./Dependencies";
+import {useDependencies} from "./IocContainer";
 import React, {useEffect, useState} from "react";
 import {toMap} from "./Utilities";
 import {Layout} from "./components/layout/Layout";

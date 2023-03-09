@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {useDependencies} from "../../Dependencies";
+import {useDependencies} from "../../IocContainer";
 
 export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, teams, gameId }) {
     const [ saving, setSaving ] = useState(false);
