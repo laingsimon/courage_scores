@@ -3,9 +3,11 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
 import {propChanged, valueChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
+import {useAdmin} from "./AdminContainer";
 
 export function ExportData() {
     const { dataApi } = useDependencies();
+    const { tables } = useAdmin();
     const [ exporting, setExporting ] = useState(false);
     const [ exportRequest, setExportRequest ] = useState({
         includeDeletedEntries: true,
@@ -14,22 +16,13 @@ export function ExportData() {
     });
     const [ zipContent, setZipContent ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
-    const [ dataTables, setDataTables ] = useState(null);
-
-    async function getTables() {
-        const tables = await dataApi.tables();
-        setDataTables(tables);
-
-        const selected = tables.filter(t => t.canExport).map(t => t.name);
-        setExportRequest(Object.assign({ tables: selected }, exportRequest));
-    }
 
     useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        getTables();
+        const selected = tables.filter(t => t.canExport).map(t => t.name);
+        setExportRequest(Object.assign({ tables: selected }, exportRequest));
     },
     // eslint-disable-next-line
-    []);
+    [ tables ]);
 
     async function startExport() {
         if (exporting) {
@@ -69,7 +62,7 @@ export function ExportData() {
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={exportRequest.tables} onTableChange={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
+        <TableSelection allTables={tables} selected={exportRequest.tables} onTableChange={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

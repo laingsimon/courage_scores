@@ -3,9 +3,11 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
 import {isEmpty, propChanged, valueChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
+import {useAdmin} from "./AdminContainer";
 
 export function ImportData() {
     const { dataApi } = useDependencies();
+    const { tables } = useAdmin();
     const [importing, setImporting] = useState(false);
     const [importRequest, setImportRequest] = useState({
         password: '',
@@ -15,24 +17,15 @@ export function ImportData() {
     });
     const [response, setResponse] = useState(null);
     const [saveError, setSaveError] = useState(null);
-    const [ dataTables, setDataTables ] = useState(null);
 
-    async function getTables() {
-        const tables = await dataApi.tables();
-        setDataTables(tables);
-
+    useEffect(() => {
         const selected = tables.filter(t => t.canImport).map(t => t.name);
         setImportRequest(Object.assign({}, importRequest, {
             tables: selected
         }));
-    }
-
-    useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        getTables();
     },
     // eslint-disable-next-line
-    [ ]);
+    [ tables ]);
 
     async function startImport() {
         if (importing) {
@@ -98,7 +91,7 @@ export function ImportData() {
                 <label className="form-check-label" htmlFor="dryRun">Dry run</label>
             </div>
         </div>
-        <TableSelection allTables={dataTables} selected={importRequest.tables} onTableChange={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
+        <TableSelection allTables={tables} selected={importRequest.tables} onTableChange={propChanged(importRequest, setImportRequest, 'tables')} requireCanImport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startImport} disabled={importing}>
                 {importing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
