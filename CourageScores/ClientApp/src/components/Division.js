@@ -12,9 +12,11 @@ import {Loading} from "./common/Loading";
 import {PageError} from "./PageError";
 import {propChanged} from "../Utilities";
 import {useDependencies} from "../Dependencies";
+import {useApp} from "../AppContainer";
 
-export function Division({ account, apis, divisions }) {
+export function Division() {
     const { divisionApi, teamApi } = useDependencies();
+    const { account, divisions, reloadAll } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ teams, setTeams ] = useState(null);
@@ -90,7 +92,7 @@ export function Division({ account, apis, divisions }) {
 
     return (<div>
         <DivisionControls
-            reloadAll={apis.reloadAll}
+            reloadAll={reloadAll}
             seasons={divisionData.seasons}
             account={account}
             originalSeasonData={divisionData.season}

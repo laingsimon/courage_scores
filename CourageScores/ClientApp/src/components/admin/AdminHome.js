@@ -7,9 +7,11 @@ import {ExportData} from "./ExportData";
 import {Loading} from "../common/Loading";
 import {NotPermitted} from "./NotPermitted";
 import {Errors} from "./Errors";
+import {useApp} from "../../AppContainer";
 
-export function AdminHome({ account, appLoading }) {
+export function AdminHome() {
     const { mode } = useParams();
+    const {account, appLoading } = useApp();
     const effectiveTab = mode || 'user';
     const access = (account ? account.access : null) || {};
 

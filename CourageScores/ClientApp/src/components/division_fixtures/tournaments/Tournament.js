@@ -8,9 +8,11 @@ import {ShareButton} from "../../ShareButton";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../../../Dependencies";
+import {useApp} from "../../../AppContainer";
 
-export function Tournament({ account, apis }) {
+export function Tournament() {
     const { tournamentId } = useParams();
+    const {account, reloadAll} = useApp();
     const { divisionApi, seasonApi, teamApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
@@ -137,7 +139,7 @@ export function Tournament({ account, apis }) {
 
     return (<div>
         <DivisionControls
-            reloadAll={apis.reloadAll}
+            reloadAll={reloadAll}
             seasons={seasons}
             account={account}
             divisions={divisions}
@@ -147,7 +149,7 @@ export function Tournament({ account, apis }) {
                 startDate: season.startDate.substring(0, 10),
                 endDate: season.endDate.substring(0, 10),
             }}
-            onReloadDivisionData={apis.reloadAll}
+            onReloadDivisionData={reloadAll}
             overrideMode="fixtures" />
         <div className="light-background p-3">
             {isAdmin

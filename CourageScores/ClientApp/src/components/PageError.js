@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {useDependencies} from "../Dependencies";
+import {useApp} from "../AppContainer";
 
-export function PageError({ error, clearError }){
+export function PageError({ error }){
     const [ showStack, setShowStack ] = useState(false);
     const [ errorReported, setErrorReported ] = useState(false);
     const { errorApi } = useDependencies();
+    const { clearError } = useApp();
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
@@ -44,6 +46,6 @@ export function PageError({ error, clearError }){
                 </span>
         </p>
         {showStack ? (<pre>{error.stack}</pre>) : null}
-        <button className="btn btn-warning" onClick={() => clearError ? clearError() : null}>Clear error</button>
+        <button className="btn btn-warning" onClick={clearError}>Clear error</button>
     </div>);
 }

@@ -13,27 +13,31 @@ import {ReportApi} from "./api/report";
 import {DivisionApi} from "./api/division";
 import {SeasonApi} from "./api/season";
 
-const http = new Http(new Settings());
-const DependenciesContext = createContext({
-    divisionApi: new DivisionApi(http),
-    seasonApi: new SeasonApi(http),
-    teamApi: new TeamApi(http),
-    tournamentApi: new TournamentApi(http),
-    errorApi: new ErrorApi(http),
-    dataApi: new DataApi(http),
-    accountApi: new AccountApi(http),
-    gameApi: new GameApi(http),
-    noteApi: new NoteApi(http),
-    playerApi: new PlayerApi(http),
-    reportApi: new ReportApi(http)
-});
+const DependenciesContext = createContext({});
 
 export function useDependencies() {
     return useContext(DependenciesContext);
 }
 
 export function IocContainer({ children, ...services }) {
-    return (<DependenciesContext.Provider value={services}>
+    const settings = new Settings();
+    const http = new Http(settings);
+    const defaultServices = {
+        settings: settings,
+        divisionApi: new DivisionApi(http),
+        seasonApi: new SeasonApi(http),
+        teamApi: new TeamApi(http),
+        tournamentApi: new TournamentApi(http),
+        errorApi: new ErrorApi(http),
+        dataApi: new DataApi(http),
+        accountApi: new AccountApi(http),
+        gameApi: new GameApi(http),
+        noteApi: new NoteApi(http),
+        playerApi: new PlayerApi(http),
+        reportApi: new ReportApi(http)
+    }
+
+    return (<DependenciesContext.Provider value={Object.assign({}, defaultServices, services)}>
         {children}
     </DependenciesContext.Provider>)
 }

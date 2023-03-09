@@ -16,8 +16,9 @@ import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
 import {useDependencies} from "../../../Dependencies";
+import {useApp} from "../../../AppContainer";
 
-export function Score({account, apis, divisions}) {
+export function Score() {
     const {fixtureId} = useParams();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
@@ -34,6 +35,7 @@ export function Score({account, apis, divisions}) {
     const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
     const { teamApi, gameApi, seasonApi } = useDependencies();
+    const { account, divisions, reloadAll } = useApp();
 
     useEffect(() => {
         if (account && account.access) {
@@ -395,7 +397,7 @@ export function Score({account, apis, divisions}) {
 
     return (<div>
         <DivisionControls
-            reloadAll={apis.reloadAll}
+            reloadAll={reloadAll}
             seasons={seasons}
             account={account}
             originalSeasonData={{
@@ -406,7 +408,7 @@ export function Score({account, apis, divisions}) {
             }}
             originalDivisionData={division}
             divisions={divisions}
-            onReloadDivisionData={apis.reloadAll}
+            onReloadDivisionData={reloadAll}
             overrideMode="fixtures" />
         <ul className="nav nav-tabs">
             <li className="nav-item">
