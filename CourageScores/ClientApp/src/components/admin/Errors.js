@@ -1,15 +1,13 @@
 import {useState} from "react";
-import {ErrorApi} from "../../api/error";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {sortBy, stateChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function Errors() {
     const [ since, setSince ] = useState(new Date().toISOString().substring(0, 10));
     const [ loading, setLoading ] = useState(false);
     const [ errors, setErrors ] = useState([]);
     const [ focusedError, setFocusedError ] = useState(null);
-    const api = new ErrorApi(new Http(new Settings()));
+    const { errorApi } = useDependencies();
 
     async function retrieveErrors() {
         if (loading) {
@@ -21,7 +19,7 @@ export function Errors() {
         try {
             setFocusedError(null);
 
-            const result = await api.getRecent(since);
+            const result = await errorApi.getRecent(since);
             setErrors(result);
         } finally {
             setLoading(false);

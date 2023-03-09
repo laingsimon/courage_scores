@@ -1,10 +1,8 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
-import {TournamentApi} from "../../api/tournament";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, isEmpty, sortBy} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
     const isProposedTournament = tournament.proposed;
@@ -12,6 +10,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const isAdmin = account && account.access && account.access.manageGames;
+    const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
         if (creating || deleting) {
@@ -21,8 +20,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         try {
             setCreating(true);
 
-            const api = new TournamentApi(new Http(new Settings()));
-            const response = await api.update({
+            const response = await tournamentApi.update({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
@@ -53,8 +51,7 @@ export function TournamentFixture({ account, tournament, onTournamentChanged, se
         try {
             setDeleting(true);
 
-            const api = new TournamentApi(new Http(new Settings()));
-            const response = await api.delete(tournament.id);
+            const response = await tournamentApi.delete(tournament.id);
 
             if (response.success) {
                 if (onTournamentChanged) {

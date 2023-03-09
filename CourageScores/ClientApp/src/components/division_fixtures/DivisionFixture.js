@@ -1,14 +1,11 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
-import {GameApi} from "../../api/game";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {TeamApi} from "../../api/team";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 import {any, propChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
     const bye = {
@@ -25,6 +22,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     const [editTeamMode, setEditTeamMode] = useState(null);
     const [teamDetails, setTeamDetails] = useState(null);
     const [proposal, setProposal] = useState(fixture.proposal);
+    const { gameApi, teamApi } = useDependencies();
 
     function isSelectedInAnotherFixtureOnThisDate(t) {
         const fixturesForThisDate = fixtures.filter(f => f.date === date)[0];
@@ -173,10 +171,9 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                 return;
             }
 
-            const api = new GameApi(new Http(new Settings()));
             setSaving(true);
             if (awayTeamId === '') {
-                const result = await api.delete(fixture.id);
+                const result = await gameApi.delete(fixture.id);
 
                 if (result.success) {
                     if (onReloadDivision) {
@@ -188,7 +185,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
                 return;
             }
 
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
                 divisionId: divisionId,
@@ -221,8 +218,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
         setDeleting(true);
         try {
-            const api = new GameApi(new Http(new Settings()));
-            const result = await api.delete(fixture.id);
+            const result = await gameApi.delete(fixture.id);
             if (result.success) {
                 if (onReloadDivision) {
                     await onReloadDivision();
@@ -246,8 +242,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
 
         setDeletingHomeTeam(true);
         try {
-            const api = new TeamApi(new Http(new Settings()));
-            const response = await api.delete(fixture.homeTeam.id, seasonId);
+            const response = await teamApi.delete(fixture.homeTeam.id, seasonId);
 
             if (response.success) {
                 await onReloadDivision();
@@ -298,8 +293,7 @@ export function DivisionFixture({fixture, account, onReloadDivision, date, divis
     async function saveProposal() {
         setSaving(true);
         try {
-            const api = new GameApi(new Http(new Settings()));
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: fixture.id,
                 address: fixture.homeTeam.address,
                 date: date,

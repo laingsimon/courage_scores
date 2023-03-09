@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
-import {PlayerApi} from "../../api/player";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {useDependencies} from "../../Dependencies";
 
 export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, teams, gameId }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
+    const { playerApi } = useDependencies();
 
     async function saveChanges() {
         if (saving) {
@@ -26,7 +25,6 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
         setSaving(true);
 
         try {
-            const api = new PlayerApi(new Http(new Settings()));
             const playerDetails = {
                 name: name,
                 captain: captain,
@@ -38,8 +36,8 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
             }
 
             const response = id
-                ? await api.update(seasonId, teamId, id, playerDetails)
-                : await api.create(seasonId, teamId, playerDetails);
+                ? await playerApi.update(seasonId, teamId, id, playerDetails)
+                : await playerApi.create(seasonId, teamId, playerDetails);
 
             if (response.success) {
                 if (onSaved) {

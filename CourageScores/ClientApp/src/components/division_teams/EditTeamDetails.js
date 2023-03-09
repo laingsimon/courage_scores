@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
-import {TeamApi} from "../../api/team";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {useDependencies} from "../../Dependencies";
 
 export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId, newDivisionId, divisions }) {
     const noDivision = { value: '00000000-0000-0000-0000-000000000000', text: 'Remove from division' };
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const divisionOptions = divisions.map(division => { return { value: division.id, text: division.name }; });
+    const { teamApi } = useDependencies();
 
     async function saveChanges() {
         if (saving) {
@@ -19,8 +18,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
         setSaving(true);
 
         try {
-            const api = new TeamApi(new Http(new Settings()));
-            const response = await api.update({
+            const response = await teamApi.update({
                 id: id || undefined,
                 name: name,
                 address: address,

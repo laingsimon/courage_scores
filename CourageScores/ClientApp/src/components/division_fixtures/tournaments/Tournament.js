@@ -1,21 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
-import {Http} from "../../../api/http";
-import {Settings} from "../../../api/settings";
-import {SeasonApi} from "../../../api/season";
-import {TournamentApi} from "../../../api/tournament";
 import {DivisionControls} from "../../DivisionControls";
-import {TeamApi} from "../../../api/team";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {any, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
-import {DivisionApi} from "../../../api/division";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
+import {useDependencies} from "../../../Dependencies";
 
 export function Tournament({ account, apis }) {
     const { tournamentId } = useParams();
+    const { divisionApi, seasonApi, teamApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
     const [error, setError] = useState(null);
@@ -50,12 +46,6 @@ export function Tournament({ account, apis }) {
         [loading]);
 
     async function loadFixtureData() {
-        const http = new Http(new Settings());
-        const tournamentApi = new TournamentApi(http);
-        const seasonApi = new SeasonApi(http);
-        const teamApi = new TeamApi(http);
-        const divisionApi = new DivisionApi(http);
-
         try {
             const tournamentData = await tournamentApi.get(tournamentId);
 
@@ -128,10 +118,6 @@ export function Tournament({ account, apis }) {
         setSaving(true);
 
         try {
-
-            const http = new Http(new Settings());
-            const tournamentApi = new TournamentApi(http);
-
             const response = await tournamentApi.update(tournamentData);
             if (!response.success) {
                 setSaveError(response);

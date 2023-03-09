@@ -4,10 +4,6 @@ import {NavLink} from "reactstrap";
 import {DivisionTeams} from "./division_teams/DivisionTeams";
 import {DivisionFixtures} from "./division_fixtures/DivisionFixtures";
 import {DivisionPlayers} from "./division_players/DivisionPlayers";
-import {Settings} from "../api/settings";
-import {Http} from "../api/http";
-import {DivisionApi} from "../api/division";
-import {TeamApi} from "../api/team";
 import {DivisionControls} from "./DivisionControls";
 import {DivisionReports} from "./division_reports/DivisionReports";
 import {TeamOverview} from "./division_teams/TeamOverview";
@@ -15,16 +11,16 @@ import {PlayerOverview} from "./division_players/PlayerOverview";
 import {Loading} from "./common/Loading";
 import {PageError} from "./PageError";
 import {propChanged} from "../Utilities";
+import {useDependencies} from "../Dependencies";
 
 export function Division({ account, apis, divisions }) {
+    const { divisionApi, teamApi } = useDependencies();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ teams, setTeams ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const [ error, setError ] = useState(null);
     const effectiveTab = mode || 'teams';
-    const divisionApi = new DivisionApi(new Http(new Settings()));
-    const teamApi = new TeamApi(new Http(new Settings()));
 
     async function reloadDivisionData() {
         const divisionData = await divisionApi.data(divisionId, seasonId);

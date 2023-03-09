@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import {ReportApi} from "../../api/report";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {any, isEmpty, stateChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function DivisionReports({ divisionData }) {
     const [ reportData, setReportData ] = useState(null);
     const [ gettingData, setGettingData ] = useState(false);
     const [ topCount, setTopCount ] = useState(3);
     const [ activeReport, setActiveReport ] = useState(null);
-    const api = new ReportApi(new Http(new Settings()));
+    const { reportApi } = useDependencies();
 
     async function getReports() {
         setGettingData(true);
@@ -21,7 +19,7 @@ export function DivisionReports({ divisionData }) {
                 seasonId: divisionData.season.id,
                 topCount: topCount
             };
-            const result = await api.getReport(request);
+            const result = await reportApi.getReport(request);
             setReportData(result);
             if (any(result.reports)) {
                 setActiveReport(result.reports[0].name);

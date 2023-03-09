@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
 import {propChanged, valueChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function ExportData() {
-    const api = new DataApi(new Http(new Settings()));
+    const { dataApi } = useDependencies();
     const [ exporting, setExporting ] = useState(false);
     const [ exportRequest, setExportRequest ] = useState({
         includeDeletedEntries: true,
@@ -19,7 +17,7 @@ export function ExportData() {
     const [ dataTables, setDataTables ] = useState(null);
 
     async function getTables() {
-        const tables = await api.tables();
+        const tables = await dataApi.tables();
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canExport).map(t => t.name);
@@ -41,7 +39,7 @@ export function ExportData() {
         setZipContent(null);
         setExporting(true);
         try {
-            const response = await api.export(exportRequest);
+            const response = await dataApi.export(exportRequest);
             if (response.success) {
                 setZipContent(response.result.zip);
             } else {

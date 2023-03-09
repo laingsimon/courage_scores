@@ -1,15 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from "react-router-dom";
-import {Settings} from "../../../api/settings";
-import {GameApi} from "../../../api/game";
-import {Http} from "../../../api/http";
-import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {SeasonApi} from "../../../api/season";
 import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
@@ -20,6 +15,7 @@ import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
+import {useDependencies} from "../../../Dependencies";
 
 export function Score({account, apis, divisions}) {
     const {fixtureId} = useParams();
@@ -37,6 +33,7 @@ export function Score({account, apis, divisions}) {
     const [seasons, setSeasons] = useState(null);
     const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
+    const { teamApi, gameApi, seasonApi } = useDependencies();
 
     useEffect(() => {
         if (account && account.access) {
@@ -64,8 +61,6 @@ export function Score({account, apis, divisions}) {
         [loading]);
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
-        const http = new Http(new Settings());
-        const teamApi = new TeamApi(http);
         const teamData = await teamApi.get(teamId);
 
         if (!teamData) {
@@ -110,9 +105,6 @@ export function Score({account, apis, divisions}) {
     }
 
     async function loadFixtureData() {
-        const http = new Http(new Settings());
-        const gameApi = new GameApi(http);
-        const seasonApi = new SeasonApi(http);
         const gameData = await gameApi.get(fixtureId);
 
         try {
@@ -244,9 +236,6 @@ export function Score({account, apis, divisions}) {
         }
 
         try {
-            const http = new Http(new Settings());
-            const gameApi = new GameApi(http);
-
             setSaving(true);
             const response = await gameApi.updateScores(fixtureId, fixtureData);
 

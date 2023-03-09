@@ -1,12 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
-import {AccountApi} from "../../api/account";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {useDependencies} from "../../Dependencies";
 
 export function UserAdmin({ account }) {
-    const api = new AccountApi(new Http(new Settings()));
+    const { accountApi } = useDependencies();
     const [ saving, setSaving ] = useState(false);
     const [ userAccount, setUserAccount ] = useState(null);
     const [ emailAddress, setEmailAddress ] = useState(account.emailAddress);
@@ -19,7 +17,7 @@ export function UserAdmin({ account }) {
         setLoading(true);
 
         try {
-            const accounts = await api.getAll();
+            const accounts = await accountApi.getAll();
 
             setAccounts(accounts);
 
@@ -82,7 +80,7 @@ export function UserAdmin({ account }) {
                 emailAddress: emailAddress,
                 access: userAccount.access,
             };
-            const result = await api.update(update);
+            const result = await accountApi.update(update);
             if (!result.success) {
                 setSaveError(result);
             }

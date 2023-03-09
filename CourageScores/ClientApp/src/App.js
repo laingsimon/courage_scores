@@ -14,15 +14,24 @@ import {toMap} from "./Utilities";
 import {AdminHome} from "./components/admin/AdminHome";
 import {SeasonApi} from "./api/season";
 import {SelfScore} from "./components/SelfScore";
+import {IocContainer} from "./Dependencies";
+import {TeamApi} from "./api/team";
+import {TournamentApi} from "./api/tournament";
+import {ErrorApi} from "./api/error";
+import {DataApi} from "./api/data";
+import {GameApi} from "./api/game";
+import {NoteApi} from "./api/note";
+import {PlayerApi} from "./api/player";
+import {ReportApi} from "./api/report";
 
 export default class App extends Component {
     constructor(props) {
         super(props);
 
-        this.settings = new Settings();
-        this.divisionApi = new DivisionApi(new Http(this.settings));
-        this.accountApi = new AccountApi(new Http(this.settings));
-        this.seasonApi = new SeasonApi(new Http(this.settings));
+        this.http = new Http(new Settings());
+        this.divisionApi = new DivisionApi(this.http);
+        this.accountApi = new AccountApi(this.http);
+        this.seasonApi = new SeasonApi(this.http);
         this.reloadDivisions = this.reloadDivisions.bind(this);
         this.reloadSeasons = this.reloadSeasons.bind(this);
         this.reloadAccount = this.reloadAccount.bind(this);
@@ -112,20 +121,37 @@ export default class App extends Component {
     }
 
     render() {
+        const dependencies = {
+            ...this.state.subProps,
+            divisionApi: this.divisionApi,
+            seasonApi: this.seasonApi,
+            teamApi: new TeamApi(this.http),
+            tournamentApi: new TournamentApi(this.http),
+            errorApi: new ErrorApi(this.http),
+            dataApi: new DataApi(this.http),
+            accountApi: new AccountApi(this.http),
+            gameApi: new GameApi(this.http),
+            noteApi: new NoteApi(this.http),
+            playerApi: new PlayerApi(this.http),
+            reportApi: new ReportApi(this.http)
+        };
+
         return (
-            <Layout excludeSurround={this.shouldExcludeSurround()} appLoading={this.state.appLoading} {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
-                <Routes>
-                    <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
-                    <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/division/:divisionId/:mode' element={<Division {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/admin' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/admin/:mode' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/sayg/' element={<SelfScore {...this.combineProps({...this.props})} />} />}/>
-                </Routes>
-            </Layout>
+            <IocContainer {...dependencies} >
+                <Layout excludeSurround={this.shouldExcludeSurround()} appLoading={this.state.appLoading} {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
+                    <Routes>
+                        <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
+                        <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/division/:divisionId/:mode' element={<Division {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/division/:divisionId/:mode/:seasonId' element={<Division {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/admin' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/admin/:mode' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
+                        <Route path='/sayg/' element={<SelfScore {...this.combineProps({...this.props})} />} />}/>
+                    </Routes>
+                </Layout>
+            </IocContainer>
         );
     }
 

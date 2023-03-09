@@ -2,11 +2,9 @@ import React, {useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 import {Link} from "react-router-dom";
-import {PlayerApi} from "../../api/player";
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {propChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue, divisionId }) {
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
@@ -18,6 +16,7 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
         id: player.teamId,
         name: player.team
     };
+    const { playerApi } = useDependencies();
 
     async function playerDetailSaved() {
         if (onPlayerSaved) {
@@ -53,9 +52,7 @@ export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVe
 
         setDeleting(true);
         try {
-            const api = new PlayerApi(new Http(new Settings()));
-
-            const response = await api.delete(seasonId, player.teamId, player.id);
+            const response = await playerApi.delete(seasonId, player.teamId, player.id);
             if (response.success) {
                 if (onPlayerSaved) {
                     await onPlayerSaved();

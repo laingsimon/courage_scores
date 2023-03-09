@@ -1,14 +1,13 @@
 import React, {useState} from 'react';
-import {TournamentApi} from "../../api/tournament";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
+import {useDependencies} from "../../Dependencies";
 
 export function NewTournamentGame({ date, onNewTournament, teams, seasonId }) {
     const [ creating, setCreating ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const [ address, setAddress ] = useState('');
+    const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
         if (creating) {
@@ -18,9 +17,8 @@ export function NewTournamentGame({ date, onNewTournament, teams, seasonId }) {
         try {
             setCreating(true);
 
-            const api = new TournamentApi(new Http(new Settings()));
             const teamsAtAddress = teams.filter(t => t.address === address).map(t => t.name).join(', ');
-            const response = await api.update({
+            const response = await tournamentApi.update({
                 date: date,
                 address: teamsAtAddress,
                 seasonId: seasonId

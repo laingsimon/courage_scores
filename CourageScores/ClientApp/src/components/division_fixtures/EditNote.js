@@ -1,14 +1,13 @@
 import React, {useState} from "react";
 import {Dialog} from "../common/Dialog";
-import {NoteApi} from "../../api/note";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {valueChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function EditNote({ note, onNoteChanged, divisions, seasons, onClose, onSaved }) {
     const [savingNote, setSavingNote] = useState(false);
     const [saveError, setSaveError] = useState(null);
+    const { noteApi } = useDependencies();
 
     async function saveNote() {
         if (savingNote) {
@@ -27,8 +26,7 @@ export function EditNote({ note, onNoteChanged, divisions, seasons, onClose, onS
 
         setSavingNote(true);
         try{
-            const api = new NoteApi(new Http(new Settings()));
-            const response = await api.upsert(note.id, note);
+            const response = await noteApi.upsert(note.id, note);
 
             if (response.success) {
                 if (onSaved) {

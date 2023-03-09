@@ -1,13 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {Settings} from "../../api/settings";
-import {Http} from "../../api/http";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {DataApi} from "../../api/data";
 import {TableSelection} from "./TableSelection";
 import {isEmpty, propChanged, valueChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function ImportData() {
-    const api = new DataApi(new Http(new Settings()));
+    const { dataApi } = useDependencies();
     const [importing, setImporting] = useState(false);
     const [importRequest, setImportRequest] = useState({
         password: '',
@@ -20,7 +18,7 @@ export function ImportData() {
     const [ dataTables, setDataTables ] = useState(null);
 
     async function getTables() {
-        const tables = await api.tables();
+        const tables = await dataApi.tables();
         setDataTables(tables);
 
         const selected = tables.filter(t => t.canImport).map(t => t.name);
@@ -50,7 +48,7 @@ export function ImportData() {
         setImporting(true);
         setResponse(null);
         try {
-            const response = await api.import(importRequest, input.files[0]);
+            const response = await dataApi.import(importRequest, input.files[0]);
 
             if (response.success) {
                 setResponse(response);

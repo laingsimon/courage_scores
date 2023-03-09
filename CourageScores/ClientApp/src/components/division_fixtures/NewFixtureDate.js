@@ -2,11 +2,9 @@ import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
-import {GameApi} from "../../api/game";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, propChanged, sum} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, seasonId }) {
     const [ homeTeamId, setHomeTeamId ] = useState(null);
@@ -20,6 +18,7 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
         address: '',
     });
     const newTeam = { value: 'NEW_TEAM', text: '➕ Add a team...' };
+    const { gameApi } = useDependencies();
 
     function toggleCellClip(isOpen) {
         setClipCellRegion(!isOpen);
@@ -85,11 +84,10 @@ export function NewFixtureDate({ fixtures, teams, date, onNewTeam, divisionId, s
 
         setSaving(true);
         try {
-            const api = new GameApi(new Http(new Settings()));
             const homeTeam = teams.filter(t => t.id === homeTeamId)[0];
             const awayTeam = teams.filter(t => t.id === awayTeamId)[0];
 
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: undefined,
                 address: homeTeam.address,
                 divisionId: divisionId,

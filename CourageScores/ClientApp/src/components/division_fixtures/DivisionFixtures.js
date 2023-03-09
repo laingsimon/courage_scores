@@ -2,19 +2,15 @@ import React, {useEffect, useState} from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {NewFixtureDate} from "./NewFixtureDate";
 import {Dialog} from "../common/Dialog";
-import {SeasonApi} from "../../api/season";
-import {Http} from "../../api/http";
-import {Settings} from "../../api/settings";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
-import {GameApi} from "../../api/game";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
 import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
-import {NoteApi} from "../../api/note";
 import {any, isEmpty, stateChanged} from "../../Utilities";
+import {useDependencies} from "../../Dependencies";
 
 export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
     const navigate = useNavigate();
@@ -41,10 +37,10 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     const [ savingProposals, setSavingProposals ] = useState(null);
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const [ filter, setFilter ] = useState(initFilter());
-    const seasonApi = new SeasonApi(new Http(new Settings()));
     const [ editNote, setEditNote ] = useState(null);
     const [ deletingNote, setDeletingNote ] = useState(false);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
+    const { seasonApi, gameApi, noteApi } = useDependencies();
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -154,10 +150,9 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
     async function saveProposal() {
         try {
             const index = savingProposals.saved;
-            const api = new GameApi(new Http(new Settings()));
             const fixture = savingProposals.proposals[index];
 
-            const result = await api.update({
+            const result = await gameApi.update({
                 id: fixture.id,
                 address: fixture.homeTeam.address,
                 date: fixture.date,
@@ -474,8 +469,7 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
 
         setDeletingNote(true);
         try{
-            const api = new NoteApi(new Http(new Settings()));
-            const response = await api.delete(note.id);
+            const response = await noteApi.delete(note.id);
 
             if (response.success) {
                 await onReloadDivision();
