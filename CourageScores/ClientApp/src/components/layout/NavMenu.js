@@ -71,7 +71,7 @@ export function NavMenu({divisions, appLoading, account, clearError, seasons}) {
                         </li>
                         <li className="nav-item">
                             <NavLink tag={Link} className="nav-link text-light" onClick={navigate} to={`/sayg`}>
-                                Your score
+                                Practice
                             </NavLink>
                         </li>
                         {divisions.filter(shouldShowDivision).map(division => (<li className="nav-item" key={division.id}>
