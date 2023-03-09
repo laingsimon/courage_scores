@@ -3,8 +3,10 @@ import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
 import {Link} from "react-router-dom";
 import {propChanged} from "../../Utilities";
+import {useApp} from "../../AppContainer";
 
-export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved, divisions }) {
+export function DivisionTeam({team, divisionId, seasonId, onTeamSaved }) {
+    const { account } = useApp();
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));
     const [ editTeam, setEditTeam ] = useState(false);
     const isAdmin = account && account.access && account.access.manageTeams;
@@ -24,7 +26,6 @@ export function DivisionTeam({team, account, divisionId, seasonId, onTeamSaved, 
                 divisionId={divisionId}
                 seasonId={seasonId}
                 {...teamDetails}
-                divisions={divisions}
                 onCancel={() => setEditTeam(false)}
                 onChange={propChanged(teamDetails, setTeamDetails)}
                 onSaved={teamDetailSaved}

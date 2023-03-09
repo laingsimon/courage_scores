@@ -3,8 +3,10 @@ import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, isEmpty, sortBy} from "../../Utilities";
 import {useDependencies} from "../../Dependencies";
+import {useApp} from "../../AppContainer";
 
-export function TournamentFixture({ account, tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
+export function TournamentFixture({ tournament, onTournamentChanged, seasonId, divisionId, date, expanded, allPlayers }) {
+    const { account } = useApp();
     const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);

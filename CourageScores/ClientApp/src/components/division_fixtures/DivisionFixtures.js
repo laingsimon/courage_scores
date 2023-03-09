@@ -11,10 +11,12 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, stateChanged} from "../../Utilities";
 import {useDependencies} from "../../Dependencies";
+import {useApp} from "../../AppContainer";
 
-export function DivisionFixtures({ divisionId, account, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, seasons, divisions, allPlayers }) {
+export function DivisionFixtures({ divisionId, onReloadDivision, teams, fixtures, season, setNewFixtures, allTeams, allPlayers }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const { account } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
@@ -115,7 +117,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
             allTeams={allTeams}
             seasonId={season.id}
             divisionId={divisionId}
-            account={account}
             fixture={newFixture}
             date={newDate}
             allowTeamDelete={false}
@@ -423,7 +424,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                     divisionId={divisionId}
                     seasonId={season.id}
                     onReloadDivision={onReloadDivision}
-                    account={account}
                     fixture={f}
                     readOnly={proposingGames}
                     date={date.date}
@@ -433,7 +433,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
                 {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
-                    account={account}
                     date={date.date}
                     seasonId={season.id}
                     divisionId={divisionId}
@@ -486,8 +485,6 @@ export function DivisionFixtures({ divisionId, account, onReloadDivision, teams,
         return (<EditNote
             note={editNote}
             onNoteChanged={setEditNote}
-            divisions={divisions}
-            seasons={seasons}
             onClose={() => setEditNote(null)}
             onSaved={async () => {
                 setNewDate('');

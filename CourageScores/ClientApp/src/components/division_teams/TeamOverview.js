@@ -4,7 +4,7 @@ import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../ShareButton";
 import {any} from "../../Utilities";
 
-export function TeamOverview({ divisionData, teamId, account, seasonId }) {
+export function TeamOverview({ divisionData, teamId, seasonId }) {
     const team = divisionData.teams.filter(t => t.id === teamId)[0] || divisionData.allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
     const fixtures = divisionData.fixtures.map(fixtureDate => {
        return {
@@ -78,7 +78,7 @@ export function TeamOverview({ divisionData, teamId, account, seasonId }) {
             </table>
         </div>
         <div className="overflow-x-auto">
-            <DivisionPlayers players={players} onPlayerSaved={null} account={account} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
+            <DivisionPlayers players={players} onPlayerSaved={null} seasonId={seasonId} hideVenue={true} divisionId={divisionData.id} />
         </div>
     </div>)
 }

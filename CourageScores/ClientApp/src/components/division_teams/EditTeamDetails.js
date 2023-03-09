@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../Dependencies";
+import {useApp} from "../../AppContainer";
 
-export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId, newDivisionId, divisions }) {
+export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId, newDivisionId }) {
     const noDivision = { value: '00000000-0000-0000-0000-000000000000', text: 'Remove from division' };
+    const { divisions } = useApp();
+    const { teamApi } = useDependencies();
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const divisionOptions = divisions.map(division => { return { value: division.id, text: division.name }; });
-    const { teamApi } = useDependencies();
 
     async function saveChanges() {
         if (saving) {

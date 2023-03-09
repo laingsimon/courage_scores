@@ -32,9 +32,9 @@ export function AdminHome() {
             </li>) : null}
         </ul>) : null}
         {!account && !appLoading ? (<NotPermitted />) : null}
-        {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin account={account} />): null}
-        {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData account={account} />) : null}
-        {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData account={account} />) : null}
-        {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors account={account} />) : null}
+        {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin />): null}
+        {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData />) : null}
+        {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData />) : null}
+        {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors />) : null}
     </div>);
 }

@@ -6,12 +6,14 @@ import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "../division_teams/EditTeamDetails";
 import {any, propChanged} from "../../Utilities";
 import {useDependencies} from "../../Dependencies";
+import {useApp} from "../../AppContainer";
 
-export function DivisionFixture({fixture, account, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
+export function DivisionFixture({fixture, onReloadDivision, date, divisionId, fixtures, teams, seasonId, readOnly, allowTeamEdit, allowTeamDelete, allTeams, isKnockout }) {
     const bye = {
         text: 'Bye',
         value: '',
     };
+    const { account } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);

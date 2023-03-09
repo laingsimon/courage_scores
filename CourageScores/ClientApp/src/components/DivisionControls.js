@@ -6,9 +6,11 @@ import {Dialog} from "./common/Dialog";
 import {EditDivision} from "./EditDivision";
 import {EditSeason} from "./EditSeason";
 import {any, isEmpty, sortBy} from "../Utilities";
+import {useApp} from "../AppContainer";
 
-export function DivisionControls({ account, originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, onReloadSeasonData, reloadAll, divisions, overrideMode }) {
+export function DivisionControls({ originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, onReloadSeasonData, overrideMode }) {
     const { mode } = useParams();
+    const { account, reloadAll, divisions } = useApp();
     // noinspection JSUnresolvedVariable
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable

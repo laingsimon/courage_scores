@@ -31,11 +31,10 @@ export function Score() {
     const [saveError, setSaveError] = useState(null);
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
-    const [seasons, setSeasons] = useState(null);
     const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
-    const { teamApi, gameApi, seasonApi } = useDependencies();
-    const { account, divisions, reloadAll } = useApp();
+    const { teamApi, gameApi } = useDependencies();
+    const { account, divisions, reloadAll, seasons } = useApp();
 
     useEffect(() => {
         if (account && account.access) {
@@ -159,11 +158,9 @@ export function Score() {
             setFixtureData(gameData);
             setData(gameData);
 
-            const seasonsResponse = await seasonApi.getAll();
-            const season = seasonsResponse.filter(s => s.id === gameData.seasonId)[0];
+            const season = seasons[gameData.seasonId];
 
             setSeason(season);
-            setSeasons(seasonsResponse);
         } catch (e) {
             setError(e.toString());
         } finally {
@@ -302,7 +299,7 @@ export function Score() {
 
         return (<MatchPlayerSelection
             homePlayers={homeTeam} awayPlayers={awayTeam}
-            match={fixtureData.matches[index]} account={account}
+            match={fixtureData.matches[index]}
             disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
@@ -333,7 +330,6 @@ export function Score() {
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
-                account={account}
                 saving={saving}
                 access={access}
                 setFixtureData={setFixtureData} />);
@@ -397,9 +393,7 @@ export function Score() {
 
     return (<div>
         <DivisionControls
-            reloadAll={reloadAll}
-            seasons={seasons}
-            account={account}
+            seasons={seasons.map(a => a)}
             originalSeasonData={{
                 id: season.id,
                 name: season.name,
@@ -407,7 +401,6 @@ export function Score() {
                 endDate: season.endDate.substring(0, 10),
             }}
             originalDivisionData={division}
-            divisions={divisions}
             onReloadDivisionData={reloadAll}
             overrideMode="fixtures" />
         <ul className="nav nav-tabs">
@@ -429,7 +422,7 @@ export function Score() {
                 ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access} fixtureData={fixtureData} />)
                 : null}
             <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
-                <ScoreCardHeading access={access} data={data} account={account} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
+                <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
                 {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<tbody>
                 <tr>
                     <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>

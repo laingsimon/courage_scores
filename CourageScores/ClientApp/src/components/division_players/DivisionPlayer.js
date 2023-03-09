@@ -5,8 +5,10 @@ import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {propChanged} from "../../Utilities";
 import {useDependencies} from "../../Dependencies";
+import {useApp} from "../../AppContainer";
 
-export function DivisionPlayer({player, onPlayerSaved, account, seasonId, hideVenue, divisionId }) {
+export function DivisionPlayer({player, onPlayerSaved, seasonId, hideVenue, divisionId }) {
+    const { account } = useApp();
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
     const [ editPlayer, setEditPlayer ] = useState(false);
     const [deleting, setDeleting] = useState(false);

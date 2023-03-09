@@ -16,7 +16,7 @@ import {useApp} from "../AppContainer";
 
 export function Division() {
     const { divisionApi, teamApi } = useDependencies();
-    const { account, divisions, reloadAll } = useApp();
+    const { account, divisions } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ teams, setTeams ] = useState(null);
@@ -92,12 +92,9 @@ export function Division() {
 
     return (<div>
         <DivisionControls
-            reloadAll={reloadAll}
             seasons={divisionData.seasons}
-            account={account}
             originalSeasonData={divisionData.season}
             originalDivisionData={{ name: divisionData.name, id: divisionData.id }}
-            divisions={divisions}
             onReloadDivisionData={reloadDivisionData}
             onReloadSeasonData={reloadDivisionData}/>
         <ul className="nav nav-tabs">
@@ -118,7 +115,6 @@ export function Division() {
             ? (<DivisionTeams
                 teams={divisionData.teams}
                 onTeamSaved={reloadDivisionData}
-                account={account}
                 seasonId={divisionData.season.id}
                 divisions={divisions}
                 divisionId={divisionId} />)
@@ -130,7 +126,6 @@ export function Division() {
                 fixtures={divisionData.fixtures}
                 teams={teams}
                 allTeams={divisionData.allTeams}
-                account={account}
                 onReloadDivision={reloadDivisionData}
                 setNewFixtures={propChanged(divisionData, setDivisionData, 'fixtures')}
                 seasons={divisionData.seasons}
@@ -140,7 +135,6 @@ export function Division() {
         {effectiveTab === 'players' && divisionData.season
             ? (<DivisionPlayers
                 players={divisionData.players}
-                account={account}
                 onPlayerSaved={reloadDivisionData}
                 seasonId={divisionData.season.id}
                 divisionId={divisionData.id} />)
@@ -153,14 +147,12 @@ export function Division() {
             ? (<TeamOverview
                 divisionData={divisionData}
                 teamId={effectiveTab.substring('team:'.length)}
-                account={account}
                 seasonId={divisionData.season.id} />)
             : null}
         {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
             ? (<PlayerOverview
                 divisionData={divisionData}
                 playerId={effectiveTab.substring('player:'.length)}
-                account={account}
                 seasonId={divisionData.season.id} />)
             : null}
     </div>);

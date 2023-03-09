@@ -2,8 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../Dependencies";
+import {useApp} from "../../AppContainer";
 
-export function UserAdmin({ account }) {
+export function UserAdmin() {
+    const { account } = useApp();
     const { accountApi } = useDependencies();
     const [ saving, setSaving ] = useState(false);
     const [ userAccount, setUserAccount ] = useState(null);

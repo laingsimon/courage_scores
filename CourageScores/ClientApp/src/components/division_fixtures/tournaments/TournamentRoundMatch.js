@@ -3,8 +3,10 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Dialog} from "../../common/Dialog";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
+import {useApp} from "../../../AppContainer";
 
-export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, account }) {
+export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180 }) {
+    const { account } = useApp();
     // noinspection JSUnresolvedVariable
     const scoreA = Number.parseInt(match.scoreA);
     // noinspection JSUnresolvedVariable
