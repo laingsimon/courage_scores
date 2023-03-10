@@ -12,7 +12,7 @@ import {useApp} from "../../../AppContainer";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const {account, reloadAll, seasons} = useApp();
+    const { account, reloadAll, seasons, onError } = useApp();
     const { divisionApi, teamApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ loading, setLoading ] = useState('init');
@@ -131,63 +131,76 @@ export function Tournament() {
         return (<div className="light-background p-3">Error: {error}</div>);
     }
 
-    return (<div>
-        <DivisionControls
-            seasons={seasons.map(a => a)}
-            originalSeasonData={{
-                id: season.id,
-                name: season.name,
-                startDate: season.startDate.substring(0, 10),
-                endDate: season.endDate.substring(0, 10),
-            }}
-            onReloadDivisionData={reloadAll}
-            overrideMode="fixtures" />
-        <div className="light-background p-3">
-            {isAdmin
-                ? (<div className="input-group mb-3">
+    try {
+        return (<div>
+            <DivisionControls
+                seasons={seasons.map(a => a)}
+                originalSeasonData={{
+                    id: season.id,
+                    name: season.name,
+                    startDate: season.startDate.substring(0, 10),
+                    endDate: season.endDate.substring(0, 10),
+                }}
+                onReloadDivisionData={reloadAll}
+                overrideMode="fixtures"/>
+            <div className="light-background p-3">
+                {isAdmin
+                    ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={valueChanged(tournamentData, setTournamentData)} />
+                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address}
+                               name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
-                : (<p>
-                    At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
-                    <span className="margin-left">
-                        <ShareButton text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`} />
+                    : (<p>
+                        At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
+                        <span className="margin-left">
+                        <ShareButton
+                            text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`}/>
                     </span>
-                </p>)}
-            {isAdmin
-                ? (<div className="form-group input-group mb-3 d-print-none">
-                    <div className="input-group-prepend">
+                    </p>)}
+                {isAdmin
+                    ? (<div className="form-group input-group mb-3 d-print-none">
+                        <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
-                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={valueChanged(tournamentData, setTournamentData)} />
-                </div>)
-                : null}
-            {isAdmin
-                ? (<div className="form-group input-group mb-3 d-flex">
-                    <label htmlFor="note-text" className="input-group-text">Notes</label>
-                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
-                </div>)
-                : tournamentData.notes
-                    ? (<div className="alert alert-warning alert-dismissible fade show" role="alert">{tournamentData.notes}</div>)
+                        <input id="type-text" className="form-control" disabled={saving}
+                               value={tournamentData.type || ''} name="type"
+                               onChange={valueChanged(tournamentData, setTournamentData)}/>
+                    </div>)
                     : null}
-            <EditTournament
-                tournamentData={tournamentData}
-                disabled={disabled}
-                saving={saving}
-                teams={teams}
-                allPlayers={allPlayers}
-                season={season}
-                alreadyPlaying={alreadyPlaying}
-                canSave={canSave}
-                setTournamentData={setTournamentData} />
-            <TournamentSheet sides={tournamentData.sides} />
-            {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                Save
-            </button>) : null}
-        </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save tournament details"/>) : null}
-    </div>);
+                {isAdmin
+                    ? (<div className="form-group input-group mb-3 d-flex">
+                        <label htmlFor="note-text" className="input-group-text">Notes</label>
+                        <textarea id="note-text" className="form-control" disabled={saving}
+                                  value={tournamentData.notes || ''} name="notes"
+                                  onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
+                    </div>)
+                    : tournamentData.notes
+                        ? (<div className="alert alert-warning alert-dismissible fade show"
+                                role="alert">{tournamentData.notes}</div>)
+                        : null}
+                <EditTournament
+                    tournamentData={tournamentData}
+                    disabled={disabled}
+                    saving={saving}
+                    teams={teams}
+                    allPlayers={allPlayers}
+                    season={season}
+                    alreadyPlaying={alreadyPlaying}
+                    canSave={canSave}
+                    setTournamentData={setTournamentData}/>
+                <TournamentSheet sides={tournamentData.sides}/>
+                {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
+                    {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                     aria-hidden="true"></span>) : null}
+                    Save
+                </button>) : null}
+            </div>
+            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+                                        title="Could not save tournament details"/>) : null}
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }
