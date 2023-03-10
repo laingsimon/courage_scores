@@ -6,7 +6,7 @@ import {useApp} from "../../AppContainer";
 import {useAdmin} from "./AdminContainer";
 
 export function UserAdmin() {
-    const { account } = useApp();
+    const { account, onError } = useApp();
     const { accountApi } = useDependencies();
     const { accounts } = useAdmin();
     const [ saving, setSaving ] = useState(false);
@@ -18,12 +18,16 @@ export function UserAdmin() {
 
     useEffect(() => {
         try {
+            if (!accounts) {
+                return;
+            }
+
             if (emailAddress) {
                 showAccess(accounts, emailAddress);
             }
         }
         catch (exc) {
-            setSaveError(exc);
+            onError(exc);
         } finally {
             setLoading(false);
         }
@@ -52,7 +56,7 @@ export function UserAdmin() {
             dataObject[name] = value;
             setUserAccount(currentAccount);
         } catch (e) {
-            window.alert(e.message);
+            onError(e);
         }
     }
 
@@ -77,7 +81,7 @@ export function UserAdmin() {
                 setSaveError(result);
             }
         } catch (e) {
-            setSaveError(e.toString());
+            setSaveError(e);
         }
         finally {
             setSaving(false);
