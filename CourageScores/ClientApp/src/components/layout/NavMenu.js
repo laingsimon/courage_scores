@@ -7,13 +7,13 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 
 export function NavMenu() {
-    const [collapsed, setCollapsed] = useState(true);
-    const [navMenuError, setNavMenuError] = useState(null);
-    const [ currentLink, setCurrentLink ] = useState(document.location.href);
-    const location = useLocation();
-    const { seasonId } = useParams();
     const { settings } = useDependencies();
     const { account, clearError, divisions, appLoading, seasons } = useApp();
+    const [collapsed, setCollapsed] = useState(true);
+    const [navMenuError, setNavMenuError] = useState(null);
+    const [currentLink, setCurrentLink] = useState(document.location.href);
+    const location = useLocation();
+    const { seasonId } = useParams();
 
     useEffect(() => {
         setCurrentLink('https://' + document.location.host + location.pathname);
@@ -85,7 +85,7 @@ export function NavMenu() {
                                 Practice
                             </NavLink>
                         </li>
-                        {divisions.filter(shouldShowDivision).map(division => (
+                        {!appLoading && divisions.filter(shouldShowDivision).map(division => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate}
                                          className={getClassName(`/division/${division.id}`)}
@@ -96,7 +96,7 @@ export function NavMenu() {
                         {appLoading ? (<li className="nav-item"><NavLink><span
                             className="spinner-border spinner-border-sm margin-right" role="status"
                             aria-hidden="true"></span></NavLink></li>) : null}
-                        {account && account.access && account.access.manageAccess
+                        {!appLoading && account && account.access && account.access.manageAccess
                             ? (<li className="nav-item">
                                 <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
                                     Admin
