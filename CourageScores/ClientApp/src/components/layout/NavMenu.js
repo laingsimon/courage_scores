@@ -60,6 +60,13 @@ export function NavMenu() {
         return any(currentSeason.divisions, d => d.id === division.id);
     }
 
+    function hasAdminAccess(access) {
+        return access.manageAccess
+            || access.viewExceptions
+            || access.importData
+            || access.exportData;
+    }
+
     if (navMenuError) {
         return (<div>ERROR: {navMenuError.message}: {navMenuError.stack}</div>)
     }
@@ -96,7 +103,7 @@ export function NavMenu() {
                         {appLoading ? (<li className="nav-item"><NavLink><span
                             className="spinner-border spinner-border-sm margin-right" role="status"
                             aria-hidden="true"></span></NavLink></li>) : null}
-                        {!appLoading && account && account.access && account.access.manageAccess
+                        {!appLoading && account && account.access && hasAdminAccess(account.access)
                             ? (<li className="nav-item">
                                 <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>
                                     Admin
