@@ -19,6 +19,7 @@ export function AdminHome() {
     const access = (account ? account.access : null) || {};
     const [ dataTables, setDataTables ] = useState(null);
     const [ accounts, setAccounts ] = useState(null);
+    const [ adminLoading, setAdminLoading ] = useState(true);
 
     async function loadTables() {
         try {
@@ -29,6 +30,8 @@ export function AdminHome() {
             setAccounts(accounts);
         } catch (e) {
             onError(e);
+        } finally {
+            setAdminLoading(false);
         }
     }
 
@@ -60,13 +63,13 @@ export function AdminHome() {
                              to={`/admin/errors`}>Errors</NavLink>
                 </li>) : null}
             </ul>) : null}
-            <AdminContainer tables={dataTables} accounts={accounts}>
+            {!appLoading && adminLoading ? <Loading /> : (<AdminContainer tables={dataTables} accounts={accounts}>
                 {!account && !appLoading ? (<NotPermitted/>) : null}
                 {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin/>) : null}
                 {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData/>) : null}
                 {!appLoading && access.exportData && effectiveTab === 'export' ? (<ExportData/>) : null}
                 {!appLoading && access.viewExceptions && effectiveTab === 'errors' ? (<Errors/>) : null}
-            </AdminContainer>
+            </AdminContainer>)}
         </div>);
     } catch (e) {
         onError(e);
