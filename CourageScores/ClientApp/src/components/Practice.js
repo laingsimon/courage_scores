@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {stateChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
 
-export function SelfScore() {
+export function Practice() {
     const [ startingScore, setStartingScore ] = useState('501');
     const [ numberOfLegs, setNumberOfLegs ] = useState('3');
     const [ homeScore, setHomeScore ] = useState(0);

@@ -81,7 +81,7 @@ export function NavMenu() {
                                      href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink tag={Link} className={getClassName('/sayg')} onClick={navigate} to={`/sayg`}>
+                            <NavLink tag={Link} className={getClassName('/practice')} onClick={navigate} to={`/practice`}>
                                 Practice
                             </NavLink>
                         </li>

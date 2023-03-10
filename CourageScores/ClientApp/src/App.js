@@ -9,7 +9,7 @@ import {Division} from "./components/Division";
 import {Score} from "./components/division_fixtures/scores/Score";
 import {AdminHome} from "./components/admin/AdminHome";
 import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
-import {SelfScore} from "./components/SelfScore";
+import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 
 export function App() {
@@ -107,7 +107,7 @@ export function App() {
                     <Route path='/admin' element={<AdminHome />} />}/>
                     <Route path='/admin/:mode' element={<AdminHome />} />}/>
                     <Route path='/tournament/:tournamentId' element={<Tournament />} />}/>
-                    <Route path='/sayg/' element={<SelfScore />} />}/>
+                    <Route path='/practice' element={<Practice />} />}/>
                 </Routes>
             </Layout>
         </AppContainer>);
