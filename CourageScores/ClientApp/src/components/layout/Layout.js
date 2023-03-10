@@ -5,8 +5,8 @@ import {Heading} from "./Heading";
 import {PageError} from "../PageError";
 import {useApp} from "../../AppContainer";
 
-export function Layout({children, excludeSurround }) {
-    const { error, onError } = useApp();
+export function Layout({ children }) {
+    const { error, onError, excludeSurround } = useApp();
 
     function renderError() {
         return (<PageError error={error} />)

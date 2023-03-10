@@ -3,33 +3,38 @@ import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {toMap, createTemporaryId, sortBy, any, isEmpty, valueChanged} from "../../../Utilities";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
+import {useApp} from "../../../AppContainer";
 
-export function TournamentSide({ seasonId, side, onChange, teams, otherSides, winner, readOnly, exceptPlayerIds }) {
+export function TournamentSide({ seasonId, side, onChange, otherSides, winner, readOnly, exceptPlayerIds }) {
     const team = { };
+    const selectATeam = { value: '', text: 'Select team', className: 'text-warning' };
+    const { teams: teamMap } = useApp();
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
-    const teamOptions = [{ value: '', text: 'Select team', className: 'text-warning' }].concat(teams.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
-    const teamMap = toMap(teams)
+    const teamOptions = [selectATeam].concat(teamMap.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
         .flatMap(s => s.players || []));
 
-    const playerToTeamMap = toMap(teams.flatMap(t => {
-        const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
-        if (!teamSeason || !teamSeason.players) {
-            return [];
-        }
+    const playerToTeamMap = toMap(teamMap
+        .filter(a => a)  // turn the map back into an array
+        .flatMap(t => {
+            const teamSeason = t.seasons.filter(ts => ts.seasonId === seasonId)[0];
+            if (!teamSeason || !teamSeason.players) {
+                return [];
+            }
 
-        return teamSeason.players.map(p => {
-            return { id: p.id, player: p, team: t };
-        });
-    }));
+            return teamSeason.players.map(p => {
+                return { id: p.id, player: p, team: t };
+            });
+        }));
 
     const sidePlayerMap = side ? toMap(side.players || []) : {};
     const sidePlayerTeamMapping = side && side.players && any(side.players) ? playerToTeamMap[side.players[0].id] : null;
 
-    const teamsAndPlayers = teams
+    const teamsAndPlayers = teamMap
+        .filter(a => a) // turn the map back into an array
         .flatMap(t => {
             if (side && sidePlayerTeamMapping && sidePlayerTeamMapping.team.id !== t.id) {
                 // a player is selected from a different team. As players cannot be mixed between teams, skip this team

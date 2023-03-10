@@ -12,8 +12,8 @@ import {useApp} from "../../../AppContainer";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const { account, reloadAll, seasons, onError } = useApp();
-    const { divisionApi, teamApi, tournamentApi } = useDependencies();
+    const { account, reloadAll, seasons, onError, teams } = useApp();
+    const { divisionApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
@@ -21,7 +21,6 @@ export function Tournament() {
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
     const [season, setSeason] = useState(null);
-    const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
@@ -61,7 +60,6 @@ export function Tournament() {
                 throw new Error('Could not find the season for this tournament');
             }
 
-            const teams = await teamApi.getAll();
             const allPlayers = getAllPlayers(tournamentData, teams);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
@@ -73,7 +71,6 @@ export function Tournament() {
             tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
 
             setAlreadyPlaying(tournamentPlayerMap);
-            setTeams(teams);
             setSeason(season);
             setAllPlayers(allPlayers);
         } catch (e) {
@@ -83,7 +80,7 @@ export function Tournament() {
         }
     }
 
-    function getAllPlayers(tournamentData, teams) {
+    function getAllPlayers(tournamentData) {
         const selectedTournamentPlayers = tournamentData.sides
             ? tournamentData.sides.flatMap(side => side.players)
             : [];
@@ -184,7 +181,6 @@ export function Tournament() {
                     tournamentData={tournamentData}
                     disabled={disabled}
                     saving={saving}
-                    teams={teams}
                     allPlayers={allPlayers}
                     season={season}
                     alreadyPlaying={alreadyPlaying}

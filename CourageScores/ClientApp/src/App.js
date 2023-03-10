@@ -13,10 +13,11 @@ import {SelfScore} from "./components/SelfScore";
 import {AppContainer} from "./AppContainer";
 
 export function App() {
-    const { divisionApi, accountApi, seasonApi } = useDependencies();
+    const { divisionApi, accountApi, seasonApi, teamApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
+    const [ teams, setTeams ] = useState(toMap([]));
     const [ appLoading, setAppLoading ] = useState(false);
     const [ error, setError ] = useState(null);
 
@@ -49,6 +50,7 @@ export function App() {
         await reloadAccount();
         await reloadDivisions();
         await reloadSeasons();
+        await reloadTeams();
         setAppLoading(false);
     }
 
@@ -62,6 +64,11 @@ export function App() {
         setSeasons(seasons);
     }
 
+    async function reloadTeams() {
+        const teams = toMap(await teamApi.getAll());
+        setTeams(teams);
+    }
+
     async function reloadAccount() {
         const account = await accountApi.account();
         setAccount(account);
@@ -71,22 +78,26 @@ export function App() {
         return window.excludeSurround;
     }
 
-    const subProps = {
+    const appData = {
         divisions,
         seasons,
+        teams,
         account,
         error,
         appLoading,
+        excludeSurround: shouldExcludeSurround(),
         reloadDivisions: reloadDivisions,
         reloadAccount: reloadAccount,
         reloadAll: reloadAll,
+        reloadTeams: reloadTeams,
+        reloadSeasons: reloadSeasons,
         onError: onError,
         clearError: clearError
     };
 
     try {
-        return (<AppContainer {...subProps}>
-            <Layout excludeSurround={shouldExcludeSurround()}>
+        return (<AppContainer {...appData}>
+            <Layout>
                 <Routes>
                     <Route exact path='/' element={<Home />} />
                     <Route path='/division/:divisionId' element={<Division />} />}/>

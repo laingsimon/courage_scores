@@ -20,8 +20,8 @@ import {useApp} from "../../../AppContainer";
 
 export function Score() {
     const { fixtureId } = useParams();
-    const { teamApi, gameApi } = useDependencies();
-    const { account, divisions, reloadAll, seasons, onError, error } = useApp();
+    const { gameApi } = useDependencies();
+    const { account, divisions, reloadAll, seasons, onError, error, teams } = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
@@ -61,7 +61,7 @@ export function Score() {
         [loading]);
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
-        const teamData = await teamApi.get(teamId);
+        const teamData = await teams[teamId];
 
         if (!teamData) {
             onError(`${teamType} team could not be found`);
