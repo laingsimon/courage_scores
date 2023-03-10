@@ -15,8 +15,7 @@ export function Tournament() {
     const { account, reloadAll, seasons, onError } = useApp();
     const { divisionApi, teamApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
-    const [ loading, setLoading ] = useState('init');
-    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
@@ -50,7 +49,7 @@ export function Tournament() {
             const tournamentData = await tournamentApi.get(tournamentId);
 
             if (!tournamentData) {
-                setError('Tournament could not be found');
+                onError('Tournament could not be found');
                 return;
             }
 
@@ -73,7 +72,7 @@ export function Tournament() {
             setSeason(season);
             setAllPlayers(allPlayers);
         } catch (e) {
-            setError(e.toString());
+            onError(e);
         } finally {
             setLoading('ready');
         }
@@ -125,10 +124,6 @@ export function Tournament() {
 
     if (loading !== 'ready') {
         return (<Loading />);
-    }
-
-    if (error) {
-        return (<div className="light-background p-3">Error: {error}</div>);
     }
 
     try {

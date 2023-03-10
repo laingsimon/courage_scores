@@ -30,6 +30,9 @@ export function App() {
     []);
 
     function onError(error) {
+        if (error.stack) {
+            console.error(error);
+        }
         setError({ message: error.message, stack: error.stack });
     }
 
