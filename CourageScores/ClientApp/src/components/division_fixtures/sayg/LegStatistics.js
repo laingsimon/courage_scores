@@ -6,6 +6,7 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
     const awayStats = leg.away;
     const [showThrows, setShowThrows] = useState(false);
     const [showMetric, setShowMetric] = useState('throw');
+    const [showAverage, setShowAverage] = useState(false);
 
     if (homeStats.noOfDarts + awayStats.noOfDarts === 0) {
         return null;
@@ -33,9 +34,9 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
                 return (<li key={index++} title={`Running score: ${leg.startingScore - score}`}>
                     {showMetric === 'throw' ? legThrow.score : null}
                     {showMetric === 'remaining' ? leg.startingScore - score : null}
-                    <span> (av: {round2dp(runningAverage)})</span>
+                    {showAverage ? (<span> (av: {round2dp(runningAverage)})</span>) : null}
                     {bust ? (<span className="opacity-25 float-end" key={index}>💥</span>) : null}
-                    {repeat(legThrow.noOfDarts, (index) => (<span className="opacity-25 float-end" key={index}>📌</span>))}
+                    {!showAverage && repeat(legThrow.noOfDarts, (index) => (<span className="opacity-25 float-end" key={index}>📌</span>))}
                 </li>);
             })}
         </ol>);
@@ -57,6 +58,13 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
                     {showMetric === 'throw' ? '🧭' : '📉'}
                 </label>
             </div>) : null}
+            {showThrows ? (<div className="form-check form-switch margin-right">
+                <input className="form-check-input" type="checkbox" id={`average_${legNumber}`}
+                       checked={showAverage} onChange={(event) => setShowAverage(event.target.checked)}/>
+                <label className="form-check-label" htmlFor={`average_${legNumber}`}>
+                   {showAverage ? '📊' : '📌'}
+                </label>
+             </div>) : null}
         </td>
         <td className={leg.winner === 'home' ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3))}</strong> ({homeStats.noOfDarts} darts)<br />
