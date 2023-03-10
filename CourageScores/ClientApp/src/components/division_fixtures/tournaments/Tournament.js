@@ -33,7 +33,7 @@ export function Tournament() {
     }, [account]);
 
     useEffect(() => {
-            if (loading !== 'init') {
+            if (loading !== 'init' || seasons.length === 0) {
                 return;
             }
 
@@ -42,7 +42,7 @@ export function Tournament() {
             loadFixtureData();
         },
         // eslint-disable-next-line
-        [loading]);
+        [loading, seasons]);
 
     async function loadFixtureData() {
         try {
@@ -56,6 +56,11 @@ export function Tournament() {
             setTournamentData(tournamentData);
 
             const season = seasons[tournamentData.seasonId];
+            if (!season) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new Error('Could not find the season for this tournament');
+            }
+
             const teams = await teamApi.getAll();
             const allPlayers = getAllPlayers(tournamentData, teams);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
