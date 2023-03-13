@@ -6,14 +6,16 @@ import {Link} from "react-router-dom";
 import {any, propChanged, stateChanged} from "../../../Utilities";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
+import {useApp} from "../../../AppContainer";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
 export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled,
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
-                                         onPlayerChanged, divisionId, account, matchOptions, onMatchOptionsChanged,
+                                         onPlayerChanged, divisionId, matchOptions, onMatchOptionsChanged,
                                          on180, onHiCheck }) {
     const SHOW_EDIT_PLAYER_CONTROLS = false;
+    const { account } = useApp();
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);

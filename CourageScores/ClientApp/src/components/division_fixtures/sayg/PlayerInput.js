@@ -79,17 +79,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         setScore('');
     }
 
-    function requires() {
-        if (singlePlayer) {
-            return 'require';
-        }
-
-        return 'requires';
-    }
-
     return (<div className="text-center">
         <h4>
-            <strong>{playerLookup[leg.currentThrow]} </strong> {requires()} <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
+            <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
         </h4>
         {singlePlayer ? (<h5>Leg {homeScore + 1}</h5>) : (<h5>{homeScore} - {awayScore}</h5>)}
         {accumulator.noOfDarts ? (<p>

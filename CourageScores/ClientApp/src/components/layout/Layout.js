@@ -3,10 +3,13 @@ import {Container} from 'reactstrap';
 import {NavMenu} from './NavMenu';
 import {Heading} from "./Heading";
 import {PageError} from "../PageError";
+import {useApp} from "../../AppContainer";
 
-export function Layout({divisions, appLoading, account, children, error, clearError, excludeSurround, seasons}) {
+export function Layout({ children }) {
+    const { error, onError, excludeSurround } = useApp();
+
     function renderError() {
-        return (<PageError error={error} clearError={clearError} />)
+        return (<PageError error={error} />)
     }
 
     if (excludeSurround) {
@@ -17,13 +20,17 @@ export function Layout({divisions, appLoading, account, children, error, clearEr
         </div>);
     }
 
-    return (
-        <div>
-            <Heading />
-            <NavMenu divisions={divisions} appLoading={appLoading} account={account} clearError={clearError} seasons={seasons} />
-            {error ? renderError() : (<Container className="full-screen-print-mode">
-                {children}
-            </Container>)}
-        </div>
-    );
+    try {
+        return (
+            <div>
+                <Heading/>
+                <NavMenu />
+                {error ? renderError() : (<Container className="full-screen-print-mode">
+                    {children}
+                </Container>)}
+            </div>
+        );
+    } catch (e) {
+        onError(e);
+    }
 }

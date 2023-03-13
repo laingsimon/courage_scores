@@ -1,8 +1,10 @@
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import React from "react";
 import {sortBy} from "../../../Utilities";
+import {useApp} from "../../../AppContainer";
 
-export function ManOfTheMatchInput({ account, fixtureData, access, saving, setFixtureData }) {
+export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData }) {
+    const { account } = useApp();
     function manOfTheMatchChanged(player, team) {
         const newFixtureData = Object.assign({}, fixtureData);
         newFixtureData[team].manOfTheMatch = player ? player.id : undefined;

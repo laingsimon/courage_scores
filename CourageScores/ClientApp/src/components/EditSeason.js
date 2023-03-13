@@ -1,13 +1,12 @@
-import {SeasonApi} from "../api/season";
-import {Http} from "../api/http";
-import {Settings} from "../api/settings";
 import React, {useState} from "react";
 import {any, propChanged, sortBy, valueChanged} from "../Utilities";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
+import {useDependencies} from "../IocContainer";
 
 export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions, seasons }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
+    const { seasonApi } = useDependencies();
 
     async function saveSeason() {
         if (saving || deleting) {
@@ -21,8 +20,7 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
 
         try {
             setSaving(true);
-            const api = new SeasonApi(new Http(new Settings()));
-            const result = await api.update(data);
+            const result = await seasonApi.update(data);
 
             if (result.success) {
                 await reloadAll();
@@ -45,8 +43,7 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
 
         try {
             setDeleting(true);
-            const api = new SeasonApi(new Http(new Settings()));
-            const result = await api.delete(data.id);
+            const result = await seasonApi.delete(data.id);
 
             if (result.success) {
                 document.location.href = `https://${document.location.host}`;

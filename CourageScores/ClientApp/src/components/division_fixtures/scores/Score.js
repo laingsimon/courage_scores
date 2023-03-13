@@ -1,15 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import {useParams} from "react-router-dom";
-import {Settings} from "../../../api/settings";
-import {GameApi} from "../../../api/game";
-import {Http} from "../../../api/http";
-import {TeamApi} from "../../../api/team";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {SeasonApi} from "../../../api/season";
 import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
@@ -20,21 +15,23 @@ import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
+import {useDependencies} from "../../../IocContainer";
+import {useApp} from "../../../AppContainer";
 
-export function Score({account, apis, divisions}) {
-    const {fixtureId} = useParams();
+export function Score() {
+    const { fixtureId } = useParams();
+    const { gameApi } = useDependencies();
+    const { account, divisions, reloadAll, seasons, onError, error, teams } = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
     const [homeTeam, setHomeTeam] = useState([]);
     const [awayTeam, setAwayTeam] = useState([]);
     const [allPlayers, setAllPlayers] = useState([]);
-    const [error, setError] = useState(null);
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
-    const [seasons, setSeasons] = useState(null);
     const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
 
@@ -64,24 +61,22 @@ export function Score({account, apis, divisions}) {
         [loading]);
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
-        const http = new Http(new Settings());
-        const teamApi = new TeamApi(http);
-        const teamData = await teamApi.get(teamId);
+        const teamData = await teams[teamId];
 
         if (!teamData) {
-            setError(`${teamType} team could not be found`);
+            onError(`${teamType} team could not be found`);
             return;
         }
 
         if (!teamData.seasons) {
-            setError(`${teamType} team has no seasons`);
+            onError(`${teamType} team has no seasons`);
             return;
         }
 
         const teamSeasons = Object.fromEntries(teamData.seasons.map(season => [season.seasonId, season]));
 
         if (!teamSeasons[seasonId]) {
-            setError(`${teamType} team has not registered for this season: ${seasonId}`);
+            onError(`${teamType} team has not registered for this season: ${seasonId}`);
             return;
         }
 
@@ -110,19 +105,16 @@ export function Score({account, apis, divisions}) {
     }
 
     async function loadFixtureData() {
-        const http = new Http(new Settings());
-        const gameApi = new GameApi(http);
-        const seasonApi = new SeasonApi(http);
         const gameData = await gameApi.get(fixtureId);
 
         try {
             if (!gameData) {
-                setError('Game could not be found');
+                onError('Game could not be found');
                 return;
             }
 
             if (!gameData.home || !gameData.away) {
-                setError('Either home or away team are undefined for this game');
+                onError('Either home or away team are undefined for this game');
                 return;
             }
 
@@ -165,13 +157,11 @@ export function Score({account, apis, divisions}) {
             setFixtureData(gameData);
             setData(gameData);
 
-            const seasonsResponse = await seasonApi.getAll();
-            const season = seasonsResponse.filter(s => s.id === gameData.seasonId)[0];
+            const season = seasons[gameData.seasonId];
 
             setSeason(season);
-            setSeasons(seasonsResponse);
         } catch (e) {
-            setError(e.toString());
+            onError(e);
         } finally {
             setLoading('ready');
         }
@@ -244,9 +234,6 @@ export function Score({account, apis, divisions}) {
         }
 
         try {
-            const http = new Http(new Settings());
-            const gameApi = new GameApi(http);
-
             setSaving(true);
             const response = await gameApi.updateScores(fixtureId, fixtureData);
 
@@ -311,7 +298,7 @@ export function Score({account, apis, divisions}) {
 
         return (<MatchPlayerSelection
             homePlayers={homeTeam} awayPlayers={awayTeam}
-            match={fixtureData.matches[index]} account={account}
+            match={fixtureData.matches[index]}
             disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
@@ -342,7 +329,6 @@ export function Score({account, apis, divisions}) {
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
-                account={account}
                 saving={saving}
                 access={access}
                 setFixtureData={setFixtureData} />);
@@ -383,10 +369,6 @@ export function Score({account, apis, divisions}) {
         return (<Loading />);
     }
 
-    if (error) {
-        return (<div className="light-background p-3">Error: {error}</div>);
-    }
-
     if (!allPlayers) {
         return (<div className="light-background p-3">There are no players for the home and/or away teams</div>);
     }
@@ -404,84 +386,97 @@ export function Score({account, apis, divisions}) {
         : (finalScore.awayScore > finalScore.homeScore ? 'away' : null);
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
-    return (<div>
-        <DivisionControls
-            reloadAll={apis.reloadAll}
-            seasons={seasons}
-            account={account}
-            originalSeasonData={{
-                id: season.id,
-                name: season.name,
-                startDate: season.startDate.substring(0, 10),
-                endDate: season.endDate.substring(0, 10),
-            }}
-            originalDivisionData={division}
-            divisions={divisions}
-            onReloadDivisionData={apis.reloadAll}
-            overrideMode="fixtures" />
-        <ul className="nav nav-tabs">
-            <li className="nav-item">
-                <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
-            </li>
-            <li className="nav-item">
-                <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
-            </li>
-            <li className="nav-item">
-                <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
-            </li>
-            <li className="nav-item">
-                <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/players`}>Players</NavLink>
-            </li>
-        </ul>
-        <div className="light-background p-3 overflow-auto">
-            {fixtureData.address || access === 'admin'
-                ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access} fixtureData={fixtureData} />)
-                : null}
-            <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
-                <ScoreCardHeading access={access} data={data} account={account} winner={winner} setSubmission={setSubmission} setFixtureData={setFixtureData} submission={submission} />
-                {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (<tbody>
-                <tr>
-                    <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
-                </tr>
-                {renderMatchPlayerSelection(0, 5, 1)}
-                {renderMergeMatch(0)}
-                {renderMatchPlayerSelection(1, 5, 1)}
-                {renderMergeMatch(1)}
-                {renderMatchPlayerSelection(2, 5, 1)}
-                {renderMergeMatch(2)}
-                {renderMatchPlayerSelection(3, 5, 1)}
-                {renderMergeMatch(3)}
-                {renderMatchPlayerSelection(4, 5, 1)}
-                {renderMergeMatch(4)}
-                <tr>
-                    <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
-                </tr>
-                {renderMatchPlayerSelection(5, 3, 2)}
-                {renderMergeMatch(5)}
-                {renderMatchPlayerSelection(6, 3, 2)}
-                {renderMergeMatch(6)}
-                <tr>
-                    <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
-                </tr>
-                {renderMatchPlayerSelection(7, 3, 3)}
-                {renderMergeMatch(7)}
-                {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
-                        <td colSpan="5" className="text-center border-0">Man of the match</td>
+    try {
+        return (<div>
+            <DivisionControls
+                seasons={seasons.map(a => a)}
+                originalSeasonData={{
+                    id: season.id,
+                    name: season.name,
+                    startDate: season.startDate.substring(0, 10),
+                    endDate: season.endDate.substring(0, 10),
+                }}
+                originalDivisionData={division}
+                onReloadDivisionData={reloadAll}
+                overrideMode="fixtures"/>
+            <ul className="nav nav-tabs">
+                <li className="nav-item">
+                    <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink tag={Link} className="text-light"
+                             to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink tag={Link} className="text-light"
+                             to={`/division/${data.divisionId}/players`}>Players</NavLink>
+                </li>
+            </ul>
+            <div className="light-background p-3 overflow-auto">
+                {fixtureData.address || access === 'admin'
+                    ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access}
+                                    fixtureData={fixtureData}/>)
+                    : null}
+                <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
+                    <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
+                                      setFixtureData={setFixtureData} submission={submission}/>
+                    {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (
+                        <tbody>
+                        <tr>
+                            <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
+                        </tr>
+                        {renderMatchPlayerSelection(0, 5, 1)}
+                        {renderMergeMatch(0)}
+                        {renderMatchPlayerSelection(1, 5, 1)}
+                        {renderMergeMatch(1)}
+                        {renderMatchPlayerSelection(2, 5, 1)}
+                        {renderMergeMatch(2)}
+                        {renderMatchPlayerSelection(3, 5, 1)}
+                        {renderMergeMatch(3)}
+                        {renderMatchPlayerSelection(4, 5, 1)}
+                        {renderMergeMatch(4)}
+                        <tr>
+                            <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
+                        </tr>
+                        {renderMatchPlayerSelection(5, 3, 2)}
+                        {renderMergeMatch(5)}
+                        {renderMatchPlayerSelection(6, 3, 2)}
+                        {renderMergeMatch(6)}
+                        <tr>
+                            <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
+                        </tr>
+                        {renderMatchPlayerSelection(7, 3, 3)}
+                        {renderMergeMatch(7)}
+                        {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
+                                <td colSpan="5" className="text-center border-0">Man of the match</td>
+                            </tr>
+                        ) : null}
+                        {renderManOfTheMatchInput()}
+                        {renderMergeManOfTheMatch()}
+                        {render180sAndHiCheckInput()}
+                        {renderMerge180sAndHiCheck()}
+                        </tbody>) : (<tbody>
+                    <tr>
+                        <td colSpan="5">No scores, yet</td>
                     </tr>
-                ) : null}
-                {renderManOfTheMatchInput()}
-                {renderMergeManOfTheMatch()}
-                {render180sAndHiCheckInput()}
-                {renderMerge180sAndHiCheck()}
-                </tbody>) : (<tbody><tr><td colSpan="5">No scores, yet</td></tr></tbody>)}
-            </table>
-            {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (<button className="btn btn-primary" onClick={saveScores}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
-                                 aria-hidden="true"></span>) : null}
-                Save
-            </button>) : null}
-            {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (<button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
-        </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score" />) : null}
-    </div>);
+                    </tbody>)}
+                </table>
+                {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
+                    <button className="btn btn-primary" onClick={saveScores}>
+                        {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                         aria-hidden="true"></span>) : null}
+                        Save
+                    </button>) : null}
+                {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (
+                    <button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
+            </div>
+            {saveError ? (
+                <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score"/>) : null}
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }

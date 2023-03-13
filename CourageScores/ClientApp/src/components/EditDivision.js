@@ -1,12 +1,11 @@
-import {DivisionApi} from "../api/division";
-import {Http} from "../api/http";
-import {Settings} from "../api/settings";
 import React, {useState} from "react";
 import {valueChanged} from "../Utilities";
+import {useDependencies} from "../IocContainer";
 
 export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
+    const { divisionApi } = useDependencies();
 
     async function saveDivision() {
         if (saving || deleting) {
@@ -20,8 +19,7 @@ export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateD
 
         try {
             setSaving(true);
-            const api = new DivisionApi(new Http(new Settings()));
-            const result = await api.update(data);
+            const result = await divisionApi.update(data);
 
             if (result.success) {
                 await reloadAll();
@@ -44,8 +42,7 @@ export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateD
 
         try {
             setDeleting(true);
-            const api = new DivisionApi(new Http(new Settings()));
-            const result = await api.delete(data.id);
+            const result = await divisionApi.delete(data.id);
 
             if (result.success) {
                 document.location.href = `https://${document.location.host}`;

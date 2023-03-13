@@ -1,32 +1,26 @@
 import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
-import {Http} from "../../../api/http";
-import {Settings} from "../../../api/settings";
-import {SeasonApi} from "../../../api/season";
-import {TournamentApi} from "../../../api/tournament";
 import {DivisionControls} from "../../DivisionControls";
-import {TeamApi} from "../../../api/team";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {any, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
-import {DivisionApi} from "../../../api/division";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
+import {useDependencies} from "../../../IocContainer";
+import {useApp} from "../../../AppContainer";
 
-export function Tournament({ account, apis }) {
+export function Tournament() {
     const { tournamentId } = useParams();
+    const { account, reloadAll, seasons, onError, teams } = useApp();
+    const { divisionApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
-    const [ loading, setLoading ] = useState('init');
-    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
     const [season, setSeason] = useState(null);
-    const [seasons, setSeasons] = useState(null);
-    const [divisions, setDivisions] = useState(null);
-    const [teams, setTeams] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
@@ -38,7 +32,7 @@ export function Tournament({ account, apis }) {
     }, [account]);
 
     useEffect(() => {
-            if (loading !== 'init') {
+            if (loading !== 'init' || seasons.length === 0) {
                 return;
             }
 
@@ -47,29 +41,25 @@ export function Tournament({ account, apis }) {
             loadFixtureData();
         },
         // eslint-disable-next-line
-        [loading]);
+        [loading, seasons]);
 
     async function loadFixtureData() {
-        const http = new Http(new Settings());
-        const tournamentApi = new TournamentApi(http);
-        const seasonApi = new SeasonApi(http);
-        const teamApi = new TeamApi(http);
-        const divisionApi = new DivisionApi(http);
-
         try {
             const tournamentData = await tournamentApi.get(tournamentId);
 
             if (!tournamentData) {
-                setError('Tournament could not be found');
+                onError('Tournament could not be found');
                 return;
             }
 
             setTournamentData(tournamentData);
 
-            const seasonsResponse = await seasonApi.getAll();
-            const divisionsResponse = await divisionApi.getAll();
-            const season = seasonsResponse.filter(s => s.id === tournamentData.seasonId)[0];
-            const teams = await teamApi.getAll();
+            const season = seasons[tournamentData.seasonId];
+            if (!season) {
+                // noinspection ExceptionCaughtLocallyJS
+                throw new Error('Could not find the season for this tournament');
+            }
+
             const allPlayers = getAllPlayers(tournamentData, teams);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
@@ -81,19 +71,16 @@ export function Tournament({ account, apis }) {
             tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
 
             setAlreadyPlaying(tournamentPlayerMap);
-            setTeams(teams);
             setSeason(season);
-            setSeasons(seasonsResponse);
-            setDivisions(divisionsResponse);
             setAllPlayers(allPlayers);
         } catch (e) {
-            setError(e.toString());
+            onError(e);
         } finally {
             setLoading('ready');
         }
     }
 
-    function getAllPlayers(tournamentData, teams) {
+    function getAllPlayers(tournamentData) {
         const selectedTournamentPlayers = tournamentData.sides
             ? tournamentData.sides.flatMap(side => side.players)
             : [];
@@ -128,10 +115,6 @@ export function Tournament({ account, apis }) {
         setSaving(true);
 
         try {
-
-            const http = new Http(new Settings());
-            const tournamentApi = new TournamentApi(http);
-
             const response = await tournamentApi.update(tournamentData);
             if (!response.success) {
                 setSaveError(response);
@@ -145,71 +128,75 @@ export function Tournament({ account, apis }) {
         return (<Loading />);
     }
 
-    if (error) {
-        return (<div className="light-background p-3">Error: {error}</div>);
-    }
-
-    return (<div>
-        <DivisionControls
-            reloadAll={apis.reloadAll}
-            seasons={seasons}
-            account={account}
-            divisions={divisions}
-            originalSeasonData={{
-                id: season.id,
-                name: season.name,
-                startDate: season.startDate.substring(0, 10),
-                endDate: season.endDate.substring(0, 10),
-            }}
-            onReloadDivisionData={apis.reloadAll}
-            overrideMode="fixtures" />
-        <div className="light-background p-3">
-            {isAdmin
-                ? (<div className="input-group mb-3">
+    try {
+        return (<div>
+            <DivisionControls
+                seasons={seasons.map(a => a)}
+                originalSeasonData={{
+                    id: season.id,
+                    name: season.name,
+                    startDate: season.startDate.substring(0, 10),
+                    endDate: season.endDate.substring(0, 10),
+                }}
+                onReloadDivisionData={reloadAll}
+                overrideMode="fixtures"/>
+            <div className="light-background p-3">
+                {isAdmin
+                    ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
-                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address} name="address" onChange={valueChanged(tournamentData, setTournamentData)} />
+                        <input className="form-control" disabled={saving} type="text" value={tournamentData.address}
+                               name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
-                : (<p>
-                    At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
-                    <span className="margin-left">
-                        <ShareButton text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`} />
+                    : (<p>
+                        At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
+                        <span className="margin-left">
+                        <ShareButton
+                            text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`}/>
                     </span>
-                </p>)}
-            {isAdmin
-                ? (<div className="form-group input-group mb-3 d-print-none">
-                    <div className="input-group-prepend">
+                    </p>)}
+                {isAdmin
+                    ? (<div className="form-group input-group mb-3 d-print-none">
+                        <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
-                    <input id="type-text" className="form-control" disabled={saving} value={tournamentData.type || ''} name="type" onChange={valueChanged(tournamentData, setTournamentData)} />
-                </div>)
-                : null}
-            {isAdmin
-                ? (<div className="form-group input-group mb-3 d-flex">
-                    <label htmlFor="note-text" className="input-group-text">Notes</label>
-                    <textarea id="note-text" className="form-control" disabled={saving} value={tournamentData.notes || ''} name="notes" onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
-                </div>)
-                : tournamentData.notes
-                    ? (<div className="alert alert-warning alert-dismissible fade show" role="alert">{tournamentData.notes}</div>)
+                        <input id="type-text" className="form-control" disabled={saving}
+                               value={tournamentData.type || ''} name="type"
+                               onChange={valueChanged(tournamentData, setTournamentData)}/>
+                    </div>)
                     : null}
-            <EditTournament
-                tournamentData={tournamentData}
-                disabled={disabled}
-                saving={saving}
-                teams={teams}
-                allPlayers={allPlayers}
-                season={season}
-                alreadyPlaying={alreadyPlaying}
-                canSave={canSave}
-                setTournamentData={setTournamentData}
-                account={account} />
-            <TournamentSheet sides={tournamentData.sides} />
-            {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                Save
-            </button>) : null}
-        </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save tournament details"/>) : null}
-    </div>);
+                {isAdmin
+                    ? (<div className="form-group input-group mb-3 d-flex">
+                        <label htmlFor="note-text" className="input-group-text">Notes</label>
+                        <textarea id="note-text" className="form-control" disabled={saving}
+                                  value={tournamentData.notes || ''} name="notes"
+                                  onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
+                    </div>)
+                    : tournamentData.notes
+                        ? (<div className="alert alert-warning alert-dismissible fade show"
+                                role="alert">{tournamentData.notes}</div>)
+                        : null}
+                <EditTournament
+                    tournamentData={tournamentData}
+                    disabled={disabled}
+                    saving={saving}
+                    allPlayers={allPlayers}
+                    season={season}
+                    alreadyPlaying={alreadyPlaying}
+                    canSave={canSave}
+                    setTournamentData={setTournamentData}/>
+                <TournamentSheet sides={tournamentData.sides}/>
+                {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
+                    {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                     aria-hidden="true"></span>) : null}
+                    Save
+                </button>) : null}
+            </div>
+            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+                                        title="Could not save tournament details"/>) : null}
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }

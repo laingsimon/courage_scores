@@ -1,140 +1,120 @@
-import React, {Component} from 'react';
-import {Route, Routes} from 'react-router-dom';
-import {Layout} from './components/layout/Layout';
 import './custom.css';
+import {useDependencies} from "./IocContainer";
+import React, {useEffect, useState} from "react";
+import {toMap} from "./Utilities";
+import {Layout} from "./components/layout/Layout";
+import {Route, Routes} from "react-router-dom";
 import {Home} from "./components/Home";
 import {Division} from "./components/Division";
-import {Settings} from "./api/settings";
-import {Http} from "./api/http";
-import {AccountApi} from "./api/account";
-import {DivisionApi} from "./api/division";
 import {Score} from "./components/division_fixtures/scores/Score";
-import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
-import {toMap} from "./Utilities";
 import {AdminHome} from "./components/admin/AdminHome";
-import {SeasonApi} from "./api/season";
-import {SelfScore} from "./components/SelfScore";
+import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
+import {Practice} from "./components/Practice";
+import {AppContainer} from "./AppContainer";
 
-export default class App extends Component {
-    constructor(props) {
-        super(props);
+export function App() {
+    const { divisionApi, accountApi, seasonApi, teamApi } = useDependencies();
+    const [ account, setAccount ] = useState(null);
+    const [ divisions, setDivisions ] = useState(toMap([]));
+    const [ seasons, setSeasons ] = useState(toMap([]));
+    const [ teams, setTeams ] = useState(toMap([]));
+    const [ appLoading, setAppLoading ] = useState(false);
+    const [ error, setError ] = useState(null);
 
-        this.settings = new Settings();
-        this.divisionApi = new DivisionApi(new Http(this.settings));
-        this.accountApi = new AccountApi(new Http(this.settings));
-        this.seasonApi = new SeasonApi(new Http(this.settings));
-        this.reloadDivisions = this.reloadDivisions.bind(this);
-        this.reloadSeasons = this.reloadSeasons.bind(this);
-        this.reloadAccount = this.reloadAccount.bind(this);
-        this.reloadAll = this.reloadAll.bind(this);
-        this.clearError = this.clearError.bind(this);
+    useEffect(() => {
+        // should only fire on componentDidMount
 
-        this.state = {
-            appLoading: true,
-            subProps: {
-                divisions: [],
-                seasons: [],
-                account: null,
-                divisionData: {}
-            },
-            error: null
-        };
+        // noinspection JSIgnoredPromiseFromCall
+        reloadAll();
+    },
+    // eslint-disable-next-line
+    []);
+
+    function onError(error) {
+        if (error.stack) {
+            console.error(error);
+        }
+        setError({ message: error.message, stack: error.stack });
     }
 
-    shouldExcludeSurround() {
-        return window.excludeSurround;
+    function clearError() {
+        setError(null);
     }
 
-    static getDerivedStateFromError(error) {
-        return {
-            error: {
-                message: error.message,
-                stack: error.stack,
-            },
-        };
+    async function reloadAll() {
+        if (appLoading) {
+            return;
+        }
+
+        setAppLoading(true);
+        await reloadAccount();
+        await reloadDivisions();
+        await reloadSeasons();
+        await reloadTeams();
+        setAppLoading(false);
     }
 
-    clearError() {
-        this.setState({
-            error: null
-        });
+    async function reloadDivisions() {
+        const divisions = toMap(await divisionApi.getAll());
+        setDivisions(divisions);
     }
 
-    async componentDidMount() {
-        await this.reloadAll();
+    async function reloadSeasons() {
+        const seasons = toMap(await seasonApi.getAll());
+        setSeasons(seasons);
     }
 
-    async reloadAll() {
-        this.setState({
-            appLoading: false,
-            subProps: {
-                account: await this.reloadAccount(),
-                divisions: await this.reloadDivisions(),
-                seasons: await this.reloadSeasons()
-            }
-        });
+    async function reloadTeams() {
+        const teams = toMap(await teamApi.getAll());
+        setTeams(teams);
     }
 
-    async reloadDivisions() {
-        const subProps = Object.assign(
-            {},
-            this.state.subProps);
-        subProps.divisions = toMap(await this.divisionApi.getAll());
-
-        this.setState({
-            subProps: subProps
-        });
-        return subProps.divisions;
+    async function reloadAccount() {
+        const account = await accountApi.account();
+        setAccount(account);
     }
 
-    async reloadSeasons() {
-        const subProps = Object.assign(
-            {},
-            this.state.subProps);
-        subProps.seasons = toMap(await this.seasonApi.getAll());
-
-        this.setState({
-            subProps: subProps
-        });
-        return subProps.seasons;
+    function shouldExcludeSurround() {
+        return document.location.search.indexOf('surround=false') !== -1;
     }
 
-    async reloadAccount() {
-        const subProps = Object.assign(
-            {},
-            this.state.subProps);
-        subProps.account = await this.accountApi.account();
+    const appData = {
+        divisions,
+        seasons,
+        teams,
+        account,
+        error,
+        appLoading,
+        excludeSurround: shouldExcludeSurround(),
+        reloadDivisions: reloadDivisions,
+        reloadAccount: reloadAccount,
+        reloadAll: reloadAll,
+        reloadTeams: reloadTeams,
+        reloadSeasons: reloadSeasons,
+        onError: onError,
+        clearError: clearError
+    };
 
-        this.setState({
-            subProps: subProps
-        });
-        return subProps.account;
-    }
-
-    render() {
-        return (
-            <Layout excludeSurround={this.shouldExcludeSurround()} appLoading={this.state.appLoading} {...this.combineProps({...this.props})} error={this.state.error} clearError={this.clearError}>
+    try {
+        return (<AppContainer {...appData}>
+            <Layout>
                 <Routes>
-                    <Route exact path='/' element={<Home {...this.combineProps({...this.props})} />} />
-                    <Route path='/division/:divisionId' element={<Division {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/division/:divisionId/:mode' element={<Division {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/score/:fixtureId' element={<Score {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/admin' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/admin/:mode' element={<AdminHome {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/tournament/:tournamentId' element={<Tournament {...this.combineProps({...this.props})} />} />}/>
-                    <Route path='/sayg/' element={<SelfScore {...this.combineProps({...this.props})} />} />}/>
+                    <Route exact path='/' element={<Home />} />
+                    <Route path='/division/:divisionId' element={<Division />} />}/>
+                    <Route path='/division/:divisionId/:mode' element={<Division />} />}/>
+                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division />} />}/>
+                    <Route path='/score/:fixtureId' element={<Score />} />}/>
+                    <Route path='/admin' element={<AdminHome />} />}/>
+                    <Route path='/admin/:mode' element={<AdminHome />} />}/>
+                    <Route path='/tournament/:tournamentId' element={<Tournament />} />}/>
+                    <Route path='/practice' element={<Practice />} />}/>
                 </Routes>
             </Layout>
-        );
-    }
-
-    combineProps(props) {
-        return Object.assign(props, this.state.subProps, { apis: {
-            reloadDivisions: this.reloadDivisions,
-            reloadAccount: this.reloadAccount,
-            reloadDivision: this.reloadDivision,
-            reloadAll: this.reloadAll
-        }, appLoading: this.state.appLoading });
+        </AppContainer>);
+    } catch (e) {
+        setError({
+            message: e.message,
+            stack: e.stack
+        })
     }
 }
