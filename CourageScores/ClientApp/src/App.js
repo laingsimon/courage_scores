@@ -75,7 +75,7 @@ export function App() {
     }
 
     function shouldExcludeSurround() {
-        return window.excludeSurround;
+        return document.location.search.indexOf('surround=false') !== -1;
     }
 
     const appData = {
