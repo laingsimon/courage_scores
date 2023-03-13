@@ -1,5 +1,5 @@
 ﻿import {act, fireEvent} from "@testing-library/react";
-import {MemoryRouter} from "react-router-dom";
+import {MemoryRouter, Route, Routes} from "react-router-dom";
 import {IocContainer} from "../IocContainer";
 import {AppContainer} from "../AppContainer";
 import ReactDOM from "react-dom/client";
@@ -23,17 +23,26 @@ export function doChange(container, selector, text) {
     fireEvent.change(input, { target: { value: text } });
 }
 
-export async function renderApp(iocProps, appProps, content) {
+export async function renderApp(iocProps, appProps, content, route, currentPath) {
     const container = document.createElement('div');
     document.body.appendChild(container);
 
+    if (!route) {
+        route = '/test';
+    }
+    if (!currentPath) {
+        currentPath = route;
+    }
+
     await act(async () => {
-        const component = (<MemoryRouter>
-            <IocContainer {...iocProps}>
-                <AppContainer {...appProps}>
-                    {content}
-                </AppContainer>
-            </IocContainer>
+        const component = (<MemoryRouter initialEntries={[currentPath]}>
+            <Routes>
+                <Route path={route} element={<IocContainer {...iocProps}>
+                        <AppContainer {...appProps}>
+                            {content}
+                        </AppContainer>
+                    </IocContainer>} />
+            </Routes>
         </MemoryRouter>);
         ReactDOM.createRoot(container).render(component);
     });
