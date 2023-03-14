@@ -61,7 +61,7 @@ export function DivisionReports() {
             return (<ReportNotFound />);
         }
 
-        return (<Report rows={report.rows} valueHeading="Value" />);
+        return (<Report rows={report.rows} valueHeading={report.valueHeading} />);
     }
 
     return (<div className="light-background p-3">
