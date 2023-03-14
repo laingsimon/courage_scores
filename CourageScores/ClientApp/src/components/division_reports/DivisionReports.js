@@ -5,7 +5,7 @@ import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
 export function DivisionReports() {
-    const { name: divisionName, id: divisionId, season } = useDivisionData();
+    const { id: divisionId, season } = useDivisionData();
     const [ reportData, setReportData ] = useState(null);
     const [ gettingData, setGettingData ] = useState(false);
     const [ topCount, setTopCount ] = useState(3);
@@ -42,7 +42,9 @@ export function DivisionReports() {
             <BootstrapDropdown
                 onChange={(value) => setActiveReport(value)}
                 options={reportData.reports.map(report => { return { value: report.name, text: report.description }})}
-                value={activeReport} />
+                value={activeReport}
+                className="d-print-none" />
+            <h4 className="d-screen-none">{activeReport}</h4>
         </div>)
     }
 
@@ -85,14 +87,13 @@ export function DivisionReports() {
         }
 
         let index = 0;
-        return (<ul>
+        return (<ul className="d-print-none">
             {reportData.messages.map(msg => (<li key={index++}>{msg}</li>))}
         </ul>)
     }
 
     return (<div className="light-background p-3">
-        <p>Run reports for the <strong>{divisionName}</strong> division and <strong>{season.name}</strong> season</p>
-        <div className="input-group">
+        <div className="input-group d-print-none">
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>
             </div>
@@ -102,10 +103,10 @@ export function DivisionReports() {
             </div>
             <button onClick={getReports} className="btn btn-primary">
                 {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '📊 '}
-                Analyse fixtures...
+                Get report...
             </button>
         </div>
-        <div className="my-3">
+        <div>
             {reportData && ! gettingData ? renderMessages() : null}
             {reportData && ! gettingData ? renderReportNames() : null}
             {reportData && ! gettingData ? renderActiveReport() : null}
