@@ -69,7 +69,7 @@ export function DivisionReports() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>
             </div>
-            <input type="number" min="1" max="100" value={topCount} onChange={stateChanged(setTopCount)} />
+            <input className="form-control" type="number" min="1" max="100" value={topCount} onChange={stateChanged(setTopCount)} />
             <div className="input-group-prepend margin-right">
                 <span className="input-group-text">records</span>
             </div>
