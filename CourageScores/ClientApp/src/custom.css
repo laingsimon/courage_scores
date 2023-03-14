@@ -30,6 +30,16 @@ nav {
   background-repeat: no-repeat;
 }
 
+@media print {
+  .darts-background {
+    background: none;
+  }
+
+  body, .text-light {
+    color: #000000 !important;
+  }
+}
+
 .light-background {
   background-color: #ffffff;
   color: #000000;
