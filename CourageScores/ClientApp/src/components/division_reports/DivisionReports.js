@@ -3,6 +3,9 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {any, isEmpty, stateChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {ReportNotFound} from "./ReportNotFound";
+import {Report} from "./Report";
+import {ReportGenerationMessages} from "./ReportGenerationMessages";
 
 export function DivisionReports() {
     const { id: divisionId, season } = useDivisionData();
@@ -55,41 +58,10 @@ export function DivisionReports() {
 
         const report = reportData.reports.filter(r => r.name === activeReport)[0];
         if (!report) {
-            return (<div className="text-warning">Report not found</div>);
+            return (<ReportNotFound />);
         }
 
-        let rowIndex = 0;
-        return (<div>
-            {isEmpty(report.rows)
-                ? (<p className="text-danger fw-bold">No rows</p>)
-                : (<table className="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>Player</th>
-                        <th>Team</th>
-                        <th>Value</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {report.rows.map(row => (<tr key={rowIndex++}>
-                        <td>{row.playerName}</td>
-                        <td>{row.teamName}</td>
-                        <td>{row.value}</td>
-                    </tr>))}
-                    </tbody>
-                   </table>)}
-        </div>)
-    }
-
-    function renderMessages() {
-        if (isEmpty(reportData.messages)) {
-            return null;
-        }
-
-        let index = 0;
-        return (<ul className="d-print-none">
-            {reportData.messages.map(msg => (<li key={index++}>{msg}</li>))}
-        </ul>)
+        return (<Report rows={report.rows} valueHeading="Value" />);
     }
 
     return (<div className="light-background p-3">
@@ -103,11 +75,11 @@ export function DivisionReports() {
             </div>
             <button onClick={getReports} className="btn btn-primary">
                 {gettingData ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '📊 '}
-                Get report...
+                Get reports...
             </button>
         </div>
         <div>
-            {reportData && ! gettingData ? renderMessages() : null}
+            {reportData && ! gettingData ? (<ReportGenerationMessages messages={reportData.messages} />) : null}
             {reportData && ! gettingData ? renderReportNames() : null}
             {reportData && ! gettingData ? renderActiveReport() : null}
         </div>
