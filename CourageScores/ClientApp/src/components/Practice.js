@@ -2,6 +2,7 @@ import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
 import {stateChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
+import {useApp} from "../AppContainer";
 
 export function Practice() {
     const [ startingScore, setStartingScore ] = useState('501');
@@ -9,7 +10,8 @@ export function Practice() {
     const [ homeScore, setHomeScore ] = useState(0);
     const [ awayScore, setAwayScore ] = useState(0);
     const [ data, setData ] = useState(null);
-    const [ yourName, setYourName ] = useState('you');
+    const { account } = useApp();
+    const [ yourName, setYourName ] = useState(account ? account.givenName : 'you');
     const [ opponentName, setOpponentName ] = useState('');
 
     useEffect(() => {
