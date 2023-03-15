@@ -23,9 +23,7 @@ export function DivisionTeams() {
     }
 
     async function onTeamCreated() {
-        if (onReloadDivision) {
-            await onReloadDivision();
-        }
+        await onReloadDivision();
 
         setNewTeam(false);
     }
