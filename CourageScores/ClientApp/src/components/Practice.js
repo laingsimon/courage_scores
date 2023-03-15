@@ -5,13 +5,14 @@ import {ShareButton} from "./ShareButton";
 import {useApp} from "../AppContainer";
 
 export function Practice() {
-    const [ startingScore, setStartingScore ] = useState('501');
-    const [ numberOfLegs, setNumberOfLegs ] = useState('3');
+    const initialYourName = 'you';
+    const [ startingScore, setStartingScore ] = useState(501);
+    const [ numberOfLegs, setNumberOfLegs ] = useState(3);
     const [ homeScore, setHomeScore ] = useState(0);
     const [ awayScore, setAwayScore ] = useState(0);
     const [ data, setData ] = useState(null);
     const { account } = useApp();
-    const [ yourName, setYourName ] = useState(account ? account.givenName : 'you');
+    const [ yourName, setYourName ] = useState(initialYourName);
     const [ opponentName, setOpponentName ] = useState('');
 
     useEffect(() => {
@@ -30,6 +31,12 @@ export function Practice() {
             setOpponentName(shareData.opponentName);
     },
     [ ]);
+
+    useEffect(() => {
+        if (account && yourName === initialYourName && account.givenName) {
+            setYourName(account.givenName);
+        }
+    }, [ account ]);
 
     function createSharableHash() {
         if (!data) {
