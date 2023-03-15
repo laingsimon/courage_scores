@@ -36,7 +36,7 @@ export function Practice() {
         if (account && yourName === initialYourName && account.givenName) {
             setYourName(account.givenName);
         }
-    }, [ account ]);
+    }, [ account, yourName ]);
 
     function createSharableHash() {
         if (!data) {
