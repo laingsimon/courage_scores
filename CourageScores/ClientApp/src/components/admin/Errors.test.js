@@ -9,9 +9,14 @@ import {doClick,doChange,renderApp,cleanUp} from "../../tests/helpers";
 
 describe('Errors', () => {
     let context;
+    let reportedError;
+    let errorToThrow = null;
     const recentMap = {};
     const mockErrorApi = {
         getRecent: (since) => {
+            if (errorToThrow) {
+                throw errorToThrow;
+            }
             return recentMap[since];
         }
     };
@@ -21,9 +26,11 @@ describe('Errors', () => {
     });
 
     async function renderComponent() {
+        reportedError = null;
+        errorToThrow = null;
         context = await renderApp(
             { errorApi: mockErrorApi },
-            { account: {}, appLoading: false },
+            { account: {}, appLoading: false, onError: (err) => { reportedError = err; } },
             (<AdminContainer>
                 <Errors />
             </AdminContainer>));
@@ -48,11 +55,25 @@ describe('Errors', () => {
     }
 
     function assertDisplayedErrors({ time, url, type, stack }) {
+        assertTitle(time);
+        assertUrl(url);
+        assertType(type);
+        assertStack(stack);
+    }
+
+    function getDetailsContainer() {
         const detailsContainer = context.container.querySelector(`.light-background div.overflow-auto`);
         expect(detailsContainer).toBeTruthy();
-        const title = detailsContainer.querySelector(`h6`);
+        return detailsContainer;
+    }
+
+    function assertTitle(time) {
+        const title = getDetailsContainer().querySelector(`h6`);
         expect(title.innerHTML).toEqual(`Error details @ ${new Date(time).toLocaleString()}`);
-        const ps = Array.from(detailsContainer.querySelectorAll('p'));
+    }
+
+    function assertUrl(url) {
+        const ps = Array.from(getDetailsContainer().querySelectorAll('p'));
         const urlP = ps.filter(p => p.innerHTML.indexOf('Url') !== -1)[0];
         if (url) {
             expect(urlP).toBeTruthy();
@@ -60,6 +81,10 @@ describe('Errors', () => {
         } else {
             expect(urlP).toBeFalsy();
         }
+    }
+
+    function assertType(type) {
+        const ps = Array.from(getDetailsContainer().querySelectorAll('p'));
         const typeP = ps.filter(p => p.innerHTML.indexOf('Type') !== -1)[0];
         if (type) {
             expect(typeP).toBeTruthy();
@@ -67,7 +92,10 @@ describe('Errors', () => {
         } else {
             expect(typeP).toBeFalsy();
         }
-        const stackList = detailsContainer.querySelector('ol');
+    }
+
+    function assertStack(stack) {
+        const stackList = getDetailsContainer().querySelector('ol');
         if (stack) {
             expect(stackList).toBeTruthy();
             all(stack, item => {
@@ -81,7 +109,7 @@ describe('Errors', () => {
     function assertResults(count) {
         const resultsContainer = context.container.querySelector(`.light-background .list-group`);
         expect(resultsContainer).not.toBeNull();
-        const results = Array.from(resultsContainer.querySelectorAll(`.light-background .list-group li`));
+        const results = Array.from(resultsContainer.querySelectorAll(`li`));
         expect(results.length).toEqual(count);
         return results;
     }
@@ -97,6 +125,7 @@ describe('Errors', () => {
         await renderComponent();
 
         assertResults(0);
+        expect(reportedError).toBeNull();
     });
 
     it('shows empty results when none found', async () => {
@@ -105,6 +134,17 @@ describe('Errors', () => {
         await clickRefresh('2001-02-03', [ ]);
 
         assertResults(0);
+        expect(reportedError).toBeNull();
+    });
+
+    it('shows error dialog on error', async () => {
+        await renderComponent();
+        errorToThrow = new Error('Some error');
+        setDate('2001-02-03');
+        await clickRefresh('2001-02-03', [ ]);
+
+        assertResults(0);
+        expect(reportedError).not.toBeNull();
     });
 
     it('shows results on refresh', async () => {
@@ -129,10 +169,11 @@ describe('Errors', () => {
         const uiItem = results.filter(li => li.innerHTML.indexOf('message2') !== -1)[0];
         assertListItem(apiItem, apiError);
         assertListItem(uiItem, uiError);
+        expect(reportedError).toBeNull();
     });
 
     it('shows api details on click', async () => {
-        const error = {
+        const data = {
             time: '2001-02-03T04:05:06Z',
             id: 'abcd',
             message: 'message1',
@@ -146,14 +187,15 @@ describe('Errors', () => {
         }
         await renderComponent();
         setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ error ]);
+        await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
-        assertDisplayedErrors(error);
+        assertDisplayedErrors(data);
+        expect(reportedError).toBeNull();
     });
 
     it('shows api details without some details on click', async () => {
-        const error = {
+        const data = {
             time: '2001-02-03T04:05:06Z',
             id: 'abcd',
             message: 'message1',
@@ -161,14 +203,15 @@ describe('Errors', () => {
         }
         await renderComponent();
         setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ error ]);
+        await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
-        assertDisplayedErrors(error);
+        assertDisplayedErrors(data);
+        expect(reportedError).toBeNull();
     });
 
     it('shows ui details on click', async () => {
-        const error = {
+        const data = {
             time: '2001-02-03T04:05:06Z',
             id: 'abcd',
             message: 'message1',
@@ -182,14 +225,15 @@ describe('Errors', () => {
         }
         await renderComponent();
         setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ error ]);
+        await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
-        assertDisplayedErrors(error);
+        assertDisplayedErrors(data);
+        expect(reportedError).toBeNull();
     });
 
     it('shows ui details without some details on click', async () => {
-        const error = {
+        const data = {
             time: '2001-02-03T04:05:06Z',
             id: 'abcd',
             message: 'message1',
@@ -197,9 +241,10 @@ describe('Errors', () => {
         }
         await renderComponent();
         setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ error ]);
+        await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
-        assertDisplayedErrors(error);
+        assertDisplayedErrors(data);
+        expect(reportedError).toBeNull();
     });
 });
