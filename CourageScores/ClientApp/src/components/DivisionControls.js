@@ -10,7 +10,7 @@ import {useApp} from "../AppContainer";
 
 export function DivisionControls({ originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, onReloadSeasonData, overrideMode }) {
     const { mode } = useParams();
-    const { account, reloadAll, divisions } = useApp();
+    const { account, divisions, reloadSeasons, reloadDivisions } = useApp();
     // noinspection JSUnresolvedVariable
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
@@ -50,7 +50,7 @@ export function DivisionControls({ originalSeasonData, seasons, originalDivision
                 onUpdateData={setDivisionData}
                 onClose={() => setDivisionData(null)}
                 reloadAll={async () => {
-                    await reloadAll();
+                    await reloadDivisions();
                     if (onReloadDivisionData) {
                         await onReloadDivisionData();
                     }
@@ -67,7 +67,7 @@ export function DivisionControls({ originalSeasonData, seasons, originalDivision
                 onUpdateData={setSeasonData}
                 onClose={() => setSeasonData(null)}
                 reloadAll={async () => {
-                    await reloadAll();
+                    await reloadSeasons();
                     if (onReloadSeasonData) {
                         await onReloadSeasonData();
                     }
