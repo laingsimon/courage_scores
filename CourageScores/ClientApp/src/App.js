@@ -78,6 +78,7 @@ export function App() {
         return document.location.search.indexOf('surround=false') !== -1;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     const appData = {
         divisions,
         seasons,
@@ -86,13 +87,13 @@ export function App() {
         error,
         appLoading,
         excludeSurround: shouldExcludeSurround(),
-        reloadDivisions: reloadDivisions,
-        reloadAccount: reloadAccount,
-        reloadAll: reloadAll,
-        reloadTeams: reloadTeams,
-        reloadSeasons: reloadSeasons,
-        onError: onError,
-        clearError: clearError
+        reloadDivisions,
+        reloadAccount,
+        reloadAll,
+        reloadTeams,
+        reloadSeasons,
+        onError,
+        clearError
     };
 
     try {
