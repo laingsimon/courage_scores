@@ -75,8 +75,7 @@ export function Division() {
                 seasons={divisionData.seasons}
                 originalSeasonData={divisionData.season}
                 originalDivisionData={{name: divisionData.name, id: divisionData.id}}
-                onReloadDivisionData={reloadDivisionData}
-                onReloadSeasonData={reloadDivisionData}/>
+                onDivisionOrSeasonChanged={reloadDivisionData} />
             <ul className="nav nav-tabs">
                 <li className="nav-item">
                     <NavLink tag={Link}

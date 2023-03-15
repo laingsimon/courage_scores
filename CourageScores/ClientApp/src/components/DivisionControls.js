@@ -8,7 +8,7 @@ import {EditSeason} from "./EditSeason";
 import {any, isEmpty, sortBy} from "../Utilities";
 import {useApp} from "../AppContainer";
 
-export function DivisionControls({ originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, onReloadSeasonData, overrideMode }) {
+export function DivisionControls({ originalSeasonData, seasons, onDivisionOrSeasonChanged, originalDivisionData, overrideMode }) {
     const { mode } = useParams();
     const { account, divisions, reloadSeasons, reloadDivisions } = useApp();
     // noinspection JSUnresolvedVariable
@@ -49,10 +49,10 @@ export function DivisionControls({ originalSeasonData, seasons, originalDivision
                 data={divisionData}
                 onUpdateData={setDivisionData}
                 onClose={() => setDivisionData(null)}
-                reloadAll={async () => {
+                onSave={async () => {
                     await reloadDivisions();
-                    if (onReloadDivisionData) {
-                        await onReloadDivisionData();
+                    if (onDivisionOrSeasonChanged) {
+                        await onDivisionOrSeasonChanged('division');
                     }
                     setDivisionData(null);
                 }}
@@ -66,10 +66,10 @@ export function DivisionControls({ originalSeasonData, seasons, originalDivision
                 data={seasonData}
                 onUpdateData={setSeasonData}
                 onClose={() => setSeasonData(null)}
-                reloadAll={async () => {
+                onSave={async () => {
                     await reloadSeasons();
-                    if (onReloadSeasonData) {
-                        await onReloadSeasonData();
+                    if (onDivisionOrSeasonChanged) {
+                        await onDivisionOrSeasonChanged('season');
                     }
                     setSeasonData(null);
                 }}

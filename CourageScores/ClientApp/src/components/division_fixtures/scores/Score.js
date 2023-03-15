@@ -21,7 +21,7 @@ import {useApp} from "../../../AppContainer";
 export function Score() {
     const { fixtureId } = useParams();
     const { gameApi } = useDependencies();
-    const { account, divisions, reloadAll, seasons, onError, error, teams } = useApp();
+    const { account, divisions, seasons, onError, error, teams } = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
@@ -397,7 +397,6 @@ export function Score() {
                     endDate: season.endDate.substring(0, 10),
                 }}
                 originalDivisionData={division}
-                onReloadDivisionData={reloadAll}
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
