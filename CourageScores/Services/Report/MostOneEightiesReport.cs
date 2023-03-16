@@ -20,6 +20,7 @@ public class MostOneEightiesReport : IReport
             Description = $"The top {_topCount} most 180s",
             Name = "Most 180s",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
+            ValueHeading = "180s",
         };
     }
 

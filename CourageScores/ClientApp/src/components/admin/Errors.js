@@ -1,6 +1,7 @@
 import {useState} from "react";
 import {sortBy, stateChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
 
 export function Errors() {
     const [ since, setSince ] = useState(new Date().toISOString().substring(0, 10));
@@ -8,6 +9,7 @@ export function Errors() {
     const [ errors, setErrors ] = useState([]);
     const [ focusedError, setFocusedError ] = useState(null);
     const { errorApi } = useDependencies();
+    const { onError } = useApp();
 
     async function retrieveErrors() {
         if (loading) {
@@ -21,6 +23,8 @@ export function Errors() {
 
             const result = await errorApi.getRecent(since);
             setErrors(result);
+        } catch (e) {
+            onError(e);
         } finally {
             setLoading(false);
         }

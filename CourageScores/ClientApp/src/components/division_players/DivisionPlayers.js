@@ -7,7 +7,7 @@ export function DivisionPlayers({ hideVenue, hideHeading }) {
 
     return (<div className="light-background p-3 overflow-x-auto">
         <div>
-            {hideHeading ? null : (<p>Only players that have played a singles match will appear here</p>)}
+            {hideHeading ? null : (<p className="d-print-none">Only players that have played a singles match will appear here</p>)}
             <table className="table">
                 <thead>
                 <tr>

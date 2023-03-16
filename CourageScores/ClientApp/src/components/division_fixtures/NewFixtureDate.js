@@ -99,9 +99,7 @@ export function NewFixtureDate({ date }) {
             });
 
             if (result.success) {
-                if (onReloadDivision) {
-                    await onReloadDivision();
-                }
+                await onReloadDivision();
             } else {
                 setSaveError(result);
             }

@@ -22,4 +22,9 @@ public class ReportDto
     /// The report content
     /// </summary>
     public List<ReportRowDto> Rows { get; set; } = new();
+
+    /// <summary>
+    /// The text to display to explain the value column
+    /// </summary>
+    public string ValueHeading { get; set; } = "Value";
 }

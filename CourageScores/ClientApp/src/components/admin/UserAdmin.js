@@ -6,7 +6,7 @@ import {useApp} from "../../AppContainer";
 import {useAdmin} from "./AdminContainer";
 
 export function UserAdmin() {
-    const { account, onError } = useApp();
+    const { account, onError, reloadAccount } = useApp();
     const { accountApi } = useDependencies();
     const { accounts } = useAdmin();
     const [ saving, setSaving ] = useState(false);
@@ -79,6 +79,8 @@ export function UserAdmin() {
             const result = await accountApi.update(update);
             if (!result.success) {
                 setSaveError(result);
+            } else if (account.emailAddress === update.emailAddress) {
+                await reloadAccount();
             }
         } catch (e) {
             setSaveError(e);

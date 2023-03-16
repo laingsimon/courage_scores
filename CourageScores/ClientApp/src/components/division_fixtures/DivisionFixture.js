@@ -9,7 +9,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout, onReloadDivisionOverride }) {
+export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout, beforeReloadDivision }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -29,11 +29,11 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
     const { gameApi, teamApi } = useDependencies();
 
     async function doReloadDivision() {
-        if (onReloadDivisionOverride) {
-            await onReloadDivisionOverride();
-        } else {
-            await onReloadDivision();
+        if (beforeReloadDivision) {
+            await beforeReloadDivision();
         }
+
+        await onReloadDivision();
     }
 
     function isSelectedInAnotherFixtureOnThisDate(t) {

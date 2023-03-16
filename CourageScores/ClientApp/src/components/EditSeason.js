@@ -3,7 +3,7 @@ import {any, propChanged, sortBy, valueChanged} from "../Utilities";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
 import {useDependencies} from "../IocContainer";
 
-export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateData, divisions, seasons }) {
+export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData, divisions, seasons }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { seasonApi } = useDependencies();
@@ -23,7 +23,7 @@ export function EditSeason({ onClose, reloadAll, setSaveError, data, onUpdateDat
             const result = await seasonApi.update(data);
 
             if (result.success) {
-                await reloadAll();
+                await onSave();
             } else {
                 setSaveError(result);
             }

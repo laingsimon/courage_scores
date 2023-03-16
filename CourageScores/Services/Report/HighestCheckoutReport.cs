@@ -20,6 +20,7 @@ public class HighestCheckoutReport : IReport
             Description = $"The top {_topCount} checkouts",
             Name = "Highest checkouts",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
+            ValueHeading = "Checkout",
         };
     }
 
