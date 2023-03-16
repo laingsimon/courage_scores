@@ -22,6 +22,7 @@ public class MostPlayedPlayerReport : IReport
             Description = $"The top {_topCount} most played players {(_singlesOnly ? "(singles only)" : "(singles, doubles and trebles)")}",
             Name = "Most played player",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
+            ValueHeading = "Played",
         };
     }
 

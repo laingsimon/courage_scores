@@ -19,6 +19,7 @@ public class ManOfTheMatchReport : IReport
             Description = $"The top {_topCount} recorded players of the match",
             Name = "Man of the match",
             Rows = await GetRows(playerLookup).TakeAsync(_topCount).ToList(),
+            ValueHeading = "Times",
         };
     }
 

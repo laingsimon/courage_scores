@@ -14,9 +14,7 @@ export function DivisionTeam({team }) {
     const isAdmin = account && account.access && account.access.manageTeams;
 
     async function teamDetailSaved() {
-        if (onReloadDivision) {
-            await onReloadDivision();
-        }
+        await onReloadDivision();
 
         setEditTeam(false);
     }

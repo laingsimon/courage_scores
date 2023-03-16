@@ -6,13 +6,15 @@ import {useLocation} from "react-router-dom";
 import {useApp} from "../AppContainer";
 
 export function Practice() {
+    const initialYourName = 'you';
     const { onError } = useApp();
-    const [ startingScore, setStartingScore ] = useState('501');
-    const [ numberOfLegs, setNumberOfLegs ] = useState('3');
+    const [ startingScore, setStartingScore ] = useState(501);
+    const [ numberOfLegs, setNumberOfLegs ] = useState(3);
     const [ homeScore, setHomeScore ] = useState(0);
     const [ awayScore, setAwayScore ] = useState(0);
     const [ data, setData ] = useState(null);
-    const [ yourName, setYourName ] = useState('you');
+    const { account } = useApp();
+    const [ yourName, setYourName ] = useState(initialYourName);
     const [ opponentName, setOpponentName ] = useState('');
     const [ dataError, setDataError ] = useState(null);
     const location = useLocation();
@@ -41,6 +43,12 @@ export function Practice() {
         }
     },
     [ location ]);
+
+    useEffect(() => {
+        if (account && yourName === initialYourName && account.givenName) {
+            setYourName(account.givenName);
+        }
+    }, [ account, yourName ]);
 
     function deserialiseSharedData(base64) {
         let jsonData;

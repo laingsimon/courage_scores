@@ -3,6 +3,7 @@ import {useState} from "react";
 
 export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
     const [ score, setScore ] = useState('');
+    const [ focusEventHandle, setFocusEventHandle ] = useState(null);
     const accumulator = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore = accumulator ? leg.startingScore - accumulator.score : -1;
 
@@ -13,7 +14,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     async function keyUp(event) {
         if (event.key === 'Enter') {
-            await addThrow(score, 3);
+            await addThrow(score, 3, false);
             return false;
         }
     }
@@ -22,10 +23,31 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         return player === 'home' ? 'away' : 'home';
     }
 
-    async function addThrow(scoreInput, noOfDarts) {
+    function createFocusEvent() {
+        const handle = window.setTimeout(() => {
+            const input = document.querySelector('input[data-score-input="true"]');
+            if (input) {
+                input.focus();
+            } else {
+                console.log('Unable to find input to focus');
+            }
+            setFocusEventHandle(null);
+        }, 300);
+        setFocusEventHandle(handle);
+    }
+
+    async function addThrow(scoreInput, noOfDarts, setFocusEvent) {
+        if (focusEventHandle) {
+            window.clearTimeout(focusEventHandle);
+            setFocusEventHandle(null);
+        }
+
+        if (setFocusEvent) {
+            createFocusEvent();
+        }
+
         const score = Number.parseInt(scoreInput);
         if (!Number.isFinite(score)) {
-            window.alert('Invalid score');
             return;
         }
 
@@ -92,17 +114,17 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         <h4>
             <label>
                 <span className="margin-right">Score</span>
-                <input autoFocus type="number" min="1" max="180" className="no-spinner margin-right width-50" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
+                <input data-score-input="true" autoFocus type="number" min="1" max="180" className="no-spinner margin-right width-50" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
             </label>
         </h4>
         <p className="my-3">
             {remainingScore <= 60
-                ? (<button className="btn btn-primary margin-right" onClick={() => addThrow(score, 1)}>📌</button>)
+                ? (<button className="btn btn-primary margin-right" onClick={() => addThrow(score, 1, true)}>📌</button>)
                 : (<button className="btn btn-secondary margin-right" disabled>📌</button>)}
             {remainingScore <= 120
-                ? (<button className="btn btn-primary margin-right" onClick={() => addThrow(score, 2)}>📌📌</button>)
+                ? (<button className="btn btn-primary margin-right" onClick={() => addThrow(score, 2, true)}>📌📌</button>)
                 : (<button className="btn btn-secondary margin-right" disabled>📌📌</button>)}
-            <button className="btn btn-primary margin-right" onClick={() => addThrow(score, 3)}>📌📌📌</button>
+            <button className="btn btn-primary margin-right" onClick={() => addThrow(score, 3, true)}>📌📌📌</button>
         </p>
     </div>);
 }

@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {valueChanged} from "../Utilities";
 import {useDependencies} from "../IocContainer";
 
-export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateData }) {
+export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { divisionApi } = useDependencies();
@@ -22,7 +22,7 @@ export function EditDivision({ onClose, reloadAll, setSaveError, data, onUpdateD
             const result = await divisionApi.update(data);
 
             if (result.success) {
-                await reloadAll();
+                await onSave();
             } else {
                 setSaveError(result);
             }

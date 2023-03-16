@@ -23,10 +23,7 @@ export function DivisionPlayer({player, hideVenue }) {
     const { playerApi } = useDependencies();
 
     async function playerDetailSaved() {
-        if (onReloadDivision) {
-            await onReloadDivision();
-        }
-
+        await onReloadDivision();
         setEditPlayer(false);
     }
 
@@ -58,9 +55,7 @@ export function DivisionPlayer({player, hideVenue }) {
         try {
             const response = await playerApi.delete(season.id, player.teamId, player.id);
             if (response.success) {
-                if (onReloadDivision) {
-                    await onReloadDivision();
-                }
+                await onReloadDivision();
             } else {
                 setSaveError(response);
             }
@@ -72,12 +67,12 @@ export function DivisionPlayer({player, hideVenue }) {
     return (<tr>
         <td>{player.rank}</td>
         <td>
-            {isAdmin && onReloadDivision ? (<button disabled={deleting} onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {isAdmin && onReloadDivision ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
+            {isAdmin ? (<button disabled={deleting} onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+            {isAdmin ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
                 {deleting ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '🗑️'}
             </button>) : null}
             {deleting ? (<s>{player.name}</s>) : (<Link to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>)}
-            {editPlayer && isAdmin && onReloadDivision ? renderEditPlayer() : null}
+            {editPlayer && isAdmin ? renderEditPlayer() : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not delete player"/>) : null}
         </td>
