@@ -42,7 +42,7 @@ export function Practice() {
             onError(e);
         }
     },
-    [ location ]);
+    [ location, onError ]);
 
     useEffect(() => {
         if (account && yourName === initialYourName && account.givenName) {
