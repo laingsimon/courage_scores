@@ -1,4 +1,4 @@
-name: PROD
+name: UAT
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
       - publish
     uses: ./.github/workflows/deploy.yml
     with:
-      environment-name: 'PROD'
-      app-name: 'CourageLeague'
+      environment-name: 'UAT'
+      app-name: 'CourageScores'
     secrets:
-      publish-profile: ${{ secrets.PUBLISHPROFILE_PROD }}
+      publish-profile: ${{ secrets.PUBLISHPROFILE_UAT }}
