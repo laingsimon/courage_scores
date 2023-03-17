@@ -3,7 +3,7 @@ name: UAT
 on:
   push:
     branches:
-      - release
+      - main
 
 jobs:
   setup:
