@@ -75,8 +75,7 @@ export function Division() {
                 seasons={divisionData.seasons}
                 originalSeasonData={divisionData.season}
                 originalDivisionData={{name: divisionData.name, id: divisionData.id}}
-                onReloadDivisionData={reloadDivisionData}
-                onReloadSeasonData={reloadDivisionData}/>
+                onDivisionOrSeasonChanged={reloadDivisionData} />
             <ul className="nav nav-tabs">
                 <li className="nav-item">
                     <NavLink tag={Link}
@@ -96,9 +95,9 @@ export function Division() {
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'}
                              to={`/division/${divisionId}/reports`}>Reports</NavLink>
                 </li>) : null}
-                <li className="d-screen-none position-absolute right-0">
+                {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
-                </li>
+                </li>) : null}
             </ul>
             <DivisionDataContainer {...divisionData} onReloadDivision={reloadDivisionData}>
                 {effectiveTab === 'teams' && divisionData.season
@@ -111,7 +110,7 @@ export function Division() {
                 {effectiveTab === 'players' && divisionData.season
                     ? (<DivisionPlayers/>)
                     : null}
-                {effectiveTab === 'reports'
+                {effectiveTab === 'reports' && divisionData.season
                     ? (<DivisionReports/>)
                     : null}
                 {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season

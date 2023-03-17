@@ -2,23 +2,35 @@ import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
 import {stateChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
+import {useLocation} from "react-router-dom";
+import {useApp} from "../AppContainer";
 
 export function Practice() {
-    const [ startingScore, setStartingScore ] = useState('501');
-    const [ numberOfLegs, setNumberOfLegs ] = useState('3');
+    const initialYourName = 'you';
+    const { onError } = useApp();
+    const [ startingScore, setStartingScore ] = useState(501);
+    const [ numberOfLegs, setNumberOfLegs ] = useState(3);
     const [ homeScore, setHomeScore ] = useState(0);
     const [ awayScore, setAwayScore ] = useState(0);
     const [ data, setData ] = useState(null);
-    const [ yourName, setYourName ] = useState('you');
+    const { account } = useApp();
+    const [ yourName, setYourName ] = useState(initialYourName);
     const [ opponentName, setOpponentName ] = useState('');
+    const [ dataError, setDataError ] = useState(null);
+    const location = useLocation();
 
     useEffect(() => {
-            const hash = document.location.hash;
+        try {
+            const hash = location.hash;
             if (hash === '' || hash === '#') {
                 return;
             }
 
-            const shareData = JSON.parse(atob(hash.substring(1)));
+            const shareData = deserialiseSharedData(hash.substring(1));
+            if (!shareData) {
+                return;
+            }
+
             setStartingScore(shareData.startingScore);
             setNumberOfLegs(shareData.numberOfLegs);
             setHomeScore(shareData.homeScore);
@@ -26,8 +38,44 @@ export function Practice() {
             setData(shareData.data);
             setYourName(shareData.yourName);
             setOpponentName(shareData.opponentName);
+        } catch (e) {
+            onError(e);
+        }
     },
-    [ ]);
+    [ location, onError ]);
+
+    useEffect(() => {
+        if (account && yourName === initialYourName && account.givenName) {
+            setYourName(account.givenName);
+        }
+    }, [ account, yourName ]);
+
+    function deserialiseSharedData(base64) {
+        let jsonData;
+        try {
+            jsonData = atob(base64);
+        } catch (e) {
+            console.error(e);
+            setDataError(e.message);
+            return null;
+        }
+
+        let shareData;
+        try {
+            shareData = JSON.parse(jsonData);
+        } catch (e) {
+            console.error(e);
+            setDataError(e.message);
+            return null;
+        }
+
+        if (shareData.startingScore && shareData.numberOfLegs && shareData.data) {
+            return shareData;
+        }
+
+        setDataError('Invalid share data');
+        return null;
+    }
 
     function createSharableHash() {
         if (!data) {
@@ -85,7 +133,12 @@ export function Practice() {
             <input placeholder="Optional" className="form-control" value={opponentName} onChange={onOtherNameChange} />
             <button className="btn btn-primary" onClick={restart}>{homeScore > 0 ? 'Restart...' : 'Start...'}</button>
         </div>
-        {data != null ? (<ScoreAsYouGo
+        {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
+            <h3>⚠ Error with shared data</h3>
+            <p>{dataError}</p>
+            <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
+        </div>) : null}
+        {dataError == null && data != null ? (<ScoreAsYouGo
             startingScore={Number.parseInt(startingScore)}
             numberOfLegs={Number.parseInt(numberOfLegs)}
             onHiCheck={() => {}}

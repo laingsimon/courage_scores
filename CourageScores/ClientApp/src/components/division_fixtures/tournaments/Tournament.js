@@ -12,7 +12,7 @@ import {useApp} from "../../../AppContainer";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const { account, reloadAll, seasons, onError, teams } = useApp();
+    const { account, seasons, onError, teams } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [loading, setLoading] = useState('init');
@@ -138,7 +138,6 @@ export function Tournament() {
                     startDate: season.startDate.substring(0, 10),
                     endDate: season.endDate.substring(0, 10),
                 }}
-                onReloadDivisionData={reloadAll}
                 overrideMode="fixtures"/>
             <div className="light-background p-3">
                 {isAdmin

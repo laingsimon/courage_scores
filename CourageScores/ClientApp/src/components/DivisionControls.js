@@ -8,9 +8,9 @@ import {EditSeason} from "./EditSeason";
 import {any, isEmpty, sortBy} from "../Utilities";
 import {useApp} from "../AppContainer";
 
-export function DivisionControls({ originalSeasonData, seasons, originalDivisionData, onReloadDivisionData, onReloadSeasonData, overrideMode }) {
+export function DivisionControls({ originalSeasonData, seasons, onDivisionOrSeasonChanged, originalDivisionData, overrideMode }) {
     const { mode } = useParams();
-    const { account, reloadAll, divisions } = useApp();
+    const { account, divisions, reloadSeasons, reloadDivisions } = useApp();
     // noinspection JSUnresolvedVariable
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
@@ -49,10 +49,10 @@ export function DivisionControls({ originalSeasonData, seasons, originalDivision
                 data={divisionData}
                 onUpdateData={setDivisionData}
                 onClose={() => setDivisionData(null)}
-                reloadAll={async () => {
-                    await reloadAll();
-                    if (onReloadDivisionData) {
-                        await onReloadDivisionData();
+                onSave={async () => {
+                    await reloadDivisions();
+                    if (onDivisionOrSeasonChanged) {
+                        await onDivisionOrSeasonChanged('division');
                     }
                     setDivisionData(null);
                 }}
@@ -66,10 +66,10 @@ export function DivisionControls({ originalSeasonData, seasons, originalDivision
                 data={seasonData}
                 onUpdateData={setSeasonData}
                 onClose={() => setSeasonData(null)}
-                reloadAll={async () => {
-                    await reloadAll();
-                    if (onReloadSeasonData) {
-                        await onReloadSeasonData();
+                onSave={async () => {
+                    await reloadSeasons();
+                    if (onDivisionOrSeasonChanged) {
+                        await onDivisionOrSeasonChanged('season');
                     }
                     setSeasonData(null);
                 }}

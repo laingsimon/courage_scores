@@ -93,13 +93,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         });
     }
 
-    async function onNewDateCreated() {
-        setNewDate('');
-        if (onReloadDivision) {
-            await onReloadDivision();
-        }
-    }
-
     function renderNewFixture(team) {
         const newFixture = {
             id: team.id,
@@ -113,7 +106,7 @@ export function DivisionFixtures({ setNewFixtures }) {
 
         return (<DivisionFixture
             key={team.id}
-            onReloadDivisionOverride={onNewDateCreated}
+            beforeReloadDivision={() => setNewDate('')}
             fixture={newFixture}
             date={newDate}
             allowTeamDelete={false}
