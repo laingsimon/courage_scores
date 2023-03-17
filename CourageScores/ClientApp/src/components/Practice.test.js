@@ -17,7 +17,7 @@ describe('Practice', () => {
         context = await renderApp(
             {},
             {
-                account: null, appLoading: false, onError: (err) => {
+                account: account, appLoading: false, onError: (err) => {
                     reportedError = err;
                 }
             },
