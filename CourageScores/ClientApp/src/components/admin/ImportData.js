@@ -37,7 +37,7 @@ export function ImportData() {
         }
 
         const input = document.querySelector('input[type="file"]');
-        if (isEmpty(input.files)) {
+        if (input.files.length === 0) {
             window.alert(`Select a file first`);
             return;
         }
