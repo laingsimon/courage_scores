@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
-import {isEmpty, propChanged, valueChanged} from "../../Utilities";
+import {propChanged, valueChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 
@@ -37,7 +37,7 @@ export function ImportData() {
         }
 
         const input = document.querySelector('input[type="file"]');
-        if (isEmpty(input.files)) {
+        if (input.files.length === 0) {
             window.alert(`Select a file first`);
             return;
         }
