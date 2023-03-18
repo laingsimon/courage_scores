@@ -58,8 +58,7 @@ describe('Division', () => {
             address);
     }
 
-    it('when logged out, renders when in season', async () => {
-        const divisionId = createTemporaryId();
+    function getInSeasonDivisionData(divisionId) {
         const season = {
             id: createTemporaryId(),
             name: 'A season',
@@ -68,7 +67,7 @@ describe('Division', () => {
             divisions: []
         };
         const team = { id: createTemporaryId(), name: 'A team' };
-        const inSeasonDivisionData = {
+        return {
             allTeams: [ team ],
             dataErrors: [],
             fixtures: [],
@@ -79,23 +78,10 @@ describe('Division', () => {
             seasons: [ season ],
             teams: [ team ]
         };
-        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
-        await renderComponent(null, divisionId);
+    }
 
-        expect(reportedError).toBeNull();
-        const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
-        expect(divisionControls.length).toBe(2);
-        const seasonControl = divisionControls[0];
-        const divisionControl = divisionControls[1];
-        expect(seasonControl).not.toBeNull();
-        expect(divisionControl).not.toBeNull();
-        expect(seasonControl.querySelector('button span').innerHTML).toBe('A season (3 Feb - 25 Aug)');
-        expect(divisionControl.querySelector('button').innerHTML).toBe('All divisions');
-    });
-
-    it('when logged out, renders when out of season', async () => {
-        const divisionId = createTemporaryId();
-        const outOfSeasonDivisionData = {
+    function getOutOfSeasonDivisionData(divisionId) {
+        return {
             allTeams: [],
             dataErrors: [],
             fixtures: [],
@@ -112,6 +98,62 @@ describe('Division', () => {
             } ],
             teams: []
         };
+    }
+
+    it('when logged out, renders when in season', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent(null, divisionId);
+
+        expect(reportedError).toBeNull();
+        const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
+        expect(divisionControls.length).toBe(2);
+        const seasonControl = divisionControls[0];
+        const divisionControl = divisionControls[1];
+        expect(seasonControl).not.toBeNull();
+        expect(divisionControl).not.toBeNull();
+        expect(seasonControl.querySelector('button span').innerHTML).toBe('A season (3 Feb - 25 Aug)');
+        expect(divisionControl.querySelector('button').innerHTML).toBe('All divisions');
+    });
+
+    it('when logged out, renders teams table when in season', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent(null, divisionId, 'teams');
+
+        expect(reportedError).toBeNull();
+        const headings = context.container.querySelectorAll('div.light-background table.table thead tr th');
+        expect(headings.length).toBe(7);
+        expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
+    });
+
+    it('when logged out, renders players table when in season', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent(null, divisionId, 'players');
+
+        expect(reportedError).toBeNull();
+        const headings = context.container.querySelectorAll('div.light-background table.table thead tr th');
+        expect(headings.length).toBe(10);
+        expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
+    });
+
+    it('when logged out, renders fixtures when in season', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent(null, divisionId, 'fixtures');
+
+        expect(reportedError).toBeNull();
+        // TODO: Assert something
+    });
+
+    it('when logged out, renders when out of season', async () => {
+        const divisionId = createTemporaryId();
+        const outOfSeasonDivisionData = getOutOfSeasonDivisionData(divisionId);
         setupMockDivisionData(divisionId, undefined, outOfSeasonDivisionData);
         await renderComponent(null, divisionId);
 
@@ -128,25 +170,7 @@ describe('Division', () => {
 
     it('when logged in, renders when in season', async () => {
         const divisionId = createTemporaryId();
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: []
-        };
-        const team = { id: createTemporaryId(), name: 'A team' };
-        const inSeasonDivisionData = {
-            allTeams: [ team ],
-            dataErrors: [],
-            fixtures: [],
-            id: divisionId,
-            name: 'A division',
-            players: [],
-            season: season,
-            seasons: [ season ],
-            teams: [ team ]
-        };
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
         setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
         await renderComponent({ access: {} }, divisionId);
 
@@ -163,23 +187,7 @@ describe('Division', () => {
 
     it('when logged in, renders when out of season', async () => {
         const divisionId = createTemporaryId();
-        const outOfSeasonDivisionData = {
-            allTeams: [],
-            dataErrors: [],
-            fixtures: [],
-            id: divisionId,
-            name: 'A division',
-            players: [],
-            season: null,
-            seasons: [ {
-                id: createTemporaryId(),
-                name: 'A season',
-                startDate: '2022-02-03T00:00:00',
-                endDate: '2022-08-25T00:00:00',
-                divisions: []
-            } ],
-            teams: []
-        };
+        const outOfSeasonDivisionData = getOutOfSeasonDivisionData(divisionId);
         setupMockDivisionData(divisionId, undefined, outOfSeasonDivisionData);
         await renderComponent({ access: {} }, divisionId);
 
