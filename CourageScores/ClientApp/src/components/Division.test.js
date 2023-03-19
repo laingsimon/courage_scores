@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedFunction
+
 import {cleanUp, renderApp} from "../tests/helpers";
 import {Division} from "./Division";
 import React from "react";
@@ -132,13 +134,40 @@ describe('Division', () => {
     it('when logged out, renders players table when in season', async () => {
         const divisionId = createTemporaryId();
         const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        inSeasonDivisionData.players.push({
+            captain: true,
+            id: createTemporaryId(),
+            name: 'A player',
+            oneEighties: 1,
+            over100Checkouts: 2,
+            pairs: {},
+            points: 3,
+            rank: 4,
+            singles: {
+                matchesPlayed: 6,
+                matchesWon: 7,
+                matchesLost: 0,
+                winRate: 8
+            },
+            team: 'A team',
+            teamId: createTemporaryId(),
+            triples: {},
+            winPercentage: 0.5
+        });
         setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
         await renderComponent(null, divisionId, 'players');
 
         expect(reportedError).toBeNull();
-        const headings = context.container.querySelectorAll('div.light-background table.table thead tr th');
+        const table = context.container.querySelector('.light-background table');
+        const headings = table.querySelectorAll('thead tr th');
         expect(headings.length).toBe(10);
         expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
+        expect(table).toBeTruthy();
+        const rows = table.querySelectorAll('tbody tr');
+        expect(rows.length).toBe(1); // 1 player
+        const playerRow = rows[0];
+        expect(Array.from(playerRow.querySelectorAll('td')).map(td => td.innerHTML))
+            .toEqual([ '4', 'A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ])
     });
 
     it('when logged out, renders fixtures when in season', async () => {
@@ -149,6 +178,42 @@ describe('Division', () => {
 
         expect(reportedError).toBeNull();
         // TODO: Assert something
+    });
+
+    it('when logged out, does not render reports tab', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent(null, divisionId);
+
+        const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
+        expect(tabs.length).not.toBe(0);
+        const tabTexts = Array.from(tabs).map(t => t.querySelector('a').innerHTML);
+        expect(tabTexts).not.toContain('Reports');
+    });
+
+    it('when logged in and not permitted, does not show reports tab', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent({ access: { runReports: false } }, divisionId);
+
+        const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
+        expect(tabs.length).not.toBe(0);
+        const tabTexts = Array.from(tabs).map(t => t.querySelector('a').innerHTML);
+        expect(tabTexts).not.toContain('Reports');
+    });
+
+    it('when logged in and permitted, renders reports tab', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        await renderComponent({ access: { runReports: true } }, divisionId);
+
+        const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
+        expect(tabs.length).not.toBe(0);
+        const tabTexts = Array.from(tabs).map(t => t.querySelector('a').innerHTML);
+        expect(tabTexts).toContain('Reports');
     });
 
     it('when logged out, renders when out of season', async () => {

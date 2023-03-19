@@ -28,21 +28,26 @@ export function Division() {
             setDivisionData(divisionData);
             return divisionData;
         } catch (e) {
-            if (e.message.indexOf('Exception') !== -1) {
-                const dotnetException = JSON.parse(e.message);
+            if (e.message && e.message.indexOf && e.message.indexOf('Exception') !== -1) {
+                try {
+                    const dotnetException = JSON.parse(e.message);
 
-                onError({
-                    message: dotnetException.Exception.Message,
-                    stack: dotnetException.Exception.StackTrace ? dotnetException.Exception.StackTrace.join('\n') : null,
-                    type: dotnetException.Exception.Type
-                });
+                    if (dotnetException.Exception) {
+                        const exc = dotnetException.Exception;
+
+                        onError({
+                            message: exc.Message,
+                            stack: exc.StackTrace ? exc.StackTrace.join('\n') : null,
+                            type: exc.Type
+                        });
+                    }
+                } catch (e) {
+                    console.error(e);
+                    // don't hide the original (root cause) error with details of an error during error handling
+                }
             }
-            else {
-                onError({
-                    message: e.message,
-                    stack: e.stack
-                });
-            }
+
+            onError(e);
         }
         finally {
             setLoading(false);
@@ -54,13 +59,17 @@ export function Division() {
             return;
         }
 
-        if (divisionData && divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
-            return;
-        }
+        try {
+            if (divisionData && divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
+                return;
+            }
 
-        setLoading(true);
-        // noinspection JSIgnoredPromiseFromCall
-        reloadDivisionData();
+            setLoading(true);
+            // noinspection JSIgnoredPromiseFromCall
+            reloadDivisionData();
+        } catch (e) {
+            onError(e);
+        }
     },
     // eslint-disable-next-line
     [ divisionData, loading, divisionId, seasonId, error ]);
