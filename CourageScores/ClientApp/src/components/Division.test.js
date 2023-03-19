@@ -273,6 +273,14 @@ describe('Division', () => {
                 isKnockout: false,
                 postponed: true,
                 proposal: false
+            }, {
+                id: createTemporaryId(),
+                homeScore: null,
+                homeTeam: { id: createTemporaryId(), name: 'home4 - bye' },
+                awayScore: null,
+                isKnockout: false,
+                postponed: false,
+                proposal: false
             } ],
             hasKnockoutFixtures: false,
             notes: [ ],
@@ -290,10 +298,11 @@ describe('Division', () => {
         const fixtureDateHeading = fixtureDateElement.querySelector('h4');
         expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022');
         const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-        expect(fixturesForDate.length).toBe(3); // number of fixtures for this date
+        expect(fixturesForDate.length).toBe(4); // number of fixtures for this date
         assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
         assertFixture(fixturesForDate[1], 'home2 - knockout', '3', '4', 'away2 - knockout');
         assertFixture(fixturesForDate[2], 'home3', 'P', 'P', 'away3');
+        assertFixture(fixturesForDate[3], 'home4 - bye', '', '', 'Bye');
     });
 
     it('when logged out, renders tournaments when in season', async () => {
