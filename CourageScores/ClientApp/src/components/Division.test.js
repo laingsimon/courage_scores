@@ -102,6 +102,25 @@ describe('Division', () => {
         };
     }
 
+    function assertFixture(tr, home, homeScore, awayScore, away) {
+        const columns = tr.querySelectorAll('td');
+        expect(columns.length).toBe(5);
+        expect(columns[0].textContent).toBe(home);
+        expect(columns[1].textContent).toBe(homeScore);
+        expect(columns[2].textContent).toBe('vs');
+        expect(columns[3].textContent).toBe(awayScore);
+        expect(columns[4].textContent).toBe(away);
+    }
+
+    function assertTournament(tr, text, winner) {
+        const columns = tr.querySelectorAll('td');
+        expect(columns.length).toBe(winner ? 2 : 1);
+        expect(columns[0].textContent).toBe(text);
+        if (winner) {
+            expect(columns[1].textContent).toBe('Winner: ' + winner);
+        }
+    }
+
     it('when logged out, renders when in season', async () => {
         const divisionId = createTemporaryId();
         const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
@@ -192,6 +211,35 @@ describe('Division', () => {
             .toEqual([ '4', '🤴 A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ]);
     });
 
+    it('when logged out, renders notes when in season', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        inSeasonDivisionData.fixtures.push({
+            date: '2022-10-13T00:00:00',
+            fixtures: [ ],
+            hasKnockoutFixtures: false,
+            notes: [{
+                id: createTemporaryId(),
+                date: '2022-10-13T00:00:00',
+                note: 'Finals night!'
+            } ],
+            tournamentFixtures: [ ]
+        });
+        await renderComponent(null, divisionId, 'fixtures');
+
+        expect(reportedError).toBeNull();
+        const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+        expect(fixtureElements.length).toBe(2);
+        const fixtureDatesContainer = fixtureElements[1];
+        const fixtureDates = fixtureDatesContainer.children;
+        expect(fixtureDates.length).toBe(1);
+        const fixtureDateElement = fixtureDates[0];
+        const noteElement = fixtureDateElement.querySelector('.alert-warning');
+        expect(noteElement).toBeTruthy();
+        expect(noteElement.textContent).toBe('📌Finals night!');
+    });
+
     it('when logged out, renders fixtures when in season', async () => {
         const divisionId = createTemporaryId();
         const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
@@ -201,20 +249,90 @@ describe('Division', () => {
             fixtures: [ {
                 id: createTemporaryId(),
                 homeScore: 1,
-                homeTeam: { id: createTemporaryId(), name: 'home' },
+                homeTeam: { id: createTemporaryId(), name: 'home1' },
                 awayScore: 2,
-                awayTeam: { id: createTemporaryId(), name: 'away' },
+                awayTeam: { id: createTemporaryId(), name: 'away1' },
                 isKnockout: false,
                 postponed: false,
                 proposal: false
-            }],
-            hasKnockoutFixtures: false,
-            notes: [{
+            }, {
                 id: createTemporaryId(),
-                date: '2022-10-13T00:00:00',
-                note: 'Finals night!'
+                homeScore: 3,
+                homeTeam: { id: createTemporaryId(), name: 'home2 - knockout' },
+                awayScore: 4,
+                awayTeam: { id: createTemporaryId(), name: 'away2 - knockout' },
+                isKnockout: true,
+                postponed: false,
+                proposal: false
+            }, {
+                id: createTemporaryId(),
+                homeScore: 0,
+                homeTeam: { id: createTemporaryId(), name: 'home3' },
+                awayScore: 0,
+                awayTeam: { id: createTemporaryId(), name: 'away3' },
+                isKnockout: false,
+                postponed: true,
+                proposal: false
             } ],
+            hasKnockoutFixtures: false,
+            notes: [ ],
             tournamentFixtures: []
+        });
+        await renderComponent(null, divisionId, 'fixtures');
+
+        expect(reportedError).toBeNull();
+        const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+        expect(fixtureElements.length).toBe(2);
+        const fixtureDatesContainer = fixtureElements[1];
+        const fixtureDates = fixtureDatesContainer.children;
+        expect(fixtureDates.length).toBe(1);
+        const fixtureDateElement = fixtureDates[0];
+        const fixtureDateHeading = fixtureDateElement.querySelector('h4');
+        expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022');
+        const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
+        expect(fixturesForDate.length).toBe(3); // number of fixtures for this date
+        assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
+        assertFixture(fixturesForDate[1], 'home2 - knockout', '3', '4', 'away2 - knockout');
+        assertFixture(fixturesForDate[2], 'home3', 'P', 'P', 'away3');
+    });
+
+    it('when logged out, renders tournaments when in season', async () => {
+        const divisionId = createTemporaryId();
+        const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+        setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        inSeasonDivisionData.fixtures.push({
+            date: '2022-10-13T00:00:00',
+            fixtures: [ ],
+            hasKnockoutFixtures: false,
+            notes: [ ],
+            tournamentFixtures: [ {
+                address: 'an address',
+                date: '2022-10-13T00:00:00',
+                id: createTemporaryId(),
+                notes: 'Someone to run the venue',
+                players: [],
+                proposed: false,
+                seasonId: inSeasonDivisionData.season.id,
+                sides: [ {
+                    name: 'The winning side'
+                }],
+                type: 'Pairs',
+                winningSide: {
+                    name: 'The winning side'
+                }
+            }, {
+                address: 'another address',
+                date: '2022-10-13T00:00:00',
+                id: createTemporaryId(),
+                notes: 'Someone to run the venue',
+                players: [],
+                proposed: false,
+                seasonId: inSeasonDivisionData.season.id,
+                sides: [ {
+                    name: 'The winning side'
+                }],
+                type: 'Pairs'
+            }]
         });
         await renderComponent(null, divisionId, 'fixtures');
 
@@ -225,20 +343,12 @@ describe('Division', () => {
         const fixtureDates = fixtureDatesContainer.children;
         expect(fixtureDates.length).toBe(1); // 1 fixture
         const fixtureDateElement = fixtureDates[0];
-        const noteElement = fixtureDateElement.querySelector('.alert-warning');
-        expect(noteElement).toBeTruthy();
-        expect(noteElement.textContent).toBe('📌Finals night!');
         const fixtureDateHeading = fixtureDateElement.querySelector('h4');
-        expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022');
+        expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022Who\'s playing?');
         const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-        expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
-        const columns = fixturesForDate[0].querySelectorAll('td');
-        expect(columns.length).toBe(5);
-        expect(columns[0].textContent).toBe('home');
-        expect(columns[1].textContent).toBe('1');
-        expect(columns[2].textContent).toBe('vs');
-        expect(columns[3].textContent).toBe('2');
-        expect(columns[4].textContent).toBe('away');
+        expect(fixturesForDate.length).toBe(2); // number of fixtures for this date
+        assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
+        assertTournament(fixturesForDate[1], 'Pairs at another address');
     });
 
     it('when logged out, does not render reports tab', async () => {
