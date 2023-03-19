@@ -167,7 +167,7 @@ describe('Division', () => {
         expect(rows.length).toBe(1); // 1 player
         const playerRow = rows[0];
         expect(Array.from(playerRow.querySelectorAll('td')).map(td => td.textContent))
-            .toEqual([ '4', 'A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ])
+            .toEqual([ '4', '🤴 A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ])
     });
 
     it('when logged out, renders fixtures when in season', async () => {
