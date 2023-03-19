@@ -123,12 +123,34 @@ describe('Division', () => {
         const divisionId = createTemporaryId();
         const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
         setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        inSeasonDivisionData.teams[0] = {
+           address: 'An address',
+           difference: 1,
+           fixturesDrawn: 2,
+           fixturesLost: 3,
+           fixturesWon: 4,
+           id: createTemporaryId(),
+           lossRate: 5,
+           matchesLost: 6,
+           matchesWon: 7,
+           name: 'A team',
+           played: 8,
+           points: 9,
+           winRate: 10
+        };
         await renderComponent(null, divisionId, 'teams');
 
         expect(reportedError).toBeNull();
-        const headings = context.container.querySelectorAll('div.light-background table.table thead tr th');
+        const table = context.container.querySelector('.light-background table');
+        expect(table).toBeTruthy();
+        const headings = table.querySelectorAll('thead tr th');
         expect(headings.length).toBe(7);
         expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
+        const rows = table.querySelectorAll('tbody tr');
+        expect(rows.length).toBe(1); // 1 team
+        const teamRow = rows[0];
+        expect(Array.from(teamRow.querySelectorAll('td')).map(td => td.textContent))
+            .toEqual([ 'A team', '8', '9', '4', '3', '2', '1' ]);
     });
 
     it('when logged out, renders players table when in season', async () => {
@@ -159,15 +181,15 @@ describe('Division', () => {
 
         expect(reportedError).toBeNull();
         const table = context.container.querySelector('.light-background table');
+        expect(table).toBeTruthy();
         const headings = table.querySelectorAll('thead tr th');
         expect(headings.length).toBe(10);
         expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
-        expect(table).toBeTruthy();
         const rows = table.querySelectorAll('tbody tr');
         expect(rows.length).toBe(1); // 1 player
         const playerRow = rows[0];
         expect(Array.from(playerRow.querySelectorAll('td')).map(td => td.textContent))
-            .toEqual([ '4', '🤴 A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ])
+            .toEqual([ '4', '🤴 A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ]);
     });
 
     it('when logged out, renders fixtures when in season', async () => {
