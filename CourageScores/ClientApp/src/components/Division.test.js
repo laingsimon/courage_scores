@@ -196,10 +196,49 @@ describe('Division', () => {
         const divisionId = createTemporaryId();
         const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
         setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+        inSeasonDivisionData.fixtures.push({
+            date: '2022-10-13T00:00:00',
+            fixtures: [ {
+                id: createTemporaryId(),
+                homeScore: 1,
+                homeTeam: { id: createTemporaryId(), name: 'home' },
+                awayScore: 2,
+                awayTeam: { id: createTemporaryId(), name: 'away' },
+                isKnockout: false,
+                postponed: false,
+                proposal: false
+            }],
+            hasKnockoutFixtures: false,
+            notes: [{
+                id: createTemporaryId(),
+                date: '2022-10-13T00:00:00',
+                note: 'Finals night!'
+            } ],
+            tournamentFixtures: []
+        });
         await renderComponent(null, divisionId, 'fixtures');
 
         expect(reportedError).toBeNull();
-        // TODO: Assert something
+        const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+        expect(fixtureElements.length).toBe(2);
+        const fixtureDatesContainer = fixtureElements[1];
+        const fixtureDates = fixtureDatesContainer.children;
+        expect(fixtureDates.length).toBe(1); // 1 fixture
+        const fixtureDateElement = fixtureDates[0];
+        const noteElement = fixtureDateElement.querySelector('.alert-warning');
+        expect(noteElement).toBeTruthy();
+        expect(noteElement.textContent).toBe('📌Finals night!');
+        const fixtureDateHeading = fixtureDateElement.querySelector('h4');
+        expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022');
+        const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
+        expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+        const columns = fixturesForDate[0].querySelectorAll('td');
+        expect(columns.length).toBe(5);
+        expect(columns[0].textContent).toBe('home');
+        expect(columns[1].textContent).toBe('1');
+        expect(columns[2].textContent).toBe('vs');
+        expect(columns[3].textContent).toBe('2');
+        expect(columns[4].textContent).toBe('away');
     });
 
     it('when logged out, does not render reports tab', async () => {
