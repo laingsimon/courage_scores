@@ -99,6 +99,7 @@ describe('DivisionPlayers', () => {
         it('renders players with heading and venue', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
+
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision },
                 { hideVenue: undefined, hideHeading: undefined });
@@ -116,6 +117,7 @@ describe('DivisionPlayers', () => {
         it('without heading', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
+
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision },
                 { hideVenue: undefined, hideHeading: true });
@@ -130,6 +132,7 @@ describe('DivisionPlayers', () => {
         it('without venue', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
+
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision },
                 { hideVenue: true, hideHeading: undefined });
@@ -152,6 +155,7 @@ describe('DivisionPlayers', () => {
         it('renders players with heading and venue', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
+
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision },
                 { hideVenue: undefined, hideHeading: undefined });
@@ -169,6 +173,7 @@ describe('DivisionPlayers', () => {
         it('without heading', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
+
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision },
                 { hideVenue: undefined, hideHeading: true });
@@ -183,6 +188,7 @@ describe('DivisionPlayers', () => {
         it('without venue', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
+
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision },
                 { hideVenue: true, hideHeading: undefined });

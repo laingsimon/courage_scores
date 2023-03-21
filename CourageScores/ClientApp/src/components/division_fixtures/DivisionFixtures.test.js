@@ -128,6 +128,7 @@ describe('DivisionFixtures', () => {
                 } ],
                 tournamentFixtures: [ ]
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -157,6 +158,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -186,6 +188,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -215,6 +218,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -243,6 +247,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -278,6 +283,7 @@ describe('DivisionFixtures', () => {
                     }
                 } ]
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -310,6 +316,7 @@ describe('DivisionFixtures', () => {
                     type: 'Pairs'
                 }]
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -340,6 +347,7 @@ describe('DivisionFixtures', () => {
                 } ],
                 tournamentFixtures: [ ]
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -369,6 +377,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -398,6 +407,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -427,6 +437,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -455,6 +466,7 @@ describe('DivisionFixtures', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -490,6 +502,7 @@ describe('DivisionFixtures', () => {
                     }
                 } ]
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
@@ -522,6 +535,7 @@ describe('DivisionFixtures', () => {
                     type: 'Pairs'
                 }]
             });
+
             await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
