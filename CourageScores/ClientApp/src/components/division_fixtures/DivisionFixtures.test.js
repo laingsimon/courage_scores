@@ -12,7 +12,6 @@ describe('DivisionFixtures', () => {
     let newFixtures;
     let divisionReloaded = false;
     let account;
-    const divisionDataMap = {};
     const mockSeasonApi = {
 
     };
@@ -26,11 +25,6 @@ describe('DivisionFixtures', () => {
     afterEach(() => {
         cleanUp(context);
     });
-
-    function setupMockDivisionData(divisionId, seasonId, data) {
-        const key = `${divisionId}:${seasonId}`;
-        divisionDataMap[key] = data;
-    }
 
     async function renderComponent(divisionData) {
         reportedError = null;
@@ -123,7 +117,6 @@ describe('DivisionFixtures', () => {
         it('renders notes', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -148,7 +141,6 @@ describe('DivisionFixtures', () => {
         it('renders played league fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -178,7 +170,6 @@ describe('DivisionFixtures', () => {
         it('renders played knockout fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -208,7 +199,6 @@ describe('DivisionFixtures', () => {
         it('renders postponed fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -238,7 +228,6 @@ describe('DivisionFixtures', () => {
         it('renders byes', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -267,7 +256,6 @@ describe('DivisionFixtures', () => {
         it('renders played tournaments', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -303,7 +291,6 @@ describe('DivisionFixtures', () => {
         it('renders unplayed tournaments', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -342,7 +329,6 @@ describe('DivisionFixtures', () => {
         it('renders notes', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -367,7 +353,6 @@ describe('DivisionFixtures', () => {
         it('renders played league fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -397,7 +382,6 @@ describe('DivisionFixtures', () => {
         it('renders played knockout fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -427,7 +411,6 @@ describe('DivisionFixtures', () => {
         it('renders postponed fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -457,7 +440,6 @@ describe('DivisionFixtures', () => {
         it('renders byes', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -486,7 +468,6 @@ describe('DivisionFixtures', () => {
         it('renders played tournaments', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -522,7 +503,6 @@ describe('DivisionFixtures', () => {
         it('renders unplayed tournaments', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, divisionData);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
