@@ -21,7 +21,7 @@ import {useApp} from "../../../AppContainer";
 export function Score() {
     const { fixtureId } = useParams();
     const { gameApi } = useDependencies();
-    const { account, divisions, seasons, onError, error, teams } = useApp();
+    const { appLoading, account, divisions, seasons, onError, error, teams } = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
@@ -52,13 +52,14 @@ export function Score() {
                 return;
             }
 
-            setLoading('loading');
-
-            // noinspection JSIgnoredPromiseFromCall
-            loadFixtureData();
+            if (!appLoading && seasons.length && teams.length && divisions.length) {
+                setLoading('loading');
+                // noinspection JSIgnoredPromiseFromCall
+                loadFixtureData();
+            }
         },
         // eslint-disable-next-line
-        [loading]);
+        [ appLoading, seasons, teams, divisions ]);
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const teamData = await teams[teamId];
@@ -118,23 +119,25 @@ export function Score() {
                 return;
             }
 
-            const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
+            if (access === 'admin' || access === 'clerk') {
+                const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
 
-            if (error || !homeTeamPlayers) {
-                return;
+                if (error || !homeTeamPlayers) {
+                    return;
+                }
+
+                const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
+
+                if (error || !awayTeamPlayers) {
+                    return;
+                }
+
+                setHomeTeam(homeTeamPlayers);
+                setAwayTeam(awayTeamPlayers);
+
+                const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
+                allPlayers.sort(sortBy('name'));
             }
-
-            const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
-
-            if (error || !awayTeamPlayers) {
-                return;
-            }
-
-            setHomeTeam(homeTeamPlayers);
-            setAwayTeam(awayTeamPlayers);
-
-            const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
-            allPlayers.sort(sortBy('name'));
 
             if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
                 const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
@@ -158,7 +161,6 @@ export function Score() {
             setData(gameData);
 
             const season = seasons[gameData.seasonId];
-
             setSeason(season);
         } catch (e) {
             onError(e);
