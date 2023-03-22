@@ -34,7 +34,11 @@ export function App() {
         if (error.stack) {
             console.error(error);
         }
-        setError({ message: error.message, stack: error.stack });
+        if (error.message) {
+            setError({ message: error.message, stack: error.stack });
+        } else {
+            setError({ message: error });
+        }
     }
 
     function clearError() {
