@@ -298,15 +298,20 @@ export function Score() {
             setFixtureData(newFixtureData);
         }
 
+        const editable = !saving && (getAccess() === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
+
         return (<MatchPlayerSelection
             homePlayers={homeTeam} awayPlayers={awayTeam}
             match={fixtureData.matches[index]}
-            disabled={getAccess() === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && getAccess() !== 'admin')}
+            disabled={getAccess() === 'readonly'}
+            readOnly={!editable}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
             onPlayerChanged={loadFixtureData}
             home={fixtureData.home} away={fixtureData.away}
-            seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
+            seasonId={fixtureData.seasonId}
+            gameId={fixtureData.id}
+            divisionId={fixtureData.divisionId}
             matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
             onMatchOptionsChanged={onMatchOptionsChanged}
             on180={add180(fixtureData, setFixtureData)}
