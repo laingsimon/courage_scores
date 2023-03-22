@@ -18,7 +18,7 @@ export function App() {
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
     const [ teams, setTeams ] = useState(toMap([]));
-    const [ appLoading, setAppLoading ] = useState(false);
+    const [ appLoading, setAppLoading ] = useState(null);
     const [ error, setError ] = useState(null);
 
     useEffect(() => {
@@ -89,7 +89,7 @@ export function App() {
         teams,
         account,
         error,
-        appLoading,
+        appLoading: appLoading === null ? true : appLoading,
         excludeSurround: shouldExcludeSurround(),
         reloadDivisions,
         reloadAccount,
