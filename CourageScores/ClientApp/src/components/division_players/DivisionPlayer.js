@@ -8,7 +8,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionPlayer({player, hideVenue }) {
+export function DivisionPlayer({ player, hideVenue }) {
     const { account } = useApp();
     const { id: divisionId, season, onReloadDivision } = useDivisionData();
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));

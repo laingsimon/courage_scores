@@ -388,7 +388,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
         }
 
-        if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate)) {
+        if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
             return null;
         }
 

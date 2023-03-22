@@ -6,7 +6,7 @@ import {propChanged} from "../../Utilities";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionTeam({team }) {
+export function DivisionTeam({ team }) {
     const { id: divisionId, season, onReloadDivision } = useDivisionData();
     const { account } = useApp();
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));

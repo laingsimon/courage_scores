@@ -6,10 +6,10 @@ using NUnit.Framework;
 namespace CourageScores.Tests;
 
 [TestFixture]
+[Explicit]
 public class ClientTests
 {
     [Test]
-    [Explicit]
     public async Task RunClientAppTests()
     {
         var process = await RunTests();

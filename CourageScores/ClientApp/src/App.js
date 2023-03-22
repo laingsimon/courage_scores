@@ -18,7 +18,7 @@ export function App() {
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
     const [ teams, setTeams ] = useState(toMap([]));
-    const [ appLoading, setAppLoading ] = useState(false);
+    const [ appLoading, setAppLoading ] = useState(null);
     const [ error, setError ] = useState(null);
 
     useEffect(() => {
@@ -34,7 +34,11 @@ export function App() {
         if (error.stack) {
             console.error(error);
         }
-        setError({ message: error.message, stack: error.stack });
+        if (error.message) {
+            setError({ message: error.message, stack: error.stack });
+        } else {
+            setError({ message: error });
+        }
     }
 
     function clearError() {
@@ -85,7 +89,7 @@ export function App() {
         teams,
         account,
         error,
-        appLoading,
+        appLoading: appLoading === null ? true : appLoading,
         excludeSurround: shouldExcludeSurround(),
         reloadDivisions,
         reloadAccount,
