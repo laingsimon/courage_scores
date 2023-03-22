@@ -103,7 +103,11 @@ export function DivisionControls({ originalSeasonData, seasons, onDivisionOrSeas
             return originalDivisionData.id;
         }
 
-        return season.divisions[0].id;
+        if (any(season.divisions)) {
+            return season.divisions[0].id;
+        }
+
+        return null;
     }
 
     try {
