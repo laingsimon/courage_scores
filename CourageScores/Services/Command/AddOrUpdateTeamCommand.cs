@@ -1,5 +1,4 @@
 using CourageScores.Filters;
-using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
@@ -116,12 +115,19 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
         if (teamSeason == null)
         {
-            teamSeason = new TeamSeason
+            var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
+            var result = await command.ApplyUpdate(team, token);
+
+            if (!result.Success || result.Result == null)
             {
-                Id = Guid.NewGuid(),
-                SeasonId = update.SeasonId,
-            };
-            team.Seasons.Add(teamSeason);
+                return new CommandResult
+                {
+                    Success = false,
+                    Message = result.Message,
+                };
+            }
+
+            teamSeason = result.Result;
         }
 
         teamSeason.DivisionId = update.NewDivisionId;
