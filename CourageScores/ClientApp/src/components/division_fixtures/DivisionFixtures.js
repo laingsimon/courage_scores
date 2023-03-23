@@ -178,7 +178,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setSavingProposals(newSavingProposals);
 
                 if (newSavingProposals.complete) {
-                    await onReloadDivision();
+                    await onProposalsSaved();
                 }
             }, 100);
         } catch (e) {
@@ -188,6 +188,12 @@ export function DivisionFixtures({ setNewFixtures }) {
             await onReloadDivision();
             setSavingProposals(newSavingProposals);
         }
+    }
+
+    async function onProposalsSaved() {
+        setProposalResponse(null);
+        await onReloadDivision();
+        setSavingProposals(null);
     }
 
     useEffect(() => {
@@ -227,6 +233,12 @@ export function DivisionFixtures({ setNewFixtures }) {
         let index = 0;
         const percentage = (savingProposals.saved / savingProposals.proposals.length) * 100;
         const currentProposal = savingProposals.proposals[savingProposals.saved - 1];
+        let progressBarColour = 'bg-primary progress-bar-animated progress-bar-striped';
+        if (cancelSavingProposals) {
+            progressBarColour = 'bg-danger';
+        } else if (savingProposals.complete) {
+            progressBarColour = 'bg-success';
+        }
 
         return (<Dialog title="Creating games...">
             {!cancelSavingProposals && !savingProposals.complete && currentProposal ? (<p>{new Date(currentProposal.date).toDateString()}: <strong>{currentProposal.homeTeam.name}</strong> vs <strong>{currentProposal.awayTeam.name}</strong></p>) : null}
@@ -235,7 +247,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 : (<p>About to create <strong>{savingProposals.proposals.length}</strong> games, click Start to create them</p>)}
             {cancelSavingProposals ? (<p className="text-danger">Operation cancelled.</p>) : null}
             <div className="progress" style={{ height: '25px' }}>
-                <div className={`progress-bar ${cancelSavingProposals ? ' bg-danger' : ' bg-success progress-bar-striped progress-bar-animated'}`} role="progressbar" style={{ width: `${percentage}%`}}>{percentage.toFixed(0)}%</div>
+                <div className={`progress-bar ${progressBarColour}`} role="progressbar" style={{ width: `${percentage}%`}}>{percentage.toFixed(0)}%</div>
             </div>
             {savingProposals.error ? (<p className="text-danger">{savingProposals.error}</p>) : null}
             <ol className="overflow-auto max-scroll-height">
