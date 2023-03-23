@@ -115,6 +115,17 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function beginProposeFixtures() {
+        // set proposalSettings.excludedDates
+        if (isEmpty(Object.keys(proposalSettings.excludedDates))) {
+            const datesWithNotes = {};
+            fixtures.filter(fd => any(fd.notes)).map(fd => fd.date).forEach(date => datesWithNotes[date] = 'has a note');
+            if (any(Object.keys(datesWithNotes))) {
+                const newProposalSettings = Object.assign({}, proposalSettings);
+                newProposalSettings.excludedDates = datesWithNotes;
+                setProposalSettings(newProposalSettings);
+            }
+        }
+
         setProposalSettingsDialogVisible(true);
     }
 
@@ -495,7 +506,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             proposalSettings={proposalSettings}
             disabled={proposingGames}
             proposalResponse={proposalResponse}
-            onUpdateProposalSettings={settings => setProposalSettings(settings)} />) : null}
+            onUpdateProposalSettings={setProposalSettings} />) : null}
         {savingProposals ? renderSavingProposalsDialog() : null}
         {isAdmin ? (<div className="mb-3">
             <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
