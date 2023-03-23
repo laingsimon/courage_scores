@@ -1,4 +1,5 @@
 ﻿using CourageScores.Filters;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
@@ -37,7 +38,17 @@ public class AddOrUpdateTeamCommandTests
             Id = Guid.NewGuid(),
             Name = "old name",
             Address = "old address",
+#pragma warning disable CS0618
             DivisionId = _divisionId,
+#pragma warning restore CS0618
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    SeasonId = _seasonId,
+                    DivisionId = _divisionId,
+                }
+            }
         };
         _games = new List<GameDto>();
         _cacheFlags = new ScopedCacheManagementFlags();
@@ -77,7 +88,9 @@ public class AddOrUpdateTeamCommandTests
 
         Assert.That(_team.Name, Is.EqualTo(update.Name));
         Assert.That(_team.Address, Is.EqualTo(update.Address));
+#pragma warning disable CS0618
         Assert.That(_team.DivisionId, Is.EqualTo(update.DivisionId));
+#pragma warning restore CS0618
         Assert.That(result.Success, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
