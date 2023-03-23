@@ -210,7 +210,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 #pragma warning restore CS8601
             {
                 _home = teamLookup.Values.SingleOrDefault(t => t.Name == home.Name)
-                        ?? throw new InvalidOperationException($"Could not find team data for {home.Name} - {home.Id}");
+                        ?? CreateMissingTeamDto(home);
             }
 
 #pragma warning disable CS8601
@@ -218,11 +218,17 @@ public class DivisionDataGameVisitor : IGameVisitor
 #pragma warning restore CS8601
             {
                 _away = teamLookup.Values.SingleOrDefault(t => t.Name == away.Name)
-                        ?? throw new InvalidOperationException($"Could not find team data for {away.Name} - {away.Id}");
+                        ?? CreateMissingTeamDto(away);
             }
 
             _divisionData = divisionData;
             _seasonId = seasonId;
+        }
+
+        private static TeamDto CreateMissingTeamDto(GameTeam team)
+        {
+            Trace.TraceWarning($"Could not find team for game; creating virtual team: {team.Id}, {team.Name}");
+            return new TeamDto { Id = team.Id, Name = team.Name };
         }
 
         public void VisitMatch(GameMatch match)
