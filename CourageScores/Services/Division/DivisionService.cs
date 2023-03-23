@@ -85,7 +85,7 @@ public class DivisionService : IDivisionService
         }
 
 #pragma warning disable CS0618
-        return teamInSeason.DivisionId == filter.DivisionId;
+        return teamInSeason.DivisionId == filter.DivisionId || teamInSeason.DivisionId == Guid.Empty;
 #pragma warning restore CS0618
     }
 

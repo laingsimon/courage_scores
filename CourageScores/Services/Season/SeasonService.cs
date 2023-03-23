@@ -47,7 +47,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         if (!team.Seasons.Any())
         {
 #pragma warning disable CS0618
-            if (team.DivisionId == request.DivisionId)
+            if (team.DivisionId == request.DivisionId || team.DivisionId == Guid.Empty)
 #pragma warning restore CS0618
             {
                 result.Warnings.Add($"Team {team.Name} isn't assigned to any seasons, it will be included as the legacy DivisionId parameter matches");
@@ -66,7 +66,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         if (teamSeason.DivisionId == null)
         {
 #pragma warning disable CS0618
-            return team.DivisionId == request.DivisionId;
+            return team.DivisionId == request.DivisionId || team.DivisionId == Guid.Empty;
 #pragma warning restore CS0618
         }
 
