@@ -202,7 +202,8 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: awayTeamId,
                 date: date,
-                isKnockout: isKnockout
+                isKnockout: isKnockout,
+                seasonId: season.id
             });
 
             if (result.success) {
@@ -304,6 +305,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                 divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: fixture.awayTeam.id,
+                seasonId: season.id
             });
 
             if (result.success) {

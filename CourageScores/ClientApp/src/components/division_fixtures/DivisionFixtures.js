@@ -161,6 +161,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: fixture.awayTeam.id,
+                seasonId: season.id
             });
 
             window.setTimeout(async () => {
