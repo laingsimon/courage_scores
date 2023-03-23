@@ -73,6 +73,7 @@ public class AddOrUpdateGameCommandTests
         {
             HomeTeamId = sameId,
             AwayTeamId = sameId,
+            SeasonId = Guid.NewGuid(),
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
@@ -84,19 +85,38 @@ public class AddOrUpdateGameCommandTests
     }
 
     [Test]
-    public async Task ApplyUpdates_WithNoSeasons_ReturnsUnsuccessful()
+    public async Task ApplyUpdates_WhenSeasonIdNotProvided_ReturnsUnsuccessful()
     {
         var update = new EditGameDto
         {
             HomeTeamId = _homeTeam.Id,
             AwayTeamId = _awayTeam.Id,
+            SeasonId = Guid.Empty,
         };
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => null);
 
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Unable to add or update game, no season exists"));
+        Assert.That(result.Message, Is.EqualTo("SeasonId must be provided"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenSeasonNotFound_ReturnsUnsuccessful()
+    {
+        var update = new EditGameDto
+        {
+            HomeTeamId = _homeTeam.Id,
+            AwayTeamId = _awayTeam.Id,
+            SeasonId = Guid.NewGuid(),
+        };
+        _seasonService.Setup(s => s.Get(update.SeasonId, _token)).ReturnsAsync(() => null);
+
+        var result = await _command.WithData(update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Unable to add or update game, season not found"));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -114,10 +134,11 @@ public class AddOrUpdateGameCommandTests
             DivisionId = Guid.NewGuid(),
             IsKnockout = true,
             Id = _game.Id,
+            SeasonId = _season.Id,
         };
         _homeTeam.Seasons.Add(_teamSeason);
         _awayTeam.Seasons.Add(_teamSeason);
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => _season);
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Get(update.AwayTeamId, _token)).ReturnsAsync(_awayTeam);
 
@@ -129,6 +150,7 @@ public class AddOrUpdateGameCommandTests
         Assert.That(_game.Postponed, Is.EqualTo(update.Postponed));
         Assert.That(_game.IsKnockout, Is.EqualTo(update.IsKnockout));
         Assert.That(_game.DivisionId, Is.EqualTo(update.DivisionId));
+        Assert.That(_game.SeasonId, Is.EqualTo(update.SeasonId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
@@ -141,12 +163,13 @@ public class AddOrUpdateGameCommandTests
             HomeTeamId = _homeTeam.Id,
             AwayTeamId = _awayTeam.Id,
             Id = _game.Id,
+            SeasonId = _season.Id,
         };
         var success = new ActionResultDto<TeamDto>
         {
             Success = true,
         };
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => _season);
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Get(update.AwayTeamId, _token)).ReturnsAsync(_awayTeam);
         _teamService.Setup(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(success);
@@ -170,6 +193,7 @@ public class AddOrUpdateGameCommandTests
             HomeTeamId = _homeTeam.Id,
             AwayTeamId = _awayTeam.Id,
             Id = _game.Id,
+            SeasonId = _season.Id,
         };
         var fail = new ActionResultDto<TeamDto>
         {
@@ -178,7 +202,7 @@ public class AddOrUpdateGameCommandTests
             Warnings = { "Some warning" },
             Messages = { "Some message" },
         };
-        _seasonService.Setup(s => s.GetLatest(_token)).ReturnsAsync(() => _season);
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(() => _season);
         _teamService.Setup(s => s.Get(update.HomeTeamId, _token)).ReturnsAsync(_homeTeam);
         _teamService.Setup(s => s.Upsert(_homeTeam.Id, _addSeasonToTeamCommand.Object, _token)).ReturnsAsync(fail);
 

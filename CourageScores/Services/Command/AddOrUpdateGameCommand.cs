@@ -29,6 +29,15 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
 
     protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
     {
+        if (update.SeasonId == Guid.Empty)
+        {
+            return new CommandResult
+            {
+                Success = false,
+                Message = "SeasonId must be provided",
+            };
+        }
+
         if (update.HomeTeamId == update.AwayTeamId)
         {
             return new CommandResult
@@ -38,20 +47,20 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             };
         }
 
-        var latestSeason = await _seasonService.GetLatest(token);
-        if (latestSeason == null)
+        var season = await _seasonService.Get(update.SeasonId, token);
+        if (season == null)
         {
             return new CommandResult
             {
                 Success = false,
-                Message = "Unable to add or update game, no season exists",
+                Message = "Unable to add or update game, season not found",
             };
         }
 
         game.Address = update.Address;
         game.Date = update.Date;
         game.DivisionId = update.DivisionId;
-        game.SeasonId = latestSeason.Id;
+        game.SeasonId = update.SeasonId;
         game.Postponed = update.Postponed;
         game.IsKnockout = update.IsKnockout;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
@@ -60,13 +69,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
-            game.Home = await UpdateTeam(update.HomeTeamId, latestSeason, token);
+            game.Home = await UpdateTeam(update.HomeTeamId, season, token);
         }
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
-            game.Away = await UpdateTeam(update.AwayTeamId, latestSeason, token);
+            game.Away = await UpdateTeam(update.AwayTeamId, season, token);
         }
 
         return CommandResult.SuccessNoMessage;

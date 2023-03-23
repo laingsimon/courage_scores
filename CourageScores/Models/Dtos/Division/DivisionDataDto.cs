@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -13,5 +14,6 @@ public class DivisionDataDto
     public List<DivisionPlayerDto> Players { get; set; } = new();
     public DivisionDataSeasonDto? Season { get; set; }
     public List<DivisionDataSeasonDto> Seasons { get; set; } = new();
-    public List<DivisionTeamDetailsDto> AllTeams { get; set; } = new();
+    [JsonPropertyName("allTeams")]
+    public List<DivisionTeamDetailsDto> TeamsInSeason { get; set; } = new();
 }
