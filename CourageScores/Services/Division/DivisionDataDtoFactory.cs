@@ -115,7 +115,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         foreach (var (id, score) in divisionData.Teams)
         {
-            var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found", Address = "Not found" };
+            var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found - " + id, Address = "Not found" };
             var playersInTeam = playerResults.Where(p => p.Team == teamInSeasonAndDivision.Name).ToList();
 
             yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, token);
