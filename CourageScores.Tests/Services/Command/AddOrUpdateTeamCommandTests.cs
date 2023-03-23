@@ -77,7 +77,11 @@ public class AddOrUpdateTeamCommandTests
             .Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand
             .Setup(c => c.ApplyUpdate(_team, _token))
-            .ReturnsAsync(() => _addSeasonToTeamCommandResult);
+            .ReturnsAsync((CourageScores.Models.Cosmos.Team.Team team, CancellationToken _) =>
+            {
+                 team.Seasons.Add(_addedTeamSeason);
+                 return _addSeasonToTeamCommandResult;
+            });
         _commandFactory
             .Setup(f => f.GetCommand<AddOrUpdateGameCommand>())
             .Returns(_addOrUpdateGameCommand.Object);

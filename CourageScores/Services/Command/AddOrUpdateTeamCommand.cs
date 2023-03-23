@@ -128,7 +128,6 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             }
 
             teamSeason = result.Result;
-            team.Seasons.Add(teamSeason);
         }
 
         teamSeason.DivisionId = update.NewDivisionId;
