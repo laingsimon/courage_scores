@@ -21,6 +21,7 @@ public class TeamDto : AuditedDto
     /// <summary>
     /// The id of the division in which the team plays
     /// </summary>
+    [Obsolete("Use TeamSeason.DivisionId instead")]
     public Guid DivisionId { get; set; }
 
     /// <summary>
