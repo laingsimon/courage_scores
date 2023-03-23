@@ -108,7 +108,7 @@ public class SeasonServiceTests
 
         _repository.Setup(r => r.Get(_season.Id, _token)).ReturnsAsync(_season);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _teamService.Setup(s => s.GetWhere(It.IsAny<string>(), _token))
+        _teamService.Setup(s => s.GetAll(_token))
             .Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _divisionService.Setup(s => s.GetDivisionData(It.IsAny<DivisionDataFilter>(), _token))
             .ReturnsAsync(() => _divisionData);
