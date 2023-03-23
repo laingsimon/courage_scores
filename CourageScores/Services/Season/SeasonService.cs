@@ -41,7 +41,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         _clock = clock;
     }
 
-    private bool IsTeamValidForProposals(TeamDto team, AutoProvisionGamesRequest request,
+    private static bool IsTeamValidForProposals(TeamDto team, AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result)
     {
         if (!team.Seasons.Any())
