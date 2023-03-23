@@ -153,7 +153,7 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
-        Assert.That(result.AllTeams.Select(t => t.Name), Is.EqualTo(new[]
+        Assert.That(result.TeamsInSeason.Select(t => t.Name), Is.EqualTo(new[]
         {
             "Team 1 - Playing",
             "Team 2 - Playing",

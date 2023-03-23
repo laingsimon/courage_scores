@@ -20,6 +20,7 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
             Id = model.Id,
             Players = await model.Players.Where(p => p.Deleted == null).SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
             SeasonId = model.SeasonId,
+            DivisionId = model.DivisionId,
         }.AddAuditProperties(model);
     }
 
@@ -30,6 +31,7 @@ public class TeamSeasonAdapter : IAdapter<TeamSeason, TeamSeasonDto>
             Id = dto.Id,
             Players = await dto.Players.SelectAsync(player => _playerAdapter.Adapt(player, token)).ToList(),
             SeasonId = dto.SeasonId,
+            DivisionId = dto.DivisionId,
         }.AddAuditProperties(dto);
     }
 }

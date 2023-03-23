@@ -194,8 +194,22 @@ public class DivisionServiceTests
         var division = new DivisionDto { Id = Guid.NewGuid() };
         var filter = new DivisionDataFilter { DivisionId = division.Id };
         var firstSeason = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var team = new TeamDto { Id = Guid.NewGuid(), DivisionId = division.Id };
-        var otherDivisionTeam = new TeamDto { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid() };
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+#pragma warning disable CS0618
+            DivisionId = division.Id,
+#pragma warning restore CS0618
+            Seasons = { new TeamSeasonDto { SeasonId = firstSeason.Id, DivisionId = division.Id } }
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+#pragma warning disable CS0618
+            DivisionId = Guid.NewGuid(),
+#pragma warning restore CS0618
+            Seasons = { new TeamSeasonDto { SeasonId = firstSeason.Id, DivisionId = Guid.NewGuid() } }
+        };
         _allTeams.AddRange(new[] { team, otherDivisionTeam });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
@@ -206,7 +220,7 @@ public class DivisionServiceTests
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.Teams, Is.EquivalentTo(new[] { team }));
+        Assert.That(_divisionDataContext!.TeamsInSeasonAndDivision, Is.EquivalentTo(new[] { team }));
     }
 
     [Test]
@@ -216,8 +230,22 @@ public class DivisionServiceTests
         var division = new DivisionDto { Id = Guid.NewGuid() };
         var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
         var filter = new DivisionDataFilter { SeasonId = season.Id };
-        var team = new TeamDto { Id = Guid.NewGuid(), DivisionId = division.Id };
-        var otherDivisionTeam = new TeamDto { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid() };
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+#pragma warning disable CS0618
+            DivisionId = division.Id,
+#pragma warning restore CS0618
+            Seasons = { new TeamSeasonDto { SeasonId = season.Id, DivisionId = division.Id } }
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+#pragma warning disable CS0618
+            DivisionId = Guid.NewGuid(),
+#pragma warning restore CS0618
+            Seasons = { new TeamSeasonDto { SeasonId = season.Id, DivisionId = division.Id } }
+        };
         _allTeams.AddRange(new[] { team, otherDivisionTeam });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
@@ -227,7 +255,7 @@ public class DivisionServiceTests
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), null, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.Teams, Is.EquivalentTo(_allTeams));
+        Assert.That(_divisionDataContext!.TeamsInSeasonAndDivision, Is.EquivalentTo(_allTeams));
     }
 
     [Test]

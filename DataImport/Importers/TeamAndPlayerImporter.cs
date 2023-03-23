@@ -80,7 +80,9 @@ public class TeamAndPlayerImporter : IImporter
         {
             Id = Guid.NewGuid(),
             Name = player.pubname!,
+#pragma warning disable CS0618
             DivisionId = _request.DivisionId,
+#pragma warning restore CS0618
         });
         teams.Add(team.Name, team);
         await _log.WriteLineAsync($"Team created: {team.Name}");
@@ -92,6 +94,7 @@ public class TeamAndPlayerImporter : IImporter
         var teamSeason = _request.Created(new TeamSeason
         {
             SeasonId = _request.SeasonId,
+            DivisionId = _request.DivisionId,
             Id = Guid.NewGuid(),
         });
         team.Seasons.Add(teamSeason);
