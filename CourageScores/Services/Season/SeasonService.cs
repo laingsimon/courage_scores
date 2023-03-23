@@ -41,33 +41,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         _clock = clock;
     }
 
-    private static bool IsTeamValidForProposals(TeamDto team, AutoProvisionGamesRequest request,
-        ActionResultDto<List<DivisionFixtureDateDto>> result)
+    private static bool IsTeamValidForProposals(TeamDto team, AutoProvisionGamesRequest request)
     {
-        if (!team.Seasons.Any())
-        {
-#pragma warning disable CS0618
-            if (team.DivisionId == request.DivisionId || team.DivisionId == Guid.Empty)
-#pragma warning restore CS0618
-            {
-                result.Warnings.Add($"Team {team.Name} isn't assigned to any seasons, it will be included as the legacy DivisionId parameter matches");
-                return true;
-            }
-
-            return false;
-        }
-
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
         if (teamSeason == null)
         {
             return false;
-        }
-
-        if (teamSeason.DivisionId == null)
-        {
-#pragma warning disable CS0618
-            return team.DivisionId == request.DivisionId || team.DivisionId == Guid.Empty;
-#pragma warning restore CS0618
         }
 
         return teamSeason.DivisionId == request.DivisionId;
@@ -91,7 +70,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
         var allTeamsInSeasonAndDivision = await _teamService
             .GetAll(token)
-            .WhereAsync(team => IsTeamValidForProposals(team, request, result))
+            .WhereAsync(team => IsTeamValidForProposals(team, request))
             .ToList();
 
         try

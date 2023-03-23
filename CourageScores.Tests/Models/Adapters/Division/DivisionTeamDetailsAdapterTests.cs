@@ -23,9 +23,6 @@ public class DivisionTeamDetailsAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "team",
-#pragma warning disable CS0618
-            DivisionId = divisionId,
-#pragma warning restore CS0618
             Seasons =
             {
                 new TeamSeasonDto
@@ -56,9 +53,6 @@ public class DivisionTeamDetailsAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "team",
-#pragma warning disable CS0618
-            DivisionId = divisionId,
-#pragma warning restore CS0618
         };
 
         var result = await _adapter.Adapt(model, season, _token);
