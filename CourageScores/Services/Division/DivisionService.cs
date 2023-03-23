@@ -68,7 +68,7 @@ public class DivisionService : IDivisionService
             return await _divisionDataDtoFactory.SeasonNotFound(division, allSeasons, token);
         }
 
-        var allTeamsInSeason = await _genericTeamService.GetAll(token).WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id)).ToList();
+        var allTeamsInSeason = await _genericTeamService.GetAll(token).WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id) || !t.Seasons.Any()).ToList();
         var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, allSeasons, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, token);
     }
@@ -78,7 +78,10 @@ public class DivisionService : IDivisionService
         var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id);
         if (teamSeason != null)
         {
-            return teamSeason.DivisionId == filter.DivisionId;
+            if (teamSeason.DivisionId != null)
+            {
+                return teamSeason.DivisionId == filter.DivisionId;
+            }
         }
 
 #pragma warning disable CS0618
