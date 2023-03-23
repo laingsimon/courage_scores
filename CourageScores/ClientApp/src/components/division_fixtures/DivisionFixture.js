@@ -25,7 +25,6 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
     const [deletingHomeTeam, setDeletingHomeTeam] = useState(false);
     const [editTeamMode, setEditTeamMode] = useState(null);
     const [teamDetails, setTeamDetails] = useState(null);
-    const [proposal, setProposal] = useState(fixture.proposal);
     const { gameApi, teamApi } = useDependencies();
 
     async function doReloadDivision() {
@@ -117,7 +116,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
-               ? !proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
+               ? !fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
                    ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</Link>)
                    : null
                : 'Bye');
@@ -309,7 +308,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
             });
 
             if (result.success) {
-                setProposal(null);
+                await onReloadDivision();
             } else {
                 setSaveError(result);
             }
@@ -318,7 +317,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
         }
     }
 
-    return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (proposal ? ' bg-yellow' : '')}>
+    return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (fixture.proposal ? ' bg-yellow' : '')}>
         <td>
             {isAdmin && allowTeamEdit ? (
                 <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>
@@ -331,7 +330,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                         <span>🗑</span>)}
                 </button>
             ) : null}
-            {!proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
+            {!fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
                : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
 
@@ -357,9 +356,9 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {!proposal && awayTeamId && !saving && !deleting ? (
+            {!fixture.proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
-            {proposal && awayTeamId && !saving && !deleting ? (
+            {fixture.proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save fixture details"/>) : null}
