@@ -91,6 +91,33 @@ public class AddOrUpdateTeamCommandTests
 #pragma warning disable CS0618
         Assert.That(_team.DivisionId, Is.EqualTo(update.DivisionId));
 #pragma warning restore CS0618
+        var teamSeason = _team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        Assert.That(teamSeason, Is.Not.Null);
+        Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));
+        Assert.That(result.Success, Is.True);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_TeamIsNotAssignedToSeason_AddsSeasonToTeam()
+    {
+        var update = new EditTeamDto
+        {
+            Name = "new name",
+            Address = "new address",
+            DivisionId = _divisionId,
+            SeasonId = _seasonId,
+            Id = _team.Id,
+            NewDivisionId = _divisionId,
+        };
+        _team.Seasons.Clear();
+
+        var result = await _command.WithData(update).ApplyUpdate(_team, _token);
+
+        var teamSeason = _team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        Assert.That(teamSeason, Is.Not.Null);
+        Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));
         Assert.That(result.Success, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));

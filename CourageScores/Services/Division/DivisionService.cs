@@ -68,15 +68,30 @@ public class DivisionService : IDivisionService
             return await _divisionDataDtoFactory.SeasonNotFound(division, allSeasons, token);
         }
 
-        var allTeams = await _genericTeamService.GetAll(token).ToList();
-        var context = await CreateDivisionDataContext(filter, season, allTeams, allSeasons, token);
+        var allTeamsInSeason = await _genericTeamService.GetAll(token).WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id)).ToList();
+        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, allSeasons, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, token);
     }
 
-    private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,
-        SeasonDto season, IReadOnlyCollection<TeamDto> allTeams, List<SeasonDto> allSeasons, CancellationToken token)
+    private static bool IsTeamInDivision(TeamDto teamInSeason, DivisionDataFilter filter, SeasonDto season)
     {
-        var teams = allTeams.Where(t => t.DivisionId == filter.DivisionId || filter.DivisionId == null).ToList();
+        var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id);
+        if (teamSeason != null)
+        {
+            return teamSeason.DivisionId == filter.DivisionId;
+        }
+
+#pragma warning disable CS0618
+        return teamInSeason.DivisionId == filter.DivisionId;
+#pragma warning restore CS0618
+    }
+
+    private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,
+        SeasonDto season, IReadOnlyCollection<TeamDto> allTeamsInSeason, List<SeasonDto> allSeasons, CancellationToken token)
+    {
+        var teamsInSeasonAndDivision = allTeamsInSeason
+            .Where(t => filter.DivisionId == null || IsTeamInDivision(t, filter, season))
+            .ToList();
 
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(n => filter.DivisionId == null || (n.DivisionId == null || n.DivisionId == filter.DivisionId))
@@ -91,7 +106,7 @@ public class DivisionService : IDivisionService
             .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeTournament(g))
             .ToList();
 
-        return new DivisionDataContext(games, allTeams, teams, tournamentGames, notes, season, allSeasons);
+        return new DivisionDataContext(games, allTeamsInSeason, teamsInSeasonAndDivision, tournamentGames, notes, season, allSeasons);
     }
 
     #region delegating members

@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
@@ -109,7 +110,21 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
         team.Name = update.Name;
         team.Address = update.Address;
+#pragma warning disable CS0618
         team.DivisionId = update.NewDivisionId;
+#pragma warning restore CS0618
+        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        if (teamSeason == null)
+        {
+            teamSeason = new TeamSeason
+            {
+                Id = Guid.NewGuid(),
+                SeasonId = update.SeasonId,
+            };
+            team.Seasons.Add(teamSeason);
+        }
+
+        teamSeason.DivisionId = update.NewDivisionId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         return CommandResult.SuccessNoMessage;

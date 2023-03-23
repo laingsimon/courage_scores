@@ -1,4 +1,5 @@
 ﻿using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using NUnit.Framework;
 
@@ -13,7 +14,10 @@ public class DivisionTeamDetailsAdapterTests
     [Test]
     public async Task Adapt_GivenTeam_SetsPropertiesCorrectly()
     {
-        var seasonId = Guid.NewGuid();
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var divisionId = Guid.NewGuid();
         var model = new TeamDto
         {
@@ -26,13 +30,38 @@ public class DivisionTeamDetailsAdapterTests
             {
                 new TeamSeasonDto
                 {
-                    SeasonId = seasonId,
+                    SeasonId = season.Id,
                     DivisionId = divisionId,
                 }
             }
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(model, season, _token);
+
+        Assert.That(result.Id, Is.EqualTo(model.Id));
+        Assert.That(result.Name, Is.EqualTo(model.Name));
+        Assert.That(result.DivisionId, Is.EqualTo(divisionId));
+    }
+
+    [Test]
+    [Obsolete]
+    public async Task Adapt_GivenTeamWithMissingSeason_SetsPropertiesCorrectly()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var divisionId = Guid.NewGuid();
+        var model = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "team",
+#pragma warning disable CS0618
+            DivisionId = divisionId,
+#pragma warning restore CS0618
+        };
+
+        var result = await _adapter.Adapt(model, season, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
