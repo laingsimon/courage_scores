@@ -153,7 +153,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             {
                 playerTuple = new DivisionData.TeamPlayerTuple(
                     new TeamPlayerDto { Name = score.Player?.Name ?? "Not found" },
-                    new TeamDto { Name = "Not found" });
+                    new TeamDto { Name = "Not found - " + id });
             }
 
             var fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
