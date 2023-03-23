@@ -32,20 +32,19 @@ export function Score() {
     const [saveError, setSaveError] = useState(null);
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
-    const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
 
-    useEffect(() => {
+    function getAccess() {
         if (account && account.access) {
             if (account.access.manageScores) {
-                setAccess('admin');
+                return 'admin';
             } else if (account.teamId) {
-                setAccess('clerk');
+                return 'clerk';
             }
-        } else {
-            setAccess('readonly');
         }
-    }, [account]);
+
+        return 'readonly';
+    }
 
     useEffect(() => {
             if (loading !== 'init') {
@@ -119,6 +118,7 @@ export function Score() {
                 return;
             }
 
+            const access = getAccess();
             if (access === 'admin' || access === 'clerk') {
                 const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
 
@@ -231,7 +231,7 @@ export function Score() {
     }, [ divisions, fixtureData, data ]);
 
     async function saveScores() {
-        if (access === 'readonly') {
+        if (getAccess() === 'readonly') {
             return;
         }
 
@@ -301,7 +301,7 @@ export function Score() {
         return (<MatchPlayerSelection
             homePlayers={homeTeam} awayPlayers={awayTeam}
             match={fixtureData.matches[index]}
-            disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
+            disabled={getAccess() === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && getAccess() !== 'admin')}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
             onPlayerChanged={loadFixtureData}
@@ -314,7 +314,7 @@ export function Score() {
     }
 
     function renderMergeMatch(index) {
-        if (!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData.resultsPublished && getAccess() === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeMatch
                 readOnly={saving} matchIndex={index}
                 matches={fixtureData.matches}
@@ -328,6 +328,8 @@ export function Score() {
     }
 
     function renderManOfTheMatchInput() {
+        const access = getAccess();
+
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
@@ -341,7 +343,7 @@ export function Score() {
 
     function renderMergeManOfTheMatch() {
         if (!fixtureData.resultsPublished
-            && access === 'admin'
+            && getAccess() === 'admin'
             && (data.homeSubmission || data.awaySubmission)
             && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
             return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers} />);
@@ -353,14 +355,14 @@ export function Score() {
     function render180sAndHiCheckInput() {
         return (<HiCheckAnd180s
             saving={saving}
-            access={access}
+            access={getAccess()}
             fixtureData={fixtureData}
             setFixtureData={setFixtureData}
             allPlayers={allPlayers} />);
     }
 
     function renderMerge180sAndHiCheck() {
-        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData.resultsPublished && getAccess() === 'admin' && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={setFixtureData} />);
         }
 
@@ -389,6 +391,7 @@ export function Score() {
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
+        const access = getAccess();
         return (<div>
             <DivisionControls
                 seasons={seasons.map(a => a)}
