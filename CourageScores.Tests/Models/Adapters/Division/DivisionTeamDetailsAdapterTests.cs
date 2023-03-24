@@ -39,26 +39,4 @@ public class DivisionTeamDetailsAdapterTests
         Assert.That(result.Name, Is.EqualTo(model.Name));
         Assert.That(result.DivisionId, Is.EqualTo(divisionId));
     }
-
-    [Test]
-    [Obsolete]
-    public async Task Adapt_GivenTeamWithMissingSeason_SetsPropertiesCorrectly()
-    {
-        var season = new SeasonDto
-        {
-            Id = Guid.NewGuid(),
-        };
-        var divisionId = Guid.NewGuid();
-        var model = new TeamDto
-        {
-            Id = Guid.NewGuid(),
-            Name = "team",
-        };
-
-        var result = await _adapter.Adapt(model, season, _token);
-
-        Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.DivisionId, Is.EqualTo(divisionId));
-    }
 }

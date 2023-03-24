@@ -41,9 +41,6 @@ public class AddOrUpdateTeamCommandTests
             Id = Guid.NewGuid(),
             Name = "old name",
             Address = "old address",
-#pragma warning disable CS0618
-            DivisionId = _divisionId,
-#pragma warning restore CS0618
             Seasons =
             {
                 new TeamSeason
@@ -110,9 +107,6 @@ public class AddOrUpdateTeamCommandTests
 
         Assert.That(_team.Name, Is.EqualTo(update.Name));
         Assert.That(_team.Address, Is.EqualTo(update.Address));
-#pragma warning disable CS0618
-        Assert.That(_team.DivisionId, Is.EqualTo(update.DivisionId));
-#pragma warning restore CS0618
         var teamSeason = _team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
         Assert.That(teamSeason, Is.Not.Null);
         Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));

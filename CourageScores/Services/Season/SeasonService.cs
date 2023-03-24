@@ -76,6 +76,17 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         try
         {
             var divisionData = await _divisionService.GetDivisionData(new DivisionDataFilter { DivisionId = request.DivisionId, SeasonId = request.SeasonId }, token);
+            if (divisionData.DataErrors.Any())
+            {
+                result.Errors.AddRange(divisionData.DataErrors);
+            }
+
+            if (divisionData.Id != request.DivisionId)
+            {
+                result.Errors.Insert(0, "Division could not be found");
+                return result;
+            }
+
             var context = new AutoProvisionContext(request, divisionData, result, _gameService);
             var provisionIteration = async () => await ProposeGamesInt(context, season, allTeamsInSeasonAndDivision, token).ToList();
             result.Result =

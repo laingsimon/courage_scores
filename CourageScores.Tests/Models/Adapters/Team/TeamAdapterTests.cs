@@ -22,9 +22,6 @@ public class TeamAdapterTests
             Address = "address",
             Id = Guid.NewGuid(),
             Name = "name",
-#pragma warning disable CS0618
-            DivisionId = Guid.NewGuid(),
-#pragma warning restore CS0618
             Seasons =
             {
                 TeamSeason,
