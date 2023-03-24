@@ -27,6 +27,11 @@ public class AutoProvisionContext
         _gameService = gameService;
     }
 
+    public void LogTrace(string message)
+    {
+        Request.LogTrace(_result, message);
+    }
+
     public void LogInfo(string message)
     {
         Request.LogInfo(_result, message);

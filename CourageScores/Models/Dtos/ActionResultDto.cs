@@ -20,6 +20,11 @@ public class ActionResultDto<TDto>
     public bool Success { get; set; }
 
     /// <summary>
+    /// Any debug messages from the action
+    /// </summary>
+    public List<string> Trace { get; set; } = new List<string>();
+
+    /// <summary>
     /// Any messages from the action
     /// </summary>
     public List<string> Messages { get; set; } = new List<string>();

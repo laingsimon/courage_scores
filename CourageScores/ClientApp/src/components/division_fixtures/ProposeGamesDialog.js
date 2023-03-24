@@ -90,7 +90,8 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                     <span className="input-group-text">Show</span>
                 </div>
                 <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)}>
-                    <option value="Information">Everything</option>
+                    <option value="Trace">Everything</option>
+                    <option value="Information">Info, Warnings and Errors</option>
                     <option value="Warning">Warnings and Errors</option>
                     <option value="Error">Errors only</option>
                 </select>
@@ -101,6 +102,7 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
             {proposalResponse.errors && isEmpty(proposalResponse.errors) ? (renderValidationErrors(proposalResponse.errors)): null}
             {proposalResponse.warnings ? proposalResponse.warnings.map(w => (<li key={index++} className="text-warning">{w}</li>)) : null}
             {proposalResponse.messages ? proposalResponse.messages.map(m => (<li key={index++} className="text-primary">{m}</li>)) : null}
+            {proposalResponse.trace ? proposalResponse.trace.map(t => (<li key={index++} className="text-secondary">{t}</li>)) : null}
         </ul></div>) : null}
         <div className="text-end">
             <button className="btn btn-success margin-right" onClick={onPropose}>

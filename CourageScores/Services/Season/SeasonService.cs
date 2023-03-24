@@ -101,6 +101,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             var successfulIteration =
                 await provisionIteration.RepeatAndReturnSmallest(l => l.FixtureDates.Count, NumberOfProposalIterations);
 
+            result.Trace.AddRange(successfulIteration.Result.Trace);
             result.Messages.AddRange(successfulIteration.Result.Messages);
             result.Warnings.AddRange(successfulIteration.Result.Warnings);
             result.Errors.AddRange(successfulIteration.Result.Errors);
@@ -124,7 +125,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             var lastFixtureDate = result.Result.MaxBy(fd => fd.Date);
             if (lastFixtureDate != null && lastFixtureDate.Date > season.EndDate)
             {
-                result.Errors.Add($"All fixtures could not be created before the end of the season, fixtures run to {lastFixtureDate.Date:ddd MMM dd yyyy}");
+                result.Warnings.Add($"All fixtures could not be created before the end of the season, fixtures run to {lastFixtureDate.Date:ddd MMM dd yyyy}");
             }
 
             return result;
@@ -266,10 +267,17 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             var incompatibleProposals = new List<Proposal>();
             var gamesOnDate = new DivisionFixtureDateDto { Date = currentDate };
 
-            void IncompatibleProposal(Proposal proposal, string message)
+            void IncompatibleProposal(Proposal proposal, string message, bool trace)
             {
                 incompatibleProposals.Add(proposal);
-                context.LogInfo($"{currentDate:yyyy-MM-dd}: {message}");
+                if (trace)
+                {
+                    context.LogTrace($"{currentDate:ddd MMM dd yyyy}: {message}");
+                }
+                else
+                {
+                    context.LogInfo($"{currentDate:ddd MMM dd yyyy}: {message}");
+                }
             }
 
             while (proposals.Count > 0)
@@ -277,10 +285,17 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 var proposal = GetProposalIndex(proposals, prioritisedTeams);
                 proposals.Remove(proposal);
 
-                if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
+                if (teamsInPlayOnDate.Contains(proposal.Home.Id))
                 {
                     IncompatibleProposal(proposal,
-                        $"{proposal.Home.Name} and/or {proposal.Away.Name} are already playing");
+                        $"{proposal.Home.Name} are already playing", true);
+                    continue;
+                }
+
+                if (teamsInPlayOnDate.Contains(proposal.Away.Id))
+                {
+                    IncompatibleProposal(proposal,
+                        $"{proposal.Away.Name} are already playing", true);
                     continue;
                 }
 
@@ -292,7 +307,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                         : (await _divisionService.Get(inUseBy.divisionId, token)) ?? new DivisionDto
                             {Name = inUseBy.divisionId.ToString()};
                     IncompatibleProposal(proposal,
-                        $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}");
+                        $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}", false);
                     continue;
                 }
 

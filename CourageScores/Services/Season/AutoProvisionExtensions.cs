@@ -9,6 +9,16 @@ namespace CourageScores.Services.Season;
 public static class AutoProvisionExtensions
 {
     [ExcludeFromCodeCoverage]
+    public static void LogTrace(this AutoProvisionGamesRequest request,
+        ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
+    {
+        if (request.LogLevel <= LogLevel.Trace)
+        {
+            result.Trace.Add(message);
+        }
+    }
+
+    [ExcludeFromCodeCoverage]
     public static void LogInfo(this AutoProvisionGamesRequest request,
         ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
     {
