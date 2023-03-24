@@ -21,9 +21,6 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
             Id = model.Id,
             Name = model.Name,
             Seasons = await model.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
-#pragma warning disable CS0618
-            DivisionId = model.DivisionId,
-#pragma warning restore CS0618
         }.AddAuditProperties(model);
     }
 
@@ -35,9 +32,6 @@ public class TeamAdapter : IAdapter<Cosmos.Team.Team, TeamDto>
             Id = dto.Id,
             Name = dto.Name.Trim(),
             Seasons = await dto.Seasons.SelectAsync(season => _seasonAdapter.Adapt(season, token)).ToList(),
-#pragma warning disable CS0618
-            DivisionId = dto.DivisionId,
-#pragma warning restore CS0618
         }.AddAuditProperties(dto);
     }
 }

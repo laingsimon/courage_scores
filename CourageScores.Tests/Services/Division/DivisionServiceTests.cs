@@ -197,17 +197,11 @@ public class DivisionServiceTests
         var team = new TeamDto
         {
             Id = Guid.NewGuid(),
-#pragma warning disable CS0618
-            DivisionId = division.Id,
-#pragma warning restore CS0618
             Seasons = { new TeamSeasonDto { SeasonId = firstSeason.Id, DivisionId = division.Id } }
         };
         var otherDivisionTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
-#pragma warning disable CS0618
-            DivisionId = Guid.NewGuid(),
-#pragma warning restore CS0618
             Seasons = { new TeamSeasonDto { SeasonId = firstSeason.Id, DivisionId = Guid.NewGuid() } }
         };
         _allTeams.AddRange(new[] { team, otherDivisionTeam });
@@ -233,17 +227,11 @@ public class DivisionServiceTests
         var team = new TeamDto
         {
             Id = Guid.NewGuid(),
-#pragma warning disable CS0618
-            DivisionId = division.Id,
-#pragma warning restore CS0618
             Seasons = { new TeamSeasonDto { SeasonId = season.Id, DivisionId = division.Id } }
         };
         var otherDivisionTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
-#pragma warning disable CS0618
-            DivisionId = Guid.NewGuid(),
-#pragma warning restore CS0618
             Seasons = { new TeamSeasonDto { SeasonId = season.Id, DivisionId = division.Id } }
         };
         _allTeams.AddRange(new[] { team, otherDivisionTeam });

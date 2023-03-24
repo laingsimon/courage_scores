@@ -80,9 +80,6 @@ public class TeamAndPlayerImporter : IImporter
         {
             Id = Guid.NewGuid(),
             Name = player.pubname!,
-#pragma warning disable CS0618
-            DivisionId = _request.DivisionId,
-#pragma warning restore CS0618
         });
         teams.Add(team.Name, team);
         await _log.WriteLineAsync($"Team created: {team.Name}");

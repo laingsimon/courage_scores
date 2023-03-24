@@ -76,17 +76,7 @@ public class DivisionService : IDivisionService
     private static bool IsTeamInDivision(TeamDto teamInSeason, DivisionDataFilter filter, SeasonDto season)
     {
         var teamSeason = teamInSeason.Seasons.SingleOrDefault(ts => ts.SeasonId == season.Id);
-        if (teamSeason != null)
-        {
-            if (teamSeason.DivisionId != null)
-            {
-                return teamSeason.DivisionId == filter.DivisionId;
-            }
-        }
-
-#pragma warning disable CS0618
-        return teamInSeason.DivisionId == filter.DivisionId || teamInSeason.DivisionId == Guid.Empty;
-#pragma warning restore CS0618
+        return teamSeason != null && teamSeason.DivisionId == filter.DivisionId;
     }
 
     private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,

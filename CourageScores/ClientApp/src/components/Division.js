@@ -89,20 +89,20 @@ export function Division() {
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' || effectiveTab.startsWith('team:') ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/teams`}>Teams</NavLink>
+                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Teams</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
+                             to={`/division/${divisionId}/fixtures${seasonId ? '/' + seasonId : ''}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'players' || effectiveTab.startsWith('player:') ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/players`}>Players</NavLink>
+                             to={`/division/${divisionId}/players${seasonId ? '/' + seasonId : ''}`}>Players</NavLink>
                 </li>
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/reports`}>Reports</NavLink>
+                             to={`/division/${divisionId}/reports${seasonId ? '/' + seasonId : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>

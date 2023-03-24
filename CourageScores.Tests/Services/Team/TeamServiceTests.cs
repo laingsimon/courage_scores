@@ -86,9 +86,6 @@ public class TeamServiceTests
         var teamInSeasonAndDivision = new CosmosTeam
         {
             Id = Guid.NewGuid(),
-#pragma warning disable CS0618
-            DivisionId = divisionId,
-#pragma warning restore CS0618
             Seasons =
             {
                 new TeamSeason { SeasonId = seasonId, DivisionId = divisionId },
@@ -98,9 +95,6 @@ public class TeamServiceTests
         var teamInDivisionNotSeason = new CosmosTeam
         {
             Id = Guid.NewGuid(),
-#pragma warning disable CS0618
-            DivisionId = divisionId,
-#pragma warning restore CS0618
             Seasons =
             {
                 new TeamSeason { SeasonId = Guid.NewGuid(), DivisionId = divisionId },
