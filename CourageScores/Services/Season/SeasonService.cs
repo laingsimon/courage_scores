@@ -263,6 +263,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 .Where(fixture => fixture.AwayTeam != null)
                 .SelectMany(fixture => new[] {fixture.HomeTeam.Id, fixture.AwayTeam!.Id})
                 .ToHashSet();
+            var proposedTeamsInPlayOnDate = new HashSet<Guid>();
 
             var incompatibleProposals = new List<Proposal>();
             var gamesOnDate = new DivisionFixtureDateDto { Date = currentDate };
@@ -285,17 +286,22 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 var proposal = GetProposalIndex(proposals, prioritisedTeams);
                 proposals.Remove(proposal);
 
+                if (proposedTeamsInPlayOnDate.Contains(proposal.Home.Id) || proposedTeamsInPlayOnDate.Contains(proposal.Away.Id))
+                {
+                    // no point logging about team in play; when it's been proposed as part of this iteration
+                    incompatibleProposals.Add(proposal);
+                    continue;
+                }
+
                 if (teamsInPlayOnDate.Contains(proposal.Home.Id))
                 {
-                    IncompatibleProposal(proposal,
-                        $"{proposal.Home.Name} are already playing", true);
+                    IncompatibleProposal(proposal, $"{proposal.Home.Name} are already playing", true);
                     continue;
                 }
 
                 if (teamsInPlayOnDate.Contains(proposal.Away.Id))
                 {
-                    IncompatibleProposal(proposal,
-                        $"{proposal.Away.Name} are already playing", true);
+                    IncompatibleProposal(proposal, $"{proposal.Away.Name} are already playing", true);
                     continue;
                 }
 
@@ -316,8 +322,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     {
                         divisionId = context.Request.DivisionId, homeTeam = proposal.Home.Name, awayTeam = proposal.Away.Name
                     });
-                teamsInPlayOnDate.Add(proposal.Home.Id);
-                teamsInPlayOnDate.Add(proposal.Away.Id);
+                proposedTeamsInPlayOnDate.Add(proposal.Home.Id);
+                proposedTeamsInPlayOnDate.Add(proposal.Away.Id);
 
                 gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
                 token.ThrowIfCancellationRequested();
