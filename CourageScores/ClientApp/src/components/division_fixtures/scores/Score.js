@@ -412,7 +412,7 @@ export function Score() {
                              to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
+                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>{new Date(data.date).toDateString()}</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-light"
