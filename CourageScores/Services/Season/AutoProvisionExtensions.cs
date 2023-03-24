@@ -74,16 +74,19 @@ public static class AutoProvisionExtensions
         };
     }
 
-    public static async Task<List<T>> RepeatAndReturnSmallest<T>(this Func<Task<List<T>>> provider, int times)
+    public static async Task<T> RepeatAndReturnSmallest<T>(this Func<Task<T>> provider, Func<T, int> getSize, int times)
     {
-        List<T>? smallest = null;
+        T? smallest = default;
+        int? smallestSize = null;
 
         for (var iteration = 0; iteration < times; iteration++)
         {
             var current = await provider();
-            if (smallest == null || current.Count < smallest.Count)
+            var currentSize = getSize(current);
+            if (smallestSize == null || currentSize < smallestSize)
             {
                 smallest = current;
+                smallestSize = currentSize;
             }
         }
 

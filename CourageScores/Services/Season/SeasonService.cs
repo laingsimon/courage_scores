@@ -67,7 +67,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             return this.Error("Season could not be found");
         }
 
-        var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
         var allTeamsInSeasonAndDivision = await _teamService
             .GetAll(token)
             .WhereAsync(team => IsTeamValidForProposals(team, request))
@@ -76,6 +75,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         try
         {
             var divisionData = await _divisionService.GetDivisionData(new DivisionDataFilter { DivisionId = request.DivisionId, SeasonId = request.SeasonId }, token);
+            var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
             if (divisionData.DataErrors.Any())
             {
                 result.Errors.AddRange(divisionData.DataErrors);
@@ -87,10 +87,26 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 return result;
             }
 
-            var context = new AutoProvisionContext(request, divisionData, result, _gameService);
-            var provisionIteration = async () => await ProposeGamesInt(context, season, allTeamsInSeasonAndDivision, token).ToList();
+            var provisionIteration = async () =>
+            {
+                var thisIterationResult = new ActionResultDto<List<DivisionFixtureDateDto>>();
+                var context = new AutoProvisionContext(request, divisionData, thisIterationResult, _gameService);
+                return new AutoProvisionIteration
+                {
+                    Result = thisIterationResult,
+                    FixtureDates = await ProposeGamesInt(context, season, allTeamsInSeasonAndDivision, token).ToList(),
+                };
+            };
+
+            var successfulIteration =
+                await provisionIteration.RepeatAndReturnSmallest(l => l.FixtureDates.Count, NumberOfProposalIterations);
+
+            result.Messages.AddRange(successfulIteration.Result.Messages);
+            result.Warnings.AddRange(successfulIteration.Result.Warnings);
+            result.Errors.AddRange(successfulIteration.Result.Errors);
+
             result.Result =
-                (await provisionIteration.RepeatAndReturnSmallest(NumberOfProposalIterations)) //regroup the results, in case existing games are reported before proposed games for the same date
+                successfulIteration.FixtureDates //regroup the results, in case existing games are reported before proposed games for the same date
                     .GroupBy(d => d.Date)
                     .OrderBy(g => g.Key)
                     .Select(g =>
@@ -103,9 +119,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                                 Notes = g.SelectMany(f => f.Notes).ToList(),
                             };
                     }).ToList();
-            result.Messages = result.Messages.Distinct().ToList();
-            result.Warnings = result.Warnings.Distinct().ToList();
-            result.Errors = result.Errors.Distinct().ToList();
             result.Success = result.Errors.Count == 0;
 
             var lastFixtureDate = result.Result.MaxBy(fd => fd.Date);
@@ -305,7 +318,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     context.LogWarning(
                         $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}, {incompatibleProposals.Count} proposal/s were incompatible");
                 }
-                else
+                else if (proposals.Count > 0)
                 {
                     context.LogWarning(
                         $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}");
