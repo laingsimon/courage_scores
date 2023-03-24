@@ -59,7 +59,9 @@ public class SeasonServiceTests
         _divisionData = new DivisionDataDto();
         _seasonDto = new SeasonDto
         {
-            Id = _season.Id
+            Id = _season.Id,
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 20),
         };
         _team1 = new TeamDto
         {

@@ -5,6 +5,6 @@ namespace CourageScores.Services.Season;
 
 public class AutoProvisionIteration
 {
-    public ActionResultDto<List<DivisionFixtureDateDto>> Result { get; set; }
-    public List<DivisionFixtureDateDto> FixtureDates { get; set; }
+    public ActionResultDto<List<DivisionFixtureDateDto>> Result { get; set; } = null!;
+    public List<DivisionFixtureDateDto> FixtureDates { get; set; } = null!;
 }

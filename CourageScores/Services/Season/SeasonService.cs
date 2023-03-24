@@ -124,7 +124,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             var lastFixtureDate = result.Result.MaxBy(fd => fd.Date);
             if (lastFixtureDate != null && lastFixtureDate.Date > season.EndDate)
             {
-                result.Errors.Add($"All fixtures could not be created before the end of the season, fixtures run to {lastFixtureDate.Date:dddd MMM dd yyyy}");
+                result.Errors.Add($"All fixtures could not be created before the end of the season, fixtures run to {lastFixtureDate.Date:ddd MMM dd yyyy}");
             }
 
             return result;
