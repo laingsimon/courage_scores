@@ -13,9 +13,7 @@ public class DivisionTeamDetailsAdapter : IDivisionTeamDetailsAdapter
         return Task.FromResult(new DivisionTeamDetailsDto
         {
             Id = teamInSeason.Id,
-#pragma warning disable CS0618
-            DivisionId = teamSeason?.DivisionId ?? teamInSeason.DivisionId,
-#pragma warning restore CS0618
+            DivisionId = teamSeason?.DivisionId ?? Guid.Empty,
             Name = teamInSeason.Name,
         });
     }

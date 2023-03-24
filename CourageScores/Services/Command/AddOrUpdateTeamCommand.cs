@@ -109,9 +109,6 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
         team.Name = update.Name;
         team.Address = update.Address;
-#pragma warning disable CS0618
-        team.DivisionId = update.NewDivisionId;
-#pragma warning restore CS0618
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
         if (teamSeason == null)
         {

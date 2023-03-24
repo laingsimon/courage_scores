@@ -56,29 +56,55 @@ public class SeasonServiceTests
         {
             Id = Guid.NewGuid(),
         };
+        _divisionData = new DivisionDataDto();
         _seasonDto = new SeasonDto
         {
-            Id = _season.Id
+            Id = _season.Id,
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 20),
         };
         _team1 = new TeamDto
         {
             Id = Guid.NewGuid(),
             Name = "Team 1",
             Address = "Team1-Address",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = _season.Id,
+                    DivisionId = _divisionData.Id,
+                }
+            }
         };
         _team2 = new TeamDto
         {
             Id = Guid.NewGuid(),
             Name = "Team 2",
             Address = "Team2-Address",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = _season.Id,
+                    DivisionId = _divisionData.Id,
+                }
+            }
         };
         _team3 = new TeamDto
         {
             Id = Guid.NewGuid(),
             Name = "Team 3",
             Address = "Team1-Address",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = _season.Id,
+                    DivisionId = _divisionData.Id,
+                }
+            }
         };
-        _divisionData = new DivisionDataDto();
 
         _repository = new Mock<IGenericRepository<CosmosSeason>>();
         _adapter = new MockAdapter<CosmosSeason, SeasonDto>(_season, _seasonDto);
@@ -146,12 +172,28 @@ public class SeasonServiceTests
         var request = new AutoProvisionGamesRequest
         {
             SeasonId = Guid.NewGuid(),
+            DivisionId = _divisionData.Id,
         };
 
         var result = await _service.ProposeGames(request, _token);
 
-        Assert.That(result.Success, Is.False);
         Assert.That(result.Errors, Has.Member("Season could not be found"));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public async Task ProposeGames_WhenDivisionNotFound_ReturnsDivisionNotFound()
+    {
+        var request = new AutoProvisionGamesRequest
+        {
+            SeasonId = _season.Id,
+            DivisionId = Guid.NewGuid(),
+        };
+
+        var result = await _service.ProposeGames(request, _token);
+
+        Assert.That(result.Errors, Has.Member("Division could not be found"));
+        Assert.That(result.Success, Is.False);
     }
 
     [TestCase(0)]
@@ -161,14 +203,26 @@ public class SeasonServiceTests
         var request = new AutoProvisionGamesRequest
         {
             SeasonId = _season.Id,
+            DivisionId = _divisionData.Id,
         };
         _allTeams.Clear();
-        _allTeams.AddRange(Enumerable.Range(0, teamCount).Select(c => new TeamDto { Name = $"Team {c}" }));
+        _allTeams.AddRange(Enumerable.Range(0, teamCount).Select(c => new TeamDto
+        {
+            Name = $"Team {c}",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = _season.Id,
+                    DivisionId = _divisionData.Id,
+                }
+            }
+        }));
 
         var result = await _service.ProposeGames(request, _token);
 
-        Assert.That(result.Success, Is.False);
         Assert.That(result.Errors, Has.Member("Insufficient teams"));
+        Assert.That(result.Success, Is.False);
     }
 
     [Test]
@@ -180,12 +234,13 @@ public class SeasonServiceTests
             StartDate = new DateTime(2001, 02, 03),
             WeekDay = DayOfWeek.Thursday,
             NumberOfLegs = 2,
+            DivisionId = _divisionData.Id,
         };
 
         var result = await _service.ProposeGames(request, _token);
 
-        Assert.That(result.Success, Is.True);
         Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.Not.Null.And.Not.Empty);
     }
 
