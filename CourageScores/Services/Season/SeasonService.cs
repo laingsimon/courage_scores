@@ -182,6 +182,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
 
         var existingGames = context.DivisionData.Fixtures;
+        context.Teams = teamsToPropose;
 
         foreach (var existingFixtureDate in existingGames)
         {
@@ -250,7 +251,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 .ToHashSet();
 
             var incompatibleProposals = new List<Proposal>();
-            var gamesOnDate = new DivisionFixtureDateDto {Date = currentDate};
+            var gamesOnDate = new DivisionFixtureDateDto { Date = currentDate };
 
             void IncompatibleProposal(Proposal proposal, string message)
             {
@@ -295,6 +296,22 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             }
 
             proposals.AddRange(incompatibleProposals);
+
+            var expectedNoOfFixturesPerDate = Math.Floor(context.Teams.Count / 2.0);
+            if (gamesOnDate.Fixtures.Count < expectedNoOfFixturesPerDate)
+            {
+                if (incompatibleProposals.Count > 0)
+                {
+                    context.LogWarning(
+                        $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}, {incompatibleProposals.Count} proposal/s were incompatible");
+                }
+                else
+                {
+                    context.LogWarning(
+                        $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}");
+                }
+            }
+
             return gamesOnDate;
         }
         catch (Exception exc)

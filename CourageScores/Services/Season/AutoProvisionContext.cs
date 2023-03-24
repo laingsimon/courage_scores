@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
 
 namespace CourageScores.Services.Season;
@@ -10,6 +11,8 @@ public class AutoProvisionContext
 {
     public AutoProvisionGamesRequest Request { get; }
     public DivisionDataDto DivisionData { get; }
+    public List<TeamDto> Teams { get; set; } = new List<TeamDto>();
+
     private readonly ActionResultDto<List<DivisionFixtureDateDto>> _result;
     private readonly IGameService _gameService;
     private readonly Dictionary<DateTime, List<GameDto>> _cachedGames = new Dictionary<DateTime, List<GameDto>>();
@@ -27,6 +30,11 @@ public class AutoProvisionContext
     public void LogInfo(string message)
     {
         Request.LogInfo(_result, message);
+    }
+
+    public void LogWarning(string message)
+    {
+        Request.LogWarning(_result, message);
     }
 
     public void LogError(string message)

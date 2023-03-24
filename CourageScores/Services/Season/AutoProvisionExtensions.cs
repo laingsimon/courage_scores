@@ -18,6 +18,16 @@ public static class AutoProvisionExtensions
         }
     }
 
+    [ExcludeFromCodeCoverage]
+    public static void LogWarning(this AutoProvisionGamesRequest request,
+        ActionResultDto<List<DivisionFixtureDateDto>> result, string message)
+    {
+        if (request.LogLevel <= LogLevel.Warning)
+        {
+            result.Messages.Add(message);
+        }
+    }
+
     public static DateTime MoveToDay(this DateTime referenceDate, DayOfWeek weekDay)
     {
         while (referenceDate.DayOfWeek != weekDay)
