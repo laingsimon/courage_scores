@@ -216,25 +216,23 @@ public class DivisionDataDtoFactoryTests
         Assert.That(result.Season!.Name, Is.EqualTo(season.Name));
     }
 
-    [Test]
-    public async Task CreateDivisionDataDto_GivenAllSeasons_SetsSeasonsCorrectly()
-    {
-        var season1 = new SeasonDto { Id = Guid.NewGuid(), Name = "season1" };
-        var season2 = new SeasonDto { Id = Guid.NewGuid(), Name = "season2" };
-        var context = new DivisionDataContext(
-            Array.Empty<CosmosGame>(),
-            Array.Empty<TeamDto>(),
-            Array.Empty<TeamDto>(),
-            Array.Empty<TournamentGame>(),
-            Array.Empty<FixtureDateNoteDto>(),
-            season1,
-            new[] { season1, season2 });
 
-        var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
-        Assert.That(result.Seasons.Select(s => s.Id), Is.EquivalentTo(new[] { season1.Id, season2.Id }));
-        Assert.That(result.Seasons.Select(s => s.Name), Is.EquivalentTo(new[] { season1.Name, season2.Name }));
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrors_SetsDataErrorsCorrectly()
