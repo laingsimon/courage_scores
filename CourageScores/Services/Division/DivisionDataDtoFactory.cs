@@ -67,10 +67,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ApplyPlayerRanks()
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
-            Seasons = await context.AllSeasons
-                .OrderByDescending(s => s.EndDate)
-                .SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token))
-                .ToList(),
             DataErrors = divisionData.DataErrors.ToList(),
         };
     }
