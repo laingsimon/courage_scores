@@ -16,7 +16,7 @@ import {DivisionDataContainer} from "./DivisionDataContainer";
 
 export function Division() {
     const { divisionApi } = useDependencies();
-    const { account, onError, error } = useApp();
+    const { account, onError, error, seasons } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
@@ -81,7 +81,7 @@ export function Division() {
     try {
         return (<div>
             <DivisionControls
-                seasons={divisionData.seasons}
+                seasons={seasons.filter(_ => true)}
                 originalSeasonData={divisionData.season}
                 originalDivisionData={{name: divisionData.name, id: divisionData.id}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />
