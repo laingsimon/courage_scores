@@ -46,13 +46,12 @@ describe('Division', () => {
         }
 
         reportedError = null;
-        const seasons = {};
-        const otherSeasonId = createTemporaryId();
-        seasons[otherSeasonId] = { id: otherSeasonId,
+        const seasons = [
+ { id: otherSeasonId,
             name: 'A season',
             startDate: '2022-02-03T00:00:00',
             endDate: '2022-08-25T00:00:00',
-            divisions: [] };
+            divisions: [] } ];
         context = await renderApp(
             { divisionApi: mockDivisionApi },
             {
@@ -61,7 +60,7 @@ describe('Division', () => {
                     reportedError = err;
                 },
                 error: null,
-                seasons: seasons,
+                seasons: toMap(seasons),
                     
 
             },
