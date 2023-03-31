@@ -46,6 +46,13 @@ describe('Division', () => {
         }
 
         reportedError = null;
+        const seasons = {};
+        const otherSeasonId = createTemporaryId();
+        seasons[otherSeasonId] = { id: otherSeasonId,
+            name: 'A season',
+            startDate: '2022-02-03T00:00:00',
+            endDate: '2022-08-25T00:00:00',
+            divisions: [] };
         context = await renderApp(
             { divisionApi: mockDivisionApi },
             {
@@ -54,6 +61,9 @@ describe('Division', () => {
                     reportedError = err;
                 },
                 error: null,
+                seasons: seasons,
+                    
+
             },
             (<Division/>),
             route,
@@ -77,7 +87,7 @@ describe('Division', () => {
             name: 'A division',
             players: [],
             season: season,
-            seasons: [ season ],
+
             teams: [ team ]
         };
     }
@@ -91,13 +101,13 @@ describe('Division', () => {
             name: 'A division',
             players: [],
             season: null,
-            seasons: [ {
-                id: createTemporaryId(),
-                name: 'A season',
-                startDate: '2022-02-03T00:00:00',
-                endDate: '2022-08-25T00:00:00',
-                divisions: []
-            } ],
+
+
+
+
+
+
+
             teams: []
         };
     }
