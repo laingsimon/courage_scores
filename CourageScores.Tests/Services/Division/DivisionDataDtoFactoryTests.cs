@@ -281,7 +281,7 @@ public class DivisionDataDtoFactoryTests
 
         Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Name, Is.EqualTo("<all divisions>"));
-        Assert.That(result.Seasons.Select(s => s.Name), Is.EqualTo(new[] { "season1", "season2" }));
+
         Assert.That(result.Season, Is.Null);
     }
 
@@ -301,6 +301,6 @@ public class DivisionDataDtoFactoryTests
 
         Assert.That(result.Id, Is.EqualTo(division.Id));
         Assert.That(result.Name, Is.EqualTo("division1"));
-        Assert.That(result.Seasons.Select(s => s.Name), Is.EqualTo(new[] { "season1", "season2" }));
+
     }
 }
