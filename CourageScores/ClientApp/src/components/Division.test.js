@@ -3,7 +3,7 @@
 import {cleanUp, renderApp} from "../tests/helpers";
 import {Division} from "./Division";
 import React from "react";
-import {any, createTemporaryId} from "../Utilities";
+import {any, createTemporaryId, toMap} from "../Utilities";
 
 describe('Division', () => {
     let context;
