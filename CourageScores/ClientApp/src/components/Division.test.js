@@ -46,6 +46,7 @@ describe('Division', () => {
         }
 
         reportedError = null;
+        const otherSeasonId = seasonId || createTemporaryId();
         const seasons = [
  { id: otherSeasonId,
             name: 'A season',
@@ -107,7 +108,7 @@ describe('Division', () => {
 
 
 
-            teams: []
+teams: []
         };
     }
 
