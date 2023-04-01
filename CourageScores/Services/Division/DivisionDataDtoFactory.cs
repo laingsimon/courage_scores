@@ -78,7 +78,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             Id = division?.Id ?? Guid.Empty,
             Name = division?.Name ?? "<all divisions>",
-            Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).OrderByAsync(s => s.Name).ToList(),
+
         };
     }
 
