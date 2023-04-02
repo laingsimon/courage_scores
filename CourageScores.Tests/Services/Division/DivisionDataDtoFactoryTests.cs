@@ -2,9 +2,11 @@ using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -22,6 +24,8 @@ public class DivisionDataDtoFactoryTests
     private IDivisionTeamDetailsAdapter _divisionTeamDetailsAdapter = null!;
     private IDivisionDataSeasonAdapter _divisionDataSeasonAdapter = null!;
     private Mock<IDivisionFixtureDateAdapter> _divisionFixtureDateAdapter = null!;
+    private Mock<IUserService> _userService = null!;
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
@@ -31,13 +35,15 @@ public class DivisionDataDtoFactoryTests
         _divisionTeamDetailsAdapter = new DivisionTeamDetailsAdapter();
         _divisionDataSeasonAdapter = new DivisionDataSeasonAdapter();
         _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
+        _userService = new Mock<IUserService>();
 
         _factory = new DivisionDataDtoFactory(
             _divisionPlayerAdapter,
             _divisionTeamAdapter,
             _divisionTeamDetailsAdapter,
             _divisionDataSeasonAdapter,
-            _divisionFixtureDateAdapter.Object);
+            _divisionFixtureDateAdapter.Object,
+            _userService.Object);
 
         _divisionFixtureDateAdapter
             .Setup(a => a.Adapt(
@@ -53,6 +59,10 @@ public class DivisionDataDtoFactoryTests
                 {
                     Date = date,
                 });
+
+        _userService
+            .Setup(s => s.GetUser(_token))
+            .Returns(() => _user);
     }
 
     [Test]
