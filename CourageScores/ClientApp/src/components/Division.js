@@ -16,7 +16,7 @@ import {DivisionDataContainer} from "./DivisionDataContainer";
 
 export function Division() {
     const { divisionApi } = useDependencies();
-    const { account, onError, error, seasons } = useApp();
+    const { account, onError, error } = useApp();
     const { divisionId, mode, seasonId } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
