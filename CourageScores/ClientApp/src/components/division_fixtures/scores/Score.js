@@ -399,7 +399,6 @@ export function Score() {
         const access = getAccess();
         return (<div>
             <DivisionControls
-
                 originalSeasonData={{
                     id: season.id,
                     name: season.name,

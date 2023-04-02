@@ -133,7 +133,6 @@ export function Tournament() {
     try {
         return (<div>
             <DivisionControls
-
                 originalSeasonData={{
                     id: season.id,
                     name: season.name,
