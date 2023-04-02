@@ -81,7 +81,7 @@ export function Division() {
     try {
         return (<div>
             <DivisionControls
-                seasons={seasons.filter(_ => true)}
+
                 originalSeasonData={divisionData.season}
                 originalDivisionData={{name: divisionData.name, id: divisionData.id}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />

@@ -133,7 +133,7 @@ export function Tournament() {
     try {
         return (<div>
             <DivisionControls
-                seasons={seasons.map(a => a)}
+
                 originalSeasonData={{
                     id: season.id,
                     name: season.name,
