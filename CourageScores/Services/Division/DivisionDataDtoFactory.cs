@@ -67,23 +67,18 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ApplyPlayerRanks()
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
-            Seasons = await context.AllSeasons
-                .OrderByDescending(s => s.EndDate)
-                .SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token))
-                .ToList(),
             DataErrors = divisionData.DataErrors.ToList(),
         };
     }
 
-    public async Task<DivisionDataDto> SeasonNotFound(DivisionDto? division, IEnumerable<SeasonDto> allSeasons,
+    public Task<DivisionDataDto> SeasonNotFound(DivisionDto? division, IEnumerable<SeasonDto> allSeasons,
         CancellationToken token)
     {
-        return new DivisionDataDto
+        return Task.FromResult(new DivisionDataDto
         {
             Id = division?.Id ?? Guid.Empty,
             Name = division?.Name ?? "<all divisions>",
-            Seasons = await allSeasons.SelectAsync(s => _divisionDataSeasonAdapter.Adapt(s, token)).OrderByAsync(s => s.Name).ToList(),
-        };
+        });
     }
 
     [ExcludeFromCodeCoverage]

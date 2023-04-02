@@ -61,7 +61,6 @@ describe('DivisionFixtures', () => {
             name: 'A division',
             players: [],
             season: season,
-            seasons: [ season ],
             teams: [ team ]
         };
     }
