@@ -62,7 +62,7 @@ public class DivisionDataDtoFactoryTests
 
         _userService
             .Setup(s => s.GetUser(_token))
-            .Returns(() => _user);
+            .ReturnsAsync(() => _user);
     }
 
     [Test]
