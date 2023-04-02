@@ -47,8 +47,7 @@ describe('Division', () => {
 
         reportedError = null;
         const otherSeasonId = seasonId || createTemporaryId();
-        const seasons = [
- { id: otherSeasonId,
+        const seasons = [ { id: otherSeasonId,
             name: 'A season',
             startDate: '2022-02-03T00:00:00',
             endDate: '2022-08-25T00:00:00',
@@ -62,8 +61,6 @@ describe('Division', () => {
                 },
                 error: null,
                 seasons: toMap(seasons),
-                    
-
             },
             (<Division/>),
             route,
@@ -87,7 +84,6 @@ describe('Division', () => {
             name: 'A division',
             players: [],
             season: season,
-
             teams: [ team ]
         };
     }
@@ -101,14 +97,7 @@ describe('Division', () => {
             name: 'A division',
             players: [],
             season: null,
-
-
-
-
-
-
-
-teams: []
+            teams: []
         };
     }
 
