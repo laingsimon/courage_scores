@@ -75,7 +75,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
                     setSeasonData(null);
                 }}
                 setSaveError={setSaveError}
-                divisions={divisions}
+
  />
         </Dialog>);
     }
