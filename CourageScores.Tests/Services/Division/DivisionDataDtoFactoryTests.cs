@@ -270,7 +270,7 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
-    public async Task CreateDivisionDataDto_GivenDataErrorsAndNotLoggedIn_SetsDataErrorsCorrectly()
+    public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotLoggedIn_SetsDataErrorsToEmpty()
     {
         var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
         var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
