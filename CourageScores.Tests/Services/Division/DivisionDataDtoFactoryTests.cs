@@ -2,9 +2,11 @@ using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
+using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
@@ -22,6 +24,8 @@ public class DivisionDataDtoFactoryTests
     private IDivisionTeamDetailsAdapter _divisionTeamDetailsAdapter = null!;
     private IDivisionDataSeasonAdapter _divisionDataSeasonAdapter = null!;
     private Mock<IDivisionFixtureDateAdapter> _divisionFixtureDateAdapter = null!;
+    private Mock<IUserService> _userService = null!;
+    private UserDto? _user;
 
     [SetUp]
     public void SetupEachTest()
@@ -31,13 +35,16 @@ public class DivisionDataDtoFactoryTests
         _divisionTeamDetailsAdapter = new DivisionTeamDetailsAdapter();
         _divisionDataSeasonAdapter = new DivisionDataSeasonAdapter();
         _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
+        _userService = new Mock<IUserService>();
+        _user = null;
 
         _factory = new DivisionDataDtoFactory(
             _divisionPlayerAdapter,
             _divisionTeamAdapter,
             _divisionTeamDetailsAdapter,
             _divisionDataSeasonAdapter,
-            _divisionFixtureDateAdapter.Object);
+            _divisionFixtureDateAdapter.Object,
+            _userService.Object);
 
         _divisionFixtureDateAdapter
             .Setup(a => a.Adapt(
@@ -53,6 +60,10 @@ public class DivisionDataDtoFactoryTests
                 {
                     Date = date,
                 });
+
+        _userService
+            .Setup(s => s.GetUser(_token))
+            .ReturnsAsync(() => _user);
     }
 
     [Test]
@@ -219,6 +230,13 @@ public class DivisionDataDtoFactoryTests
     [Test]
     public async Task CreateDivisionDataDto_GivenDataErrors_SetsDataErrorsCorrectly()
     {
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ImportData = true,
+            }
+        };
         var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
         var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
         var game = new CosmosGame
@@ -250,6 +268,85 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
         Assert.That(result.DataErrors, Is.EqualTo(new[] { "Mismatching number of players: Home players: [A] vs Away players: [B, C]" }));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotLoggedIn_SetsDataErrorsToEmpty()
+    {
+        var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
+        var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
+        var game = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam { Id = team1.Id },
+            Away = new GameTeam { Id = team2.Id },
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { new GamePlayer { Id = Guid.NewGuid(), Name = "A" } },
+                    AwayPlayers = { new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" } },
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { game },
+            new List<TeamDto> { team1, team2 },
+            new List<TeamDto> { team1, team2 },
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto(),
+            Array.Empty<SeasonDto>());
+
+        var result = await _factory.CreateDivisionDataDto(context, null, _token);
+
+        Assert.That(result.DataErrors, Is.Empty);
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotPermitted_SetsDataErrorsToEmpty()
+    {
+        _user = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ImportData = false,
+            }
+        };
+        var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
+        var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
+        var game = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam { Id = team1.Id },
+            Away = new GameTeam { Id = team2.Id },
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { new GamePlayer { Id = Guid.NewGuid(), Name = "A" } },
+                    AwayPlayers = { new GamePlayer { Id = Guid.NewGuid(), Name = "B" }, new GamePlayer { Id = Guid.NewGuid(), Name = "C" } },
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { game },
+            new List<TeamDto> { team1, team2 },
+            new List<TeamDto> { team1, team2 },
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto(),
+            Array.Empty<SeasonDto>());
+
+        var result = await _factory.CreateDivisionDataDto(context, null, _token);
+
+        Assert.That(result.DataErrors, Is.Empty);
     }
 
     [Test]

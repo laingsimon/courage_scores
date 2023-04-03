@@ -5,6 +5,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Division;
 
@@ -15,19 +16,22 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     private readonly IDivisionTeamDetailsAdapter _divisionTeamDetailsAdapter;
     private readonly IDivisionDataSeasonAdapter _divisionDataSeasonAdapter;
     private readonly IDivisionFixtureDateAdapter _divisionFixtureDateAdapter;
+    private readonly IUserService _userService;
 
     public DivisionDataDtoFactory(
         IDivisionPlayerAdapter divisionPlayerAdapter,
         IDivisionTeamAdapter divisionTeamAdapter,
         IDivisionTeamDetailsAdapter divisionTeamDetailsAdapter,
         IDivisionDataSeasonAdapter divisionDataSeasonAdapter,
-        IDivisionFixtureDateAdapter divisionFixtureDateAdapter)
+        IDivisionFixtureDateAdapter divisionFixtureDateAdapter,
+        IUserService userService)
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
         _divisionTeamAdapter = divisionTeamAdapter;
         _divisionTeamDetailsAdapter = divisionTeamDetailsAdapter;
         _divisionDataSeasonAdapter = divisionDataSeasonAdapter;
         _divisionFixtureDateAdapter = divisionFixtureDateAdapter;
+        _userService = userService;
     }
 
     public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, DivisionDto? division, CancellationToken token)
@@ -41,6 +45,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
         var playerResults = await GetPlayers(divisionData, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
+        var user = await _userService.GetUser(token);
+        var canShowDataErrors = user?.Access?.ImportData == true;
 
         return new DivisionDataDto
         {
@@ -67,7 +73,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ApplyPlayerRanks()
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
-            DataErrors = divisionData.DataErrors.ToList(),
+            DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new(),
         };
     }
 
