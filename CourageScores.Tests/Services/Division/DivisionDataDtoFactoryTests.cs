@@ -307,7 +307,7 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
-    public async Task CreateDivisionDataDto_GivenDataErrors_SetsDataErrorsCorrectly()
+    public async Task CreateDivisionDataDto_GivenDataErrorsWhenNotPermitted_SetsDataErrorsToEmpty()
     {
         _user = new UserDto
         {
