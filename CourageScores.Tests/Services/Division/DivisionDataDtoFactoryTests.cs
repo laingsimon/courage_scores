@@ -148,31 +148,6 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
-    public async Task CreateDivisionDataDto_GivenAllTeams_SetsAllTeamsCorrectly()
-    {
-        var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
-        var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
-        var team3 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 3 - Not Playing" };
-        var context = new DivisionDataContext(
-            Array.Empty<CosmosGame>(),
-            new List<TeamDto> { team1, team2, team3 },
-            new List<TeamDto> { team1 },
-            Array.Empty<TournamentGame>(),
-            Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
-
-        var result = await _factory.CreateDivisionDataDto(context, null, _token);
-
-        Assert.That(result.TeamsInSeason.Select(t => t.Name), Is.EqualTo(new[]
-        {
-            "Team 1 - Playing",
-            "Team 2 - Playing",
-            "Team 3 - Not Playing"
-        }));
-    }
-
-    [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsFixturesCorrectly()
     {
         var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };

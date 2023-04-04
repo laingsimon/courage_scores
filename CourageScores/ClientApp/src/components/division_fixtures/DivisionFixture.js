@@ -14,8 +14,8 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
         text: 'Bye',
         value: '',
     };
-    const { account } = useApp();
-    const { id: divisionId, fixtures, season, allTeams, teams, onReloadDivision } = useDivisionData();
+    const { account, teams: allTeams } = useApp();
+    const { id: divisionId, fixtures, season, teams, onReloadDivision } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);

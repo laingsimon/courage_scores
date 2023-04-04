@@ -57,10 +57,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
                 .ToList(),
-            TeamsInSeason = await context.TeamsInSeason
-                .SelectAsync(t => _divisionTeamDetailsAdapter.Adapt(t, context.Season, token))
-                .OrderByAsync(t => t.Name)
-                .ToList(),
             Fixtures = await GetFixtures(context, token)
                 .OrderByAsync(d => d.Date)
                 .ToList(),
