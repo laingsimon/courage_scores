@@ -4,9 +4,11 @@ import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../ShareButton";
 import {any} from "../../Utilities";
 import {useDivisionData} from "../DivisionDataContainer";
+import {useApp} from "../../AppContainer";
 
 export function TeamOverview({ teamId }) {
-    const { id: divisionId, teams, allTeams, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
+    const { id: divisionId, teams, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
+    const { teams: allTeams } = useApp();
     const team = teams.filter(t => t.id === teamId)[0] || allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
     const fixtures = divisionDataFixtures.map(fixtureDate => {
        return {
