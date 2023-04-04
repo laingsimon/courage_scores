@@ -77,7 +77,6 @@ describe('Division', () => {
         };
         const team = { id: createTemporaryId(), name: 'A team' };
         return {
-            allTeams: [ team ],
             dataErrors: [],
             fixtures: [],
             id: divisionId,
@@ -90,7 +89,6 @@ describe('Division', () => {
 
     function getOutOfSeasonDivisionData(divisionId) {
         return {
-            allTeams: [],
             dataErrors: [],
             fixtures: [],
             id: divisionId,

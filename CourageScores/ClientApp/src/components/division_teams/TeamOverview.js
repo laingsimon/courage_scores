@@ -9,7 +9,7 @@ import {useApp} from "../../AppContainer";
 export function TeamOverview({ teamId }) {
     const { id: divisionId, teams, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
     const { teams: allTeams } = useApp();
-    const team = teams.filter(t => t.id === teamId)[0] || allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
+    const team = allTeams.filter(t => t.id === teamId)[0] || { id: teamId };
     const fixtures = divisionDataFixtures.map(fixtureDate => {
        return {
            date: fixtureDate.date,
