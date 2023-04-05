@@ -72,9 +72,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             return this.Error("Season could not be found");
         }
 
-        var allTeamsInSeasonAndDivision = await _teamService
-            .GetAll(token)
-            .WhereAsync(team => IsTeamForSeason(team, request) && IsTeamForDivision(team, request))
+        var allTeams = await _teamService.GetAll(token).ToList();
+        var allTeamsInSeasonAndDivision = allTeams
+            .Where(team => IsTeamForSeason(team, request) && IsTeamForDivision(team, request))
+            .ToList();
+        var allTeamsInSeasonNotDivision = allTeams
+            .Where(team => IsTeamForSeason(team, request) && !IsTeamForDivision(team, request))
             .ToList();
 
         try
