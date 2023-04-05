@@ -41,7 +41,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         _clock = clock;
     }
 
-    private static bool IsTeamValidForProposals(TeamDto team, AutoProvisionGamesRequest request)
+    private static bool IsTeamForSeason(TeamDto team, AutoProvisionGamesRequest request)
     {
         var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
         if (teamSeason == null)
@@ -49,6 +49,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             return false;
         }
 
+        return true;
+    }
+
+    private static bool IsTeamForDivision(TeamDto team, AutoProvisionGamesRequest request)
+    {
         return teamSeason.DivisionId == request.DivisionId;
     }
 
@@ -69,7 +74,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
         var allTeamsInSeasonAndDivision = await _teamService
             .GetAll(token)
-            .WhereAsync(team => IsTeamValidForProposals(team, request))
+            .WhereAsync(team => IsTeamForSeason(team, request) && IsTeamForDivision(team, request))
             .ToList();
 
         try
