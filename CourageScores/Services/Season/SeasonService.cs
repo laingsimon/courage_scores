@@ -73,12 +73,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
 
         var allTeams = await _teamService.GetAll(token).ToList();
-        var allTeamsInSeasonAndDivision = allTeams
-            .Where(team => IsTeamForSeason(team, request) && IsTeamForDivision(team, request))
-            .ToList();
-        var allTeamsInSeasonNotDivision = allTeams
-            .Where(team => IsTeamForSeason(team, request) && !IsTeamForDivision(team, request))
-            .ToList();
 
         try
         {
@@ -98,11 +92,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             var provisionIteration = async () =>
             {
                 var thisIterationResult = new ActionResultDto<List<DivisionFixtureDateDto>>();
-                var context = new AutoProvisionContext(request, divisionData, thisIterationResult, _gameService);
+                var context = new AutoProvisionContext(request, divisionData, thisIterationResult, _gameService, allTeams);
                 return new AutoProvisionIteration
                 {
                     Result = thisIterationResult,
-                    FixtureDates = await ProposeGamesInt(context, season, allTeamsInSeasonAndDivision, token).ToList(),
+                    FixtureDates = await ProposeGamesInt(context, season, token).ToList(),
                 };
             };
 
@@ -191,12 +185,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private async IAsyncEnumerable<DivisionFixtureDateDto> ProposeGamesInt(
         AutoProvisionContext context,
         SeasonDto season,
-        List<TeamDto> allTeamsInSeasonAndDivision,
         [EnumeratorCancellation] CancellationToken token)
     {
         var teamsToPropose = context.Request.Teams.Any()
-            ? allTeamsInSeasonAndDivision.Join(context.Request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
-            : allTeamsInSeasonAndDivision;
+            ? context.AllTeamsInSeasonAndDivision.Join(context.Request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
+            : context.AllTeamsInSeasonAndDivision;
         if (teamsToPropose.Count < 2)
         {
             context.LogError("Insufficient teams");
