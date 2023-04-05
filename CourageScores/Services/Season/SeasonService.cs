@@ -117,8 +117,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), context
-                                AllTeamsInSeasonAndDivision).ToList(),
+                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), context.AllTeamsInSeasonAndDivision).ToList(),
                                 TournamentFixtures = g.SelectMany(f => f.TournamentFixtures).ToList(),
                                 Notes = g.SelectMany(f => f.Notes).ToList(),
                             };
