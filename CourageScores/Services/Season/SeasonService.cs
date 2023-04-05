@@ -117,7 +117,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeamsInSeasonAndDivision).ToList(),
+                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), context
+                                AllTeamsInSeasonAndDivision).ToList(),
                                 TournamentFixtures = g.SelectMany(f => f.TournamentFixtures).ToList(),
                                 Notes = g.SelectMany(f => f.Notes).ToList(),
                             };
@@ -189,7 +190,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     {
         var teamsToPropose = context.Request.Teams.Any()
             ? context.AllTeamsInSeasonAndDivision.Join(context.Request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
-            : context.AllTeamsInSeasonAndDivision;
+            : context.AllTeamsInSeasonAndDivision.ToList();
         if (teamsToPropose.Count < 2)
         {
             context.LogError("Insufficient teams");

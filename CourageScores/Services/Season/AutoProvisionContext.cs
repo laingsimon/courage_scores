@@ -34,7 +34,7 @@ public class AutoProvisionContext
         get
         {
             return _allTeams
-                .Where(team => IsTeamForSeason(team, request) && IsTeamForDivision(team, request))
+                .Where(team => IsTeamForSeason(team, Request) && IsTeamForDivision(team, Request))
                 .ToList();
         }
     }
@@ -44,7 +44,7 @@ public class AutoProvisionContext
         get
         {
             return _allTeams
-                .Where(team => IsTeamForSeason(team, request) && !IsTeamForDivision(team, request))
+                .Where(team => IsTeamForSeason(team, Request) && !IsTeamForDivision(team, Request))
                 .ToList();
         }
     }
