@@ -236,7 +236,10 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             yield return fixturesForDate;
             currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
             iteration++;
-            prioritisedTeams = allTeamsInSeasonAndDivision.Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id)).ToList();
+            prioritisedTeams = context.AllTeamsInSeasonAndDivision
+                .Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id))
+                .Union(context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2.Address == t.Address))
+                .ToList();
         }
     }
 
