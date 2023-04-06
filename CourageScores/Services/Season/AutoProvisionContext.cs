@@ -84,7 +84,7 @@ public class AutoProvisionContext
         return games;
     }
 
-    private static TeamSeasonDto GetTeamSeason(TeamDto team, AutoProvisionGamesRequest request)
+    private static TeamSeasonDto? GetTeamSeason(TeamDto team, AutoProvisionGamesRequest request)
     {
         return team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
     }

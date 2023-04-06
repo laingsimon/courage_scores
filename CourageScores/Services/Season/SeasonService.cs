@@ -226,7 +226,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             prioritisedTeams = context.AllTeamsInSeasonAndDivision
                 .Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id))
                 .ToList();
-            prioritisedAddresses = context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address));
+            prioritisedAddresses = context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address)).ToList();
         }
     }
 
