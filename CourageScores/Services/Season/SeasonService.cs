@@ -41,22 +41,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         _clock = clock;
     }
 
-    private static bool IsTeamForSeason(TeamDto team, AutoProvisionGamesRequest request)
-    {
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
-        if (teamSeason == null)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
-    private static bool IsTeamForDivision(TeamDto team, AutoProvisionGamesRequest request)
-    {
-        return teamSeason.DivisionId == request.DivisionId;
-    }
-
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
         CancellationToken token)
     {
@@ -114,6 +98,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     .OrderBy(g => g.Key)
                     .Select(g =>
                     {
+                        var context = new AutoProvisionContext(request, divisionData, successfulIteration.Result, _gameService, allTeams);
+
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
@@ -238,7 +224,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             iteration++;
             prioritisedTeams = context.AllTeamsInSeasonAndDivision
                 .Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id))
-                .Union(context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2.Address == t.Address)))
+                .Union(context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address)))
                 .ToList();
         }
     }

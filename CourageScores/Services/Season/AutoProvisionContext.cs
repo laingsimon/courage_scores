@@ -84,19 +84,20 @@ public class AutoProvisionContext
         return games;
     }
 
+    private static TeamSeasonDto GetTeamSeason(TeamDto team, AutoProvisionGamesRequest request)
+    {
+        return team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
+    }
+
     private static bool IsTeamForSeason(TeamDto team, AutoProvisionGamesRequest request)
     {
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
-        if (teamSeason == null)
-        {
-            return false;
-        }
-
-        return true;
+        var teamSeason = GetTeamSeason(team, request);
+        return teamSeason != null;
     }
 
     private static bool IsTeamForDivision(TeamDto team, AutoProvisionGamesRequest request)
     {
+        var teamSeason = GetTeamSeason(team, request);
         return teamSeason.DivisionId == request.DivisionId;
     }
 }
