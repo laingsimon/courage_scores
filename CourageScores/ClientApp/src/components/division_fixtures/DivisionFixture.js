@@ -9,7 +9,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout, beforeReloadDivision }) {
+export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, onUpdateDivisionData, isKnockout, beforeReloadDivision }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -224,6 +224,25 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
             return;
         }
 
+        if (proposal) {
+            // remove the proposal
+            if (onUpdateDivisionData) {
+                await onUpdateDivisionData(currentDivisionData => {
+                    const newDivisionData = Object.assign({}, currentDivisionData);
+                    const fixtureDate = newFixtureData.fixtures.filter(fd => fd.date === date)[0];
+                    if (!fixtureDate) {
+                        window.alert(`Could not delete proposal, ${date} could not be found`);
+                        return newDivisionData;
+                    }
+                    fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id);
+                    return newDivisionData;
+                });
+            } else {
+                window.alert('Cannot delete proposal');
+            }
+            return;
+        }
+
         setDeleting(true);
         try {
             const result = await gameApi.delete(fixture.id);
@@ -356,7 +375,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {!fixture.proposal && awayTeamId && !saving && !deleting ? (
+            {awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
             {fixture.proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}
