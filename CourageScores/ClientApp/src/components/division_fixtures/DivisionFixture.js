@@ -224,12 +224,12 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
             return;
         }
 
-        if (proposal) {
+        if (fixture.proposal) {
             // remove the proposal
             if (onUpdateDivisionData) {
                 await onUpdateDivisionData(currentDivisionData => {
                     const newDivisionData = Object.assign({}, currentDivisionData);
-                    const fixtureDate = newFixtureData.fixtures.filter(fd => fd.date === date)[0];
+                    const fixtureDate = newDivisionData.fixtures.filter(fd => fd.date === date)[0];
                     if (!fixtureDate) {
                         window.alert(`Could not delete proposal, ${date} could not be found`);
                         return newDivisionData;
