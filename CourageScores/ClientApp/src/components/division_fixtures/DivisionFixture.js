@@ -15,7 +15,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
         value: '',
     };
     const { account, teams: allTeams } = useApp();
-    const { id: divisionId, fixtures, season, teams, onReloadDivision } = useDivisionData();
+    const { id: divisionId, fixtures, season, teams, onReloadDivision, onError } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
@@ -216,6 +216,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
     }
 
     async function deleteGame() {
+        try {
         if (deleting || saving || readOnly) {
             return;
         }
@@ -253,6 +254,9 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
             }
         } finally {
             setDeleting(false);
+        }
+        } catch (exc) {
+            onerror(exc);
         }
     }
 
