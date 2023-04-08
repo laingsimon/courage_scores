@@ -18,7 +18,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account } = useApp();
+    const { account, onError } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
@@ -510,6 +510,7 @@ export function DivisionFixtures({ setNewFixtures }) {
         </div>);
     }
 
+    try {
     const renderContext = {};
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
@@ -556,4 +557,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             </table>) : null}
         </div>) : null}
     </div>);
+    } catch (exc) {
+        onError(exc);
+    }
 }
