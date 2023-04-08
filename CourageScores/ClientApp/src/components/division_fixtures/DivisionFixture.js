@@ -255,7 +255,6 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
             setDeleting(false);
         }
         } catch (exc) {
-            window.alert(exc.message);
             onError(exc);
         }
     }
