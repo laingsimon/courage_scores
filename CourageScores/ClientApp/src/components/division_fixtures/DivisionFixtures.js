@@ -18,7 +18,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account } = useApp();
+    const { account, onError } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
@@ -437,7 +437,8 @@ export function DivisionFixtures({ setNewFixtures }) {
                     date={date.date}
                     allowTeamDelete={false}
                     allowTeamEdit={false}
-                    isKnockout={f.isKnockout} />))}
+                    isKnockout={f.isKnockout}
+                    onUpdateFixtures={(apply) => setNewFixtures(apply(fixtures))} />))}
                 {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
@@ -510,6 +511,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     const renderContext = {};
+    try {
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
         <FilterFixtures setFilter={changeFilter} filter={filter} />
@@ -555,4 +557,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             </table>) : null}
         </div>) : null}
     </div>);
+    } catch (exc) {
+        onError(exc);
+    }
 }

@@ -41,17 +41,6 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         _clock = clock;
     }
 
-    private static bool IsTeamValidForProposals(TeamDto team, AutoProvisionGamesRequest request)
-    {
-        var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
-        if (teamSeason == null)
-        {
-            return false;
-        }
-
-        return teamSeason.DivisionId == request.DivisionId;
-    }
-
     public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request,
         CancellationToken token)
     {
@@ -67,10 +56,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             return this.Error("Season could not be found");
         }
 
-        var allTeamsInSeasonAndDivision = await _teamService
-            .GetAll(token)
-            .WhereAsync(team => IsTeamValidForProposals(team, request))
-            .ToList();
+        var allTeams = await _teamService.GetAll(token).ToList();
 
         try
         {
@@ -90,11 +76,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             var provisionIteration = async () =>
             {
                 var thisIterationResult = new ActionResultDto<List<DivisionFixtureDateDto>>();
-                var context = new AutoProvisionContext(request, divisionData, thisIterationResult, _gameService);
+                var context = new AutoProvisionContext(request, divisionData, thisIterationResult, _gameService, allTeams);
                 return new AutoProvisionIteration
                 {
                     Result = thisIterationResult,
-                    FixtureDates = await ProposeGamesInt(context, season, allTeamsInSeasonAndDivision, token).ToList(),
+                    FixtureDates = await ProposeGamesInt(context, season, token).ToList(),
                 };
             };
 
@@ -112,10 +98,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     .OrderBy(g => g.Key)
                     .Select(g =>
                     {
+                        var context = new AutoProvisionContext(request, divisionData, successfulIteration.Result, _gameService, allTeams);
+
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeamsInSeasonAndDivision).ToList(),
+                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), context.AllTeamsInSeasonAndDivision).ToList(),
                                 TournamentFixtures = g.SelectMany(f => f.TournamentFixtures).ToList(),
                                 Notes = g.SelectMany(f => f.Notes).ToList(),
                             };
@@ -183,12 +171,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private async IAsyncEnumerable<DivisionFixtureDateDto> ProposeGamesInt(
         AutoProvisionContext context,
         SeasonDto season,
-        List<TeamDto> allTeamsInSeasonAndDivision,
         [EnumeratorCancellation] CancellationToken token)
     {
         var teamsToPropose = context.Request.Teams.Any()
-            ? allTeamsInSeasonAndDivision.Join(context.Request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
-            : allTeamsInSeasonAndDivision;
+            ? context.AllTeamsInSeasonAndDivision.Join(context.Request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
+            : context.AllTeamsInSeasonAndDivision.ToList();
         if (teamsToPropose.Count < 2)
         {
             context.LogError("Insufficient teams");
@@ -221,6 +208,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
         var iteration = 1;
         var prioritisedTeams = new List<TeamDto>();
+        var prioritisedAddresses = new List<TeamDto>();
         while (proposals.Count > 0)
         {
             if (iteration > maxIterations)
@@ -231,11 +219,14 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
             token.ThrowIfCancellationRequested();
 
-            var fixturesForDate = await CreateFixturesForDate(context, existingGames, currentDate, proposals, prioritisedTeams, token);
+            var fixturesForDate = await CreateFixturesForDate(context, existingGames, currentDate, proposals, prioritisedTeams, prioritisedAddresses, token);
             yield return fixturesForDate;
             currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
             iteration++;
-            prioritisedTeams = allTeamsInSeasonAndDivision.Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id)).ToList();
+            prioritisedTeams = context.AllTeamsInSeasonAndDivision
+                .Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id))
+                .ToList();
+            prioritisedAddresses = context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address)).ToList();
         }
     }
 
@@ -245,6 +236,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         DateTime currentDate,
         List<Proposal> proposals,
         IReadOnlyCollection<TeamDto> prioritisedTeams,
+        IReadOnlyCollection<TeamDto> prioritisedAddresses,
         CancellationToken token)
     {
         try
@@ -283,7 +275,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
             while (proposals.Count > 0)
             {
-                var proposal = GetProposalIndex(proposals, prioritisedTeams);
+                var proposal = GetProposalIndex(proposals, prioritisedTeams, prioritisedAddresses);
                 proposals.Remove(proposal);
 
                 if (proposedTeamsInPlayOnDate.Contains(proposal.Home.Id) || proposedTeamsInPlayOnDate.Contains(proposal.Away.Id))
@@ -354,8 +346,20 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
-    private static Proposal GetProposalIndex(IReadOnlyCollection<Proposal> proposals, IReadOnlyCollection<TeamDto> prioritisedTeams)
+    private static Proposal GetProposalIndex(
+        IReadOnlyCollection<Proposal> proposals,
+        IReadOnlyCollection<TeamDto> prioritisedTeams,
+        IReadOnlyCollection<TeamDto> prioritisedAddresses)
     {
+        if (prioritisedAddresses.Count > 0)
+        {
+            var reservedAddressProposals = proposals.Where(p => prioritisedAddresses.Any(t => t.Id == p.Home.Id)).ToArray();
+            if (reservedAddressProposals.Length > 0)
+            {
+                return reservedAddressProposals[Random.Shared.Next(0, reservedAddressProposals.Length)];
+            }
+        }
+
         var prioritisedProposals = prioritisedTeams.Count > 0
             ? proposals.Where(p => prioritisedTeams.Any(t => t.Id == p.Away.Id || t.Id == p.Home.Id)).ToArray()
             : Array.Empty<Proposal>();

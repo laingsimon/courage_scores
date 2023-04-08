@@ -16,15 +16,37 @@ public class AutoProvisionContext
     private readonly ActionResultDto<List<DivisionFixtureDateDto>> _result;
     private readonly IGameService _gameService;
     private readonly Dictionary<DateTime, List<GameDto>> _cachedGames = new Dictionary<DateTime, List<GameDto>>();
+    private readonly List<TeamDto> _allTeams;
 
     public AutoProvisionContext(AutoProvisionGamesRequest request, DivisionDataDto divisionData,
         ActionResultDto<List<DivisionFixtureDateDto>> result,
-        IGameService gameService)
+        IGameService gameService, List<TeamDto> allTeams)
     {
         Request = request;
         DivisionData = divisionData;
         _result = result;
         _gameService = gameService;
+        _allTeams = allTeams;
+    }
+
+    public IEnumerable<TeamDto> AllTeamsInSeasonAndDivision
+    {
+        get
+        {
+            return _allTeams
+                .Where(team => IsTeamForSeason(team, Request) && IsTeamForDivision(team, Request))
+                .ToList();
+        }
+    }
+
+    public IEnumerable<TeamDto> AllTeamsInSeasonNotDivision
+    {
+        get
+        {
+            return _allTeams
+                .Where(team => IsTeamForSeason(team, Request) && !IsTeamForDivision(team, Request))
+                .ToList();
+        }
     }
 
     public void LogTrace(string message)
@@ -60,5 +82,22 @@ public class AutoProvisionContext
             .ToList();
         _cachedGames.Add(date, games);
         return games;
+    }
+
+    private static TeamSeasonDto? GetTeamSeason(TeamDto team, AutoProvisionGamesRequest request)
+    {
+        return team.Seasons.SingleOrDefault(ts => ts.SeasonId == request.SeasonId);
+    }
+
+    private static bool IsTeamForSeason(TeamDto team, AutoProvisionGamesRequest request)
+    {
+        var teamSeason = GetTeamSeason(team, request);
+        return teamSeason != null;
+    }
+
+    private static bool IsTeamForDivision(TeamDto team, AutoProvisionGamesRequest request)
+    {
+        var teamSeason = GetTeamSeason(team, request);
+        return teamSeason != null && teamSeason.DivisionId == request.DivisionId;
     }
 }
