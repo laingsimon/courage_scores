@@ -138,8 +138,11 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setNewFixtures(response.result);
 
                 setProposalResponse(response);
-                if (isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
+                if (any(proposalResponse.result) && isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
                     setProposalSettingsDialogVisible(false);
+                }
+                if (isEmpty(response.result)) {
+                    window.alert('No fixtures proposed, maybe all games already have been created?');
                 }
             } else {
                 setProposalResponse(response);
@@ -527,7 +530,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
                 🎲 Propose games...
             </button>
-            {proposalResponse ? (<button className="btn btn-success" onClick={saveProposals}>
+            {proposalResponse && any(proposalResponse.result) ? (<button className="btn btn-success" onClick={saveProposals}>
                 💾 Save proposals...
             </button>) : null}
         </div>) : null}
