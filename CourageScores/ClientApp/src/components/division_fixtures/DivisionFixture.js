@@ -227,15 +227,15 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
 
         if (fixture.proposal) {
             // remove the proposal
-            if (onUpdateDivisionData) {
+            if (onUpdateFixtures) {
                 await onUpdateFixtures(currentFixtureDates => {
                     const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
                     if (!fixtureDate) {
                         window.alert(`Could not delete proposal, ${date} could not be found`);
-                        return newDivisionData;
+                        return currentFixtureDates;
                     }
                     fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id);
-                    return newDivisionData;
+                    return currentFixtureDates;
                 });
             } else {
                 window.alert('Cannot delete proposal');
