@@ -438,7 +438,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                     allowTeamDelete={false}
                     allowTeamEdit={false}
                     isKnockout={f.isKnockout}
-                    onUpdateDivisionData={setNewFixtures} />))}
+                    onUpdateFixtures={(apply) => setNewFixtures(apply(fixtures))} />))}
                 {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
