@@ -510,8 +510,8 @@ export function DivisionFixtures({ setNewFixtures }) {
         </div>);
     }
 
-    try {
     const renderContext = {};
+    try {
     const resultsToRender = fixtures.map(renderFixtureDate);
     return (<div className="light-background p-3">
         <FilterFixtures setFilter={changeFilter} filter={filter} />
