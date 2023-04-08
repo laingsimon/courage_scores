@@ -98,6 +98,6 @@ public class AutoProvisionContext
     private static bool IsTeamForDivision(TeamDto team, AutoProvisionGamesRequest request)
     {
         var teamSeason = GetTeamSeason(team, request);
-        return teamSeason.DivisionId == request.DivisionId;
+        return teamSeason != null && teamSeason.DivisionId == request.DivisionId;
     }
 }
