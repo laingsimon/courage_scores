@@ -138,11 +138,11 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setNewFixtures(response.result);
 
                 setProposalResponse(response);
-                if (any(proposalResponse.result) && isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
+                if (any(response.result) && isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
                     setProposalSettingsDialogVisible(false);
                 }
                 if (isEmpty(response.result)) {
-                    window.alert('No fixtures proposed, maybe all games already have been created?');
+                    window.alert('No fixtures proposed, maybe all fixtures already have been created?');
                 }
             } else {
                 setProposalResponse(response);
