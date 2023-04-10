@@ -54,14 +54,12 @@ describe('DivisionFixtures', () => {
         };
         const team = { id: createTemporaryId(), name: 'A team' };
         return {
-            allTeams: [ team ],
             dataErrors: [],
             fixtures: [],
             id: divisionId,
             name: 'A division',
             players: [],
             season: season,
-            seasons: [ season ],
             teams: [ team ]
         };
     }

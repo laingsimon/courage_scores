@@ -9,7 +9,7 @@ jobs:
   setup:
     uses: ./.github/workflows/setup-workflow.yml
     with:
-      branch-name: 'release'
+      branch-name: 'main'
       deploy-requested: true
 
   build:

@@ -5,7 +5,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 
 export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChange, onCancel, seasonId, newDivisionId }) {
-    const noDivision = { value: '00000000-0000-0000-0000-000000000000', text: 'Remove from division' };
+
     const { divisions } = useApp();
     const { teamApi } = useDependencies();
     const [ saving, setSaving ] = useState(false);
@@ -69,7 +69,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
             </div>
             <BootstrapDropdown 
                 disabled={saving || !id} 
-                options={divisionOptions.concat([ noDivision ])}
+                options={divisionOptions}
                 value={newDivisionId}
                 onChange={(newDivisionId) => onChange('newDivisionId', newDivisionId)} />
         </div>

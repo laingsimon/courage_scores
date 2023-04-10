@@ -57,9 +57,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
                 onSaved={playerUpdated}
                 teamId={teamId}
                 seasonId={seasonId}
-                teams={null}
-                gameId={gameId}
-            />
+                gameId={gameId} />
         </Dialog>);
     }
 

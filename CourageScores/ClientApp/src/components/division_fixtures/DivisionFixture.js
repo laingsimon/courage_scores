@@ -9,13 +9,13 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, isKnockout, beforeReloadDivision }) {
+export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, onUpdateFixtures, isKnockout, beforeReloadDivision }) {
     const bye = {
         text: 'Bye',
         value: '',
     };
-    const { account } = useApp();
-    const { id: divisionId, fixtures, season, allTeams, teams, onReloadDivision } = useDivisionData();
+    const { account, teams: allTeams } = useApp();
+    const { id: divisionId, fixtures, season, teams, onReloadDivision, onError } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
@@ -216,24 +216,46 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
     }
 
     async function deleteGame() {
-        if (deleting || saving || readOnly) {
-            return;
-        }
-
-        if (!window.confirm(`Are you sure you want to delete this game?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
-            return;
-        }
-
-        setDeleting(true);
         try {
-            const result = await gameApi.delete(fixture.id);
-            if (result.success) {
-                await doReloadDivision();
-            } else {
-                setSaveError(result);
+            if (deleting || saving || readOnly) {
+                return;
             }
-        } finally {
-            setDeleting(false);
+
+            if (!window.confirm(`Are you sure you want to delete this game?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
+                return;
+            }
+
+            if (fixture.proposal) {
+                // remove the proposal
+                if (onUpdateFixtures) {
+                    await onUpdateFixtures(currentFixtureDates => {
+                        const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
+                        if (!fixtureDate) {
+                            window.alert(`Could not delete proposal, ${date} could not be found`);
+                            return currentFixtureDates;
+                        }
+                        fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id);
+                        return currentFixtureDates;
+                    });
+                } else {
+                    window.alert('Cannot delete proposal');
+                }
+                return;
+            }
+
+            setDeleting(true);
+            try {
+                const result = await gameApi.delete(fixture.id);
+                if (result.success) {
+                    await doReloadDivision();
+                } else {
+                    setSaveError(result);
+                }
+            } finally {
+                setDeleting(false);
+            }
+        } catch (exc) {
+            onError(exc);
         }
     }
 
@@ -356,7 +378,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {!fixture.proposal && awayTeamId && !saving && !deleting ? (
+            {awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
             {fixture.proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}

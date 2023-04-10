@@ -3,7 +3,7 @@
 import {cleanUp, renderApp} from "../tests/helpers";
 import {Division} from "./Division";
 import React from "react";
-import {any, createTemporaryId} from "../Utilities";
+import {any, createTemporaryId, toMap} from "../Utilities";
 
 describe('Division', () => {
     let context;
@@ -46,6 +46,12 @@ describe('Division', () => {
         }
 
         reportedError = null;
+        const otherSeasonId = seasonId || createTemporaryId();
+        const seasons = [ { id: otherSeasonId,
+            name: 'A season',
+            startDate: '2022-02-03T00:00:00',
+            endDate: '2022-08-25T00:00:00',
+            divisions: [] } ];
         context = await renderApp(
             { divisionApi: mockDivisionApi },
             {
@@ -54,6 +60,7 @@ describe('Division', () => {
                     reportedError = err;
                 },
                 error: null,
+                seasons: toMap(seasons),
             },
             (<Division/>),
             route,
@@ -70,34 +77,24 @@ describe('Division', () => {
         };
         const team = { id: createTemporaryId(), name: 'A team' };
         return {
-            allTeams: [ team ],
             dataErrors: [],
             fixtures: [],
             id: divisionId,
             name: 'A division',
             players: [],
             season: season,
-            seasons: [ season ],
             teams: [ team ]
         };
     }
 
     function getOutOfSeasonDivisionData(divisionId) {
         return {
-            allTeams: [],
             dataErrors: [],
             fixtures: [],
             id: divisionId,
             name: 'A division',
             players: [],
             season: null,
-            seasons: [ {
-                id: createTemporaryId(),
-                name: 'A season',
-                startDate: '2022-02-03T00:00:00',
-                endDate: '2022-08-25T00:00:00',
-                divisions: []
-            } ],
             teams: []
         };
     }

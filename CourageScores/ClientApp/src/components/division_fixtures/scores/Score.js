@@ -301,14 +301,16 @@ export function Score() {
         const editable = !saving && (getAccess() === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
 
         return (<MatchPlayerSelection
-            homePlayers={homeTeam} awayPlayers={awayTeam}
+            homePlayers={homeTeam}
+            awayPlayers={awayTeam}
             match={fixtureData.matches[index]}
             disabled={getAccess() === 'readonly'}
             readOnly={!editable}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
             onPlayerChanged={loadFixtureData}
-            home={fixtureData.home} away={fixtureData.away}
+            home={fixtureData.home}
+            away={fixtureData.away}
             seasonId={fixtureData.seasonId}
             gameId={fixtureData.id}
             divisionId={fixtureData.divisionId}
@@ -321,7 +323,8 @@ export function Score() {
     function renderMergeMatch(index) {
         if (!fixtureData.resultsPublished && getAccess() === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeMatch
-                readOnly={saving} matchIndex={index}
+                readOnly={saving}
+                matchIndex={index}
                 matches={fixtureData.matches}
                 homeSubmission={fixtureData.homeSubmission}
                 awaySubmission={fixtureData.awaySubmission}
@@ -399,7 +402,6 @@ export function Score() {
         const access = getAccess();
         return (<div>
             <DivisionControls
-                seasons={seasons.map(a => a)}
                 originalSeasonData={{
                     id: season.id,
                     name: season.name,
@@ -410,18 +412,18 @@ export function Score() {
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
+                    <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams/${season.id}`}>Teams</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-light"
-                             to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
+                             to={`/division/${data.divisionId}/fixtures/${season.id}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>{new Date(data.date).toDateString()}</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-light"
-                             to={`/division/${data.divisionId}/players`}>Players</NavLink>
+                             to={`/division/${data.divisionId}/players/${season.id}`}>Players</NavLink>
                 </li>
             </ul>
             <div className="light-background p-3 overflow-auto">

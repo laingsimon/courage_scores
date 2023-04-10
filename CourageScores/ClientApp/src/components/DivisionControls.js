@@ -8,9 +8,9 @@ import {EditSeason} from "./EditSeason";
 import {any, isEmpty, sortBy} from "../Utilities";
 import {useApp} from "../AppContainer";
 
-export function DivisionControls({ originalSeasonData, seasons, onDivisionOrSeasonChanged, originalDivisionData, overrideMode }) {
+export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged, originalDivisionData, overrideMode }) {
     const { mode } = useParams();
-    const { account, divisions, reloadSeasons, reloadDivisions, onError } = useApp();
+    const { account, divisions, reloadSeasons, reloadDivisions, onError, seasons } = useApp();
     // noinspection JSUnresolvedVariable
     const isDivisionAdmin = account && account.access && account.access.manageDivisions;
     // noinspection JSUnresolvedVariable
@@ -74,9 +74,7 @@ export function DivisionControls({ originalSeasonData, seasons, onDivisionOrSeas
                     }
                     setSeasonData(null);
                 }}
-                setSaveError={setSaveError}
-                divisions={divisions}
-                seasons={seasons} />
+                setSaveError={setSaveError} />
         </Dialog>);
     }
 
@@ -126,8 +124,8 @@ export function DivisionControls({ originalSeasonData, seasons, onDivisionOrSeas
                             : (<span>Select a season</span>)}
                     {isSeasonAdmin ? '✏' : ''}
                 </button>
-                {any(seasons) ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
-                {any(seasons) ? (<DropdownMenu>
+                {seasons.length ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
+                {seasons.length ? (<DropdownMenu>
                     {seasons.sort(sortBy('startDate', true)).map(s => (<Link key={s.id} className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}`}>
                         {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
                     </Link>))}
