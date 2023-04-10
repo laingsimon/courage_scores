@@ -297,15 +297,14 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (addressesInUseOnDate.ContainsKey(proposal.Home.Address))
+                if (addressesInUseOnDate.TryGetValue(proposal.Home.Address, out var addressInUseOnDate))
                 {
-                    var inUseBy = addressesInUseOnDate[proposal.Home.Address];
-                    var division = inUseBy.divisionId == context.Request.DivisionId
+                    var division = addressInUseOnDate.divisionId == context.Request.DivisionId
                         ? null
-                        : (await _divisionService.Get(inUseBy.divisionId, token)) ?? new DivisionDto
-                            {Name = inUseBy.divisionId.ToString()};
+                        : (await _divisionService.Get(addressInUseOnDate.divisionId, token)) ?? new DivisionDto
+                            {Name = addressInUseOnDate.divisionId.ToString()};
                     IncompatibleProposal(proposal,
-                        $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}", false);
+                        $"Address {proposal.Home.Address} is already in use for {addressInUseOnDate.homeTeam} vs {addressInUseOnDate.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}", false);
                     continue;
                 }
 
