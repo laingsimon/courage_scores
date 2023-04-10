@@ -150,8 +150,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     new TeamDto { Name = "Not found - " + id });
             }
 
-            var fixtures = divisionData.PlayersToFixtures.ContainsKey(id)
-                ? divisionData.PlayersToFixtures[id]
+            var fixtures = divisionData.PlayersToFixtures.TryGetValue(id, out var fixture)
+                ? fixture
                 : new Dictionary<DateTime, Guid>();
 
             yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, token);
