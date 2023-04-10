@@ -217,43 +217,43 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
 
     async function deleteGame() {
         try {
-        if (deleting || saving || readOnly) {
-            return;
-        }
+            if (deleting || saving || readOnly) {
+                return;
+            }
 
-        if (!window.confirm(`Are you sure you want to delete this game?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
-            return;
-        }
+            if (!window.confirm(`Are you sure you want to delete this game?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
+                return;
+            }
 
-        if (fixture.proposal) {
-            // remove the proposal
-            if (onUpdateFixtures) {
-                await onUpdateFixtures(currentFixtureDates => {
-                    const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
-                    if (!fixtureDate) {
-                        window.alert(`Could not delete proposal, ${date} could not be found`);
+            if (fixture.proposal) {
+                // remove the proposal
+                if (onUpdateFixtures) {
+                    await onUpdateFixtures(currentFixtureDates => {
+                        const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
+                        if (!fixtureDate) {
+                            window.alert(`Could not delete proposal, ${date} could not be found`);
+                            return currentFixtureDates;
+                        }
+                        fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id);
                         return currentFixtureDates;
-                    }
-                    fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id);
-                    return currentFixtureDates;
-                });
-            } else {
-                window.alert('Cannot delete proposal');
+                    });
+                } else {
+                    window.alert('Cannot delete proposal');
+                }
+                return;
             }
-            return;
-        }
 
-        setDeleting(true);
-        try {
-            const result = await gameApi.delete(fixture.id);
-            if (result.success) {
-                await doReloadDivision();
-            } else {
-                setSaveError(result);
+            setDeleting(true);
+            try {
+                const result = await gameApi.delete(fixture.id);
+                if (result.success) {
+                    await doReloadDivision();
+                } else {
+                    setSaveError(result);
+                }
+            } finally {
+                setDeleting(false);
             }
-        } finally {
-            setDeleting(false);
-        }
         } catch (exc) {
             onError(exc);
         }
