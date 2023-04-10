@@ -21,7 +21,6 @@ public class DivisionDataDtoFactoryTests
     private DivisionDataDtoFactory _factory = null!;
     private IDivisionPlayerAdapter _divisionPlayerAdapter = null!;
     private IDivisionTeamAdapter _divisionTeamAdapter = null!;
-    private IDivisionTeamDetailsAdapter _divisionTeamDetailsAdapter = null!;
     private IDivisionDataSeasonAdapter _divisionDataSeasonAdapter = null!;
     private Mock<IDivisionFixtureDateAdapter> _divisionFixtureDateAdapter = null!;
     private Mock<IUserService> _userService = null!;
@@ -32,7 +31,6 @@ public class DivisionDataDtoFactoryTests
     {
         _divisionPlayerAdapter = new DivisionPlayerAdapter(new PlayerPerformanceAdapter());
         _divisionTeamAdapter = new DivisionTeamAdapter();
-        _divisionTeamDetailsAdapter = new DivisionTeamDetailsAdapter();
         _divisionDataSeasonAdapter = new DivisionDataSeasonAdapter();
         _divisionFixtureDateAdapter = new Mock<IDivisionFixtureDateAdapter>();
         _userService = new Mock<IUserService>();
@@ -41,7 +39,6 @@ public class DivisionDataDtoFactoryTests
         _factory = new DivisionDataDtoFactory(
             _divisionPlayerAdapter,
             _divisionTeamAdapter,
-            _divisionTeamDetailsAdapter,
             _divisionDataSeasonAdapter,
             _divisionFixtureDateAdapter.Object,
             _userService.Object);

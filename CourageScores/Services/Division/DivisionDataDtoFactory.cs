@@ -13,7 +13,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 {
     private readonly IDivisionPlayerAdapter _divisionPlayerAdapter;
     private readonly IDivisionTeamAdapter _divisionTeamAdapter;
-    private readonly IDivisionTeamDetailsAdapter _divisionTeamDetailsAdapter;
     private readonly IDivisionDataSeasonAdapter _divisionDataSeasonAdapter;
     private readonly IDivisionFixtureDateAdapter _divisionFixtureDateAdapter;
     private readonly IUserService _userService;
@@ -21,14 +20,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     public DivisionDataDtoFactory(
         IDivisionPlayerAdapter divisionPlayerAdapter,
         IDivisionTeamAdapter divisionTeamAdapter,
-        IDivisionTeamDetailsAdapter divisionTeamDetailsAdapter,
         IDivisionDataSeasonAdapter divisionDataSeasonAdapter,
         IDivisionFixtureDateAdapter divisionFixtureDateAdapter,
         IUserService userService)
     {
         _divisionPlayerAdapter = divisionPlayerAdapter;
         _divisionTeamAdapter = divisionTeamAdapter;
-        _divisionTeamDetailsAdapter = divisionTeamDetailsAdapter;
         _divisionDataSeasonAdapter = divisionDataSeasonAdapter;
         _divisionFixtureDateAdapter = divisionFixtureDateAdapter;
         _userService = userService;

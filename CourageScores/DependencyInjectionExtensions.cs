@@ -138,7 +138,6 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
         services.AddScoped<IDivisionPlayerAdapter, DivisionPlayerAdapter>();
         services.AddScoped<IDivisionTeamAdapter, DivisionTeamAdapter>();
-        services.AddScoped<IDivisionTeamDetailsAdapter, DivisionTeamDetailsAdapter>();
         services.AddScoped<IDivisionDataSeasonAdapter, DivisionDataSeasonAdapter>();
         services.AddScoped<IDivisionFixtureDateAdapter, DivisionFixtureDateAdapter>();
         services.AddScoped<IDivisionFixtureTeamAdapter, DivisionFixtureTeamAdapter>();
