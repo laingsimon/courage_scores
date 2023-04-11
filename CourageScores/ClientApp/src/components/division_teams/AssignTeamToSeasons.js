@@ -1,13 +1,15 @@
 import React, {useState} from "react";
 import {useApp} from "../../AppContainer";
-import {any, stateChanged} from "../../Utilities";
+import {all, any, stateChanged} from "../../Utilities";
 import {useDivisionData} from "../DivisionDataContainer";
+import {useDependencies} from "../../IocContainer";
 
-export function AddTeamToSeason({ teamOverview, onClose }) {
-    const { season: currentSeason } = useDivisionData();
-    const { seasons, teams } = useApp();
+export function AssignTeamToSeasons({ teamOverview, onClose }) {
+    const { season: currentSeason, onReloadDivision } = useDivisionData();
+    const { seasons, teams, onError, reloadAll } = useApp();
+    const { teamApi } = useDependencies();
     const team = teams.filter(t => t.id === teamOverview.id)[0];
-    const initialSeasonIds = team.seasons.map(ts => ts.seasonId);
+    const initialSeasonIds = team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId);
     const [ selectedSeasonIds, setSelectedSeasonIds ] = useState(initialSeasonIds);
     const [ saving, setSaving ] = useState(false);
     const [ copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason ] = useState(true);
@@ -20,20 +22,32 @@ export function AddTeamToSeason({ teamOverview, onClose }) {
 
         setSaving(true);
         try {
-            let message;
-            if (any(changes.added) && !any(changes.removed)) {
-                message = `About to add ${team.name} to ${changes.added.length} season/s, continue?`;
-            } else if (!any(changes.added) && any(changes.removed)) {
-                message = `About to remove ${team.name} from ${changes.removed.length} season/s, continue?`;
-            } else {
-                message = `About to remove ${team.name} from ${changes.removed.length} season/s; and add it to ${changes.added.length} season/s, continue?`;
+            const results = [];
+            for (let index = 0; index < changes.removed.length; index++) {
+                const seasonId = changes.removed[index];
+                const result = await teamApi.delete(team.id, seasonId);
+                results.push(result);
             }
 
-            if (!window.confirm(message)) {
+            for (let index = 0; index < changes.added.length; index++) {
+                const seasonId = changes.added[index];
+                const result = await teamApi.add(team.id, seasonId, copyTeamFromCurrentSeason ? currentSeason.id : null);
+                results.push(result);
+            }
+
+            const allSuccess = all(results, r => r.success);
+            if (allSuccess) {
+                await reloadAll();
+                await onReloadDivision();
+                onClose();
                 return;
             }
 
-            // TODO: apply the changes
+            const errors = results.filter(r => !r.success);
+            errors.forEach(res => console.error(res));
+            window.alert(`There were ${errors.length} error/s when applying these changes; some changes may not have been saved`);
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }
@@ -97,8 +111,7 @@ export function AddTeamToSeason({ teamOverview, onClose }) {
     }
 
     return (<div>
-        <div>Which season to add this team to?</div>
-        <p>Team: <strong>{team.name}</strong></p>
+        <div>Associate <strong>{team.name}</strong> with the following seasons</div>
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} className="form-check-input" type="checkbox" id="copyTeamFromCurrentSeason"
@@ -113,7 +126,7 @@ export function AddTeamToSeason({ teamOverview, onClose }) {
             <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
             <button className="btn btn-success margin-right" onClick={saveChanges} disabled={!changes.changed}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                Add to seasons
+                Apply changes
             </button>
         </div>
     </div>);

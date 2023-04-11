@@ -5,7 +5,7 @@ import {Link} from "react-router-dom";
 import {propChanged} from "../../Utilities";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
-import {AddTeamToSeason} from "./AddTeamToSeason";
+import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 
 export function DivisionTeam({ team }) {
     const { id: divisionId, season, onReloadDivision } = useDivisionData();
@@ -36,8 +36,8 @@ export function DivisionTeam({ team }) {
     }
 
     function renderAddTeamToSeason() {
-        return (<Dialog title={`Add ${team.name} to another season`}>
-            <AddTeamToSeason teamOverview={team} onClose={() => setAddTeamToSeason(false)} />
+        return (<Dialog title={`Assign seasons`}>
+            <AssignTeamToSeasons teamOverview={team} onClose={() => setAddTeamToSeason(false)} />
         </Dialog>);
     }
 
