@@ -5,12 +5,14 @@ import {Link} from "react-router-dom";
 import {propChanged} from "../../Utilities";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 
 export function DivisionTeam({ team }) {
     const { id: divisionId, season, onReloadDivision } = useDivisionData();
     const { account } = useApp();
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));
     const [ editTeam, setEditTeam ] = useState(false);
+    const [ addTeamToSeason, setAddTeamToSeason ] = useState(false);
     const isAdmin = account && account.access && account.access.manageTeams;
 
     async function teamDetailSaved() {
@@ -30,14 +32,22 @@ export function DivisionTeam({ team }) {
                 onChange={propChanged(teamDetails, setTeamDetails)}
                 onSaved={teamDetailSaved}
             />
-        </Dialog>)
+        </Dialog>);
+    }
+
+    function renderAddTeamToSeason() {
+        return (<Dialog title={`Assign seasons`}>
+            <AssignTeamToSeasons teamOverview={team} onClose={() => setAddTeamToSeason(false)} />
+        </Dialog>);
     }
 
     return (<tr>
         <td>
             {isAdmin ? (<button onClick={() => setEditTeam(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+            {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)} className="btn btn-sm btn-primary margin-right">➕</button>) : null}
             <Link to={`/division/${divisionId}/team:${team.id}`}>{team.name}</Link>
             {editTeam && isAdmin ? renderEditTeam() : null}
+            {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
         </td>
         <td>{team.played}</td>
         <td>{team.points}</td>

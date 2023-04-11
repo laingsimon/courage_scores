@@ -65,9 +65,11 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             {
                 teamSeason.Players = GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value);
                 _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
+                await _auditingHelper.SetUpdated(teamSeason, token);
                 return new CommandOutcome<TeamSeason>(true, $"Season already exists, {teamSeason.Players.Count} players copied", teamSeason);
             }
 
+            await _auditingHelper.SetUpdated(teamSeason, token); // undelete the season
             return new CommandOutcome<TeamSeason>(true, "Season already exists", teamSeason);
         }
 
