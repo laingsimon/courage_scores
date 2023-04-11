@@ -176,7 +176,7 @@ public class DeleteTeamCommandTests
     }
 
     [Test]
-    public async Task ApplyUpdate_WhenNoRemainingTeamSeasons_ThenDeletesTeam()
+    public async Task ApplyUpdate_WhenNoRemainingTeamSeasonsButDeleteNotRequested_DoesNotDeleteTeam()
     {
         var teamSeason = new TeamSeason
         {
@@ -188,6 +188,25 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Removed team from 0 season/s"));
+        Assert.That(result.Delete, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenNoRemainingTeamSeasonsAndDeleteRequested_ThenDeletesTeam()
+    {
+        var teamSeason = new TeamSeason
+        {
+            SeasonId = Guid.NewGuid(),
+            Deleted = new DateTime(2001, 02, 03)
+        };
+        _team.Seasons.Add(teamSeason);
+
+        var result = await _command.FromSeason(_seasonId).DeleteIfNoSeasonsAssigned().ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Team deleted"));
         Assert.That(result.Delete, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
@@ -195,7 +214,7 @@ public class DeleteTeamCommandTests
     }
 
     [Test]
-    public async Task ApplyUpdate_WhenLastTeamSeasonDeleted_ThenDeletesTeam()
+    public async Task ApplyUpdate_WhenLastTeamSeasonDeletedButDeleteNotRequested_ThenRemovesSeasonButDoesNotDeleteTeam()
     {
         var teamSeason = new TeamSeason
         {
@@ -208,6 +227,26 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Removed team from 1 season/s"));
+        Assert.That(result.Delete, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenLastTeamSeasonDeletedAndDeleteRequested_ThenDeletesTeam()
+    {
+        var teamSeason = new TeamSeason
+        {
+            SeasonId = _seasonId,
+            Deleted = null
+        };
+        _team.Seasons.Add(teamSeason);
+        _auditingHelper.Setup(h => h.SetDeleted(teamSeason, _token)).Callback(() => teamSeason.Deleted = new DateTime(2001, 02, 03));
+
+        var result = await _command.FromSeason(_seasonId).DeleteIfNoSeasonsAssigned().ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Removed team from 1 season/s, and team deleted"));
         Assert.That(result.Delete, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
@@ -215,7 +254,7 @@ public class DeleteTeamCommandTests
     }
 
     [Test]
-    public async Task ApplyUpdate_WhenTeamSeasonsMatchAndNotPermittedToDeleteTeamEntirely_ThenSuccessful()
+    public async Task ApplyUpdate_WhenTeamSeasonsMatchAndNotPermittedToDeleteTeamEntirelyButDeleteNotRequested_ThenSuccessful()
     {
         var teamSeason = new TeamSeason
         {
@@ -230,6 +269,30 @@ public class DeleteTeamCommandTests
         });
 
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Removed team from 1 season/s"));
+        Assert.That(result.Delete, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenTeamSeasonsMatchAndNotPermittedToDeleteTeamEntirelyAndDeleteRequested_ThenSuccessful()
+    {
+        var teamSeason = new TeamSeason
+        {
+            SeasonId = _seasonId,
+            Deleted = null
+        };
+        _team.Seasons.Add(teamSeason);
+        _auditingHelper.Setup(h => h.SetDeleted(teamSeason, _token)).Callback(() =>
+        {
+            _user!.Access!.ManageTeams = false;         // change the permissions part way through
+            teamSeason.Deleted = new DateTime(2001, 02, 03);
+        });
+
+        var result = await _command.FromSeason(_seasonId).DeleteIfNoSeasonsAssigned().ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Removed team from 1 season/s, not permitted to delete the team entirely"));

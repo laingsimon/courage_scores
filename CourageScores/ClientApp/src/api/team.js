@@ -19,6 +19,14 @@ class TeamApi {
         return this.http.delete(`/api/Team/${id}/${seasonId}`, {});
     }
 
+    add(id, seasonId, copyPlayersFromSeasonId) {
+        return this.http.put(`/api/Team/${id}/${seasonId}`, {
+            id: id,
+            seasonId: seasonId,
+            copyPlayersFromSeasonId: copyPlayersFromSeasonId
+        });
+    }
+
     getForDivisionAndSeason(divisionId, seasonId) {
         return this.http.get(`/api/Team/${divisionId}/${seasonId}`, {});
     }

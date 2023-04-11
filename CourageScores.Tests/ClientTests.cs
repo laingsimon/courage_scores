@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using NUnit.Framework;
 
 namespace CourageScores.Tests;
@@ -33,6 +34,8 @@ public class ClientTests
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
+                StandardOutputEncoding = Encoding.UTF8,
+                StandardErrorEncoding = Encoding.UTF8,
             }
         };
         process.OutputDataReceived += (_, args) => output.AddStdOut(args.Data);

@@ -51,4 +51,16 @@ public class TeamController : Controller
         var command = _commandFactory.GetCommand<DeleteTeamCommand>().FromSeason(seasonId);
         return await _teamService.Upsert(id, command, token);
     }
+
+    [HttpPut("/api/Team/{id}/{seasonId}")]
+    public async Task<ActionResultDto<TeamDto>> AddTeamToSeason(ModifyTeamSeasonDto request, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(request.SeasonId);
+        if (request.CopyPlayersFromSeasonId != null)
+        {
+            command = command.CopyPlayersFromSeasonId(request.CopyPlayersFromSeasonId.Value);
+        }
+
+        return await _teamService.Upsert(request.Id, command, token);
+    }
 }

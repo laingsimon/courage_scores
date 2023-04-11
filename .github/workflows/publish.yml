@@ -16,6 +16,9 @@ jobs:
 
       - name: dotnet publish
         run: dotnet publish --configuration Release --property PublishDir=/myapp
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+          DOTNET_NOLOGO: true
 
 #      - name: Report code coverage
 #        uses: romeovs/lcov-reporter-action@v0.2.11

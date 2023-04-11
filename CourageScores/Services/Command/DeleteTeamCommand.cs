@@ -9,6 +9,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private Guid? _seasonId;
+    private bool _deleteIfNoSeasonsAssigned;
 
     public DeleteTeamCommand(IUserService userService, IAuditingHelper auditingHelper, ScopedCacheManagementFlags cacheFlags)
     {
@@ -20,6 +21,12 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
     public DeleteTeamCommand FromSeason(Guid? seasonId)
     {
         _seasonId = seasonId;
+        return this;
+    }
+
+    public DeleteTeamCommand DeleteIfNoSeasonsAssigned()
+    {
+        _deleteIfNoSeasonsAssigned = true;
         return this;
     }
 
@@ -59,7 +66,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new CommandOutcome<Models.Cosmos.Team.Team>(true, $"Removed team from {matchingSeasons.Count} season/s", model);
         }
 
-        if (model.CanDelete(user))
+        if (model.CanDelete(user) && _deleteIfNoSeasonsAssigned)
         {
             if (!matchingSeasons.Any())
             {
@@ -78,6 +85,12 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         }
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
-        return new CommandOutcome<Models.Cosmos.Team.Team>(matchingSeasons.Any(), $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely", model);
+
+        return new CommandOutcome<Models.Cosmos.Team.Team>(
+            !_deleteIfNoSeasonsAssigned || matchingSeasons.Any(),
+            _deleteIfNoSeasonsAssigned
+                ? $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely"
+                : $"Removed team from {matchingSeasons.Count} season/s",
+            model);
     }
 }

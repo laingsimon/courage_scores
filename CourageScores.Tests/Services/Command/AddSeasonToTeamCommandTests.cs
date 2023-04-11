@@ -89,10 +89,11 @@ public class AddSeasonToTeamCommandTests
                 new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
             }
         };
-        _team.Seasons.Add(new TeamSeason
+        var teamSeason = new TeamSeason
         {
             SeasonId = _season.Id,
-        });
+        };
+        _team.Seasons.Add(teamSeason);
         _team.Seasons.Add(otherSeason);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
 
@@ -105,6 +106,36 @@ public class AddSeasonToTeamCommandTests
         Assert.That(result.Message, Is.EqualTo("Season already exists, 1 players copied"));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
+        _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenDeletedTeamSeasonFoundAndCopyFromOtherSeason_UpdatesTeamSeason()
+    {
+        var otherSeason = new TeamSeason
+        {
+            SeasonId = Guid.NewGuid(),
+            Players =
+            {
+                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
+            }
+        };
+        var teamSeason = new TeamSeason
+        {
+            SeasonId = _season.Id,
+            Deleted = new DateTime(2001, 02, 03),
+        };
+        _team.Seasons.Add(teamSeason);
+        _team.Seasons.Add(otherSeason);
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+
+        var result = await _command
+            .CopyPlayersFromSeasonId(otherSeason.SeasonId)
+            .ForSeason(_season.Id)
+            .ApplyUpdate(_team, _token);
+
+        _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token)); // will undelete the TeamSeason
+        Assert.That(result.Success, Is.True);
     }
 
     [Test]
@@ -118,14 +149,15 @@ public class AddSeasonToTeamCommandTests
                 new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
             }
         };
-        _team.Seasons.Add(new TeamSeason
+        var teamSeason = new TeamSeason
         {
             SeasonId = _season.Id,
             Players =
             {
-                new TeamPlayer {Id = Guid.NewGuid(), Name = "existing player"}
+                new TeamPlayer { Id = Guid.NewGuid(), Name = "existing player" }
             }
-        });
+        };
+        _team.Seasons.Add(teamSeason);
         _team.Seasons.Add(otherSeason);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
 
@@ -138,6 +170,40 @@ public class AddSeasonToTeamCommandTests
         Assert.That(result.Message, Is.EqualTo("Season already exists"));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+        _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenDeletedTeamSeasonFoundAndCopyFromOtherSeasonWithSomeCurrentPlayers_UpdatesTeamSeason()
+    {
+        var otherSeason = new TeamSeason
+        {
+            SeasonId = Guid.NewGuid(),
+            Players =
+            {
+                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
+            }
+        };
+        var teamSeason = new TeamSeason
+        {
+            SeasonId = _season.Id,
+            Players =
+            {
+                new TeamPlayer { Id = Guid.NewGuid(), Name = "existing player" }
+            },
+            Deleted = new DateTime(2001, 02, 03),
+        };
+        _team.Seasons.Add(teamSeason);
+        _team.Seasons.Add(otherSeason);
+        _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+
+        var result = await _command
+            .CopyPlayersFromSeasonId(otherSeason.SeasonId)
+            .ForSeason(_season.Id)
+            .ApplyUpdate(_team, _token);
+
+        _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token)); // this will undelete the TeamSeason
+        Assert.That(result.Success, Is.True);
     }
 
     [Test]
