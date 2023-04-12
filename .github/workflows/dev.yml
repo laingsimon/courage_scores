@@ -38,6 +38,7 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with: 
       upload: ${{ needs.setup.outputs.deploy == 'true' }}
+      branch-name: ${{ needs.branch-name.outputs.branch-name }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}

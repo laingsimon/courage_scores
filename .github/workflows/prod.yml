@@ -23,6 +23,7 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with: 
       upload: true
+      branch-name: 'release'
 
   deploy:
     needs: 

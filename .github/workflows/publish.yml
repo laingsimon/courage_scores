@@ -6,6 +6,9 @@ on:
       upload:
         required: true
         type: boolean
+      branch-name:
+        required : true
+        type: string
   
 jobs:
   with-dotnet:
@@ -19,8 +22,8 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
-          REACT_APP_BRANCH=${{ needs.branch-name.outputs.branch-name }}
-          REACT_APP_VERSION=${{ env.GITHUB_SHA }}
+          REACT_APP_BRANCH: "${{ inputs.branch-name }}"
+          REACT_APP_SHA: "${{ github.sha }}"
 
 #      - name: Report code coverage
 #        uses: romeovs/lcov-reporter-action@v0.2.11
