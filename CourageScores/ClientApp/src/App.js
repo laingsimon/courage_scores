@@ -110,14 +110,14 @@ export function App() {
             <Layout>
                 <Routes>
                     <Route exact path='/' element={<Home />} />
-                    <Route path='/division/:divisionId' element={<Division />} />}/>
-                    <Route path='/division/:divisionId/:mode' element={<Division />} />}/>
-                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division />} />}/>
-                    <Route path='/score/:fixtureId' element={<Score />} />}/>
-                    <Route path='/admin' element={<AdminHome />} />}/>
-                    <Route path='/admin/:mode' element={<AdminHome />} />}/>
-                    <Route path='/tournament/:tournamentId' element={<Tournament />} />}/>
-                    <Route path='/practice' element={<Practice />} />}/>
+                    <Route path='/division/:divisionId' element={<Division />} />
+                    <Route path='/division/:divisionId/:mode' element={<Division />} />
+                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division />} />
+                    <Route path='/score/:fixtureId' element={<Score />} />
+                    <Route path='/admin' element={<AdminHome />} />
+                    <Route path='/admin/:mode' element={<AdminHome />} />
+                    <Route path='/tournament/:tournamentId' element={<Tournament />} />
+                    <Route path='/practice' element={<Practice />} />
                 </Routes>
             </Layout>
         </AppContainer>);
