@@ -24,6 +24,7 @@ jobs:
     with: 
       upload: true
       branch-name: 'release'
+      commit-sha: ${{ github.sha }}
 
   deploy:
     needs: 

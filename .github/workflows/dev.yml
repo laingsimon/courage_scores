@@ -22,6 +22,7 @@ jobs:
     with:
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
       deploy-requested: ${{ github.event.inputs.deploy_dev }}
+      commit-sha: ${{ github.sha }}
 
   build:
     needs: 
