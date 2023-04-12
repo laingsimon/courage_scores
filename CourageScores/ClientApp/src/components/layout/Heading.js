@@ -4,15 +4,16 @@ import {useApp} from "../../AppContainer";
 export function Heading() {
     const { build } = useApp();
 
-    const headingSuffix = build.branch === 'release'
+    const headingSuffix = build && build.branch && build.branch === 'release'
         ? ''
-        : `${build.branch} @ ${build.version}`;
+        : `${build.branch} @ ${build.version.substring(0, 8)}`;
 
     return (<div className="d-print-none">
             <div className="d-flex p-2 justify-content-between mid-grey-background">
                 <div className="">
                     <a href="mailto:email@thecourageleague.co.uk" className="white-link no-underline">✉️ email@thecourageleague.co.uk</a>
                 </div>
+                {headingSuffix ? (<span className="text-black bg-warning px-3">{headingSuffix}</span>) : null}
                 <div className="">
                     <a href="https://www.facebook.com/TheCourageLeague" className="white-link no-underline social-icon" target="_blank" rel="noreferrer">
                         <img alt="Facebook" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAyNC4xLjAsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iTGF5ZXJfMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiDQoJIHZpZXdCb3g9IjAgMCA0MCA0MCIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDAgNDA7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4NCjxzdHlsZSB0eXBlPSJ0ZXh0L2NzcyI+DQoJLnN0MHtmaWxsOnVybCgjU1ZHSURfMV8pO30NCgkuc3Qxe2ZpbGw6I0ZGRkZGRjt9DQo8L3N0eWxlPg0KPGxpbmVhckdyYWRpZW50IGlkPSJTVkdJRF8xXyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiIHgxPSItMjc3LjM3NSIgeTE9IjQwNi42MDE4IiB4Mj0iLTI3Ny4zNzUiIHkyPSI0MDcuNTcyNiIgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCg0MCAwIDAgLTM5Ljc3NzggMTExMTUuMDAxIDE2MjEyLjMzNCkiPg0KCTxzdG9wICBvZmZzZXQ9IjAiIHN0eWxlPSJzdG9wLWNvbG9yOiMwMDYyRTAiLz4NCgk8c3RvcCAgb2Zmc2V0PSIxIiBzdHlsZT0ic3RvcC1jb2xvcjojMTlBRkZGIi8+DQo8L2xpbmVhckdyYWRpZW50Pg0KPHBhdGggY2xhc3M9InN0MCIgZD0iTTE2LjcsMzkuOEM3LjIsMzguMSwwLDI5LjksMCwyMEMwLDksOSwwLDIwLDBzMjAsOSwyMCwyMGMwLDkuOS03LjIsMTguMS0xNi43LDE5LjhsLTEuMS0wLjloLTQuNEwxNi43LDM5Ljh6Ig0KCS8+DQo8cGF0aCBjbGFzcz0ic3QxIiBkPSJNMjcuOCwyNS42bDAuOS01LjZoLTUuM3YtMy45YzAtMS42LDAuNi0yLjgsMy0yLjhoMi42VjguMmMtMS40LTAuMi0zLTAuNC00LjQtMC40Yy00LjYsMC03LjgsMi44LTcuOCw3LjhWMjANCgloLTV2NS42aDV2MTQuMWMxLjEsMC4yLDIuMiwwLjMsMy4zLDAuM2MxLjEsMCwyLjItMC4xLDMuMy0wLjNWMjUuNkgyNy44eiIvPg0KPC9zdmc+DQo=" />
@@ -22,7 +23,7 @@ export function Heading() {
                     </a>
                 </div>
             </div>
-            <h1 className="heading">COURAGE LEAGUE{headingSuffix}</h1>
+            <h1 className="heading">COURAGE LEAGUE</h1>
         </div>
     );
 }

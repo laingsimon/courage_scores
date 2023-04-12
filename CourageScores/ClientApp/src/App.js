@@ -14,8 +14,8 @@ import {AppContainer} from "./AppContainer";
 
 export function App() {
     const build = {
-        branch: window.REACT_APP_BRANCH,
-        version: window.REACT_APP_VERSION,
+        branch: document.querySelector('meta[name="build:branch"]').getAttribute('content'),
+        version: document.querySelector('meta[name="build:sha"]').getAttribute('content'),
     };
     const { divisionApi, accountApi, seasonApi, teamApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
