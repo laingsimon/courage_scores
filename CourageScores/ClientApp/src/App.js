@@ -13,6 +13,10 @@ import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 
 export function App() {
+    const build = {
+        branch: window.REACT_APP_BRANCH,
+        version: window.REACT_APP_VERSION,
+    };
     const { divisionApi, accountApi, seasonApi, teamApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
@@ -97,7 +101,8 @@ export function App() {
         reloadTeams,
         reloadSeasons,
         onError,
-        clearError
+        clearError,
+        build,
     };
 
     try {

@@ -1,6 +1,13 @@
 import React from 'react';
+import {useApp} from "../../AppContainer";
 
 export function Heading() {
+    const { build } = useApp();
+
+    const headingSuffix = build.branch === 'release'
+        ? ''
+        : `${build.branch} @ ${build.version}`;
+
     return (<div className="d-print-none">
             <div className="d-flex p-2 justify-content-between mid-grey-background">
                 <div className="">
@@ -15,7 +22,7 @@ export function Heading() {
                     </a>
                 </div>
             </div>
-            <h1 className="heading">COURAGE LEAGUE</h1>
+            <h1 className="heading">COURAGE LEAGUE{headingSuffix}</h1>
         </div>
     );
 }
