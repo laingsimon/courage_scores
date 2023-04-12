@@ -104,6 +104,43 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         setScore('');
     }
 
+    function isSingleDartScore(value, doubleOnly) {
+        if (value <= 0) {
+            return false;
+        }
+
+        if (doubleOnly) {
+            return (value % 2 === 0 && value / 2 <= 20)
+                || value === 50;
+        }
+
+        return value <= 20
+            || (value % 2 === 0 && value / 2 <= 20)
+            || (value % 3 === 0 && value / 3 <= 20)
+            || value === 25
+            || value === 50;
+    }
+
+    function isTwoDartScore(value) {
+        if (value <= 0) {
+            return false;
+        }
+
+        return value <= 110;
+    }
+
+    function isThreeDartScore(value) {
+        if (value <= 0) {
+            return false;
+        }
+
+        return value <= 180;
+    }
+
+    const intScore = Number.parseInt(score);
+    const checkout = intScore === remainingScore;
+    const hasRemainingDouble = remainingScore - intScore >= 2;
+    const canBeBust = score && remainingScore <= 180 && intScore > 2;
     return (<div className="text-center">
         <h2>
             <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
@@ -117,28 +154,30 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         <h4>
             <label>
                 <span className="margin-right">Score</span>
-                <input data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-50" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
+                <input data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
             </label>
         </h4>
         <p className="my-3">
-            <span className="h4">Score: </span>
-            {remainingScore <= 60
-                ? (<button className="btn btn-primary margin-right" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
-                : (<button className="btn btn-secondary margin-right" disabled>📌</button>)}
-            {remainingScore <= 120
-                ? (<button className="btn btn-primary margin-right" onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
-                : (<button className="btn btn-secondary margin-right" disabled>📌📌</button>)}
-            <button className="btn btn-primary margin-right" onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>
+            {checkout && isSingleDartScore(intScore, true)
+                ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
+                : null}
+            {checkout && isTwoDartScore(intScore)
+                ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
+                : null}
+            {isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
+                ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
+                : null}
         </p>
-        {remainingScore <= 120 ? (<p className="my-3">
-            <span className="h4">Bust: </span>
-            {remainingScore <= 61
-                ? (<button className="btn btn-warning margin-right" onClick={() => addThrow(score, 1, true, true)}>💥</button>)
-                : (<button className="btn btn-secondary margin-right" disabled>💥</button>)}
-            {remainingScore <= 121
-                ? (<button className="btn btn-warning margin-right" onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
-                : (<button className="btn btn-secondary margin-right" disabled>💥💥</button>)}
-            <button className="btn btn-warning margin-right" onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>
-        </p>) : null}
+        <p className="my-3">
+            {isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
+                ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 1, true, true)}>💥</button>)
+                : null}
+            {isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
+                ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
+                : null}
+            {isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
+                ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
+                : null}
+        </p>
     </div>);
 }
