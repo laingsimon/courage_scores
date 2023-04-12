@@ -23,6 +23,8 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with: 
       upload: true
+      branch-name: 'release'
+      commit-sha: ${{ github.sha }}
 
   deploy:
     needs: 
