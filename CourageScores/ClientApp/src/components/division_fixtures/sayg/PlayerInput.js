@@ -111,7 +111,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
         return value <= 20
             || (value % 2 === 0 && value / 2 <= 20)
-            || (value % 3 === 0 && value / 3 <= 20);
+            || (value % 3 === 0 && value / 3 <= 20)
+            || value === 25
+            || value === 50;
     }
 
     function isTwoDartScore(value) {
