@@ -167,4 +167,10 @@ describe('PlayerInput', () => {
 
         expect(buttons).toEqual([ '💥', '💥💥', '💥💥💥' ]);
     });
+
+    it('Renders correct options for double-1 bust score', async () => {
+        const buttons = await runScoreTest(480, '21');
+
+        expect(buttons).toEqual([ '📌📌', '📌📌📌', '💥', '💥💥', '💥💥💥' ]);
+    });
 });

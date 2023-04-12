@@ -104,9 +104,14 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         setScore('');
     }
 
-    function isSingleDartScore(value) {
+    function isSingleDartScore(value, doubleOnly) {
         if (value <= 0) {
             return false;
+        }
+
+        if (doubleOnly) {
+            return (value % 2 === 0 && value / 2 <= 20)
+                || value === 50;
         }
 
         return value <= 20
@@ -153,7 +158,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             </label>
         </h4>
         <p className="my-3">
-            {checkout && isSingleDartScore(intScore)
+            {checkout && isSingleDartScore(intScore, true)
                 ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
                 : null}
             {checkout && isTwoDartScore(intScore)
