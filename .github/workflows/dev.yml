@@ -22,7 +22,6 @@ jobs:
     with:
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
       deploy-requested: ${{ github.event.inputs.deploy_dev }}
-      commit-sha: ${{ github.sha }}
 
   build:
     needs: 
@@ -40,6 +39,7 @@ jobs:
     with: 
       upload: ${{ needs.setup.outputs.deploy == 'true' }}
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
+      commit-sha: ${{ github.sha }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}
