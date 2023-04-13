@@ -56,30 +56,65 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             return this.Error("Season could not be found");
         }
 
-        var allTeams = await _teamService
-            .GetWhere($"t.DivisionId = '{request.DivisionId}'", token)
-            .ToList();
+        var allTeams = await _teamService.GetAll(token).ToList();
 
         try
         {
+            var divisionData = await _divisionService.GetDivisionData(new DivisionDataFilter { DivisionId = request.DivisionId, SeasonId = request.SeasonId }, token);
             var result = new ActionResultDto<List<DivisionFixtureDateDto>>();
-            var provisionIteration = async () => await ProposeGamesInt(request, season, allTeams, result, token).ToList();
+            if (divisionData.DataErrors.Any())
+            {
+                result.Errors.AddRange(divisionData.DataErrors);
+            }
+
+            if (divisionData.Id != request.DivisionId)
+            {
+                result.Errors.Insert(0, "Division could not be found");
+                return result;
+            }
+
+            var provisionIteration = async () =>
+            {
+                var thisIterationResult = new ActionResultDto<List<DivisionFixtureDateDto>>();
+                var context = new AutoProvisionContext(request, divisionData, thisIterationResult, _gameService, allTeams);
+                return new AutoProvisionIteration
+                {
+                    Result = thisIterationResult,
+                    FixtureDates = await ProposeGamesInt(context, season, token).ToList(),
+                };
+            };
+
+            var successfulIteration =
+                await provisionIteration.RepeatAndReturnSmallest(l => l.FixtureDates.Count, NumberOfProposalIterations);
+
+            result.Trace.AddRange(successfulIteration.Result.Trace);
+            result.Messages.AddRange(successfulIteration.Result.Messages);
+            result.Warnings.AddRange(successfulIteration.Result.Warnings);
+            result.Errors.AddRange(successfulIteration.Result.Errors);
+
             result.Result =
-                (await provisionIteration.RepeatAndReturnSmallest(NumberOfProposalIterations)) //regroup the results, in case existing games are reported before proposed games for the same date
+                successfulIteration.FixtureDates //regroup the results, in case existing games are reported before proposed games for the same date
                     .GroupBy(d => d.Date)
                     .OrderBy(g => g.Key)
                     .Select(g =>
                     {
+                        var context = new AutoProvisionContext(request, divisionData, successfulIteration.Result, _gameService, allTeams);
+
                         return new DivisionFixtureDateDto
                             {
                                 Date = g.Key,
-                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), allTeams).ToList()
+                                Fixtures = AddMissingTeams(g.SelectMany(f => f.Fixtures), context.AllTeamsInSeasonAndDivision).ToList(),
+                                TournamentFixtures = g.SelectMany(f => f.TournamentFixtures).ToList(),
+                                Notes = g.SelectMany(f => f.Notes).ToList(),
                             };
                     }).ToList();
-            result.Messages = result.Messages.Distinct().ToList();
-            result.Warnings = result.Warnings.Distinct().ToList();
-            result.Errors = result.Errors.Distinct().ToList();
             result.Success = result.Errors.Count == 0;
+
+            var lastFixtureDate = result.Result.MaxBy(fd => fd.Date);
+            if (lastFixtureDate != null && lastFixtureDate.Date > season.EndDate)
+            {
+                result.Warnings.Add($"All fixtures could not be created before the end of the season, fixtures run to {lastFixtureDate.Date:ddd MMM dd yyyy}");
+            }
 
             return result;
         }
@@ -134,24 +169,21 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     }
 
     private async IAsyncEnumerable<DivisionFixtureDateDto> ProposeGamesInt(
-        AutoProvisionGamesRequest request,
+        AutoProvisionContext context,
         SeasonDto season,
-        List<TeamDto> allTeams,
-        ActionResultDto<List<DivisionFixtureDateDto>> result,
         [EnumeratorCancellation] CancellationToken token)
     {
-        var teamsToPropose = request.Teams.Any()
-            ? allTeams.Join(request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
-            : allTeams;
+        var teamsToPropose = context.Request.Teams.Any()
+            ? context.AllTeamsInSeasonAndDivision.Join(context.Request.Teams, t => t.Id, id => id, (t, _) => t).ToList()
+            : context.AllTeamsInSeasonAndDivision.ToList();
         if (teamsToPropose.Count < 2)
         {
-            result.Errors.Add("Insufficient teams");
+            context.LogError("Insufficient teams");
             yield break;
         }
 
-        var divisionData = await _divisionService.GetDivisionData(new DivisionDataFilter { DivisionId = request.DivisionId, SeasonId = request.SeasonId }, token);
-
-        var existingGames = divisionData.Fixtures;
+        var existingGames = context.DivisionData.Fixtures;
+        context.Teams = teamsToPropose;
 
         foreach (var existingFixtureDate in existingGames)
         {
@@ -159,54 +191,57 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             {
                 Date = existingFixtureDate.Date,
                 Fixtures = existingFixtureDate.Fixtures.Where(fd => fd.AwayTeam != null).ToList(),
+                TournamentFixtures = existingFixtureDate.TournamentFixtures,
+                Notes = existingFixtureDate.Notes,
             };
         }
 
-        var proposals = GetProposals(request, teamsToPropose, existingGames);
+        var proposals = GetProposals(context.Request, teamsToPropose, existingGames);
         var maxIterations = 5 * proposals.Count;
-        var currentDate = request.WeekDay != null
-            ? (request.StartDate ?? season.StartDate).MoveToDay(request.WeekDay.Value)
-            : request.StartDate ?? season.StartDate;
-        if (request.ExcludedDates.ContainsKey(currentDate))
+        var currentDate = context.Request.WeekDay != null
+            ? (context.Request.StartDate ?? season.StartDate).MoveToDay(context.Request.WeekDay.Value)
+            : context.Request.StartDate ?? season.StartDate;
+        if (context.Request.ExcludedDates.ContainsKey(currentDate))
         {
-            currentDate = currentDate.AddDays(request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
+            currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
         }
 
         var iteration = 1;
         var prioritisedTeams = new List<TeamDto>();
+        var prioritisedAddresses = new List<TeamDto>();
         while (proposals.Count > 0)
         {
             if (iteration > maxIterations)
             {
-                result.Errors.Add($"Reached maximum attempts ({maxIterations}), exiting to prevent infinite loop");
+                context.LogError($"Reached maximum attempts ({maxIterations}), exiting to prevent infinite loop");
                 yield break;
             }
 
             token.ThrowIfCancellationRequested();
 
-            var fixturesForDate = await CreateFixturesForDate(request, result, existingGames, currentDate, proposals, prioritisedTeams, token);
+            var fixturesForDate = await CreateFixturesForDate(context, existingGames, currentDate, proposals, prioritisedTeams, prioritisedAddresses, token);
             yield return fixturesForDate;
-            currentDate = currentDate.AddDays(request.WeekDay != null ? 7 : request.FrequencyDays, request.ExcludedDates.Keys);
+            currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
             iteration++;
-            prioritisedTeams = allTeams.Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id)).ToList();
+            prioritisedTeams = context.AllTeamsInSeasonAndDivision
+                .Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id))
+                .ToList();
+            prioritisedAddresses = context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address)).ToList();
         }
     }
 
     private async Task<DivisionFixtureDateDto> CreateFixturesForDate(
-        AutoProvisionGamesRequest request,
-        ActionResultDto<List<DivisionFixtureDateDto>> result,
+        AutoProvisionContext context,
         IReadOnlyCollection<DivisionFixtureDateDto> existingGames,
         DateTime currentDate,
         List<Proposal> proposals,
         IReadOnlyCollection<TeamDto> prioritisedTeams,
+        IReadOnlyCollection<TeamDto> prioritisedAddresses,
         CancellationToken token)
     {
         try
         {
-            var games = await _gameService
-                .GetWhere($"t.Date = '{currentDate:yyyy-MM-dd}T00:00:00'", token)
-                .WhereAsync(game => !string.IsNullOrEmpty(game.Address))
-                .ToList();
+            var games = await context.GetGamesForDate(currentDate, token);
 
             // ensure fixtures from ANY division are included in reserved addresses
             var addressesInUseOnDate = games
@@ -220,53 +255,88 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 .Where(fixture => fixture.AwayTeam != null)
                 .SelectMany(fixture => new[] {fixture.HomeTeam.Id, fixture.AwayTeam!.Id})
                 .ToHashSet();
+            var proposedTeamsInPlayOnDate = new HashSet<Guid>();
 
             var incompatibleProposals = new List<Proposal>();
-            var gamesOnDate = new DivisionFixtureDateDto {Date = currentDate};
+            var gamesOnDate = new DivisionFixtureDateDto { Date = currentDate };
 
-            void IncompatibleProposal(Proposal proposal, string message)
+            void IncompatibleProposal(Proposal proposal, string message, bool trace)
             {
                 incompatibleProposals.Add(proposal);
-                request.LogInfo(result, $"{currentDate:yyyy-MM-dd}: {message}");
+                if (trace)
+                {
+                    context.LogTrace($"{currentDate:ddd MMM dd yyyy}: {message}");
+                }
+                else
+                {
+                    context.LogInfo($"{currentDate:ddd MMM dd yyyy}: {message}");
+                }
             }
 
             while (proposals.Count > 0)
             {
-                var proposal = GetProposalIndex(proposals, prioritisedTeams);
+                var proposal = GetProposalIndex(proposals, prioritisedTeams, prioritisedAddresses);
                 proposals.Remove(proposal);
 
-                if (teamsInPlayOnDate.Contains(proposal.Home.Id) || teamsInPlayOnDate.Contains(proposal.Away.Id))
+                if (proposedTeamsInPlayOnDate.Contains(proposal.Home.Id) || proposedTeamsInPlayOnDate.Contains(proposal.Away.Id))
                 {
-                    IncompatibleProposal(proposal,
-                        $"{proposal.Home.Name} and/or {proposal.Away.Name} are already playing");
+                    // no point logging about team in play; when it's been proposed as part of this iteration
+                    incompatibleProposals.Add(proposal);
                     continue;
                 }
 
-                if (addressesInUseOnDate.ContainsKey(proposal.Home.Address))
+                if (teamsInPlayOnDate.Contains(proposal.Home.Id))
                 {
-                    var inUseBy = addressesInUseOnDate[proposal.Home.Address];
-                    var division = inUseBy.divisionId == request.DivisionId
+                    IncompatibleProposal(proposal, $"{proposal.Home.Name} are already playing", true);
+                    continue;
+                }
+
+                if (teamsInPlayOnDate.Contains(proposal.Away.Id))
+                {
+                    IncompatibleProposal(proposal, $"{proposal.Away.Name} are already playing", true);
+                    continue;
+                }
+
+                if (addressesInUseOnDate.TryGetValue(proposal.Home.Address, out var addressInUseOnDate))
+                {
+                    var division = addressInUseOnDate.divisionId == context.Request.DivisionId
                         ? null
-                        : (await _divisionService.Get(inUseBy.divisionId, token)) ?? new DivisionDto
-                            {Name = inUseBy.divisionId.ToString()};
+                        : (await _divisionService.Get(addressInUseOnDate.divisionId, token)) ?? new DivisionDto
+                            {Name = addressInUseOnDate.divisionId.ToString()};
                     IncompatibleProposal(proposal,
-                        $"Address {proposal.Home.Address} is already in use for {inUseBy.homeTeam} vs {inUseBy.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}");
+                        $"Address {proposal.Home.Address} is already in use for {addressInUseOnDate.homeTeam} vs {addressInUseOnDate.awayTeam}{(division != null ? " (" + division.Name + ")" : "")}", false);
                     continue;
                 }
 
                 addressesInUseOnDate.Add(proposal.Home.Address,
                     new
                     {
-                        divisionId = request.DivisionId, homeTeam = proposal.Home.Name, awayTeam = proposal.Away.Name
+                        divisionId = context.Request.DivisionId, homeTeam = proposal.Home.Name, awayTeam = proposal.Away.Name
                     });
-                teamsInPlayOnDate.Add(proposal.Home.Id);
-                teamsInPlayOnDate.Add(proposal.Away.Id);
+                proposedTeamsInPlayOnDate.Add(proposal.Home.Id);
+                proposedTeamsInPlayOnDate.Add(proposal.Away.Id);
 
                 gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
                 token.ThrowIfCancellationRequested();
             }
 
             proposals.AddRange(incompatibleProposals);
+
+            var expectedNoOfFixturesPerDate = Math.Floor(context.Teams.Count / 2.0);
+            if (gamesOnDate.Fixtures.Count < expectedNoOfFixturesPerDate)
+            {
+                if (incompatibleProposals.Count > 0)
+                {
+                    context.LogWarning(
+                        $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}, {incompatibleProposals.Count} proposal/s were incompatible");
+                }
+                else if (proposals.Count > 0)
+                {
+                    context.LogWarning(
+                        $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}");
+                }
+            }
+
             return gamesOnDate;
         }
         catch (Exception exc)
@@ -275,8 +345,20 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
-    private static Proposal GetProposalIndex(IReadOnlyCollection<Proposal> proposals, IReadOnlyCollection<TeamDto> prioritisedTeams)
+    private static Proposal GetProposalIndex(
+        IReadOnlyCollection<Proposal> proposals,
+        IReadOnlyCollection<TeamDto> prioritisedTeams,
+        IReadOnlyCollection<TeamDto> prioritisedAddresses)
     {
+        if (prioritisedAddresses.Count > 0)
+        {
+            var reservedAddressProposals = proposals.Where(p => prioritisedAddresses.Any(t => t.Id == p.Home.Id)).ToArray();
+            if (reservedAddressProposals.Length > 0)
+            {
+                return reservedAddressProposals[Random.Shared.Next(0, reservedAddressProposals.Length)];
+            }
+        }
+
         var prioritisedProposals = prioritisedTeams.Count > 0
             ? proposals.Where(p => prioritisedTeams.Any(t => t.Id == p.Away.Id || t.Id == p.Home.Id)).ToArray()
             : Array.Empty<Proposal>();

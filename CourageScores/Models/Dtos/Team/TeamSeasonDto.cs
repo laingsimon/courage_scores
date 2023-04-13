@@ -17,4 +17,9 @@ public class TeamSeasonDto : AuditedDto
     /// The players that played for the team during the season
     /// </summary>
     public List<TeamPlayerDto> Players { get; set; } = new();
+
+    /// <summary>
+    /// The division this team is a member of, during this season
+    /// </summary>
+    public Guid DivisionId { get; set; }
 }

@@ -19,11 +19,6 @@ public class TeamDto : AuditedDto
     public string Address { get; set; } = null!;
 
     /// <summary>
-    /// The id of the division in which the team plays
-    /// </summary>
-    public Guid DivisionId { get; set; }
-
-    /// <summary>
     /// The seasons in which this team have played
     /// </summary>
     public List<TeamSeasonDto> Seasons { get; set; } = new();

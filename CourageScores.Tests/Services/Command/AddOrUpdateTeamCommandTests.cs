@@ -1,4 +1,5 @@
 ﻿using CourageScores.Filters;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services;
@@ -20,6 +21,7 @@ public class AddOrUpdateTeamCommandTests
     private Mock<ICommandFactory> _commandFactory = null!;
     private AddOrUpdateTeamCommand _command = null!;
     private Mock<AddOrUpdateGameCommand> _addOrUpdateGameCommand = null!;
+    private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private readonly Guid _divisionId = Guid.NewGuid();
@@ -28,6 +30,8 @@ public class AddOrUpdateTeamCommandTests
     private List<GameDto> _games = null!;
     private CourageScores.Models.Cosmos.Team.Team _team = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
+    private CommandOutcome<TeamSeason> _addSeasonToTeamCommandResult = null!;
+    private TeamSeason _addedTeamSeason = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -37,10 +41,22 @@ public class AddOrUpdateTeamCommandTests
             Id = Guid.NewGuid(),
             Name = "old name",
             Address = "old address",
-            DivisionId = _divisionId,
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    SeasonId = _seasonId,
+                    DivisionId = _divisionId,
+                }
+            }
         };
         _games = new List<GameDto>();
         _cacheFlags = new ScopedCacheManagementFlags();
+        _addedTeamSeason = new TeamSeason
+        {
+            SeasonId = _seasonId,
+        };
+        _addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "Success", _addedTeamSeason);
 
         _gameService = new Mock<IGameService>();
         _teamService = new Mock<ITeamService>();
@@ -48,13 +64,27 @@ public class AddOrUpdateTeamCommandTests
         _seasonService = new Mock<ISeasonService>();
         _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object, _cacheFlags, _serializer);
         _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, _cacheFlags);
+        _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
 
         _addOrUpdateGameCommand
             .Setup(c => c.WithData(It.IsAny<EditGameDto>()))
             .Returns(_addOrUpdateGameCommand.Object);
+        _addSeasonToTeamCommand
+            .Setup(c => c.ForSeason(_seasonId))
+            .Returns(_addSeasonToTeamCommand.Object);
+        _addSeasonToTeamCommand
+            .Setup(c => c.ApplyUpdate(_team, _token))
+            .ReturnsAsync((CourageScores.Models.Cosmos.Team.Team team, CancellationToken _) =>
+            {
+                 team.Seasons.Add(_addedTeamSeason);
+                 return _addSeasonToTeamCommandResult;
+            });
         _commandFactory
             .Setup(f => f.GetCommand<AddOrUpdateGameCommand>())
             .Returns(_addOrUpdateGameCommand.Object);
+        _commandFactory
+            .Setup(f => f.GetCommand<AddSeasonToTeamCommand>())
+            .Returns(_addSeasonToTeamCommand.Object);
         _gameService
             .Setup(s => s.GetWhere($"t.DivisionId = '{_divisionId}' and t.SeasonId = '{_seasonId}'", _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_games.ToArray()));
@@ -77,10 +107,59 @@ public class AddOrUpdateTeamCommandTests
 
         Assert.That(_team.Name, Is.EqualTo(update.Name));
         Assert.That(_team.Address, Is.EqualTo(update.Address));
-        Assert.That(_team.DivisionId, Is.EqualTo(update.DivisionId));
+        var teamSeason = _team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        Assert.That(teamSeason, Is.Not.Null);
+        Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));
         Assert.That(result.Success, Is.True);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenTeamIsNotAssignedToSeason_AddsSeasonToTeam()
+    {
+        var update = new EditTeamDto
+        {
+            Name = "new name",
+            Address = "new address",
+            DivisionId = _divisionId,
+            SeasonId = _seasonId,
+            Id = _team.Id,
+            NewDivisionId = _divisionId,
+        };
+        _team.Seasons.Clear();
+
+        var result = await _command.WithData(update).ApplyUpdate(_team, _token);
+
+        var teamSeason = _team.Seasons.SingleOrDefault(ts => ts.SeasonId == update.SeasonId);
+        Assert.That(teamSeason, Is.Not.Null);
+        Assert.That(teamSeason!.DivisionId, Is.EqualTo(update.DivisionId));
+        Assert.That(result.Success, Is.True);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenTeamIsNotAssignedToSeasonAndAssignmentFails_ReturnsFailure()
+    {
+        var update = new EditTeamDto
+        {
+            Name = "new name",
+            Address = "new address",
+            DivisionId = _divisionId,
+            SeasonId = _seasonId,
+            Id = _team.Id,
+            NewDivisionId = _divisionId,
+        };
+        _team.Seasons.Clear();
+        _addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(false, "Some error", null);
+
+        var result = await _command.WithData(update).ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Some error"));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]

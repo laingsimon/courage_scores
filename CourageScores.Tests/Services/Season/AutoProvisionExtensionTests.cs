@@ -101,7 +101,7 @@ public class AutoProvisionExtensionTests
         }
         var producer = async () => await CreateResults();
 
-        var result = await producer.RepeatAndReturnSmallest(5);
+        var result = await producer.RepeatAndReturnSmallest(l => l.Count, 5);
 
         Assert.That(result, Is.EquivalentTo(new[] { "a", "b" }));
         Assert.That(results.Count, Is.EqualTo(1)); // 1 iteration left, 5 run

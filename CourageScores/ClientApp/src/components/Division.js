@@ -28,21 +28,26 @@ export function Division() {
             setDivisionData(divisionData);
             return divisionData;
         } catch (e) {
-            if (e.message.indexOf('Exception') !== -1) {
-                const dotnetException = JSON.parse(e.message);
+            if (e.message && e.message.indexOf && e.message.indexOf('Exception') !== -1) {
+                try {
+                    const dotnetException = JSON.parse(e.message);
 
-                onError({
-                    message: dotnetException.Exception.Message,
-                    stack: dotnetException.Exception.StackTrace ? dotnetException.Exception.StackTrace.join('\n') : null,
-                    type: dotnetException.Exception.Type
-                });
+                    if (dotnetException.Exception) {
+                        const exc = dotnetException.Exception;
+
+                        onError({
+                            message: exc.Message,
+                            stack: exc.StackTrace ? exc.StackTrace.join('\n') : null,
+                            type: exc.Type
+                        });
+                    }
+                } catch (e) {
+                    console.error(e);
+                    // don't hide the original (root cause) error with details of an error during error handling
+                }
             }
-            else {
-                onError({
-                    message: e.message,
-                    stack: e.stack
-                });
-            }
+
+            onError(e);
         }
         finally {
             setLoading(false);
@@ -54,13 +59,17 @@ export function Division() {
             return;
         }
 
-        if (divisionData && divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
-            return;
-        }
+        try {
+            if (divisionData && divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
+                return;
+            }
 
-        setLoading(true);
-        // noinspection JSIgnoredPromiseFromCall
-        reloadDivisionData();
+            setLoading(true);
+            // noinspection JSIgnoredPromiseFromCall
+            reloadDivisionData();
+        } catch (e) {
+            onError(e);
+        }
     },
     // eslint-disable-next-line
     [ divisionData, loading, divisionId, seasonId, error ]);
@@ -72,28 +81,37 @@ export function Division() {
     try {
         return (<div>
             <DivisionControls
-                seasons={divisionData.seasons}
                 originalSeasonData={divisionData.season}
                 originalDivisionData={{name: divisionData.name, id: divisionData.id}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />
             <ul className="nav nav-tabs">
                 <li className="nav-item">
                     <NavLink tag={Link}
-                             className={effectiveTab === 'teams' || effectiveTab.startsWith('team:') ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/teams`}>Teams</NavLink>
+                             className={effectiveTab === 'teams' ? ' text-dark active' : 'text-light'}
+                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Teams</NavLink>
                 </li>
+                {effectiveTab.startsWith('team:') ? (<li className="nav-item">
+                    <NavLink tag={Link}
+                             className="text-dark active"
+                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Team Details</NavLink>
+                </li>) : null }
                 <li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/fixtures`}>Fixtures</NavLink>
+                             to={`/division/${divisionId}/fixtures${seasonId ? '/' + seasonId : ''}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
-                             className={effectiveTab === 'players' || effectiveTab.startsWith('player:') ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/players`}>Players</NavLink>
+                             className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'}
+                             to={`/division/${divisionId}/players${seasonId ? '/' + seasonId : ''}`}>Players</NavLink>
                 </li>
+                {effectiveTab.startsWith('player:') ? (<li className="nav-item">
+                    <NavLink tag={Link}
+                             className="text-dark active"
+                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Player Details</NavLink>
+                </li>) : null }
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'}
-                             to={`/division/${divisionId}/reports`}>Reports</NavLink>
+                             to={`/division/${divisionId}/reports${seasonId ? '/' + seasonId : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>

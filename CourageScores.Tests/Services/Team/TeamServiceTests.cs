@@ -67,7 +67,7 @@ public class TeamServiceTests
         var teamNotInSeason = new CosmosTeam
         {
             Id = Guid.NewGuid(),
-            Seasons = { new TeamSeason {SeasonId = Guid.NewGuid() }, },
+            Seasons = { new TeamSeason { SeasonId = Guid.NewGuid() }, },
         };
         _allTeams.AddRange(new[] { teamInSeason, teamNotInSeason });
 
@@ -86,20 +86,18 @@ public class TeamServiceTests
         var teamInSeasonAndDivision = new CosmosTeam
         {
             Id = Guid.NewGuid(),
-            DivisionId = divisionId,
             Seasons =
             {
-                new TeamSeason { SeasonId = seasonId },
-                new TeamSeason { SeasonId = Guid.NewGuid() },
+                new TeamSeason { SeasonId = seasonId, DivisionId = divisionId },
+                new TeamSeason { SeasonId = Guid.NewGuid(), DivisionId = divisionId },
             },
         };
         var teamInDivisionNotSeason = new CosmosTeam
         {
             Id = Guid.NewGuid(),
-            DivisionId = divisionId,
             Seasons =
             {
-                new TeamSeason { SeasonId = Guid.NewGuid() },
+                new TeamSeason { SeasonId = Guid.NewGuid(), DivisionId = divisionId },
             },
         };
         _someTeams.AddRange(new[] { teamInDivisionNotSeason, teamInSeasonAndDivision });

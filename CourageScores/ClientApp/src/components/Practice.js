@@ -55,7 +55,6 @@ export function Practice() {
         try {
             jsonData = atob(base64);
         } catch (e) {
-            console.error(e);
             setDataError(e.message);
             return null;
         }
@@ -64,7 +63,6 @@ export function Practice() {
         try {
             shareData = JSON.parse(jsonData);
         } catch (e) {
-            console.error(e);
             setDataError(e.message);
             return null;
         }

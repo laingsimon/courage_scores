@@ -96,6 +96,7 @@ export function NewFixtureDate({ date }) {
                 homeTeamId: homeTeam.id,
                 awayTeamId: awayTeam.id,
                 date: date,
+                seasonId: season.id
             });
 
             if (result.success) {

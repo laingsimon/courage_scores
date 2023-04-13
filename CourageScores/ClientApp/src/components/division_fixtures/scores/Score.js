@@ -21,7 +21,7 @@ import {useApp} from "../../../AppContainer";
 export function Score() {
     const { fixtureId } = useParams();
     const { gameApi } = useDependencies();
-    const { account, divisions, seasons, onError, error, teams } = useApp();
+    const { appLoading, account, divisions, seasons, onError, error, teams } = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
@@ -32,33 +32,33 @@ export function Score() {
     const [saveError, setSaveError] = useState(null);
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
-    const [access, setAccess] = useState(null);
     const [submission, setSubmission] = useState(null);
 
-    useEffect(() => {
+    function getAccess() {
         if (account && account.access) {
             if (account.access.manageScores) {
-                setAccess('admin');
+                return 'admin';
             } else if (account.teamId) {
-                setAccess('clerk');
+                return 'clerk';
             }
-        } else {
-            setAccess('readonly');
         }
-    }, [account]);
+
+        return 'readonly';
+    }
 
     useEffect(() => {
             if (loading !== 'init') {
                 return;
             }
 
-            setLoading('loading');
-
-            // noinspection JSIgnoredPromiseFromCall
-            loadFixtureData();
+            if (!appLoading && seasons.length && teams.length && divisions.length) {
+                setLoading('loading');
+                // noinspection JSIgnoredPromiseFromCall
+                loadFixtureData();
+            }
         },
         // eslint-disable-next-line
-        [loading]);
+        [ appLoading, seasons, teams, divisions ]);
 
     async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const teamData = await teams[teamId];
@@ -118,23 +118,26 @@ export function Score() {
                 return;
             }
 
-            const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
+            const access = getAccess();
+            if (access === 'admin' || access === 'clerk') {
+                const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
 
-            if (error || !homeTeamPlayers) {
-                return;
+                if (error || !homeTeamPlayers) {
+                    return;
+                }
+
+                const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
+
+                if (error || !awayTeamPlayers) {
+                    return;
+                }
+
+                setHomeTeam(homeTeamPlayers);
+                setAwayTeam(awayTeamPlayers);
+
+                const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
+                allPlayers.sort(sortBy('name'));
             }
-
-            const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
-
-            if (error || !awayTeamPlayers) {
-                return;
-            }
-
-            setHomeTeam(homeTeamPlayers);
-            setAwayTeam(awayTeamPlayers);
-
-            const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
-            allPlayers.sort(sortBy('name'));
 
             if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
                 const matchOptions = getMatchOptionsLookup(gameData.matchOptions);
@@ -158,7 +161,6 @@ export function Score() {
             setData(gameData);
 
             const season = seasons[gameData.seasonId];
-
             setSeason(season);
         } catch (e) {
             onError(e);
@@ -229,7 +231,7 @@ export function Score() {
     }, [ divisions, fixtureData, data ]);
 
     async function saveScores() {
-        if (access === 'readonly') {
+        if (getAccess() === 'readonly') {
             return;
         }
 
@@ -296,15 +298,22 @@ export function Score() {
             setFixtureData(newFixtureData);
         }
 
+        const editable = !saving && (getAccess() === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
+
         return (<MatchPlayerSelection
-            homePlayers={homeTeam} awayPlayers={awayTeam}
+            homePlayers={homeTeam}
+            awayPlayers={awayTeam}
             match={fixtureData.matches[index]}
-            disabled={access === 'readonly'} readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
+            disabled={getAccess() === 'readonly'}
+            readOnly={!editable}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
             onPlayerChanged={loadFixtureData}
-            home={fixtureData.home} away={fixtureData.away}
-            seasonId={fixtureData.seasonId} gameId={fixtureData.id} divisionId={fixtureData.divisionId}
+            home={fixtureData.home}
+            away={fixtureData.away}
+            seasonId={fixtureData.seasonId}
+            gameId={fixtureData.id}
+            divisionId={fixtureData.divisionId}
             matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
             onMatchOptionsChanged={onMatchOptionsChanged}
             on180={add180(fixtureData, setFixtureData)}
@@ -312,9 +321,10 @@ export function Score() {
     }
 
     function renderMergeMatch(index) {
-        if (!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData.resultsPublished && getAccess() === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeMatch
-                readOnly={saving} matchIndex={index}
+                readOnly={saving}
+                matchIndex={index}
                 matches={fixtureData.matches}
                 homeSubmission={fixtureData.homeSubmission}
                 awaySubmission={fixtureData.awaySubmission}
@@ -326,6 +336,8 @@ export function Score() {
     }
 
     function renderManOfTheMatchInput() {
+        const access = getAccess();
+
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
@@ -339,7 +351,7 @@ export function Score() {
 
     function renderMergeManOfTheMatch() {
         if (!fixtureData.resultsPublished
-            && access === 'admin'
+            && getAccess() === 'admin'
             && (data.homeSubmission || data.awaySubmission)
             && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
             return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers} />);
@@ -351,14 +363,14 @@ export function Score() {
     function render180sAndHiCheckInput() {
         return (<HiCheckAnd180s
             saving={saving}
-            access={access}
+            access={getAccess()}
             fixtureData={fixtureData}
             setFixtureData={setFixtureData}
             allPlayers={allPlayers} />);
     }
 
     function renderMerge180sAndHiCheck() {
-        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData.resultsPublished && getAccess() === 'admin' && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={setFixtureData} />);
         }
 
@@ -387,9 +399,9 @@ export function Score() {
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
+        const access = getAccess();
         return (<div>
             <DivisionControls
-                seasons={seasons.map(a => a)}
                 originalSeasonData={{
                     id: season.id,
                     name: season.name,
@@ -400,18 +412,18 @@ export function Score() {
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams`}>Teams</NavLink>
+                    <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams/${season.id}`}>Teams</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-light"
-                             to={`/division/${data.divisionId}/fixtures`}>Fixtures</NavLink>
+                             to={`/division/${data.divisionId}/fixtures/${season.id}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>Fixture</NavLink>
+                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>{new Date(data.date).toDateString()}</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-light"
-                             to={`/division/${data.divisionId}/players`}>Players</NavLink>
+                             to={`/division/${data.divisionId}/players/${season.id}`}>Players</NavLink>
                 </li>
             </ul>
             <div className="light-background p-3 overflow-auto">

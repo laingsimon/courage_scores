@@ -13,12 +13,16 @@ import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 
 export function App() {
+    const build = {
+        branch: document.querySelector('meta[name="build:branch"]').getAttribute('content'),
+        version: document.querySelector('meta[name="build:sha"]').getAttribute('content'),
+    };
     const { divisionApi, accountApi, seasonApi, teamApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
     const [ teams, setTeams ] = useState(toMap([]));
-    const [ appLoading, setAppLoading ] = useState(false);
+    const [ appLoading, setAppLoading ] = useState(null);
     const [ error, setError ] = useState(null);
 
     useEffect(() => {
@@ -34,7 +38,11 @@ export function App() {
         if (error.stack) {
             console.error(error);
         }
-        setError({ message: error.message, stack: error.stack });
+        if (error.message) {
+            setError({ message: error.message, stack: error.stack });
+        } else {
+            setError({ message: error });
+        }
     }
 
     function clearError() {
@@ -85,7 +93,7 @@ export function App() {
         teams,
         account,
         error,
-        appLoading,
+        appLoading: appLoading === null ? true : appLoading,
         excludeSurround: shouldExcludeSurround(),
         reloadDivisions,
         reloadAccount,
@@ -93,7 +101,8 @@ export function App() {
         reloadTeams,
         reloadSeasons,
         onError,
-        clearError
+        clearError,
+        build,
     };
 
     try {
@@ -101,14 +110,14 @@ export function App() {
             <Layout>
                 <Routes>
                     <Route exact path='/' element={<Home />} />
-                    <Route path='/division/:divisionId' element={<Division />} />}/>
-                    <Route path='/division/:divisionId/:mode' element={<Division />} />}/>
-                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division />} />}/>
-                    <Route path='/score/:fixtureId' element={<Score />} />}/>
-                    <Route path='/admin' element={<AdminHome />} />}/>
-                    <Route path='/admin/:mode' element={<AdminHome />} />}/>
-                    <Route path='/tournament/:tournamentId' element={<Tournament />} />}/>
-                    <Route path='/practice' element={<Practice />} />}/>
+                    <Route path='/division/:divisionId' element={<Division />} />
+                    <Route path='/division/:divisionId/:mode' element={<Division />} />
+                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division />} />
+                    <Route path='/score/:fixtureId' element={<Score />} />
+                    <Route path='/admin' element={<AdminHome />} />
+                    <Route path='/admin/:mode' element={<AdminHome />} />
+                    <Route path='/tournament/:tournamentId' element={<Tournament />} />
+                    <Route path='/practice' element={<Practice />} />
                 </Routes>
             </Layout>
         </AppContainer>);

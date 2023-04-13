@@ -9,7 +9,7 @@ jobs:
   setup:
     uses: ./.github/workflows/setup-workflow.yml
     with:
-      branch-name: 'release'
+      branch-name: 'main'
       deploy-requested: true
 
   build:
@@ -23,6 +23,8 @@ jobs:
     uses: ./.github/workflows/publish.yml
     with: 
       upload: true
+      branch-name: 'main'
+      commit-sha: ${{ github.sha }}
 
   deploy:
     needs: 

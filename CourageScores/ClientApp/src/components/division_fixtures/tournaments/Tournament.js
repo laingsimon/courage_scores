@@ -12,7 +12,7 @@ import {useApp} from "../../../AppContainer";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const { account, seasons, onError, teams } = useApp();
+    const { appLoading, account, seasons, onError, teams } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
     const isAdmin = account && account.access && account.access.manageGames;
     const [loading, setLoading] = useState('init');
@@ -32,16 +32,18 @@ export function Tournament() {
     }, [account]);
 
     useEffect(() => {
-            if (loading !== 'init' || seasons.length === 0) {
+            if (loading !== 'init') {
                 return;
             }
 
-            setLoading('loading');
-            // noinspection JSIgnoredPromiseFromCall
-            loadFixtureData();
+            if (!appLoading && seasons.length) {
+                setLoading('loading');
+                // noinspection JSIgnoredPromiseFromCall
+                loadFixtureData();
+            }
         },
         // eslint-disable-next-line
-        [loading, seasons]);
+        [ appLoading, loading, seasons ]);
 
     async function loadFixtureData() {
         try {
@@ -131,7 +133,6 @@ export function Tournament() {
     try {
         return (<div>
             <DivisionControls
-                seasons={seasons.map(a => a)}
                 originalSeasonData={{
                     id: season.id,
                     name: season.name,

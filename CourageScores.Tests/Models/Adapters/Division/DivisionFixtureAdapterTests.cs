@@ -236,7 +236,6 @@ public class DivisionFixtureAdapterTests
             Id = Guid.NewGuid(),
             Address = "address",
             Name = "team",
-            DivisionId = Guid.NewGuid(),
         };
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(team, _token))

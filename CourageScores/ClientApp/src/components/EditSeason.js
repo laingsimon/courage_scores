@@ -2,11 +2,13 @@ import React, {useState} from "react";
 import {any, propChanged, sortBy, valueChanged} from "../Utilities";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
 import {useDependencies} from "../IocContainer";
+import {useApp} from "../AppContainer";
 
-export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData, divisions, seasons }) {
+export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { seasonApi } = useDependencies();
+    const { seasons, divisions } = useApp();
 
     async function saveSeason() {
         if (saving || deleting) {

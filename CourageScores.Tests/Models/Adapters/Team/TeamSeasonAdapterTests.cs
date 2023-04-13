@@ -25,12 +25,14 @@ public class TeamSeasonAdapterTests
                 TeamPlayer
             },
             SeasonId = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
+        Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
         Assert.That(result.Players, Is.EqualTo(new[] { TeamPlayerDto }));
     }
 
@@ -45,12 +47,14 @@ public class TeamSeasonAdapterTests
                 TeamPlayerDto
             },
             SeasonId = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.SeasonId, Is.EqualTo(dto.SeasonId));
+        Assert.That(result.DivisionId, Is.EqualTo(dto.DivisionId));
         Assert.That(result.Players, Is.EqualTo(new[] { TeamPlayer }));
     }
 }

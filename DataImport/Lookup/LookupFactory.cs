@@ -26,7 +26,10 @@ public class LookupFactory
             return new StatefulLookup<string, Team>();
         }
 
-        var teams = await cosmos.GetTable<Team>(table, token).WhereAsync(t => t.Deleted == null && t.DivisionId == _settings.DivisionId).ToList();
+        var teams = await cosmos
+            .GetTable<Team>(table, token)
+            .WhereAsync(t => t.Deleted == null && t.Seasons.Any(ts => ts.DivisionId == _settings.DivisionId))
+            .ToList();
         return new StatefulLookup<string, Team>(teams.ToDictionary(t => t.Name));
     }
 

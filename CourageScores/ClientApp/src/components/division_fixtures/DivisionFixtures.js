@@ -18,7 +18,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account } = useApp();
+    const { account, onError } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
@@ -115,6 +115,17 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function beginProposeFixtures() {
+        // set proposalSettings.excludedDates
+        if (isEmpty(Object.keys(proposalSettings.excludedDates))) {
+            const datesWithNotes = {};
+            fixtures.filter(fd => any(fd.notes)).map(fd => fd.date).forEach(date => datesWithNotes[date] = 'has a note');
+            if (any(Object.keys(datesWithNotes))) {
+                const newProposalSettings = Object.assign({}, proposalSettings);
+                newProposalSettings.excludedDates = datesWithNotes;
+                setProposalSettings(newProposalSettings);
+            }
+        }
+
         setProposalSettingsDialogVisible(true);
     }
 
@@ -127,8 +138,11 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setNewFixtures(response.result);
 
                 setProposalResponse(response);
-                if (isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
+                const proposals = response.result.flatMap(date => date.fixtures).filter(f => f.proposal);
+                if (any(proposals) && isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
                     setProposalSettingsDialogVisible(false);
+                } else if (isEmpty(proposals)) {
+                    window.alert('No fixtures proposed, maybe all fixtures already have been created?');
                 }
             } else {
                 setProposalResponse(response);
@@ -150,6 +164,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: fixture.awayTeam.id,
+                seasonId: season.id
             });
 
             window.setTimeout(async () => {
@@ -166,7 +181,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setSavingProposals(newSavingProposals);
 
                 if (newSavingProposals.complete) {
-                    await onReloadDivision();
+                    await onProposalsSaved();
                 }
             }, 100);
         } catch (e) {
@@ -176,6 +191,12 @@ export function DivisionFixtures({ setNewFixtures }) {
             await onReloadDivision();
             setSavingProposals(newSavingProposals);
         }
+    }
+
+    async function onProposalsSaved() {
+        setProposalResponse(null);
+        await onReloadDivision();
+        setSavingProposals(null);
     }
 
     useEffect(() => {
@@ -215,6 +236,12 @@ export function DivisionFixtures({ setNewFixtures }) {
         let index = 0;
         const percentage = (savingProposals.saved / savingProposals.proposals.length) * 100;
         const currentProposal = savingProposals.proposals[savingProposals.saved - 1];
+        let progressBarColour = 'bg-primary progress-bar-animated progress-bar-striped';
+        if (cancelSavingProposals) {
+            progressBarColour = 'bg-danger';
+        } else if (savingProposals.complete) {
+            progressBarColour = 'bg-success';
+        }
 
         return (<Dialog title="Creating games...">
             {!cancelSavingProposals && !savingProposals.complete && currentProposal ? (<p>{new Date(currentProposal.date).toDateString()}: <strong>{currentProposal.homeTeam.name}</strong> vs <strong>{currentProposal.awayTeam.name}</strong></p>) : null}
@@ -223,7 +250,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 : (<p>About to create <strong>{savingProposals.proposals.length}</strong> games, click Start to create them</p>)}
             {cancelSavingProposals ? (<p className="text-danger">Operation cancelled.</p>) : null}
             <div className="progress" style={{ height: '25px' }}>
-                <div className={`progress-bar ${cancelSavingProposals ? ' bg-danger' : ' bg-success progress-bar-striped progress-bar-animated'}`} role="progressbar" style={{ width: `${percentage}%`}}>{percentage.toFixed(0)}%</div>
+                <div className={`progress-bar ${progressBarColour}`} role="progressbar" style={{ width: `${percentage}%`}}>{percentage.toFixed(0)}%</div>
             </div>
             {savingProposals.error ? (<p className="text-danger">{savingProposals.error}</p>) : null}
             <ol className="overflow-auto max-scroll-height">
@@ -388,7 +415,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
         }
 
-        if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate)) {
+        if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
             return null;
         }
 
@@ -413,7 +440,8 @@ export function DivisionFixtures({ setNewFixtures }) {
                     date={date.date}
                     allowTeamDelete={false}
                     allowTeamEdit={false}
-                    isKnockout={f.isKnockout} />))}
+                    isKnockout={f.isKnockout}
+                    onUpdateFixtures={(apply) => setNewFixtures(apply(fixtures))} />))}
                 {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
@@ -486,49 +514,63 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     const renderContext = {};
-    const resultsToRender = fixtures.map(renderFixtureDate);
-    return (<div className="light-background p-3">
-        <FilterFixtures setFilter={changeFilter} filter={filter} />
-        {proposalSettingsDialogVisible ? (<ProposeGamesDialog
-            onPropose={proposeFixtures}
-            onClose={() => setProposalSettingsDialogVisible(false)}
-            proposalSettings={proposalSettings}
-            disabled={proposingGames}
-            proposalResponse={proposalResponse}
-            onUpdateProposalSettings={settings => setProposalSettings(settings)} />) : null}
-        {savingProposals ? renderSavingProposalsDialog() : null}
-        {isAdmin ? (<div className="mb-3">
-            <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
-                🎲 Propose games...
-            </button>
-            {proposalResponse ? (<button className="btn btn-success" onClick={saveProposals}>
-                💾 Save proposals...
-            </button>) : null}
-        </div>) : null}
-        <div>
-            {resultsToRender}
-            {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (<div>No fixtures match your search</div>) : null}
-            {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
-            {editNote ? renderEditNote() : null}
-        </div>
-        {isAdmin && !proposingGames ? (<div className="mt-3">
+    try {
+        const resultsToRender = fixtures.map(renderFixtureDate);
+        const proposals = proposalResponse
+            ? proposalResponse.result.flatMap(date => date.fixtures).filter(f => f.proposal)
+            : [];
+        return (<div className="light-background p-3">
+            <FilterFixtures setFilter={changeFilter} filter={filter}/>
+            {proposalSettingsDialogVisible ? (<ProposeGamesDialog
+                onPropose={proposeFixtures}
+                onClose={() => setProposalSettingsDialogVisible(false)}
+                proposalSettings={proposalSettings}
+                disabled={proposingGames}
+                proposalResponse={proposalResponse}
+                onUpdateProposalSettings={setProposalSettings}/>) : null}
+            {savingProposals ? renderSavingProposalsDialog() : null}
+            {isAdmin ? (<div className="mb-3">
+                <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
+                    🎲 Propose games...
+                </button>
+                {proposalResponse && any(proposals) ? (
+                    <button className="btn btn-success" onClick={saveProposals}>
+                        💾 Save proposals...
+                    </button>) : null}
+            </div>) : null}
             <div>
-                <span className="margin-right">Select date:</span>
-                <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)} className="margin-right" value={newDate} onChange={stateChanged(setNewDate)} />
-
-                <div className="form-check form-switch d-inline-block">
-                    <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={isKnockout} onChange={stateChanged(setIsKnockout)} />
-                    <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
-                </div>
-                {newDate && isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌 Add note</button>) : null}
+                {resultsToRender}
+                {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (
+                    <div>No fixtures match your search</div>) : null}
+                {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
+                {editNote ? renderEditNote() : null}
             </div>
-            {newDate ? (<table className="table layout-fixed">
-                <tbody>
+            {isAdmin && !proposingGames ? (<div className="mt-3">
+                <div>
+                    <span className="margin-right">Select date:</span>
+                    <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
+                           className="margin-right" value={newDate} onChange={stateChanged(setNewDate)}/>
+
+                    <div className="form-check form-switch d-inline-block">
+                        <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout"
+                               checked={isKnockout} onChange={stateChanged(setIsKnockout)}/>
+                        <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
+                    </div>
+                    {newDate && isNoteAdmin ? (
+                        <button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌
+                            Add note</button>) : null}
+                </div>
+                {newDate ? (<table className="table layout-fixed">
+                    <tbody>
                     {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate date={newDate} />
-                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (<NewTournamentGame date={newDate} onNewTournament={onTournamentChanged} />)}
-                </tbody>
-            </table>) : null}
-        </div>) : null}
-    </div>);
+                    <NewFixtureDate date={newDate}/>
+                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (
+                        <NewTournamentGame date={newDate} onNewTournament={onTournamentChanged}/>)}
+                    </tbody>
+                </table>) : null}
+            </div>) : null}
+        </div>);
+    } catch (exc) {
+        onError(exc);
+    }
 }
