@@ -2,8 +2,9 @@ import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionPlayers({ hideVenue, hideHeading }) {
-    const { players } = useDivisionData();
+export function DivisionPlayers({ hideVenue, hideHeading, players }) {
+    const { players: divisionDataPlayers } = useDivisionData();
+    const playersToShow = players || divisionDataPlayers;
 
     return (<div className="light-background p-3 overflow-x-auto">
         <div>
@@ -24,7 +25,7 @@ export function DivisionPlayers({ hideVenue, hideHeading }) {
                 </tr>
                 </thead>
                 <tbody>
-                {players.map(player => (<DivisionPlayer
+                {playersToShow.map(player => (<DivisionPlayer
                     key={player.id}
                     player={player}
                     hideVenue={hideVenue} />))}
