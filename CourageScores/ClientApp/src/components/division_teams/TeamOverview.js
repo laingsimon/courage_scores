@@ -82,7 +82,7 @@ export function TeamOverview({ teamId }) {
             </table>
         </div>
         <div className="overflow-x-auto">
-            <DivisionPlayers players={players} onPlayerSaved={null} hideVenue={true} />
+            <DivisionPlayers players={players} hideVenue={true} />
         </div>
     </div>)
 }
