@@ -30,6 +30,7 @@ export function Tournament() {
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
     const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
+    const division = tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -163,6 +164,12 @@ export function Tournament() {
                     startDate: season.startDate.substring(0, 10),
                     endDate: season.endDate.substring(0, 10),
                 }}
+                originalDivisionData={division
+                    ? {
+                        id: division.id,
+                        name: division.name
+                    }
+                    : null}
                 overrideMode="fixtures"/>
             <div className="light-background p-3">
                 {canManageGames
