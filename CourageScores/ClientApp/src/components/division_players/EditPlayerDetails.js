@@ -3,9 +3,9 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {any, sortBy} from "../../Utilities";
+import {sortBy} from "../../Utilities";
 
-export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId }) {
+export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const { playerApi } = useDependencies();
@@ -68,13 +68,18 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
 
     function getTeamOptions() {
         return teams
-            .filter(selectedForSeason)
+            .filter(teamSeasonForSameDivision)
             .sort(sortBy('name'))
             .map(t => { return { value: t.id, text: t.name } });
     }
 
-    function selectedForSeason(team) {
-        return any(team.seasons, ts => ts.seasonId === seasonId);
+    function teamSeasonForSameDivision(team) {
+        const teamSeason = team.seasons.filter(ts => ts.seasonId === seasonId)[0];
+        if (!teamSeason) {
+            return false;
+        }
+
+        return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== divisionId);
     }
 
     function renderSelectTeamForNewPlayer() {

@@ -139,6 +139,7 @@ export function Tournament() {
                 id={null}
                 {...newPlayerDetails}
                 seasonId={season.id}
+                divisionId={tournamentData.divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={() => setAddPlayerDialogOpen(false)}
                 onSaved={reloadPlayers}
