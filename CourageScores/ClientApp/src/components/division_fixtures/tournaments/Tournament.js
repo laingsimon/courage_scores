@@ -164,6 +164,7 @@ export function Tournament() {
                     name: season.name,
                     startDate: season.startDate.substring(0, 10),
                     endDate: season.endDate.substring(0, 10),
+                    divisions: season.divisions
                 }}
                 originalDivisionData={division
                     ? {
