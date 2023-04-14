@@ -177,6 +177,15 @@ export function Tournament() {
                         ? (<div className="alert alert-warning alert-dismissible fade show"
                                 role="alert">{tournamentData.notes}</div>)
                         : null}
+                {isAdmin
+                    ? (<div className="form-group input-group mb-3 d-flex">
+                        <div className="form-check form-switch margin-right">
+                            <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesQualify" id="accoladesQualify"
+                                   checked={tournamentData.accoladesQualify} onChange={valueChanged(tournamentData, setTournamentData)} />
+                            <label className="form-check-label" htmlFor="accoladesQualify">Include 180s and Hi-checks in players table?</label>
+                        </div>
+                    </div>)
+                    : null}
                 <EditTournament
                     tournamentData={tournamentData}
                     disabled={disabled}

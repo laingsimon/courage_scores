@@ -56,6 +56,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         game.SeasonId = latestSeason.Id;
         game.Notes = update.Notes;
         game.Type = update.Type;
+        game.AccoladesQualify = update.AccoladesQualify;
         game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, token)).ToList();
         game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, token) : null;
         game.OneEighties = update.OneEighties.Select(p => AdaptToPlayer(p, user)).ToList();
