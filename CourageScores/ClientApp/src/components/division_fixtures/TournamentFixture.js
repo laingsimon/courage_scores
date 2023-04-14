@@ -126,10 +126,9 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             <td colSpan="5">
                 Tournament at <strong>{tournament.address}</strong>
             </td>
-            <td className="medium-column-width">
+            <td className="medium-column-width text-end">
                 {isAdmin && isProposedTournament ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
-                        {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎖'}
-                        Reserve
+                        {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '➕'}
                     </button>)
                     : null}
             </td>
@@ -148,7 +147,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
                 ? (<span className="margin-left">Winner: {renderWinner(tournament.winningSide)}</span>)
                 : null}
         </td>) : null}
-        {isAdmin ? (<td className="medium-column-width">
+        {isAdmin ? (<td className="medium-column-width text-end">
             <button className="btn btn-sm btn-danger" onClick={deleteTournamentGame}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
             </button>

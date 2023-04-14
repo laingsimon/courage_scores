@@ -34,10 +34,12 @@ public class TournamentGameAdapterTests
             Date = new DateTime(2001, 02, 03),
             Sides = { Side },
             SeasonId = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
             Address = "address",
             OneEighties = { OneEightyPlayer },
             Over100Checkouts = { HiCheckPlayer },
             Notes = "notes",
+            AccoladesQualify = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -47,10 +49,12 @@ public class TournamentGameAdapterTests
         Assert.That(result.Date, Is.EqualTo(model.Date));
         Assert.That(result.Sides, Is.EqualTo(new[] { SideDto }));
         Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
+        Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
         Assert.That(result.Address, Is.EqualTo(model.Address));
         Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
         Assert.That(result.Notes, Is.EqualTo(model.Notes));
+        Assert.That(result.AccoladesQualify, Is.True);
     }
 
     [Test]
@@ -73,10 +77,12 @@ public class TournamentGameAdapterTests
             Date = new DateTime(2001, 02, 03),
             Sides = { SideDto },
             SeasonId = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
             Address = "address",
             OneEighties = { OneEightyPlayerDto },
             Over100Checkouts = { HiCheckPlayerDto },
             Notes = "notes",
+            AccoladesQualify = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -86,10 +92,39 @@ public class TournamentGameAdapterTests
         Assert.That(result.Date, Is.EqualTo(dto.Date));
         Assert.That(result.Sides, Is.EqualTo(new[] { Side }));
         Assert.That(result.SeasonId, Is.EqualTo(dto.SeasonId));
+        Assert.That(result.DivisionId, Is.EqualTo(dto.DivisionId));
         Assert.That(result.Address, Is.EqualTo(dto.Address));
         Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayer }));
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
         Assert.That(result.Notes, Is.EqualTo(dto.Notes));
+        Assert.That(result.AccoladesQualify, Is.True);
+    }
+
+    [Test]
+    public async Task Adapt_GivenDtoWithoutDivisionId_SetsPropertiesCorrectly()
+    {
+        var dto = new TournamentGameDto
+        {
+            Address = "address",
+            DivisionId = null,
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.DivisionId, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_GivenModelWithoutDivisionId_SetsPropertiesCorrectly()
+    {
+        var dto = new TournamentGame
+        {
+            DivisionId = null,
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.DivisionId, Is.Null);
     }
 
     [Test]

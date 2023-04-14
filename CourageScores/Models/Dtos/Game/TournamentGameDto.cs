@@ -19,6 +19,11 @@ public class TournamentGameDto : AuditedDto
     public Guid SeasonId { get; set; }
 
     /// <summary>
+    /// The division id for this tournament game, if not cross-divisional
+    /// </summary>
+    public Guid? DivisionId { get; set; }
+
+    /// <summary>
     /// The sides that can play in the game
     /// </summary>
     public List<TournamentSideDto> Sides { get; set; } = new();
@@ -52,4 +57,9 @@ public class TournamentGameDto : AuditedDto
     /// The type of tournament
     /// </summary>
     public string? Type { get; set; }
+
+    /// <summary>
+    /// Whether any player accolades (180s, hi-checks) should be included in the player table
+    /// </summary>
+    public bool AccoladesQualify { get; set; }
 }

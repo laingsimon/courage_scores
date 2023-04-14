@@ -26,11 +26,12 @@ public class TournamentGameTests
     }
 
     [Test]
-    public void Accept_GivenHiCheckout_VisitsPlayer()
+    public void Accept_GivenHiCheckoutAndAccoladesQualify_VisitsHiCheckout()
     {
         var visitor = new Mock<IGameVisitor>();
         var player = new NotableTournamentPlayer();
         _game.Over100Checkouts.Add(player);
+        _game.AccoladesQualify = true;
 
         _game.Accept(visitor.Object);
 
@@ -38,15 +39,42 @@ public class TournamentGameTests
     }
 
     [Test]
-    public void Accept_GivenOneEighties_VisitsPlayer()
+    public void Accept_GivenHiCheckoutAndAccoladesDontQualify_DoesNotVisitHiCheckout()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new NotableTournamentPlayer();
+        _game.Over100Checkouts.Add(player);
+        _game.AccoladesQualify = false;
+
+        _game.Accept(visitor.Object);
+
+        visitor.Verify(v => v.VisitHiCheckout(player), Times.Never);
+    }
+
+    [Test]
+    public void Accept_GivenOneEightiesAndAccoladesQualify_VisitsOneEighty()
     {
         var visitor = new Mock<IGameVisitor>();
         var player = new TournamentPlayer();
         _game.OneEighties.Add(player);
+        _game.AccoladesQualify = true;
 
         _game.Accept(visitor.Object);
 
         visitor.Verify(v => v.VisitOneEighty(player));
+    }
+
+    [Test]
+    public void Accept_GivenOneEightiesAndAccoladesDontQualify_DoesNotVisitOneEighty()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new TournamentPlayer();
+        _game.OneEighties.Add(player);
+        _game.AccoladesQualify = false;
+
+        _game.Accept(visitor.Object);
+
+        visitor.Verify(v => v.VisitOneEighty(player), Times.Never);
     }
 
     [Test]

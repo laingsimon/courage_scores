@@ -58,8 +58,7 @@ public class DivisionDataGameVisitorTests
     public void VisitDataError_AddsError()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitDataError("some error");
 
@@ -87,52 +86,11 @@ public class DivisionDataGameVisitorTests
                 },
             }
         };
-        var teamLookup = new Dictionary<Guid, TeamDto>
-        {
-            { game.Home.Id, Home },
-            { game.Away.Id, Away },
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitGame(game);
 
         Assert.That(divisionData.PlayersToFixtures, Is.Empty);
-        Assert.That(divisionData.PlayerIdToTeamLookup, Is.Empty);
-    }
-
-    [Test]
-    public void VisitGame_GivenTeamNotRegisteredToSeason_IgnoresTeam()
-    {
-        var divisionData = new DivisionData();
-        var homePlayer = new GamePlayer { Id = HomePlayer.Id };
-        var awayPlayer = new GamePlayer { Id = AwayPlayer.Id };
-        var game = new CourageScores.Models.Cosmos.Game.Game
-        {
-            Postponed = false,
-            Id = Guid.NewGuid(),
-            SeasonId = Guid.NewGuid(),
-            Date = new DateTime(2001, 02, 03),
-            Home = new GameTeam { Id = Home.Id, Name = Home.Name },
-            Away = new GameTeam { Id = Away.Id, Name = Away.Name },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomePlayers = { homePlayer },
-                    AwayPlayers = { awayPlayer },
-                },
-            }
-        };
-        var teamLookup = new Dictionary<Guid, TeamDto>
-        {
-            { game.Home.Id, Home },
-            { game.Away.Id, Away },
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
-
-        visitor.VisitGame(game);
-
-        Assert.That(divisionData.PlayerIdToTeamLookup.Keys, Is.Empty);
     }
 
     [Test]
@@ -158,12 +116,7 @@ public class DivisionDataGameVisitorTests
                 },
             }
         };
-        var teamLookup = new Dictionary<Guid, TeamDto>
-        {
-            { game.Home.Id, Home },
-            { game.Away.Id, Away },
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitGame(game);
 
@@ -176,53 +129,12 @@ public class DivisionDataGameVisitorTests
     }
 
     [Test]
-    public void VisitGame_GivenGame_AddsPlayersIntoPlayerTeamLookup()
-    {
-        var divisionData = new DivisionData();
-        var homePlayer = new GamePlayer { Id = HomePlayer.Id };
-        var awayPlayer = new GamePlayer { Id = AwayPlayer.Id };
-        var game = new CourageScores.Models.Cosmos.Game.Game
-        {
-            Postponed = false,
-            Id = Guid.NewGuid(),
-            SeasonId = SeasonId,
-            Date = new DateTime(2001, 02, 03),
-            Home = new GameTeam { Id = Home.Id, Name = Home.Name },
-            Away = new GameTeam { Id = Away.Id, Name = Away.Name },
-            Matches =
-            {
-                new GameMatch
-                {
-                    HomePlayers = { homePlayer },
-                    AwayPlayers = { awayPlayer },
-                },
-            }
-        };
-        var teamLookup = new Dictionary<Guid, TeamDto>
-        {
-            { game.Home.Id, Home },
-            { game.Away.Id, Away },
-        };
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
-
-        visitor.VisitGame(game);
-
-        var mapping = divisionData.PlayerIdToTeamLookup;
-        Assert.That(mapping.Keys, Is.EquivalentTo(new[] { homePlayer.Id, awayPlayer.Id }));
-        Assert.That(mapping[homePlayer.Id].Player, Is.EqualTo(HomePlayer));
-        Assert.That(mapping[homePlayer.Id].Team, Is.EqualTo(Home));
-        Assert.That(mapping[awayPlayer.Id].Player, Is.EqualTo(AwayPlayer));
-        Assert.That(mapping[awayPlayer.Id].Team, Is.EqualTo(Away));
-    }
-
-    [Test]
     public void VisitMatchWin_GivenSomePlayers_RecordsPlayerWinRateForAllPlayers()
     {
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
         var homePlayer2 = new GamePlayer { Id = Guid.NewGuid() };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitMatchWin(new[] { homePlayer1, homePlayer2 }, TeamDesignation.Home, 3, 2);
 
@@ -245,8 +157,7 @@ public class DivisionDataGameVisitorTests
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
         var homePlayer2 = new GamePlayer { Id = Guid.NewGuid() };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitMatchWin(new[] { homePlayer1, homePlayer2 }, TeamDesignation.Home, 3, 2);
 
@@ -265,8 +176,7 @@ public class DivisionDataGameVisitorTests
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
         var homePlayer2 = new GamePlayer { Id = Guid.NewGuid() };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitMatchWin(new[] { homePlayer1, homePlayer2 }, TeamDesignation.Home, 3, 2);
         visitor.VisitMatchWin(new[] { homePlayer1 }, TeamDesignation.Home, 3, 1);
@@ -293,8 +203,7 @@ public class DivisionDataGameVisitorTests
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
         var homePlayer2 = new GamePlayer { Id = Guid.NewGuid() };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitMatchLost(new[] { homePlayer1, homePlayer2 }, TeamDesignation.Home, 2, 3);
 
@@ -317,8 +226,7 @@ public class DivisionDataGameVisitorTests
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
         var homePlayer2 = new GamePlayer { Id = Guid.NewGuid() };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitMatchLost(new[] { homePlayer1, homePlayer2 }, TeamDesignation.Home, 2, 3);
 
@@ -337,8 +245,7 @@ public class DivisionDataGameVisitorTests
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
         var homePlayer2 = new GamePlayer { Id = Guid.NewGuid() };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitMatchLost(new[] { homePlayer1, homePlayer2 }, TeamDesignation.Home, 2, 3);
         visitor.VisitMatchLost(new[] { homePlayer1 }, TeamDesignation.Home, 1, 3);
@@ -364,8 +271,7 @@ public class DivisionDataGameVisitorTests
     {
         var divisionData = new DivisionData();
         var homePlayer1 = new GamePlayer { Id = HomePlayer.Id };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitOneEighty(homePlayer1);
 
@@ -379,8 +285,7 @@ public class DivisionDataGameVisitorTests
     {
         var divisionData = new DivisionData();
         var homePlayer1 = new NotablePlayer { Id = HomePlayer.Id, Notes = "120" };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitHiCheckout(homePlayer1);
 
@@ -394,8 +299,7 @@ public class DivisionDataGameVisitorTests
     {
         var divisionData = new DivisionData();
         var homePlayer1 = new NotablePlayer { Id = HomePlayer.Id, Notes = "120  " };
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitHiCheckout(homePlayer1);
 
@@ -408,8 +312,7 @@ public class DivisionDataGameVisitorTests
     public void VisitHiCheckout_GivenPlayerWithLowerHiCheckThanPrevious_IgnoresScore()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitHiCheckout(new NotablePlayer { Id = HomePlayer.Id, Notes = "120" });
         visitor.VisitHiCheckout(new NotablePlayer { Id = HomePlayer.Id, Notes = "110" });
@@ -423,8 +326,7 @@ public class DivisionDataGameVisitorTests
     public void VisitHiCheckout_GivenPlayerWithNonNumericScore_IgnoresScore()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitHiCheckout(new NotablePlayer { Id = HomePlayer.Id, Notes = "wibble" });
 
@@ -435,8 +337,7 @@ public class DivisionDataGameVisitorTests
     public void VisitTeam_GivenUnPlayedGame_IgnoresTeam()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
         var team = new GameTeam { Id = Home.Id, Name = Home.Name };
 
         visitor.VisitTeam(team, GameState.Pending);
@@ -448,8 +349,7 @@ public class DivisionDataGameVisitorTests
     public void VisitTeam_GivenPlayedGame_RecordsTeamWithGamePlayed()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
         var team = new GameTeam { Id = Home.Id, Name = Home.Name };
 
         visitor.VisitTeam(team, GameState.Played);
@@ -462,8 +362,7 @@ public class DivisionDataGameVisitorTests
     public void VisitTeam_GivenSubsequentPlayedGame_RecordsTeamWithAnotherGamePlayed()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
         var team = new GameTeam { Id = Home.Id, Name = Home.Name };
 
         visitor.VisitTeam(team, GameState.Played);
@@ -477,8 +376,7 @@ public class DivisionDataGameVisitorTests
     public void VisitGameDraw_GivenTeams_RecordsDrawForBothTeams()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
         var homeTeam = new GameTeam { Id = Home.Id, Name = Home.Name };
         var awayTeam = new GameTeam { Id = Away.Id, Name = Away.Name };
 
@@ -493,8 +391,7 @@ public class DivisionDataGameVisitorTests
     public void VisitGameWinner_GivenTeam_RecordsFixtureWon()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
         var team = new GameTeam { Id = Home.Id, Name = Home.Name };
 
         visitor.VisitGameWinner(team);
@@ -507,8 +404,7 @@ public class DivisionDataGameVisitorTests
     public void VisitGameLoser_GivenTeam_RecordsFixtureWon()
     {
         var divisionData = new DivisionData();
-        var teamLookup = new Dictionary<Guid, TeamDto>();
-        var visitor = new DivisionDataGameVisitor(divisionData, teamLookup);
+        var visitor = new DivisionDataGameVisitor(divisionData);
         var team = new GameTeam { Id = Home.Id, Name = Home.Name };
 
         visitor.VisitGameLoser(team);

@@ -1,10 +1,10 @@
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -17,8 +17,8 @@ public class RemovePlayerCommandTests
 {
     private const string UserTeamId = "25BF0C9C-C4C8-4975-BC0F-DAB07030C453";
     private Mock<ISeasonService> _seasonService = null!;
-    private Mock<ISystemClock> _clock = null!;
     private Mock<IUserService> _userService = null!;
+    private Mock<IAuditingHelper> _auditingHelper = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private readonly SeasonDto _season = new SeasonDto
     {
@@ -34,8 +34,8 @@ public class RemovePlayerCommandTests
     public void SetupEachTest()
     {
         _seasonService = new Mock<ISeasonService>();
-        _clock = new Mock<ISystemClock>();
         _userService = new Mock<IUserService>();
+        _auditingHelper = new Mock<IAuditingHelper>();
         _user = new UserDto
         {
             Access = new AccessDto
@@ -65,7 +65,7 @@ public class RemovePlayerCommandTests
             },
             Name = "TEAM",
         };
-        _command = new RemovePlayerCommand(_seasonService.Object, _clock.Object, _userService.Object);
+        _command = new RemovePlayerCommand(_seasonService.Object, _userService.Object, _auditingHelper.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
@@ -145,5 +145,6 @@ public class RemovePlayerCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Message, Is.EqualTo("Player PLAYER removed from the SEASON season"));
+        _auditingHelper.Verify(h => h.SetDeleted(_teamPlayer, _token));
     }
 }

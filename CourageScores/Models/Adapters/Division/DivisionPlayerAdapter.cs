@@ -1,4 +1,5 @@
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Division;
 
 namespace CourageScores.Models.Adapters.Division;
@@ -31,5 +32,26 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             WinPercentage = score.PlayerWinPercentage,
             Fixtures = fixtures,
         };
+    }
+
+    public Task<DivisionPlayerDto> Adapt(TeamDto team, TeamPlayerDto player, CancellationToken token)
+    {
+        return Task.FromResult(new DivisionPlayerDto
+        {
+            Captain = player.Captain,
+            Id = player.Id,
+            Name = player.Name,
+            OneEighties = 0,
+            Fixtures = new Dictionary<DateTime, Guid>(),
+            Pairs = new PlayerPerformanceDto(),
+            Points = 0,
+            TeamId = team.Id,
+            WinPercentage = 0,
+            Singles = new PlayerPerformanceDto(),
+            Over100Checkouts = 0,
+            Team = team.Name,
+            Triples = new PlayerPerformanceDto(),
+            Rank = -1,
+        });
     }
 }

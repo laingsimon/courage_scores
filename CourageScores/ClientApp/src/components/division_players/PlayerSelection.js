@@ -1,21 +1,12 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {Dialog} from "../common/Dialog";
-import {EditPlayerDetails} from "./EditPlayerDetails";
-import {ErrorDisplay} from "../common/ErrorDisplay";
-import {useDependencies} from "../../IocContainer";
 
-export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, allowEdit, onEdit, teamId, seasonId, gameId, allowDelete, onDelete, className, placeholder }) {
+export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, className, placeholder }) {
     const empty = {
         value: '',
         text: placeholder ? (<span>{placeholder}</span>) : (<span>&nbsp;</span>),
         className: 'text-warning'
     };
-    const [ playerDetails, setPlayerDetails ] = useState(null);
-    const [ editPlayer, setEditPlayer ] = useState(false);
-    const [ deletingPlayer, setDeletingPlayer ] = useState(false);
-    const [ deleteError, setDeleteError ] = useState(null);
-    const { playerApi } = useDependencies();
 
     function findPlayer(playerId) {
         if (!playerId) {
@@ -25,79 +16,7 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
         return players.filter(p => p.id === playerId)[0];
     }
 
-    function beginEditPlayer() {
-        if (!selected || !selected.id) {
-            return;
-        }
-
-        const playerDetails = Object.assign({}, selected);
-        setPlayerDetails(playerDetails);
-        setEditPlayer(true);
-    }
-
-    function updatePlayerDetails(prop, value) {
-        const newPlayerDetails = Object.assign({}, playerDetails);
-        newPlayerDetails[prop] = value;
-        setPlayerDetails(newPlayerDetails);
-    }
-
-    async function playerUpdated() {
-        if (onEdit) {
-            await onEdit();
-        }
-        setEditPlayer(false);
-    }
-
-    function renderEditPlayer() {
-        return (<Dialog title="Edit player">
-            <EditPlayerDetails
-                {...playerDetails}
-                onCancel={() => setEditPlayer(null)}
-                onChange={updatePlayerDetails}
-                onSaved={playerUpdated}
-                teamId={teamId}
-                seasonId={seasonId}
-                gameId={gameId} />
-        </Dialog>);
-    }
-
-    async function deletePlayer() {
-        if (deletingPlayer) {
-            return;
-        }
-
-        if (!window.confirm(`Are you sure you want to delete ${selected.name}?`)) {
-            return;
-        }
-
-        setDeletingPlayer(true);
-        try {
-            const response = await playerApi.delete(seasonId, teamId, selected.id);
-
-            if (response.success) {
-                if (onDelete) {
-                    await onDelete();
-                }
-            } else {
-                setDeleteError(response);
-            }
-        } finally {
-            setDeletingPlayer(false);
-        }
-    }
-
     return (<span>
-        {editPlayer && teamId && seasonId ? renderEditPlayer() : null}
-        {allowDelete ? (<button
-            disabled={!teamId || !seasonId || (!(selected || {}).id) || deletingPlayer}
-            className={`btn btn-sm ${teamId && seasonId && (selected || {}).id && !deletingPlayer ? 'btn-danger' : 'btn-secondary'} margin-right`}
-            onClick={deletePlayer}>
-                {deletingPlayer ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
-        </button>) : null}
-        {allowEdit ? (<button
-            disabled={!teamId || !seasonId || (!(selected || {}).id)}
-            className={`btn btn-sm ${teamId && seasonId && (selected || {}).id ? 'btn-primary' : 'btn-secondary'} margin-right`}
-            onClick={beginEditPlayer}>✏</button>) : null}
         <BootstrapDropdown
             disabled={disabled}
             readOnly={readOnly}
@@ -106,6 +25,5 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
             onChange={async (value) => onChange ? await onChange(this, findPlayer(value)) : null}
             options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
                     .map(p => { return { value: p.id, text: p.name } })) } />
-        {deleteError ? (<ErrorDisplay {...deleteError} onClose={() => setDeleteError(null)} title="Could not delete player" />) : null}
     </span>);
 }

@@ -9,4 +9,5 @@ public class EditTeamPlayerDto
     public bool Captain { get; set; }
     public Guid? GameId { get; set; }
     public string? EmailAddress { get; set; }
+    public Guid? NewTeamId { get; set; }
 }
