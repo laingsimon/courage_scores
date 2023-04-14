@@ -40,7 +40,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             Date = date,
             Fixtures = (await FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), teams, tournamentGamesForDate?.Any() ?? false, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
-            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateGames, token)
+            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateGames, (gamesForDate?.Count ?? 0) == 0, token)
                 .OrderByAsync(f => f.Address).ToList(),
             HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
             Notes = notesForDate?.ToList() ?? new List<FixtureDateNoteDto>(),
@@ -82,6 +82,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         IReadOnlyCollection<TournamentGame> tournamentGames,
         IReadOnlyCollection<TeamDto> teams,
         bool canCreateGames,
+        bool includePossibleVenues,
         [EnumeratorCancellation] CancellationToken token)
     {
         var addressesInUse = new HashSet<string>();
@@ -92,7 +93,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
             yield return await _divisionTournamentFixtureDetailsAdapter.Adapt(game, token);
         }
 
-        if (addressesInUse.Any() && canCreateGames)
+        if ((tournamentGames.Any() || includePossibleVenues) && canCreateGames)
         {
             foreach (var teamAddress in teams
                          .Where(t => !addressesInUse.Contains(t.Name))

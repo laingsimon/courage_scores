@@ -44,6 +44,6 @@ public class DivisionDataContext
     [ExcludeFromCodeCoverage]
     public IEnumerable<DateTime> GetDates(Guid? divisionId)
     {
-        return GamesForDate.Keys.Union(AllTournamentGames(divisionId).Select(g => g.Date)).Union(Notes.Keys);
+        return GamesForDate.Keys.Union(AllTournamentGames(divisionId).Select(g => g.Date)).Union(Notes.Keys).OrderBy(d => d);
     }
 }
