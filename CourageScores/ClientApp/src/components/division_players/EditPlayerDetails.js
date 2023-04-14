@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {sortBy} from "../../Utilities";
+import {any, sortBy} from "../../Utilities";
 
 export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId }) {
     const [ saving, setSaving ] = useState(false);
@@ -66,6 +66,17 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
         }
     }
 
+    function getTeamOptions() {
+        return teams
+            .filter(selectedForSeason)
+            .sort(sortBy('name'))
+            .map(t => { return { value: t.id, text: t.name } });
+    }
+
+    function selectedForSeason(team) {
+        return any(team.seasons, ts => ts.seasonId === seasonId);
+    }
+
     function renderSelectTeamForNewPlayer() {
         return (<div className="input-group mb-3">
                 <div className="input-group-prepend">
@@ -74,7 +85,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
                 <BootstrapDropdown
                     onChange={value => onChange('teamId', value)}
                     value={teamId || ''}
-                    options={[{ value: '', text: 'Select team' }].concat(teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name } }))} />
+                    options={[{ value: '', text: 'Select team' }].concat(getTeamOptions())} />
             </div>
         );
     }
@@ -87,7 +98,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
                 <BootstrapDropdown
                     onChange={value => onChange('newTeamId', value)}
                     value={newTeamId || team.id}
-                    options={teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name } })} />
+                    options={getTeamOptions()} />
             </div>
         );
     }

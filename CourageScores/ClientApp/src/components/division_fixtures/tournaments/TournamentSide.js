@@ -11,7 +11,7 @@ export function TournamentSide({ seasonId, side, onChange, otherSides, winner, r
     const { teams: teamMap } = useApp();
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
-    const teamOptions = [selectATeam].concat(teamMap.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
+    const teamOptions = [selectATeam].concat(teamMap.filter(selectedForSeason).map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -64,6 +64,10 @@ export function TournamentSide({ seasonId, side, onChange, otherSides, winner, r
                     return { team: t, player: Object.assign({}, p, { divisionId: t.divisionId }) };
                 });
     });
+
+    function selectedForSeason(team) {
+        return any(team.seasons, ts => ts.seasonId === seasonId);
+    }
 
     async function onAddPlayer(player) {
         const newSide = Object.assign({}, side);
