@@ -27,10 +27,16 @@ public class DivisionDataGameVisitor : IGameVisitor
             return;
         }
 
-        var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
-        var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
+        var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
+        var playerTeamVisitor = new GamePlayerToTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
         game.Accept(playerGamesVisitor);
         game.Accept(playerTeamVisitor);
+    }
+
+    public void VisitGame(TournamentGame game)
+    {
+        var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
+        game.Accept(playerGamesVisitor);
     }
 
     public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
@@ -172,14 +178,16 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.FixturesLost++;
     }
 
-    private class PlayerAndGameLookupVisitor : IGameVisitor
+    private class PlayersToFixturesLookupVisitor : IGameVisitor
     {
-        private readonly Models.Cosmos.Game.Game _game;
+        private readonly Guid _id;
+        private readonly DateTime _date;
         private readonly DivisionData _divisionData;
 
-        public PlayerAndGameLookupVisitor(Models.Cosmos.Game.Game game, DivisionData divisionData)
+        public PlayersToFixturesLookupVisitor(Guid id, DateTime date, DivisionData divisionData)
         {
-            _game = game;
+            _id = id;
+            _date = date;
             _divisionData = divisionData;
         }
 
@@ -191,18 +199,18 @@ public class DivisionDataGameVisitor : IGameVisitor
                 _divisionData.PlayersToFixtures.Add(player.Id, gameLookup);
             }
 
-            gameLookup.TryAdd(_game.Date, _game.Id);
+            gameLookup.TryAdd(_date, _id);
         }
     }
 
-    private class PlayerTeamLookupVisitor : IGameVisitor
+    private class GamePlayerToTeamLookupVisitor : IGameVisitor
     {
         private readonly TeamDto _home;
         private readonly TeamDto _away;
         private readonly DivisionData _divisionData;
         private readonly Guid _seasonId;
 
-        public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData,
+        public GamePlayerToTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData,
             Dictionary<Guid, TeamDto> teamLookup, Guid seasonId)
         {
 #pragma warning disable CS8601

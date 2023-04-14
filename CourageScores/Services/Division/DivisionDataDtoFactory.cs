@@ -45,7 +45,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             tournamentGame.Accept(gameVisitor);
         }
 
-        var playerResults = await GetPlayers(divisionData, token).ToList();
+        var playerResults = await GetPlayers(divisionData, context, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
@@ -176,15 +176,31 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData,
+        DivisionDataContext context, [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
         {
             if (!divisionData.PlayerIdToTeamLookup.TryGetValue(id, out var playerTuple))
             {
-                playerTuple = new DivisionData.TeamPlayerTuple(
-                    new TeamPlayerDto { Name = score.Player?.Name ?? "Not found" },
-                    new TeamDto { Name = "Not found - " + id });
+                var team = FindTeamForPlayer(id, context);
+                if (team != null)
+                {
+                    playerTuple = new DivisionData.TeamPlayerTuple(
+                        new TeamPlayerDto
+                        {
+                            Id = id,
+                            Name = score.Player?.Name ?? "Not found",
+                        },
+                        team);
+                }
+                else
+                {
+                    playerTuple = new DivisionData.TeamPlayerTuple(
+                        new TeamPlayerDto
+                            { Name = score.Player?.Name ?? "Not found", Id = id },
+                        new TeamDto { Name = "Not found - " + id });
+                }
             }
 
             var fixtures = divisionData.PlayersToFixtures.TryGetValue(id, out var fixture)
@@ -193,5 +209,25 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
             yield return await _divisionPlayerAdapter.Adapt(score, playerTuple, fixtures, token);
         }
+    }
+
+    private TeamDto? FindTeamForPlayer(Guid id, DivisionDataContext context)
+    {
+        foreach (var team in context.TeamsInSeasonAndDivision)
+        {
+            var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id);
+            if (teamSeason == null)
+            {
+                continue;
+            }
+
+            var teamPlayer = teamSeason.Players.SingleOrDefault(p => p.Id == id);
+            if (teamPlayer != null)
+            {
+                return team;
+            }
+        }
+
+        return null;
     }
 }
