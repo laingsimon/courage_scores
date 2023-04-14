@@ -1,5 +1,7 @@
+using CourageScores.Filters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Team;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
@@ -8,6 +10,7 @@ using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
 
@@ -23,6 +26,9 @@ public class UpdatePlayerCommandTests
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>> _gameRepository = null!;
+    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICommandFactory> _commandFactory = null!;
+    private Mock<AddPlayerToTeamSeasonCommand> _addPlayerToSeasonCommand = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private UpdatePlayerCommand _command = null!;
     private CosmosTeam _team = null!;
@@ -39,7 +45,21 @@ public class UpdatePlayerCommandTests
         _seasonService = new Mock<ISeasonService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _gameRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>>();
-        _command = new UpdatePlayerCommand(_userService.Object, _seasonService.Object, _auditingHelper.Object, _gameRepository.Object);
+        _teamService = new Mock<ITeamService>();
+        _commandFactory = new Mock<ICommandFactory>();
+        _addPlayerToSeasonCommand = new Mock<AddPlayerToTeamSeasonCommand>(
+            _seasonService.Object,
+            _commandFactory.Object,
+            _auditingHelper.Object,
+            _userService.Object,
+            new ScopedCacheManagementFlags());
+        _command = new UpdatePlayerCommand(
+            _userService.Object,
+            _seasonService.Object,
+            _auditingHelper.Object,
+            _gameRepository.Object,
+            _teamService.Object,
+            _commandFactory.Object);
 
         _user = new UserDto
         {
@@ -80,6 +100,18 @@ public class UpdatePlayerCommandTests
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
+        _commandFactory
+            .Setup(f => f.GetCommand<AddPlayerToTeamSeasonCommand>())
+            .Returns(_addPlayerToSeasonCommand.Object);
+        _addPlayerToSeasonCommand
+            .Setup(c => c.ForPlayer(It.IsAny<EditTeamPlayerDto>()))
+            .Returns(_addPlayerToSeasonCommand.Object);
+        _addPlayerToSeasonCommand
+            .Setup(c => c.ToSeason(It.IsAny<Guid>()))
+            .Returns(_addPlayerToSeasonCommand.Object);
+        _addPlayerToSeasonCommand
+            .Setup(c => c.AddSeasonToTeamIfMissing(It.IsAny<bool>()))
+            .Returns(_addPlayerToSeasonCommand.Object);
     }
 
     [Test]
@@ -180,6 +212,104 @@ public class UpdatePlayerCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WhenDifferentTeamIdProvidedAndPlayerCouldNotBeAdded_ReturnsUnsuccessful()
+    {
+        _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+        var otherTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "OTHER TEAM",
+        };
+        _update.NewTeamId = otherTeam.Id;
+        _teamService
+            .Setup(s => s.Upsert(otherTeam.Id, _addPlayerToSeasonCommand.Object, _token))
+            .ReturnsAsync(() => new ActionResultDto<TeamDto>
+            {
+                Success = false,
+                Errors = { "Some error" }
+            });
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Could not move the player to other team: Some error"));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenDifferentTeamIdProvided_UpdatesPlayerTeam()
+    {
+        _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+        var otherTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "OTHER TEAM",
+        };
+        _update.NewTeamId = otherTeam.Id;
+        _teamService
+            .Setup(s => s.Upsert(otherTeam.Id, _addPlayerToSeasonCommand.Object, _token))
+            .ReturnsAsync(() => new ActionResultDto<TeamDto>
+            {
+                Success = true,
+                Messages = { "Player added to the OTHER TEAM team for the SEASON season" }
+            });
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Player added to the OTHER TEAM team for the SEASON season"));
+        _auditingHelper.Verify(h => h.SetDeleted(_teamPlayer, _token));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenSameTeamIdProvided_ReturnsSuccessful()
+    {
+        _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+        _update.NewTeamId = _team.Id;
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Message, Is.EqualTo("Player PLAYER (new) updated in the SEASON season, 0 game/s updated"));
+        _auditingHelper.Verify(h => h.SetUpdated(_teamPlayer, _token));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenDifferentTeamIdProvidedAndPlayerPlayingInGames_ReturnsUnsuccessful()
+    {
+        var game = new CourageScores.Models.Cosmos.Game.Game
+        {
+            Id = Guid.NewGuid(),
+            Matches =
+            {
+                new GameMatch
+                {
+                    AwayPlayers = { new GamePlayer { Id = _teamPlayer.Id } },
+                    HomePlayers = { new GamePlayer { Id = _teamPlayer.Id } },
+                }
+            }
+        };
+        _gameRepository.Setup(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token))
+            .Returns(TestUtilities.AsyncEnumerable(game));
+        _update.NewTeamId = Guid.NewGuid();
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Cannot move a player once they've played in some games"));
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAGame_UpdatesPlayerDetailsInGivenGame()
     {
         var game = new CourageScores.Models.Cosmos.Game.Game
@@ -241,7 +371,7 @@ public class UpdatePlayerCommandTests
     }
 
     [Test]
-    public async Task ApplyUpdate_WhenPlayerNotFoundInAGame_UpdatesPlayerDetailsInGivenGame()
+    public async Task ApplyUpdate_WhenPlayerNotFoundInAGame_ReturnsSuccessful()
     {
         var game = new CourageScores.Models.Cosmos.Game.Game
         {

@@ -14,7 +14,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                                          homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
                                          onPlayerChanged, divisionId, matchOptions, onMatchOptionsChanged,
                                          on180, onHiCheck }) {
-    const SHOW_EDIT_PLAYER_CONTROLS = false;
     const { account } = useApp();
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
@@ -154,12 +153,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         return indexes;
     }
 
-    async function playerUpdated() {
-        if (onPlayerChanged) {
-            await onPlayerChanged();
-        }
-    }
-
     function renderCreatePlayerDialog() {
         const team = createPlayerFor.side === 'home' ? home : away;
 
@@ -167,10 +160,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             <EditPlayerDetails
                 id={null}
                 {...newPlayerDetails}
-                teamId={team.id}
                 seasonId={seasonId}
                 gameId={gameId}
-                teams={[ team ]}
+                team={team}
+                divisionId={divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={() => setCreatePlayerFor(null)}
                 onSaved={onPlayerCreated}
@@ -193,18 +186,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
         setNewPlayerDetails(null);
         setCreatePlayerFor(null);
-    }
-
-    function canEditOrDelete(teamId) {
-        if (!account || !account.access || readOnly || !SHOW_EDIT_PLAYER_CONTROLS) {
-            return false;
-        }
-
-        if (account.access.manageScores) {
-            return true;
-        }
-
-        return account.access.inputResults && account.teamId === teamId;
     }
 
     function renderMatchSettingsDialog() {
@@ -288,14 +269,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 players={homePlayers}
                 selected={homePlayer(index)}
                 except={exceptPlayers(index, 'homePlayers')}
-                onChange={(elem, player) => homePlayerChanged(index, player)}
-                allowEdit={canEditOrDelete(home.id)}
-                allowDelete={canEditOrDelete(home.id)}
-                onDelete={playerUpdated}
-                onEdit={playerUpdated}
-                teamId={home.id}
-                seasonId={seasonId}
-                gameId={gameId} /></div>))}
+                onChange={(elem, player) => homePlayerChanged(index, player)} /></div>))}
         </td>
         <td className={`narrow-column align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
             {disabled
@@ -333,14 +307,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         players={awayPlayers}
                         selected={awayPlayer(index)}
                         except={exceptPlayers(index, 'awayPlayers')}
-                        onChange={(elem, player) => awayPlayerChanged(index, player)}
-                        allowEdit={canEditOrDelete(away.id)}
-                        onEdit={playerUpdated}
-                        allowDelete={canEditOrDelete(away.id)}
-                        onDelete={playerUpdated}
-                        teamId={away.id}
-                        seasonId={seasonId}
-                        gameId={gameId} />
+                        onChange={(elem, player) => awayPlayerChanged(index, player)} />
                 </div>))}
         </td>
     </tr>);

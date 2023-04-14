@@ -1,26 +1,25 @@
 ﻿using CourageScores.Models.Cosmos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Command;
 
 public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
 {
     private readonly ISeasonService _seasonService;
-    private readonly ISystemClock _clock;
     private readonly IUserService _userService;
+    private readonly IAuditingHelper _auditingHelper;
     private Guid? _playerId;
     private Guid? _seasonId;
 
     public RemovePlayerCommand(
         ISeasonService seasonService,
-        ISystemClock clock,
-        IUserService userService)
+        IUserService userService,
+        IAuditingHelper auditingHelper)
     {
         _seasonService = seasonService;
-        _clock = clock;
         _userService = userService;
+        _auditingHelper = auditingHelper;
     }
 
     public RemovePlayerCommand ForPlayer(Guid playerId)
@@ -81,8 +80,8 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new CommandOutcome<TeamPlayer>(false, $"Player does not have a player with this id for the {season.Name} season", null);
         }
 
-        player.Deleted = _clock.UtcNow.UtcDateTime;
-        player.Remover = user.Name;
+
+        await _auditingHelper.SetDeleted(player, token);
         return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} removed from the {season.Name} season", player);
     }
 }

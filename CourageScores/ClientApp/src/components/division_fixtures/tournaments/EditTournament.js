@@ -84,7 +84,7 @@ export function EditTournament({ tournamentData, season, alreadyPlaying, disable
                 const thisSideIndex = sideIndex;
                 sideIndex++;
                 return (<TournamentSide key={thisSideIndex} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
-            {readOnly || hasStarted ? null : (<TournamentSide seasonId={season.id} side={null} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
+            {readOnly || hasStarted ? null : (<TournamentSide divisionId={tournamentData.divisionId} seasonId={season.id} side={null} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
         </div>
         {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} onHiCheck={add180(tournamentData, setTournamentData)} on180={add180(tournamentData, setTournamentData)} />) : null}
         {tournamentData.sides.length >= 2 ? (<table className="table">

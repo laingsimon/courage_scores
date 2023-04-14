@@ -1,18 +1,14 @@
-using System.Diagnostics;
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Division;
 
 public class DivisionDataGameVisitor : IGameVisitor
 {
     private readonly DivisionData _divisionData;
-    private readonly Dictionary<Guid, TeamDto> _teamLookup;
 
-    public DivisionDataGameVisitor(DivisionData divisionData, Dictionary<Guid, TeamDto> teamLookup)
+    public DivisionDataGameVisitor(DivisionData divisionData)
     {
         _divisionData = divisionData;
-        _teamLookup = teamLookup;
     }
 
     public void VisitDataError(string dataError)
@@ -27,10 +23,14 @@ public class DivisionDataGameVisitor : IGameVisitor
             return;
         }
 
-        var playerGamesVisitor = new PlayerAndGameLookupVisitor(game, _divisionData);
-        var playerTeamVisitor = new PlayerTeamLookupVisitor(game.Home, game.Away, _divisionData, _teamLookup, game.SeasonId);
+        var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
         game.Accept(playerGamesVisitor);
-        game.Accept(playerTeamVisitor);
+    }
+
+    public void VisitGame(TournamentGame game)
+    {
+        var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
+        game.Accept(playerGamesVisitor);
     }
 
     public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
@@ -172,14 +172,16 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.FixturesLost++;
     }
 
-    private class PlayerAndGameLookupVisitor : IGameVisitor
+    private class PlayersToFixturesLookupVisitor : IGameVisitor
     {
-        private readonly Models.Cosmos.Game.Game _game;
+        private readonly Guid _id;
+        private readonly DateTime _date;
         private readonly DivisionData _divisionData;
 
-        public PlayerAndGameLookupVisitor(Models.Cosmos.Game.Game game, DivisionData divisionData)
+        public PlayersToFixturesLookupVisitor(Guid id, DateTime date, DivisionData divisionData)
         {
-            _game = game;
+            _id = id;
+            _date = date;
             _divisionData = divisionData;
         }
 
@@ -191,75 +193,7 @@ public class DivisionDataGameVisitor : IGameVisitor
                 _divisionData.PlayersToFixtures.Add(player.Id, gameLookup);
             }
 
-            gameLookup.TryAdd(_game.Date, _game.Id);
-        }
-    }
-
-    private class PlayerTeamLookupVisitor : IGameVisitor
-    {
-        private readonly TeamDto _home;
-        private readonly TeamDto _away;
-        private readonly DivisionData _divisionData;
-        private readonly Guid _seasonId;
-
-        public PlayerTeamLookupVisitor(GameTeam home, GameTeam away, DivisionData divisionData,
-            Dictionary<Guid, TeamDto> teamLookup, Guid seasonId)
-        {
-#pragma warning disable CS8601
-            if (!teamLookup.TryGetValue(home.Id, out _home))
-#pragma warning restore CS8601
-            {
-                _home = teamLookup.Values.SingleOrDefault(t => t.Name == home.Name)
-                        ?? CreateMissingTeamDto(home);
-            }
-
-#pragma warning disable CS8601
-            if (!teamLookup.TryGetValue(away.Id, out _away))
-#pragma warning restore CS8601
-            {
-                _away = teamLookup.Values.SingleOrDefault(t => t.Name == away.Name)
-                        ?? CreateMissingTeamDto(away);
-            }
-
-            _divisionData = divisionData;
-            _seasonId = seasonId;
-        }
-
-        private static TeamDto CreateMissingTeamDto(GameTeam team)
-        {
-            Trace.TraceWarning($"Could not find team for game; creating virtual team: {team.Id}, {team.Name}");
-            return new TeamDto { Id = team.Id, Name = team.Name };
-        }
-
-        public void VisitMatch(GameMatch match)
-        {
-            ProcessPlayers(match.HomePlayers, _home);
-            ProcessPlayers(match.AwayPlayers, _away);
-        }
-
-        private void ProcessPlayers(IEnumerable<GamePlayer> players, TeamDto team)
-        {
-            var teamSeason = team.Seasons.SingleOrDefault(s => s.SeasonId == _seasonId);
-            if (teamSeason == null)
-            {
-                Trace.TraceWarning($"Team {team.Id} ({team.Name}) is not registered for season {_seasonId}; cannot build playerId -> teamMap");
-                return;
-            }
-
-            foreach (var player in players)
-            {
-                var teamPlayer = teamSeason?.Players.SingleOrDefault(p => p.Id == player.Id);
-
-                _divisionData.PlayerIdToTeamLookup.TryAdd(
-                    player.Id,
-                    new DivisionData.TeamPlayerTuple(
-                        teamPlayer ?? new TeamPlayerDto
-                        {
-                            Name = player.Name,
-                            Id = player.Id,
-                        },
-                        team));
-            }
+            gameLookup.TryAdd(_date, _id);
         }
     }
 }

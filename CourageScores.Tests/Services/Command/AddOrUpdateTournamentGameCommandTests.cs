@@ -89,8 +89,10 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Address = "new address";
         _update.Date = new DateTime(2001, 02, 03);
         _update.Notes = "notes";
+        _update.AccoladesQualify = true;
         _update.OneEighties.Add(new EditTournamentGameDto.RecordTournamentScoresPlayerDto { Id = oneEightyPlayerId, Name = "player" });
         _update.Over100Checkouts.Add(new EditTournamentGameDto.TournamentOver100CheckoutDto { Id = over100CheckoutPlayerId, Name = "player", Notes = "120" });
+        _update.DivisionId = Guid.NewGuid();
         _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
@@ -102,7 +104,9 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Date, Is.EqualTo(new DateTime(2001, 02, 03)));
         Assert.That(result.Result!.OneEighties.Select(p => p.Id), Is.EqualTo(new[] { oneEightyPlayerId }));
         Assert.That(result.Result!.Over100Checkouts.Select(p => p.Id), Is.EqualTo(new[] { over100CheckoutPlayerId }));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(result.Result!.AccoladesQualify, Is.True);
+        Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_update.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 

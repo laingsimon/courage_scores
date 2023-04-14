@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Command;
 
@@ -12,17 +13,27 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
     private readonly IUserService _userService;
     private readonly ISeasonService _seasonService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly ITeamService _teamService;
+    private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
     private Guid? _playerId;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
 
-    public UpdatePlayerCommand(IUserService userService, ISeasonService seasonService, IAuditingHelper auditingHelper, IGenericRepository<Models.Cosmos.Game.Game> gameRepository)
+    public UpdatePlayerCommand(
+        IUserService userService,
+        ISeasonService seasonService,
+        IAuditingHelper auditingHelper,
+        IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
+        ITeamService teamService,
+        ICommandFactory commandFactory)
     {
         _userService = userService;
         _seasonService = seasonService;
         _auditingHelper = auditingHelper;
         _gameRepository = gameRepository;
+        _teamService = teamService;
+        _commandFactory = commandFactory;
     }
 
     public UpdatePlayerCommand ForPlayer(Guid playerId)
@@ -96,11 +107,42 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         var updatedGames = await UpdateGames(token).CountAsync();
 
+        if (_player.NewTeamId != null && _player.NewTeamId != model.Id)
+        {
+            if (updatedGames > 0)
+            {
+                return new CommandOutcome<TeamPlayer>(false, "Cannot move a player once they've played in some games", null);
+            }
+
+            var command = _commandFactory.GetCommand<AddPlayerToTeamSeasonCommand>()
+                .ForPlayer(_player)
+                .ToSeason(season.Id)
+                .AddSeasonToTeamIfMissing(false);
+            var addResult = await _teamService.Upsert(_player.NewTeamId.Value, command, token);
+            if (!addResult.Success)
+            {
+                // combine the messages into the CommandOutcome
+                var errors = string.Join(", ", addResult.Errors);
+                return new CommandOutcome<TeamPlayer>(false, $"Could not move the player to other team: {errors}", null);
+            }
+
+            // player has been added to the other team, can remove it from this team now
+            await _auditingHelper.SetDeleted(player, token);
+
+            return new CommandOutcome<TeamPlayer>(
+                true,
+                string.Join(", ", addResult.Messages),
+                null);
+        }
+
         player.Name = _player.Name;
         player.Captain = _player.Captain;
         player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
         await _auditingHelper.SetUpdated(player, token);
-        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated", player);
+        return new CommandOutcome<TeamPlayer>(
+            true,
+            $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated",
+            player);
     }
 
     private async IAsyncEnumerable<Models.Cosmos.Game.Game> UpdateGames([EnumeratorCancellation] CancellationToken token)

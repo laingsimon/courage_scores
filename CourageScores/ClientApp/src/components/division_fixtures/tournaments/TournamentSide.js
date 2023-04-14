@@ -5,13 +5,13 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
 import {useApp} from "../../../AppContainer";
 
-export function TournamentSide({ seasonId, side, onChange, otherSides, winner, readOnly, exceptPlayerIds }) {
+export function TournamentSide({ seasonId, side, onChange, otherSides, winner, readOnly, exceptPlayerIds, divisionId }) {
     const team = { };
     const selectATeam = { value: '', text: 'Select team', className: 'text-warning' };
     const { teams: teamMap } = useApp();
     const [sortOption, setSortOption] = useState('team');
     const [changeSideName, setChangeSideName] = useState(false);
-    const teamOptions = [selectATeam].concat(teamMap.map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
+    const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
 
     const alreadySelectedOnAnotherSide = toMap(otherSides
         .filter(s => !side || s.id !== side.id)
@@ -64,6 +64,15 @@ export function TournamentSide({ seasonId, side, onChange, otherSides, winner, r
                     return { team: t, player: Object.assign({}, p, { divisionId: t.divisionId }) };
                 });
     });
+
+    function teamSeasonForSameDivision(team) {
+        const teamSeason = team.seasons.filter(ts => ts.seasonId === seasonId)[0];
+        if (!teamSeason) {
+            return false;
+        }
+
+        return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== divisionId);
+    }
 
     async function onAddPlayer(player) {
         const newSide = Object.assign({}, side);

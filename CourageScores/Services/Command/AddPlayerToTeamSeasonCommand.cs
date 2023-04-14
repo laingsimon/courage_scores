@@ -15,6 +15,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
+    private bool _addSeasonToTeamIfMissing = true;
 
     public AddPlayerToTeamSeasonCommand(
         ISeasonService seasonService,
@@ -30,19 +31,25 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         _cacheFlags = cacheFlags;
     }
 
-    public AddPlayerToTeamSeasonCommand ForPlayer(EditTeamPlayerDto player)
+    public virtual AddPlayerToTeamSeasonCommand ForPlayer(EditTeamPlayerDto player)
     {
         _player = player;
         return this;
     }
 
-    public AddPlayerToTeamSeasonCommand ToSeason(Guid seasonId)
+    public virtual AddPlayerToTeamSeasonCommand ToSeason(Guid seasonId)
     {
         _seasonId = seasonId;
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public virtual AddPlayerToTeamSeasonCommand AddSeasonToTeamIfMissing(bool allowed)
+    {
+        _addSeasonToTeamIfMissing = allowed;
+        return this;
+    }
+
+    public virtual async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_player == null)
         {
@@ -79,6 +86,11 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
+            if (!_addSeasonToTeamIfMissing)
+            {
+                return new CommandOutcome<TeamPlayer>(false, $"{season.Name} season is not attributed to team {model.Name}", null);
+            }
+
             var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)

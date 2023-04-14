@@ -37,6 +37,8 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             Notes = model.Notes,
             Type = model.Type,
+            AccoladesQualify = model.AccoladesQualify,
+            DivisionId = model.DivisionId,
         }.AddAuditProperties(model);
     }
 
@@ -54,6 +56,8 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             Notes = dto.Notes?.Trim(),
             Type = dto.Type?.Trim(),
+            AccoladesQualify = dto.AccoladesQualify,
+            DivisionId = dto.DivisionId,
         }.AddAuditProperties(dto);
     }
 }
