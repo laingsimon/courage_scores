@@ -32,8 +32,7 @@ export function DivisionPlayer({ player, hideVenue }) {
             <EditPlayerDetails
                 gameId={null}
                 {...playerDetails}
-                teamId={team.id}
-                teams={[ team ]}
+                team={team}
                 seasonId={season.id}
                 onCancel={() => setEditPlayer(false)}
                 onChange={propChanged(playerDetails, setPlayerDetails)}

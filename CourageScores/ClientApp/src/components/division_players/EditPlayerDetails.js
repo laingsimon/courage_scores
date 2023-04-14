@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
+import {useApp} from "../../AppContainer";
+import {sortBy} from "../../Utilities";
 
-export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, teams, gameId }) {
+export function EditPlayerDetails({ id, name, captain, emailAddress, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const { playerApi } = useDependencies();
+    const { teams } = useApp();
 
     async function saveChanges() {
         if (saving) {
             return;
         }
 
-        if (!teamId) {
+        if (!team || !team.id) {
             window.alert('Please select a team');
             return;
         }
@@ -28,7 +31,8 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
             const playerDetails = {
                 name: name,
                 captain: captain,
-                emailAddress: emailAddress
+                emailAddress: emailAddress,
+                newTeamId: newTeamId
             };
 
             if (id && gameId) {
@@ -36,8 +40,8 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
             }
 
             const response = id
-                ? await playerApi.update(seasonId, teamId, id, playerDetails)
-                : await playerApi.create(seasonId, teamId, playerDetails);
+                ? await playerApi.update(seasonId, team.id, id, playerDetails)
+                : await playerApi.create(seasonId, team.id, playerDetails);
 
             if (response.success) {
                 if (onSaved) {
@@ -62,17 +66,35 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
         }
     }
 
-    return (<div>
-        <h4>Player details</h4>
-        {id ? null : (<div className="input-group mb-3">
+    function renderSelectTeamForNewPlayer() {
+        return (<div className="input-group mb-3">
                 <div className="input-group-prepend">
                     <span className="input-group-text">Team</span>
                 </div>
                 <BootstrapDropdown
-                    onChange={value => onChange('teamId', value)} value={teamId || ''}
-                    options={[{ value: '', text: 'Select team' }].concat(teams.map(t => { return { value: t.id, text: t.name } }))} />
+                    onChange={value => onChange('teamId', value)}
+                    value={team.id || ''}
+                    options={[{ value: '', text: 'Select team' }].concat(teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name } }))} />
             </div>
-        )}
+        );
+    }
+
+    function renderSelectTeamForExistingPlayer() {
+        return (<div className="input-group mb-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">New Team</span>
+                </div>
+                <BootstrapDropdown
+                    onChange={value => onChange('newTeamId', value)}
+                    value={newTeamId || team.id}
+                    options={teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name } })} />
+            </div>
+        );
+    }
+
+    return (<div>
+        <h4>Player details</h4>
+        {id ? renderSelectTeamForExistingPlayer() : renderSelectTeamForNewPlayer()}
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>

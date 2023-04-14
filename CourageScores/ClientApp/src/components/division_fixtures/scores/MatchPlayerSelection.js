@@ -160,10 +160,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             <EditPlayerDetails
                 id={null}
                 {...newPlayerDetails}
-                teamId={team.id}
                 seasonId={seasonId}
                 gameId={gameId}
-                teams={[ team ]}
+                team={team}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
                 onCancel={() => setCreatePlayerFor(null)}
                 onSaved={onPlayerCreated}
