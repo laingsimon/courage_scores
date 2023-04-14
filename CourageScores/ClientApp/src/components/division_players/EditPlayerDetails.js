@@ -5,11 +5,11 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {sortBy} from "../../Utilities";
 
-export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId }) {
+export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const { playerApi } = useDependencies();
-    const { teams } = useApp();
+    const { teams, divisions } = useApp();
 
     async function saveChanges() {
         if (saving) {
@@ -79,7 +79,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
             return false;
         }
 
-        return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== divisionId);
+        return !(divisionId && teamSeason.divisionId && teamSeason.divisionId !== (newDivisionId || divisionId));
     }
 
     function renderSelectTeamForNewPlayer() {
@@ -104,6 +104,11 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
                     onChange={value => onChange('newTeamId', value)}
                     value={newTeamId || team.id}
                     options={getTeamOptions()} />
+
+                <BootstrapDropdown
+                    onChange={value => onChange('newDivisionId', value)}
+                    value={newDivisionId || divisionId}
+                    options={divisions.map(division => { return { value: division.id, text: division.name }; })} />
             </div>
         );
     }
