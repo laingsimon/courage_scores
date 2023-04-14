@@ -23,11 +23,6 @@ public class DivisionData
     public Dictionary<Guid, Dictionary<DateTime, Guid>> PlayersToFixtures { get; } = new();
 
     /// <summary>
-    /// PlayerId -> TeamPlayerTuple map
-    /// </summary>
-    public Dictionary<Guid, TeamPlayerTuple> PlayerIdToTeamLookup { get; } = new();
-
-    /// <summary>
     /// A list of all known data errors
     /// </summary>
     public HashSet<string> DataErrors { get; } = new HashSet<string>();

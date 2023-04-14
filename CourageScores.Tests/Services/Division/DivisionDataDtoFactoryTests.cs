@@ -209,7 +209,7 @@ public class DivisionDataDtoFactoryTests
                 new TeamSeasonDto
                 {
                     SeasonId = season.Id,
-                    Players = { new TeamPlayerDto { Id = player1.Id, Name = player1.Name } }
+                    Players = { new TeamPlayerDto { Id = player2.Id, Name = player2.Name } }
                 }
             },
         };
@@ -375,7 +375,7 @@ public class DivisionDataDtoFactoryTests
                 new TeamSeasonDto
                 {
                     SeasonId = season.Id,
-                    Players = { new TeamPlayerDto { Id = player1.Id, Name = player1.Name } }
+                    Players = { new TeamPlayerDto { Id = player2.Id, Name = player2.Name } }
                 }
             },
         };

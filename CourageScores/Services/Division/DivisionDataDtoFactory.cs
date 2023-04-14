@@ -35,7 +35,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     public async Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, DivisionDto? division, CancellationToken token)
     {
         var divisionData = new DivisionData();
-        var gameVisitor = new DivisionDataGameVisitor(divisionData, context.TeamsInSeasonAndDivision.ToDictionary(t => t.Id));
+        var gameVisitor = new DivisionDataGameVisitor(divisionData);
         foreach (var game in context.AllGames())
         {
             game.Accept(gameVisitor);
@@ -45,7 +45,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             tournamentGame.Accept(gameVisitor);
         }
 
-        var playerResults = await GetPlayers(divisionData, context, token).ToList();
+        var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);
+        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
@@ -176,31 +177,19 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData,
-        DivisionDataContext context, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(
+        DivisionData divisionData,
+        IReadOnlyDictionary<Guid, DivisionData.TeamPlayerTuple> playerToTeamLookup,
+        [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
         {
-            if (!divisionData.PlayerIdToTeamLookup.TryGetValue(id, out var playerTuple))
+            if (!playerToTeamLookup.TryGetValue(id, out var playerTuple))
             {
-                var team = FindTeamForPlayer(id, context);
-                if (team != null)
-                {
-                    playerTuple = new DivisionData.TeamPlayerTuple(
-                        new TeamPlayerDto
-                        {
-                            Id = id,
-                            Name = score.Player?.Name ?? "Not found",
-                        },
-                        team);
-                }
-                else
-                {
-                    playerTuple = new DivisionData.TeamPlayerTuple(
-                        new TeamPlayerDto
-                            { Name = score.Player?.Name ?? "Not found", Id = id },
-                        new TeamDto { Name = "Not found - " + id });
-                }
+                playerTuple = new DivisionData.TeamPlayerTuple(
+                    new TeamPlayerDto
+                        { Name = score.Player?.Name ?? "Not found", Id = id },
+                    new TeamDto { Name = "Not found - " + id });
             }
 
             var fixtures = divisionData.PlayersToFixtures.TryGetValue(id, out var fixture)
@@ -211,8 +200,10 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private TeamDto? FindTeamForPlayer(Guid id, DivisionDataContext context)
+    private static Dictionary<Guid, DivisionData.TeamPlayerTuple> CreatePlayerIdToTeamLookup(DivisionDataContext context)
     {
+        var lookup = new Dictionary<Guid, DivisionData.TeamPlayerTuple>();
+
         foreach (var team in context.TeamsInSeasonAndDivision)
         {
             var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id);
@@ -221,13 +212,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 continue;
             }
 
-            var teamPlayer = teamSeason.Players.SingleOrDefault(p => p.Id == id);
-            if (teamPlayer != null)
+            foreach (var player in teamSeason.Players)
             {
-                return team;
+                lookup.Add(player.Id, new DivisionData.TeamPlayerTuple(player, team));
             }
         }
 
-        return null;
+        return lookup;
     }
 }
