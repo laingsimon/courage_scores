@@ -8,11 +8,11 @@ namespace CourageScores.Services.Division;
 
 public class DivisionDataContext
 {
+    private readonly IReadOnlyCollection<TournamentGame> _tournamentGames;
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
     public SeasonDto Season { get; }
     public Dictionary<DateTime, List<FixtureDateNoteDto>> Notes { get; }
     public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
-    public Dictionary<DateTime, TournamentGame[]> TournamentGamesForDate { get; }
 
     public DivisionDataContext(
         IReadOnlyCollection<Models.Cosmos.Game.Game> games,
@@ -25,7 +25,7 @@ public class DivisionDataContext
         TeamsInSeasonAndDivision = teamsInSeasonAndDivision;
         Season = season;
         Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToList());
-        TournamentGamesForDate = tournamentGames.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
+        _tournamentGames = tournamentGames;
     }
 
     [ExcludeFromCodeCoverage]
@@ -35,16 +35,15 @@ public class DivisionDataContext
     }
 
     [ExcludeFromCodeCoverage]
-    public IEnumerable<TournamentGame> AllTournamentGames(DivisionDto? division)
+    public IEnumerable<TournamentGame> AllTournamentGames(Guid? divisionId)
     {
-        return TournamentGamesForDate
-            .SelectMany(pair => pair.Value)
-            .Where(tournament => division == null || tournament.DivisionId == null || tournament.DivisionId == division.Id);
+        return _tournamentGames
+            .Where(tournament => tournament.DivisionId == null || tournament.DivisionId == divisionId);
     }
 
     [ExcludeFromCodeCoverage]
-    public IEnumerable<DateTime> GetDates()
+    public IEnumerable<DateTime> GetDates(Guid? divisionId)
     {
-        return GamesForDate.Keys.Union(TournamentGamesForDate.Keys).Union(Notes.Keys);
+        return GamesForDate.Keys.Union(AllTournamentGames(divisionId).Select(g => g.Date)).Union(Notes.Keys);
     }
 }

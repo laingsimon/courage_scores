@@ -40,7 +40,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             game.Accept(gameVisitor);
         }
-        foreach (var tournamentGame in context.AllTournamentGames(division))
+        foreach (var tournamentGame in context.AllTournamentGames(division?.Id))
         {
             tournamentGame.Accept(gameVisitor);
         }
@@ -60,7 +60,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
                 .ToList(),
-            Fixtures = await GetFixtures(context, token)
+            Fixtures = await GetFixtures(context, division?.Id, token)
                 .OrderByAsync(d => d.Date)
                 .ToList(),
             Players = (await AddAllPlayersIfAdmin(playerResults, user, context, token))
@@ -159,12 +159,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, [EnumeratorCancellation] CancellationToken token)
+    private async IAsyncEnumerable<DivisionFixtureDateDto> GetFixtures(DivisionDataContext context, Guid? divisionId, [EnumeratorCancellation] CancellationToken token)
     {
-        foreach (var date in context.GetDates())
+        foreach (var date in context.GetDates(divisionId))
         {
             context.GamesForDate.TryGetValue(date, out var gamesForDate);
-            context.TournamentGamesForDate.TryGetValue(date, out var tournamentGamesForDate);
+            var tournamentGamesForDate = context.AllTournamentGames(divisionId).Where(g => g.Date == date).ToArray();
             context.Notes.TryGetValue(date, out var notesForDate);
 
             yield return await _divisionFixtureDateAdapter.Adapt(

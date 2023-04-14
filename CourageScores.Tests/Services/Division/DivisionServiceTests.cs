@@ -360,6 +360,6 @@ public class DivisionServiceTests
         _tournamentGameRepository.Setup(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.TournamentGamesForDate.Values.SelectMany(g => g), Is.EquivalentTo(new[] { inSeasonTournament }));
+        Assert.That(_divisionDataContext!.AllTournamentGames(division.Id), Is.EquivalentTo(new[] { inSeasonTournament }));
     }
 }
