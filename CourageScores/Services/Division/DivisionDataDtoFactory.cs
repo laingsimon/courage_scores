@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Identity;
@@ -57,7 +58,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             Fixtures = await GetFixtures(context, token)
                 .OrderByAsync(d => d.Date)
                 .ToList(),
-            Players = playerResults
+            Players = (await AddAllPlayersIfAdmin(playerResults, user, context, token))
                 .OrderByDescending(p => p.Points)
                 .ThenByDescending(p => p.WinPercentage)
                 .ThenByDescending(p => p.Pairs.MatchesPlayed)
@@ -102,6 +103,38 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 "SeasonId and/or DivisionId must be supplied",
             }
         };
+    }
+
+    private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
+        UserDto? userDto,
+        DivisionDataContext context,
+        CancellationToken token)
+    {
+        var managePlayers = userDto?.Access?.ManagePlayers == true;
+
+        if (!managePlayers)
+        {
+            return players;
+        }
+
+        var allPlayersInSeasonAndDivision = await context.TeamsInSeasonAndDivision
+            .SelectManyAsync<TeamDto, DivisionPlayerDto>(async t =>
+            {
+                var teamSeason = t.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id);
+                if (teamSeason == null)
+                {
+                    return new List<DivisionPlayerDto>();
+                }
+
+                return await teamSeason.Players
+                    .SelectAsync(async tp => await _divisionPlayerAdapter.Adapt(t, tp, token))
+                    .ToList();
+            })
+            .ToList();
+
+        return players
+            .UnionBy(allPlayersInSeasonAndDivision, p => p.Id)
+            .ToList();
     }
 
     private async IAsyncEnumerable<DivisionTeamDto> GetTeams(DivisionData divisionData, IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,

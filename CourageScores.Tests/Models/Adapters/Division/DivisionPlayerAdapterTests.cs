@@ -76,4 +76,36 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.EqualTo(fixtures));
     }
+
+    [Test]
+    public async Task Adapt_GivenTeamPlayerDto_SetsPropertiesCorrectly()
+    {
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team"
+        };
+        var player = new TeamPlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Player",
+            Captain = true,
+        };
+
+        var result = await _adapter.Adapt(team, player, _token);
+
+        Assert.That(result.Id, Is.EqualTo(player.Id));
+        Assert.That(result.Captain, Is.EqualTo(player.Captain));
+        Assert.That(result.Name, Is.EqualTo(player.Name));
+        Assert.That(result.Singles, Is.Not.Null);
+        Assert.That(result.OneEighties, Is.EqualTo(0));
+        Assert.That(result.Over100Checkouts, Is.EqualTo(0));
+        Assert.That(result.Pairs, Is.Not.Null);
+        Assert.That(result.Triples, Is.Not.Null);
+        Assert.That(result.Points, Is.EqualTo(0));
+        Assert.That(result.WinPercentage, Is.EqualTo(0d).Within(0.001));
+        Assert.That(result.TeamId, Is.EqualTo(team.Id));
+        Assert.That(result.Team, Is.EqualTo(team.Name));
+        Assert.That(result.Fixtures, Is.Empty);
+    }
 }

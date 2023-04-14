@@ -16,10 +16,14 @@ public class DivisionDataContext
     public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
     public Dictionary<DateTime, TournamentGame[]> TournamentGamesForDate { get; }
 
-    public DivisionDataContext(IReadOnlyCollection<Models.Cosmos.Game.Game> games,
-        IReadOnlyCollection<TeamDto> teamsInSeason, IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
+    public DivisionDataContext(
+        IReadOnlyCollection<Models.Cosmos.Game.Game> games,
+        IReadOnlyCollection<TeamDto> teamsInSeason,
+        IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
         IReadOnlyCollection<TournamentGame> tournamentGames,
-        IReadOnlyCollection<FixtureDateNoteDto> notes, SeasonDto season, IReadOnlyCollection<SeasonDto> allSeasons)
+        IReadOnlyCollection<FixtureDateNoteDto> notes,
+        SeasonDto season,
+        IReadOnlyCollection<SeasonDto> allSeasons)
     {
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         TeamsInSeason = teamsInSeason;
