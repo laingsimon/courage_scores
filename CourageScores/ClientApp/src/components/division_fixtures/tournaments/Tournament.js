@@ -11,10 +11,11 @@ import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
+import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const { appLoading, account, seasons, onError, teams, reloadTeams } = useApp();
+    const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
     const canManageGames = account && account.access && account.access.manageGames;
     const canManagePlayers = account && account.access && account.access.managePlayers;
@@ -207,6 +208,13 @@ export function Tournament() {
                                    checked={tournamentData.accoladesQualify} onChange={valueChanged(tournamentData, setTournamentData)} />
                             <label className="form-check-label" htmlFor="accoladesQualify">Include 180s and Hi-checks in players table?</label>
                         </div>
+
+                        <span className="margin-right">Division:</span>
+                        <BootstrapDropdown
+                            value={tournamentData.divisionId}
+                            onChange={propChanged(tournamentData, setTournamentData, 'divisionId')}
+                            options={[ { value: null, text: 'All divisions' } ].concat(divisions.map(d => { return { value: d.id, text: d.name } }))}
+                            disabled={saving} />
                     </div>)
                     : null}
                 <EditTournament

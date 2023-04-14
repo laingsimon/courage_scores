@@ -13,6 +13,7 @@ public class EditTournamentGameDto
     public List<TournamentSideDto> Sides { get; set; } = new();
     public TournamentRoundDto? Round { get; set; }
     public bool AccoladesQualify { get; set; }
+    public Guid? DivisionId { get; set; }
 
     public List<RecordTournamentScoresPlayerDto> OneEighties { get; set; } = new ();
     public List<TournamentOver100CheckoutDto> Over100Checkouts { get; set; } = new ();

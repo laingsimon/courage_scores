@@ -19,6 +19,11 @@ public class TournamentGameDto : AuditedDto
     public Guid SeasonId { get; set; }
 
     /// <summary>
+    /// The division id for this tournament game, if not cross-divisional
+    /// </summary>
+    public Guid? DivisionId { get; set; }
+
+    /// <summary>
     /// The sides that can play in the game
     /// </summary>
     public List<TournamentSideDto> Sides { get; set; } = new();

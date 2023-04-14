@@ -19,6 +19,11 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     public Guid SeasonId { get; set; }
 
     /// <summary>
+    /// The division id for this tournament game, if not cross-divisional
+    /// </summary>
+    public Guid? DivisionId { get; set; }
+
+    /// <summary>
     /// The sides that can play in the game
     /// </summary>
     public List<TournamentSide> Sides { get; set; } = new();

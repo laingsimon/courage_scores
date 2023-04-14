@@ -38,6 +38,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Notes = model.Notes,
             Type = model.Type,
             AccoladesQualify = model.AccoladesQualify,
+            DivisionId = model.DivisionId,
         }.AddAuditProperties(model);
     }
 
@@ -56,6 +57,7 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Notes = dto.Notes?.Trim(),
             Type = dto.Type?.Trim(),
             AccoladesQualify = dto.AccoladesQualify,
+            DivisionId = dto.DivisionId,
         }.AddAuditProperties(dto);
     }
 }
