@@ -69,11 +69,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             Array.Empty<CosmosGame>(),
             Array.Empty<TeamDto>(),
-            Array.Empty<TeamDto>(),
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
         var division = new DivisionDto
         {
             Id = Guid.NewGuid(),
@@ -92,11 +90,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             Array.Empty<CosmosGame>(),
             Array.Empty<TeamDto>(),
-            Array.Empty<TeamDto>(),
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -127,12 +123,10 @@ public class DivisionDataDtoFactoryTests
         };
         var context = new DivisionDataContext(
             new[] { game },
-            Array.Empty<TeamDto>(),
             new List<TeamDto> { team1, team2, team3 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -175,11 +169,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             new[] { tournamentGame },
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -242,11 +234,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season,
-            Array.Empty<SeasonDto>());
+            season);
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -289,11 +279,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new List<CosmosGame>(),
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season,
-            Array.Empty<SeasonDto>());
+            season);
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -336,11 +324,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new List<CosmosGame>(),
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season,
-            Array.Empty<SeasonDto>());
+            season);
         _user = new UserDto
         {
             Access = new AccessDto
@@ -414,11 +400,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season,
-            Array.Empty<SeasonDto>());
+            season);
         _user = new UserDto
         {
             Access = new AccessDto
@@ -439,11 +423,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             Array.Empty<CosmosGame>(),
             Array.Empty<TeamDto>(),
-            Array.Empty<TeamDto>(),
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            season,
-            Array.Empty<SeasonDto>());
+            season);
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -483,11 +465,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -519,11 +499,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
@@ -562,11 +540,9 @@ public class DivisionDataDtoFactoryTests
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
-            new List<TeamDto> { team1, team2 },
             Array.Empty<TournamentGame>(),
             Array.Empty<FixtureDateNoteDto>(),
-            new SeasonDto(),
-            Array.Empty<SeasonDto>());
+            new SeasonDto());
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 

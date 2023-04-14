@@ -30,7 +30,7 @@ export function Tournament() {
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
     const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
-    const division = tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
+    const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);

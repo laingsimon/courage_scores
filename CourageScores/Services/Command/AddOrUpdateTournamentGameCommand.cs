@@ -51,7 +51,6 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
 
         var user = (await _userService.GetUser(token))!;
-        var previousDivisionId = game.DivisionId;
         game.Address = update.Address;
         game.Date = update.Date;
         game.SeasonId = latestSeason.Id;

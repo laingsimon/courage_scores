@@ -69,7 +69,7 @@ public class DivisionService : IDivisionService
         }
 
         var allTeamsInSeason = await _genericTeamService.GetAll(token).WhereAsync(t => t.Seasons.Any(ts => ts.SeasonId == season.Id) || !t.Seasons.Any()).ToList();
-        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, allSeasons, token);
+        var context = await CreateDivisionDataContext(filter, season, allTeamsInSeason, token);
         return await _divisionDataDtoFactory.CreateDivisionDataDto(context, division, token);
     }
 
@@ -80,7 +80,7 @@ public class DivisionService : IDivisionService
     }
 
     private async Task<DivisionDataContext> CreateDivisionDataContext(DivisionDataFilter filter,
-        SeasonDto season, IReadOnlyCollection<TeamDto> allTeamsInSeason, List<SeasonDto> allSeasons, CancellationToken token)
+        SeasonDto season, IReadOnlyCollection<TeamDto> allTeamsInSeason, CancellationToken token)
     {
         var teamsInSeasonAndDivision = allTeamsInSeason
             .Where(t => filter.DivisionId == null || IsTeamInDivision(t, filter, season))
@@ -99,7 +99,7 @@ public class DivisionService : IDivisionService
             .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeTournament(g))
             .ToList();
 
-        return new DivisionDataContext(games, allTeamsInSeason, teamsInSeasonAndDivision, tournamentGames, notes, season, allSeasons);
+        return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season);
     }
 
     #region delegating members
