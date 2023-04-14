@@ -40,7 +40,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             game.Accept(gameVisitor);
         }
-        foreach (var tournamentGame in context.AllTournamentGames())
+        foreach (var tournamentGame in context.AllTournamentGames(division))
         {
             tournamentGame.Accept(gameVisitor);
         }

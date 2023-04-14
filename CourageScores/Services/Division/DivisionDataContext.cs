@@ -41,9 +41,11 @@ public class DivisionDataContext
     }
 
     [ExcludeFromCodeCoverage]
-    public IEnumerable<TournamentGame> AllTournamentGames()
+    public IEnumerable<TournamentGame> AllTournamentGames(DivisionDto? division)
     {
-        return TournamentGamesForDate.SelectMany(pair => pair.Value);
+        return TournamentGamesForDate
+            .SelectMany(pair => pair.Value)
+            .Where(tournament => division == null || tournament.DivisionId == null || tournament.DivisionId == division.Id);
     }
 
     [ExcludeFromCodeCoverage]
