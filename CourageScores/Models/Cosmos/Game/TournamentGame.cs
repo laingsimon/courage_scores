@@ -53,6 +53,11 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public string? Type { get; set; }
 
+    /// <summary>
+    /// Whether any player accolades (180s, hi-checks) should be included in the player table
+    /// </summary>
+    public bool AccoladesQualify { get; set; }
+
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
     {
@@ -75,14 +80,17 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     {
         visitor.VisitGame(this);
 
-        foreach (var player in Over100Checkouts)
+        if (AccoladesQualify)
         {
-            visitor.VisitHiCheckout(player);
-        }
+            foreach (var player in Over100Checkouts)
+            {
+                visitor.VisitHiCheckout(player);
+            }
 
-        foreach (var player in OneEighties)
-        {
-            visitor.VisitOneEighty(player);
+            foreach (var player in OneEighties)
+            {
+                visitor.VisitOneEighty(player);
+            }
         }
 
         foreach (var side in Sides)

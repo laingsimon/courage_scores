@@ -52,4 +52,9 @@ public class TournamentGameDto : AuditedDto
     /// The type of tournament
     /// </summary>
     public string? Type { get; set; }
+
+    /// <summary>
+    /// Whether any player accolades (180s, hi-checks) should be included in the player table
+    /// </summary>
+    public bool AccoladesQualify { get; set; }
 }

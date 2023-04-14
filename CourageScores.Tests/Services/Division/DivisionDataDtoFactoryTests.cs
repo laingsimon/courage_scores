@@ -166,11 +166,17 @@ public class DivisionDataDtoFactoryTests
                 },
             },
         };
+        var tournamentGame = new TournamentGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            AccoladesQualify = true,
+        };
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { team1, team2 },
             new List<TeamDto> { team1, team2 },
-            Array.Empty<TournamentGame>(),
+            new[] { tournamentGame },
             Array.Empty<FixtureDateNoteDto>(),
             new SeasonDto(),
             Array.Empty<SeasonDto>());

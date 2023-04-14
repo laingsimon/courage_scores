@@ -40,6 +40,10 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             game.Accept(gameVisitor);
         }
+        foreach (var tournamentGame in context.AllTournamentGames())
+        {
+            tournamentGame.Accept(gameVisitor);
+        }
 
         var playerResults = await GetPlayers(divisionData, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();

@@ -41,6 +41,12 @@ public class DivisionDataContext
     }
 
     [ExcludeFromCodeCoverage]
+    public IEnumerable<TournamentGame> AllTournamentGames()
+    {
+        return TournamentGamesForDate.SelectMany(pair => pair.Value);
+    }
+
+    [ExcludeFromCodeCoverage]
     public IEnumerable<DateTime> GetDates()
     {
         return GamesForDate.Keys.Union(TournamentGamesForDate.Keys).Union(Notes.Keys);
