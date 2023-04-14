@@ -2,19 +2,22 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 import {DivisionControls} from "../../DivisionControls";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
-import {any, sortBy, valueChanged} from "../../../Utilities";
+import {any, propChanged, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
+import {Dialog} from "../../common/Dialog";
+import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const { appLoading, account, seasons, onError, teams } = useApp();
+    const { appLoading, account, seasons, onError, teams, reloadTeams } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
-    const isAdmin = account && account.access && account.access.manageGames;
+    const canManageGames = account && account.access && account.access.manageGames;
+    const canManagePlayers = account && account.access && account.access.managePlayers;
     const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -24,6 +27,8 @@ export function Tournament() {
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
+    const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
+    const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -126,6 +131,24 @@ export function Tournament() {
         }
     }
 
+    function renderCreatePlayerDialog() {
+        return (<Dialog title={`Add a player...`}>
+            <EditPlayerDetails
+                id={null}
+                {...newPlayerDetails}
+                seasonId={season.id}
+                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
+                onCancel={() => setAddPlayerDialogOpen(false)}
+                onSaved={reloadPlayers}
+            />
+        </Dialog>);
+    }
+
+    async function reloadPlayers() {
+        await reloadTeams();
+        setAddPlayerDialogOpen(false);
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -141,7 +164,7 @@ export function Tournament() {
                 }}
                 overrideMode="fixtures"/>
             <div className="light-background p-3">
-                {isAdmin
+                {canManageGames
                     ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
@@ -156,7 +179,7 @@ export function Tournament() {
                             text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`}/>
                     </span>
                     </p>)}
-                {isAdmin
+                {canManageGames
                     ? (<div className="form-group input-group mb-3 d-print-none">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
@@ -166,7 +189,7 @@ export function Tournament() {
                                onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
                     : null}
-                {isAdmin
+                {canManageGames
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <label htmlFor="note-text" className="input-group-text">Notes</label>
                         <textarea id="note-text" className="form-control" disabled={saving}
@@ -177,7 +200,7 @@ export function Tournament() {
                         ? (<div className="alert alert-warning alert-dismissible fade show"
                                 role="alert">{tournamentData.notes}</div>)
                         : null}
-                {isAdmin
+                {canManageGames
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <div className="form-check form-switch margin-right">
                             <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesQualify" id="accoladesQualify"
@@ -196,14 +219,16 @@ export function Tournament() {
                     canSave={canSave}
                     setTournamentData={setTournamentData}/>
                 <TournamentSheet sides={tournamentData.sides}/>
-                {isAdmin ? (<button className="btn btn-primary d-print-none" onClick={saveTournament}>
+                {canManageGames ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}
                     Save
                 </button>) : null}
+                {canManagePlayers ? (<button className="btn btn-primary d-print-none" onClick={() => setAddPlayerDialogOpen(true)}>Add player</button>) : null}
             </div>
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}
+            {addPlayerDialogOpen ? renderCreatePlayerDialog() : null}
         </div>);
     } catch (e) {
         onError(e);

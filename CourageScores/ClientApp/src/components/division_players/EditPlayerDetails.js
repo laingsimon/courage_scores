@@ -5,7 +5,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {sortBy} from "../../Utilities";
 
-export function EditPlayerDetails({ id, name, captain, emailAddress, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId }) {
+export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const { playerApi } = useDependencies();
@@ -16,7 +16,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, onSaved, on
             return;
         }
 
-        if (!team || !team.id) {
+        if ((!team || !team.id) && !teamId) {
             window.alert('Please select a team');
             return;
         }
@@ -40,8 +40,8 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, onSaved, on
             }
 
             const response = id
-                ? await playerApi.update(seasonId, team.id, id, playerDetails)
-                : await playerApi.create(seasonId, team.id, playerDetails);
+                ? await playerApi.update(seasonId, teamId || team.id, id, playerDetails)
+                : await playerApi.create(seasonId, teamId || team.id, playerDetails);
 
             if (response.success) {
                 if (onSaved) {
@@ -73,7 +73,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, onSaved, on
                 </div>
                 <BootstrapDropdown
                     onChange={value => onChange('teamId', value)}
-                    value={team.id || ''}
+                    value={teamId || ''}
                     options={[{ value: '', text: 'Select team' }].concat(teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name } }))} />
             </div>
         );
