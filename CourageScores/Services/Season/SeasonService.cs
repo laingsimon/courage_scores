@@ -184,6 +184,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
         var existingGames = context.DivisionData.Fixtures;
         context.Teams = teamsToPropose;
+        var fixturesOnPreviousDate = new DivisionFixtureDateDto();
 
         foreach (var existingFixtureDate in existingGames)
         {
@@ -219,7 +220,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
             token.ThrowIfCancellationRequested();
 
-            var fixturesForDate = await CreateFixturesForDate(context, existingGames, currentDate, proposals, prioritisedTeams, prioritisedAddresses, token);
+            var fixturesForDate = await CreateFixturesForDate(context, existingGames, currentDate, proposals, fixturesOnPreviousDate, prioritisedTeams, prioritisedAddresses, token);
+            fixturesOnPreviousDate = fixturesForDate;
             yield return fixturesForDate;
             currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
             iteration++;
@@ -235,6 +237,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IReadOnlyCollection<DivisionFixtureDateDto> existingGames,
         DateTime currentDate,
         List<Proposal> proposals,
+        DivisionFixtureDateDto fixturesOnPreviousDate,
         IReadOnlyCollection<TeamDto> prioritisedTeams,
         IReadOnlyCollection<TeamDto> prioritisedAddresses,
         CancellationToken token)
@@ -308,6 +311,24 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
+                if (fixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.AwayTeam!.Id == proposal.Home.Id && f.HomeTeam.Id == proposal.Away.Id))
+                {
+                    IncompatibleProposal(
+                        proposal,
+                        $"Team {proposal.Home.Name} are away to {proposal.Away.Name} on the previous date ({fixturesOnPreviousDate.Date:dd MMM yyy})",
+                        false);
+                    continue;
+                }
+
+                if (fixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.HomeTeam!.Id == proposal.Away.Id && f.AwayTeam.Id == proposal.Home.Id))
+                {
+                    IncompatibleProposal(
+                        proposal,
+                        $"Team {proposal.Home.Name} are home to {proposal.Away.Name} on the previous date ({fixturesOnPreviousDate.Date:dd MMM yyy})",
+                        false);
+                    continue;
+                }
+
                 addressesInUseOnDate.Add(proposal.Home.Address,
                     new
                     {
@@ -328,7 +349,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 if (incompatibleProposals.Count > 0)
                 {
                     context.LogWarning(
-                        $"Fewer-than-expected fixtures proposed on {currentDate:ddd MMM dd yyyy}, {incompatibleProposals.Count} proposal/s were incompatible");
+                        $"Fewer-than-expected fixtures ({gamesOnDate.Fixtures.Count}) proposed on {currentDate:ddd MMM dd yyyy}, {incompatibleProposals.Count} proposal/s were incompatible");
                 }
                 else if (proposals.Count > 0)
                 {
