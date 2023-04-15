@@ -15,7 +15,7 @@ on:
 
 jobs:
   from-github:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     environment:
       name: ${{ inputs.environment-name }}

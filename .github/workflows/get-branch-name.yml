@@ -8,7 +8,7 @@ on:
 
 jobs:
   get:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     outputs:
       branch-name: ${{ steps.export-branch-name.outputs.branch-name }}
