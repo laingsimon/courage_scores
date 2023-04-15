@@ -18,7 +18,7 @@ on:
 
 jobs:
   dotnet:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     outputs:
       dotnet-root: ${{ steps.export-dotnet-root.outputs.dotnet-root }}
