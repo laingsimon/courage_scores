@@ -378,7 +378,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {awayTeamId && !saving && !deleting ? (
+            {fixture.id !== fixture.homeTeam.id && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
             {fixture.proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}
