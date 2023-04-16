@@ -159,7 +159,7 @@ describe('PlayerInput', () => {
     it('Renders correct options for double-1 score', async () => {
         const buttons = await runScoreTest(499, '2');
 
-        expect(buttons).toEqual([ '📌', '📌📌', '📌📌📌' ]);
+        expect(buttons).toEqual([ '📌', '📌📌', '📌📌📌', '💥', '💥💥', '💥💥💥' ]);
     });
 
     it('Renders correct options for double-1 bust score', async () => {
@@ -172,5 +172,17 @@ describe('PlayerInput', () => {
         const buttons = await runScoreTest(480, '21');
 
         expect(buttons).toEqual([ '📌📌', '📌📌📌', '💥', '💥💥', '💥💥💥' ]);
+    });
+
+    it('Renders correct options for 0 score', async () => {
+        const buttons = await runScoreTest(499, '0');
+
+        expect(buttons).toEqual([ '📌📌📌' ]);
+    });
+
+    it('Renders correct options for 1 bust score', async () => {
+        const buttons = await runScoreTest(499, '1');
+
+        expect(buttons).toEqual([ '💥', '💥💥', '💥💥💥' ]);
     });
 });
