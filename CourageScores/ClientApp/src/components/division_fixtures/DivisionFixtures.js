@@ -34,7 +34,8 @@ export function DivisionFixtures({ setNewFixtures }) {
         // frequencyDays: 7, not required as weekDay is provided
         numberOfLegs: 2,
         // startDate: "2022-01-01" // not required, use season start date
-        logLevel: 'Warning'
+        logLevel: 'Warning',
+        maxConsecutiveHomeOrAwayFixtures: 3
     });
     const [ proposalResponse, setProposalResponse ] = useState(null);
     const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);

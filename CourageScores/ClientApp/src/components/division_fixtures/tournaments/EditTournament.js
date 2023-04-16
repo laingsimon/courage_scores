@@ -78,7 +78,7 @@ export function EditTournament({ tournamentData, season, alreadyPlaying, disable
     }
 
     return (<div className="d-print-none">
-        <div>Sides:</div>
+        <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
             {tournamentData.sides.sort(sortBy('name')).map(side => {
                 const thisSideIndex = sideIndex;

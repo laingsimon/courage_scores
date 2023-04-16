@@ -52,4 +52,9 @@ public class AutoProvisionGamesRequest
     /// The level of logging to return
     /// </summary>
     public LogLevel LogLevel { get; set; } = LogLevel.Warning;
+
+    /// <summary>
+    /// The maximum number of consecutive fixtures allowed to be proposed playing at home or away
+    /// </summary>
+    public int MaxConsecutiveHomeOrAwayFixtures { get; set; } = 3;
 }
