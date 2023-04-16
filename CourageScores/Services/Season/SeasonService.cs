@@ -209,8 +209,13 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
 
         var iteration = 1;
-        var prioritisedTeams = new List<TeamDto>();
-        var prioritisedAddresses = new List<TeamDto>();
+        var perDateContext = new PerDateContext
+        {
+            FixturesOnPreviousDate = fixturesOnPreviousDate,
+            PrioritisedAddresses = new List<TeamDto>(),
+            PrioritisedTeams = new List<TeamDto>(),
+            TeamLocationRegister = teamLocationRegister,
+        };
         while (proposals.Count > 0)
         {
             if (iteration > maxIterations)
@@ -222,16 +227,15 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             token.ThrowIfCancellationRequested();
 
             var fixturesForDate = await CreateFixturesForDate(
-                context, existingGames, currentDate, proposals, fixturesOnPreviousDate, prioritisedTeams, prioritisedAddresses,
-                teamLocationRegister, token);
-            fixturesOnPreviousDate = fixturesForDate;
+                context, existingGames, currentDate, proposals, perDateContext, token);
+            perDateContext.FixturesOnPreviousDate = fixturesForDate;
             yield return fixturesForDate;
             currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
             iteration++;
-            prioritisedTeams = context.AllTeamsInSeasonAndDivision
+            perDateContext.PrioritisedTeams = context.AllTeamsInSeasonAndDivision
                 .Where(t => !fixturesForDate.Fixtures.Any(f => f.AwayTeam?.Id == t.Id || f.HomeTeam.Id == t.Id))
                 .ToList();
-            prioritisedAddresses = context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address)).ToList();
+            perDateContext.PrioritisedAddresses = context.AllTeamsInSeasonNotDivision.Where(t => context.AllTeamsInSeasonAndDivision.Any(t2 => t2.Address == t.Address)).ToList();
         }
     }
 
@@ -240,10 +244,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IReadOnlyCollection<DivisionFixtureDateDto> existingGames,
         DateTime currentDate,
         List<Proposal> proposals,
-        DivisionFixtureDateDto fixturesOnPreviousDate,
-        IReadOnlyCollection<TeamDto> prioritisedTeams,
-        IReadOnlyCollection<TeamDto> prioritisedAddresses,
-        TeamLocationRegister teamLocationRegister,
+        PerDateContext perDateContext,
         CancellationToken token)
     {
         try
@@ -282,7 +283,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
 
             while (proposals.Count > 0)
             {
-                var proposal = GetProposalIndex(proposals, prioritisedTeams, prioritisedAddresses);
+                var proposal = GetProposalIndex(proposals, perDateContext);
                 proposals.Remove(proposal);
 
                 if (proposedTeamsInPlayOnDate.Contains(proposal.Home.Id) || proposedTeamsInPlayOnDate.Contains(proposal.Away.Id))
@@ -315,25 +316,26 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (fixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.AwayTeam!.Id == proposal.Home.Id && f.HomeTeam.Id == proposal.Away.Id))
+                if (perDateContext.FixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.AwayTeam!.Id == proposal.Home.Id && f.HomeTeam.Id == proposal.Away.Id))
                 {
                     IncompatibleProposal(
                         proposal,
-                        $"Team {proposal.Home.Name} are away to {proposal.Away.Name} on the previous date ({fixturesOnPreviousDate.Date:dd MMM yyy})",
+                        $"Team {proposal.Home.Name} are away to {proposal.Away.Name} on the previous date ({perDateContext.FixturesOnPreviousDate.Date:dd MMM yyy})",
                         false);
                     continue;
                 }
 
-                if (fixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.HomeTeam.Id == proposal.Away.Id && f.AwayTeam.Id == proposal.Home.Id))
+                if (perDateContext.FixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.HomeTeam.Id == proposal.Away.Id && f.AwayTeam.Id == proposal.Home.Id))
                 {
                     IncompatibleProposal(
                         proposal,
-                        $"Team {proposal.Home.Name} are home to {proposal.Away.Name} on the previous date ({fixturesOnPreviousDate.Date:dd MMM yyy})",
+                        $"Team {proposal.Home.Name} are home to {proposal.Away.Name} on the previous date ({perDateContext.FixturesOnPreviousDate.Date:dd MMM yyy})",
                         false);
                     continue;
                 }
 
-                if (teamLocationRegister.GetHomeCount(proposal.Home.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
+                if (perDateContext.TeamLocationRegister.GetHomeCount(proposal.Home.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures
+                    && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
                 {
                     IncompatibleProposal(
                         proposal,
@@ -342,7 +344,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (teamLocationRegister.GetAwayCount(proposal.Away.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
+                if (perDateContext.TeamLocationRegister.GetAwayCount(proposal.Away.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures
+                    && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
                 {
                     IncompatibleProposal(
                         proposal,
@@ -360,8 +363,8 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 proposedTeamsInPlayOnDate.Add(proposal.Away.Id);
 
                 gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
-                teamLocationRegister.AddAway(proposal.Away.Id);
-                teamLocationRegister.AddHome(proposal.Home.Id);
+                perDateContext.TeamLocationRegister.AddAway(proposal.Away.Id);
+                perDateContext.TeamLocationRegister.AddHome(proposal.Home.Id);
                 token.ThrowIfCancellationRequested();
             }
 
@@ -390,22 +393,19 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
     }
 
-    private static Proposal GetProposalIndex(
-        IReadOnlyCollection<Proposal> proposals,
-        IReadOnlyCollection<TeamDto> prioritisedTeams,
-        IReadOnlyCollection<TeamDto> prioritisedAddresses)
+    private static Proposal GetProposalIndex(IReadOnlyCollection<Proposal> proposals, PerDateContext perDateContext)
     {
-        if (prioritisedAddresses.Count > 0)
+        if ((perDateContext.PrioritisedAddresses?.Count ?? 0) > 0)
         {
-            var reservedAddressProposals = proposals.Where(p => prioritisedAddresses.Any(t => t.Id == p.Home.Id)).ToArray();
+            var reservedAddressProposals = proposals.Where(p => perDateContext.PrioritisedAddresses!.Any(t => t.Id == p.Home.Id)).ToArray();
             if (reservedAddressProposals.Length > 0)
             {
                 return reservedAddressProposals[Random.Shared.Next(0, reservedAddressProposals.Length)];
             }
         }
 
-        var prioritisedProposals = prioritisedTeams.Count > 0
-            ? proposals.Where(p => prioritisedTeams.Any(t => t.Id == p.Away.Id || t.Id == p.Home.Id)).ToArray()
+        var prioritisedProposals = (perDateContext.PrioritisedTeams?.Count ?? 0) > 0
+            ? proposals.Where(p => perDateContext.PrioritisedAddresses!.Any(t => t.Id == p.Away.Id || t.Id == p.Home.Id)).ToArray()
             : Array.Empty<Proposal>();
 
         return prioritisedProposals.Length > 0
