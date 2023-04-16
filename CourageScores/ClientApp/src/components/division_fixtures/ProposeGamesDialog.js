@@ -56,6 +56,13 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                     <option value="1">Single leg</option>
                     <option value="2">Two legs</option>
                 </select>
+
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Max consecutive fixtures (home/away)</span>
+                </div>
+                <input type="number" value={proposalSettings.maxConsecutiveHomeOrAwayFixtures} disabled={disabled}
+                       name="maxConsecutiveHomeOrAwayFixtures"
+                       onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} min="1" max="4" />
             </div>
             <div className="input-group my-3">
                 <div className="input-group-prepend">
@@ -69,6 +76,16 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                     <option value="Friday">Friday</option>
                     <option value="Saturday">Saturday</option>
                     <option value="Sunday">Sunday</option>
+                </select>
+
+                <div className="input-group-prepend margin-left">
+                    <span className="input-group-text">Show</span>
+                </div>
+                <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)}>
+                    <option value="Trace">Everything</option>
+                    <option value="Information">Info, Warnings and Errors</option>
+                    <option value="Warning">Warnings and Errors</option>
+                    <option value="Error">Errors only</option>
                 </select>
             </div>
             <div className="px-4">
@@ -84,17 +101,6 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
                     <input disabled={disabled} type="date" value={proposalSettings.newExclusion.date} name="date" onChange={updateNewExclusion} className="margin-right" />
                     <button disabled={disabled} className="btn btn-sm btn-primary" onClick={addDateExclusion}>+</button>
                 </div>
-            </div>
-            <div className="input-group my-3">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Show</span>
-                </div>
-                <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)}>
-                    <option value="Trace">Everything</option>
-                    <option value="Information">Info, Warnings and Errors</option>
-                    <option value="Warning">Warnings and Errors</option>
-                    <option value="Error">Errors only</option>
-                </select>
             </div>
         </div>
         {proposalResponse ? (<div className="overflow-auto max-scroll-height"><ul>

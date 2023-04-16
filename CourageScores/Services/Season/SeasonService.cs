@@ -333,7 +333,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (teamLocationRegister.GetHomeCount(proposal.Home.Id) >= 3)
+                if (teamLocationRegister.GetHomeCount(proposal.Home.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
                 {
                     IncompatibleProposal(
                         proposal,
@@ -342,7 +342,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (teamLocationRegister.GetAwayCount(proposal.Away.Id) >= 3)
+                if (teamLocationRegister.GetAwayCount(proposal.Away.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
                 {
                     IncompatibleProposal(
                         proposal,
