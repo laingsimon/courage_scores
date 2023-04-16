@@ -66,7 +66,7 @@ export function NewTournamentGame({ date, onNewTournament }) {
         <td className="medium-column-width">
             <button className="btn btn-primary text-nowrap" onClick={createTournamentGame}>
                 {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🎖'}
-                Reserve
+                ➕
             </button>
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save tournament details" />) : null}
         </td>
