@@ -209,12 +209,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
 
         var iteration = 1;
-        var perDateContext = new PerDateContext
+        var perDateContext = new PerDateContext(teamLocationRegister)
         {
             FixturesOnPreviousDate = fixturesOnPreviousDate,
             PrioritisedAddresses = new List<TeamDto>(),
             PrioritisedTeams = new List<TeamDto>(),
-            TeamLocationRegister = teamLocationRegister,
+            ExistingGames = existingGames,
         };
         while (proposals.Count > 0)
         {
@@ -316,7 +316,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (perDateContext.FixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.AwayTeam!.Id == proposal.Home.Id && f.HomeTeam.Id == proposal.Away.Id))
+                if (perDateContext.HasFixturesOnPreviousDate(proposal.Home.Id, proposal.Away.Id))
                 {
                     IncompatibleProposal(
                         proposal,
@@ -325,7 +325,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (perDateContext.FixturesOnPreviousDate.Fixtures.Any(f => f.AwayTeam != null && f.HomeTeam.Id == proposal.Away.Id && f.AwayTeam.Id == proposal.Home.Id))
+                if (perDateContext.HasFixturesOnPreviousDate(proposal.Away.Id, proposal.Home.Id))
                 {
                     IncompatibleProposal(
                         proposal,
@@ -334,7 +334,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (perDateContext.TeamLocationRegister.GetHomeCount(proposal.Home.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures
+                if (perDateContext.HomeCount(proposal) >= context.Request.MaxConsecutiveHomeOrAwayFixtures
                     && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
                 {
                     IncompatibleProposal(
@@ -344,7 +344,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                     continue;
                 }
 
-                if (perDateContext.TeamLocationRegister.GetAwayCount(proposal.Away.Id) >= context.Request.MaxConsecutiveHomeOrAwayFixtures
+                if (perDateContext.AwayCount(proposal) >= context.Request.MaxConsecutiveHomeOrAwayFixtures
                     && context.Request.MaxConsecutiveHomeOrAwayFixtures >= 1)
                 {
                     IncompatibleProposal(
@@ -363,8 +363,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
                 proposedTeamsInPlayOnDate.Add(proposal.Away.Id);
 
                 gamesOnDate.Fixtures.Add(proposal.AdaptToGame());
-                perDateContext.TeamLocationRegister.AddAway(proposal.Away.Id);
-                perDateContext.TeamLocationRegister.AddHome(proposal.Home.Id);
+                perDateContext.ProposalReturned(proposal);
                 token.ThrowIfCancellationRequested();
             }
 
