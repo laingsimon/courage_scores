@@ -50,41 +50,39 @@ export function ProposeGamesDialog({ proposalSettings, onUpdateProposalSettings,
         <div>
             <div className="input-group my-3">
                 <div className="input-group-prepend">
-                    <span className="input-group-text">Number of legs</span>
+                    <span className="input-group-text">Legs</span>
                 </div>
-                <select disabled={disabled} value={proposalSettings.numberOfLegs} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} name="numberOfLegs">
-                    <option value="1">Single leg</option>
-                    <option value="2">Two legs</option>
+                <select disabled={disabled} value={proposalSettings.numberOfLegs} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} name="numberOfLegs" className="margin-right">
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                </select>
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Day</span>
+                </div>
+                <select disabled={disabled} value={proposalSettings.weekDay} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} name="weekDay" className="margin-right">
+                    <option value="Monday">Mon</option>
+                    <option value="Tuesday">Tue</option>
+                    <option value="Wednesday">Wed</option>
+                    <option value="Thursday">Thur</option>
+                    <option value="Friday">Fri</option>
+                    <option value="Saturday">Sat</option>
+                    <option value="Sunday">Sun</option>
                 </select>
 
                 <div className="input-group-prepend">
-                    <span className="input-group-text">Max consecutive fixtures (home/away)</span>
+                    <span className="input-group-text" title="Maximum fixtures that can be proposed consecutively, home or away">Max consecutive</span>
                 </div>
                 <input type="number" value={proposalSettings.maxConsecutiveHomeOrAwayFixtures} disabled={disabled}
                        name="maxConsecutiveHomeOrAwayFixtures"
-                       onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} min="1" max="4" />
-            </div>
-            <div className="input-group my-3">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Day of week</span>
-                </div>
-                <select disabled={disabled} value={proposalSettings.weekDay} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} name="weekDay">
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                </select>
+                       onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} min="1" max="4" className="border-1 margin-right" />
 
                 <div className="input-group-prepend margin-left">
                     <span className="input-group-text">Show</span>
                 </div>
-                <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)}>
+                <select disabled={disabled} name="logLevel" value={proposalSettings.logLevel} onChange={valueChanged(proposalSettings, onUpdateProposalSettings)} className="margin-right">
                     <option value="Trace">Everything</option>
-                    <option value="Information">Info, Warnings and Errors</option>
-                    <option value="Warning">Warnings and Errors</option>
+                    <option value="Information">Info+</option>
+                    <option value="Warning">Warnings+</option>
                     <option value="Error">Errors only</option>
                 </select>
             </div>
