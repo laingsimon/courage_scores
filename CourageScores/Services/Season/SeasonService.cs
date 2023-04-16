@@ -182,12 +182,12 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             yield break;
         }
 
-        var existingGames = context.DivisionData.Fixtures;
+        var existingFixtures = context.DivisionData.Fixtures;
         context.Teams = teamsToPropose;
         var fixturesOnPreviousDate = new DivisionFixtureDateDto();
         var teamLocationRegister = new TeamLocationRegister();
 
-        foreach (var existingFixtureDate in existingGames)
+        foreach (var existingFixtureDate in existingFixtures)
         {
             yield return new DivisionFixtureDateDto
             {
@@ -198,7 +198,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             };
         }
 
-        var proposals = GetProposals(context.Request, teamsToPropose, existingGames);
+        var proposals = GetProposals(context.Request, teamsToPropose, existingFixtures);
         var maxIterations = 5 * proposals.Count;
         var currentDate = context.Request.WeekDay != null
             ? (context.Request.StartDate ?? season.StartDate).MoveToDay(context.Request.WeekDay.Value)
@@ -209,12 +209,11 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         }
 
         var iteration = 1;
-        var perDateContext = new PerDateContext(teamLocationRegister)
+        var perDateContext = new PerDateContext(teamLocationRegister, existingFixtures)
         {
             FixturesOnPreviousDate = fixturesOnPreviousDate,
             PrioritisedAddresses = new List<TeamDto>(),
             PrioritisedTeams = new List<TeamDto>(),
-            ExistingGames = existingGames,
         };
         while (proposals.Count > 0)
         {
@@ -227,7 +226,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             token.ThrowIfCancellationRequested();
 
             var fixturesForDate = await CreateFixturesForDate(
-                context, existingGames, currentDate, proposals, perDateContext, token);
+                context, existingFixtures, currentDate, proposals, perDateContext, token);
             perDateContext.FixturesOnPreviousDate = fixturesForDate;
             yield return fixturesForDate;
             currentDate = currentDate.AddDays(context.Request.WeekDay != null ? 7 : context.Request.FrequencyDays, context.Request.ExcludedDates.Keys);
@@ -415,7 +414,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
     private static List<Proposal> GetProposals(
         AutoProvisionGamesRequest request,
         IReadOnlyCollection<TeamDto> teamsToPropose,
-        IReadOnlyCollection<DivisionFixtureDateDto> existingDate)
+        IReadOnlyCollection<DivisionFixtureDateDto> existingFixtureDates)
     {
         var proposals = teamsToPropose
             .SelectMany(home =>
@@ -436,7 +435,7 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
             .Distinct()
             .Where(p =>
             {
-                return !existingDate.SelectMany(fixtureDate => fixtureDate.Fixtures).Any(f => f.IsKnockout == false &&
+                return !existingFixtureDates.SelectMany(fixtureDate => fixtureDate.Fixtures).Any(f => f.IsKnockout == false &&
                     f.HomeTeam.Id == p.Home.Id && f.AwayTeam != null && f.AwayTeam.Id == p.Away.Id);
             })
             .ToList();
