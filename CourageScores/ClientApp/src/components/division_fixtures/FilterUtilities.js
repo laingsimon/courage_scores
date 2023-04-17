@@ -112,3 +112,36 @@ export function getFilters(filter, renderContext, fixtures) {
         optionallyInvertFilter(getTeamIdFilter, filter.teamId)
     ]);
 }
+
+export function initFilter(location) {
+    const search = new URLSearchParams(location.search);
+    const filter = {};
+    if (search.has('date')) {
+        filter.date = search.get('date');
+    }
+    if (search.has('type')) {
+        filter.type = search.get('type');
+    }
+    if (search.has('teamId')) {
+        filter.teamId = search.get('teamId');
+    }
+
+    return filter;
+}
+
+export function changeFilter(newFilter, setFilter, navigate, location) {
+    setFilter(newFilter);
+
+    const search = Object.assign({}, newFilter);
+    Object.keys(newFilter).forEach(key => {
+        if (!newFilter[key]) {
+            delete search[key];
+        }
+    })
+
+    navigate({
+        pathname: location.pathname,
+        search: new URLSearchParams(search).toString(),
+        hash: location.hash,
+    });
+}

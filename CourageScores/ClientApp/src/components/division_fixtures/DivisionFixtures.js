@@ -12,6 +12,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
+import {changeFilter, initFilter} from "./FilterUtilities";
 
 export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
@@ -40,7 +41,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
     const [ savingProposals, setSavingProposals ] = useState(null);
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
-    const [ filter, setFilter ] = useState(initFilter());
+    const [ filter, setFilter ] = useState(initFilter(location));
     const [ editNote, setEditNote ] = useState(null);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
     const { seasonApi, gameApi } = useDependencies();
@@ -57,39 +58,6 @@ export function DivisionFixtures({ setNewFixtures }) {
             }
         });
         return newShowPlayers;
-    }
-
-    function initFilter() {
-        const search = new URLSearchParams(location.search);
-        const filter = {};
-        if (search.has('date')) {
-            filter.date = search.get('date');
-        }
-        if (search.has('type')) {
-            filter.type = search.get('type');
-        }
-        if (search.has('teamId')) {
-            filter.teamId = search.get('teamId');
-        }
-
-        return filter;
-    }
-
-    function changeFilter(newFilter) {
-        setFilter(newFilter);
-
-        const search = Object.assign({}, newFilter);
-        Object.keys(newFilter).forEach(key => {
-            if (!newFilter[key]) {
-                delete search[key];
-            }
-        })
-
-        navigate({
-            pathname: location.pathname,
-            search: new URLSearchParams(search).toString(),
-            hash: location.hash,
-        });
     }
 
     function renderNewFixture(team) {
@@ -316,7 +284,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             ? proposalResponse.result.flatMap(date => date.fixtures).filter(f => f.proposal)
             : [];
         return (<div className="light-background p-3">
-            <FilterFixtures setFilter={changeFilter} filter={filter}/>
+            <FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>
             {proposalSettingsDialogVisible ? (<ProposeGamesDialog
                 onPropose={proposeFixtures}
                 onClose={() => setProposalSettingsDialogVisible(false)}
