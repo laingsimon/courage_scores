@@ -18,8 +18,8 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
     const isNoteAdmin = account && account.access && account.access.manageNotes;
 
     const filters = getFilters(filter, renderContext, fixtures);
-    let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
-    const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
+    let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null }));
+    const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: null, tournamentFixture: f }));
     const notesForDate = date.notes;
 
     const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);

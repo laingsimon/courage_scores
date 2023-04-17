@@ -81,13 +81,13 @@ export function getTypeFilter(type) {
     switch (type) {
         case 'league':
             return new AndFilter([
-                new Filter(c => c.tournamentFixture === false),
-                new Filter(c => c.fixture.isKnockout === false)
+                new Filter(c => !c.tournamentFixture),
+                new Filter(c => c.fixture && c.fixture.isKnockout === false && c.fixture.awayTeam),
             ]);
         case 'qualifier':
-            return new Filter(c => c.fixture.isKnockout === true);
+            return new Filter(c => c.fixture && c.fixture.isKnockout === true && c.fixture.awayTeam);
         case 'tournament':
-            return new Filter(c => c.tournamentFixture === true);
+            return new Filter(c => c.tournamentFixture && c.tournamentFixture.proposed === false);
         default:
             return new NullFilter();
     }
