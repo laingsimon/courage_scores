@@ -64,7 +64,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                         <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                     </span>) : null}
         </h4>
-        {notesForDate.map(note => (<FixtureDateNote note={note} setEditNote={setEditNote} />))}
+        {notesForDate.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote} />))}
         <table className="table layout-fixed">
             <tbody>
             {fixturesForDate.map(f => (<DivisionFixture

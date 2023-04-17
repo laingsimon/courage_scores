@@ -123,9 +123,10 @@ export function DivisionFixtures({ setNewFixtures }) {
         setNewDate('');
     }
 
-    function renderFixtureDate(date) {
+    function renderFixtureDate(fixtureDate) {
         return (<DivisionFixtureDate
-            date={date}
+            key={fixtureDate.date}
+            date={fixtureDate}
             filter={filter}
             renderContext={renderContext}
             proposingGames={proposingGames}
