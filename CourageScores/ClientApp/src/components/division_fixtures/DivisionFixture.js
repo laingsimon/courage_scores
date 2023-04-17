@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any} from "../../Utilities";
+import {any, sortBy} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -15,12 +15,12 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
     const { account, teams: allTeams } = useApp();
     const { id: divisionId, fixtures, season, teams, onReloadDivision, onError } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
-    const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [clipCellRegion, setClipCellRegion] = useState(true);
     const { gameApi } = useDependencies();
+    const awayTeamId = fixture.awayTeam ? fixture.awayTeam.id : '';
 
     async function doReloadDivision() {
         if (beforeReloadDivision) {
@@ -108,6 +108,34 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
         return null;
     }
 
+    function onChangeAwayTeam(teamId) {
+        onUpdateFixtures(currentFixtureDates => {
+            const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
+
+            if (!fixtureDate) {
+                console.error(`Could not find fixture date: ${date}`);
+                return null;
+            }
+
+            if (!fixtureDate.fixtures) {
+                console.error('Fixture date has no fixtures');
+                return null;
+            }
+
+            const fixtureDateFixture = fixtureDate.fixtures.filter(f => f.id === fixture.id)[0];
+            if (!fixtureDateFixture) {
+                console.error(`Could not find fixture with id ${fixture.id}`);
+                return null;
+            }
+
+            const newFixture = Object.assign({}, fixtureDateFixture);
+            newFixture.awayTeam = teamId ? { id: teamId, name: 'Unknown' } : null;
+            fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id).concat([ newFixture ]).sort(sortBy('homeTeam.name'));
+
+            return currentFixtureDates;
+        });
+    }
+
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
@@ -137,7 +165,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
 
             return (<BootstrapDropdown
                 value={awayTeamId}
-                onChange={(value) => setAwayTeamId(value)}
+                onChange={onChangeAwayTeam}
                 options={options}
                 onOpen={toggleCellClip}
                 disabled={deleting}
@@ -159,7 +187,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
 
         return (<BootstrapDropdown
             value={awayTeamId}
-            onChange={(value) => setAwayTeamId(value)}
+            onChange={onChangeAwayTeam}
             options={options}
             onOpen={toggleCellClip}
             disabled={deleting}

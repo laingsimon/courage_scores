@@ -69,6 +69,14 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
         return '';
     }
 
+    function onUpdateFixtures(adaptFixtures) {
+        const newFixtures = adaptFixtures(fixtures);
+
+        if (newFixtures) {
+            setNewFixtures(newFixtures);
+        }
+    }
+
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
@@ -90,7 +98,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                 readOnly={proposingGames}
                 date={date.date}
                 isKnockout={f.isKnockout}
-                onUpdateFixtures={(apply) => setNewFixtures(apply(fixtures))} />))}
+                onUpdateFixtures={onUpdateFixtures} />))}
             {tournamentFixturesForDate.map(tournament => (<TournamentFixture
                 key={tournament.address + '-' + tournament.date}
                 tournament={tournament}

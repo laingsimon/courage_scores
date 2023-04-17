@@ -24,7 +24,6 @@ export function DivisionFixtures({ setNewFixtures }) {
     const { account, onError } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
-    const [ newFixtureDate, setNewFixtureDate ] = useState(null);
     const [ isKnockout, setIsKnockout ] = useState(false);
     const [ proposingGames, setProposingGames ] = useState(false);
     const [ proposalSettings, setProposalSettings ] = useState({
@@ -99,7 +98,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         const divisionData = await onReloadDivision();
         setNewFixtures(divisionData.fixtures);
         setNewDate('');
-        setNewFixtureDate(null);
     }
 
     function renderFixtureDate(fixtureDate) {
@@ -158,7 +156,6 @@ export function DivisionFixtures({ setNewFixtures }) {
             onClose={() => setEditNote(null)}
             onSaved={async () => {
                 setNewDate('');
-                setNewFixtureDate(null);
                 setEditNote(null);
                 await onReloadDivision();
             } }/>);
@@ -175,7 +172,7 @@ export function DivisionFixtures({ setNewFixtures }) {
         }
 
         const newFixtureDate = getNewFixtureDate(utcDate);
-        setNewFixtureDate(newFixtureDate);
+        setNewFixtures(fixtures.concat([ newFixtureDate ]).sort(sortBy('date')));
         scrollFixtureDateIntoView(utcDate);
     }
 
@@ -191,7 +188,7 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     const renderContext = {};
     try {
-        const resultsToRender = (newFixtureDate ? fixtures.concat([ newFixtureDate ]) : fixtures).sort(sortBy('date')).map(renderFixtureDate);
+        const resultsToRender = fixtures.map(renderFixtureDate);
         const proposals = proposalResponse
             ? proposalResponse.result.flatMap(date => date.fixtures).filter(f => f.proposal)
             : [];
