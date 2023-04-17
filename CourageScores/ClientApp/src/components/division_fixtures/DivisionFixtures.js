@@ -101,7 +101,6 @@ export function DivisionFixtures({ setNewFixtures }) {
             beforeReloadDivision={() => setNewDate('')}
             fixture={newFixture}
             date={newDate}
-            allowTeamDelete={false}
             allowTeamEdit={false}
             isKnockout={isKnockout} />);
     }
