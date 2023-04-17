@@ -183,7 +183,7 @@ describe('DivisionTeams', () => {
             const reportHeadings = reportTable.querySelectorAll('thead tr th');
             expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual([ '', 'Player', 'Team', 'A value heading' ]);
             const reportRows = reportTable.querySelectorAll('tbody tr');
-            expect(reportRows.length).toBe(2);
+            expect(reportRows.length).toEqual(2);
             assertReportRow(reportRows[0], [ '1', 'A player', 'A team', '1' ]);
             assertReportRow(reportRows[1], [ '2', 'Another player', 'Another team', '2' ]);
         });

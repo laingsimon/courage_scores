@@ -150,8 +150,8 @@ describe('TeamOverview', () => {
             const address = context.container.querySelector('.light-background > p');
             expect(heading).toBeTruthy();
             expect(address).toBeTruthy();
-            expect(heading.textContent).toBe('A team 🔗');
-            expect(address.textContent).toBe('Address: An address');
+            expect(heading.textContent).toEqual('A team 🔗');
+            expect(address.textContent).toEqual('Address: An address');
         });
 
         it('renders fixtures', async () => {
@@ -205,8 +205,8 @@ describe('TeamOverview', () => {
             const address = context.container.querySelector('.light-background > p');
             expect(heading).toBeTruthy();
             expect(address).toBeTruthy();
-            expect(heading.textContent).toBe('A team 🔗');
-            expect(address.textContent).toBe('Address: An address');
+            expect(heading.textContent).toEqual('A team 🔗');
+            expect(address.textContent).toEqual('Address: An address');
         });
 
         it('does not render fixtures', async () => {
