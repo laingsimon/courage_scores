@@ -15,6 +15,7 @@
     "react-router-dom": "^6.3.0",
     "react-scripts": "^5.0.1",
     "reactstrap": "^9.1.1",
+    "remark-gfm": "^3.0.1",
     "rimraf": "^3.0.2",
     "web-vitals": "^2.1.4",
     "workbox-background-sync": "^6.5.3",
@@ -55,7 +56,8 @@
     "coverageReporters": [
       "text",
       "lcov"
-    ], "moduleNameMapper": {
+    ],
+    "moduleNameMapper": {
       "next/router": ",<rootDir>/__mocks__/next/router.js",
       "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
       "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$": "<rootDir>/__mocks__/file-mock.js",
