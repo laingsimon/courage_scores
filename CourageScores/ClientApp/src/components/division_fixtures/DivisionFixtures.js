@@ -13,6 +13,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import { getFilters, isInPast, isToday } from "./FilterUtilities";
+import {FixtureDateNote} from "./FixtureDateNote";
 
 export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
@@ -43,9 +44,8 @@ export function DivisionFixtures({ setNewFixtures }) {
     const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const [ filter, setFilter ] = useState(initFilter());
     const [ editNote, setEditNote ] = useState(null);
-    const [ deletingNote, setDeletingNote ] = useState(false);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
-    const { seasonApi, gameApi, noteApi } = useDependencies();
+    const { seasonApi, gameApi } = useDependencies();
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -319,7 +319,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                         <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                     </span>) : null}
             </h4>
-            {notesForDate.map(renderNote)}
+            {notesForDate.map(note => (<FixtureDateNote note={note} setEditNote={setEditNote} />))}
             <table className="table layout-fixed">
                 <tbody>
                 {fixturesForDate.map(f => (<DivisionFixture
@@ -355,30 +355,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         });
     }
 
-    async function deleteNote(note) {
-        if (deletingNote) {
-            return;
-        }
-
-        if (!window.confirm('Are you sure you want to delete this note?')) {
-            return;
-        }
-
-        setDeletingNote(true);
-        try{
-            const response = await noteApi.delete(note.id);
-
-            if (response.success) {
-                await onReloadDivision();
-            } else {
-                alert('Could not delete note');
-            }
-        }
-        finally {
-            setDeletingNote(false);
-        }
-    }
-
     function renderEditNote() {
         return (<EditNote
             note={editNote}
@@ -389,17 +365,6 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setEditNote(null);
                 await onReloadDivision();
             } }/>);
-    }
-
-    function renderNote(note) {
-        return (<div className="alert alert-warning alert-dismissible fade show" role="alert" key={note.id}>
-            <span className="margin-right">📌</span>
-            {note.note}
-            {isNoteAdmin ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>) : null}
-            {isNoteAdmin ? (<div className="mt-2">
-                <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
-            </div>) : null}
-        </div>);
     }
 
     const renderContext = {};
