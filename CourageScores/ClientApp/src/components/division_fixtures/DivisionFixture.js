@@ -129,7 +129,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
             }
 
             const newFixture = Object.assign({}, fixtureDateFixture);
-            newFixture.awayTeam = teamId ? { id: teamId, name: 'Unknown' } : null;
+            newFixture.originalAwayTeamId = newFixture.originalAwayTeamId || (newFixture.awayTeam ? newFixture.awayTeam.id : 'unset');
+            newFixture.awayTeam = teamId
+                ? { id: teamId, name: '' }
+                : null;
             fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id).concat([ newFixture ]).sort(sortBy('homeTeam.name'));
 
             return currentFixtureDates;
@@ -173,7 +176,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
             />);
         }
 
-        const options = [bye].concat(teams
+        const byeOption = fixture.id !== fixture.homeTeam.id ? [] : [bye];
+        const options = byeOption.concat(teams
             .filter(t => t.id !== fixture.homeTeam.id)
             .map(t => {
                 const unavailableReason = getUnavailableReason(t);
@@ -318,7 +322,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
             {renderAwayTeam()}
         </td>
         {isAdmin ? (<td className="medium-column">
-            {awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
+            {fixture.originalAwayTeamId && awayTeamId !== fixture.originalAwayTeamId && awayTeamId
                 ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
