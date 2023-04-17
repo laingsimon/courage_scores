@@ -131,7 +131,12 @@ export function DivisionFixtures({ setNewFixtures }) {
                     awayTeam: null,
                 };
             }),
-            tournamentFixtures: [],
+            tournamentFixtures: teams.map(team => {
+                return {
+                    address: team.name,
+                    proposed: true,
+                };
+            }),
             notes: []
         };
     }
