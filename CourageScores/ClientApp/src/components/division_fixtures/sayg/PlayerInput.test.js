@@ -101,10 +101,10 @@ describe('PlayerInput', () => {
 
         const heading = context.container.querySelector('div h2');
         expect(heading).toBeTruthy();
-        expect(heading.textContent).toBe('home-player  requires 501');
+        expect(heading.textContent).toEqual('home-player  requires 501');
         const score = context.container.querySelector('div h5');
         expect(score).toBeTruthy();
-        expect(score.textContent).toBe('0 - 0');
+        expect(score.textContent).toEqual('0 - 0');
     });
 
     it('Renders initial heading correctly - single-player', async () => {
@@ -126,10 +126,10 @@ describe('PlayerInput', () => {
 
         const heading = context.container.querySelector('div h2');
         expect(heading).toBeTruthy();
-        expect(heading.textContent).toBe('home-player  requires 501');
+        expect(heading.textContent).toEqual('home-player  requires 501');
         const score = context.container.querySelector('div h5');
         expect(score).toBeTruthy();
-        expect(score.textContent).toBe('Leg 1');
+        expect(score.textContent).toEqual('Leg 1');
     });
 
     it('Renders correct options for initial score', async () => {

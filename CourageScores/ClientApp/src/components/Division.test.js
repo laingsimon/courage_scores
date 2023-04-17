@@ -101,20 +101,20 @@ describe('Division', () => {
 
     function assertFixture(tr, home, homeScore, awayScore, away) {
         const columns = tr.querySelectorAll('td');
-        expect(columns.length).toBe(5);
-        expect(columns[0].textContent).toBe(home);
-        expect(columns[1].textContent).toBe(homeScore);
-        expect(columns[2].textContent).toBe('vs');
-        expect(columns[3].textContent).toBe(awayScore);
-        expect(columns[4].textContent).toBe(away);
+        expect(columns.length).toEqual(5);
+        expect(columns[0].textContent).toEqual(home);
+        expect(columns[1].textContent).toEqual(homeScore);
+        expect(columns[2].textContent).toEqual('vs');
+        expect(columns[3].textContent).toEqual(awayScore);
+        expect(columns[4].textContent).toEqual(away);
     }
 
     function assertTournament(tr, text, winner) {
         const columns = tr.querySelectorAll('td');
-        expect(columns.length).toBe(winner ? 2 : 1);
-        expect(columns[0].textContent).toBe(text);
+        expect(columns.length).toEqual(winner ? 2 : 1);
+        expect(columns[0].textContent).toEqual(text);
         if (winner) {
-            expect(columns[1].textContent).toBe('Winner: ' + winner);
+            expect(columns[1].textContent).toEqual('Winner: ' + winner);
         }
     }
 
@@ -127,13 +127,13 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
-            expect(divisionControls.length).toBe(2);
+            expect(divisionControls.length).toEqual(2);
             const seasonControl = divisionControls[0];
             const divisionControl = divisionControls[1];
             expect(seasonControl).not.toBeNull();
             expect(divisionControl).not.toBeNull();
-            expect(seasonControl.querySelector('button span').innerHTML).toBe('A season (3 Feb - 25 Aug)');
-            expect(divisionControl.querySelector('button').innerHTML).toBe('All divisions');
+            expect(seasonControl.querySelector('button span').innerHTML).toEqual('A season (3 Feb - 25 Aug)');
+            expect(divisionControl.querySelector('button').innerHTML).toEqual('All divisions');
         });
 
         it('renders teams table when in season', async () => {
@@ -161,10 +161,10 @@ describe('Division', () => {
             const table = context.container.querySelector('.light-background table');
             expect(table).toBeTruthy();
             const headings = table.querySelectorAll('thead tr th');
-            expect(headings.length).toBe(7);
+            expect(headings.length).toEqual(7);
             expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
             const rows = table.querySelectorAll('tbody tr');
-            expect(rows.length).toBe(1); // 1 team
+            expect(rows.length).toEqual(1); // 1 team
             const teamRow = rows[0];
             expect(Array.from(teamRow.querySelectorAll('td')).map(td => td.textContent))
                 .toEqual([ 'A team', '8', '9', '4', '3', '2', '1' ]);
@@ -200,10 +200,10 @@ describe('Division', () => {
             const table = context.container.querySelector('.light-background table');
             expect(table).toBeTruthy();
             const headings = table.querySelectorAll('thead tr th');
-            expect(headings.length).toBe(10);
+            expect(headings.length).toEqual(10);
             expect(Array.from(headings).map(h => h.innerHTML)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
             const rows = table.querySelectorAll('tbody tr');
-            expect(rows.length).toBe(1); // 1 player
+            expect(rows.length).toEqual(1); // 1 player
             const playerRow = rows[0];
             expect(Array.from(playerRow.querySelectorAll('td')).map(td => td.textContent))
                 .toEqual([ '4', '🤴 A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ]);
@@ -228,14 +228,14 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const fixtureElements = context.container.querySelectorAll('div.light-background > div');
-            expect(fixtureElements.length).toBe(2);
+            expect(fixtureElements.length).toEqual(2);
             const fixtureDatesContainer = fixtureElements[1];
             const fixtureDates = fixtureDatesContainer.children;
-            expect(fixtureDates.length).toBe(1);
+            expect(fixtureDates.length).toEqual(1);
             const fixtureDateElement = fixtureDates[0];
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
-            expect(noteElement.textContent).toBe('📌Finals night!');
+            expect(noteElement.textContent).toEqual('📌Finals night!');
         });
 
         it('renders fixtures when in season', async () => {
@@ -288,15 +288,15 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const fixtureElements = context.container.querySelectorAll('div.light-background > div');
-            expect(fixtureElements.length).toBe(2);
+            expect(fixtureElements.length).toEqual(2);
             const fixtureDatesContainer = fixtureElements[1];
             const fixtureDates = fixtureDatesContainer.children;
-            expect(fixtureDates.length).toBe(1);
+            expect(fixtureDates.length).toEqual(1);
             const fixtureDateElement = fixtureDates[0];
             const fixtureDateHeading = fixtureDateElement.querySelector('h4');
-            expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022');
+            expect(fixtureDateHeading.textContent).toEqual('📅 Thu Oct 13 2022');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(4); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(4); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
             assertFixture(fixturesForDate[1], 'home2 - knockout', '3', '4', 'away2 - knockout');
             assertFixture(fixturesForDate[2], 'home3', 'P', 'P', 'away3');
@@ -345,15 +345,15 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const fixtureElements = context.container.querySelectorAll('div.light-background > div');
-            expect(fixtureElements.length).toBe(2);
+            expect(fixtureElements.length).toEqual(2);
             const fixtureDatesContainer = fixtureElements[1];
             const fixtureDates = fixtureDatesContainer.children;
-            expect(fixtureDates.length).toBe(1); // 1 fixture
+            expect(fixtureDates.length).toEqual(1); // 1 fixture
             const fixtureDateElement = fixtureDates[0];
             const fixtureDateHeading = fixtureDateElement.querySelector('h4');
-            expect(fixtureDateHeading.textContent).toBe('📅 Thu Oct 13 2022Who\'s playing?');
+            expect(fixtureDateHeading.textContent).toEqual('📅 Thu Oct 13 2022Who\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(2); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(2); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
             assertTournament(fixturesForDate[1], 'Pairs at another address');
         });
@@ -365,7 +365,7 @@ describe('Division', () => {
             await renderComponent(null, divisionId);
 
             const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
-            expect(tabs.length).not.toBe(0);
+            expect(tabs.length).not.toEqual(0);
             const tabTexts = Array.from(tabs).map(t => t.querySelector('a').innerHTML);
             expect(tabTexts).not.toContain('Reports');
         });
@@ -378,13 +378,13 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
-            expect(divisionControls.length).toBe(2);
+            expect(divisionControls.length).toEqual(2);
             const seasonControl = divisionControls[0];
             const divisionControl = divisionControls[1];
             expect(seasonControl).not.toBeNull();
             expect(divisionControl).not.toBeNull();
-            expect(seasonControl.querySelector('button span').innerHTML).toBe('Select a season');
-            expect(divisionControl.querySelector('button').innerHTML).toBe('All divisions');
+            expect(seasonControl.querySelector('button span').innerHTML).toEqual('Select a season');
+            expect(divisionControl.querySelector('button').innerHTML).toEqual('All divisions');
         });
     });
 
@@ -396,7 +396,7 @@ describe('Division', () => {
             await renderComponent({ access: { runReports: false } }, divisionId);
 
             const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
-            expect(tabs.length).not.toBe(0);
+            expect(tabs.length).not.toEqual(0);
             const tabTexts = Array.from(tabs).map(t => t.querySelector('a').innerHTML);
             expect(tabTexts).not.toContain('Reports');
         });
@@ -408,7 +408,7 @@ describe('Division', () => {
             await renderComponent({ access: { runReports: true } }, divisionId);
 
             const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
-            expect(tabs.length).not.toBe(0);
+            expect(tabs.length).not.toEqual(0);
             const tabTexts = Array.from(tabs).map(t => t.querySelector('a').innerHTML);
             expect(tabTexts).toContain('Reports');
         });
@@ -421,13 +421,13 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
-            expect(divisionControls.length).toBe(2);
+            expect(divisionControls.length).toEqual(2);
             const seasonControl = divisionControls[0];
             const divisionControl = divisionControls[1];
             expect(seasonControl).not.toBeNull();
             expect(divisionControl).not.toBeNull();
-            expect(seasonControl.querySelector('button span').innerHTML).toBe('A season (3 Feb - 25 Aug)');
-            expect(divisionControl.querySelector('button').innerHTML).toBe('All divisions');
+            expect(seasonControl.querySelector('button span').innerHTML).toEqual('A season (3 Feb - 25 Aug)');
+            expect(divisionControl.querySelector('button').innerHTML).toEqual('All divisions');
         });
 
         it('renders when out of season', async () => {
@@ -438,13 +438,13 @@ describe('Division', () => {
 
             expect(reportedError).toBeNull();
             const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
-            expect(divisionControls.length).toBe(2);
+            expect(divisionControls.length).toEqual(2);
             const seasonControl = divisionControls[0];
             const divisionControl = divisionControls[1];
             expect(seasonControl).not.toBeNull();
             expect(divisionControl).not.toBeNull();
-            expect(seasonControl.querySelector('button span').innerHTML).toBe('Select a season');
-            expect(divisionControl.querySelector('button').innerHTML).toBe('All divisions');
+            expect(seasonControl.querySelector('button span').innerHTML).toEqual('Select a season');
+            expect(divisionControl.querySelector('button').innerHTML).toEqual('All divisions');
         });
     });
 });

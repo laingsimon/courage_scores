@@ -66,26 +66,26 @@ describe('DivisionFixtures', () => {
 
     function assertFixture(tr, home, homeScore, awayScore, away) {
         const columns = tr.querySelectorAll('td');
-        expect(columns.length).toBe(5 + (account ? 1 : 0));
-        expect(columns[0].textContent).toBe(home);
-        expect(columns[1].textContent).toBe(homeScore);
-        expect(columns[2].textContent).toBe('vs');
-        expect(columns[3].textContent).toBe(awayScore);
+        expect(columns.length).toEqual(5 + (account ? 1 : 0));
+        expect(columns[0].textContent).toEqual(home);
+        expect(columns[1].textContent).toEqual(homeScore);
+        expect(columns[2].textContent).toEqual('vs');
+        expect(columns[3].textContent).toEqual(awayScore);
 
         const selectedAwayTeam = columns[4].querySelector('div.btn-group > button');
         if (account && selectedAwayTeam) {
-            expect(selectedAwayTeam.textContent).toBe(away);
+            expect(selectedAwayTeam.textContent).toEqual(away);
         } else {
-            expect(columns[4].textContent).toBe(away);
+            expect(columns[4].textContent).toEqual(away);
         }
     }
 
     function assertTournament(tr, text, winner) {
         const columns = tr.querySelectorAll('td');
-        expect(columns.length).toBe((winner ? 2 : 1) + (account ? 1 : 0));
-        expect(columns[0].textContent).toBe(text);
+        expect(columns.length).toEqual((winner ? 2 : 1) + (account ? 1 : 0));
+        expect(columns[0].textContent).toEqual(text);
         if (winner) {
-            expect(columns[1].textContent).toBe('Winner: ' + winner);
+            expect(columns[1].textContent).toEqual('Winner: ' + winner);
         }
     }
 
@@ -95,7 +95,7 @@ describe('DivisionFixtures', () => {
 
     function getFixtureDateElement(index) {
         const fixtureElements = context.container.querySelectorAll('div.light-background > div');
-        expect(fixtureElements.length).toBe(2 + (account ? 2 : 0));
+        expect(fixtureElements.length).toEqual(2 + (account ? 2 : 0));
         const fixtureDatesContainer = fixtureElements[1 + (account ? 1 : 0)];
         const fixtureDates = fixtureDatesContainer.children;
         expect(fixtureElements.length).toBeGreaterThan(index);
@@ -104,7 +104,7 @@ describe('DivisionFixtures', () => {
 
     function assertFixtureDate(fixtureDateElement, expectedDate) {
         const fixtureDateHeading = fixtureDateElement.querySelector('h4');
-        expect(fixtureDateHeading.textContent).toBe('📅 ' + expectedDate);
+        expect(fixtureDateHeading.textContent).toEqual('📅 ' + expectedDate);
     }
 
     describe('when logged out', () => {
@@ -134,7 +134,7 @@ describe('DivisionFixtures', () => {
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
-            expect(noteElement.textContent).toBe('📌Finals night!');
+            expect(noteElement.textContent).toEqual('📌Finals night!');
         });
 
         it('renders played league fixtures', async () => {
@@ -163,7 +163,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
         });
 
@@ -193,7 +193,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
         });
 
@@ -223,7 +223,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'away3');
         });
 
@@ -252,7 +252,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
         });
 
@@ -288,7 +288,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022Who\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
         });
 
@@ -321,7 +321,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022Who\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address');
         });
     });
@@ -353,7 +353,7 @@ describe('DivisionFixtures', () => {
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
-            expect(noteElement.textContent).toBe('📌Finals night!Edit');
+            expect(noteElement.textContent).toEqual('📌Finals night!Edit');
         });
 
         it('renders played league fixtures', async () => {
@@ -382,7 +382,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
         });
 
@@ -412,7 +412,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
         });
 
@@ -442,19 +442,20 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'A team');
         });
 
         it('renders byes', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
+            const teamId = createTemporaryId();
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
-                    id: createTemporaryId(),
+                    id: teamId,
                     homeScore: null,
-                    homeTeam: { id: createTemporaryId(), name: 'home4 - bye', address: 'home4' },
+                    homeTeam: { id: teamId, name: 'home4 - bye', address: 'home4' },
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
@@ -471,7 +472,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
         });
 
@@ -507,7 +508,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
         });
 
@@ -540,7 +541,7 @@ describe('DivisionFixtures', () => {
             const fixtureDateElement = getFixtureDateElement(0);
             assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
-            expect(fixturesForDate.length).toBe(1); // number of fixtures for this date
+            expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address');
         });
     });

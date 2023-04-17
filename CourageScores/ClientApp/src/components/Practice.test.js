@@ -31,7 +31,7 @@ describe('Practice', () => {
 
         expect(reportedError).toBeFalsy();
         const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toBe(4);
+        expect(inputs.length).toEqual(4);
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).toBeNull();
     });
@@ -41,7 +41,7 @@ describe('Practice', () => {
 
         expect(reportedError).toBeFalsy();
         const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toBe(4);
+        expect(inputs.length).toEqual(4);
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).toBeNull();
     });
@@ -54,7 +54,7 @@ describe('Practice', () => {
         expect(reportedError).toBeFalsy();
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toBe('Unexpected end of JSON input');
+        expect(dataError.querySelector('p').innerHTML).toEqual('Unexpected end of JSON input');
     });
 
     it('logged out - renders given valid incomplete json data', async () => {
@@ -80,7 +80,7 @@ describe('Practice', () => {
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).toBeNull();
         const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toBe(5); // the settings + score input
+        expect(inputs.length).toEqual(5); // the settings + score input
     });
 
     it('logged out - renders given valid completed json data', async () => {
@@ -105,7 +105,7 @@ describe('Practice', () => {
         expect(dataError).toBeNull();
         const matchStatistics = context.container.querySelector('h4');
         expect(matchStatistics).not.toBeNull();
-        expect(matchStatistics.innerHTML).toBe('Match statistics');
+        expect(matchStatistics.innerHTML).toEqual('Match statistics');
     });
 
     it('logged out - renders given invalid base64 data', async () => {
@@ -116,7 +116,7 @@ describe('Practice', () => {
         expect(reportedError).toBeFalsy();
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toBe('The string to be decoded contains invalid characters.');
+        expect(dataError.querySelector('p').innerHTML).toEqual('The string to be decoded contains invalid characters.');
     });
 
     it('logged out - renders given invalid json data', async () => {
@@ -127,6 +127,6 @@ describe('Practice', () => {
         expect(reportedError).toBeFalsy();
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toBe('Invalid share data');
+        expect(dataError.querySelector('p').innerHTML).toEqual('Invalid share data');
     });
 });

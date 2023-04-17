@@ -80,7 +80,7 @@ describe('DivisionTeams', () => {
 
             expect(reportedError).toBeNull();
             const teamsRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(teamsRows.length).toBe(1);
+            expect(teamsRows.length).toEqual(1);
             assertTeam(teamsRows[0], [ 'A team', '1', '2', '3', '4', '5', '6' ]);
         });
 
@@ -111,7 +111,7 @@ describe('DivisionTeams', () => {
 
             expect(reportedError).toBeNull();
             const teamsRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(teamsRows.length).toBe(1);
+            expect(teamsRows.length).toEqual(1);
             assertTeam(teamsRows[0], [ '✏️➕A team', '1', '2', '3', '4', '5', '6' ]);
         });
 
