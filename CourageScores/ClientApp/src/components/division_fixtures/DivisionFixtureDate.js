@@ -87,6 +87,10 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
             return true;
         }
 
+        if (any(tournamentFixturesForDate, t => !t.proposed)) {
+            return false;
+        }
+
         const fixturesForThisTeam = date.fixtures
             .filter(f => f.awayTeam) // a created fixture
             .filter(f => f.homeTeam.id === fixture.homeTeam.id || f.awayTeam.id === fixture.homeTeam.id);
@@ -116,7 +120,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                 date={date.date}
                 isKnockout={f.isKnockout}
                 onUpdateFixtures={onUpdateFixtures} />))}
-            {tournamentFixturesForDate.map(tournament => (<TournamentFixture
+            {any(fixturesForDate, f => f.id !== f.homeTeam.id || f.awayTeam) ? null : tournamentFixturesForDate.map(tournament => (<TournamentFixture
                 key={tournament.address + '-' + tournament.date}
                 tournament={tournament}
                 date={date.date}
