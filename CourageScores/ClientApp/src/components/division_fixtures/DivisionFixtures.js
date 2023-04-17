@@ -6,13 +6,13 @@ import {ProposeGamesDialog} from "./ProposeGamesDialog";
 import {TournamentFixture} from "./TournamentFixture";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
-import {AndFilter, Filter, OrFilter, NotFilter, NullFilter} from "../Filter";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, stateChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import { getFilters, isInPast, isToday } from "./FilterUtilities";
 
 export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
@@ -271,120 +271,8 @@ export function DivisionFixtures({ setNewFixtures }) {
         setNewDate('');
     }
 
-    function isInPast(date) {
-        const today = new Date(new Date().toDateString());
-        return new Date(date) < today;
-    }
-
-    function isInFuture(date) {
-        const today = new Date(new Date().toDateString());
-        const tomorrow = new Date(today.setDate(today.getDate() + 1));
-        return new Date(date) >= tomorrow;
-    }
-
-    function isToday(date) {
-        const today = new Date().toDateString();
-        return today === new Date(date).toDateString();
-    }
-
     function hasProposals(fixtures) {
         return any(fixtures, f => f.proposal);
-    }
-
-    function isLastFixtureBeforeToday(date) {
-        if (!renderContext.lastFixtureDateBeforeToday) {
-            const dates = fixtures.map(f => f.date).filter(isInPast);
-            // Assumes all dates are sorted
-            if (any(dates)) {
-                renderContext.lastFixtureDateBeforeToday = dates[dates.length - 1];
-            } else {
-                renderContext.lastFixtureDateBeforeToday = 'no fixtures in past';
-            }
-        }
-
-        return date === renderContext.lastFixtureDateBeforeToday;
-    }
-
-    function isNextFeatureAfterToday(date) {
-        const inFuture = isInFuture(date);
-        if (!inFuture) {
-            return false;
-        }
-
-        if (!renderContext.futureDateShown) {
-            renderContext.futureDateShown = date;
-        }
-
-        return renderContext.futureDateShown === date;
-    }
-
-    function getFilters() {
-        return new AndFilter([
-            optionallyInvertFilter(getDateFilter, filter.date),
-            optionallyInvertFilter(getTypeFilter, filter.type),
-            optionallyInvertFilter(getTeamIdFilter, filter.teamId)
-        ]);
-    }
-
-    function optionallyInvertFilter(getFilter, filterInput) {
-        if (filterInput && filterInput.indexOf('not(') === 0) {
-            const withoutNot = filterInput.substring(4, filterInput.length - 1);
-            const positiveFilter = getFilter(withoutNot);
-            return positiveFilter
-                ? new NotFilter(positiveFilter)
-                : new NullFilter();
-        }
-
-        return getFilter(filterInput) ?? new NullFilter();
-    }
-
-    function getDateFilter(date) {
-        switch (date) {
-            case 'past':
-                return new Filter(c => isInPast(c.date));
-            case 'future':
-                return new Filter(c => isInFuture(c.date));
-            case 'last+next':
-                return new OrFilter([
-                    new Filter(c => isToday(c.date)),
-                    new Filter(c => isLastFixtureBeforeToday(c.date)),
-                    new Filter(c => isNextFeatureAfterToday(c.date))
-                ]);
-            default:
-                if (filter.date && filter.date.match(/\d{4}-\d{2}/)) {
-                    return new Filter(c => c.date.indexOf(filter.date) === 0);
-                }
-
-                return new NullFilter();
-        }
-    }
-
-    function getTypeFilter(type) {
-        switch (type) {
-            case 'league':
-                return new AndFilter([
-                    new Filter(c => c.tournamentFixture === false),
-                    new Filter(c => c.fixture.isKnockout === false)
-                ]);
-            case 'qualifier':
-                return new Filter(c => c.fixture.isKnockout === true);
-            case 'tournament':
-                return new Filter(c => c.tournamentFixture === true);
-            default:
-                return new NullFilter();
-        }
-    }
-
-    function getTeamIdFilter(teamId) {
-        if (!teamId) {
-            return new NullFilter();
-        }
-
-        return new OrFilter([
-                new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
-                new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
-                new Filter(c => c.tournamentFixture && any(c.fixture.sides, s => s.teamId === teamId))
-            ]);
     }
 
     function toggleShowPlayers(date) {
@@ -406,7 +294,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function renderFixtureDate(date) {
-        const filters = getFilters();
+        const filters = getFilters(filter, renderContext, fixtures);
         let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: false }));
         const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: true }));
         const notesForDate = date.notes;

@@ -1,0 +1,114 @@
+import {any} from "../../Utilities";
+import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
+
+export function isInPast(date) {
+    const today = new Date(new Date().toDateString());
+    return new Date(date) < today;
+}
+
+export function isInFuture(date) {
+    const today = new Date(new Date().toDateString());
+    const tomorrow = new Date(today.setDate(today.getDate() + 1));
+    return new Date(date) >= tomorrow;
+}
+
+export function isToday(date) {
+    const today = new Date().toDateString();
+    return today === new Date(date).toDateString();
+}
+
+export function isLastFixtureBeforeToday(renderContext, fixtures, date) {
+    if (!renderContext.lastFixtureDateBeforeToday) {
+        const dates = fixtures.map(f => f.date).filter(isInPast);
+        // Assumes all dates are sorted
+        if (any(dates)) {
+            renderContext.lastFixtureDateBeforeToday = dates[dates.length - 1];
+        } else {
+            renderContext.lastFixtureDateBeforeToday = 'no fixtures in past';
+        }
+    }
+
+    return date === renderContext.lastFixtureDateBeforeToday;
+}
+
+export function isNextFeatureAfterToday(renderContext, date) {
+    const inFuture = isInFuture(date);
+    if (!inFuture) {
+        return false;
+    }
+
+    if (!renderContext.futureDateShown) {
+        renderContext.futureDateShown = date;
+    }
+
+    return renderContext.futureDateShown === date;
+}
+
+export function optionallyInvertFilter(getFilter, filterInput, renderContext, fixtures) {
+    if (filterInput && filterInput.indexOf('not(') === 0) {
+        const withoutNot = filterInput.substring(4, filterInput.length - 1);
+        const positiveFilter = getFilter(withoutNot, renderContext, fixtures);
+        return positiveFilter
+            ? new NotFilter(positiveFilter)
+            : new NullFilter();
+    }
+
+    return getFilter(filterInput, renderContext, fixtures) ?? new NullFilter();
+}
+
+export function getDateFilter(date, renderContext, fixtures) {
+    switch (date) {
+        case 'past':
+            return new Filter(c => isInPast(c.date));
+        case 'future':
+            return new Filter(c => isInFuture(c.date));
+        case 'last+next':
+            return new OrFilter([
+                new Filter(c => isToday(c.date)),
+                new Filter(c => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
+                new Filter(c => isNextFeatureAfterToday(renderContext, c.date))
+            ]);
+        default:
+            if (date && date.match(/\d{4}-\d{2}/)) {
+                return new Filter(c => c.date.indexOf(date) === 0);
+            }
+
+            return new NullFilter();
+    }
+}
+
+export function getTypeFilter(type) {
+    switch (type) {
+        case 'league':
+            return new AndFilter([
+                new Filter(c => c.tournamentFixture === false),
+                new Filter(c => c.fixture.isKnockout === false)
+            ]);
+        case 'qualifier':
+            return new Filter(c => c.fixture.isKnockout === true);
+        case 'tournament':
+            return new Filter(c => c.tournamentFixture === true);
+        default:
+            return new NullFilter();
+    }
+}
+
+export function getTeamIdFilter(teamId) {
+    if (!teamId) {
+        return new NullFilter();
+    }
+
+    return new OrFilter([
+        new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
+        new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
+        new Filter(c => c.tournamentFixture && any(c.fixture.sides, s => s.teamId === teamId))
+    ]);
+}
+
+export function getFilters(filter, renderContext, fixtures) {
+    return new AndFilter([
+        optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
+        optionallyInvertFilter(getTypeFilter, filter.type),
+        optionallyInvertFilter(getTeamIdFilter, filter.teamId)
+    ]);
+}
