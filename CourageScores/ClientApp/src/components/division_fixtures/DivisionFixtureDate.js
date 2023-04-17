@@ -77,6 +77,23 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
         }
     }
 
+    function isPotentialFixtureValid(fixture) {
+        if (fixture.id !== fixture.homeTeam.id) {
+            return true; // a real fixture
+        }
+
+        if (fixture.awayTeam !== null) {
+            // an away team has been selected; assume it is valid
+            return true;
+        }
+
+        const fixturesForThisTeam = date.fixtures
+            .filter(f => f.awayTeam) // a created fixture
+            .filter(f => f.homeTeam.id === fixture.homeTeam.id || f.awayTeam.id === fixture.homeTeam.id);
+
+        return !any(fixturesForThisTeam);
+    }
+
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
@@ -92,7 +109,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
         {notesForDate.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote} />))}
         <table className="table layout-fixed">
             <tbody>
-            {fixturesForDate.map(f => (<DivisionFixture
+            {fixturesForDate.filter(isPotentialFixtureValid).map(f => (<DivisionFixture
                 key={f.id}
                 fixture={f}
                 readOnly={proposingGames}
