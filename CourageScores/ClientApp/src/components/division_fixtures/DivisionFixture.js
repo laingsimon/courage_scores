@@ -2,14 +2,12 @@ import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {Dialog} from "../common/Dialog";
-import {EditTeamDetails} from "../division_teams/EditTeamDetails";
-import {any, propChanged} from "../../Utilities";
+import {any} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, onUpdateFixtures, isKnockout, beforeReloadDivision }) {
+export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKnockout, beforeReloadDivision }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -22,8 +20,6 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, onUpdat
     const [deleting, setDeleting] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [clipCellRegion, setClipCellRegion] = useState(true);
-    const [editTeamMode, setEditTeamMode] = useState(null);
-    const [teamDetails, setTeamDetails] = useState(null);
     const { gameApi } = useDependencies();
 
     async function doReloadDivision() {
@@ -258,40 +254,6 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, onUpdat
         }
     }
 
-    function editTeam(type) {
-        if (readOnly) {
-            return;
-        }
-
-        setTeamDetails(Object.assign({}, fixture[type + 'Team']));
-        setEditTeamMode(type);
-    }
-
-    async function teamDetailSaved() {
-        await doReloadDivision();
-
-        setEditTeamMode(null);
-    }
-
-    function renderEditTeam() {
-        if (readOnly) {
-            return;
-        }
-
-        return (<Dialog title={`Edit team: ${fixture[editTeamMode + 'Team'].name}`}>
-            <EditTeamDetails
-                id={teamDetails.id}
-                divisionId={divisionId}
-                seasonId={season.id}
-                name={teamDetails.name}
-                address={teamDetails.address}
-                onCancel={() => setEditTeamMode(null)}
-                onChange={propChanged(teamDetails, setTeamDetails)}
-                onSaved={teamDetailSaved}
-            />
-        </Dialog>)
-    }
-
     async function saveProposal() {
         setSaving(true);
         try {
@@ -317,27 +279,14 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, onUpdat
 
     return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (fixture.proposal ? ' bg-yellow' : '')}>
         <td>
-            {isAdmin && allowTeamEdit ? (
-                <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>
-            ) : null}
             {!fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
                : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
-
-            {editTeamMode ? renderEditTeam() : null}
         </td>
         <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
         <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.awayScore}</td>
         <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
-            {isAdmin && allowTeamEdit ? (
-                <button className={`btn btn-sm ${awayTeamId ? 'btn-primary' : 'btn-secondary'} margin-right`}
-                        disabled={!awayTeamId || readOnly} onClick={() => {
-                    if (awayTeamId) {
-                        editTeam('away')
-                    }
-                }}>✏</button>
-            ) : null}
             {renderAwayTeam()}
         </td>
         {isAdmin ? (<td className="medium-column">

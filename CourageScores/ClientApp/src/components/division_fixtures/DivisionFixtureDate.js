@@ -72,7 +72,6 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                 fixture={f}
                 readOnly={proposingGames}
                 date={date.date}
-                allowTeamEdit={false}
                 isKnockout={f.isKnockout}
                 onUpdateFixtures={(apply) => setNewFixtures(apply(fixtures))} />))}
             {tournamentFixturesForDate.map(tournament => (<TournamentFixture
