@@ -449,12 +449,13 @@ describe('DivisionFixtures', () => {
         it('renders byes', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
+            const teamId = createTemporaryId();
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
-                    id: createTemporaryId(),
+                    id: teamId,
                     homeScore: null,
-                    homeTeam: { id: createTemporaryId(), name: 'home4 - bye', address: 'home4' },
+                    homeTeam: { id: teamId, name: 'home4 - bye', address: 'home4' },
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
