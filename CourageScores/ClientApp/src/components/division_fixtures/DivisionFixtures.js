@@ -16,6 +16,7 @@ import {
     saveProposal,
     saveProposals
 } from "./ProposalUtilities";
+import {Dialog} from "../common/Dialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
@@ -24,6 +25,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const { account, onError } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
+    const [ newDateDialogOpen, setNewDateDialogOpen ] = useState(false);
     const [ isKnockout, setIsKnockout ] = useState(false);
     const [ proposingGames, setProposingGames ] = useState(false);
     const [ proposalSettings, setProposalSettings ] = useState({
@@ -166,21 +168,6 @@ export function DivisionFixtures({ setNewFixtures }) {
             } }/>);
     }
 
-    function onNewDateChanged(event) {
-        const date = event.target.value;
-        setNewDate(date);
-        const utcDate = date + 'T00:00:00';
-
-        if (any(fixtures, fd => fd.date === utcDate)) {
-            scrollFixtureDateIntoView(utcDate);
-            return;
-        }
-
-        const newFixtureDate = getNewFixtureDate(utcDate);
-        setNewFixtures(fixtures.concat([ newFixtureDate ]).sort(sortBy('date')));
-        scrollFixtureDateIntoView(utcDate);
-    }
-
     function scrollFixtureDateIntoView(date) {
         // setup scroll to fixture
         window.setTimeout(() => {
@@ -189,6 +176,42 @@ export function DivisionFixtures({ setNewFixtures }) {
                 newFixtureDateElement.scrollIntoView();
             }
         }, 100);
+    }
+
+    function addNewDate() {
+        const utcDate = newDate + 'T00:00:00';
+
+        try {
+            if (any(fixtures, fd => fd.date === utcDate)) {
+                return;
+            }
+
+            const newFixtureDate = getNewFixtureDate(utcDate);
+            setNewFixtures(fixtures.concat([newFixtureDate]).sort(sortBy('date')));
+        } finally {
+            scrollFixtureDateIntoView(utcDate);
+            setNewDateDialogOpen(false);
+        }
+    }
+
+    function renderNewDateDialog() {
+        return (<Dialog title="Add a date to the season" slim={true}>
+            <div>
+                <span className="margin-right">Select date:</span>
+                <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
+                       className="margin-right" value={newDate} onChange={stateChanged(setNewDate)}/>
+
+                <div className="form-check form-switch d-inline-block">
+                    <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout"
+                           checked={isKnockout} onChange={stateChanged(setIsKnockout)}/>
+                    <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
+                </div>
+            </div>
+            <div className="mt-3 text-end">
+                <button className="btn btn-primary margin-right" onClick={addNewDate}>Add date</button>
+                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
+            </div>
+        </Dialog>);
     }
 
     const renderContext = {};
@@ -206,6 +229,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 disabled={proposingGames}
                 proposalResponse={proposalResponse}
                 onUpdateProposalSettings={setProposalSettings}/>) : null}
+            {isAdmin && newDateDialogOpen && !proposingGames ? renderNewDateDialog() : null}
             {savingProposals ? renderSavingProposalsDialog(proposalContext) : null}
             {isAdmin ? (<div className="mb-3">
                 <button className="btn btn-primary margin-right" onClick={() => beginProposeFixtures(proposalContext)}>
@@ -215,6 +239,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                     <button className="btn btn-success" onClick={() => saveProposals(...proposalContext)}>
                         💾 Save proposals...
                     </button>) : null}
+                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
             </div>) : null}
             <div>
                 {resultsToRender}
@@ -223,18 +248,8 @@ export function DivisionFixtures({ setNewFixtures }) {
                 {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
                 {editNote ? renderEditNote() : null}
             </div>
-            {isAdmin && !proposingGames ? (<div className="mt-3">
-                <div>
-                    <span className="margin-right">Select date:</span>
-                    <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
-                           className="margin-right" value={newDate} onChange={onNewDateChanged}/>
-
-                    <div className="form-check form-switch d-inline-block">
-                        <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout"
-                               checked={isKnockout} onChange={stateChanged(setIsKnockout)}/>
-                        <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
-                    </div>
-                </div>
+            {isAdmin ? (<div className="mt-3">
+                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
             </div>) : null}
         </div>);
     } catch (exc) {
