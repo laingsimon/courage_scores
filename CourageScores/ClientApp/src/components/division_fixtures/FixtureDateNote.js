@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
+import ReactMarkdown from 'react-markdown';
 
 export function FixtureDateNote({ note, setEditNote }) {
     const { onReloadDivision } = useDivisionData();
@@ -37,7 +38,7 @@ export function FixtureDateNote({ note, setEditNote }) {
 
     return (<div className="alert alert-warning alert-dismissible fade show" role="alert" key={note.id}>
         <span className="margin-right">📌</span>
-        {note.note}
+        <ReactMarkdown>{note.note}</ReactMarkdown>
         {isNoteAdmin ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>) : null}
         {isNoteAdmin ? (<div className="mt-2">
             <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
