@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {DivisionFixture} from "./DivisionFixture";
 import {NewFixtureDate} from "./NewFixtureDate";
-import {Dialog} from "../common/Dialog";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
 import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
@@ -13,6 +12,13 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {changeFilter, initFilter} from "./FilterUtilities";
+import {
+    beginProposeFixtures,
+    proposeFixtures,
+    renderSavingProposalsDialog,
+    saveProposal,
+    saveProposals
+} from "./ProposalUtilities";
 
 export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
@@ -45,6 +51,25 @@ export function DivisionFixtures({ setNewFixtures }) {
     const [ editNote, setEditNote ] = useState(null);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
     const { seasonApi, gameApi } = useDependencies();
+    const proposalContext = {
+        proposalSettings,
+        setProposalSettings,
+        fixtures,
+        setProposalSettingsDialogVisible,
+        setProposingGames,
+        setProposalResponse,
+        seasonApi,
+        gameApi,
+        setNewFixtures,
+        savingProposals,
+        divisionId,
+        season,
+        setSavingProposals,
+        onReloadDivision,
+        cancelSavingProposals,
+        setCancelSavingProposals,
+        proposalResponse
+    };
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -81,155 +106,18 @@ export function DivisionFixtures({ setNewFixtures }) {
             isKnockout={isKnockout} />);
     }
 
-    function beginProposeFixtures() {
-        // set proposalSettings.excludedDates
-        if (isEmpty(Object.keys(proposalSettings.excludedDates))) {
-            const datesWithNotes = {};
-            fixtures.filter(fd => any(fd.notes)).map(fd => fd.date).forEach(date => datesWithNotes[date] = 'has a note');
-            if (any(Object.keys(datesWithNotes))) {
-                const newProposalSettings = Object.assign({}, proposalSettings);
-                newProposalSettings.excludedDates = datesWithNotes;
-                setProposalSettings(newProposalSettings);
-            }
-        }
-
-        setProposalSettingsDialogVisible(true);
-    }
-
-    async function proposeFixtures() {
-        setProposingGames(true);
-        setProposalResponse(null);
-        try {
-            const response = await seasonApi.propose(proposalSettings);
-            if (response.success) {
-                setNewFixtures(response.result);
-
-                setProposalResponse(response);
-                const proposals = response.result.flatMap(date => date.fixtures).filter(f => f.proposal);
-                if (any(proposals) && isEmpty(response.messages) && isEmpty(response.warnings) && isEmpty(response.errors)) {
-                    setProposalSettingsDialogVisible(false);
-                } else if (isEmpty(proposals)) {
-                    window.alert('No fixtures proposed, maybe all fixtures already have been created?');
-                }
-            } else {
-                setProposalResponse(response);
-            }
-        } finally {
-            setProposingGames(false);
-        }
-    }
-
-    async function saveProposal() {
-        try {
-            const index = savingProposals.saved;
-            const fixture = savingProposals.proposals[index];
-
-            const result = await gameApi.update({
-                id: fixture.id,
-                address: fixture.homeTeam.address,
-                date: fixture.date,
-                divisionId: divisionId,
-                homeTeamId: fixture.homeTeam.id,
-                awayTeamId: fixture.awayTeam.id,
-                seasonId: season.id
-            });
-
-            window.setTimeout(async () => {
-                const newSavingProposals = Object.assign({}, savingProposals);
-                newSavingProposals.saved++;
-                if (!result.success) {
-                    newSavingProposals.messages.push(`Error saving proposal ${index + 1}: ${fixture.date}: ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`);
-                }
-
-                if (newSavingProposals.saved === newSavingProposals.proposals.length) {
-                    newSavingProposals.complete = true;
-                }
-
-                setSavingProposals(newSavingProposals);
-
-                if (newSavingProposals.complete) {
-                    await onProposalsSaved();
-                }
-            }, 100);
-        } catch (e) {
-            const newSavingProposals = Object.assign({}, savingProposals);
-            newSavingProposals.error = e.message;
-            newSavingProposals.complete = true;
-            await onReloadDivision();
-            setSavingProposals(newSavingProposals);
-        }
-    }
-
-    async function onProposalsSaved() {
-        setProposalResponse(null);
-        await onReloadDivision();
-        setSavingProposals(null);
-    }
-
     useEffect(() => {
-        if (!savingProposals || cancelSavingProposals || savingProposals.complete || !savingProposals.proposals) {
+        if (!proposalContext.savingProposals || proposalContext.cancelSavingProposals || proposalContext.savingProposals.complete || !proposalContext.savingProposals.proposals) {
             return;
         }
 
-        if (savingProposals.started) {
+        if (proposalContext.savingProposals.started) {
             // noinspection JSIgnoredPromiseFromCall
-            saveProposal();
+            saveProposal(...proposalContext);
         }
     },
         // eslint-disable-next-line
         [ savingProposals, cancelSavingProposals ]);
-
-    async function saveProposals() {
-        const proposals = [];
-        proposalResponse.result.forEach(dateAndFixtures => {
-            dateAndFixtures.fixtures.forEach(fixture => {
-                if (fixture.proposal) {
-                    proposals.push(Object.assign({}, fixture, {date: dateAndFixtures.date}));
-                }
-            });
-        });
-
-        setCancelSavingProposals(false);
-        setSavingProposals({ proposals: proposals, saved: 0, messages: [], complete: false, error: null, started: false });
-    }
-
-    function startCreatingProposals() {
-        const newSavingProposals = Object.assign({}, savingProposals);
-        newSavingProposals.started = true;
-        setSavingProposals(newSavingProposals);
-    }
-
-    function renderSavingProposalsDialog() {
-        let index = 0;
-        const percentage = (savingProposals.saved / savingProposals.proposals.length) * 100;
-        const currentProposal = savingProposals.proposals[savingProposals.saved - 1];
-        let progressBarColour = 'bg-primary progress-bar-animated progress-bar-striped';
-        if (cancelSavingProposals) {
-            progressBarColour = 'bg-danger';
-        } else if (savingProposals.complete) {
-            progressBarColour = 'bg-success';
-        }
-
-        return (<Dialog title="Creating games...">
-            {!cancelSavingProposals && !savingProposals.complete && currentProposal ? (<p>{new Date(currentProposal.date).toDateString()}: <strong>{currentProposal.homeTeam.name}</strong> vs <strong>{currentProposal.awayTeam.name}</strong></p>) : null}
-            {savingProposals.started
-                ? (<p>{cancelSavingProposals || savingProposals.complete ? 'Created' : 'Creating'}: {savingProposals.saved} of {savingProposals.proposals.length}</p>)
-                : (<p>About to create <strong>{savingProposals.proposals.length}</strong> games, click Start to create them</p>)}
-            {cancelSavingProposals ? (<p className="text-danger">Operation cancelled.</p>) : null}
-            <div className="progress" style={{ height: '25px' }}>
-                <div className={`progress-bar ${progressBarColour}`} role="progressbar" style={{ width: `${percentage}%`}}>{percentage.toFixed(0)}%</div>
-            </div>
-            {savingProposals.error ? (<p className="text-danger">{savingProposals.error}</p>) : null}
-            <ol className="overflow-auto max-scroll-height">
-                {savingProposals.messages.map(message => (<li className="text-warning" key={index++}>{message}</li>))}
-            </ol>
-            <div>
-                {cancelSavingProposals || savingProposals.complete || !savingProposals.started ? null : (<button className="btn btn-danger margin-right" onClick={async () => { setCancelSavingProposals(true); await onReloadDivision(); } }>Cancel</button>)}
-                {cancelSavingProposals || !savingProposals.started || savingProposals.complete ? (<button className="btn btn-primary margin-right" onClick={() => setSavingProposals(null)}>Close</button>) : null}
-                {cancelSavingProposals || savingProposals.started ? null : (<button className="btn btn-success margin-right" onClick={startCreatingProposals}>Start</button>)}
-            </div>
-        </Dialog>);
-    }
 
     async function onTournamentChanged() {
         const divisionData = await onReloadDivision();
@@ -286,19 +174,19 @@ export function DivisionFixtures({ setNewFixtures }) {
         return (<div className="light-background p-3">
             <FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>
             {proposalSettingsDialogVisible ? (<ProposeGamesDialog
-                onPropose={proposeFixtures}
+                onPropose={() => proposeFixtures(...proposalContext)}
                 onClose={() => setProposalSettingsDialogVisible(false)}
                 proposalSettings={proposalSettings}
                 disabled={proposingGames}
                 proposalResponse={proposalResponse}
                 onUpdateProposalSettings={setProposalSettings}/>) : null}
-            {savingProposals ? renderSavingProposalsDialog() : null}
+            {savingProposals ? renderSavingProposalsDialog(proposalContext) : null}
             {isAdmin ? (<div className="mb-3">
-                <button className="btn btn-primary margin-right" onClick={beginProposeFixtures}>
+                <button className="btn btn-primary margin-right" onClick={() => beginProposeFixtures(proposalContext)}>
                     🎲 Propose games...
                 </button>
                 {proposalResponse && any(proposals) ? (
-                    <button className="btn btn-success" onClick={saveProposals}>
+                    <button className="btn btn-success" onClick={() => saveProposals(...proposalContext)}>
                         💾 Save proposals...
                     </button>) : null}
             </div>) : null}
