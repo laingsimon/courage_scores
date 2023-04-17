@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import {DivisionFixture} from "./DivisionFixture";
-import {NewFixtureDate} from "./NewFixtureDate";
 import {ProposeGamesDialog} from "./ProposeGamesDialog";
-import {NewTournamentGame} from "./NewTournamentGame";
 import {FilterFixtures} from "./FilterFixtures";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
-import {any, isEmpty, stateChanged} from "../../Utilities";
+import {any, isEmpty, sortBy, stateChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -26,8 +23,8 @@ export function DivisionFixtures({ setNewFixtures }) {
     const location = useLocation();
     const { account, onError } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
-    const isNoteAdmin = account && account.access && account.access.manageNotes;
     const [ newDate, setNewDate ] = useState('');
+    const [ newFixtureDate, setNewFixtureDate ] = useState(null);
     const [ isKnockout, setIsKnockout ] = useState(false);
     const [ proposingGames, setProposingGames ] = useState(false);
     const [ proposalSettings, setProposalSettings ] = useState({
@@ -85,25 +82,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         return newShowPlayers;
     }
 
-    function renderNewFixture(team) {
-        const newFixture = {
-            id: team.id,
-            homeTeam: {
-                id: team.id,
-                name: team.name,
-                address: team.address,
-            },
-            awayTeam: null,
-        };
-
-        return (<DivisionFixture
-            key={team.id}
-            beforeReloadDivision={() => setNewDate('')}
-            fixture={newFixture}
-            date={newDate}
-            isKnockout={isKnockout} />);
-    }
-
     useEffect(() => {
         if (!proposalContext.savingProposals || proposalContext.cancelSavingProposals || proposalContext.savingProposals.complete || !proposalContext.savingProposals.proposals) {
             return;
@@ -121,11 +99,12 @@ export function DivisionFixtures({ setNewFixtures }) {
         const divisionData = await onReloadDivision();
         setNewFixtures(divisionData.fixtures);
         setNewDate('');
+        setNewFixtureDate(null);
     }
 
     function renderFixtureDate(fixtureDate) {
         return (<DivisionFixtureDate
-            key={fixtureDate.date}
+            key={fixtureDate.date + (fixtureDate.isNew ? '_new' : '')}
             date={fixtureDate}
             filter={filter}
             renderContext={renderContext}
@@ -137,6 +116,26 @@ export function DivisionFixtures({ setNewFixtures }) {
             setNewFixtures={setNewFixtures}
             onTournamentChanged={onTournamentChanged}
         />);
+    }
+
+    function getNewFixtureDate(date) {
+        return {
+            isNew: true,
+            date: date,
+            fixtures: teams.map(team => {
+                return {
+                    id: team.id,
+                    homeTeam: {
+                        id: team.id,
+                        name: team.name,
+                        address: team.address,
+                    },
+                    awayTeam: null,
+                };
+            }),
+            tournamentFixtures: [],
+            notes: []
+        };
     }
 
     function startAddNote(date) {
@@ -159,14 +158,40 @@ export function DivisionFixtures({ setNewFixtures }) {
             onClose={() => setEditNote(null)}
             onSaved={async () => {
                 setNewDate('');
+                setNewFixtureDate(null);
                 setEditNote(null);
                 await onReloadDivision();
             } }/>);
     }
 
+    function onNewDateChanged(event) {
+        const date = event.target.value;
+        setNewDate(date);
+        const utcDate = date + 'T00:00:00';
+
+        if (any(fixtures, fd => fd.date === utcDate)) {
+            scrollFixtureDateIntoView(utcDate);
+            return;
+        }
+
+        const newFixtureDate = getNewFixtureDate(utcDate);
+        setNewFixtureDate(newFixtureDate);
+        scrollFixtureDateIntoView(utcDate);
+    }
+
+    function scrollFixtureDateIntoView(date) {
+        // setup scroll to fixture
+        window.setTimeout(() => {
+            const newFixtureDateElement = document.querySelector(`div[data-fixture-date="${date}"]`);
+            if (newFixtureDateElement) {
+                newFixtureDateElement.scrollIntoView();
+            }
+        }, 100);
+    }
+
     const renderContext = {};
     try {
-        const resultsToRender = fixtures.map(renderFixtureDate);
+        const resultsToRender = (newFixtureDate ? fixtures.concat([ newFixtureDate ]) : fixtures).sort(sortBy('date')).map(renderFixtureDate);
         const proposals = proposalResponse
             ? proposalResponse.result.flatMap(date => date.fixtures).filter(f => f.proposal)
             : [];
@@ -200,25 +225,14 @@ export function DivisionFixtures({ setNewFixtures }) {
                 <div>
                     <span className="margin-right">Select date:</span>
                     <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
-                           className="margin-right" value={newDate} onChange={stateChanged(setNewDate)}/>
+                           className="margin-right" value={newDate} onChange={onNewDateChanged}/>
 
                     <div className="form-check form-switch d-inline-block">
                         <input type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout"
                                checked={isKnockout} onChange={stateChanged(setIsKnockout)}/>
                         <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                     </div>
-                    {newDate && isNoteAdmin ? (
-                        <button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(newDate)}>📌
-                            Add note</button>) : null}
                 </div>
-                {newDate ? (<table className="table layout-fixed">
-                    <tbody>
-                    {teams.map(t => (renderNewFixture(t)))}
-                    <NewFixtureDate date={newDate}/>
-                    {isKnockout || fixtures.filter(f => f.date === newDate).fixtures ? null : (
-                        <NewTournamentGame date={newDate} onNewTournament={onTournamentChanged}/>)}
-                    </tbody>
-                </table>) : null}
             </div>) : null}
         </div>);
     } catch (exc) {

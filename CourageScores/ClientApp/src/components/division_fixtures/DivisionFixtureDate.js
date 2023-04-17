@@ -53,7 +53,24 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
         });
     }
 
-    return (<div key={date.date} className={isToday(date.date) ? 'text-primary' : (isInPast(date.date) || hasProposals(date.fixtures) ? '' : 'text-secondary-50')}>
+    function getClassName() {
+        if (date.isNew) {
+            return '';
+        }
+
+        if (isToday(date.date)) {
+            return 'text-primary';
+        }
+
+        if (!isInPast(date.date) && !hasProposals(date.fixtures)) {
+            return 'text-secondary-50';
+        }
+
+        return '';
+    }
+
+    return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success' : ''}`}>
+        <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
             📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (Qualifier)</span>) : null}
             {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
