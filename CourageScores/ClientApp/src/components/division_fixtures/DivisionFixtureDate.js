@@ -98,12 +98,12 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
         return !any(fixturesForThisTeam);
     }
 
-    return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success' : ''}`}>
+    return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
             📅 {new Date(date.date).toDateString()}{date.hasKnockoutFixture ? (<span> (Qualifier)</span>) : null}
             {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
-            {any(tournamentFixturesForDate) ? (
+            {any(tournamentFixturesForDate) && !date.isNew ? (
                 <span className="margin-left form-switch h6 text-body">
                         <input type="checkbox" className="form-check-input align-baseline"
                                id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
