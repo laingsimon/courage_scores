@@ -19,16 +19,23 @@ export function toMap(items) {
 * Sort any array by the given property
 * */
 export function sortBy(property, descending) {
-    function getValue(item) {
+    function getValue(item, property) {
+        if (property.indexOf('.') !== -1) {
+            const parentProperty = property.substring(0, property.indexOf('.'));
+            const childProperty = property.substring(parentProperty.length + 1);
+            const parent = getValue(item, parentProperty);
+            return getValue(parent, childProperty);
+        }
+
         return item[property];
     }
 
     return function nameSort(x, y) {
-        if (getValue(x).toLowerCase() === getValue(y).toLowerCase()) {
+        if (getValue(x, property).toLowerCase() === getValue(y, property).toLowerCase()) {
             return 0;
         }
 
-        return (getValue(x).toLowerCase() > getValue(y).toLowerCase())
+        return (getValue(x, property).toLowerCase() > getValue(y, property).toLowerCase())
             ? descending ? -1 : 1
             : descending ? 1 : -1;
     }
