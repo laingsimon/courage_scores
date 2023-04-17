@@ -118,7 +118,7 @@ describe('Errors', () => {
         expect(li.innerHTML).toContain(message);
         expect(li.innerHTML).toContain(new Date(time).toLocaleTimeString());
         expect(li.innerHTML).toContain(new Date(time).toLocaleDateString());
-        expect(li.querySelector('.badge').innerHTML).toBe(source);
+        expect(li.querySelector('.badge').innerHTML).toEqual(source);
     }
 
     it('shows no results on load', async () => {

@@ -106,7 +106,7 @@ describe('DivisionPlayers', () => {
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(playersRows.length).toBe(2);
+            expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
             const heading = context.container.querySelector('.light-background > div > p');
@@ -124,7 +124,7 @@ describe('DivisionPlayers', () => {
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(playersRows.length).toBe(2);
+            expect(playersRows.length).toEqual(2);
             const heading = context.container.querySelector('.light-background > div > p');
             expect(heading).toBeFalsy();
         });
@@ -139,7 +139,7 @@ describe('DivisionPlayers', () => {
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(playersRows.length).toBe(2);
+            expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '🤴 A captain', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', 'A player', '16', '17', '18', '12', '13', '14', '15' ]);
             const heading = context.container.querySelector('.light-background > div > p');
@@ -162,7 +162,7 @@ describe('DivisionPlayers', () => {
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(playersRows.length).toBe(2);
+            expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
             const heading = context.container.querySelector('.light-background > div > p');
@@ -180,7 +180,7 @@ describe('DivisionPlayers', () => {
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(playersRows.length).toBe(2);
+            expect(playersRows.length).toEqual(2);
             const heading = context.container.querySelector('.light-background > div > p');
             expect(heading).toBeFalsy();
         });
@@ -195,7 +195,7 @@ describe('DivisionPlayers', () => {
 
             expect(reportedError).toBeNull();
             const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(playersRows.length).toBe(2);
+            expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', '16', '17', '18', '12', '13', '14', '15' ]);
             const heading = context.container.querySelector('.light-background > div > p');

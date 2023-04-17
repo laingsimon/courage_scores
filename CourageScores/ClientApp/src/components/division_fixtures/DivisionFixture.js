@@ -2,14 +2,12 @@ import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {Dialog} from "../common/Dialog";
-import {EditTeamDetails} from "../division_teams/EditTeamDetails";
-import {any, propChanged} from "../../Utilities";
+import {any, sortBy} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTeamDelete, onUpdateFixtures, isKnockout, beforeReloadDivision }) {
+export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKnockout, beforeReloadDivision }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -17,15 +15,12 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
     const { account, teams: allTeams } = useApp();
     const { id: divisionId, fixtures, season, teams, onReloadDivision, onError } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
-    const [awayTeamId, setAwayTeamId] = useState(fixture.awayTeam ? fixture.awayTeam.id : '');
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [clipCellRegion, setClipCellRegion] = useState(true);
-    const [deletingHomeTeam, setDeletingHomeTeam] = useState(false);
-    const [editTeamMode, setEditTeamMode] = useState(null);
-    const [teamDetails, setTeamDetails] = useState(null);
-    const { gameApi, teamApi } = useDependencies();
+    const { gameApi } = useDependencies();
+    const awayTeamId = fixture.awayTeam ? fixture.awayTeam.id : '';
 
     async function doReloadDivision() {
         if (beforeReloadDivision) {
@@ -113,6 +108,37 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
         return null;
     }
 
+    function onChangeAwayTeam(teamId) {
+        onUpdateFixtures(currentFixtureDates => {
+            const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
+
+            if (!fixtureDate) {
+                console.error(`Could not find fixture date: ${date}`);
+                return null;
+            }
+
+            if (!fixtureDate.fixtures) {
+                console.error('Fixture date has no fixtures');
+                return null;
+            }
+
+            const fixtureDateFixture = fixtureDate.fixtures.filter(f => f.id === fixture.id)[0];
+            if (!fixtureDateFixture) {
+                console.error(`Could not find fixture with id ${fixture.id}`);
+                return null;
+            }
+
+            const newFixture = Object.assign({}, fixtureDateFixture);
+            newFixture.originalAwayTeamId = newFixture.originalAwayTeamId || (newFixture.awayTeam ? newFixture.awayTeam.id : 'unset');
+            newFixture.awayTeam = teamId
+                ? { id: teamId, name: '' }
+                : null;
+            fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id).concat([ newFixture ]).sort(sortBy('homeTeam.name'));
+
+            return currentFixtureDates;
+        });
+    }
+
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
@@ -142,7 +168,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
 
             return (<BootstrapDropdown
                 value={awayTeamId}
-                onChange={(value) => setAwayTeamId(value)}
+                onChange={onChangeAwayTeam}
                 options={options}
                 onOpen={toggleCellClip}
                 disabled={deleting}
@@ -150,7 +176,8 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
             />);
         }
 
-        const options = [bye].concat(teams
+        const byeOption = fixture.id !== fixture.homeTeam.id ? [] : [bye];
+        const options = byeOption.concat(teams
             .filter(t => t.id !== fixture.homeTeam.id)
             .map(t => {
                 const unavailableReason = getUnavailableReason(t);
@@ -164,7 +191,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
 
         return (<BootstrapDropdown
             value={awayTeamId}
-            onChange={(value) => setAwayTeamId(value)}
+            onChange={onChangeAwayTeam}
             options={options}
             onOpen={toggleCellClip}
             disabled={deleting}
@@ -221,7 +248,7 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
                 return;
             }
 
-            if (!window.confirm(`Are you sure you want to delete this game?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
+            if (!window.confirm(`Are you sure you want to delete this ${fixture.proposal ? 'proposal' : 'fixture'}?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
                 return;
             }
 
@@ -259,63 +286,6 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
         }
     }
 
-    async function deleteTeam() {
-        if (deleting || saving || readOnly) {
-            return;
-        }
-
-        if (!window.confirm(`Are you sure you want to delete the ${fixture.homeTeam.name} team?`)) {
-            return;
-        }
-
-        setDeletingHomeTeam(true);
-        try {
-            const response = await teamApi.delete(fixture.homeTeam.id, season.id);
-
-            if (response.success) {
-                await doReloadDivision();
-            } else {
-                setSaveError(response);
-            }
-        } finally {
-            setDeletingHomeTeam(false);
-        }
-    }
-
-    function editTeam(type) {
-        if (readOnly) {
-            return;
-        }
-
-        setTeamDetails(Object.assign({}, fixture[type + 'Team']));
-        setEditTeamMode(type);
-    }
-
-    async function teamDetailSaved() {
-        await doReloadDivision();
-
-        setEditTeamMode(null);
-    }
-
-    function renderEditTeam() {
-        if (readOnly) {
-            return;
-        }
-
-        return (<Dialog title={`Edit team: ${fixture[editTeamMode + 'Team'].name}`}>
-            <EditTeamDetails
-                id={teamDetails.id}
-                divisionId={divisionId}
-                seasonId={season.id}
-                name={teamDetails.name}
-                address={teamDetails.address}
-                onCancel={() => setEditTeamMode(null)}
-                onChange={propChanged(teamDetails, setTeamDetails)}
-                onSaved={teamDetailSaved}
-            />
-        </Dialog>)
-    }
-
     async function saveProposal() {
         setSaving(true);
         try {
@@ -341,44 +311,23 @@ export function DivisionFixture({fixture, date, readOnly, allowTeamEdit, allowTe
 
     return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (fixture.proposal ? ' bg-yellow' : '')}>
         <td>
-            {isAdmin && allowTeamEdit ? (
-                <button className="btn btn-sm btn-primary margin-right" disabled={readOnly} onClick={() => editTeam('home')}>✏</button>
-            ) : null}
-            {isAdmin && allowTeamDelete ? (
-                <button className={`btn btn-sm ${awayTeamId ? 'btn-secondary' : 'btn-danger'} margin-right`}
-                        onClick={deleteTeam} disabled={awayTeamId || readOnly}>
-                    {deletingHomeTeam ? (
-                        <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : (
-                        <span>🗑</span>)}
-                </button>
-            ) : null}
             {!fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
                : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
-
-            {editTeamMode ? renderEditTeam() : null}
         </td>
         <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
         <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.awayScore}</td>
         <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
-            {isAdmin && allowTeamEdit ? (
-                <button className={`btn btn-sm ${awayTeamId ? 'btn-primary' : 'btn-secondary'} margin-right`}
-                        disabled={!awayTeamId || readOnly} onClick={() => {
-                    if (awayTeamId) {
-                        editTeam('away')
-                    }
-                }}>✏</button>
-            ) : null}
             {renderAwayTeam()}
         </td>
         {isAdmin ? (<td className="medium-column">
-            {awayTeamId !== (fixture.awayTeam ? fixture.awayTeam.id : '')
+            {fixture.originalAwayTeamId && awayTeamId !== fixture.originalAwayTeamId && awayTeamId
                 ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
                     <span className="spinner-border spinner-border-sm" role="status"
                           aria-hidden="true"></span>) : '💾'}</button>)
                 : null}
-            {awayTeamId && !saving && !deleting ? (
+            {fixture.id !== fixture.homeTeam.id && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
             {fixture.proposal && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}

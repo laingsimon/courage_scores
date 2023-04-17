@@ -200,7 +200,7 @@ describe('Score', () => {
             expect(tableBody).toBeTruthy();
             const singleRow = tableBody.querySelector('tr td');
             expect(singleRow).toBeTruthy();
-            expect(singleRow.textContent).toBe('No scores, yet');
+            expect(singleRow.textContent).toEqual('No scores, yet');
         });
 
         it('renders score card with results', async () => {
@@ -216,7 +216,7 @@ describe('Score', () => {
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toBe(12);
+            expect(matchRows.length).toEqual(12);
             assertMatchRow(matchRows[0], 'Singles');
             assertMatchRow(matchRows[1], 'Home player', '3', '', '2', 'Away player');
             assertMatchRow(matchRows[2], 'Home player', '3', '', '2', 'Away player');
@@ -250,7 +250,7 @@ describe('Score', () => {
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toBe(14);
+            expect(matchRows.length).toEqual(14);
             assertMatchRow(matchRows[0], 'Singles');
             assertMatchRow(matchRows[1], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[2], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
@@ -280,7 +280,7 @@ describe('Score', () => {
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
             const matchRows = tableBody.querySelectorAll('tr');
-            expect(matchRows.length).toBe(14);
+            expect(matchRows.length).toEqual(14);
             assertMatchRow(matchRows[0], 'Singles');
             assertMatchRow(matchRows[1], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[2], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
