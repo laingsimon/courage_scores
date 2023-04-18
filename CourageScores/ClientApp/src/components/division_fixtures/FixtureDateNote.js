@@ -5,7 +5,7 @@ import {useApp} from "../../AppContainer";
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 
-export function FixtureDateNote({ note, setEditNote }) {
+export function FixtureDateNote({ note, setEditNote, preventDelete }) {
     const { onReloadDivision } = useDivisionData();
     const { account, onError } = useApp();
     const { noteApi } = useDependencies();
@@ -40,8 +40,8 @@ export function FixtureDateNote({ note, setEditNote }) {
     return (<div className="alert alert-warning alert-dismissible fade show" role="alert" key={note.id}>
         <span className="margin-right">📌</span>
         <ReactMarkdown remarkPlugins={[gfm]}>{note.note}</ReactMarkdown>
-        {isNoteAdmin ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>) : null}
-        {isNoteAdmin ? (<div className="mt-2">
+        {isNoteAdmin && !preventDelete ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>) : null}
+        {isNoteAdmin && setEditNote ? (<div className="mt-2">
             <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
         </div>) : null}
     </div>);
