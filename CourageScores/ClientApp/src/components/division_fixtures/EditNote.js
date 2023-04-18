@@ -4,7 +4,6 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {valueChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import ReactMarkdown from "react-markdown";
 import {FixtureDateNote} from "./FixtureDateNote";
 
 export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
