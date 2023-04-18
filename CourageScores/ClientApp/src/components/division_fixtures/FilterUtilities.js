@@ -99,9 +99,9 @@ export function getTeamIdFilter(teamId) {
     }
 
     return new OrFilter([
-        new Filter(c => c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
-        new Filter(c => c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
-        new Filter(c => c.tournamentFixture && any(c.fixture.sides, s => s.teamId === teamId))
+        new Filter(c => c.fixture && c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
+        new Filter(c => c.fixture && c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
+        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === teamId))
     ]);
 }
 
