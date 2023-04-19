@@ -216,7 +216,6 @@ describe('Division', () => {
             inSeasonDivisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
@@ -280,7 +279,6 @@ describe('Division', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -310,7 +308,6 @@ describe('Division', () => {
             inSeasonDivisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'an address',

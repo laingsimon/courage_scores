@@ -118,7 +118,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
@@ -152,7 +151,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -182,7 +180,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -212,7 +209,6 @@ describe('DivisionFixtures', () => {
                     postponed: true,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -241,7 +237,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -262,7 +257,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'an address',
@@ -298,7 +292,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'another address',
@@ -337,7 +330,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
@@ -371,7 +363,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -401,7 +392,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -431,7 +421,6 @@ describe('DivisionFixtures', () => {
                     postponed: true,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -461,7 +450,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -482,7 +470,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'an address',
@@ -518,7 +505,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'another address',
