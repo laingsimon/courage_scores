@@ -42,7 +42,6 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
             TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateGames, (gamesForDate?.Count ?? 0) == 0, token)
                 .OrderByAsync(f => f.Address).ToList(),
-            HasKnockoutFixture = gamesForDate?.Any(g => g.IsKnockout) ?? false,
             Notes = notesForDate?.ToList() ?? new List<FixtureDateNoteDto>(),
         };
     }

@@ -121,6 +121,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     function getNewFixtureDate(date, isKnockout) {
         return {
             isNew: true,
+            isKnockout: isKnockout,
             date: date,
             fixtures: teams.map(team => {
                 return {
@@ -131,9 +132,10 @@ export function DivisionFixtures({ setNewFixtures }) {
                         address: team.address,
                     },
                     awayTeam: null,
+                    isKnockout: isKnockout,
                 };
             }),
-            tournamentFixtures: isKnockout ? [] : teams.map(team => {
+            tournamentFixtures: teams.map(team => {
                 return {
                     address: team.name,
                     proposed: true,
