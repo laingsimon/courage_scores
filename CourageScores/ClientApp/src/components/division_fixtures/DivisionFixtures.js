@@ -131,6 +131,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                         address: team.address,
                     },
                     awayTeam: null,
+                    isKnockout: isKnockout,
                 };
             }),
             tournamentFixtures: isKnockout ? [] : teams.map(team => {
