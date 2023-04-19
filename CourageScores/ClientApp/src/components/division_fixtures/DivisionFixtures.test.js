@@ -188,7 +188,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022 (Qualifier)');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
@@ -342,7 +342,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteQualifier');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
             expect(noteElement.textContent).toEqual('📌Finals night!Edit');
@@ -400,7 +400,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022 (Qualifier)📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
@@ -458,7 +458,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteQualifier');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');

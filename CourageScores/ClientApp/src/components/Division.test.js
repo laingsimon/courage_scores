@@ -292,7 +292,7 @@ describe('Division', () => {
             expect(fixtureDates.length).toEqual(1);
             const fixtureDateElement = fixtureDates[0];
             const fixtureDateHeading = fixtureDateElement.querySelector('h4');
-            expect(fixtureDateHeading.textContent).toEqual('📅 Thu Oct 13 2022');
+            expect(fixtureDateHeading.textContent).toEqual('📅 Thu Oct 13 2022 (Qualifier)');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(4); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
