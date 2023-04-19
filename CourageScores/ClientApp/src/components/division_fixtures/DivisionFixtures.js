@@ -179,6 +179,11 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function addNewDate() {
+        if (!newDate) {
+            window.alert('Select a date first');
+            return;
+        }
+
         const utcDate = newDate + 'T00:00:00';
 
         try {
