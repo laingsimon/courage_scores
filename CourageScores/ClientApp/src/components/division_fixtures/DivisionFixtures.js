@@ -118,7 +118,7 @@ export function DivisionFixtures({ setNewFixtures }) {
         />);
     }
 
-    function getNewFixtureDate(date) {
+    function getNewFixtureDate(date, isKnockout) {
         return {
             isNew: true,
             date: date,
@@ -133,13 +133,13 @@ export function DivisionFixtures({ setNewFixtures }) {
                     awayTeam: null,
                 };
             }),
-            tournamentFixtures: teams.map(team => {
+            tournamentFixtures: isKnockout ? [] : teams.map(team => {
                 return {
                     address: team.name,
                     proposed: true,
                 };
             }),
-            notes: []
+            notes: [],
         };
     }
 
@@ -191,7 +191,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 return;
             }
 
-            const newFixtureDate = getNewFixtureDate(utcDate);
+            const newFixtureDate = getNewFixtureDate(utcDate, isKnockout);
             setNewFixtures(fixtures.concat([newFixtureDate]).sort(sortBy('date')));
         } finally {
             scrollFixtureDateIntoView(utcDate);
