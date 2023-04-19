@@ -82,7 +82,7 @@ export function getTypeFilter(type) {
         case 'league':
             return new AndFilter([
                 new Filter(c => !c.tournamentFixture),
-                new Filter(c => c.fixture && c.fixture.isKnockout === false && c.fixture.awayTeam),
+                new Filter(c => (c.fixture && c.fixture.isKnockout === false && c.fixture.awayTeam) || c.note),
             ]);
         case 'qualifier':
             return new Filter(c => c.fixture && c.fixture.isKnockout === true && c.fixture.awayTeam);
