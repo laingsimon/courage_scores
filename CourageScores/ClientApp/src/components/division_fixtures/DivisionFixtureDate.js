@@ -134,7 +134,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                            id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
                     <label className="form-check-label margin-left" htmlFor={'showPlayers_' + date.date}>Who's playing?</label>
                 </span>) : null}
-            {showQualifierToggle ? (<span className="margin-left form-switch h6 text-body">
+            {isAdmin && showQualifierToggle ? (<span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            disabled={any(fixturesForDate, f => f.isKnockout && f.id !== f.homeTeam.id)}
                            id={'isKnockout_' + date.date}
