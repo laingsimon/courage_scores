@@ -122,7 +122,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
     }
 
     const hasKnockoutFixture = any(fixturesForDate, f => f.id !== f.homeTeam.id && f.isKnockout);
-    const showQualifierToggle = isAdmin && (!hasKnockoutFixture && !any(tournamentFixturesForDate, f => !f.proposal) && !any(fixturesForDate, f => f.id !== f.homeTeam.id)) || date.isNew;
+    const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(tournamentFixturesForDate, f => !f.proposal) && !any(fixturesForDate, f => f.id !== f.homeTeam.id)) || date.isNew);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
