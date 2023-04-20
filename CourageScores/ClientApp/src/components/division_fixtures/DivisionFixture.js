@@ -151,6 +151,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
         if (isKnockout) {
             const options = allTeams
                 .filter(t => t.id !== fixture.homeTeam.id)
+                .filter(t => any(t.seasons, ts => ts.seasonId === season.id))
                 .map(t => {
                     const otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
                     const unavailableReason = otherFixtureSameDate

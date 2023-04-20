@@ -60,7 +60,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.TournamentFixtures, Is.EqualTo(new[] { tournamentGameDtoA }));
-        Assert.That(result.HasKnockoutFixture, Is.False);
         Assert.That(result.Notes, Is.Empty);
     }
 
@@ -87,7 +86,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.TournamentFixtures, Is.EqualTo(new[] { tournamentGameDtoA }));
-        Assert.That(result.HasKnockoutFixture, Is.False);
         Assert.That(result.Notes, Is.Empty);
     }
 
@@ -120,7 +118,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.TournamentFixtures, Is.EqualTo(new[] { tournamentGameDtoA, tournamentGameDtoB }));
-        Assert.That(result.HasKnockoutFixture, Is.False);
         Assert.That(result.Notes, Is.Empty);
     }
 
@@ -173,7 +170,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.EqualTo(new[] { gameDto }));
         Assert.That(result.TournamentFixtures, Is.EqualTo(new[] { tournamentGameDtoA, tournamentGameDtoB, tournamentGameDtoC }));
-        Assert.That(result.HasKnockoutFixture, Is.False);
         Assert.That(result.Notes, Is.Empty);
     }
 
@@ -211,7 +207,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.EqualTo(new[] { gameDto, proposedGameDto }));
         Assert.That(result.TournamentFixtures, Is.Empty);
-        Assert.That(result.HasKnockoutFixture, Is.False);
         Assert.That(result.Notes, Is.Empty);
     }
 
@@ -248,7 +243,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.EqualTo(new[] { gameDto, proposedGameDto }));
         Assert.That(result.TournamentFixtures, Is.Empty);
-        Assert.That(result.HasKnockoutFixture, Is.False);
         Assert.That(result.Notes, Is.Empty);
     }
 
@@ -287,7 +281,6 @@ public class DivisionFixtureDateAdapterTests
         Assert.That(result.Date, Is.EqualTo(_date));
         Assert.That(result.Fixtures, Is.EqualTo(new[] { gameDto, proposedGameDto }));
         Assert.That(result.TournamentFixtures, Is.Empty);
-        Assert.That(result.HasKnockoutFixture, Is.True);
         Assert.That(result.Notes, Is.Empty);
     }
 

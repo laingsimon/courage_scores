@@ -113,7 +113,7 @@ export function NavMenu() {
                         <li className="nav-item">
                             {!appLoading && account ?
                                 <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout
-                                    ({account.name})</a> : null}
+                                    ({account.givenName})</a> : null}
                             {!appLoading && !account ?
                                 <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
                         </li>

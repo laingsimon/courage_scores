@@ -118,7 +118,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
@@ -152,7 +151,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -182,7 +180,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -191,7 +188,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022 (Qualifier)');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
@@ -212,7 +209,6 @@ describe('DivisionFixtures', () => {
                     postponed: true,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -241,7 +237,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -262,7 +257,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'an address',
@@ -298,7 +292,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'another address',
@@ -337,7 +330,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
@@ -350,7 +342,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteQualifier');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
             expect(noteElement.textContent).toEqual('📌Finals night!Edit');
@@ -371,7 +363,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -401,7 +392,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -410,7 +400,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022 (Qualifier)📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
@@ -431,7 +421,6 @@ describe('DivisionFixtures', () => {
                     postponed: true,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -461,7 +450,6 @@ describe('DivisionFixtures', () => {
                     postponed: false,
                     proposal: false
                 } ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: []
             });
@@ -470,7 +458,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteQualifier');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
@@ -482,7 +470,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'an address',
@@ -518,7 +505,6 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
-                hasKnockoutFixtures: false,
                 notes: [ ],
                 tournamentFixtures: [ {
                     address: 'another address',

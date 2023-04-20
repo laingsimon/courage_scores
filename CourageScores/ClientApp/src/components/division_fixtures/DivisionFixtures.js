@@ -118,9 +118,10 @@ export function DivisionFixtures({ setNewFixtures }) {
         />);
     }
 
-    function getNewFixtureDate(date) {
+    function getNewFixtureDate(date, isKnockout) {
         return {
             isNew: true,
+            isKnockout: isKnockout,
             date: date,
             fixtures: teams.map(team => {
                 return {
@@ -131,6 +132,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                         address: team.address,
                     },
                     awayTeam: null,
+                    isKnockout: isKnockout,
                 };
             }),
             tournamentFixtures: teams.map(team => {
@@ -139,7 +141,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                     proposed: true,
                 };
             }),
-            notes: []
+            notes: [],
         };
     }
 
@@ -179,6 +181,11 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function addNewDate() {
+        if (!newDate) {
+            window.alert('Select a date first');
+            return;
+        }
+
         const utcDate = newDate + 'T00:00:00';
 
         try {
@@ -186,7 +193,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 return;
             }
 
-            const newFixtureDate = getNewFixtureDate(utcDate);
+            const newFixtureDate = getNewFixtureDate(utcDate, isKnockout);
             setNewFixtures(fixtures.concat([newFixtureDate]).sort(sortBy('date')));
         } finally {
             scrollFixtureDateIntoView(utcDate);
