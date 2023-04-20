@@ -122,13 +122,13 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
     }
 
     const hasKnockoutFixture = any(fixturesForDate, f => f.id !== f.homeTeam.id && f.isKnockout);
-    const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(tournamentFixturesForDate, f => !f.proposal) && !any(fixturesForDate, f => f.id !== f.homeTeam.id)) || date.isNew);
+    const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(tournamentFixturesForDate, f => !f.proposed) && !any(fixturesForDate, f => f.id !== f.homeTeam.id)) || date.isNew);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
             📅 {new Date(date.date).toDateString()}{hasKnockoutFixture && !showQualifierToggle ? (<span> (Qualifier)</span>) : null}
             {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
-            {any(tournamentFixturesForDate, f => !f.proposal) && !date.isNew ? (
+            {any(tournamentFixturesForDate, f => !f.proposed) && !date.isNew ? (
                 <span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />

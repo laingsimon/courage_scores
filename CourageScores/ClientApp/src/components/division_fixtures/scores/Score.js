@@ -80,7 +80,7 @@ export function Score() {
             return;
         }
 
-        const players = teamSeasons[seasonId].players;
+        const players = teamSeasons[seasonId].players.filter(p => p); // copy the players list
 
         matches.forEach(match => {
            const matchPlayers = match[teamType + 'Players'];
