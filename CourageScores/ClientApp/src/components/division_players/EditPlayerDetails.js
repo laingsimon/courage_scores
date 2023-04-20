@@ -89,7 +89,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
                 </div>
                 <BootstrapDropdown
                     onChange={value => onChange('teamId', value)}
-                    value={teamId || ''}
+                    value={teamId || (team ? team.id : '')}
                     options={[{ value: '', text: 'Select team' }].concat(getTeamOptions())} />
             </div>
         );
@@ -114,7 +114,6 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
     }
 
     return (<div>
-        <h4>Player details</h4>
         {id ? renderSelectTeamForExistingPlayer() : renderSelectTeamForNewPlayer()}
         <div className="input-group mb-3">
             <div className="input-group-prepend">
