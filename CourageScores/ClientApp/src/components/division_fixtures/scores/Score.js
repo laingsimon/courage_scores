@@ -245,6 +245,8 @@ export function Score() {
                 setData(response.result);
                 setFixtureData(response.result);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }
@@ -269,6 +271,8 @@ export function Score() {
             }
 
             alert('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }

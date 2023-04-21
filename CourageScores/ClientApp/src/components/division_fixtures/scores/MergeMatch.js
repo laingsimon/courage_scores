@@ -1,6 +1,8 @@
 import React from 'react';
+import {useApp} from "../../../AppContainer";
 
 export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData }) {
+    const { onError } = useApp();
     const homeSubmissionMatch = homeSubmission && homeSubmission.matches && homeSubmission.matches[matchIndex];
     const awaySubmissionMatch = awaySubmission && awaySubmission.matches && awaySubmission.matches[matchIndex];
     const publishedMatch = matches && matches[matchIndex];
@@ -8,12 +10,16 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
     const submissionsMatch = matchEquals(homeSubmissionMatch, awaySubmissionMatch);
 
     function acceptSubmission(match) {
-        const newFixtureData = Object.assign({}, fixtureData);
-        const matchOnlyProperties = Object.assign({}, match);
+        try {
+            const newFixtureData = Object.assign({}, fixtureData);
+            const matchOnlyProperties = Object.assign({}, match);
 
-        newFixtureData.matches[matchIndex] = Object.assign(matchOnlyProperties, newFixtureData.matches[matchIndex]);
+            newFixtureData.matches[matchIndex] = Object.assign(matchOnlyProperties, newFixtureData.matches[matchIndex]);
 
-        setFixtureData(newFixtureData);
+            setFixtureData(newFixtureData);
+        } catch (e) {
+            onError(e);
+        }
     }
 
     function matchEquals(x, y) {
@@ -86,39 +92,52 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
     }
 
     if (submissionsMatch && homeSubmissionMatch) {
-        return (<tr>
-            <td colSpan="5">
-                {renderSubmissionMatch(homeSubmissionMatch)}
-                <div className="text-center">
-                    <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
-                </div>
-            </td>
-        </tr>)
+        try {
+            return (<tr>
+                <td colSpan="5">
+                    {renderSubmissionMatch(homeSubmissionMatch)}
+                    <div className="text-center">
+                        <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
+                    </div>
+                </td>
+            </tr>);
+        } catch (e) {
+            onError(e);
+        }
     }
 
     if (!homeSubmissionMatch) {
         return null;
     }
 
-    return (<tr>
-        <td colSpan="2" className="hover-highlight">
-            <strong>from {homeSubmissionMatch.author}</strong>
-            {renderSubmissionMatch(homeSubmissionMatch)}
-            <div className="text-center">
-                <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
-            </div>
-        </td>
-        <td>
-            <div className="vertical-text transform-top-left position-absolute text-nowrap" style={{ marginLeft: '-5px' }}>
-                <span className="text-nowrap" style={{ marginLeft: '-60px' }}>Merge &rarr;</span>
-            </div>
-        </td>
-        <td colSpan="2" className="hover-highlight">
-            <strong>from {awaySubmissionMatch.author}</strong>
-            {renderSubmissionMatch(awaySubmissionMatch)}
-            <div className="text-center">
-                <button disabled={readOnly} onClick={() => acceptSubmission(awaySubmissionMatch)} className="btn btn-success btn-sm margin-left">Accept</button>
-            </div>
-        </td>
-    </tr>);
+    try {
+        return (<tr>
+            <td colSpan="2" className="hover-highlight">
+                <strong>from {homeSubmissionMatch.author}</strong>
+                {renderSubmissionMatch(homeSubmissionMatch)}
+                <div className="text-center">
+                    <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)}
+                            className="btn btn-success btn-sm margin-left">Accept
+                    </button>
+                </div>
+            </td>
+            <td>
+                <div className="vertical-text transform-top-left position-absolute text-nowrap"
+                     style={{marginLeft: '-5px'}}>
+                    <span className="text-nowrap" style={{marginLeft: '-60px'}}>Merge &rarr;</span>
+                </div>
+            </td>
+            <td colSpan="2" className="hover-highlight">
+                <strong>from {awaySubmissionMatch.author}</strong>
+                {renderSubmissionMatch(awaySubmissionMatch)}
+                <div className="text-center">
+                    <button disabled={readOnly} onClick={() => acceptSubmission(awaySubmissionMatch)}
+                            className="btn btn-success btn-sm margin-left">Accept
+                    </button>
+                </div>
+            </td>
+        </tr>);
+    } catch (e) {
+        onError(e);
+    }
 }

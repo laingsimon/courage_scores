@@ -3,16 +3,20 @@ import React from "react";
 import {useApp} from "../../../AppContainer";
 
 export function ScoreCardHeading({ data, access, winner, submission, setSubmission, setFixtureData }) {
-    const { account } = useApp();
+    const { account, onError } = useApp();
     function toggleSubmission(submissionToShow) {
-        if (submissionToShow === submission) {
-            setSubmission(null);
-            setFixtureData(data);
-            return;
-        }
+        try {
+            if (submissionToShow === submission) {
+                setSubmission(null);
+                setFixtureData(data);
+                return;
+            }
 
-        setSubmission(submissionToShow);
-        setFixtureData(data[submissionToShow + 'Submission']);
+            setSubmission(submissionToShow);
+            setFixtureData(data[submissionToShow + 'Submission']);
+        } catch (e) {
+            onError(e);
+        }
     }
 
     return (<thead>

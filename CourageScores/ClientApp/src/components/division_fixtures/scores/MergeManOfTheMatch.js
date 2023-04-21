@@ -1,11 +1,18 @@
 import React from "react";
+import {useApp} from "../../../AppContainer";
 
 export function MergeManOfTheMatch({ data, setData, allPlayers }) {
-    function setManOfMatch(team, id) {
-        const newData = Object.assign({}, data);
-        newData[team].manOfTheMatch = id;
+    const { onError } = useApp();
 
-        setData(newData);
+    function setManOfMatch(team, id) {
+        try {
+            const newData = Object.assign({}, data);
+            newData[team].manOfTheMatch = id;
+
+            setData(newData);
+        } catch (e) {
+            onError(e);
+        }
     }
 
     return (<tr>
