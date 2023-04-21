@@ -213,7 +213,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
                 if (players.length === 1) {
                     if (onHiCheck) {
-                        await onHiCheck(players[0], score);
+                        await onHiCheck(players[0], score.toString());
                     }
                 }
             } catch (e) {
