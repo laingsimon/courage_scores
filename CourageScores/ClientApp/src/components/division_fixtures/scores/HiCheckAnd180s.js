@@ -1,13 +1,14 @@
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
-import {sortBy} from "../../../Utilities";
+import {any, sortBy} from "../../../Utilities";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
+import {App} from "../../../App";
 
 export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     const { onError } = useApp();
 
-    function applicablePlayers() {
+    function getApplicablePlayers() {
         const players = {
         };
 
@@ -27,13 +28,23 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     }
 
     try {
+        const applicablePlayers = getApplicablePlayers();
+
+        if (!any(applicablePlayers)) {
+            return (<tr>
+                <td colSpan="5" className="text-center">
+                    Select some player/s to add 180s and hi-checks
+                </td>
+            </tr>)
+        }
+
         return (<tr>
             <td colSpan="2" className="text-end">
                 180s<br/>
                 <MultiPlayerSelection
                     disabled={access === 'readonly'}
                     readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    allPlayers={applicablePlayers()}
+                    allPlayers={applicablePlayers}
                     players={fixtureData.oneEighties || []}
                     onRemovePlayer={remove180(fixtureData, setFixtureData)}
                     onAddPlayer={add180(fixtureData, setFixtureData)}
@@ -46,7 +57,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                 <MultiPlayerSelection
                     disabled={access === 'readonly'}
                     readOnly={saving || (fixtureData.resultsPublished && access !== 'admin')}
-                    allPlayers={applicablePlayers()}
+                    allPlayers={applicablePlayers}
                     players={fixtureData.over100Checkouts || []}
                     onRemovePlayer={removeHiCheck(fixtureData, setFixtureData)}
                     onAddPlayer={addHiCheck(fixtureData, setFixtureData)}
