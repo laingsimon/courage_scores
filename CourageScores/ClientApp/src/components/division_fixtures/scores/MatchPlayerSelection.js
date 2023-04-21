@@ -34,7 +34,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     async function homePlayerChanged(index, player) {
         try {
-            if (player.id === NEW_PLAYER) {
+            if (player && player.id === NEW_PLAYER) {
                 setCreatePlayerFor({index, side: 'home'});
                 return;
             }
@@ -44,7 +44,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             if (player) {
                 newMatch.homePlayers[index] = Object.assign({}, existingPlayer, player);
             } else {
-                newMatch.homePlayers[index] = {};
+                newMatch.homeScore = null;
+                newMatch.homePlayers.splice(index, 1);
             }
 
             if (onMatchChanged) {
@@ -57,7 +58,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     async function awayPlayerChanged(index, player) {
         try {
-            if (player.id === NEW_PLAYER) {
+            if (player && player.id === NEW_PLAYER) {
                 setCreatePlayerFor({index, side: 'away'});
                 return;
             }
@@ -67,7 +68,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             if (player) {
                 newMatch.awayPlayers[index] = Object.assign({}, existingPlayer, player);
             } else {
-                newMatch.awayPlayers[index] = {};
+                newMatch.awayScore = null;
+                newMatch.awayPlayers.splice(index, 1);
             }
 
             if (onMatchChanged) {
