@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
-import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {Link} from "react-router-dom";
 import {any, propChanged, stateChanged} from "../../../Utilities";
 import {EditMatchOptions} from "../EditMatchOptions";
@@ -10,13 +9,10 @@ import {useApp} from "../../../AppContainer";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled,
-                                         homePlayers, awayPlayers, readOnly, seasonId, home, away, gameId,
-                                         onPlayerChanged, divisionId, matchOptions, onMatchOptionsChanged,
-                                         on180, onHiCheck }) {
+export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled, homePlayers, awayPlayers, readOnly,
+                                         seasonId, divisionId, matchOptions, onMatchOptionsChanged, on180, onHiCheck,
+                                         setCreatePlayerFor }) {
     const { account, onError } = useApp();
-    const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
-    const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
 
@@ -39,7 +35,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     async function homePlayerChanged(index, player) {
         try {
             if (player.id === NEW_PLAYER) {
-                setNewPlayerDetails({name: '', captain: false});
                 setCreatePlayerFor({index, side: 'home'});
                 return;
             }
@@ -63,7 +58,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     async function awayPlayerChanged(index, player) {
         try {
             if (player.id === NEW_PLAYER) {
-                setNewPlayerDetails({name: '', captain: false});
                 setCreatePlayerFor({index, side: 'away'});
                 return;
             }
@@ -169,34 +163,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         return indexes;
     }
 
-    function renderCreatePlayerDialog() {
-        const team = createPlayerFor.side === 'home' ? home : away;
-
-        return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
-            <EditPlayerDetails
-                id={null}
-                {...newPlayerDetails}
-                seasonId={seasonId}
-                gameId={gameId}
-                team={team}
-                divisionId={divisionId}
-                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
-                onCancel={() => setCreatePlayerFor(null)}
-                onSaved={onPlayerCreated}
-            />
-        </Dialog>);
-    }
-
-    async function onPlayerCreated() {
-        try {
-            if (onPlayerChanged) {
-                await onPlayerChanged();
-            }
-        } catch (e) {
-            onError(e);
-        }
-    }
-
     function renderMatchSettingsDialog() {
         return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
             <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} />
@@ -283,7 +249,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 {canOpenSayg() ? (<button className="btn btn-sm float-start p-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
-                {createPlayerFor ? renderCreatePlayerDialog() : null}
                 {playerIndexes().map(index => disabled
                     ? (<div key={index}><Link
                         to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link>

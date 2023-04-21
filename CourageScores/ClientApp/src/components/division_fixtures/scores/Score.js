@@ -5,7 +5,7 @@ import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, propChanged, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -17,6 +17,8 @@ import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
+import {Dialog} from "../../common/Dialog";
+import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 
 export function Score() {
     const { fixtureId } = useParams();
@@ -33,6 +35,34 @@ export function Score() {
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
     const [submission, setSubmission] = useState(null);
+    const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
+    const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
+
+    function renderCreatePlayerDialog() {
+        const team = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
+
+        async function playerCreated() {
+            await reloadTeams();
+
+            setCreatePlayerFor(null);
+            setNewPlayerDetails({ name: '', captain: false });
+
+            // TODO: set the player for the appropriate match
+        }
+
+        return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
+            <EditPlayerDetails
+                id={null}
+                {...newPlayerDetails}
+                seasonId={fixtureData.seasonId}
+                gameId={fixtureData.id}
+                team={team}
+                divisionId={fixtureData.divisionId}
+                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
+                onCancel={() => setCreatePlayerFor(null)}
+                onSaved={playerCreated} />
+        </Dialog>);
+    }
 
     function getAccess() {
         if (account && account.access) {
@@ -315,16 +345,13 @@ export function Score() {
             readOnly={!editable}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
-            onPlayerChanged={reloadTeams}
-            home={fixtureData.home}
-            away={fixtureData.away}
             seasonId={fixtureData.seasonId}
-            gameId={fixtureData.id}
             divisionId={fixtureData.divisionId}
             matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
             onMatchOptionsChanged={onMatchOptionsChanged}
             on180={add180(fixtureData, setFixtureData)}
-            onHiCheck={addHiCheck(fixtureData, setFixtureData)} />);
+            onHiCheck={addHiCheck(fixtureData, setFixtureData)}
+            setCreatePlayerFor={setCreatePlayerFor} />);
     }
 
     function renderMergeMatch(index) {
@@ -493,6 +520,7 @@ export function Score() {
             </div>
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score"/>) : null}
+            {createPlayerFor ? renderCreatePlayerDialog() : null}
         </div>);
     } catch (e) {
         onError(e);
