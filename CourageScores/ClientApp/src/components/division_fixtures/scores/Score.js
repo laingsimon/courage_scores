@@ -41,13 +41,47 @@ export function Score() {
     function renderCreatePlayerDialog() {
         const team = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
 
-        async function playerCreated() {
+        async function playerCreated(updatedTeamDetails) {
             await reloadTeams();
 
-            setCreatePlayerFor(null);
-            setNewPlayerDetails({ name: '', captain: false });
+            try {
+                const updatedTeamSeason = updatedTeamDetails.seasons.filter(ts => ts.seasonId === fixtureData.seasonId)[0];
+                if (!updatedTeamSeason) {
+                    console.log(updatedTeamDetails);
+                    console.error('Could not find updated teamSeason');
+                    return;
+                }
 
-            // TODO: set the player for the appropriate match
+                const newPlayers = updatedTeamSeason.players.filter(p => p.name === newPlayerDetails.name);
+                if (!any(newPlayers)) {
+                    console.log(updatedTeamSeason);
+                    console.error(`Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name}"`);
+                    return;
+                }
+
+                const newPlayer = newPlayers[0];
+                const match = fixtureData.matches[createPlayerFor.matchIndex];
+                if (!match) {
+                    console.error(`Unable to find match at index ${createPlayerFor.matchIndex}`);
+                    console.log(createPlayerFor);
+                    return;
+                }
+
+                const newMatch = Object.assign({}, match);
+                newMatch[createPlayerFor.side + 'Players'][createPlayerFor.index] = {
+                    id: newPlayer.id,
+                    name: newPlayer.name
+                };
+
+                const newFixtureData = Object.assign({}, fixtureData);
+                fixtureData.matches[createPlayerFor.matchIndex] = newMatch;
+                setFixtureData(newFixtureData);
+            } catch (e) {
+                onError(e);
+            } finally {
+                setCreatePlayerFor(null);
+                setNewPlayerDetails({name: '', captain: false});
+            }
         }
 
         return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
@@ -335,6 +369,11 @@ export function Score() {
             setFixtureData(newFixtureData);
         }
 
+        function onCreatePlayer(forMatchPlayerIndex) {
+            forMatchPlayerIndex.matchIndex = index;
+            setCreatePlayerFor(forMatchPlayerIndex);
+        }
+
         const editable = !saving && (getAccess() === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
 
         return (<MatchPlayerSelection
@@ -351,7 +390,7 @@ export function Score() {
             onMatchOptionsChanged={onMatchOptionsChanged}
             on180={add180(fixtureData, setFixtureData)}
             onHiCheck={addHiCheck(fixtureData, setFixtureData)}
-            setCreatePlayerFor={setCreatePlayerFor} />);
+            setCreatePlayerFor={onCreatePlayer} />);
     }
 
     function renderMergeMatch(index) {
