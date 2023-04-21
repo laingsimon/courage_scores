@@ -47,6 +47,11 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
                 newLeg.currentThrow = newLeg.playerSequence[0].value;
             }
 
+            if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0) {
+                // prompt for who should throw first.
+                newLeg.currentThrow = null;
+            }
+
             await onChange(newData);
         }
 

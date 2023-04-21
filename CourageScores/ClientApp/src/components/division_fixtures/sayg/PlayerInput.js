@@ -47,7 +47,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         }
 
         const score = Number.parseInt(scoreInput);
-        if (!Number.isFinite(score)) {
+        if (!Number.isFinite(score) || score < 0 || score > 180) {
             return;
         }
 

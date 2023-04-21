@@ -272,6 +272,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     {
         var user = await _userService.GetUser(token);
         var permitted = user?.Access?.RecordScoresAsYouGo == true;
+        if (!updatedMatch.HomePlayers.Any() || !updatedMatch.AwayPlayers.Any())
+        {
+            updatedMatch.Sayg = null;
+            currentMatch.Sayg = null; // remove the current sayg data, there are no players for it to apply to.
+        }
 
         var match = new GameMatch
         {
