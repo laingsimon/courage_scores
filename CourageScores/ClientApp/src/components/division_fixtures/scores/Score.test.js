@@ -264,7 +264,7 @@ describe('Score', () => {
             assertMatchRow(matchRows[10], 'Home playerAdd a player...  Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...  Away playerAdd a player...');
             assertMatchRow(matchRows[11], 'Man of the match');
             assertMatchRow(matchRows[12], '', '', '');
-            assertMatchRow(matchRows[13], '180s', '', '100+ c/o');
+            assertMatchRow(matchRows[13], 'Select some player/s to add 180s and hi-checks');
         });
 
         it('renders score card with results', async () => {
