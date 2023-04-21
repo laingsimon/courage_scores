@@ -7,4 +7,5 @@ public class Leg
     public LegCompetitorScore Home { get; set; } = null!;
     public LegCompetitorScore Away { get; set; } = null!;
     public List<LegPlayerSequence> PlayerSequence { get; set; } = new();
+    public CompetitorType? CurrentThrow { get; set; }
 }

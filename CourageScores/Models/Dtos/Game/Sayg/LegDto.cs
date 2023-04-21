@@ -29,4 +29,9 @@ public class LegDto
     /// The sequence of players, e.g. home then away or the reverse
     /// </summary>
     public List<LegPlayerSequenceDto> PlayerSequence { get; set; } = new();
+
+    /// <summary>
+    /// The player that is/should throw now
+    /// </summary>
+    public string? CurrentThrow { get; set; }
 }
