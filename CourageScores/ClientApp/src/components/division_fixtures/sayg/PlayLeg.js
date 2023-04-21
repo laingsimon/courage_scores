@@ -40,7 +40,7 @@ export function PlayLeg({ leg, home, away, onChange, onLegComplete, on180, onHiC
 
     return (<div>
         {leg.playerSequence && leg.currentThrow ? null : (<div className="text-center">
-            <p>Who plays first?</p>
+            {leg.isLastLeg && homeScore === awayScore && homeScore > 0 ? (<p>Who won the bull?</p>) : (<p>Who plays first?</p>)}
             {playerOptions().map(op => (<button key={op.value} className="btn btn-primary margin-right" onClick={() => firstPlayerChanged(op.value)}>🎯<br />{op.text}</button>))}
         </div>)}
         {leg.playerSequence && leg.currentThrow ? (<PreviousPlayerScore
