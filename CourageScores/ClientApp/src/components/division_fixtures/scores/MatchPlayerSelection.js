@@ -45,6 +45,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 newMatch.homePlayers[index] = Object.assign({}, existingPlayer, player);
             } else {
                 newMatch.homeScore = null;
+                newMatch.sayg = null;
                 newMatch.homePlayers.splice(index, 1);
             }
 
@@ -69,6 +70,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 newMatch.awayPlayers[index] = Object.assign({}, existingPlayer, player);
             } else {
                 newMatch.awayScore = null;
+                newMatch.sayg = null;
                 newMatch.awayPlayers.splice(index, 1);
             }
 
