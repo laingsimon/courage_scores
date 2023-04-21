@@ -3,7 +3,6 @@ import React from "react";
 import {any, sortBy} from "../../../Utilities";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
-import {App} from "../../../App";
 
 export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     const { onError } = useApp();
