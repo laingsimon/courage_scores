@@ -30,6 +30,7 @@ public class LegAdapter : ISimpleAdapter<Leg, LegDto>
             StartingScore = model.StartingScore,
             PlayerSequence = await model.PlayerSequence.SelectAsync(ps => _playerSequenceAdapter.Adapt(ps, token)).ToList(),
             CurrentThrow = model.CurrentThrow?.ToString().ToLower(),
+            IsLastLeg = model.IsLastLeg,
         };
     }
 
@@ -43,6 +44,7 @@ public class LegAdapter : ISimpleAdapter<Leg, LegDto>
             StartingScore = dto.StartingScore,
             PlayerSequence = await dto.PlayerSequence.SelectAsync(ps => _playerSequenceAdapter.Adapt(ps, token)).ToList(),
             CurrentThrow = dto.CurrentThrow != null ? Enum.Parse<CompetitorType>(dto.CurrentThrow, true) : null,
+            IsLastLeg = dto.IsLastLeg,
         };
     }
 }

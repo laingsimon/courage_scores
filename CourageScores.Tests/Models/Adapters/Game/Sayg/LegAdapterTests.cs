@@ -136,6 +136,21 @@ public class LegAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenModel_SetsIsLastLegCorrectly()
+    {
+        var leg = new Leg
+        {
+            Home = _homeScore,
+            Away = _awayScore,
+            IsLastLeg = true,
+        };
+
+        var result = await _adapter.Adapt(leg, _token);
+
+        Assert.That(result.IsLastLeg, Is.True);
+    }
+
+    [Test]
     public async Task Adapt_GivenModel_SetsPlayerSequenceCorrectly()
     {
         var leg = new Leg
@@ -219,6 +234,21 @@ public class LegAdapterTests
         var result = await _adapter.Adapt(leg, _token);
 
         Assert.That(result.StartingScore, Is.EqualTo(leg.StartingScore));
+    }
+
+    [Test]
+    public async Task Adapt_GivenDto_SetsIsLastLegCorrectly()
+    {
+        var leg = new LegDto
+        {
+            Home = _homeScoreDto,
+            Away = _awayScoreDto,
+            IsLastLeg = true,
+        };
+
+        var result = await _adapter.Adapt(leg, _token);
+
+        Assert.That(result.IsLastLeg, Is.True);
     }
 
     [Test]

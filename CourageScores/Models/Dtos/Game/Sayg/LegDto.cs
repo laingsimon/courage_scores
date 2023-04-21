@@ -34,4 +34,9 @@ public class LegDto
     /// The player that is/should throw now
     /// </summary>
     public string? CurrentThrow { get; set; }
+
+    /// <summary>
+    /// Is this the last leg of the match?
+    /// </summary>
+    public bool IsLastLeg { get; set; }
 }
