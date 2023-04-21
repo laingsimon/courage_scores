@@ -16,7 +16,7 @@ public class DivisionServiceExtensionsTests
         var players = new List<DivisionPlayerDto> { playerA, playerB, playerC };
 
         // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-        players.OrderBy(p => p.Name).ApplyPlayerRanks().ToList();
+        players.OrderBy(p => p.Name).ApplyRanks().ToList();
 
         Assert.That(playerA.Rank, Is.EqualTo(1));
         Assert.That(playerB.Rank, Is.EqualTo(2));
@@ -31,7 +31,7 @@ public class DivisionServiceExtensionsTests
         var playerC = new DivisionPlayerDto { Name = "c" };
         var players = new List<DivisionPlayerDto> { playerA, playerB, playerC };
 
-        var result = players.OrderBy(p => p.Name).ApplyPlayerRanks().ToList();
+        var result = players.OrderBy(p => p.Name).ApplyRanks().ToList();
 
         Assert.That(result, Is.EqualTo(players));
     }
