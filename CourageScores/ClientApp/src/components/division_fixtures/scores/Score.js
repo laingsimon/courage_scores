@@ -5,7 +5,7 @@ import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {any, elementAt, isEmpty, repeat, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, propChanged, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -17,11 +17,13 @@ import {GameDetails} from "./GameDetails";
 import {add180, addHiCheck} from "../../common/Accolades";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
+import {Dialog} from "../../common/Dialog";
+import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 
 export function Score() {
     const { fixtureId } = useParams();
     const { gameApi } = useDependencies();
-    const { appLoading, account, divisions, seasons, onError, error, teams } = useApp();
+    const { appLoading, account, divisions, seasons, onError, teams, reloadTeams } = useApp();
     const [loading, setLoading] = useState('init');
     const [data, setData] = useState(null);
     const [fixtureData, setFixtureData] = useState(null);
@@ -33,6 +35,68 @@ export function Score() {
     const [season, setSeason] = useState(null);
     const [division, setDivision] = useState(null);
     const [submission, setSubmission] = useState(null);
+    const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
+    const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
+
+    function renderCreatePlayerDialog() {
+        const team = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
+
+        async function playerCreated(updatedTeamDetails) {
+            await reloadTeams();
+
+            try {
+                const updatedTeamSeason = updatedTeamDetails.seasons.filter(ts => ts.seasonId === fixtureData.seasonId)[0];
+                if (!updatedTeamSeason) {
+                    console.log(updatedTeamDetails);
+                    console.error('Could not find updated teamSeason');
+                    return;
+                }
+
+                const newPlayers = updatedTeamSeason.players.filter(p => p.name === newPlayerDetails.name);
+                if (!any(newPlayers)) {
+                    console.log(updatedTeamSeason);
+                    console.error(`Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name}"`);
+                    return;
+                }
+
+                const newPlayer = newPlayers[0];
+                const match = fixtureData.matches[createPlayerFor.matchIndex];
+                if (!match) {
+                    console.error(`Unable to find match at index ${createPlayerFor.matchIndex}`);
+                    console.log(createPlayerFor);
+                    return;
+                }
+
+                const newMatch = Object.assign({}, match);
+                newMatch[createPlayerFor.side + 'Players'][createPlayerFor.index] = {
+                    id: newPlayer.id,
+                    name: newPlayer.name
+                };
+
+                const newFixtureData = Object.assign({}, fixtureData);
+                fixtureData.matches[createPlayerFor.matchIndex] = newMatch;
+                setFixtureData(newFixtureData);
+            } catch (e) {
+                onError(e);
+            } finally {
+                setCreatePlayerFor(null);
+                setNewPlayerDetails({name: '', captain: false});
+            }
+        }
+
+        return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
+            <EditPlayerDetails
+                id={null}
+                {...newPlayerDetails}
+                seasonId={fixtureData.seasonId}
+                gameId={fixtureData.id}
+                team={team}
+                divisionId={fixtureData.divisionId}
+                onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
+                onCancel={() => setCreatePlayerFor(null)}
+                onSaved={playerCreated} />
+        </Dialog>);
+    }
 
     function getAccess() {
         if (account && account.access) {
@@ -60,11 +124,11 @@ export function Score() {
         // eslint-disable-next-line
         [ appLoading, seasons, teams, divisions ]);
 
-    async function loadTeamPlayers(teamId, seasonId, teamType, matches) {
-        const teamData = await teams[teamId];
+    function loadTeamPlayers(teamId, seasonId, teamType, matches) {
+        const teamData = teams[teamId];
 
         if (!teamData) {
-            onError(`${teamType} team could not be found`);
+            onError(`${teamType} team could not be found - ${teamId}`);
             return;
         }
 
@@ -104,6 +168,26 @@ export function Score() {
         return players;
     }
 
+    useEffect(() => {
+        if (fixtureData && loading !== 'init') {
+            loadPlayerData(fixtureData);
+        }
+    },
+    // eslint-disable-next-line
+    [ teams ]);
+
+    function loadPlayerData(gameData) {
+        const homeTeamPlayers = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
+        const awayTeamPlayers = loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
+
+        setHomeTeam(homeTeamPlayers);
+        setAwayTeam(awayTeamPlayers);
+
+        const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
+        allPlayers.sort(sortBy('name'));
+        setAllPlayers(allPlayers);
+    }
+
     async function loadFixtureData() {
         const gameData = await gameApi.get(fixtureId);
 
@@ -120,23 +204,7 @@ export function Score() {
 
             const access = getAccess();
             if (access === 'admin' || access === 'clerk') {
-                const homeTeamPlayers = await loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
-
-                if (error || !homeTeamPlayers) {
-                    return;
-                }
-
-                const awayTeamPlayers = await loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
-
-                if (error || !awayTeamPlayers) {
-                    return;
-                }
-
-                setHomeTeam(homeTeamPlayers);
-                setAwayTeam(awayTeamPlayers);
-
-                const allPlayers = homeTeamPlayers.concat(awayTeamPlayers).filter(p => p.id !== NEW_PLAYER);
-                allPlayers.sort(sortBy('name'));
+                loadPlayerData(gameData);
             }
 
             if (!gameData.matchOptions || isEmpty(gameData.matchOptions)) {
@@ -156,7 +224,6 @@ export function Score() {
                 gameData.matches = repeat(8, getMatchDefaults);
             }
 
-            setAllPlayers(allPlayers);
             setFixtureData(gameData);
             setData(gameData);
 
@@ -245,6 +312,8 @@ export function Score() {
                 setData(response.result);
                 setFixtureData(response.result);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }
@@ -269,6 +338,8 @@ export function Score() {
             }
 
             alert('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }
@@ -298,6 +369,11 @@ export function Score() {
             setFixtureData(newFixtureData);
         }
 
+        function onCreatePlayer(forMatchPlayerIndex) {
+            forMatchPlayerIndex.matchIndex = index;
+            setCreatePlayerFor(forMatchPlayerIndex);
+        }
+
         const editable = !saving && (getAccess() === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
 
         return (<MatchPlayerSelection
@@ -308,16 +384,13 @@ export function Score() {
             readOnly={!editable}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
-            onPlayerChanged={loadFixtureData}
-            home={fixtureData.home}
-            away={fixtureData.away}
             seasonId={fixtureData.seasonId}
-            gameId={fixtureData.id}
             divisionId={fixtureData.divisionId}
             matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
             onMatchOptionsChanged={onMatchOptionsChanged}
             on180={add180(fixtureData, setFixtureData)}
-            onHiCheck={addHiCheck(fixtureData, setFixtureData)} />);
+            onHiCheck={addHiCheck(fixtureData, setFixtureData)}
+            setCreatePlayerFor={onCreatePlayer} />);
     }
 
     function renderMergeMatch(index) {
@@ -486,6 +559,7 @@ export function Score() {
             </div>
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score"/>) : null}
+            {createPlayerFor ? renderCreatePlayerDialog() : null}
         </div>);
     } catch (e) {
         onError(e);

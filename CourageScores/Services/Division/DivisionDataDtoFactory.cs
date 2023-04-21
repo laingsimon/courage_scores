@@ -59,6 +59,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .OrderByDescending(t => t.Points)
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
+                .ApplyRanks()
                 .ToList(),
             Fixtures = await GetFixtures(context, division?.Id, token)
                 .OrderByAsync(d => d.Date)
@@ -69,7 +70,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenByDescending(p => p.Pairs.MatchesPlayed)
                 .ThenByDescending(p => p.Triples.MatchesPlayed)
                 .ThenBy(p => p.Name)
-                .ApplyPlayerRanks()
+                .ApplyRanks()
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
             DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new(),

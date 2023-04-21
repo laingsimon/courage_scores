@@ -45,13 +45,24 @@ describe('DivisionTeams', () => {
             id: divisionId,
             teams: [ {
                 id: createTemporaryId(),
-                name: 'A team',
+                name: 'A team 2',
                 played: 1,
                 points: 2,
                 fixturesWon: 3,
                 fixturesLost: 4,
                 fixturesDrawn: 5,
-                difference: 6
+                difference: 6,
+                rank: 2
+            }, {
+                id: createTemporaryId(),
+                name: 'A team 1',
+                played: 1,
+                points: 2,
+                fixturesWon: 3,
+                fixturesLost: 4,
+                fixturesDrawn: 5,
+                difference: 6,
+                rank: 1
             } ],
             players: [ ],
             season: season
@@ -80,8 +91,9 @@ describe('DivisionTeams', () => {
 
             expect(reportedError).toBeNull();
             const teamsRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(teamsRows.length).toEqual(1);
-            assertTeam(teamsRows[0], [ 'A team', '1', '2', '3', '4', '5', '6' ]);
+            expect(teamsRows.length).toEqual(2);
+            assertTeam(teamsRows[0], [ 'A team 1', '1', '2', '3', '4', '5', '6' ]);
+            assertTeam(teamsRows[1], [ 'A team 2', '1', '2', '3', '4', '5', '6' ]);
         });
 
         it('does not render add team button', async () => {
@@ -111,8 +123,9 @@ describe('DivisionTeams', () => {
 
             expect(reportedError).toBeNull();
             const teamsRows = context.container.querySelectorAll('.light-background table.table tbody tr');
-            expect(teamsRows.length).toEqual(1);
-            assertTeam(teamsRows[0], [ '✏️➕A team', '1', '2', '3', '4', '5', '6' ]);
+            expect(teamsRows.length).toEqual(2);
+            assertTeam(teamsRows[0], [ '✏️➕A team 1', '1', '2', '3', '4', '5', '6' ]);
+            assertTeam(teamsRows[1], [ '✏️➕A team 2', '1', '2', '3', '4', '5', '6' ]);
         });
 
         it('renders add team button', async () => {

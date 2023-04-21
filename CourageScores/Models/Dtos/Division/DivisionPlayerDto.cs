@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos.Division;
 
 [ExcludeFromCodeCoverage]
-public class DivisionPlayerDto
+public class DivisionPlayerDto : IRankedDto
 {
     public Guid Id { get; set; }
     public Guid TeamId { get; set; }

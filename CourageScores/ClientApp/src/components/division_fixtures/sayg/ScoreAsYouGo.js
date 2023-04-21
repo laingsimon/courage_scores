@@ -25,10 +25,10 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
         return newData;
     }
 
-    function legChanged(newLeg, legIndex) {
+    async function legChanged(newLeg, legIndex) {
         const newData = Object.assign({}, data);
         newData.legs[legIndex] = newLeg;
-        onChange(newData);
+        await onChange(newData);
     }
 
     async function recordWinner(winnerName) {
@@ -46,7 +46,8 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
                 newLeg.playerSequence = [currentLeg.playerSequence[1], currentLeg.playerSequence[0]];
                 newLeg.currentThrow = newLeg.playerSequence[0].value;
             }
-            onChange(newData);
+
+            await onChange(newData);
         }
 
         await onLegComplete(newHomeScore, newAwayScore);

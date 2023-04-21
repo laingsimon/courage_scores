@@ -4,13 +4,14 @@ namespace CourageScores.Services.Division;
 
 public static class DivisionServiceExtensions
 {
-    public static IEnumerable<DivisionPlayerDto> ApplyPlayerRanks(this IOrderedEnumerable<DivisionPlayerDto> players)
+    public static IEnumerable<T> ApplyRanks<T>(this IOrderedEnumerable<T> dtos)
+        where T : class, IRankedDto
     {
         var rank = 1;
-        foreach (var player in players)
+        foreach (var dto in dtos)
         {
-            player.Rank = rank++;
-            yield return player;
+            dto.Rank = rank++;
+            yield return dto;
         }
     }
 }

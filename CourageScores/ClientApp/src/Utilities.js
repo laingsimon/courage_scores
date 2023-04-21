@@ -27,15 +27,20 @@ export function sortBy(property, descending) {
             return getValue(parent, childProperty);
         }
 
-        return item[property];
+        const value = item[property];
+        if (value.toLowerCase) {
+            return value.toLowerCase();
+        }
+
+        return value;
     }
 
     return function nameSort(x, y) {
-        if (getValue(x, property).toLowerCase() === getValue(y, property).toLowerCase()) {
+        if (getValue(x, property) === getValue(y, property)) {
             return 0;
         }
 
-        return (getValue(x, property).toLowerCase() > getValue(y, property).toLowerCase())
+        return (getValue(x, property) > getValue(y, property))
             ? descending ? -1 : 1
             : descending ? 1 : -1;
     }
