@@ -192,27 +192,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             if (onPlayerChanged) {
                 await onPlayerChanged();
             }
-
-            if (createPlayerFor.side === 'home') {
-                const player = homePlayers.filter(p => p.name === newPlayerDetails.name)[0];
-                if (!player) {
-                    console.error(`Could not find new player in [homePlayers] with name ${newPlayerDetails.name}`);
-                    console.log(homePlayers);
-                } else {
-                    await homePlayerChanged(createPlayerFor.index, player);
-                }
-            } else {
-                const player = awayPlayers.filter(p => p.name === newPlayerDetails.name)[0];
-                if (!player) {
-                    console.error(`Could not find new player in [homePlayers] with name ${newPlayerDetails.name}`);
-                    console.log(homePlayers);
-                } else {
-                    await awayPlayerChanged(createPlayerFor.index, player);
-                }
-            }
-
-            setNewPlayerDetails(null);
-            setCreatePlayerFor(null);
         } catch (e) {
             onError(e);
         }
