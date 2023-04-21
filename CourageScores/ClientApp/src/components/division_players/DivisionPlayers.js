@@ -1,6 +1,7 @@
 import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {sortBy} from "../../Utilities";
 
 export function DivisionPlayers({ hideVenue, hideHeading, players }) {
     const { players: divisionDataPlayers } = useDivisionData();
@@ -25,7 +26,7 @@ export function DivisionPlayers({ hideVenue, hideHeading, players }) {
                 </tr>
                 </thead>
                 <tbody>
-                {playersToShow.map(player => (<DivisionPlayer
+                {playersToShow.sort(sortBy('rank')).map(player => (<DivisionPlayer
                     key={player.id}
                     player={player}
                     hideVenue={hideVenue} />))}

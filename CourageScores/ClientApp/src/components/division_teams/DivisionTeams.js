@@ -4,6 +4,7 @@ import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {sortBy} from "../../Utilities";
 
 export function DivisionTeams() {
     const { id: divisionId, season, teams, onReloadDivision } = useDivisionData();
@@ -56,7 +57,7 @@ export function DivisionTeams() {
                     </tr>
                 </thead>
                 <tbody>
-                {teams.map(team => (<DivisionTeam
+                {teams.sort(sortBy('rank')).map(team => (<DivisionTeam
                     key={team.id}
                     team={team} />))}
                 </tbody>
