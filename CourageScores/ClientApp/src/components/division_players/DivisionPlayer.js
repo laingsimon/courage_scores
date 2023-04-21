@@ -9,7 +9,7 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
 export function DivisionPlayer({ player, hideVenue }) {
-    const { account } = useApp();
+    const { account, reloadTeams } = useApp();
     const { id: divisionId, season, onReloadDivision } = useDivisionData();
     const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
     const [ editPlayer, setEditPlayer ] = useState(false);
@@ -24,6 +24,7 @@ export function DivisionPlayer({ player, hideVenue }) {
 
     async function playerDetailSaved() {
         await onReloadDivision();
+        await reloadTeams();
         setEditPlayer(false);
     }
 
@@ -56,6 +57,7 @@ export function DivisionPlayer({ player, hideVenue }) {
             const response = await playerApi.delete(season.id, player.teamId, player.id);
             if (response.success) {
                 await onReloadDivision();
+                await reloadTeams();
             } else {
                 setSaveError(response);
             }

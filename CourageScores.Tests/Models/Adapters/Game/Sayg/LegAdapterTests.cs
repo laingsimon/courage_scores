@@ -86,6 +86,23 @@ public class LegAdapterTests
         Assert.That(result.Away, Is.EqualTo(_awayScoreDto));
     }
 
+    [TestCase(CompetitorType.Home, "home")]
+    [TestCase(CompetitorType.Away, "away")]
+    [TestCase(null, null)]
+    public async Task Adapt_GivenModel_SetsCurrentThrowCorrectly(CompetitorType? currentThrow, string expected)
+    {
+        var leg = new Leg
+        {
+            Home = _homeScore,
+            Away = _awayScore,
+            CurrentThrow = currentThrow
+        };
+
+        var result = await _adapter.Adapt(leg, _token);
+
+        Assert.That(result.CurrentThrow, Is.EqualTo(expected));
+    }
+
     [TestCase(null, null)]
     [TestCase(CompetitorType.Home, "home")]
     [TestCase(CompetitorType.Away, "away")]
@@ -116,6 +133,21 @@ public class LegAdapterTests
         var result = await _adapter.Adapt(leg, _token);
 
         Assert.That(result.StartingScore, Is.EqualTo(leg.StartingScore));
+    }
+
+    [Test]
+    public async Task Adapt_GivenModel_SetsIsLastLegCorrectly()
+    {
+        var leg = new Leg
+        {
+            Home = _homeScore,
+            Away = _awayScore,
+            IsLastLeg = true,
+        };
+
+        var result = await _adapter.Adapt(leg, _token);
+
+        Assert.That(result.IsLastLeg, Is.True);
     }
 
     [Test]
@@ -156,7 +188,7 @@ public class LegAdapterTests
     [TestCase("away", CompetitorType.Away)]
     [TestCase("Home", CompetitorType.Home)]
     [TestCase("Away", CompetitorType.Away)]
-    public async Task Adapt_GivenDto_SetsWinnerCorrectly(string? winner, CompetitorType? expectedCompetitorType)
+    public async Task Adapt_GivenDto_SetsWinnerCorrectly(string? winner, CompetitorType? expected)
     {
         var leg = new LegDto
         {
@@ -167,7 +199,26 @@ public class LegAdapterTests
 
         var result = await _adapter.Adapt(leg, _token);
 
-        Assert.That(result.Winner, Is.EqualTo(expectedCompetitorType));
+        Assert.That(result.Winner, Is.EqualTo(expected));
+    }
+
+    [TestCase(null, null)]
+    [TestCase("home", CompetitorType.Home)]
+    [TestCase("away", CompetitorType.Away)]
+    [TestCase("Home", CompetitorType.Home)]
+    [TestCase("Away", CompetitorType.Away)]
+    public async Task Adapt_GivenDto_SetsCurrentThrowCorrectly(string? currentThrow, CompetitorType? expected)
+    {
+        var leg = new LegDto
+        {
+            Home = _homeScoreDto,
+            Away = _awayScoreDto,
+            CurrentThrow = currentThrow,
+        };
+
+        var result = await _adapter.Adapt(leg, _token);
+
+        Assert.That(result.CurrentThrow, Is.EqualTo(expected));
     }
 
     [Test]
@@ -186,6 +237,21 @@ public class LegAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenDto_SetsIsLastLegCorrectly()
+    {
+        var leg = new LegDto
+        {
+            Home = _homeScoreDto,
+            Away = _awayScoreDto,
+            IsLastLeg = true,
+        };
+
+        var result = await _adapter.Adapt(leg, _token);
+
+        Assert.That(result.IsLastLeg, Is.True);
+    }
+
+    [Test]
     public async Task Adapt_GivenDto_SetsPlayerSequenceCorrectly()
     {
         var leg = new LegDto
@@ -195,7 +261,7 @@ public class LegAdapterTests
             PlayerSequence =
             {
                 _legPlayerSequenceDto
-            }
+            },
         };
 
         var result = await _adapter.Adapt(leg, _token);
