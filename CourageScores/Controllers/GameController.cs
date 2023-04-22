@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ public class GameController : Controller
 {
     private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
+    private readonly ISaygStorageService _saygStorageService;
 
-    public GameController(IGameService gameService, ICommandFactory commandFactory)
+    public GameController(IGameService gameService, ICommandFactory commandFactory, ISaygStorageService saygStorageService)
     {
         _gameService = gameService;
         _commandFactory = commandFactory;
+        _saygStorageService = saygStorageService;
     }
 
     [HttpGet("/api/Game/{id}")]
@@ -50,5 +53,23 @@ public class GameController : Controller
     public async Task<ActionResultDto<GameDto>> DeleteGame(Guid id, CancellationToken token)
     {
         return await _gameService.Delete(id, token);
+    }
+
+    [HttpPost("/api/Game/Sayg")]
+    public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> StoreSaygData([FromBody] RecordedScoreAsYouGoDto data, CancellationToken token)
+    {
+        return await _saygStorageService.UpsertData(data, token);
+    }
+
+    [HttpGet("/api/Game/Sayg/{id}")]
+    public async Task<RecordedScoreAsYouGoDto?> GetSaygData(Guid id, CancellationToken token)
+    {
+        return await _saygStorageService.Get(id, token);
+    }
+
+    [HttpDelete("/api/Game/Sayg/{id}")]
+    public async Task<ActionResultDto<RecordedScoreAsYouGoDto?>> DeleteSaygData(Guid id, CancellationToken token)
+    {
+        return await _saygStorageService.Delete(id, token);
     }
 }

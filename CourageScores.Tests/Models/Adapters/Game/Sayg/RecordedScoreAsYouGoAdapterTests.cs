@@ -6,10 +6,10 @@ using NUnit.Framework;
 namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 
 [TestFixture]
-public class ScoreAsYouGoAdapterTests
+public class RecordedScoreAsYouGoAdapterTests
 {
     private readonly CancellationToken _token = new CancellationToken();
-    private ScoreAsYouGoAdapter _adapter = null!;
+    private RecordedScoreAsYouGoAdapter _adapter = null!;
     private Leg _leg = null!;
     private LegDto _legDto = null!;
 
@@ -18,41 +18,49 @@ public class ScoreAsYouGoAdapterTests
     {
         _leg = new Leg();
         _legDto = new LegDto();
-        _adapter = new ScoreAsYouGoAdapter(
+        _adapter = new RecordedScoreAsYouGoAdapter(
             new MockSimpleAdapter<Leg, LegDto>(_leg, _legDto));
     }
 
     [Test]
     public async Task Adapt_GivenModel_SetsLegsCorrectly()
     {
-        var model = new ScoreAsYouGo
+        var model = new RecordedScoreAsYouGo
         {
             Legs =
             {
                 { 0, _leg }
-            }
+            },
+            Id = Guid.NewGuid(),
+            Deleted = new DateTime(2001, 02, 03),
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
         Assert.That(result.Legs[0], Is.EqualTo(_legDto));
+        Assert.That(result.Id, Is.EqualTo(model.Id));
+        Assert.That(result.Deleted, Is.EqualTo(model.Deleted));
     }
 
     [Test]
     public async Task Adapt_GivenDto_SetsLegsCorrectly()
     {
-        var dto = new ScoreAsYouGoDto
+        var dto = new RecordedScoreAsYouGoDto
         {
             Legs =
             {
                 { 0, _legDto }
-            }
+            },
+            Id = Guid.NewGuid(),
+            Deleted = new DateTime(2001, 02, 03),
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
+        Assert.That(result.Id, Is.EqualTo(dto.Id));
+        Assert.That(result.Deleted, Is.EqualTo(dto.Deleted));
     }
 }
