@@ -4,6 +4,7 @@ import {stateChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
 import {useLocation} from "react-router-dom";
 import {useApp} from "../AppContainer";
+import {compressJsonToBase64, decompressBase64ToJson} from "./CompressionUtility";
 
 export function Practice() {
     const initialYourName = 'you';
@@ -53,7 +54,7 @@ export function Practice() {
     function deserialiseSharedData(base64) {
         let jsonData;
         try {
-            jsonData = atob(base64);
+            jsonData = decompressBase64ToJson(base64);
         } catch (e) {
             setDataError(e.message);
             return null;
@@ -90,7 +91,7 @@ export function Practice() {
             opponentName
         };
 
-        return '#' + btoa(JSON.stringify(shareData));
+        return '#' + compressJsonToBase64(JSON.stringify(shareData));
     }
 
     function restart() {
