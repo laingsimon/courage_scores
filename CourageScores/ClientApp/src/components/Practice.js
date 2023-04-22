@@ -1,24 +1,28 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
-import {stateChanged} from "../Utilities";
+import {createTemporaryId, stateChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
 import {useLocation} from "react-router-dom";
 import {useApp} from "../AppContainer";
-import {compressJsonToBase64, decompressBase64ToJson} from "./CompressionUtility";
+import {useDependencies} from "../IocContainer";
+import {ErrorDisplay} from "./common/ErrorDisplay";
 
 export function Practice() {
     const initialYourName = 'you';
-    const { onError } = useApp();
+    const { onError, account } = useApp();
+    const { saygApi } = useDependencies();
+    const location = useLocation();
     const [ startingScore, setStartingScore ] = useState(501);
     const [ numberOfLegs, setNumberOfLegs ] = useState(3);
     const [ homeScore, setHomeScore ] = useState(0);
     const [ awayScore, setAwayScore ] = useState(0);
+    const [ sayg, setSayg ] = useState(null);
     const [ data, setData ] = useState(null);
-    const { account } = useApp();
     const [ yourName, setYourName ] = useState(initialYourName);
     const [ opponentName, setOpponentName ] = useState('');
     const [ dataError, setDataError ] = useState(null);
-    const location = useLocation();
+    const [ saveError, setSaveError ] = useState(null);
+    const [ id, setId ] = useState(null);
 
     useEffect(() => {
         try {
@@ -27,22 +31,20 @@ export function Practice() {
                 return;
             }
 
-            const shareData = deserialiseSharedData(hash.substring(1));
-            if (!shareData) {
+            if (id) {
+                // loading data already
                 return;
             }
 
-            setStartingScore(shareData.startingScore);
-            setNumberOfLegs(shareData.numberOfLegs);
-            setHomeScore(shareData.homeScore);
-            setAwayScore(shareData.awayScore);
-            setData(shareData.data);
-            setYourName(shareData.yourName);
-            setOpponentName(shareData.opponentName);
+            const dataId = hash.substring(1);
+            setId(dataId);
+            // noinspection JSIgnoredPromiseFromCall
+            loadData(dataId);
         } catch (e) {
             onError(e);
         }
     },
+    // eslint-disable-next-line
     [ location, onError ]);
 
     useEffect(() => {
@@ -51,47 +53,56 @@ export function Practice() {
         }
     }, [ account, yourName ]);
 
-    function deserialiseSharedData(base64) {
-        let jsonData;
+    async function loadData(id) {
         try {
-            jsonData = decompressBase64ToJson(base64);
+            const sayg = await saygApi.get(id);
+
+            if (!sayg) {
+                return;
+            }
+
+            setSayg(sayg);
+            setStartingScore(sayg.startingScore || startingScore);
+            setNumberOfLegs(sayg.numberOfLegs || numberOfLegs);
+            setHomeScore(sayg.homeScore || homeScore);
+            setAwayScore(sayg.awayScore || awayScore);
+            setData(sayg.data);
+            setYourName(sayg.yourName || yourName);
+            setOpponentName(sayg.opponentName || opponentName);
         } catch (e) {
             setDataError(e.message);
-            return null;
         }
-
-        let shareData;
-        try {
-            shareData = JSON.parse(jsonData);
-        } catch (e) {
-            setDataError(e.message);
-            return null;
-        }
-
-        if (shareData.startingScore && shareData.numberOfLegs && shareData.data) {
-            return shareData;
-        }
-
-        setDataError('Invalid share data');
-        return null;
     }
 
-    function createSharableHash() {
+    async function saveDataAndGetId() {
         if (!data) {
             return '';
         }
 
+        // TODO: update to store within a RecordedScoreAsYouGoDto/Model
         const shareData = {
+            ...data,
             startingScore,
             numberOfLegs,
             homeScore,
             awayScore,
-            data,
             yourName,
-            opponentName
+            opponentName,
+            id: id || createTemporaryId(),
         };
 
-        return '#' + compressJsonToBase64(JSON.stringify(shareData));
+        try {
+            const response = await saygApi.upsert(shareData);
+            if (response.success) {
+                setId(response.result.id);
+                return '#' + response.result.id;
+            }
+            setSaveError(response);
+        } catch (e) {
+            onError(e);
+        }
+
+        return null;
     }
 
     function restart() {
@@ -119,7 +130,7 @@ export function Practice() {
                 <span className="input-group-text">Starting score</span>
             </div>
             <input type="number" className="form-control" value={startingScore} onChange={stateChanged(setStartingScore)} />
-            <ShareButton text="Practice" getHash={createSharableHash} title="Practice" />
+            <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice" />
         </div>
         <div className="input-group my-3">
             <div className="input-group-prepend">
@@ -137,6 +148,7 @@ export function Practice() {
             <p>{dataError}</p>
             <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
         </div>) : null}
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
         {dataError == null && data != null ? (<ScoreAsYouGo
             startingScore={Number.parseInt(startingScore)}
             numberOfLegs={Number.parseInt(numberOfLegs)}

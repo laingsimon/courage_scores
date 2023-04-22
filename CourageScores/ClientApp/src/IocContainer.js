@@ -12,6 +12,7 @@ import {PlayerApi} from "./api/player";
 import {ReportApi} from "./api/report";
 import {DivisionApi} from "./api/division";
 import {SeasonApi} from "./api/season";
+import {SaygApi} from "./api/sayg";
 
 const DependenciesContext = createContext({});
 
@@ -34,7 +35,8 @@ export function IocContainer({ children, ...services }) {
         gameApi: new GameApi(http),
         noteApi: new NoteApi(http),
         playerApi: new PlayerApi(http),
-        reportApi: new ReportApi(http)
+        reportApi: new ReportApi(http),
+        saygApi: new SaygApi(http),
     }
 
     return (<DependenciesContext.Provider value={Object.assign({}, defaultServices, services)}>
