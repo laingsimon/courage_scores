@@ -135,6 +135,7 @@ public class AddOrUpdateGameCommandTests
             IsKnockout = true,
             Id = _game.Id,
             SeasonId = _season.Id,
+            AccoladesCount = true,
         };
         _homeTeam.Seasons.Add(_teamSeason);
         _awayTeam.Seasons.Add(_teamSeason);
@@ -149,6 +150,7 @@ public class AddOrUpdateGameCommandTests
         Assert.That(_game.Date, Is.EqualTo(update.Date));
         Assert.That(_game.Postponed, Is.EqualTo(update.Postponed));
         Assert.That(_game.IsKnockout, Is.EqualTo(update.IsKnockout));
+        Assert.That(_game.AccoladesCount, Is.EqualTo(update.AccoladesCount));
         Assert.That(_game.DivisionId, Is.EqualTo(update.DivisionId));
         Assert.That(_game.SeasonId, Is.EqualTo(update.SeasonId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));

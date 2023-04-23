@@ -14,4 +14,5 @@ public class EditGameDto
     public Guid AwayTeamId { get; set; }
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
+    public bool AccoladesCount { get; set; }
 }
