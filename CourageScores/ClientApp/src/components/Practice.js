@@ -1,6 +1,6 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
-import {createTemporaryId, valueChanged} from "../Utilities";
+import {any, createTemporaryId, valueChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
 import {useLocation} from "react-router-dom";
 import {useApp} from "../AppContainer";
@@ -137,7 +137,7 @@ export function Practice() {
                 <span className="input-group-text">Opponent</span>
             </div>
             <input placeholder="Optional" className="form-control" name="opponentName" value={sayg.opponentName || ''} onChange={valueChanged(sayg, setSayg)} />
-            <button className="btn btn-primary" onClick={restart}>{sayg.homeScore > 0 ? 'Restart...' : 'Start...'}</button>
+            <button className="btn btn-primary" onClick={restart}>{any(Object.keys(sayg.legs)) ? 'Restart...' : 'Start...'}</button>
         </div>
         {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
             <h3>⚠ Error with shared data</h3>
