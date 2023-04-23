@@ -85,6 +85,8 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public List<GameMatchOption?> MatchOptions { get; set; } = new();
 
+    public bool AccoladesCount { get; set; }
+
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto user)
     {

@@ -52,6 +52,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             OneEighties = await model.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await model.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             MatchOptions = await model.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
+            AccoladesCount = model.AccoladesCount,
         }.AddAuditProperties(model);
     }
 
@@ -74,6 +75,7 @@ public class GameAdapter : IAdapter<Cosmos.Game.Game, GameDto>
             OneEighties = await dto.OneEighties.SelectAsync(player => _gamePlayerAdapter.Adapt(player, token)).ToList(),
             Over100Checkouts = await dto.Over100Checkouts.SelectAsync(player => _notablePlayerAdapter.Adapt(player, token)).ToList(),
             MatchOptions = await dto.MatchOptions.SelectAsync(mo => _matchOptionAdapter.Adapt(mo, token)).ToList(),
+            AccoladesCount = dto.AccoladesCount,
         }.AddAuditProperties(dto);
     }
 }

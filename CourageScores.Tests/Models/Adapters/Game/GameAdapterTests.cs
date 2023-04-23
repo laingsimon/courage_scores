@@ -48,6 +48,7 @@ public class GameAdapterTests
             AwaySubmission = new CourageScores.Models.Cosmos.Game.Game(),
             OneEighties = { OneEightyPlayer },
             Over100Checkouts = { HiCheckPlayer },
+            AccoladesCount = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -65,6 +66,7 @@ public class GameAdapterTests
         Assert.That(result.AwaySubmission, Is.Not.Null);
         Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayerDto }));
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
+        Assert.That(result.AccoladesCount, Is.EqualTo(model.AccoladesCount));
     }
 
     [Test]
@@ -101,6 +103,7 @@ public class GameAdapterTests
             Matches = { GameMatchDto },
             OneEighties = { OneEightyPlayerDto },
             Over100Checkouts = { HiCheckPlayerDto },
+            AccoladesCount = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -119,6 +122,7 @@ public class GameAdapterTests
         Assert.That(result.AwaySubmission, Is.Not.Null);
         Assert.That(result.OneEighties, Is.EqualTo(new[] { OneEightyPlayer }));
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
+        Assert.That(result.AccoladesCount, Is.EqualTo(dto.AccoladesCount));
     }
 
     [Test]
