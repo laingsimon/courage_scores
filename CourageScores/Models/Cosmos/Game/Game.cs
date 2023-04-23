@@ -135,14 +135,17 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 
         gameScore.Accept(visitor);
 
-        foreach (var player in OneEighties)
+        if (AccoladesCount)
         {
-            visitor.VisitOneEighty(player);
-        }
+            foreach (var player in OneEighties)
+            {
+                visitor.VisitOneEighty(player);
+            }
 
-        foreach (var player in Over100Checkouts)
-        {
-            visitor.VisitHiCheckout(player);
+            foreach (var player in Over100Checkouts)
+            {
+                visitor.VisitHiCheckout(player);
+            }
         }
     }
 
