@@ -1,111 +1,119 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
-import {stateChanged} from "../Utilities";
+import {any, createTemporaryId, valueChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
 import {useLocation} from "react-router-dom";
 import {useApp} from "../AppContainer";
+import {useDependencies} from "../IocContainer";
+import {ErrorDisplay} from "./common/ErrorDisplay";
+import {Loading} from "./common/Loading";
 
 export function Practice() {
     const initialYourName = 'you';
-    const { onError } = useApp();
-    const [ startingScore, setStartingScore ] = useState(501);
-    const [ numberOfLegs, setNumberOfLegs ] = useState(3);
-    const [ homeScore, setHomeScore ] = useState(0);
-    const [ awayScore, setAwayScore ] = useState(0);
-    const [ data, setData ] = useState(null);
-    const { account } = useApp();
-    const [ yourName, setYourName ] = useState(initialYourName);
-    const [ opponentName, setOpponentName ] = useState('');
-    const [ dataError, setDataError ] = useState(null);
+    const { onError, account } = useApp();
+    const { saygApi } = useDependencies();
     const location = useLocation();
+    const [ sayg, setSayg ] = useState({
+        yourName: initialYourName,
+        opponentName: null,
+        homeScore: 0,
+        awayScore: 0,
+        numberOfLegs: 3,
+        startingScore: 501,
+        legs: {},
+        id: createTemporaryId(),
+        loaded: false,
+    });
+    const [ dataError, setDataError ] = useState(null);
+    const [ saveError, setSaveError ] = useState(null);
+    const [ loading, setLoading ] = useState(false);
+    const hasHash = location.hash && location.hash !== '#';
 
     useEffect(() => {
         try {
-            const hash = location.hash;
-            if (hash === '' || hash === '#') {
+            if (!hasHash || dataError || loading) {
                 return;
             }
 
-            const shareData = deserialiseSharedData(hash.substring(1));
-            if (!shareData) {
+            if (sayg && sayg.loaded) {
+                // data already loaded
                 return;
             }
 
-            setStartingScore(shareData.startingScore);
-            setNumberOfLegs(shareData.numberOfLegs);
-            setHomeScore(shareData.homeScore);
-            setAwayScore(shareData.awayScore);
-            setData(shareData.data);
-            setYourName(shareData.yourName);
-            setOpponentName(shareData.opponentName);
+            setLoading(true);
+            // noinspection JSIgnoredPromiseFromCall
+            loadData(location.hash.substring(1));
         } catch (e) {
             onError(e);
         }
     },
-    [ location, onError ]);
+    // eslint-disable-next-line
+    [ location, loading, onError ]);
 
     useEffect(() => {
-        if (account && yourName === initialYourName && account.givenName) {
-            setYourName(account.givenName);
+        if (account && sayg.yourName === initialYourName && account.givenName && !sayg.loaded) {
+            const newSayg = Object.assign({}, sayg);
+            newSayg.yourName = account.givenName;
+            setSayg(newSayg);
         }
-    }, [ account, yourName ]);
+    }, [ account, sayg ]);
 
-    function deserialiseSharedData(base64) {
-        let jsonData;
+    async function loadData(id) {
         try {
-            jsonData = atob(base64);
+            const sayg = await saygApi.get(id);
+
+            if (!sayg) {
+                setDataError('Data not found');
+                return;
+            }
+
+            sayg.loaded = true;
+            setSayg(sayg);
         } catch (e) {
             setDataError(e.message);
-            return null;
+        } finally {
+            setLoading(false);
         }
-
-        let shareData;
-        try {
-            shareData = JSON.parse(jsonData);
-        } catch (e) {
-            setDataError(e.message);
-            return null;
-        }
-
-        if (shareData.startingScore && shareData.numberOfLegs && shareData.data) {
-            return shareData;
-        }
-
-        setDataError('Invalid share data');
-        return null;
     }
 
-    function createSharableHash() {
-        if (!data) {
+    async function saveDataAndGetId() {
+        if (!sayg) {
             return '';
         }
 
-        const shareData = {
-            startingScore,
-            numberOfLegs,
-            homeScore,
-            awayScore,
-            data,
-            yourName,
-            opponentName
-        };
+        try {
+            const response = await saygApi.upsert(sayg);
+            if (response.success) {
+                setSayg(response.result);
+                return '#' + response.result.id;
+            }
+            setSaveError(response);
+        } catch (e) {
+            onError(e);
+        }
 
-        return '#' + btoa(JSON.stringify(shareData));
+        return null;
     }
 
     function restart() {
-        setData({
-            legs: {}
-        });
-        setHomeScore(0);
-        setAwayScore(0);
+        const newSayg = Object.assign({}, sayg);
+        newSayg.legs = {};
+        newSayg.homeScore = 0;
+        newSayg.awayScore = 0;
+        setSayg(newSayg);
+
+        setSayg(newSayg);
     }
 
-    function onOtherNameChange(event) {
-        setOpponentName(event.target.value);
-        setData(null);
-        setHomeScore(0);
-        setAwayScore(0);
+    function updateSayg(newData) {
+        const newSayg = Object.assign({}, sayg, newData);
+        setSayg(newSayg);
+    }
+
+    const canShow = sayg.loaded || !hasHash || dataError;
+
+    if (!canShow) {
+        return (<Loading />);
     }
 
     return (<div className="p-3 light-background">
@@ -113,44 +121,44 @@ export function Practice() {
             <div className="input-group-prepend">
                 <span className="input-group-text">Number of legs</span>
             </div>
-            <input type="number" className="form-control" value={numberOfLegs} onChange={stateChanged(setNumberOfLegs)} />
+            <input type="number" className="form-control" name="numberOfLegs" value={sayg.numberOfLegs} onChange={valueChanged(sayg, setSayg)} />
             <div className="input-group-prepend">
                 <span className="input-group-text">Starting score</span>
             </div>
-            <input type="number" className="form-control" value={startingScore} onChange={stateChanged(setStartingScore)} />
-            <ShareButton text="Practice" getHash={createSharableHash} title="Practice" />
+            <input type="number" className="form-control" name="startingScore" value={sayg.startingScore} onChange={valueChanged(sayg, setSayg)} />
+            <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice" />
         </div>
         <div className="input-group my-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Your name</span>
             </div>
-            <input className="form-control" value={yourName} onChange={stateChanged(setYourName)} />
+            <input className="form-control" value={sayg.yourName} name="yourName" onChange={valueChanged(sayg, setSayg)} />
             <div className="input-group-prepend">
                 <span className="input-group-text">Opponent</span>
             </div>
-            <input placeholder="Optional" className="form-control" value={opponentName} onChange={onOtherNameChange} />
-            <button className="btn btn-primary" onClick={restart}>{homeScore > 0 ? 'Restart...' : 'Start...'}</button>
+            <input placeholder="Optional" className="form-control" name="opponentName" value={sayg.opponentName || ''} onChange={valueChanged(sayg, setSayg)} />
+            <button className="btn btn-primary" onClick={restart}>{any(Object.keys(sayg.legs)) ? 'Restart...' : 'Start...'}</button>
         </div>
         {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
             <h3>⚠ Error with shared data</h3>
             <p>{dataError}</p>
             <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
         </div>) : null}
-        {dataError == null && data != null ? (<ScoreAsYouGo
-            startingScore={Number.parseInt(startingScore)}
-            numberOfLegs={Number.parseInt(numberOfLegs)}
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
+        {dataError == null ? (<ScoreAsYouGo
+            startingScore={Number.parseInt(sayg.startingScore)}
+            numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
             onHiCheck={() => {}}
             on180={() => {}}
-            onChange={(newData) => setData(newData)}
-            homeScore={homeScore}
-            awayScore={awayScore}
-            away={opponentName}
-            home={yourName}
-            data={data}
-            singlePlayer={opponentName === ''}
+            onChange={updateSayg}
+            homeScore={sayg.homeScore}
+            awayScore={sayg.awayScore}
+            away={sayg.opponentName}
+            home={sayg.yourName}
+            data={sayg}
+            singlePlayer={!sayg.opponentName}
             onLegComplete={(homeScore, awayScore) => {
-                setHomeScore(homeScore);
-                setAwayScore(awayScore);
+                updateSayg({ homeScore, awayScore });
             }} />) : null}
     </div>)
 }

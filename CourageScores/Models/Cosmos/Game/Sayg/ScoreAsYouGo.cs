@@ -1,6 +1,6 @@
 ﻿namespace CourageScores.Models.Cosmos.Game.Sayg;
 
-public class ScoreAsYouGo
+public class ScoreAsYouGo : CosmosEntity
 {
     public Dictionary<int, Leg> Legs { get; set; } = new();
 }

@@ -42,7 +42,7 @@ public class ScoreAsYouGoAdapterTests
     [Test]
     public async Task Adapt_GivenDto_SetsLegsCorrectly()
     {
-        var model = new ScoreAsYouGoDto
+        var dto = new ScoreAsYouGoDto
         {
             Legs =
             {
@@ -50,7 +50,7 @@ public class ScoreAsYouGoAdapterTests
             }
         };
 
-        var result = await _adapter.Adapt(model, _token);
+        var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
