@@ -3,19 +3,44 @@
 import {cleanUp, renderApp} from "../tests/helpers";
 import React from "react";
 import {Practice} from "./Practice";
+import {createTemporaryId} from "../Utilities";
 
 describe('Practice', () => {
     let context;
     let reportedError;
+    let saygApi;
+    let saygData;
 
     afterEach(() => {
         cleanUp(context);
     });
 
+    beforeEach(() => {
+        saygData = {};
+        saygApi = {
+            get: async (id) => {
+                return saygData[id];
+            },
+            upsert: (data) => {
+                saygData[data.id] = data;
+                return {
+                    result: saygData[data.id],
+                    success: true,
+                };
+            },
+            delete: (id) => {
+                delete saygData[id];
+                return {
+                    success: true,
+                }
+            }
+        }
+    });
+
     async function renderComponent(account, hash) {
         reportedError = null;
         context = await renderApp(
-            {},
+            { saygApi },
             {
                 account: account, appLoading: false, onError: (err) => {
                     reportedError = err;
@@ -31,7 +56,7 @@ describe('Practice', () => {
 
         expect(reportedError).toBeFalsy();
         const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toEqual(4);
+        expect(inputs.length).toEqual(5);
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).toBeNull();
     });
@@ -41,40 +66,39 @@ describe('Practice', () => {
 
         expect(reportedError).toBeFalsy();
         const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toEqual(4);
+        expect(inputs.length).toEqual(5);
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).toBeNull();
     });
 
-    it('logged out - renders given corrupt json data', async () => {
-        const data = '#eyJzdGFydGluZ1Njb3JlIjo1MDEsIm51bWJlck9mTGVncyI6MywiaG9tZVNjb3JlIjozLCJhd2F5U2NvcmUiOjAsImRhdGEiOnsibGVncyI6eyIwIjp7InBsYXllclNlcXVlbmNlIjpbeyJ2YWx1ZSI6ImhvbWUiLCJ0ZXh0IjoieW91In0seyJ2YWx1ZSI6ImF3YXkiLCJ0ZXh0IjoidW51c2VkLXNpbmdsZS1wbGF5ZXIifV0sImhvbWUiOnsidGhyb3dzIjpbeyJzY29yZSI6NjYsIm5vT2ZEYXJ0cyI6M30seyJzY29yZSI6MzIsIm5vT2ZEYXJ0cyI6M30seyJzY29yZSI6NTMsIm5vT2ZEYXJ0cyI6M30seyJzY29yZSI6MSwibm9PZkRhcnRzIjozfSx7InNjb3JlIjozNiwibm9PZkRhcnRzIjozfSx7InNjb3JlIjoxOCwibm9PZkRhcnRzIjozfSx7InNjb3JlIjo0NSwibm9PZkRhcnRzIjozfSx7InNjb3JlIjoyMSwibm9PZkRhcnRzIjozfSx7InNjb3JlIjo1LCJub09mRGFydHMiOjN9LHsic2NvcmUiOjEwLCJub09mRGFydHMiOjN9LHsic2NvcmUiOjEwMCwibm9PZkRhcnRzIjozfSx7InNjb3JlIjo3NSwibm9PZkRhcnRzIjozfSx7InNjb3J';
+    it('logged out - renders given not-found data', async () => {
+        const data = '#not-found';
 
         await renderComponent(null, data);
 
         expect(reportedError).toBeFalsy();
         const dataError = context.container.querySelector('div[data-name="data-error"]');
         expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toEqual('Unexpected end of JSON input');
+        expect(dataError.querySelector('p').innerHTML).toEqual('Data not found');
     });
 
     it('logged out - renders given valid incomplete json data', async () => {
         const jsonData = {
             startingScore: 123,
             numberOfLegs: 2,
-            data: {
-                legs: {
-                    '0': {
+            legs: {
+                '0': {
 
-                    }
                 }
             },
             homeScore: 1,
             yourName: 'you',
-            opponentName: ''
+            opponentName: '',
+            id: createTemporaryId(),
         };
-        const data = '#' + btoa(JSON.stringify(jsonData));
+        saygData[jsonData.id] = jsonData;
 
-        await renderComponent(null, data);
+        await renderComponent(null, '#' + jsonData.id);
 
         expect(reportedError).toBeFalsy();
         const dataError = context.container.querySelector('div[data-name="data-error"]');
@@ -87,18 +111,17 @@ describe('Practice', () => {
         const jsonData = {
             startingScore: 123,
             numberOfLegs: 1,
-            data: {
-                legs: {
-                }
+            legs: {
             },
             homeScore: 1,
             awayScore: 2,
             yourName: 'you',
-            opponentName: 'them'
+            opponentName: 'them',
+            id: createTemporaryId(),
         };
-        const data = '#' + btoa(JSON.stringify(jsonData));
+        saygData[jsonData.id] = jsonData;
 
-        await renderComponent(null, data);
+        await renderComponent(null, '#' + jsonData.id);
 
         expect(reportedError).toBeFalsy();
         const dataError = context.container.querySelector('div[data-name="data-error"]');
@@ -106,27 +129,5 @@ describe('Practice', () => {
         const matchStatistics = context.container.querySelector('h4');
         expect(matchStatistics).not.toBeNull();
         expect(matchStatistics.innerHTML).toEqual('Match statistics');
-    });
-
-    it('logged out - renders given invalid base64 data', async () => {
-        const data = '#invalid base64';
-
-        await renderComponent(null, data);
-
-        expect(reportedError).toBeFalsy();
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toEqual('The string to be decoded contains invalid characters.');
-    });
-
-    it('logged out - renders given invalid json data', async () => {
-        const data = '#' + btoa(JSON.stringify(['invalid']));
-
-        await renderComponent(null, data);
-
-        expect(reportedError).toBeFalsy();
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toEqual('Invalid share data');
     });
 });

@@ -33,6 +33,12 @@ public class RecordedScoreAsYouGoAdapterTests
             },
             Id = Guid.NewGuid(),
             Deleted = new DateTime(2001, 02, 03),
+            HomeScore = 1,
+            AwayScore = 2,
+            OpponentName = "Opponent name",
+            StartingScore = 601,
+            YourName = "Your name",
+            NumberOfLegs = 3,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -41,6 +47,12 @@ public class RecordedScoreAsYouGoAdapterTests
         Assert.That(result.Legs[0], Is.EqualTo(_legDto));
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Deleted, Is.EqualTo(model.Deleted));
+        Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
+        Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
+        Assert.That(result.OpponentName, Is.EqualTo(model.OpponentName));
+        Assert.That(result.YourName, Is.EqualTo(model.YourName));
+        Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
+        Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
     }
 
     [Test]
@@ -54,6 +66,12 @@ public class RecordedScoreAsYouGoAdapterTests
             },
             Id = Guid.NewGuid(),
             Deleted = new DateTime(2001, 02, 03),
+            HomeScore = 1,
+            AwayScore = 2,
+            OpponentName = "Opponent name",
+            StartingScore = 601,
+            YourName = "Your name",
+            NumberOfLegs = 3,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -62,5 +80,11 @@ public class RecordedScoreAsYouGoAdapterTests
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Deleted, Is.EqualTo(dto.Deleted));
+        Assert.That(result.HomeScore, Is.EqualTo(dto.HomeScore));
+        Assert.That(result.AwayScore, Is.EqualTo(dto.AwayScore));
+        Assert.That(result.OpponentName, Is.EqualTo(dto.OpponentName));
+        Assert.That(result.YourName, Is.EqualTo(dto.YourName));
+        Assert.That(result.StartingScore, Is.EqualTo(dto.StartingScore));
+        Assert.That(result.NumberOfLegs, Is.EqualTo(dto.NumberOfLegs));
     }
 }

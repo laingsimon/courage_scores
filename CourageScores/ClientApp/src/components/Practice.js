@@ -27,20 +27,15 @@ export function Practice() {
     const [ dataError, setDataError ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
     const [ loading, setLoading ] = useState(false);
+    const hasHash = location.hash && location.hash !== '#';
 
     useEffect(() => {
         try {
-            const hash = location.hash;
-            if (hash === '' || hash === '#') {
+            if (!hasHash || dataError || loading) {
                 return;
             }
 
-            if (loading) {
-                // loading data already
-                return;
-            }
-
-            if (sayg.loaded) {
+            if (sayg && sayg.loaded) {
                 // data already loaded
                 return;
             }
@@ -68,6 +63,7 @@ export function Practice() {
             const sayg = await saygApi.get(id);
 
             if (!sayg) {
+                setDataError('Data not found');
                 return;
             }
 
@@ -76,7 +72,6 @@ export function Practice() {
         } catch (e) {
             setDataError(e.message);
         } finally {
-            console.log(`Loaded`);
             setLoading(false);
         }
     }
@@ -115,7 +110,7 @@ export function Practice() {
         setSayg(newSayg);
     }
 
-    const canShow = sayg.loaded || !location.hash;
+    const canShow = sayg.loaded || !hasHash || dataError;
 
     if (!canShow) {
         return (<Loading />);
