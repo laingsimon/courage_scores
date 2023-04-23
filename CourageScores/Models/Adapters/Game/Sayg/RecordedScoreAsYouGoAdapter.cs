@@ -20,6 +20,12 @@ public class RecordedScoreAsYouGoAdapter : ISimpleAdapter<RecordedScoreAsYouGo, 
             Legs = await model.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, token)),
             Id = model.Id,
             Deleted = model.Deleted,
+            HomeScore = model.HomeScore,
+            AwayScore = model.AwayScore,
+            YourName = model.YourName,
+            OpponentName = model.OpponentName,
+            NumberOfLegs = model.NumberOfLegs,
+            StartingScore = model.StartingScore,
         };
     }
 
@@ -30,6 +36,12 @@ public class RecordedScoreAsYouGoAdapter : ISimpleAdapter<RecordedScoreAsYouGo, 
             Legs = await dto.Legs.ToDictionaryAsync(key => key, value => _legAdapter.Adapt(value, token)),
             Id = dto.Id,
             Deleted = dto.Deleted,
+            HomeScore = dto.HomeScore,
+            AwayScore = dto.AwayScore,
+            YourName = dto.YourName,
+            OpponentName = dto.OpponentName,
+            NumberOfLegs = dto.NumberOfLegs,
+            StartingScore = dto.StartingScore,
         };
     }
 }
