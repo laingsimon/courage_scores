@@ -23,9 +23,13 @@ export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
                 <input disabled={saving} type="checkbox" className="form-check-input" name="postponed" id="postponed" checked={fixtureData.postponed} onChange={valueChanged(fixtureData, setFixtureData)} />
                 <label className="form-check-label" htmlFor="postponed">Postponed</label>
             </div>
-            <div className="form-check form-switch">
+            <div className="form-check form-switch margin-right">
                 <input disabled={saving} type="checkbox" className="form-check-input" name="isKnockout" id="isKnockout" checked={fixtureData.isKnockout} onChange={valueChanged(fixtureData, setFixtureData)} />
                 <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
+            </div>
+            <div className="form-check form-switch margin-right">
+                <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount" checked={fixtureData.accoladesCount} onChange={valueChanged(fixtureData, setFixtureData)} />
+                <label className="form-check-label" htmlFor="accoladesCount">180s and hi-checks count</label>
             </div>
         </div>
     </div>);
