@@ -114,6 +114,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                     },
                     awayTeam: null,
                     isKnockout: newFixtureDate.isKnockout,
+                    accoladesCount: true,
                 };
             });
         }

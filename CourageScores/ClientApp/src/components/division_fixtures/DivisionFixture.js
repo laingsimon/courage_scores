@@ -230,7 +230,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 awayTeamId: awayTeamId,
                 date: date,
                 isKnockout: fixture.isKnockout,
-                seasonId: season.id
+                seasonId: season.id,
+                accoladesCount: fixture.accoladesCount,
             });
 
             if (result.success) {
@@ -297,7 +298,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: fixture.awayTeam.id,
-                seasonId: season.id
+                seasonId: season.id,
+                accoladesCount: true,
             });
 
             if (result.success) {
