@@ -12,6 +12,7 @@ public class RecordScoresDto
     public string? Address { get; set; }
     public bool? Postponed { get; set; }
     public bool? IsKnockout { get; set; }
+    public bool AccoladesCount { get; set; }
     public DateTime? Date { get; set; }
     public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
     public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();

@@ -112,6 +112,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed ?? game.Postponed;
         game.IsKnockout = _scores.IsKnockout ?? game.IsKnockout;
+        game.AccoladesCount = _scores.AccoladesCount;
         game.MatchOptions = await _scores.MatchOptions.SelectAsync(mo => _matchOptionsAdapter.Adapt(mo, token)).ToList();
 
         var dateChanged = _scores.Date != game.Date;
