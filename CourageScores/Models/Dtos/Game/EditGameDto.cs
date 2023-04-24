@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
-public class EditGameDto
+public class EditGameDto : IEditGameDto
 {
     public Guid Id { get; set; }
     public string Address { get; set; } = null!;
@@ -14,4 +14,5 @@ public class EditGameDto
     public Guid AwayTeamId { get; set; }
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
+    public bool AccoladesCount { get; set; }
 }

@@ -63,6 +63,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         game.SeasonId = update.SeasonId;
         game.Postponed = update.Postponed;
         game.IsKnockout = update.IsKnockout;
+        game.AccoladesCount = update.AccoladesCount;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
 

@@ -7,7 +7,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKnockout, beforeReloadDivision }) {
+export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, beforeReloadDivision }) {
     const bye = {
         text: 'Bye',
         value: '',
@@ -148,7 +148,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
                : 'Bye');
         }
 
-        if (isKnockout) {
+        if (fixture.isKnockout) {
             const options = allTeams
                 .filter(t => t.id !== fixture.homeTeam.id)
                 .filter(t => any(t.seasons, ts => ts.seasonId === season.id))
@@ -229,8 +229,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: awayTeamId,
                 date: date,
-                isKnockout: isKnockout,
-                seasonId: season.id
+                isKnockout: fixture.isKnockout,
+                seasonId: season.id,
+                accoladesCount: fixture.accoladesCount,
             });
 
             if (result.success) {
@@ -297,7 +298,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, isKn
                 divisionId: divisionId,
                 homeTeamId: fixture.homeTeam.id,
                 awayTeamId: fixture.awayTeam.id,
-                seasonId: season.id
+                seasonId: season.id,
+                accoladesCount: true,
             });
 
             if (result.success) {

@@ -249,8 +249,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     try {
         return (<tr>
-            <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner text-end width-50-pc' : 'text-end width-50-pc'}>
-                {canOpenSayg() ? (<button className="btn btn-sm float-start p-0"
+            <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner ' : ''}text-end width-50-pc position-relative`}>
+                {canOpenSayg() ? (<button className="btn btn-sm position-absolute left-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
                 {playerIndexes().map(index => disabled
@@ -288,13 +288,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
                         onChange={stateChanged(awayScoreChanged)}/>)}
             </td>
-            <td className={match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner width-50-pc' : ' width-50-pc'}>
+            <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner ' : ''}width-50-pc position-relative`}>
                 {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
                 {readOnly ? null : (
                     <button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
-                            className="btn btn-sm float-end"
+                            className="btn btn-sm right-0 position-absolute"
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
-
                 {playerIndexes().map(index => disabled
                     ? (<div key={index}><Link
                         to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link>

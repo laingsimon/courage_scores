@@ -4,15 +4,16 @@ using CourageScores.Models.Dtos.Game.Sayg;
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
-public class RecordScoresDto
+public class RecordScoresDto : IGameDto
 {
     public ManOfTheMatchDto? Home { get; set; } = new();
     public ManOfTheMatchDto? Away { get; set; } = new();
     public List<RecordScoresGameMatchDto> Matches { get; set; } = new();
     public string? Address { get; set; }
-    public bool? Postponed { get; set; }
-    public bool? IsKnockout { get; set; }
-    public DateTime? Date { get; set; }
+    public bool Postponed { get; set; }
+    public bool IsKnockout { get; set; }
+    public bool AccoladesCount { get; set; }
+    public DateTime Date { get; set; }
     public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
     public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
     public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();

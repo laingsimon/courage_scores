@@ -140,6 +140,7 @@ public class ScoresImporter : IImporter
                 Name = away,
                 Id = context.Teams![away].Id,
             },
+            AccoladesCount = true,
         });
         context.Fixtures!.Add($"{home}-{away}", _request.Created(cosmosFixture));
         return cosmosFixture;
