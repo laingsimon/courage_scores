@@ -151,7 +151,6 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
                 fixture={f}
                 readOnly={proposingGames}
                 date={date.date}
-                isKnockout={f.isKnockout}
                 onUpdateFixtures={onUpdateFixtures} />))}
             {any(fixturesForDate, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout) || date.isKnockout ? null : tournamentFixturesForDate.map(tournament => (<TournamentFixture
                 key={tournament.address + '-' + tournament.date}
