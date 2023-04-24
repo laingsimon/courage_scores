@@ -9,7 +9,7 @@ public class RecordScoresDto : IGameDto
     public ManOfTheMatchDto? Home { get; set; } = new();
     public ManOfTheMatchDto? Away { get; set; } = new();
     public List<RecordScoresGameMatchDto> Matches { get; set; } = new();
-    public string? Address { get; set; }
+    public string Address { get; set; } = null!;
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
     public bool AccoladesCount { get; set; }

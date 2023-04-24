@@ -13,4 +13,5 @@ public class DivisionFixtureDto
     public bool Proposal { get; set; }
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
+    public bool AccoladesCount { get; set; }
 }
