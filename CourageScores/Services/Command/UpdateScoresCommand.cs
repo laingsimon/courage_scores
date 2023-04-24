@@ -174,7 +174,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return new CommandOutcome<GameDto>(true, "Submission updated", null);
     }
 
-    private Models.Cosmos.Game.Game MergeDetails(Models.Cosmos.Game.Game game, Models.Cosmos.Game.Game submission)
+    private static Models.Cosmos.Game.Game MergeDetails(Models.Cosmos.Game.Game game, Models.Cosmos.Game.Game submission)
     {
         submission.Id = game.Id;
         submission.Away = game.Away;
@@ -184,6 +184,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         submission.Postponed = game.Postponed;
         submission.DivisionId = game.DivisionId;
         submission.IsKnockout = game.IsKnockout;
+        submission.AccoladesCount = game.AccoladesCount;
         submission.SeasonId = game.SeasonId;
         return submission;
     }
