@@ -72,7 +72,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         {
             foreach (var remainingTeam in remainingTeams.Values)
             {
-                yield return await _divisionFixtureAdapter.FoUnselectedTeam(remainingTeam, hasKnockout, token);
+                yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, token);
             }
         }
     }

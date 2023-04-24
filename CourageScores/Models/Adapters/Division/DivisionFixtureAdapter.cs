@@ -29,10 +29,11 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
                 : null,
             Postponed = game.Postponed,
             IsKnockout = game.IsKnockout,
+            AccoladesCount = game.AccoladesCount,
         };
     }
 
-    public async Task<DivisionFixtureDto> FoUnselectedTeam(TeamDto team, bool isKnockout, CancellationToken token)
+    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, CancellationToken token)
     {
         return new DivisionFixtureDto
         {
@@ -44,6 +45,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             IsKnockout = isKnockout,
             Postponed = false,
             Proposal = false,
+            AccoladesCount = true,
         };
     }
 }

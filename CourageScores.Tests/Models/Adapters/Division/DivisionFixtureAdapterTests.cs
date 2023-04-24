@@ -217,6 +217,7 @@ public class DivisionFixtureAdapterTests
             {
                 Id = _awayTeam.Id,
             },
+            AccoladesCount = true,
         };
 
         var result = await _adapter.Adapt(game, null, null, _token);
@@ -225,6 +226,7 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, null, _token));
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.AwayTeam, Is.EqualTo(_awayTeamDto));
+        Assert.That(result.AccoladesCount, Is.EqualTo(game.AccoladesCount));
     }
 
     [TestCase(true, true)]
@@ -241,7 +243,7 @@ public class DivisionFixtureAdapterTests
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
 
-        var result = await _adapter.FoUnselectedTeam(team, isKnockout, _token);
+        var result = await _adapter.ForUnselectedTeam(team, isKnockout, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Postponed, Is.False);
@@ -251,5 +253,6 @@ public class DivisionFixtureAdapterTests
         Assert.That(result.AwayTeam, Is.Null);
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.IsKnockout, Is.EqualTo(expectedIsKnockout));
+        Assert.That(result.AccoladesCount, Is.True);
     }
 }
