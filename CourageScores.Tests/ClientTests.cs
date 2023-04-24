@@ -7,12 +7,18 @@ using NUnit.Framework;
 namespace CourageScores.Tests;
 
 [TestFixture]
-[Explicit]
 public class ClientTests
 {
     [Test]
     public async Task RunClientAppTests()
     {
+        var ciEnvironmentVariable = Environment.GetEnvironmentVariable("CI");
+        if (!string.IsNullOrEmpty(ciEnvironmentVariable))
+        {
+            Assert.Inconclusive("UI tests should be run via Publish");
+            return;
+        }
+
         var process = await RunTests();
 
         Assert.That(process.Count, Is.GreaterThan(0));

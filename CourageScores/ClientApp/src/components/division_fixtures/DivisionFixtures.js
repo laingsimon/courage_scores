@@ -133,6 +133,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                     },
                     awayTeam: null,
                     isKnockout: isKnockout,
+                    accoladesCount: true,
                 };
             }),
             tournamentFixtures: teams.map(team => {

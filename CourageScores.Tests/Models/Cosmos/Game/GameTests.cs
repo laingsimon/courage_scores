@@ -192,4 +192,56 @@ public class GameTests
 
         visitor.Verify(v => v.VisitGameDraw(It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
     }
+
+    [Test]
+    public void Accept_GivenAccoladesCount_Visits180s()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new GamePlayer();
+        _game.AccoladesCount = true;
+        _game.OneEighties.Add(player);
+
+        _game.Accept(visitor.Object);
+
+        visitor.Verify(v => v.VisitOneEighty(player));
+    }
+
+    [Test]
+    public void Accept_GivenAccoladesCount_VisitsHiChecks()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new NotablePlayer();
+        _game.AccoladesCount = true;
+        _game.Over100Checkouts.Add(player);
+
+        _game.Accept(visitor.Object);
+
+        visitor.Verify(v => v.VisitHiCheckout(player));
+    }
+
+    [Test]
+    public void Accept_GivenAccoladesDoNotCount_DoesNotVisit180s()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new GamePlayer();
+        _game.AccoladesCount = false;
+        _game.OneEighties.Add(player);
+
+        _game.Accept(visitor.Object);
+
+        visitor.Verify(v => v.VisitOneEighty(It.IsAny<GamePlayer>()), Times.Never);
+    }
+
+    [Test]
+    public void Accept_GivenAccoladesDoNotCount_DoesNotVisitHiChecks()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        var player = new NotablePlayer();
+        _game.AccoladesCount = false;
+        _game.Over100Checkouts.Add(player);
+
+        _game.Accept(visitor.Object);
+
+        visitor.Verify(v => v.VisitHiCheckout(It.IsAny<NotablePlayer>()), Times.Never);
+    }
 }

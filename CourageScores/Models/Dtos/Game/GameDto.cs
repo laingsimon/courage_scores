@@ -6,7 +6,7 @@ namespace CourageScores.Models.Dtos.Game;
 /// A record of a number of matches played at a venue between 2 teams on a given date and time
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class GameDto : AuditedDto
+public class GameDto : AuditedDto, IEditGameDto
 {
     /// <summary>
     /// The id of the division
@@ -82,4 +82,6 @@ public class GameDto : AuditedDto
     /// Options for each match in the game
     /// </summary>
     public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
+
+    public bool AccoladesCount { get; set; }
 }
