@@ -111,18 +111,22 @@ export function Score() {
     }
 
     useEffect(() => {
-            if (loading !== 'init') {
-                return;
-            }
+        if (loading !== 'init') {
+            console.log(`loading=${loading}`);
+            return;
+        }
 
-            if (!appLoading && seasons.length && teams.length && divisions.length) {
-                setLoading('loading');
-                // noinspection JSIgnoredPromiseFromCall
-                loadFixtureData();
-            }
-        },
-        // eslint-disable-next-line
-        [ appLoading, seasons, teams, divisions ]);
+        if (!appLoading && seasons && teams && divisions) {
+            setLoading('loading');
+            console.log(`Loading fixture data (loading=${loading})...`);
+            // noinspection JSIgnoredPromiseFromCall
+            loadFixtureData();
+        } else {
+            console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+        }
+    },
+    // eslint-disable-next-line
+    [ appLoading, seasons, teams, divisions ]);
 
     function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const teamData = teams[teamId];
@@ -228,7 +232,7 @@ export function Score() {
             setData(gameData);
 
             const season = seasons[gameData.seasonId];
-            setSeason(season);
+            setSeason(season || { id: '00000', name: 'Not found' });
         } catch (e) {
             onError(e);
         } finally {
@@ -475,12 +479,7 @@ export function Score() {
         const access = getAccess();
         return (<div>
             <DivisionControls
-                originalSeasonData={{
-                    id: season.id,
-                    name: season.name,
-                    startDate: season.startDate.substring(0, 10),
-                    endDate: season.endDate.substring(0, 10),
-                }}
+                originalSeasonData={season}
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">

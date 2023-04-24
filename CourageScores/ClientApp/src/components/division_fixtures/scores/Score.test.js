@@ -131,19 +131,22 @@ describe('Score', () => {
             };
         }
 
+        const firstDivision = appData.divisions.filter(_ => true)[0];
+        const firstSeason = appData.seasons.filter(_ => true)[0];
+
         return {
             home: {
-                id: homeTeam.id,
-                name: homeTeam.name,
+                id: homeTeam ? homeTeam.id : createTemporaryId(),
+                name: homeTeam ? homeTeam.name : 'not found',
                 manOfTheMatch: createTemporaryId()
             },
             away: {
-                id: awayTeam.id,
-                name: awayTeam.name,
+                id: awayTeam ? awayTeam.id : createTemporaryId(),
+                name: awayTeam ? awayTeam.name : 'not found',
                 manOfTheMatch: createTemporaryId()
             },
-            seasonId: appData.seasons.filter(_ => true)[0].id,
-            divisionId: appData.divisions.filter(_ => true)[0].id,
+            seasonId: firstSeason ? firstSeason.id : createTemporaryId(),
+            divisionId: firstDivision ? firstDivision.id : createTemporaryId(),
             matches: [
                 createMatch(3,2),
                 createMatch(3,2),
@@ -229,6 +232,51 @@ describe('Score', () => {
             assertMatchRow(matchRows[9], 'Triples');
             assertMatchRow(matchRows[10], 'Home player', '3', '', '0', 'Away player');
             assertMatchRow(matchRows[11], '180sHome player', '', '100+ c/oAway player (140)');
+        });
+
+        it('renders when no divisions', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.divisions = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.light-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+        });
+
+        it('renders when no seasons', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.seasons = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.light-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
+        });
+
+        it('renders when no teams', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.teams = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toBeNull();
+            const container = context.container.querySelector('.light-background');
+            expect(container).toBeTruthy();
+            const tableBody = container.querySelector('table tbody');
+            expect(tableBody).toBeTruthy();
         });
     });
 
