@@ -9,7 +9,7 @@ import {DivisionReports} from "./division_reports/DivisionReports";
 import {TeamOverview} from "./division_teams/TeamOverview";
 import {PlayerOverview} from "./division_players/PlayerOverview";
 import {Loading} from "./common/Loading";
-import {propChanged} from "../Utilities";
+import {any, propChanged} from "../Utilities";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
@@ -60,10 +60,23 @@ export function Division() {
         }
 
         try {
-            if (divisionData && divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
-                return;
-            }
+            if (divisionData) {
+                if (divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
+                    return;
+                }
 
+                if (divisionData.status) {
+                    console.log(divisionData);
+                    const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
+                    onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
+                    return;
+                }
+
+                if (divisionData.dataErrors && any(divisionData.dataErrors)) {
+                    onError(divisionData.dataErrors.join(', '));
+                    return;
+                }
+            }
             setLoading(true);
             // noinspection JSIgnoredPromiseFromCall
             reloadDivisionData();
