@@ -1,8 +1,11 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Dialog} from "./Dialog";
+import {useApp} from "../../AppContainer";
 
 export function ErrorDisplay({ errors, messages, warnings, onClose, title, Exception }) {
     let index = 0;
+    const [ errorReported, setErrorReported ] = useState(false);
+    const { reportClientSideException } = useApp();
 
     function renderValidationErrors(errors) {
         return (<ol className="text-danger">
@@ -23,6 +26,22 @@ export function ErrorDisplay({ errors, messages, warnings, onClose, title, Excep
             <pre>{stack ? stack.join('\n') : ''
 }</pre>
         </div>);
+    }
+
+    if (errors && !errorReported) {
+        setErrorReported(true);
+        if (errors.length === undefined) {
+            reportClientSideException({
+                message: Object.keys(errors).map(key => `${key}: ${errors[key]}`).join('\n '),
+                stack: null,
+                type: 'Server Validation error',
+            });
+        } else {
+            reportClientSideException({
+                message: errors.join('\n'),
+                stack: null,
+            });
+        }
     }
 
     return (<Dialog onClose={onClose} title={title || 'There was an error'}>
