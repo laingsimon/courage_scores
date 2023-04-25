@@ -220,6 +220,13 @@ export function Score() {
                 return;
             }
 
+            if (gameData.status) {
+                console.log(gameData);
+                const suffix = gameData.errors ? ' -- ' + Object.keys(gameData.errors).map(key => `${key}: ${gameData.errors[key]}`).join(', ') : '';
+                onError(`Error accessing fixture: Code: ${gameData.status}${suffix}`);
+                return;
+            }
+
             if (!gameData.home || !gameData.away) {
                 onError('Either home or away team are undefined for this game');
                 return;
