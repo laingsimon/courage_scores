@@ -2,7 +2,7 @@ import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
 import {any, createTemporaryId, valueChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
-import {useLocation} from "react-router-dom";
+import {Navigate, useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
 import {useDependencies} from "../IocContainer";
 import {ErrorDisplay} from "./common/ErrorDisplay";
@@ -13,6 +13,7 @@ export function Practice() {
     const { onError, account } = useApp();
     const { saygApi } = useDependencies();
     const location = useLocation();
+    const navigate = useNavigate();
     const [ sayg, setSayg ] = useState({
         yourName: initialYourName,
         opponentName: null,
@@ -85,6 +86,7 @@ export function Practice() {
             const response = await saygApi.upsert(sayg);
             if (response.success) {
                 setSayg(response.result);
+                navigate(`/practice#${response.result.id}`);
                 return '#' + response.result.id;
             }
             setSaveError(response);
