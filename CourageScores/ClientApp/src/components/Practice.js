@@ -2,7 +2,7 @@ import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
 import {any, createTemporaryId, valueChanged} from "../Utilities";
 import {ShareButton} from "./ShareButton";
-import {Navigate, useLocation, useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
 import {useDependencies} from "../IocContainer";
 import {ErrorDisplay} from "./common/ErrorDisplay";
@@ -63,7 +63,8 @@ export function Practice() {
         try {
             const sayg = await saygApi.get(id);
 
-            if (!sayg) {
+            if (!sayg || !sayg.legs) {
+                navigate('/practice');
                 setDataError('Data not found');
                 return;
             }
