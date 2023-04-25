@@ -112,14 +112,37 @@ export function Score() {
 
     useEffect(() => {
             if (loading !== 'init') {
+                console.log(`loading=${loading}`);
                 return;
             }
 
-            if (!appLoading && seasons.length && teams.length && divisions.length) {
-                setLoading('loading');
-                // noinspection JSIgnoredPromiseFromCall
-                loadFixtureData();
+            if (appLoading) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                return;
             }
+
+            if (!seasons || !seasons.length) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                onError('App has finished loading, no seasons are available');
+                return;
+            }
+
+            if (!teams || !teams.length) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                onError('App has finished loading, no teams are available');
+                return;
+            }
+
+            if (!divisions || !divisions.length) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                onError('App has finished loading, no divisions are available');
+                return;
+            }
+
+            console.log(`Loading fixture data (loading=${loading})...`);
+            setLoading('loading');
+            // noinspection JSIgnoredPromiseFromCall
+            loadFixtureData();
         },
         // eslint-disable-next-line
         [ appLoading, seasons, teams, divisions ]);
@@ -169,12 +192,12 @@ export function Score() {
     }
 
     useEffect(() => {
-        if (fixtureData && loading !== 'init') {
-            loadPlayerData(fixtureData);
-        }
-    },
-    // eslint-disable-next-line
-    [ teams ]);
+            if (fixtureData && loading !== 'init') {
+                loadPlayerData(fixtureData);
+            }
+        },
+        // eslint-disable-next-line
+        [ teams ]);
 
     function loadPlayerData(gameData) {
         const homeTeamPlayers = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
@@ -194,6 +217,13 @@ export function Score() {
         try {
             if (!gameData) {
                 onError('Game could not be found');
+                return;
+            }
+
+            if (gameData.status) {
+                console.log(gameData);
+                const suffix = gameData.errors ? ' -- ' + Object.keys(gameData.errors).map(key => `${key}: ${gameData.errors[key]}`).join(', ') : '';
+                onError(`Error accessing fixture: Code: ${gameData.status}${suffix}`);
                 return;
             }
 
@@ -228,7 +258,7 @@ export function Score() {
             setData(gameData);
 
             const season = seasons[gameData.seasonId];
-            setSeason(season);
+            setSeason(season || { id: '00000', name: 'Not found' });
         } catch (e) {
             onError(e);
         } finally {
@@ -287,15 +317,16 @@ export function Score() {
     }
 
     useEffect(() => {
-        if (!fixtureData || !divisions) {
-            return;
-        }
+            if (!fixtureData || !divisions) {
+                return;
+            }
 
-        const division = divisions[fixtureData.divisionId];
-        if (division) {
-            setDivision(division);
-        }
-    }, [ divisions, fixtureData, data ]);
+            const division = divisions[fixtureData.divisionId];
+            if (division) {
+                setDivision(division);
+            }
+        },
+        [ divisions, fixtureData, data ]);
 
     async function saveScores() {
         if (getAccess() === 'readonly') {
@@ -475,12 +506,7 @@ export function Score() {
         const access = getAccess();
         return (<div>
             <DivisionControls
-                originalSeasonData={{
-                    id: season.id,
-                    name: season.name,
-                    startDate: season.startDate.substring(0, 10),
-                    endDate: season.endDate.substring(0, 10),
-                }}
+                originalSeasonData={season}
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">

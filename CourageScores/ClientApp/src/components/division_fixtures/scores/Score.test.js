@@ -131,19 +131,22 @@ describe('Score', () => {
             };
         }
 
+        const firstDivision = appData.divisions.filter(_ => true)[0];
+        const firstSeason = appData.seasons.filter(_ => true)[0];
+
         return {
             home: {
-                id: homeTeam.id,
-                name: homeTeam.name,
+                id: homeTeam ? homeTeam.id : createTemporaryId(),
+                name: homeTeam ? homeTeam.name : 'not found',
                 manOfTheMatch: createTemporaryId()
             },
             away: {
-                id: awayTeam.id,
-                name: awayTeam.name,
+                id: awayTeam ? awayTeam.id : createTemporaryId(),
+                name: awayTeam ? awayTeam.name : 'not found',
                 manOfTheMatch: createTemporaryId()
             },
-            seasonId: appData.seasons.filter(_ => true)[0].id,
-            divisionId: appData.divisions.filter(_ => true)[0].id,
+            seasonId: firstSeason ? firstSeason.id : createTemporaryId(),
+            divisionId: firstDivision ? firstDivision.id : createTemporaryId(),
             matches: [
                 createMatch(3,2),
                 createMatch(3,2),
@@ -230,6 +233,39 @@ describe('Score', () => {
             assertMatchRow(matchRows[10], 'Home player', '3', '', '0', 'Away player');
             assertMatchRow(matchRows[11], '180sHome player', '', '100+ c/oAway player (140)');
         });
+
+        it('renders when no divisions', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.divisions = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no divisions are available');
+        });
+
+        it('renders when no seasons', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.seasons = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no seasons are available');
+        });
+
+        it('renders when no teams', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.teams = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no teams are available');
+        });
     });
 
     describe('when logged in', () => {
@@ -295,6 +331,39 @@ describe('Score', () => {
             assertMatchRow(matchRows[11], 'Man of the match');
             assertMatchRow(matchRows[12], '', '', '');
             assertMatchRow(matchRows[13], '180s', '', '100+ c/o');
+        });
+
+        it('renders when no divisions', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.divisions = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no divisions are available');
+        });
+
+        it('renders when no seasons', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.seasons = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no seasons are available');
+        });
+
+        it('renders when no teams', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.teams = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no teams are available');
         });
     });
 });

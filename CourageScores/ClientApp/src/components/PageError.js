@@ -1,39 +1,26 @@
 import React, {useEffect, useState} from "react";
-import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 
 export function PageError({ error }){
     const [ showStack, setShowStack ] = useState(false);
     const [ errorReported, setErrorReported ] = useState(false);
-    const { errorApi } = useDependencies();
-    const { clearError } = useApp();
+    const { clearError, reportClientSideException } = useApp();
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
-        reportClientSideException();
+            doReportClientSideException();
     },
     // eslint-disable-next-line
     [errorReported])
 
-    async function reportClientSideException() {
+    async function doReportClientSideException() {
         if (errorReported) {
             return; // server side exception
         }
 
         setErrorReported(true);
 
-        const errorDetail = {
-            source: "UI",
-            time: new Date().toISOString(),
-            message: error.message,
-            stack: error.stack ? error.stack.split('\n') : null,
-            type: null,
-            userName: null,
-            userAgent: Navigator.userAgent,
-            url: window.location.href,
-        };
-
-        await errorApi.add(errorDetail);
+        await reportClientSideException(error);
     }
 
     return (<div className="light-background p-3">

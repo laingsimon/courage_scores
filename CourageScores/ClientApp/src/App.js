@@ -17,7 +17,7 @@ export function App() {
         branch: document.querySelector('meta[name="build:branch"]').getAttribute('content'),
         version: document.querySelector('meta[name="build:sha"]').getAttribute('content'),
     };
-    const { divisionApi, accountApi, seasonApi, teamApi } = useDependencies();
+    const { divisionApi, accountApi, seasonApi, teamApi, errorApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
@@ -86,6 +86,21 @@ export function App() {
         return document.location.search.indexOf('surround=false') !== -1;
     }
 
+    async function reportClientSideException(error) {
+        const errorDetail = {
+            source: "UI",
+            time: new Date().toISOString(),
+            message: error.message,
+            stack: error.stack ? error.stack.split('\n') : null,
+            type: error.type || null,
+            userName: account ? account.name : null,
+            userAgent: Navigator.userAgent,
+            url: window.location.href,
+        };
+
+        await errorApi.add(errorDetail);
+    }
+
     // noinspection JSUnusedGlobalSymbols
     const appData = {
         divisions,
@@ -103,6 +118,7 @@ export function App() {
         onError,
         clearError,
         build,
+        reportClientSideException,
     };
 
     try {
