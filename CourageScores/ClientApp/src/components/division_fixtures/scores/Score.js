@@ -111,22 +111,41 @@ export function Score() {
     }
 
     useEffect(() => {
-        if (loading !== 'init') {
-            console.log(`loading=${loading}`);
-            return;
-        }
+            if (loading !== 'init') {
+                console.log(`loading=${loading}`);
+                return;
+            }
 
-        if (!appLoading && seasons && teams && divisions) {
-            setLoading('loading');
+            if (appLoading) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                return;
+            }
+
+            if (!seasons || !seasons.length) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                onError('App has finished loading, no seasons are available');
+                return;
+            }
+
+            if (!teams || !teams.length) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                onError('App has finished loading, no teams are available');
+                return;
+            }
+
+            if (!divisions || !divisions.length) {
+                console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
+                onError('App has finished loading, no divisions are available');
+                return;
+            }
+
             console.log(`Loading fixture data (loading=${loading})...`);
+            setLoading('loading');
             // noinspection JSIgnoredPromiseFromCall
             loadFixtureData();
-        } else {
-            console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
-        }
-    },
-    // eslint-disable-next-line
-    [ appLoading, seasons, teams, divisions ]);
+        },
+        // eslint-disable-next-line
+        [ appLoading, seasons, teams, divisions ]);
 
     function loadTeamPlayers(teamId, seasonId, teamType, matches) {
         const teamData = teams[teamId];
@@ -173,12 +192,12 @@ export function Score() {
     }
 
     useEffect(() => {
-        if (fixtureData && loading !== 'init') {
-            loadPlayerData(fixtureData);
-        }
-    },
-    // eslint-disable-next-line
-    [ teams ]);
+            if (fixtureData && loading !== 'init') {
+                loadPlayerData(fixtureData);
+            }
+        },
+        // eslint-disable-next-line
+        [ teams ]);
 
     function loadPlayerData(gameData) {
         const homeTeamPlayers = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
@@ -291,15 +310,16 @@ export function Score() {
     }
 
     useEffect(() => {
-        if (!fixtureData || !divisions) {
-            return;
-        }
+            if (!fixtureData || !divisions) {
+                return;
+            }
 
-        const division = divisions[fixtureData.divisionId];
-        if (division) {
-            setDivision(division);
-        }
-    }, [ divisions, fixtureData, data ]);
+            const division = divisions[fixtureData.divisionId];
+            if (division) {
+                setDivision(division);
+            }
+        },
+        [ divisions, fixtureData, data ]);
 
     async function saveScores() {
         if (getAccess() === 'readonly') {

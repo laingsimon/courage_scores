@@ -242,11 +242,7 @@ describe('Score', () => {
 
             await renderComponent(fixtureId, appData);
 
-            expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
-            expect(container).toBeTruthy();
-            const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
+            expect(reportedError).toEqual('App has finished loading, no divisions are available');
         });
 
         it('renders when no seasons', async () => {
@@ -257,11 +253,7 @@ describe('Score', () => {
 
             await renderComponent(fixtureId, appData);
 
-            expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
-            expect(container).toBeTruthy();
-            const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
+            expect(reportedError).toEqual('App has finished loading, no seasons are available');
         });
 
         it('renders when no teams', async () => {
@@ -272,11 +264,7 @@ describe('Score', () => {
 
             await renderComponent(fixtureId, appData);
 
-            expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
-            expect(container).toBeTruthy();
-            const tableBody = container.querySelector('table tbody');
-            expect(tableBody).toBeTruthy();
+            expect(reportedError).toEqual('App has finished loading, no teams are available');
         });
     });
 
@@ -343,6 +331,39 @@ describe('Score', () => {
             assertMatchRow(matchRows[11], 'Man of the match');
             assertMatchRow(matchRows[12], '', '', '');
             assertMatchRow(matchRows[13], '180s', '', '100+ c/o');
+        });
+
+        it('renders when no divisions', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.divisions = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no divisions are available');
+        });
+
+        it('renders when no seasons', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.seasons = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no seasons are available');
+        });
+
+        it('renders when no teams', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.teams = [];
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData);
+
+            expect(reportedError).toEqual('App has finished loading, no teams are available');
         });
     });
 });
