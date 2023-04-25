@@ -9,7 +9,7 @@ import {useApp} from "../../AppContainer";
 export function TeamOverview({ teamId }) {
     const { id: divisionId, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
     const { teams } = useApp();
-    const team = teams.filter(t => t.id === teamId)[0] || { id: teamId };
+    const team = teams.filter(t => t.id === teamId)[0];
     const fixtures = divisionDataFixtures.map(fixtureDate => {
        return {
            date: fixtureDate.date,
@@ -58,6 +58,13 @@ export function TeamOverview({ teamId }) {
                 </div>
             </td>
         </tr>);
+    }
+
+    if (!team) {
+        return <div className="light-background p-3">
+            <h5 className="text-danger">⚠ Team could not be found</h5>
+            <Link className="btn btn-primary" to={`/division/${divisionId}/teams/${season.id}`}>Teams</Link>
+        </div>
     }
 
     return (<div className="light-background p-3">
