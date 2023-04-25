@@ -118,49 +118,61 @@ export function Practice() {
         return (<Loading />);
     }
 
-    return (<div className="p-3 light-background">
-        <div className="input-group my-3">
-            <div className="input-group-prepend">
-                <span className="input-group-text">Number of legs</span>
+    try {
+        return (<div className="p-3 light-background">
+            <div className="input-group my-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Number of legs</span>
+                </div>
+                <input type="number" className="form-control" name="numberOfLegs" value={sayg.numberOfLegs}
+                       onChange={valueChanged(sayg, setSayg)}/>
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Starting score</span>
+                </div>
+                <input type="number" className="form-control" name="startingScore" value={sayg.startingScore}
+                       onChange={valueChanged(sayg, setSayg)}/>
+                <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice"/>
             </div>
-            <input type="number" className="form-control" name="numberOfLegs" value={sayg.numberOfLegs} onChange={valueChanged(sayg, setSayg)} />
-            <div className="input-group-prepend">
-                <span className="input-group-text">Starting score</span>
+            <div className="input-group my-3">
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Your name</span>
+                </div>
+                <input className="form-control" value={sayg.yourName} name="yourName"
+                       onChange={valueChanged(sayg, setSayg)}/>
+                <div className="input-group-prepend">
+                    <span className="input-group-text">Opponent</span>
+                </div>
+                <input placeholder="Optional" className="form-control" name="opponentName"
+                       value={sayg.opponentName || ''} onChange={valueChanged(sayg, setSayg)}/>
+                <button className="btn btn-primary"
+                        onClick={restart}>{any(Object.keys(sayg.legs)) ? 'Restart...' : 'Start...'}</button>
             </div>
-            <input type="number" className="form-control" name="startingScore" value={sayg.startingScore} onChange={valueChanged(sayg, setSayg)} />
-            <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice" />
-        </div>
-        <div className="input-group my-3">
-            <div className="input-group-prepend">
-                <span className="input-group-text">Your name</span>
-            </div>
-            <input className="form-control" value={sayg.yourName} name="yourName" onChange={valueChanged(sayg, setSayg)} />
-            <div className="input-group-prepend">
-                <span className="input-group-text">Opponent</span>
-            </div>
-            <input placeholder="Optional" className="form-control" name="opponentName" value={sayg.opponentName || ''} onChange={valueChanged(sayg, setSayg)} />
-            <button className="btn btn-primary" onClick={restart}>{any(Object.keys(sayg.legs)) ? 'Restart...' : 'Start...'}</button>
-        </div>
-        {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
-            <h3>⚠ Error with shared data</h3>
-            <p>{dataError}</p>
-            <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
-        </div>) : null}
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
-        {dataError == null ? (<ScoreAsYouGo
-            startingScore={Number.parseInt(sayg.startingScore)}
-            numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
-            onHiCheck={() => {}}
-            on180={() => {}}
-            onChange={updateSayg}
-            homeScore={sayg.homeScore}
-            awayScore={sayg.awayScore}
-            away={sayg.opponentName}
-            home={sayg.yourName}
-            data={sayg}
-            singlePlayer={!sayg.opponentName}
-            onLegComplete={(homeScore, awayScore) => {
-                updateSayg({ homeScore, awayScore });
-            }} />) : null}
-    </div>)
+            {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
+                <h3>⚠ Error with shared data</h3>
+                <p>{dataError}</p>
+                <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
+            </div>) : null}
+            {saveError ? (
+                <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
+            {dataError == null ? (<ScoreAsYouGo
+                startingScore={Number.parseInt(sayg.startingScore)}
+                numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
+                onHiCheck={() => {
+                }}
+                on180={() => {
+                }}
+                onChange={updateSayg}
+                homeScore={sayg.homeScore}
+                awayScore={sayg.awayScore}
+                away={sayg.opponentName}
+                home={sayg.yourName}
+                data={sayg}
+                singlePlayer={!sayg.opponentName}
+                onLegComplete={(homeScore, awayScore) => {
+                    updateSayg({homeScore, awayScore});
+                }}/>) : null}
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }
