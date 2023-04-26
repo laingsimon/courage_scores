@@ -101,6 +101,12 @@ export function NavMenu() {
                                 </NavLink>
                             </li>))}
                         <li className="nav-item">
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?page_id=249">Rules</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?page_id=261">Downloads</NavLink>
+                        </li>
+                        <li className="nav-item">
                             <NavLink tag={Link} className={getClassName('/about')} onClick={navigate} to={`/about`}>
                                 About
                             </NavLink>
