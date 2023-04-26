@@ -11,11 +11,13 @@ import {AdminHome} from "./components/admin/AdminHome";
 import {Tournament} from "./components/division_fixtures/tournaments/Tournament";
 import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
+import {About} from "./components/About";
 
 export function App() {
     const build = {
         branch: document.querySelector('meta[name="build:branch"]').getAttribute('content'),
         version: document.querySelector('meta[name="build:sha"]').getAttribute('content'),
+        date: document.querySelector('meta[name="build:date"]').getAttribute('content'),
     };
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi } = useDependencies();
     const [ account, setAccount ] = useState(null);

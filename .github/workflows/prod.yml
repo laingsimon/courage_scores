@@ -25,6 +25,7 @@ jobs:
       upload: true
       branch-name: 'release'
       commit-sha: ${{ github.sha }}
+      commit-date: ${{ needs.setup.outputs.commit-date }}
 
   deploy:
     needs: 
