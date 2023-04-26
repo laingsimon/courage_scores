@@ -6,7 +6,7 @@ export function About() {
     return (<div className="light-background p-3">
         <h3>About</h3>
         <p>
-            Built for and in consultation with the Courage League to fulfil their needs for recording fixture results more effectively.
+            Built for, and in consultation with, the <a href="http://www.thecourageleague.co.uk">Courage League</a> to modernise and streamline the method of recording and presenting fixtures and results.
         </p>
 
         <p>
