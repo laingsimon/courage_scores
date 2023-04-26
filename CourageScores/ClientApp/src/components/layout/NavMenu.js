@@ -100,6 +100,11 @@ export function NavMenu() {
                                     {division.name}
                                 </NavLink>
                             </li>))}
+                        <li className="nav-item">
+                            <NavLink tag={Link} className={getClassName('/about')} onClick={navigate} to={`/about`}>
+                                About
+                            </NavLink>
+                        </li>
                         {appLoading ? (<li className="nav-item"><NavLink><span
                             className="spinner-border spinner-border-sm margin-right" role="status"
                             aria-hidden="true"></span></NavLink></li>) : null}
