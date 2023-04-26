@@ -471,7 +471,7 @@ public class DivisionDataDtoFactoryTests
 
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
-        Assert.That(result.DataErrors, Is.EqualTo(new[] { "Mismatching number of players: Home players: [A] vs Away players: [B, C]" }));
+        Assert.That(result.DataErrors, Is.EqualTo(new[] { $"{game.Id} (03 Feb 2001): Mismatching number of players: Home players (1): [A] vs Away players (2): [B, C]" }));
     }
 
     [Test]

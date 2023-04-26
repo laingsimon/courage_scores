@@ -5,6 +5,7 @@ namespace CourageScores.Services.Division;
 public class DivisionDataGameVisitor : IGameVisitor
 {
     private readonly DivisionData _divisionData;
+    private Models.Cosmos.Game.Game? _lastGame;
 
     public DivisionDataGameVisitor(DivisionData divisionData)
     {
@@ -13,11 +14,17 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitDataError(string dataError)
     {
+        if (_lastGame != null)
+        {
+            dataError = $"{_lastGame.Id} ({_lastGame.Date:dd MMM yyyy}): {dataError}";
+        }
+
         _divisionData.DataErrors.Add(dataError);
     }
 
     public void VisitGame(Models.Cosmos.Game.Game game)
     {
+        _lastGame = game;
         if (game.Postponed)
         {
             return;
@@ -29,6 +36,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGame(TournamentGame game)
     {
+        _lastGame = null;
         var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
         game.Accept(playerGamesVisitor);
     }
