@@ -15,6 +15,8 @@ on:
         value: ${{ jobs.dotnet.outputs.dotnet-root }}
       deploy:
         value: ${{ jobs.branch.outputs.deploy }}
+      commit-date:
+        value: ${{ jobs.branch.outputs.commit-date }}
 
 jobs:
   dotnet:
@@ -48,12 +50,13 @@ jobs:
 
     outputs:
       deploy: ${{ steps.should-deploy.outputs.deploy }}
+      commit-date: ${{ steps.export-commit-date.outputs.commit-date }}
 
     steps:
       - name: Print branch
         shell: bash
         run: |
-          echo "branch-name = ${{ inputs.branch-name }}"
+          echo "branch-name=${{ inputs.branch-name }}"
 
       - name: Should deploy (branch name)
         if: ${{ inputs.branch-name == 'release' || inputs.branch-name == 'main' || inputs.deploy-requested == 'true' || inputs.deploy-requested == '' }}
@@ -61,3 +64,9 @@ jobs:
         shell: bash
         run: |
           echo "deploy=true" >> $GITHUB_OUTPUT
+
+      - name: Export commit date
+        id: export-commit-date
+        shell: bash
+        run: |
+          echo "commit-date=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT

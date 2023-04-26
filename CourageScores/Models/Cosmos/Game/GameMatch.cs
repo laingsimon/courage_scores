@@ -38,20 +38,25 @@ public class GameMatch : AuditedEntity, IGameVisitable
     {
         visitor.VisitMatch(this);
 
-        if (HomePlayers.Count == AwayPlayers.Count)
+        if (HomePlayers.Count != AwayPlayers.Count)
         {
-            foreach (var player in HomePlayers)
-            {
-                visitor.VisitPlayer(player, HomePlayers.Count);
-            }
-
-            foreach (var player in AwayPlayers)
-            {
-                visitor.VisitPlayer(player, AwayPlayers.Count);
-            }
+            var homePlayerList = string.Join(", ", HomePlayers.Select(p => p.Name));
+            var awayPlayerList = string.Join(", ", AwayPlayers.Select(p => p.Name));
+            visitor.VisitDataError($"Mismatching number of players: Home players ({HomePlayers.Count}): [{homePlayerList}] vs Away players ({AwayPlayers.Count}): [{awayPlayerList}]");
+            return;
         }
 
-        if (HomeScore.HasValue && AwayScore.HasValue && HomePlayers.Count == AwayPlayers.Count)
+        foreach (var player in HomePlayers)
+        {
+            visitor.VisitPlayer(player, HomePlayers.Count);
+        }
+
+        foreach (var player in AwayPlayers)
+        {
+            visitor.VisitPlayer(player, AwayPlayers.Count);
+        }
+
+        if (HomeScore.HasValue && AwayScore.HasValue)
         {
             if (HomeScore > AwayScore)
             {
@@ -65,10 +70,6 @@ public class GameMatch : AuditedEntity, IGameVisitable
             }
 
             // must be a 0-0 record (i.e. not played) - draw's aren't possible in matches (legs are 3,5 or 7 normally)
-        }
-        else
-        {
-            visitor.VisitDataError($"Mismatching number of players: Home players: [{string.Join(", ", HomePlayers.Select(p => p.Name))}] vs Away players: [{string.Join(", ", AwayPlayers.Select(p => p.Name))}]");
         }
     }
 }
