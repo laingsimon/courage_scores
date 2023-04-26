@@ -136,6 +136,7 @@ export function App() {
                     <Route path='/admin/:mode' element={<AdminHome />} />
                     <Route path='/tournament/:tournamentId' element={<Tournament />} />
                     <Route path='/practice' element={<Practice />} />
+                    <Route path='/about' element={<About />} />
                 </Routes>
             </Layout>
         </AppContainer>);
