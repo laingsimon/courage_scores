@@ -4,6 +4,7 @@ import {NavMenu} from './NavMenu';
 import {Heading} from "./Heading";
 import {PageError} from "../PageError";
 import {useApp} from "../../AppContainer";
+import {Footer} from "./Footer";
 
 export function Layout({ children }) {
     const { error, onError, excludeSurround } = useApp();
@@ -28,6 +29,7 @@ export function Layout({ children }) {
                 {error ? renderError() : (<Container className="full-screen-print-mode">
                     {children}
                 </Container>)}
+                <Footer />
             </div>
         );
     } catch (e) {

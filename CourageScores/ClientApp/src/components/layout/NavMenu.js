@@ -100,6 +100,17 @@ export function NavMenu() {
                                     {division.name}
                                 </NavLink>
                             </li>))}
+                        <li className="nav-item">
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?page_id=249">Rules</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?page_id=261">Downloads</NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink tag={Link} className={getClassName('/about')} onClick={navigate} to={`/about`}>
+                                About
+                            </NavLink>
+                        </li>
                         {appLoading ? (<li className="nav-item"><NavLink><span
                             className="spinner-border spinner-border-sm margin-right" role="status"
                             aria-hidden="true"></span></NavLink></li>) : null}

@@ -40,6 +40,7 @@ jobs:
       upload: ${{ needs.setup.outputs.deploy == 'true' }}
       branch-name: ${{ needs.branch-name.outputs.branch-name }}
       commit-sha: ${{ github.sha }}
+      commit-date: ${{ needs.setup.outputs.commit-date }}
 
   deploy:
     if: ${{ needs.setup.outputs.deploy == 'true' }}
