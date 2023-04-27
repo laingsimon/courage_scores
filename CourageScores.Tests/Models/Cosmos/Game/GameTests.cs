@@ -49,15 +49,35 @@ public class GameTests
     }
 
     [Test]
-    public void Accept_GivenSomeMatches_VisitsTeamsAsPlayed()
+    public void Accept_GivenSomeMatchesWithHomeScores_VisitsTeamsAsPlayed()
     {
         var visitor = new Mock<IGameVisitor>();
-        _game.Matches.Add(new GameMatch());
+        _game.Matches.Add(new GameMatch { HomeScore = 1 });
 
         _game.Accept(visitor.Object);
 
         visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Played));
         visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Played));
+    }
+
+    [Test]
+    public void Accept_GivenSomeMatchesWithAwayScores_VisitsTeamsAsPlayed()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        _game.Matches.Add(new GameMatch { AwayScore = 1 });
+        _game.Accept(visitor.Object);
+        visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Played));
+        visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Played));
+    }
+
+    [Test]
+    public void Accept_GivenSomeMatchesWithoutScores_VisitsTeamsAsPending()
+    {
+        var visitor = new Mock<IGameVisitor>();
+        _game.Matches.Add(new GameMatch());
+        _game.Accept(visitor.Object);
+        visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Pending));
+        visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Pending));
     }
 
     [Test]
