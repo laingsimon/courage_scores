@@ -120,7 +120,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             visitor.VisitManOfTheMatch(Home.ManOfTheMatch);
         }
 
-        visitor.VisitTeam(Away, Matches.Any(m => m.HomeScore > 0 || m..AwayScore > 0) ? GameState.Played : GameState.Pending);
+        visitor.VisitTeam(Away, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
         if (Away.ManOfTheMatch != null)
         {
             visitor.VisitManOfTheMatch(Away.ManOfTheMatch);
