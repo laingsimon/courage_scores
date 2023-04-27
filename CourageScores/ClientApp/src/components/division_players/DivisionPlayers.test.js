@@ -114,6 +114,24 @@ describe('DivisionPlayers', () => {
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
         });
 
+        it('excludes players who have not played a singles match', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
+            captain.singles.matchesPlayed = 0;
+            captain.singles.matchesWon = 0;
+            captain.singles.matchesLost = 0;
+
+            await renderComponent(
+                { ...divisionData, onReloadDivision: onReloadDivision },
+                { hideVenue: undefined, hideHeading: undefined });
+
+            expect(reportedError).toBeNull();
+            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            expect(playersRows.length).toEqual(1);
+            assertPlayer(playersRows[0], [ '11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
+        });
+
         it('without heading', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
@@ -168,6 +186,25 @@ describe('DivisionPlayers', () => {
             const heading = context.container.querySelector('.light-background > div > p');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
+        });
+
+        it('includes players who have not played a singles match', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const captain = divisionData.players.filter(p => p.name === 'A captain')[0];
+            captain.singles.matchesPlayed = 0;
+            captain.singles.matchesWon = 0;
+            captain.singles.matchesLost = 0;
+
+            await renderComponent(
+                { ...divisionData, onReloadDivision: onReloadDivision },
+                { hideVenue: undefined, hideHeading: undefined });
+
+            expect(reportedError).toBeNull();
+            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            expect(playersRows.length).toEqual(2);
+            assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', 'A team', '0', '0', '0', '2', '3', '4', '5' ]);
+            assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
         });
 
         it('without heading', async () => {
