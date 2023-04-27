@@ -114,13 +114,13 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             return;
         }
 
-        visitor.VisitTeam(Home, Matches.Any() ? GameState.Played : GameState.Pending);
+        visitor.VisitTeam(Home, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
         if (Home.ManOfTheMatch != null)
         {
             visitor.VisitManOfTheMatch(Home.ManOfTheMatch);
         }
 
-        visitor.VisitTeam(Away, Matches.Any() ? GameState.Played : GameState.Pending);
+        visitor.VisitTeam(Away, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
         if (Away.ManOfTheMatch != null)
         {
             visitor.VisitManOfTheMatch(Away.ManOfTheMatch);
