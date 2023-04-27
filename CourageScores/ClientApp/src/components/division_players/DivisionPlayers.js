@@ -2,8 +2,11 @@ import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../Utilities";
+import {useApp} from "../../AppContainer";
 
 export function DivisionPlayers({ hideVenue, hideHeading, players }) {
+    const { account } = useApp();
+    const isAdmin = account && account.access && account.access.managePlayers;
     const { players: divisionDataPlayers } = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
 
@@ -26,10 +29,13 @@ export function DivisionPlayers({ hideVenue, hideHeading, players }) {
                 </tr>
                 </thead>
                 <tbody>
-                {playersToShow.sort(sortBy('rank')).map(player => (<DivisionPlayer
-                    key={player.id}
-                    player={player}
-                    hideVenue={hideVenue} />))}
+                {playersToShow
+                    .filter(p => isAdmin || p.singles.matchesPlayed > 0)
+                    .sort(sortBy('rank'))
+                    .map(player => (<DivisionPlayer
+                        key={player.id}
+                        player={player}
+                        hideVenue={hideVenue} />))}
                 </tbody>
             </table>
         </div>
