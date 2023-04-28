@@ -1,5 +1,3 @@
-using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services.Identity;
 using Microsoft.Extensions.Caching.Memory;
@@ -15,11 +13,6 @@ public class CachingSeasonService : CachingDataService<Models.Cosmos.Season, Sea
         :base(seasonService, memoryCache, userService, accessor)
     {
         _seasonService = seasonService;
-    }
-
-    public Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProposeGames(AutoProvisionGamesRequest request, CancellationToken token)
-    {
-        return _seasonService.ProposeGames(request, token);
     }
 
     public Task<SeasonDto?> GetLatest(CancellationToken token)

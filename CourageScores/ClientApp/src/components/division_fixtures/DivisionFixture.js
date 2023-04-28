@@ -142,7 +142,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
-               ? !fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
+               ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
                    ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</Link>)
                    : null
                : 'Bye');
@@ -250,25 +250,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 return;
             }
 
-            if (!window.confirm(`Are you sure you want to delete this ${fixture.proposal ? 'proposal' : 'fixture'}?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
-                return;
-            }
-
-            if (fixture.proposal) {
-                // remove the proposal
-                if (onUpdateFixtures) {
-                    await onUpdateFixtures(currentFixtureDates => {
-                        const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
-                        if (!fixtureDate) {
-                            window.alert(`Could not delete proposal, ${date} could not be found`);
-                            return currentFixtureDates;
-                        }
-                        fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id);
-                        return currentFixtureDates;
-                    });
-                } else {
-                    window.alert('Cannot delete proposal');
-                }
+            if (!window.confirm(`Are you sure you want to delete this fixture?\n\n${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`)) {
                 return;
             }
 
@@ -288,33 +270,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         }
     }
 
-    async function saveProposal() {
-        setSaving(true);
-        try {
-            const result = await gameApi.update({
-                id: fixture.id,
-                address: fixture.homeTeam.address,
-                date: date,
-                divisionId: divisionId,
-                homeTeamId: fixture.homeTeam.id,
-                awayTeamId: fixture.awayTeam.id,
-                seasonId: season.id,
-                accoladesCount: true,
-            });
-
-            if (result.success) {
-                await onReloadDivision();
-            } else {
-                setSaveError(result);
-            }
-        } finally {
-            setSaving(false);
-        }
-    }
-
-    return (<tr className={(deleting ? 'text-decoration-line-through' : '') + (fixture.proposal ? ' bg-yellow' : '')}>
+    return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
         <td>
-            {!fixture.proposal && awayTeamId && (fixture.id !== fixture.homeTeam.id)
+            {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
                : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
         </td>
@@ -332,8 +290,6 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 : null}
             {fixture.id !== fixture.homeTeam.id && awayTeamId && !saving && !deleting ? (
                 <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
-            {fixture.proposal && awayTeamId && !saving && !deleting ? (
-                <button disabled={readOnly} className="btn btn-sm btn-success" onClick={saveProposal}>💾</button>) : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save fixture details"/>) : null}
         </td>) : null}

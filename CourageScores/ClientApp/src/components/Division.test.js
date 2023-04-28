@@ -251,7 +251,6 @@ describe('Division', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away1' },
                     isKnockout: false,
                     postponed: false,
-                    proposal: false
                 }, {
                     id: createTemporaryId(),
                     homeScore: 3,
@@ -260,7 +259,6 @@ describe('Division', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away2 - knockout' },
                     isKnockout: true,
                     postponed: false,
-                    proposal: false
                 }, {
                     id: createTemporaryId(),
                     homeScore: 0,
@@ -269,7 +267,6 @@ describe('Division', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away3' },
                     isKnockout: false,
                     postponed: true,
-                    proposal: false
                 }, {
                     id: createTemporaryId(),
                     homeScore: null,
@@ -277,7 +274,6 @@ describe('Division', () => {
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []

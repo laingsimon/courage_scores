@@ -95,8 +95,8 @@ describe('DivisionFixtures', () => {
 
     function getFixtureDateElement(index) {
         const fixtureElements = context.container.querySelectorAll('div.light-background > div');
-        expect(fixtureElements.length).toEqual(2 + (account ? 2 : 0));
-        const fixtureDatesContainer = fixtureElements[1 + (account ? 1 : 0)];
+        expect(fixtureElements.length).toEqual(2 + (account ? 1 : 0));
+        const fixtureDatesContainer = fixtureElements[1];
         const fixtureDates = fixtureDatesContainer.children;
         expect(fixtureElements.length).toBeGreaterThan(index);
         return fixtureDates[index];
@@ -149,7 +149,6 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away1' },
                     isKnockout: false,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -178,7 +177,6 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away2 - knockout' },
                     isKnockout: true,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -207,7 +205,6 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away3' },
                     isKnockout: false,
                     postponed: true,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -235,7 +232,6 @@ describe('DivisionFixtures', () => {
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -361,7 +357,6 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away1', address: 'away1' },
                     isKnockout: false,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -390,7 +385,6 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: createTemporaryId(), name: 'away2 - knockout', address: 'away2' },
                     isKnockout: true,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -419,7 +413,6 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: divisionData.teams[0].id, name: 'away3', address: 'away3' },
                     isKnockout: false,
                     postponed: true,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -448,7 +441,6 @@ describe('DivisionFixtures', () => {
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
-                    proposal: false
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
