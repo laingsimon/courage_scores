@@ -22,9 +22,9 @@ public class RequestedDivisionOnlyReport : IReport
             || (_currentTournament != null && (_currentTournament.DivisionId == _requestedDivisionId || _currentTournament.DivisionId == null));
     }
 
-    public Task<ReportDto> GetReport(IPlayerLookup playerLookup)
+    public Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
-        return _report.GetReport(playerLookup);
+        return _report.GetReport(playerLookup, token);
     }
 
     public void VisitGame(Models.Cosmos.Game.Game game)

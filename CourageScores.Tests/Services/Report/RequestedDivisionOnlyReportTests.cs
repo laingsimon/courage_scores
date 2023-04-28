@@ -9,6 +9,8 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class RequestedDivisionOnlyReportTests
 {
+    private readonly CancellationToken _token = new CancellationToken();
+
     [Test]
     public async Task GetReport_ReturnsUnderlyingReport()
     {
@@ -17,12 +19,12 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         var reportDto = new ReportDto();
         underlying
-            .Setup(r => r.GetReport(playerLookup.Object))
+            .Setup(r => r.GetReport(playerLookup.Object, _token))
             .ReturnsAsync(reportDto);
 
-        var result = await report.GetReport(playerLookup.Object);
+        var result = await report.GetReport(playerLookup.Object, _token);
 
-        underlying.Verify(r => r.GetReport(playerLookup.Object));
+        underlying.Verify(r => r.GetReport(playerLookup.Object, _token));
         Assert.That(result, Is.SameAs(reportDto));
     }
 

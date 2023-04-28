@@ -7,6 +7,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class ManOfTheMatchReportTests
 {
+    private readonly CancellationToken _token = new CancellationToken();
     private readonly Guid _daveId = Guid.NewGuid();
     private readonly Guid _jonId = Guid.NewGuid();
     private readonly PlayerDetails _dave = new PlayerDetails { PlayerName = "Dave", TeamName = "TEAM1", TeamId = Guid.NewGuid(), };
@@ -28,7 +29,7 @@ public class ManOfTheMatchReportTests
     {
         var report = new ManOfTheMatchReport(topCount: 3);
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows, Is.Empty);
     }
@@ -39,7 +40,7 @@ public class ManOfTheMatchReportTests
         var report = new ManOfTheMatchReport(topCount: 3);
         report.VisitManOfTheMatch(null);
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows, Is.Empty);
     }
@@ -51,7 +52,7 @@ public class ManOfTheMatchReportTests
         report.VisitManOfTheMatch(_jonId);
         report.VisitManOfTheMatch(_jonId);
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[] { _jonId }));
         Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[] { _jon.PlayerName }));
@@ -67,7 +68,7 @@ public class ManOfTheMatchReportTests
         report.VisitManOfTheMatch(_jonId);
         report.VisitManOfTheMatch(_daveId);
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[] { _jonId, _daveId }));
         Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[] { _jon.PlayerName, _dave.PlayerName }));
@@ -86,7 +87,7 @@ public class ManOfTheMatchReportTests
         report.VisitManOfTheMatch(_daveId);
         report.VisitManOfTheMatch(Guid.NewGuid());
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.PlayerId), Is.EquivalentTo(new[] { _jonId, _daveId }));
         Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[] { _jon.PlayerName, _dave.PlayerName }));
