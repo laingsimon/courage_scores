@@ -15,687 +15,546 @@ using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 
-using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
-
 namespace CourageScores.Tests.Services.Identity;
 
 [TestFixture]
 public class UserServiceTests
 {
-#pragma warning disable CS8618
-    private UserService _service;
-    private Mock<IHttpContextAccessor> _httpContextAccessor;
-    private Mock<IUserRepository> _userRepository;
-    private HttpContext? _httpContext;
-    private Mock<IAuthenticationService> _authenticationService;
-    private Mock<IServiceProvider> _httpContextServices;
-    private ISimpleAdapter<User, UserDto> _userAdapter;
-    private AccessAdapter _accessAdapter;
-    private CancellationToken _token;
-    private Mock<IGenericRepository<CosmosTeam>> _teamRepository;
-#pragma warning restore CS8618
+    private readonly CancellationToken _token = new CancellationToken();
+    private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
+    private Mock<IUserRepository> _userRepository = null!;
+    private ISimpleAdapter<User,UserDto> _userAdapter = null!;
+    private ISimpleAdapter<Access,AccessDto> _accessAdapter = null!;
+    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Team.Team>> _teamRepository = null!;
+    private UserService _service = null!;
+    private DefaultHttpContext? _httpContext;
+    private Mock<IServiceProvider> _httpContextServices = null!;
+    private Mock<IAuthenticationService> _authenticationService = null!;
+    private List<CourageScores.Models.Cosmos.Team.Team> _allTeams = null!;
 
     [SetUp]
-    public void Setup()
+    public void SetupEachTest()
     {
+        _allTeams = new List<CourageScores.Models.Cosmos.Team.Team>();
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userRepository = new Mock<IUserRepository>();
-        _authenticationService = new Mock<IAuthenticationService>();
         _accessAdapter = new AccessAdapter();
         _userAdapter = new UserAdapter(_accessAdapter);
-        _teamRepository = new Mock<IGenericRepository<CosmosTeam>>();
-        _service = new UserService(_httpContextAccessor.Object, _userRepository.Object, _userAdapter, _accessAdapter, _teamRepository.Object);
+        _teamRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Team.Team>>();
         _httpContextServices = new Mock<IServiceProvider>();
-        _token = new CancellationToken();
+        _authenticationService = new Mock<IAuthenticationService>();
+        _httpContext = new DefaultHttpContext
+        {
+            RequestServices = _httpContextServices.Object,
+        };
 
-        _httpContextServices
-            .Setup(p => p.GetService(typeof(IAuthenticationService)))
-            .Returns(_authenticationService.Object);
+        _service = new UserService(
+            _httpContextAccessor.Object,
+            _userRepository.Object,
+            _userAdapter,
+            _accessAdapter,
+            _teamRepository.Object);
+
         _httpContextAccessor
             .Setup(a => a.HttpContext)
             .Returns(() => _httpContext);
+        _httpContextServices
+            .Setup(p => p.GetService(typeof(IAuthenticationService)))
+            .Returns(_authenticationService.Object);
+        _teamRepository
+            .Setup(r => r.GetAll(_token))
+            .Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
     }
 
     [Test]
-    public async Task GetUser_WhenNoHttpContext_ReturnsNull()
+    public async Task GetUser_WhenCalledFirstTimeAndNoHttpContext_ReturnsNull()
     {
         _httpContext = null;
 
-        var result = await _service.GetUser(_token);
+        var user = await _service.GetUser(_token);
 
-        Assert.That(result, Is.Null);
+        Assert.That(user, Is.Null);
     }
 
     [Test]
-    public async Task GetUser_WhenNoIdentityAuthenticated_ReturnsNull()
+    public async Task GetUser_WhenCalledFirstTimeAndAuthenticateFails_ReturnsNull()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
         _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.NoResult);
+            .Setup(s => s.AuthenticateAsync(_httpContext!, CookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.Fail("some failure"));
 
-        var result = await _service.GetUser(_token);
+        var user = await _service.GetUser(_token);
 
-        Assert.That(result, Is.Null);
+        Assert.That(user, Is.Null);
     }
 
     [Test]
-    public async Task GetUser_WhenIdentityAuthenticated_UpdatesUser()
+    public async Task GetUser_WhenCalledFirstTimeAndNoIdentities_ReturnsNull()
     {
-        _httpContext = new DefaultHttpContext
+        CreateTicket(new ClaimsPrincipal());
+
+        var user = await _service.GetUser(_token);
+
+        Assert.That(user, Is.Null);
+    }
+
+    [Test]
+    public async Task GetUser_WhenCalledFirstTime_ReturnsUser()
+    {
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+
+        var user = await _service.GetUser(_token);
+
+        Assert.That(user, Is.Not.Null);
+        Assert.That(user!.EmailAddress, Is.EqualTo("simon@email.com"));
+        Assert.That(user.Name, Is.EqualTo("Simon Laing"));
+        Assert.That(user.GivenName, Is.EqualTo("Simon"));
+    }
+
+    [Test]
+    public async Task GetUser_WhenCalledFirstTimeAndUserExistsInDbWithNoTeamIdAndTeamUserFoundForEmailAddress_UpdatesUser()
+    {
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var existingUser = new User
         {
-            RequestServices = _httpContextServices.Object,
+            TeamId = null,
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
+        var teamPlayer = new TeamPlayer
+        {
+            Id = Guid.NewGuid(),
+            EmailAddress = "simon@email.com"
+        };
+        var team = new CourageScores.Models.Cosmos.Team.Team
+        {
+            Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    Players =
+                    {
+                        teamPlayer
+                    }
+                }
+            }
+        };
+        _userRepository
+            .Setup(r => r.GetUser("simon@email.com"))
+            .ReturnsAsync(existingUser);
+        _allTeams.Add(team);
 
         await _service.GetUser(_token);
 
-        _userRepository.Verify(r => r.UpsertUser(It.IsAny<User>()));
+        _userRepository
+            .Verify(r => r.GetUser("simon@email.com"));
+        _userRepository
+            .Verify(r => r.UpsertUser(It.Is<User>(u =>
+                u != existingUser
+                && u.Name == "Simon Laing"
+                && u.GivenName == "Simon"
+                && u.EmailAddress == "simon@email.com"
+                && u.TeamId == team.Id)));
     }
 
     [Test]
-    public async Task GetUser_WhenIdentityAuthenticated_ReturnsUser()
+    public async Task GetUser_WhenCalledFirstTimeAndUserExistsInDbWithNoTeamIdAndTeamUserNotFoundForEmailAddress_UpdatesUser()
     {
-        _httpContext = new DefaultHttpContext
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var existingUser = new User
         {
-            RequestServices = _httpContextServices.Object,
+            TeamId = null,
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-
-        var result = await _service.GetUser(_token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Name, Is.EqualTo("Simon Laing"));
-        Assert.That(result.GivenName, Is.EqualTo("Simon"));
-        Assert.That(result.EmailAddress, Is.EqualTo("email@somewhere.com"));
-        Assert.That(result.Access, Is.Null);
-    }
-
-    [Test]
-    public async Task GetUser_WhenIdentityAuthenticatedAndNonAdminUser_ReturnsUser()
-    {
-        _httpContext = new DefaultHttpContext
+        var team = new CourageScores.Models.Cosmos.Team.Team
         {
-            RequestServices = _httpContextServices.Object,
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var user = new User();
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
-
-        var result = await _service.GetUser(_token);
-
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Access, Is.Null);
-        Assert.That(result.TeamId, Is.Null);
-    }
-
-    [Test]
-    public async Task GetUser_GivenTeamPlayerWithEmailAddress_ThenReturnsTeamId()
-    {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var user = new User();
-        var team = new CosmosTeam
-        {
-            Seasons =
-            {
-                new TeamSeason
-                {
-                    Players =
-                    {
-                        new TeamPlayer
-                        {
-                            EmailAddress = "email@somewhere.com"
-                        }
-                    }
-                }
-            },
             Id = Guid.NewGuid(),
         };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(team));
+        _allTeams.Add(team);
+        _userRepository
+            .Setup(r => r.GetUser("simon@email.com"))
+            .ReturnsAsync(existingUser);
 
-        var result = await _service.GetUser(_token);
+        await _service.GetUser(_token);
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.TeamId, Is.EqualTo(team.Id));
+        _userRepository
+            .Verify(r => r.GetUser("simon@email.com"));
+        _userRepository
+            .Verify(r => r.UpsertUser(It.Is<User>(u =>
+                u != existingUser
+                && u.Name == "Simon Laing"
+                && u.GivenName == "Simon"
+                && u.EmailAddress == "simon@email.com"
+                && u.TeamId == null)));
     }
 
     [Test]
-    public async Task GetUser_GivenTeamPlayerWithEmailAddressInDifferentCase_ThenReturnsTeamId()
+    public async Task GetUser_WhenCalledFirstTimeAndUserExistsInDbWithTeamId_UpdatesUser()
     {
-        _httpContext = new DefaultHttpContext
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var existingUser = new User
         {
-            RequestServices = _httpContextServices.Object,
+            TeamId = Guid.NewGuid(),
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var user = new User();
-        var team = new CosmosTeam
-        {
-            Seasons =
-            {
-                new TeamSeason
-                {
-                    Players =
-                    {
-                        new TeamPlayer
-                        {
-                            EmailAddress = "EMAIL@somewhere.com"
-                        }
-                    }
-                }
-            },
-            Id = Guid.NewGuid(),
-        };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(team));
+        _userRepository
+            .Setup(r => r.GetUser("simon@email.com"))
+            .ReturnsAsync(existingUser);
 
-        var result = await _service.GetUser(_token);
+        await _service.GetUser(_token);
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.TeamId, Is.EqualTo(team.Id));
+        _userRepository
+            .Verify(r => r.GetUser("simon@email.com"));
+        _userRepository
+            .Verify(r => r.UpsertUser(It.Is<User>(u =>
+                u != existingUser
+                && u.Name == "Simon Laing"
+                && u.GivenName == "Simon"
+                && u.EmailAddress == "simon@email.com"
+                && u.TeamId == existingUser.TeamId)));
     }
 
     [Test]
-    public async Task GetUser_WhenIdentityAuthenticatedAndAnAdmin_ReturnsAdminUser()
+    public async Task GetUser_WhenCalledFirstTimeAndUserNotFoundInDb_UpdatesUser()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var user = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            }
-        };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        _userRepository
+            .Setup(r => r.GetUser("simon@email.com"))
+            .ReturnsAsync(() => null);
 
-        var result = await _service.GetUser(_token);
+        await _service.GetUser(_token);
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.Access, Is.Not.Null);
-        Assert.That(result.Access!.ManageAccess, Is.True);
+        _userRepository
+            .Verify(r => r.GetUser("simon@email.com"));
+        _userRepository
+            .Verify(r => r.UpsertUser(It.Is<User>(u =>
+                u.Name == "Simon Laing"
+                && u.GivenName == "Simon"
+                && u.EmailAddress == "simon@email.com")));
     }
 
     [Test]
-    public async Task GetUser_GivenEmailAddressAndNotLoggedIn_ReturnsNull()
+    public async Task GetUser_WhenCalledSecondTimeAndNullReturnedFirstTime_ReturnsNull()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.NoResult);
+        _httpContext = null;
+        var firstUser = await _service.GetUser(_token);
 
-        var result = await _service.GetUser("someoneelse@somewhere.com", _token);
+        var secondUser = await _service.GetUser(_token);
 
-        Assert.That(result, Is.Null);
+        Assert.That(firstUser, Is.Null);
+        Assert.That(secondUser, Is.Null);
     }
 
     [Test]
-    public async Task GetUser_GivenEmailAddressAndNotAnAdmin_ReturnsNull()
+    public async Task GetUser_WhenCalledSecondTime_DoesNotAuthenticateOrUpsert()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        _userRepository
+            .Setup(r => r.GetUser("simon@email.com"))
+            .ReturnsAsync(() => null);
+        var firstUser = await _service.GetUser(_token);
+
+        var secondUser = await _service.GetUser(_token);
+
+        _userRepository.Verify(r => r.GetUser("simon@email.com"), Times.Once);
+        _userRepository.Verify(r => r.UpsertUser(It.IsAny<User>()), Times.Once);
+        _authenticationService.Verify(s => s.AuthenticateAsync(_httpContext!, It.IsAny<string>()), Times.Once);
+        Assert.That(firstUser, Is.Not.Null);
+        Assert.That(secondUser, Is.Not.Null);
+        Assert.That(secondUser!.Name, Is.EqualTo("Simon Laing"));
+        Assert.That(secondUser.EmailAddress, Is.EqualTo("simon@email.com"));
+        Assert.That(secondUser.GivenName, Is.EqualTo("Simon"));
+    }
+
+    [Test]
+    public async Task GetUser_GivenEmailAddressWhenNotLoggedIn_ReturnsNull()
+    {
+        _httpContext = null;
+
+        var user = await _service.GetUser("other@email.com", _token);
+
+        Assert.That(user, Is.Null);
+    }
+
+    [Test]
+    public async Task GetUser_GivenEmailAddressWhenNotPermitted_ReturnsNull()
+    {
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = false,
-            }
+            },
         };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
-        var result = await _service.GetUser("someoneelse@somewhere.com", _token);
+        var user = await _service.GetUser("other@email.com", _token);
 
-        Assert.That(result, Is.Null);
-        _userRepository.Verify(r => r.GetUser("someoneelse@somewhere.com"), Times.Never);
+        Assert.That(user, Is.Null);
     }
 
     [Test]
-    public async Task GetUser_GivenEmailAddressAndAnAdminAndUserNotFound_ReturnsNull()
+    public async Task GetUser_GivenEmailAddressWhenPermitted_ReturnsOtherUserDetails()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = true,
-            }
+            },
         };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _userRepository.Setup(u => u.GetUser("someoneelse@somewhere.com")).ReturnsAsync(() => null);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
+        var otherUser = new User
+        {
+            EmailAddress = "other@email.com",
+            Name = "Other User"
+        };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
 
-        var result = await _service.GetUser("someoneelse@somewhere.com", _token);
+        var user = await _service.GetUser("other@email.com", _token);
 
-        Assert.That(result, Is.Null);
-        _userRepository.Verify(r => r.GetUser("someoneelse@somewhere.com"));
+        Assert.That(user, Is.Not.Null);
+        Assert.That(user!.EmailAddress, Is.EqualTo("other@email.com"));
+        Assert.That(user.Name, Is.EqualTo("Other User"));
     }
 
     [Test]
-    public async Task GetUser_GivenEmailAddressAndAnAdminAndUserFound_ReturnsUser()
+    public async Task GetUser_GivenEmailAddressWhenPermittedAndUserNotFound_ReturnsNull()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        var otherUser = new User { EmailAddress = "someoneelse@somewhere.com" };
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = true,
-            }
+            },
         };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _userRepository.Setup(u => u.GetUser(otherUser.EmailAddress)).ReturnsAsync(() => otherUser);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
 
-        var result = await _service.GetUser(otherUser.EmailAddress, _token);
+        var user = await _service.GetUser("other@email.com", _token);
 
-        Assert.That(result, Is.Not.Null);
-        Assert.That(result!.EmailAddress, Is.EqualTo(otherUser.EmailAddress));
-        _userRepository.Verify(r => r.GetUser(otherUser.EmailAddress));
+        Assert.That(user, Is.Null);
+    }
+
+    [Test]
+    public async Task GetAll_WhenNotLoggedIn_ReturnsEmpty()
+    {
+        _httpContext = null;
+
+        var users = await _service.GetAll(_token).ToList();
+
+        Assert.That(users, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAll_WhenNotPermitted_ReturnsEmpty()
+    {
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = false,
+            },
+        };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+
+        var users = await _service.GetAll(_token).ToList();
+
+        Assert.That(users, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAll_WhenPermitted_ReturnsAllUsers()
+    {
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
+        {
+            Access = new Access
+            {
+                ManageAccess = true,
+            },
+            Name = "Logged in user"
+        };
+        var otherUser = new User
+        {
+            Name = "Other user"
+        };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+        _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(new[] { otherUser, loggedInUser }));
+
+        var users = await _service.GetAll(_token).ToList();
+
+        Assert.That(users.Select(u => u.Name), Is.EquivalentTo(new[] { "Logged in user", "Other user" }));
     }
 
     [Test]
     public async Task UpdateAccess_WhenNotLoggedIn_ReturnsUnsuccessful()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.NoResult);
+        _httpContext = null;
         var update = new UpdateAccessDto();
 
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
     }
 
     [Test]
     public async Task UpdateAccess_WhenNotPermitted_ReturnsUnsuccessful()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = false,
-            }
+            },
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto();
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
     }
 
     [Test]
-    public async Task UpdateAccess_WhenUserToUpdateNotFound_ReturnsUnsuccessful()
+    public async Task UpdateAccess_WhenUserNotFound_ReturnsNotFound()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = true,
-            }
+            },
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _userRepository.Setup(u => u.GetUser("update@somewhere.com")).ReturnsAsync(() => null);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
-            EmailAddress = "update@somewhere.com",
+            EmailAddress = "other@email.com"
         };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
 
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Not found" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not found" }));
     }
 
     [Test]
-    public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsUnsuccessful()
+    public async Task UpdateAccess_WhenRemovingManageAccessFromSelf_ReturnsNotAllowedToRemoveOwnManageAccess()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = true,
-            }
+            },
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
-            EmailAddress = "email@somewhere.com",
+            EmailAddress = "simon@email.com",
             Access = new AccessDto
             {
                 ManageAccess = false,
             }
         };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Cannot remove your own user access" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Cannot remove your own user access" }));
     }
 
     [Test]
-    public async Task UpdateAccess_WhenUpdatingOwnAccess_ReturnsSuccessful()
+    public async Task UpdateAccess_WhenUserFoundWithNoExistingAccess_UpdatesAccess()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = true,
-            }
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
-        var update = new UpdateAccessDto
-        {
-            EmailAddress = "email@somewhere.com",
-            Access = new AccessDto
-            {
-                ManageAccess = true,
-                ExportData = true,
-            }
-        };
-
-        var result = await _service.UpdateAccess(update, _token);
-
-        Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
-        _userRepository.Verify(r => r.UpsertUser(user));
-    }
-
-    [Test]
-    public async Task UpdateAccess_WhenOtherUserAccess_ReturnsSuccessful()
-    {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            }
+            },
         };
         var otherUser = new User
         {
-            Access = new Access
-            {
-                ManageAccess = false,
-            }
+            Name = "Other User"
         };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _userRepository.Setup(u => u.GetUser("other@somewhere.com")).ReturnsAsync(() => otherUser);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
-            EmailAddress = "other@somewhere.com",
+            EmailAddress = "other@email.com",
             Access = new AccessDto
             {
-                ExportData = true,
+                ManageGames = true,
             }
         };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
 
         var result = await _service.UpdateAccess(update, _token);
 
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == true)));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
-        _userRepository.Verify(r => r.UpsertUser(otherUser));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
     }
 
     [Test]
-    public async Task UpdateAccess_WhenOtherUserWithoutAnyAccess_ReturnsSuccessful()
+    public async Task UpdateAccess_WhenUserFoundWithExistingAccess_UpdatesAccess()
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
+        CreateTicket("Simon Laing", "simon@email.com", "Simon");
+        var loggedInUser = new User
         {
             Access = new Access
             {
                 ManageAccess = true,
+            },
+        };
+        var otherUser = new User
+        {
+            Name = "Other User",
+            Access = new Access
+            {
+                ManageGames = true,
             }
         };
-        var otherUser = new User();
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _userRepository.Setup(u => u.GetUser("other@somewhere.com")).ReturnsAsync(() => otherUser);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
         var update = new UpdateAccessDto
         {
-            EmailAddress = "other@somewhere.com",
+            EmailAddress = "other@email.com",
             Access = new AccessDto
             {
-                ExportData = true,
+                ManageGames = false,
             }
         };
+        _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
+        _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
 
         var result = await _service.UpdateAccess(update, _token);
 
+        _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == false)));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Access updated" }));
-        _userRepository.Verify(r => r.UpsertUser(otherUser));
+        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
     }
 
-    [Test]
-    public async Task GetAll_WhenNotLoggedIn_ReturnsNothing()
+    private void CreateTicket(string fullName, string email, string givenName)
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.NoResult);
+        var identity = new GenericIdentity(fullName, "type");
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", email));
+        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", givenName));
 
-        var result = await _service.GetAll(_token).ToList();
-
-        Assert.That(result, Is.Empty);
+        CreateTicket(new ClaimsPrincipal(identity));
     }
 
-    [Test]
-    public async Task GetAll_WhenNotPermitted_ReturnsNothing()
+    private void CreateTicket(ClaimsPrincipal principal)
     {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = false,
-            }
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
+        var ticket = new AuthenticationTicket(principal, CookieAuthenticationDefaults.AuthenticationScheme);
         _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
+            .Setup(s => s.AuthenticateAsync(_httpContext!, CookieAuthenticationDefaults.AuthenticationScheme))
             .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
-
-        var result = await _service.GetAll(_token).ToList();
-
-        Assert.That(result, Is.Empty);
-    }
-
-    [Test]
-    public async Task GetAll_WhenPermitted_ReturnsUsersAndAccess()
-    {
-        _httpContext = new DefaultHttpContext
-        {
-            RequestServices = _httpContextServices.Object,
-        };
-        var user = new User
-        {
-            Access = new Access
-            {
-                ManageAccess = true,
-            }
-        };
-        var identity = new GenericIdentity("Simon Laing", "type");
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", "email@somewhere.com"));
-        identity.AddClaim(new Claim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname", "Simon"));
-        var ticket = new AuthenticationTicket(new ClaimsPrincipal(identity), CookieAuthenticationDefaults.AuthenticationScheme);
-        _authenticationService
-            .Setup(s => s.AuthenticateAsync(_httpContext, CookieAuthenticationDefaults.AuthenticationScheme))
-            .ReturnsAsync(AuthenticateResult.Success(ticket));
-        _userRepository.Setup(u => u.GetUser("email@somewhere.com")).ReturnsAsync(() => user);
-        _userRepository.Setup(u => u.GetAll()).Returns(TestUtilities.AsyncEnumerable(user));
-        _teamRepository.Setup(r => r.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<CosmosTeam>());
-
-        var result = await _service.GetAll(_token).ToList();
-
-        Assert.That(result, Is.Not.Empty);
     }
 }

@@ -47,7 +47,7 @@ public class ReportService : IReportService
 
         var reportVisitors = GetReportVisitors(request, user).ToArray();
         var reportVisitor = new CompositeGameVisitor(reportVisitors, user.Access.ManageScores);
-        var games = _gameRepository.GetSome($"t.DivisionId = '{request.DivisionId}' and t.SeasonId = '{request.SeasonId}'", token);
+        var games = _gameRepository.GetSome($"t.SeasonId = '{request.SeasonId}'", token);
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
 
@@ -62,7 +62,7 @@ public class ReportService : IReportService
         {
             DivisionId = request.DivisionId,
             SeasonId = request.SeasonId,
-            Reports = await reportVisitors.SelectAsync(v => v.GetReport(playerLookup)).ToList(),
+            Reports = await reportVisitors.SelectAsync(v => v.GetReport(playerLookup, token)).ToList(),
             Messages =
             {
                 $"{gameCount} games inspected",
@@ -71,16 +71,16 @@ public class ReportService : IReportService
         };
     }
 
-    private IEnumerable<IReport> GetReportVisitors(ReportRequestDto request, UserDto user)
+    private static IEnumerable<IReport> GetReportVisitors(ReportRequestDto request, UserDto user)
     {
         if (user.Access!.ManageScores)
         {
             yield return new ManOfTheMatchReport(request.TopCount);
         }
 
-        yield return new MostPlayedPlayerReport(topCount: request.TopCount);
-        yield return new MostOneEightiesReport(request.TopCount);
-        yield return new HighestCheckoutReport(request.TopCount);
+        yield return new RequestedDivisionOnlyReport(new MostPlayedPlayerReport(topCount: request.TopCount), request.DivisionId);
+        yield return new RequestedDivisionOnlyReport(new MostOneEightiesReport(request.TopCount), request.DivisionId);
+        yield return new RequestedDivisionOnlyReport(new HighestCheckoutReport(request.TopCount), request.DivisionId);
     }
 
     private ReportCollectionDto UnableToProduceReport(string reason, ReportRequestDto request)

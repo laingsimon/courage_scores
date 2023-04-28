@@ -1,21 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {ProposeGamesDialog} from "./ProposeGamesDialog";
+import React, {useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
 import {any, isEmpty, sortBy, stateChanged} from "../../Utilities";
-import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {changeFilter, initFilter} from "./FilterUtilities";
-import {
-    beginProposeFixtures,
-    proposeFixtures,
-    renderSavingProposalsDialog,
-    saveProposal,
-    saveProposals
-} from "./ProposalUtilities";
 import {Dialog} from "../common/Dialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
@@ -27,47 +18,9 @@ export function DivisionFixtures({ setNewFixtures }) {
     const [ newDate, setNewDate ] = useState('');
     const [ newDateDialogOpen, setNewDateDialogOpen ] = useState(false);
     const [ isKnockout, setIsKnockout ] = useState(false);
-    const [ proposingGames, setProposingGames ] = useState(false);
-    const [ proposalSettings, setProposalSettings ] = useState({
-        divisionId: divisionId,
-        seasonId: season.id,
-        teams: [ ],
-        weekDay: 'Thursday',
-        excludedDates: { },
-        newExclusion: { date: '' },
-        // frequencyDays: 7, not required as weekDay is provided
-        numberOfLegs: 2,
-        // startDate: "2022-01-01" // not required, use season start date
-        logLevel: 'Warning',
-        maxConsecutiveHomeOrAwayFixtures: 3
-    });
-    const [ proposalResponse, setProposalResponse ] = useState(null);
-    const [ proposalSettingsDialogVisible, setProposalSettingsDialogVisible ] = useState(false);
-    const [ savingProposals, setSavingProposals ] = useState(null);
-    const [ cancelSavingProposals, setCancelSavingProposals ] = useState(false);
     const [ filter, setFilter ] = useState(initFilter(location));
     const [ editNote, setEditNote ] = useState(null);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
-    const { seasonApi, gameApi } = useDependencies();
-    const proposalContext = {
-        proposalSettings,
-        setProposalSettings,
-        fixtures,
-        setProposalSettingsDialogVisible,
-        setProposingGames,
-        setProposalResponse,
-        seasonApi,
-        gameApi,
-        setNewFixtures,
-        savingProposals,
-        divisionId,
-        season,
-        setSavingProposals,
-        onReloadDivision,
-        cancelSavingProposals,
-        setCancelSavingProposals,
-        proposalResponse
-    };
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -83,19 +36,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         return newShowPlayers;
     }
 
-    useEffect(() => {
-        if (!proposalContext.savingProposals || proposalContext.cancelSavingProposals || proposalContext.savingProposals.complete || !proposalContext.savingProposals.proposals) {
-            return;
-        }
-
-        if (proposalContext.savingProposals.started) {
-            // noinspection JSIgnoredPromiseFromCall
-            saveProposal(...proposalContext);
-        }
-    },
-        // eslint-disable-next-line
-        [ savingProposals, cancelSavingProposals ]);
-
     async function onTournamentChanged() {
         const divisionData = await onReloadDivision();
         setNewFixtures(divisionData.fixtures);
@@ -108,7 +48,6 @@ export function DivisionFixtures({ setNewFixtures }) {
             date={fixtureDate}
             filter={filter}
             renderContext={renderContext}
-            proposingGames={proposingGames}
             showPlayers={showPlayers}
             startAddNote={startAddNote}
             setEditNote={setEditNote}
@@ -225,30 +164,9 @@ export function DivisionFixtures({ setNewFixtures }) {
     const renderContext = {};
     try {
         const resultsToRender = fixtures.map(renderFixtureDate);
-        const proposals = proposalResponse
-            ? proposalResponse.result.flatMap(date => date.fixtures).filter(f => f.proposal)
-            : [];
         return (<div className="light-background p-3">
             <FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>
-            {proposalSettingsDialogVisible ? (<ProposeGamesDialog
-                onPropose={() => proposeFixtures(...proposalContext)}
-                onClose={() => setProposalSettingsDialogVisible(false)}
-                proposalSettings={proposalSettings}
-                disabled={proposingGames}
-                proposalResponse={proposalResponse}
-                onUpdateProposalSettings={setProposalSettings}/>) : null}
-            {isAdmin && newDateDialogOpen && !proposingGames ? renderNewDateDialog() : null}
-            {savingProposals ? renderSavingProposalsDialog(proposalContext) : null}
-            {isAdmin ? (<div className="mb-3">
-                <button className="btn btn-primary margin-right" onClick={() => beginProposeFixtures(proposalContext)}>
-                    🎲 Propose games...
-                </button>
-                {proposalResponse && any(proposals) ? (
-                    <button className="btn btn-success" onClick={() => saveProposals(...proposalContext)}>
-                        💾 Save proposals...
-                    </button>) : null}
-                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
-            </div>) : null}
+            {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
             <div>
                 {resultsToRender}
                 {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (
