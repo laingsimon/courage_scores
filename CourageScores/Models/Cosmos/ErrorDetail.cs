@@ -1,7 +1,9 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos;
 
+[ExcludeFromCodeCoverage]
 public class ErrorDetail : AuditedEntity, IPermissionedEntity
 {
     public SourceSystem Source { get; set; }

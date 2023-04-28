@@ -17,6 +17,85 @@ public class PlayerLookupTests
     }
 
     [Test]
+    public async Task VisitGame_GivenPostponedFixture_AddsNoPlayers()
+    {
+        var playerId = Guid.NewGuid();
+        var game = new CourageScores.Models.Cosmos.Game.Game
+        {
+            Postponed = true,
+            Home = new GameTeam(),
+            Away = new GameTeam(),
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomePlayers =
+                    {
+                        new GamePlayer { Id = playerId }
+                    }
+                }
+            }
+        };
+        var lookup = new PlayerLookup();
+
+        lookup.VisitGame(game);
+
+        var playerDetails = await lookup.GetPlayer(playerId);
+        Assert.That(playerDetails, Is.Not.Null);
+        Assert.That(playerDetails.PlayerName, Is.Null);
+    }
+
+    [Test]
+    public async Task VisitGame_GivenPlayedFixture_AddsPlayers()
+    {
+        var homeTeam = new GameTeam { Name = "Home team", Id = Guid.NewGuid() };
+        var awayTeam = new GameTeam { Name = "Away team", Id = Guid.NewGuid() };
+        var homePlayerId = Guid.NewGuid();
+        var awayPlayerId = Guid.NewGuid();
+        var game = new CourageScores.Models.Cosmos.Game.Game
+        {
+            Home = homeTeam,
+            Away = awayTeam,
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomePlayers =
+                    {
+                        new GamePlayer
+                        {
+                            Id = homePlayerId,
+                            Name = "Home player",
+                        }
+                    },
+                    AwayPlayers =
+                    {
+                        new GamePlayer
+                        {
+                            Id = awayPlayerId,
+                            Name = "Away player",
+                        }
+                    }
+                }
+            }
+        };
+        var lookup = new PlayerLookup();
+
+        lookup.VisitGame(game);
+
+        var homePlayerDetails = await lookup.GetPlayer(homePlayerId);
+        Assert.That(homePlayerDetails, Is.Not.Null);
+        Assert.That(homePlayerDetails.PlayerName, Is.EqualTo("Home player"));
+        Assert.That(homePlayerDetails.TeamName, Is.EqualTo("Home team"));
+        Assert.That(homePlayerDetails.TeamId, Is.EqualTo(homeTeam.Id));
+        var awayPlayerDetails = await lookup.GetPlayer(awayPlayerId);
+        Assert.That(awayPlayerDetails, Is.Not.Null);
+        Assert.That(awayPlayerDetails.PlayerName, Is.EqualTo("Away player"));
+        Assert.That(awayPlayerDetails.TeamName, Is.EqualTo("Away team"));
+        Assert.That(awayPlayerDetails.TeamId, Is.EqualTo(awayTeam.Id));
+    }
+
+    [Test]
     public async Task GetPlayer_GivenNoPlayers_ReturnsEmptyPlayerDetails()
     {
         var lookup = new PlayerLookup();

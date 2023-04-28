@@ -15,7 +15,7 @@ public class MostPlayedPlayerReport : IReport
         _topCount = topCount;
     }
 
-    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup)
+    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
         return new ReportDto
         {

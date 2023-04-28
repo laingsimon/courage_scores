@@ -8,6 +8,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class HighestCheckoutReportTests
 {
+    private readonly CancellationToken _token = new CancellationToken();
     private readonly Guid _daveId = Guid.NewGuid();
     private readonly Guid _jonId = Guid.NewGuid();
     private readonly PlayerDetails _dave = new PlayerDetails { PlayerName = "Dave", TeamName = "TEAM1", TeamId = Guid.NewGuid(), };
@@ -29,7 +30,7 @@ public class HighestCheckoutReportTests
     {
         var report = new HighestCheckoutReport(topCount: 3);
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows, Is.Empty);
     }
@@ -42,7 +43,7 @@ public class HighestCheckoutReportTests
         report.VisitHiCheckout(new NotablePlayer { Id = _daveId, Notes = null });
         report.VisitHiCheckout(new NotablePlayer { Id = _daveId, Notes = "abcd" });
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows, Is.Empty);
     }
@@ -54,7 +55,7 @@ public class HighestCheckoutReportTests
         report.VisitHiCheckout(new NotablePlayer { Id = _daveId, Notes = "100" });
         report.VisitHiCheckout(new NotablePlayer { Id = _daveId, Notes = "110" });
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[] { _dave.PlayerName }));
         Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[] { _dave.TeamName }));
@@ -70,7 +71,7 @@ public class HighestCheckoutReportTests
         report.VisitHiCheckout(new NotablePlayer { Id = _daveId, Notes = "100" });
         report.VisitHiCheckout(new NotablePlayer { Id = _jonId, Notes = "100" });
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[] { _dave.PlayerName, _jon.PlayerName }));
         Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[] { _dave.TeamName, _jon.TeamName }));
@@ -87,7 +88,7 @@ public class HighestCheckoutReportTests
         report.VisitHiCheckout(new NotablePlayer { Id = _jonId, Notes = "102" });
         report.VisitHiCheckout(new NotablePlayer { Id = Guid.NewGuid(), Notes = "101" });
 
-        var result = await report.GetReport(_playerLookup.Object);
+        var result = await report.GetReport(_playerLookup.Object, _token);
 
         Assert.That(result.Rows.Select(r => r.PlayerName), Is.EquivalentTo(new[] { _dave.PlayerName, _jon.PlayerName }));
         Assert.That(result.Rows.Select(r => r.TeamName), Is.EquivalentTo(new[] { _dave.TeamName, _jon.TeamName }));

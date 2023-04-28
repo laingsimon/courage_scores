@@ -5,5 +5,5 @@ namespace CourageScores.Services.Report;
 
 public interface IReport : IGameVisitor
 {
-    Task<ReportDto> GetReport(IPlayerLookup playerLookup);
+    Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token);
 }
