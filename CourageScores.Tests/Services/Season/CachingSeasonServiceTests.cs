@@ -84,4 +84,15 @@ public class CachingSeasonServiceTests
         Assert.That(result1, Is.SameAs(result2));
         Assert.That(result1, Is.SameAs(_latestSeason));
     }
+
+    [Test]
+    public async Task GetForDate_ShouldNotBeCached()
+    {
+        var date = new DateTime(2001, 02, 03);
+
+        await _service.GetForDate(date, _token);
+        await _service.GetForDate(date, _token);
+
+        _underlyingService.Verify(s => s.GetForDate(date, _token), Times.Exactly(2));
+    }
 }
