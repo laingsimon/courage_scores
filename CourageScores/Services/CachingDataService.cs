@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -89,6 +90,7 @@ public class CachingDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         }
     }
 
+    [ExcludeFromCodeCoverage]
     protected class CacheKey : IEquatable<CacheKey>
     {
         private readonly Guid? _id;
