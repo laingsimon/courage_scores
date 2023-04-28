@@ -8,7 +8,7 @@ import {useApp} from "../../AppContainer";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
 
-export function DivisionFixtureDate({ date, filter, renderContext, proposingGames, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
+export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
     const { account } = useApp();
     const navigate = useNavigate();
     const location = useLocation();
@@ -29,10 +29,6 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
 
     if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
         return null;
-    }
-
-    function hasProposals(fixtures) {
-        return any(fixtures, f => f.proposal);
     }
 
     function toggleShowPlayers(date) {
@@ -62,7 +58,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
             return 'text-primary';
         }
 
-        if (!isInPast(date.date) && !hasProposals(date.fixtures)) {
+        if (!isInPast(date.date)) {
             return 'text-secondary-50';
         }
 
@@ -150,7 +146,6 @@ export function DivisionFixtureDate({ date, filter, renderContext, proposingGame
             {fixturesForDate.filter(isPotentialFixtureValid).map(f => (<DivisionFixture
                 key={f.id}
                 fixture={f}
-                readOnly={proposingGames}
                 date={date.date}
                 onUpdateFixtures={onUpdateFixtures} />))}
             {any(fixturesForDate, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout) || date.isKnockout ? null : tournamentFixturesForDate.map(tournament => (<TournamentFixture
