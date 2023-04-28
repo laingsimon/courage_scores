@@ -1,5 +1,6 @@
 ﻿using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -8,10 +9,12 @@ namespace CourageScores.Models.Adapters;
 public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorDetailAdapter
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISystemClock _clock;
 
-    public ErrorDetailAdapter(IHttpContextAccessor httpContextAccessor)
+    public ErrorDetailAdapter(IHttpContextAccessor httpContextAccessor, ISystemClock clock)
     {
         _httpContextAccessor = httpContextAccessor;
+        _clock = clock;
     }
 
     public Task<ErrorDetailDto> Adapt(IExceptionHandlerPathFeature errorDetails, CancellationToken token)
@@ -20,7 +23,7 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
         {
             Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
-            Time = DateTime.UtcNow,
+            Time = _clock.UtcNow.UtcDateTime,
             UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
             Stack = errorDetails.Error.StackTrace?.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries),
             Type = errorDetails.Error.GetType().Name,
