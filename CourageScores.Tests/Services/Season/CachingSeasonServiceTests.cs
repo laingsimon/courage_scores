@@ -1,5 +1,3 @@
-using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services.Identity;
@@ -16,7 +14,6 @@ namespace CourageScores.Tests.Services.Season;
 public class CachingSeasonServiceTests
 {
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly ActionResultDto<List<DivisionFixtureDateDto>> _proposeGamesFixtures = new();
     private readonly SeasonDto? _latestSeason = new();
     private CachingSeasonService _service = null!;
     private Mock<ISeasonService> _underlyingService = null!;
@@ -45,22 +42,8 @@ public class CachingSeasonServiceTests
         _httpContextAccessor.Setup(a => a.HttpContext).Returns(() => _context);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService
-            .Setup(s => s.ProposeGames(It.IsAny<AutoProvisionGamesRequest>(), _token))
-            .ReturnsAsync(() => _proposeGamesFixtures);
-        _underlyingService
             .Setup(s => s.GetLatest(_token))
             .ReturnsAsync(() => _latestSeason);
-    }
-
-    [Test]
-    public async Task ProposeGames_WhenCalled_CallsUnderlyingService()
-    {
-        var request = new AutoProvisionGamesRequest();
-
-        var result = await _service.ProposeGames(request, _token);
-
-        Assert.That(result, Is.SameAs(_proposeGamesFixtures));
-        _underlyingService.Verify(s => s.ProposeGames(request, _token), Times.Once);
     }
 
     [Test]

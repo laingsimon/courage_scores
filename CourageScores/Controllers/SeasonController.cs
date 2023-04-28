@@ -1,6 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
-using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services.Command;
 using CourageScores.Services.Season;
@@ -44,11 +43,5 @@ public class SeasonController : Controller
     public async Task<ActionResultDto<SeasonDto>> DeleteSeason(Guid id, CancellationToken token)
     {
         return await _seasonService.Delete(id, token);
-    }
-
-    [HttpPost("/api/Season/ProposeGames/")]
-    public async Task<ActionResultDto<List<DivisionFixtureDateDto>>> ProvisionGames([FromBody] AutoProvisionGamesRequest request, CancellationToken token)
-    {
-        return await _seasonService.ProposeGames(request, token);
     }
 }
