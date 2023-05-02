@@ -5,7 +5,9 @@ import {valueChanged} from "../../../Utilities";
 export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
     if (access !== 'admin') {
         return (<div>
-            {fixtureData.isKnockout ? (<span className="fw-bold text-primary">Qualifier at</span>) : <span className="fw-bold text-secondary">Playing at</span>}: {fixtureData.address}
+            {fixtureData.isKnockout
+                ? (<span className="fw-bold text-primary">Qualifier at</span>)
+                : (<span className="fw-bold text-secondary">Playing at</span>)}: {fixtureData.address}
             {fixtureData.postponed ? (<span className="margin-left fw-bold text-danger ml-3">Postponed</span>) : null}
             {fixtureData.home && fixtureData.away ? (<span className="margin-left">
                 <ShareButton text={`Courage League: ${fixtureData.home.name} vs ${fixtureData.away.name}`} />
