@@ -35,11 +35,6 @@ export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData
         return Object.values(players).sort(sortBy('name'));
     }
 
-    if (!account) {
-        // man of the match cannot be displayed when logged out
-        return null;
-    }
-
     try {
         return (<tr>
             <td colSpan="2" className="text-end">
