@@ -141,9 +141,6 @@ export function App() {
             </Layout>
         </AppContainer>);
     } catch (e) {
-        setError({
-            message: e.message,
-            stack: e.stack
-        })
+        onError(e);
     }
 }

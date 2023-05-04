@@ -20,6 +20,7 @@ export function useDependencies() {
     return useContext(DependenciesContext);
 }
 
+/* istanbul ignore next */
 export function IocContainer({ children, ...services }) {
     const settings = new Settings();
     const http = new Http(settings);
