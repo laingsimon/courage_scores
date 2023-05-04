@@ -65,8 +65,7 @@
     },
     "collectCoverageFrom": [
       "!src/api/**/*.js",
-      "!src/tests/**/*.js",
-      "!src/components/Home.js"
+      "!src/tests/**/*.js"
     ]
   },
   "scripts": {

@@ -1,5 +1,6 @@
 import React from 'react';
 
+/* istanbul ignore file */
 export function Home() {
     return (
         <div>
