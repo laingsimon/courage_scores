@@ -62,7 +62,7 @@ describe('App', () => {
         document.body.appendChild(container);
 
         await act(async () => {
-            const component = (<MemoryRouter initialEntries={['/test/*']}>
+            const component = (<MemoryRouter>
                 <IocContainer {...iocProps}>{content}</IocContainer>
             </MemoryRouter>);
             ReactDOM.createRoot(container).render(component);
