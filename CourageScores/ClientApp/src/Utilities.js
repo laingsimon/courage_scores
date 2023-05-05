@@ -112,21 +112,21 @@ export function stateChanged(set) {
 * Return true if there are any items (that match the optional predicate)
 * */
 export function any(iterable, predicate) {
-    return count(iterable, predicate || (_ => true)) > 0;
+    return count(iterable, predicate) > 0;
 }
 
 /*
 * Return true if all of the items are true (or match the optional predicate)
 * */
 export function all(iterable, predicate) {
-    return count(iterable, predicate || (item => item)) === iterable.length;
+    return count(iterable, predicate) === iterable.length;
 }
 
 /*
 * Return true if there are no items (that match the optional predicate)
 * */
 export function isEmpty(iterable, predicate) {
-    return count(iterable, predicate || (_ => true)) === 0;
+    return count(iterable, predicate) === 0;
 }
 
 /*
