@@ -23,8 +23,8 @@ export function doChange(container, selector, text) {
     fireEvent.change(input, { target: { value: text } });
 }
 
-export async function renderApp(iocProps, appProps, content, route, currentPath) {
-    const container = document.createElement('div');
+export async function renderApp(iocProps, appProps, content, route, currentPath, containerTag) {
+    const container = document.createElement(containerTag || 'div');
     document.body.appendChild(container);
 
     if (!route) {

@@ -121,13 +121,13 @@ export function NavMenu() {
                                 </NavLink>
                             </li>)
                             : null}
-                        <li className="nav-item">
+                        {!appLoading ? (<li className="nav-item">
                             {!appLoading && account ?
                                 <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout
                                     ({account.givenName})</a> : null}
                             {!appLoading && !account ?
                                 <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
-                        </li>
+                        </li>) : null}
                     </ul>
                 </Collapse>
             </Navbar>

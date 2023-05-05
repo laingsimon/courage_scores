@@ -6,7 +6,7 @@ import {
     createTemporaryId,
     elementAt,
     isEmpty,
-    max,
+    max, propChanged,
     repeat,
     round2dp,
     sortBy,
@@ -112,6 +112,21 @@ describe('Utilities', () => {
                 { name: 'c' },
                 { name: 'b' },
                 { name: 'a' } ]);
+        });
+
+        it('should sort items by nested property', () => {
+            const items = [
+                { home: { name: 'b' } },
+                { home: { name: 'c' } },
+                { home: { name: 'a' } },
+            ];
+
+            const sorted = items.sort(sortBy('home.name'));
+
+            expect(sorted).toEqual([
+                { home: { name: 'a' } },
+                { home: { name: 'b' } },
+                { home: { name: 'c' } } ]);
         });
     });
 
@@ -327,6 +342,26 @@ describe('Utilities', () => {
             const result = repeat(2, i => i);
 
             expect(result).toEqual([ 0, 1 ]);
+        });
+    });
+
+    describe('propChanged', () => {
+        it('updates single property when named', () => {
+            let newValue;
+
+            const func = propChanged({ name: 'Simon', age: 40 }, v => newValue = v, 'name');
+            func('Laing');
+
+            expect(newValue).toEqual({ name: 'Laing', age: 40 });
+        });
+
+        it('allows property to be provided at update time', () => {
+            let newValue;
+
+            const func = propChanged({ name: 'Simon', age: 40 }, v => newValue = v);
+            func('name', 'Laing');
+
+            expect(newValue).toEqual({ name: 'Laing', age: 40 });
         });
     });
 });

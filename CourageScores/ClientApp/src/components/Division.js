@@ -28,25 +28,7 @@ export function Division() {
             setDivisionData(divisionData);
             return divisionData;
         } catch (e) {
-            if (e.message && e.message.indexOf && e.message.indexOf('Exception') !== -1) {
-                try {
-                    const dotnetException = JSON.parse(e.message);
-
-                    if (dotnetException.Exception) {
-                        const exc = dotnetException.Exception;
-
-                        onError({
-                            message: exc.Message,
-                            stack: exc.StackTrace ? exc.StackTrace.join('\n') : null,
-                            type: exc.Type
-                        });
-                    }
-                } catch (e) {
-                    console.error(e);
-                    // don't hide the original (root cause) error with details of an error during error handling
-                }
-            }
-
+            console.error(e);
             onError(e);
         }
         finally {

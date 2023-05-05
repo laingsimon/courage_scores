@@ -32,11 +32,10 @@ jobs:
           REACT_APP_SHA: "${{ inputs.commit-sha }}"
           REACT_APP_DATE: "${{ inputs.commit-date }}"
 
-#      - name: Report code coverage
-#        uses: romeovs/lcov-reporter-action@v0.2.11
-#        with:
-#          lcov-file: ./CourageScores/ClientApp/coverage/lcov.info
-#          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add coverage comment
+        uses: MishaKav/jest-coverage-comment@main
+        with:
+          coverage-summary-path: ./CourageScores/ClientApp/coverage/coverage-summary.json
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
