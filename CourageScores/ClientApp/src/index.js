@@ -9,10 +9,11 @@ import {IocContainer} from "./IocContainer";
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
+const shouldExcludeSurround = document.location.search.indexOf('surround=false') !== -1;
 
 root.render(
   <BrowserRouter basename={baseUrl}>
     <IocContainer>
-      <App />
+      <App shouldExcludeSurround={shouldExcludeSurround} />
     </IocContainer>
   </BrowserRouter>);

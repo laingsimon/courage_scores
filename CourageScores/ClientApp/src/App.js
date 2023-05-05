@@ -13,12 +13,8 @@ import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
 
-export function App() {
-    const build = {
-        branch: document.querySelector('meta[name="build:branch"]').getAttribute('content'),
-        version: document.querySelector('meta[name="build:sha"]').getAttribute('content'),
-        date: document.querySelector('meta[name="build:date"]').getAttribute('content'),
-    };
+export function App({ shouldExcludeSurround }) {
+    const build = getBuild();
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
@@ -26,6 +22,21 @@ export function App() {
     const [ teams, setTeams ] = useState(toMap([]));
     const [ appLoading, setAppLoading ] = useState(null);
     const [ error, setError ] = useState(null);
+
+    function getBuildDetail(name) {
+        const meta = document.querySelector(`meta[name="build:${name}"]`);
+        return meta
+            ? meta.getAttribute('content')
+            : null;
+    }
+
+    function getBuild() {
+        return {
+            branch: getBuildDetail('branch'),
+            version: getBuildDetail('sha'),
+            date: getBuildDetail('date'),
+        };
+    }
 
     useEffect(() => {
         // should only fire on componentDidMount
@@ -84,10 +95,6 @@ export function App() {
         setAccount(account);
     }
 
-    function shouldExcludeSurround() {
-        return document.location.search.indexOf('surround=false') !== -1;
-    }
-
     async function reportClientSideException(error) {
         const errorDetail = {
             source: "UI",
@@ -111,7 +118,7 @@ export function App() {
         account,
         error,
         appLoading: appLoading === null ? true : appLoading,
-        excludeSurround: shouldExcludeSurround(),
+        excludeSurround: shouldExcludeSurround,
         reloadDivisions,
         reloadAccount,
         reloadAll,
