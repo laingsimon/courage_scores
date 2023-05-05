@@ -113,6 +113,21 @@ describe('Utilities', () => {
                 { name: 'b' },
                 { name: 'a' } ]);
         });
+
+        it('should sort items by nested property', () => {
+            const items = [
+                { home: { name: 'b' } },
+                { home: { name: 'c' } },
+                { home: { name: 'a' } },
+            ];
+
+            const sorted = items.sort(sortBy('home.name'));
+
+            expect(sorted).toEqual([
+                { home: { name: 'a' } },
+                { home: { name: 'b' } },
+                { home: { name: 'c' } } ]);
+        });
     });
 
     describe('createTemporaryId', () => {
