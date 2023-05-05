@@ -12,9 +12,9 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
+import {getBuild, mapForLogging, mapError} from "./AppHelper";
 
 export function App({ shouldExcludeSurround }) {
-    const build = getBuild();
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
@@ -22,21 +22,6 @@ export function App({ shouldExcludeSurround }) {
     const [ teams, setTeams ] = useState(toMap([]));
     const [ appLoading, setAppLoading ] = useState(null);
     const [ error, setError ] = useState(null);
-
-    function getBuildDetail(name) {
-        const meta = document.querySelector(`meta[name="build:${name}"]`);
-        return meta
-            ? meta.getAttribute('content')
-            : null;
-    }
-
-    function getBuild() {
-        return {
-            branch: getBuildDetail('branch'),
-            version: getBuildDetail('sha'),
-            date: getBuildDetail('date'),
-        };
-    }
 
     useEffect(() => {
         // should only fire on componentDidMount
@@ -48,14 +33,7 @@ export function App({ shouldExcludeSurround }) {
     []);
 
     function onError(error) {
-        if (error.stack) {
-            console.error(error);
-        }
-        if (error.message) {
-            setError({ message: error.message, stack: error.stack });
-        } else {
-            setError({ message: error });
-        }
+        setError(mapError(error));
     }
 
     function clearError() {
@@ -96,18 +74,7 @@ export function App({ shouldExcludeSurround }) {
     }
 
     async function reportClientSideException(error) {
-        const errorDetail = {
-            source: "UI",
-            time: new Date().toISOString(),
-            message: error.message,
-            stack: error.stack ? error.stack.split('\n') : null,
-            type: error.type || null,
-            userName: account ? account.name : null,
-            userAgent: Navigator.userAgent,
-            url: window.location.href,
-        };
-
-        await errorApi.add(errorDetail);
+        await errorApi.add(mapForLogging(error, account));
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -126,7 +93,7 @@ export function App({ shouldExcludeSurround }) {
         reloadSeasons,
         onError,
         clearError,
-        build,
+        build: getBuild(),
         reportClientSideException,
     };
 
