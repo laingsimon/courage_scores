@@ -77,15 +77,24 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     async function homeScoreChanged(newScore) {
-        try {
-            const newMatch = Object.assign({}, match);
-            newMatch.homeScore = newScore ? Number.parseInt(newScore) : null;
+        await scoreChanged(newScore, 'home');
+    }
 
-            if (newScore && newMatch.homeScore > matchOptions.numberOfLegs) {
-                newMatch.homeScore = matchOptions.numberOfLegs;
+    async function scoreChanged(newScore, side) {
+        try {
+            const oppositeSide = side = 'home' ? 'away' : 'home';
+            const oppositeScore = match[oppositeSide + 'Score'];
+            const newMatch = Object.assign({}, match);
+            const intScore = newScore ? Number.parseInt(newScore) : null;
+            newMatch[side + 'Score'] = intScore;
+            const numberOfLegs = matchOptions.numberOfLegs;
+
+            if (intScore && intScore > numberOfLegs) {
+                newMatch[side + 'Score'] = numberOfLegs;
             }
-            if (newScore && newMatch.awayScore + newMatch.homeScore > matchOptions.numberOfLegs) {
-                newMatch.awayScore = matchOptions.numberOfLegs - newMatch.homeScore;
+
+            if (intScore + oppositeScore > numberOfLegs) {
+                newMatch[oppositeSide + 'Score'] = numberOfLegs - intScore;
             }
 
             if (onMatchChanged) {
@@ -97,23 +106,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     async function awayScoreChanged(newScore) {
-        try {
-            const newMatch = Object.assign({}, match);
-            newMatch.awayScore = newScore ? Number.parseInt(newScore) : null;
-
-            if (newScore && newMatch.awayScore > matchOptions.numberOfLegs) {
-                newMatch.awayScore = matchOptions.numberOfLegs;
-            }
-            if (newScore && newMatch.awayScore + newMatch.homeScore > matchOptions.numberOfLegs) {
-                newMatch.homeScore = matchOptions.numberOfLegs - newMatch.awayScore;
-            }
-
-            if (onMatchChanged) {
-                await onMatchChanged(newMatch);
-            }
-        } catch (e) {
-            onError(e);
-        }
+        await scoreChanged(newScore, 'away');
     }
 
     function exceptPlayers(playerIndex, propertyName) {
