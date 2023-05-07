@@ -211,7 +211,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 {saygOpen ? renderSaygDialog() : null}
                 {playerIndexes().map(index => disabled
                     ? (<div key={index}><Link
-                        to={`/division/${divisionId}/player:${player(index, 'home').id}/${seasonId}`}>{homePlayer(index).name}</Link>
+                        to={`/division/${divisionId}/player:${player(index, 'home').id}/${seasonId}`}>{player(index, 'home').name}</Link>
                     </div>)
                     : (<div key={index}><PlayerSelection
                         disabled={disabled}
@@ -252,7 +252,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
                 {playerIndexes().map(index => disabled
                     ? (<div key={index}><Link
-                        to={`/division/${divisionId}/player:${player(index, 'away').id}/${seasonId}`}>{awayPlayer(index).name}</Link>
+                        to={`/division/${divisionId}/player:${player(index, 'away').id}/${seasonId}`}>{player(index, 'away').name}</Link>
                     </div>)
                     : (<div key={index}>
                         <PlayerSelection
