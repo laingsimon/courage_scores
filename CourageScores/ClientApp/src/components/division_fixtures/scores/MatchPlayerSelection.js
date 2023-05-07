@@ -26,46 +26,23 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         return matchPlayers[index] || {};
     }
 
-    async function homePlayerChanged(index, player) {
+    async function playerChanged(index, player, side) {
         try {
             if (player && player.id === NEW_PLAYER) {
-                setCreatePlayerFor({index, side: 'home'});
+                setCreatePlayerFor({index, side});
                 return;
             }
 
-            const newMatch = Object.assign({homePlayers: []}, match);
-            const existingPlayer = newMatch.homePlayers[index];
+            const emptyMatch = {};
+            emptyMatch[side + 'Players'] = [];
+            const newMatch = Object.assign(emptyMatch, match);
+            const existingPlayer = newMatch[side + 'Players'][index];
             if (player) {
-                newMatch.homePlayers[index] = Object.assign({}, existingPlayer, player);
+                newMatch[side + 'Players'][index] = Object.assign({}, existingPlayer, player);
             } else {
-                newMatch.homeScore = null;
+                newMatch[side + 'Score'] = null;
                 newMatch.sayg = null;
-                newMatch.homePlayers.splice(index, 1);
-            }
-
-            if (onMatchChanged) {
-                await onMatchChanged(newMatch);
-            }
-        } catch (e) {
-            onError(e);
-        }
-    }
-
-    async function awayPlayerChanged(index, player) {
-        try {
-            if (player && player.id === NEW_PLAYER) {
-                setCreatePlayerFor({index, side: 'away'});
-                return;
-            }
-
-            const newMatch = Object.assign({awayPlayers: []}, match);
-            const existingPlayer = newMatch.awayPlayers[index];
-            if (player) {
-                newMatch.awayPlayers[index] = Object.assign({}, existingPlayer, player);
-            } else {
-                newMatch.awayScore = null;
-                newMatch.sayg = null;
-                newMatch.awayPlayers.splice(index, 1);
+                newMatch[side + 'Players'].splice(index, 1);
             }
 
             if (onMatchChanged) {
@@ -250,7 +227,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         players={homePlayers}
                         selected={player(index, 'home')}
                         except={exceptPlayers(index, 'homePlayers')}
-                        onChange={(elem, player) => homePlayerChanged(index, player)}/></div>))}
+                        onChange={(elem, player) => playerChanged(index, player, 'home')}/></div>))}
             </td>
             <td className={`narrow-column align-middle text-end ${match.homeScore !== null && match.awayScore !== null && match.homeScore > match.awayScore ? 'bg-winner' : ''}`}>
                 {disabled
@@ -292,7 +269,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                             players={awayPlayers}
                             selected={player(index, 'away')}
                             except={exceptPlayers(index, 'awayPlayers')}
-                            onChange={(elem, player) => awayPlayerChanged(index, player)}/>
+                            onChange={(elem, player) => playerChanged(index, player, 'away')}/>
                     </div>))}
             </td>
         </tr>);
