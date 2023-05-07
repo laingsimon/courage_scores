@@ -16,20 +16,14 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
 
-    function homePlayer(index) {
-        if (!match.homePlayers || match.homePlayers.length <= index) {
+    function player(index, side) {
+        const matchPlayers = match[side + 'Players'];
+
+        if (!matchPlayers || matchPlayers.length <= index) {
             return {};
         }
 
-        return match.homePlayers[index] || {};
-    }
-
-    function awayPlayer(index) {
-        if (!match.awayPlayers || match.awayPlayers.length <= index) {
-            return {};
-        }
-
-        return match.awayPlayers[index] || {};
+        return matchPlayers[index] || {};
     }
 
     async function homePlayerChanged(index, player) {
@@ -261,7 +255,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         disabled={disabled}
                         readOnly={readOnly}
                         players={homePlayers}
-                        selected={homePlayer(index)}
+                        selected={player(index, 'home')}
                         except={exceptPlayers(index, 'homePlayers')}
                         onChange={(elem, player) => homePlayerChanged(index, player)}/></div>))}
             </td>
@@ -303,7 +297,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                             disabled={disabled}
                             readOnly={readOnly}
                             players={awayPlayers}
-                            selected={awayPlayer(index)}
+                            selected={player(index, 'away')}
                             except={exceptPlayers(index, 'awayPlayers')}
                             onChange={(elem, player) => awayPlayerChanged(index, player)}/>
                     </div>))}
