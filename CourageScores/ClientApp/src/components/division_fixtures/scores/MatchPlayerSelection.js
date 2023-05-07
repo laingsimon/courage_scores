@@ -53,10 +53,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         }
     }
 
-    async function homeScoreChanged(newScore) {
-        await scoreChanged(newScore, 'home');
-    }
-
     async function scoreChanged(newScore, side) {
         try {
             const oppositeSide = side = 'home' ? 'away' : 'home';
@@ -80,10 +76,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         } catch (e) {
             onError(e);
         }
-    }
-
-    async function awayScoreChanged(newScore) {
-        await scoreChanged(newScore, 'away');
     }
 
     function exceptPlayers(playerIndex, propertyName) {
@@ -238,7 +230,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                         type="number" max="5" min="0"
                         value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
-                        onChange={stateChanged(homeScoreChanged)}/>)}
+                        onChange={stateChanged(async newScore => await acoreChanged(newScore, 'home'))}/>)}
             </td>
             <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
             <td className={`narrow-column align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
@@ -250,7 +242,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                         type="number" max="5" min="0"
                         value={match.awayScore === null || match.homeScore === undefined ? '' : match.awayScore}
-                        onChange={stateChanged(awayScoreChanged)}/>)}
+                        onChange={stateChanged(async newScore => scoreChanged(newScore, 'away'))}/>)}
             </td>
             <td className={`${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner ' : ''}width-50-pc position-relative`}>
                 {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
