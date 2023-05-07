@@ -211,7 +211,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 {saygOpen ? renderSaygDialog() : null}
                 {playerIndexes().map(index => disabled
                     ? (<div key={index}><Link
-                        to={`/division/${divisionId}/player:${homePlayer(index).id}/${seasonId}`}>{homePlayer(index).name}</Link>
+                        to={`/division/${divisionId}/player:${player(index, 'home').id}/${seasonId}`}>{homePlayer(index).name}</Link>
                     </div>)
                     : (<div key={index}><PlayerSelection
                         disabled={disabled}
@@ -230,7 +230,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                         className={readOnly ? 'border-1 border-secondary single-character-input no-spinner' : 'single-character-input no-spinner'}
                         type="number" max="5" min="0"
                         value={match.homeScore === null || match.homeScore === undefined ? '' : match.homeScore}
-                        onChange={stateChanged(async newScore => await acoreChanged(newScore, 'home'))}/>)}
+                        onChange={stateChanged(async newScore => await scoreChanged(newScore, 'home'))}/>)}
             </td>
             <td className="align-middle text-center width-1 middle-vertical-line p-0"></td>
             <td className={`narrow-column align-middle text-start ${match.homeScore !== null && match.awayScore !== null && match.homeScore < match.awayScore ? 'bg-winner' : ''}`}>
@@ -252,7 +252,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
                 {playerIndexes().map(index => disabled
                     ? (<div key={index}><Link
-                        to={`/division/${divisionId}/player:${awayPlayer(index).id}/${seasonId}`}>{awayPlayer(index).name}</Link>
+                        to={`/division/${divisionId}/player:${player(index, 'away').id}/${seasonId}`}>{awayPlayer(index).name}</Link>
                     </div>)
                     : (<div key={index}>
                         <PlayerSelection
