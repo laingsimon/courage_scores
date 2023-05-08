@@ -179,7 +179,7 @@ export function elementAt(items, index, selector) {
 export function repeat(times, itemProvider) {
     const items = [];
     for (let index = 0; index < times; index++) {
-        items.push(itemProvider(index));
+        items.push(itemProvider ? itemProvider(index) : index);
     }
     return items;
 }

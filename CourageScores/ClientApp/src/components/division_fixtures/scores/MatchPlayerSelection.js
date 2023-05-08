@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {Link} from "react-router-dom";
-import {any, propChanged, stateChanged} from "../../../Utilities";
+import {any, propChanged, stateChanged, repeat} from "../../../Utilities";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
@@ -114,13 +114,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     function playerIndexes() {
-        const indexes = [];
-
-        for (let index = 0; index < matchOptions.playerCount; index++) {
-            indexes.push(index);
-        }
-
-        return indexes;
+        return repeat(matchOptions.playerCount);
     }
 
     function renderMatchSettingsDialog() {
