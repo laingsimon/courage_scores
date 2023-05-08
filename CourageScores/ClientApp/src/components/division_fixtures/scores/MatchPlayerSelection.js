@@ -36,13 +36,14 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             const emptyMatch = {};
             emptyMatch[side + 'Players'] = [];
             const newMatch = Object.assign(emptyMatch, match);
-            const existingPlayer = newMatch[side + 'Players'][index];
+            const players = newMatch[side + 'Players'];
+            const existingPlayer = players[index];
             if (player) {
-                newMatch[side + 'Players'][index] = Object.assign({}, existingPlayer, player);
+                players[index] = Object.assign({}, existingPlayer, player);
             } else {
                 newMatch[side + 'Score'] = null;
                 newMatch.sayg = null;
-                newMatch[side + 'Players'].splice(index, 1);
+                players.splice(index, 1);
             }
 
             if (onMatchChanged) {
@@ -113,10 +114,6 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         return exceptPlayerIds;
     }
 
-    function playerIndexes() {
-        return repeat(matchOptions.playerCount);
-    }
-
     function renderMatchSettingsDialog() {
         return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
             <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} />
@@ -128,6 +125,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         const away = match.awayPlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
 
         const updateMatchScore = async (homeScore, awayScore) => {
+            if (readOnly) {
+                return;
+            }
+
             try {
                 const newMatch = Object.assign({}, match);
                 newMatch.homeScore = homeScore;
@@ -203,7 +204,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 {canOpenSayg() ? (<button className="btn btn-sm position-absolute left-0"
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
-                {playerIndexes().map(index => disabled
+                {repeat(matchOptions.playerCount).map(index => disabled
                     ? (<div key={index}><Link
                         to={`/division/${divisionId}/player:${player(index, 'home').id}/${seasonId}`}>{player(index, 'home').name}</Link>
                     </div>)
@@ -244,7 +245,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                     <button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
                             className="btn btn-sm right-0 position-absolute"
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
-                {playerIndexes().map(index => disabled
+                {repeat(matchOptions.playerCount).map(index => disabled
                     ? (<div key={index}><Link
                         to={`/division/${divisionId}/player:${player(index, 'away').id}/${seasonId}`}>{player(index, 'away').name}</Link>
                     </div>)
