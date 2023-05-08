@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 import React from "react";
 import {
     all,
@@ -340,6 +342,12 @@ describe('Utilities', () => {
 
         it('should return array of items', () => {
             const result = repeat(2, i => i);
+
+            expect(result).toEqual([ 0, 1 ]);
+        });
+
+        it('should return array of index', () => {
+            const result = repeat(2);
 
             expect(result).toEqual([ 0, 1 ]);
         });
