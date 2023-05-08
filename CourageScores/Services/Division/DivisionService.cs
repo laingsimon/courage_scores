@@ -90,7 +90,7 @@ public class DivisionService : IDivisionService
             .WhereAsync(n => filter.DivisionId == null || (n.DivisionId == null || n.DivisionId == filter.DivisionId))
             .ToList();
         var games = await _gameRepository
-            .GetSome(filter.DivisionId != null ? $"t.DivisionId = '{filter.DivisionId}'" : $"t.SeasonId = '{season.Id}'",
+            .GetSome(filter.DivisionId != null ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true" : $"t.SeasonId = '{season.Id}'",
                 token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
             .ToList();

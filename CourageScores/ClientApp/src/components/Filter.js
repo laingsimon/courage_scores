@@ -21,7 +21,6 @@ export class AndFilter {
         if (!filters) {
             throw new Error('Filters not supplied');
         }
-
         this._filters = filters;
     }
 

@@ -12,13 +12,9 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
+import {getBuild, mapForLogging, mapError} from "./AppHelper";
 
-export function App() {
-    const build = {
-        branch: document.querySelector('meta[name="build:branch"]').getAttribute('content'),
-        version: document.querySelector('meta[name="build:sha"]').getAttribute('content'),
-        date: document.querySelector('meta[name="build:date"]').getAttribute('content'),
-    };
+export function App({ shouldExcludeSurround }) {
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
@@ -37,14 +33,7 @@ export function App() {
     []);
 
     function onError(error) {
-        if (error.stack) {
-            console.error(error);
-        }
-        if (error.message) {
-            setError({ message: error.message, stack: error.stack });
-        } else {
-            setError({ message: error });
-        }
+        setError(mapError(error));
     }
 
     function clearError() {
@@ -84,23 +73,8 @@ export function App() {
         setAccount(account);
     }
 
-    function shouldExcludeSurround() {
-        return document.location.search.indexOf('surround=false') !== -1;
-    }
-
     async function reportClientSideException(error) {
-        const errorDetail = {
-            source: "UI",
-            time: new Date().toISOString(),
-            message: error.message,
-            stack: error.stack ? error.stack.split('\n') : null,
-            type: error.type || null,
-            userName: account ? account.name : null,
-            userAgent: Navigator.userAgent,
-            url: window.location.href,
-        };
-
-        await errorApi.add(errorDetail);
+        await errorApi.add(mapForLogging(error, account));
     }
 
     // noinspection JSUnusedGlobalSymbols
@@ -111,7 +85,7 @@ export function App() {
         account,
         error,
         appLoading: appLoading === null ? true : appLoading,
-        excludeSurround: shouldExcludeSurround(),
+        excludeSurround: shouldExcludeSurround,
         reloadDivisions,
         reloadAccount,
         reloadAll,
@@ -119,7 +93,7 @@ export function App() {
         reloadSeasons,
         onError,
         clearError,
-        build,
+        build: getBuild(),
         reportClientSideException,
     };
 
@@ -141,9 +115,6 @@ export function App() {
             </Layout>
         </AppContainer>);
     } catch (e) {
-        setError({
-            message: e.message,
-            stack: e.stack
-        })
+        onError(e);
     }
 }

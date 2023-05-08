@@ -31,4 +31,4 @@ jobs:
         with:
           nunit_files: 'CourageScores.Tests/TestResults/*.xml'
           check_run_annotations_branch: '*'
-          comment_mode: off
+          comment_mode: always

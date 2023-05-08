@@ -8,7 +8,7 @@ export function PageError({ error }){
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
-            doReportClientSideException();
+        doReportClientSideException();
     },
     // eslint-disable-next-line
     [errorReported])

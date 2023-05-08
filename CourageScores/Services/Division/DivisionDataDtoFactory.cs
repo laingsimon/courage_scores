@@ -69,6 +69,8 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ThenByDescending(p => p.WinPercentage)
                 .ThenByDescending(p => p.Pairs.MatchesPlayed)
                 .ThenByDescending(p => p.Triples.MatchesPlayed)
+                .ThenByDescending(p => p.OneEighties)
+                .ThenByDescending(p => p.Over100Checkouts)
                 .ThenBy(p => p.Name)
                 .ApplyRanks()
                 .ToList(),
