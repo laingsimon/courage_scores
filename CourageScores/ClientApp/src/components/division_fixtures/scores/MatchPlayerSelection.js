@@ -120,61 +120,42 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
         </Dialog>);
     }
 
+    async function add180(sideName) {
+        try {
+            const players = match[sideName + 'Players'];
+            await on180(players[0]);
+        } catch (e) {
+            onError(e);
+        }
+    }
+
+    async function addHiCheck(sideName, score) {
+        try {
+            const players = match[sideName + 'Players'];
+            await onHiCheck(players[0], score.toString());
+        } catch (e) {
+            onError(e);
+        }
+    }
+
+    const updateMatchScore = async (homeScore, awayScore) => {
+        try {
+            const newMatch = Object.assign({}, match);
+            newMatch.homeScore = homeScore;
+            newMatch.awayScore = awayScore;
+
+            if (onMatchChanged) {
+                await onMatchChanged(newMatch);
+            }
+        } catch (e) {
+            onError(e);
+        }
+    }
+
     function renderSaygDialog() {
         const home = match.homePlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
         const away = match.awayPlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
-
-        const updateMatchScore = async (homeScore, awayScore) => {
-            if (readOnly) {
-                return;
-            }
-
-            try {
-                const newMatch = Object.assign({}, match);
-                newMatch.homeScore = homeScore;
-                newMatch.awayScore = awayScore;
-
-                if (onMatchChanged) {
-                    await onMatchChanged(newMatch);
-                }
-            } catch (e) {
-                onError(e);
-            }
-        }
-
-        async function add180IfSingles(sideName) {
-            if (readOnly) {
-                return;
-            }
-
-            try {
-                const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
-                if (players.length === 1) {
-                    if (on180) {
-                        await on180(players[0]);
-                    }
-                }
-            } catch (e) {
-                onError(e);
-            }
-        }
-
-        async function addHiCheckIfSingles(sideName, score) {
-            if (readOnly) {
-                return;
-            }
-
-            try {
-                const players = sideName === 'home' ? match.homePlayers : match.awayPlayers;
-                if (players.length === 1) {
-                    if (onHiCheck) {
-                        await onHiCheck(players[0], score.toString());
-                    }
-                }
-            } catch (e) {
-                onError(e);
-            }
-        }
+        const singlePlayerMatch = match.homePlayers.length === 1 && match.awayPlayers.length === 1;
 
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(false)} className="text-start">
             <ScoreAsYouGo
@@ -182,13 +163,13 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
                 home={home}
                 away={away}
                 onChange={propChanged(match, onMatchChanged, 'sayg')}
-                onLegComplete={updateMatchScore}
+                onLegComplete={!readOnly ? updateMatchScore : null}
                 startingScore={matchOptions.startingScore}
                 numberOfLegs={matchOptions.numberOfLegs}
                 homeScore={match.homeScore}
                 awayScore={match.awayScore}
-                on180={add180IfSingles}
-                onHiCheck={addHiCheckIfSingles} />
+                on180={singlePlayerMatch && on180 && !readOnly ? add180 : null}
+                onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null} />
         </Dialog>)
     }
 
