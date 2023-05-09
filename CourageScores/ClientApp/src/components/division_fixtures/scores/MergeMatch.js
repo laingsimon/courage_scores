@@ -1,6 +1,7 @@
 import React from 'react';
 import {useApp} from "../../../AppContainer";
 import {matchEquals} from "./MatchComparer";
+import {repeat} from "../../../Utilities";
 
 export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData }) {
     const { onError } = useApp();
@@ -24,13 +25,9 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
     }
 
     function combinePlayers(homePlayers, awayPlayers) {
-        const players = [];
-
-        for (let index = 0; index < Math.max(homePlayers.length, awayPlayers.length); index++) {
-            players.push({ homePlayer: homePlayers[index], awayPlayer: awayPlayers[index] });
-        }
-
-        return players;
+        return repeat(
+            Math.max(homePlayers.length, awayPlayers.length),
+            index => { return { homePlayer: homePlayers[index], awayPlayer: awayPlayers[index] } });
     }
 
     function renderSubmissionMatch(match) {

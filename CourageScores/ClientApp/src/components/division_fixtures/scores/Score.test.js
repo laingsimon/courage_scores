@@ -180,7 +180,7 @@ describe('Score', () => {
             const cellTextValue = cellText[index];
             const expectedCellTextValue = expectedCellText[index];
 
-            expect(cellTextValue).toContain(cellTextValue);
+            expect(cellTextValue).toContain(expectedCellTextValue);
         }
     }
 

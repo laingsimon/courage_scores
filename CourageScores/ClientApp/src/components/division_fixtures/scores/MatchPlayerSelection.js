@@ -81,38 +81,17 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     function exceptPlayers(playerIndex, propertyName) {
-        const exceptPlayerIds = [];
-
-        if (otherMatches) {
-            for (let matchIndex = 0; matchIndex < otherMatches.length; matchIndex++) {
-                const otherMatch = otherMatches[matchIndex];
-                const otherMatchPlayers = otherMatch[propertyName];
-
-                if (otherMatchPlayers) {
-                    for (let otherMatchPlayerIndex = 0; otherMatchPlayerIndex < otherMatchPlayers.length; otherMatchPlayerIndex++) {
-                        const otherMatchPlayer = otherMatchPlayers[otherMatchPlayerIndex];
-                        if (otherMatchPlayer) {
-                            exceptPlayerIds.push(otherMatchPlayer.id);
-                        }
-                    }
-                }
-            }
-        }
+        const exceptPlayerIds = (otherMatches || []).flatMap(otherMatch => {
+            return (otherMatch[propertyName] || []).filter(p => p || false).map(player => player ? player.id : null);
+        });
 
         const playerList = match[propertyName];
         if (!playerList) {
             return exceptPlayerIds;
         }
 
-        for (let index = 0; index < matchOptions.playerCount; index++) {
-            if (playerIndex !== index && playerList.length > index) {
-                if (playerList[index]) {
-                    exceptPlayerIds.push(playerList[index].id);
-                }
-            }
-        }
-
-        return exceptPlayerIds;
+        const additionalPlayers = playerList.filter((_, index) => index !== playerIndex).map(player => player.id);
+        return exceptPlayerIds.concat(additionalPlayers);
     }
 
     function renderMatchSettingsDialog() {

@@ -31,7 +31,6 @@ export function Errors() {
     }
 
     let errorToShow = null;
-    let frameIndex = 0;
     return (<div className="light-background p-3">
         <h3>View recent errors</h3>
         <div className="input-group mb-3">
@@ -65,7 +64,7 @@ export function Errors() {
             {errorToShow.url ? (<p>Url: <a href={errorToShow.url}>{errorToShow.url}</a></p>) : null}
             {errorToShow.type ? (<p>Type: {errorToShow.type}</p>) : null}
             {errorToShow.stack ? (<ol>
-                {errorToShow.stack.map(frame => <li key={frameIndex++} className="no-wrap">{frame}</li>)}
+                {errorToShow.stack.map((frame, index) => <li key={index} className="no-wrap">{frame}</li>)}
             </ol>) : null}
         </div>) : null}
     </div>);

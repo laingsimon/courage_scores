@@ -15,9 +15,8 @@ export function EditTournament({ tournamentData, season, alreadyPlaying, disable
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
 
     function getOtherSides(sideIndex) {
-        let index = 0;
-        return tournamentData.sides.filter(_ => {
-            return index++ !== sideIndex;
+        return tournamentData.sides.filter((side, index) => {
+            return index !== sideIndex;
         });
     }
 
@@ -80,10 +79,17 @@ export function EditTournament({ tournamentData, season, alreadyPlaying, disable
     return (<div className="d-print-none">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
-            {tournamentData.sides.sort(sortBy('name')).map(side => {
-                const thisSideIndex = sideIndex;
-                sideIndex++;
-                return (<TournamentSide key={thisSideIndex} divisionId={tournamentData.divisionId} winner={winningSideId === side.id} readOnly={readOnly} seasonId={season.id} side={side} exceptPlayerIds={alreadyPlaying} onChange={(newSide) => sideChanged(newSide, thisSideIndex)} otherSides={getOtherSides(thisSideIndex)} />); })}
+            {tournamentData.sides.sort(sortBy('name')).map((side, sideIndex) => {
+                return (<TournamentSide
+                    key={sideIndex}
+                    divisionId={tournamentData.divisionId}
+                    winner={winningSideId === side.id}
+                    readOnly={readOnly}
+                    seasonId={season.id}
+                    side={side}
+                    exceptPlayerIds={alreadyPlaying}
+                    onChange={(newSide) => sideChanged(newSide, sideIndex)}
+                    otherSides={getOtherSides(sideIndex)} />); })}
             {readOnly || hasStarted ? null : (<TournamentSide divisionId={tournamentData.divisionId} seasonId={season.id} side={null} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
         </div>
         {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} onHiCheck={add180(tournamentData, setTournamentData)} on180={add180(tournamentData, setTournamentData)} />) : null}

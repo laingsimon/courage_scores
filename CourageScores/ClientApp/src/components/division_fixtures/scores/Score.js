@@ -377,13 +377,10 @@ export function Score() {
     }
 
     function renderMatchPlayerSelection(index, noOfLegs, playerCount) {
-        let matchIndex = 0;
-        const matchesExceptIndex = fixtureData.matches.filter(_ => {
-            let thisMatchIndex = matchIndex;
-            let matchOptions = getMatchOptionDefaults(thisMatchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
-            matchIndex++;
+        const matchesExceptIndex = fixtureData.matches.filter((_, matchIndex) => {
+            let matchOptions = getMatchOptionDefaults(matchIndex, getMatchOptionsLookup(fixtureData.matchOptions))
 
-            return thisMatchIndex !== index && matchOptions.playerCount === playerCount;
+            return matchIndex !== index && matchOptions.playerCount === playerCount;
         });
 
         function onMatchChanged(newMatch, index) {

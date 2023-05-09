@@ -55,9 +55,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     try {
         return (<div>
             <ol className="no-list-indent mb-0">
-                {(players || []).map(p => {
-                    index++;
-                    const playerIndex = index;
+                {(players || []).map((p, playerIndex) => {
                     return (<li key={playerIndex}>{disabled ? renderLinkToPlayer(p) : (<button
                         disabled={disabled || readOnly}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}
