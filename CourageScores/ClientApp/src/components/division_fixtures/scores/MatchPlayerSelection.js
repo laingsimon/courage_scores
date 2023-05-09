@@ -28,6 +28,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     async function playerChanged(index, player, side) {
         try {
+            if (readOnly || disabled) {
+                return;
+            }
+
             if (player && player.id === NEW_PLAYER) {
                 setCreatePlayerFor({index, side});
                 return;
@@ -56,7 +60,11 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     async function scoreChanged(newScore, side) {
         try {
-            const oppositeSide = side = 'home' ? 'away' : 'home';
+            if (readOnly || disabled) {
+                return;
+            }
+
+            const oppositeSide = side === 'home' ? 'away' : 'home';
             const oppositeScore = match[oppositeSide + 'Score'];
             const newMatch = Object.assign({}, match);
             const intScore = newScore ? Number.parseInt(newScore) : null;

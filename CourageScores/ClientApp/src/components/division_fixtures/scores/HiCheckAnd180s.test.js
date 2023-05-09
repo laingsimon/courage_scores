@@ -365,7 +365,7 @@ describe('HiCheckAnd180s', () => {
                const remove180Button = td180s.querySelector('ol > li:first-child > button');
                expect(remove180Button).toBeTruthy();
                expect(remove180Button.textContent).toEqual('HOME player 🗑');
-               await doClick(td180s, 'ol > li:first-child > button');
+               await doClick(remove180Button);
 
                expect(updatedFixtureData).toBeTruthy();
                expect(updatedFixtureData.oneEighties).toEqual([]);
@@ -430,10 +430,10 @@ describe('HiCheckAnd180s', () => {
                await renderComponent(false, 'admin', fixtureData);
                const tdHiChecks = context.container.querySelectorAll('td')[2];
                expect(tdHiChecks).toBeTruthy();
-               const remove180Button = tdHiChecks.querySelector('ol > li:first-child > button');
-               expect(remove180Button).toBeTruthy();
-               expect(remove180Button.textContent).toEqual('HOME player (100) 🗑');
-               await doClick(tdHiChecks, 'ol > li:first-child > button');
+               const removeHiCheckButton = tdHiChecks.querySelector('ol > li:first-child > button');
+               expect(removeHiCheckButton).toBeTruthy();
+               expect(removeHiCheckButton.textContent).toEqual('HOME player (100) 🗑');
+               await doClick(removeHiCheckButton);
 
                expect(updatedFixtureData).toBeTruthy();
                expect(updatedFixtureData.over100Checkouts).toEqual([]);

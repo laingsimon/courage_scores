@@ -337,7 +337,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(awayPlayerMenuItem).toBeTruthy();
                 expect(awayPlayerMenuItem.textContent).toEqual('AWAY player');
 
-                await doClick(homeMOM, 'div.btn-group button[role="menuitem"]:nth-child(2)'); // < unselected, AWAY player, HOME player >
+                await doClick(awayPlayerMenuItem);
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.home.manOfTheMatch).toEqual(awayPlayer.id);
@@ -405,7 +405,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(homePlayerMenuItem).toBeTruthy();
                 expect(homePlayerMenuItem.textContent).toEqual('HOME player');
 
-                await doClick(awayMOM, 'div.btn-group button[role="menuitem"]:nth-child(3)'); // < unselected, AWAY player, HOME player >
+                await doClick(homePlayerMenuItem);
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.away.manOfTheMatch).toEqual(homePlayer.id);
