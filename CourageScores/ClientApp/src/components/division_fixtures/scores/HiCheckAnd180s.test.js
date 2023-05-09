@@ -24,7 +24,10 @@ describe('HiCheckAnd180s', () => {
             {},
             {
                 onError: (err) => {
-                    reportedError = err;
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
                 }
             },
             (<HiCheckAnd180s

@@ -24,7 +24,10 @@ describe('ManOfTheMatchInput', () => {
             {},
             {
                 onError: (err) => {
-                    reportedError = err;
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
                 },
                 account: account,
             },

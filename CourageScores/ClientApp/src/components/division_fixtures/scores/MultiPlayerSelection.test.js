@@ -29,7 +29,10 @@ describe('MultiPlayerSelection', () => {
             {},
             {
                 onError: (err) => {
-                    reportedError = err;
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
                 }
             },
             (<MultiPlayerSelection

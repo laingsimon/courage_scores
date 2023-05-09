@@ -30,7 +30,16 @@ describe('Errors', () => {
         errorToThrow = null;
         context = await renderApp(
             { errorApi: mockErrorApi },
-            { account: {}, appLoading: false, onError: (err) => { reportedError = err; } },
+            {
+                account: {},
+                appLoading: false,
+                onError: (err) => {
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
+                }
+            },
             (<AdminContainer>
                 <Errors />
             </AdminContainer>));

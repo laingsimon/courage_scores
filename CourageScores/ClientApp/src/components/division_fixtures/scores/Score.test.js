@@ -36,7 +36,14 @@ describe('Score', () => {
             {
                 account: account,
                 onError: (err) => {
-                    reportedError = err;
+                    if (err.message) {
+                        reportedError = {
+                            message: err.message,
+                            stack: err.stack
+                        };
+                    } else {
+                        reportedError = err;
+                    }
                 },
                 error: null,
                 ...appData
