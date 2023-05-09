@@ -19,7 +19,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     function player(index, side) {
         const matchPlayers = match[side + 'Players'];
 
-        if (!matchPlayers || matchPlayers.length <= index) {
+        if (!matchPlayers || index >= matchPlayers.length) {
             return {};
         }
 
@@ -60,11 +60,12 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             const oppositeScore = match[oppositeSide + 'Score'];
             const newMatch = Object.assign({}, match);
             const intScore = newScore ? Number.parseInt(newScore) : null;
-            newMatch[side + 'Score'] = intScore;
             const numberOfLegs = matchOptions.numberOfLegs;
 
             if (intScore && intScore > numberOfLegs) {
                 newMatch[side + 'Score'] = numberOfLegs;
+            } else {
+                newMatch[side + 'Score'] = intScore;
             }
 
             if (intScore + oppositeScore > numberOfLegs) {

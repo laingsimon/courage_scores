@@ -16,16 +16,11 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
 
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
-
     const filters = getFilters(filter, renderContext, fixtures);
-    let fixturesForDate = (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
     const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: null, tournamentFixture: f, note: null }));
     const notesForDate = date.notes.filter(n => filters.apply({ date: date.date, fixture: null, tournamentFixture: null, note: n }));
-
     const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);
-    if (!isAdmin && !hasFixtures) {
-        fixturesForDate = []; // no fixtures defined for this date, and not an admin so none can be defined, hide all the teams
-    }
+    const fixturesForDate = (!isAdmin && !hasFixtures) ? [] : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
 
     if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
         return null;
