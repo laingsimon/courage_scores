@@ -12,7 +12,12 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
 
     async function addPlayer() {
         if (!player) {
-            alert('Ensure a player is selected first');
+            window.alert('Ensure a player is selected first');
+            return;
+        }
+
+        if (showNotes && !notes) {
+            window.alert('Enter the score first');
             return;
         }
 
