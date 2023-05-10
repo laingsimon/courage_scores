@@ -1,18 +1,8 @@
-import {max, sortBy} from "../../../Utilities";
+import {max, repeat, sortBy} from "../../../Utilities";
 import React from "react";
 
 export function TournamentSheet({ sides }) {
     const maxSideSize = max(sides, current => current.players ? current.players.length : 0);
-
-    function repeat(count) {
-        const items = [];
-
-        for (let index = 0; index < count; index++) {
-            items.push(index);
-        }
-
-        return items;
-    }
 
     function getRoundName(matches, depth) {
         if (matches === 1) {

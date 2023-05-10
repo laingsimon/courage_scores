@@ -13,7 +13,8 @@ import {
     round2dp,
     sortBy,
     sum,
-    toMap
+    toMap,
+    distinct
 } from './Utilities';
 
 describe('Utilities', () => {
@@ -370,6 +371,50 @@ describe('Utilities', () => {
             func('name', 'Laing');
 
             expect(newValue).toEqual({ name: 'Laing', age: 40 });
+        });
+    });
+
+    describe('distinct', () => {
+        it('should remove duplicates', () => {
+            const items = [
+                { name: 'a' },
+                { name: 'a' },
+                { name: 'b' }
+            ];
+
+            const result = distinct(items, 'name');
+
+            expect(result).toEqual([
+                { name: 'a' },
+                { name: 'b' } ]);
+        });
+
+        it('should sort items by nested property', () => {
+            const items = [
+                { home: { name: 'a' } },
+                { home: { name: 'a' } },
+                { home: { name: 'b' } },
+            ];
+
+            const result = distinct(items, 'home.name');
+
+            expect(result).toEqual([
+                { home: { name: 'a' } },
+                { home: { name: 'b' } } ]);
+        });
+
+        it('should sort items by numerical values', () => {
+            const items = [
+                { age: 1 },
+                { age: 1 },
+                { age: 2 }
+            ];
+
+            const result = distinct(items, 'age');
+
+            expect(result).toEqual([
+                { age: 1 },
+                { age: 2 } ]);
         });
     });
 });

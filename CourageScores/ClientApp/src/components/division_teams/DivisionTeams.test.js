@@ -24,7 +24,10 @@ describe('DivisionTeams', () => {
             {
                 account: account,
                 onError: (err) => {
-                    reportedError = err;
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
                 },
                 error: null,
             },

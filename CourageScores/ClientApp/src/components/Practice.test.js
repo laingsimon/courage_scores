@@ -43,7 +43,10 @@ describe('Practice', () => {
             { saygApi },
             {
                 account: account, appLoading: false, onError: (err) => {
-                    reportedError = err;
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
                 }
             },
             (<Practice/>),

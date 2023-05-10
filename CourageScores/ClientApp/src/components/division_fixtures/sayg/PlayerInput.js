@@ -1,8 +1,10 @@
 import {round2dp, stateChanged} from "../../../Utilities";
 import {useState} from "react";
+import {useApp} from "../../../AppContainer";
 
 export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
     const [ score, setScore ] = useState('');
+    const { onError } = useApp();
     const [ focusEventHandle, setFocusEventHandle ] = useState(null);
     const accumulator = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore = accumulator ? leg.startingScore - accumulator.score : -1;
@@ -37,71 +39,75 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     async function addThrow(scoreInput, noOfDarts, setFocusEvent, bust) {
-        if (focusEventHandle) {
-            window.clearTimeout(focusEventHandle);
-            setFocusEventHandle(null);
-        }
-
-        if (setFocusEvent) {
-            createFocusEvent();
-        }
-
-        const score = Number.parseInt(scoreInput);
-        if (!Number.isFinite(score) || score < 0 || score > 180) {
-            return;
-        }
-
-        const accumulatorName = leg.currentThrow;
-        const newLeg = Object.assign({}, leg);
-        const accumulator = newLeg[accumulatorName];
-        accumulator.throws.push({
-            score,
-            noOfDarts,
-            bust
-        });
-
-        accumulator.noOfDarts += noOfDarts;
-        accumulator.bust = bust;
-
-        const remainingScore = leg.startingScore - (accumulator.score + score);
-        if ((remainingScore !== 0 && remainingScore <= 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
-            accumulator.bust = true;
-            // bust
-        } else {
-            if (!accumulator.bust) {
-                accumulator.score += score;
+        try {
+            if (focusEventHandle) {
+                window.clearTimeout(focusEventHandle);
+                setFocusEventHandle(null);
             }
 
-            if (score === 180 && !accumulator.bust) {
-                // Assume these don't count if the score is bust, as it was by accident, not design
-                if (on180) {
-                    await on180(accumulatorName);
+            if (setFocusEvent) {
+                createFocusEvent();
+            }
+
+            const score = Number.parseInt(scoreInput);
+            if (!Number.isFinite(score) || score < 0 || score > 180) {
+                return;
+            }
+
+            const accumulatorName = leg.currentThrow;
+            const newLeg = Object.assign({}, leg);
+            const accumulator = newLeg[accumulatorName];
+            accumulator.throws.push({
+                score,
+                noOfDarts,
+                bust
+            });
+
+            accumulator.noOfDarts += noOfDarts;
+            accumulator.bust = bust;
+
+            const remainingScore = leg.startingScore - (accumulator.score + score);
+            if ((remainingScore !== 0 && remainingScore <= 1) || (remainingScore === 0 && score % 2 !== 0 && noOfDarts === 1)) {
+                accumulator.bust = true;
+                // bust
+            } else {
+                if (!accumulator.bust) {
+                    accumulator.score += score;
                 }
-            }
 
-            if (accumulator.score === leg.startingScore && !accumulator.bust) {
-                // checked out
-                newLeg.winner = accumulatorName;
+                if (score === 180 && !accumulator.bust) {
+                    // Assume these don't count if the score is bust, as it was by accident, not design
+                    if (on180) {
+                        await on180(accumulatorName);
+                    }
+                }
 
-                if (score >= 100) {
-                    // hicheck
-                    if (onHiCheck) {
-                        await onHiCheck(accumulatorName, score);
+                if (accumulator.score === leg.startingScore && !accumulator.bust) {
+                    // checked out
+                    newLeg.winner = accumulatorName;
+
+                    if (score >= 100) {
+                        // hicheck
+                        if (onHiCheck) {
+                            await onHiCheck(accumulatorName, score);
+                        }
                     }
                 }
             }
+
+            newLeg.currentThrow = singlePlayer
+                ? newLeg.currentThrow
+                : opposite(accumulatorName);
+            await onChange(newLeg);
+
+            if (newLeg.winner) {
+                await onLegComplete(accumulatorName);
+            }
+
+            setScore('');
+        } catch (e) {
+            onError(e);
         }
-
-        newLeg.currentThrow = singlePlayer
-            ? newLeg.currentThrow
-            : opposite(accumulatorName);
-        await onChange(newLeg);
-
-        if (newLeg.winner) {
-            await onLegComplete(accumulatorName);
-        }
-
-        setScore('');
     }
 
     function isSingleDartScore(value, doubleOnly) {

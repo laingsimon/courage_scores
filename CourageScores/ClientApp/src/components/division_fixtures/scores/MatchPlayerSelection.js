@@ -6,20 +6,22 @@ import {any, propChanged, stateChanged, repeat} from "../../../Utilities";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
+import {useLeagueFixture} from "../LeagueFixtureContainer";
+import {useMatchType} from "./MatchTypeContainer";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disabled, homePlayers, awayPlayers, readOnly,
-                                         seasonId, divisionId, matchOptions, onMatchOptionsChanged, on180, onHiCheck,
-                                         setCreatePlayerFor }) {
+export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck }) {
     const { account, onError } = useApp();
+    const { homePlayers, awayPlayers, seasonId, divisionId, readOnly, disabled } = useLeagueFixture();
+    const { matchOptions, otherMatches, setCreatePlayerFor } = useMatchType();
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
 
     function player(index, side) {
         const matchPlayers = match[side + 'Players'];
 
-        if (!matchPlayers || matchPlayers.length <= index) {
+        if (!matchPlayers || index >= matchPlayers.length) {
             return {};
         }
 
@@ -28,6 +30,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     async function playerChanged(index, player, side) {
         try {
+            if (readOnly || disabled) {
+                return;
+            }
+
             if (player && player.id === NEW_PLAYER) {
                 setCreatePlayerFor({index, side});
                 return;
@@ -56,16 +62,17 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
 
     async function scoreChanged(newScore, side) {
         try {
-            const oppositeSide = side = 'home' ? 'away' : 'home';
+            if (readOnly || disabled) {
+                return;
+            }
+
+            const oppositeSide = side === 'home' ? 'away' : 'home';
             const oppositeScore = match[oppositeSide + 'Score'];
             const newMatch = Object.assign({}, match);
-            const intScore = newScore ? Number.parseInt(newScore) : null;
-            newMatch[side + 'Score'] = intScore;
             const numberOfLegs = matchOptions.numberOfLegs;
+            const intScore = newScore ? Math.min(Number.parseInt(newScore), numberOfLegs) : null;
 
-            if (intScore && intScore > numberOfLegs) {
-                newMatch[side + 'Score'] = numberOfLegs;
-            }
+            newMatch[side + 'Score'] = intScore;
 
             if (intScore + oppositeScore > numberOfLegs) {
                 newMatch[oppositeSide + 'Score'] = numberOfLegs - intScore;
@@ -80,38 +87,17 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     function exceptPlayers(playerIndex, propertyName) {
-        const exceptPlayerIds = [];
-
-        if (otherMatches) {
-            for (let matchIndex = 0; matchIndex < otherMatches.length; matchIndex++) {
-                const otherMatch = otherMatches[matchIndex];
-                const otherMatchPlayers = otherMatch[propertyName];
-
-                if (otherMatchPlayers) {
-                    for (let otherMatchPlayerIndex = 0; otherMatchPlayerIndex < otherMatchPlayers.length; otherMatchPlayerIndex++) {
-                        const otherMatchPlayer = otherMatchPlayers[otherMatchPlayerIndex];
-                        if (otherMatchPlayer) {
-                            exceptPlayerIds.push(otherMatchPlayer.id);
-                        }
-                    }
-                }
-            }
-        }
+        const exceptPlayerIds = (otherMatches || []).flatMap(otherMatch => {
+            return (otherMatch[propertyName] || []).filter(p => p || false).map(player => player ? player.id : null);
+        });
 
         const playerList = match[propertyName];
         if (!playerList) {
             return exceptPlayerIds;
         }
 
-        for (let index = 0; index < matchOptions.playerCount; index++) {
-            if (playerIndex !== index && playerList.length > index) {
-                if (playerList[index]) {
-                    exceptPlayerIds.push(playerList[index].id);
-                }
-            }
-        }
-
-        return exceptPlayerIds;
+        const additionalPlayers = playerList.filter((_, index) => index !== playerIndex).map(player => player.id);
+        return exceptPlayerIds.concat(additionalPlayers);
     }
 
     function renderMatchSettingsDialog() {
@@ -121,34 +107,22 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     async function add180(sideName) {
-        try {
-            const players = match[sideName + 'Players'];
-            await on180(players[0]);
-        } catch (e) {
-            onError(e);
-        }
+        const players = match[sideName + 'Players'];
+        await on180(players[0]);
     }
 
     async function addHiCheck(sideName, score) {
-        try {
-            const players = match[sideName + 'Players'];
-            await onHiCheck(players[0], score.toString());
-        } catch (e) {
-            onError(e);
-        }
+        const players = match[sideName + 'Players'];
+        await onHiCheck(players[0], score.toString());
     }
 
-    const updateMatchScore = async (homeScore, awayScore) => {
-        try {
-            const newMatch = Object.assign({}, match);
-            newMatch.homeScore = homeScore;
-            newMatch.awayScore = awayScore;
+    async function updateMatchScore(homeScore, awayScore) {
+        const newMatch = Object.assign({}, match);
+        newMatch.homeScore = homeScore;
+        newMatch.awayScore = awayScore;
 
-            if (onMatchChanged) {
-                await onMatchChanged(newMatch);
-            }
-        } catch (e) {
-            onError(e);
+        if (onMatchChanged) {
+            await onMatchChanged(newMatch);
         }
     }
 

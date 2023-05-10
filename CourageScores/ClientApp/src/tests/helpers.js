@@ -6,7 +6,7 @@ import ReactDOM from "react-dom/client";
 import React from "react";
 
 export async function doClick(container, selector) {
-    const item = container.querySelector(selector);
+    const item = selector ? container.querySelector(selector) : container;
     // noinspection JSUnresolvedFunction
     expect(item).toBeTruthy();
     const clickEvent = new MouseEvent('click', { bubbles: true });
