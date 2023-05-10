@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
 import React from "react";
 import {toMap, any, createTemporaryId} from "../../../Utilities";
 import {Score} from "./Score";
@@ -21,6 +21,11 @@ describe('Score', () => {
         },
         updateScores: async (fixtureId, fixtureData) => {
             updatedFixtures[fixtureId] = fixtureData;
+            return {
+                success: true,
+                messages: [ 'Fixture updated' ],
+                result: fixtureData,
+            }
         }
     };
 
@@ -371,6 +376,18 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData);
 
             expect(reportedError).toEqual('App has finished loading, no teams are available');
+        });
+
+        it('can save scores', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData);
+
+            await doClick(context.container, 'div.light-background > button');
+
+            expect(reportedError).toBeNull();
+            expect(updatedFixtures[fixtureId]).not.toBeNull();
         });
     });
 });
