@@ -5,6 +5,7 @@ import {cleanUp, renderApp, doClick, doChange} from "../../../tests/helpers";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {createTemporaryId} from "../../../Utilities";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
+import {MatchTypeContainer} from "./MatchTypeContainer";
 
 describe('MatchPlayerSelection', () => {
     let context;
@@ -34,7 +35,7 @@ describe('MatchPlayerSelection', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(account, props, containerProps) {
+    async function renderComponent(account, props, containerProps, matchTypeProps) {
         reportedError = null;
         updatedMatch = null;
         updatedMatchOptions = null;
@@ -53,13 +54,14 @@ describe('MatchPlayerSelection', () => {
                 account
             },
             (<LeagueFixtureContainer {...containerProps}>
-                <MatchPlayerSelection
-                    onMatchChanged={onMatchChanged}
-                    onMatchOptionsChanged={onMatchOptionsChanged}
-                    on180={on180}
-                    onHiCheck={onHiCheck}
-                    setCreatePlayerFor={setCreatePlayerFor}
-                    {...props} />
+                <MatchTypeContainer {...matchTypeProps} setCreatePlayerFor={setCreatePlayerFor}>
+                    <MatchPlayerSelection
+                        onMatchChanged={onMatchChanged}
+                        onMatchOptionsChanged={onMatchOptionsChanged}
+                        on180={on180}
+                        onHiCheck={onHiCheck}
+                        {...props} />
+                </MatchTypeContainer>
             </LeagueFixtureContainer>),
             null,
             null,
@@ -107,6 +109,22 @@ describe('MatchPlayerSelection', () => {
         const account = { access: {} };
         const homePlayer = { id: createTemporaryId(), name: 'HOME' };
         const awayPlayer = { id: createTemporaryId(), name: 'AWAY' };
+        const newPlayer = { id: NEW_PLAYER, name: 'Add a player...' };
+        const defaultMatchType = {
+            otherMatches: [],
+            matchOptions: {
+                playerCount: 1,
+                numberOfLegs: 5,
+            },
+        };
+        const defaultContainerProps = {
+            disabled: false,
+            readOnly: false,
+            seasonId: seasonId,
+            divisionId: divisionId,
+            homePlayers: [ homePlayer, newPlayer ],
+            awayPlayers: [ awayPlayer, newPlayer ],
+        };
 
         it('when no players selected', async () => {
             const props = {
@@ -116,22 +134,9 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -155,16 +160,8 @@ describe('MatchPlayerSelection', () => {
                     numberOfLegs: 5,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-            };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -184,22 +181,9 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -221,22 +205,9 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -258,22 +229,9 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -296,11 +254,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
             const containerProps = {
                 disabled: false,
@@ -311,7 +264,7 @@ describe('MatchPlayerSelection', () => {
                 awayPlayers: [ awayPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -328,11 +281,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
             const containerProps = {
                 disabled: false,
@@ -343,7 +291,7 @@ describe('MatchPlayerSelection', () => {
                 awayPlayers: [ awayPlayer, anotherAwayPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -360,6 +308,16 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
+            };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, anotherHomePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
+            const matchTypeProps = {
                 otherMatches: [ {
                     homeScore: 2,
                     awayScore: 2,
@@ -374,16 +332,8 @@ describe('MatchPlayerSelection', () => {
                     numberOfLegs: 5,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, anotherHomePlayer ],
-                awayPlayers: [ awayPlayer ],
-            };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, matchTypeProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -400,6 +350,16 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
+            };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
+            };
+            const matchTypeProps = {
                 otherMatches: [ {
                     homeScore: 2,
                     awayScore: 2,
@@ -414,16 +374,8 @@ describe('MatchPlayerSelection', () => {
                     numberOfLegs: 5,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
-            };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, matchTypeProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -439,19 +391,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [ ],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
@@ -459,7 +398,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -474,19 +413,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [ ],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
@@ -494,7 +420,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -509,6 +435,21 @@ describe('MatchPlayerSelection', () => {
         const homePlayer = { id: createTemporaryId(), name: 'HOME' };
         const awayPlayer = { id: createTemporaryId(), name: 'AWAY' };
         const newPlayer = { id: NEW_PLAYER, name: 'Add a player...' };
+        const defaultMatchType = {
+            otherMatches: [],
+            matchOptions: {
+                playerCount: 1,
+                numberOfLegs: 5,
+            },
+        };
+        const defaultContainerProps = {
+            disabled: false,
+            readOnly: false,
+            seasonId: seasonId,
+            divisionId: divisionId,
+            homePlayers: [ homePlayer, newPlayer ],
+            awayPlayers: [ awayPlayer, newPlayer ],
+        };
 
         it('can set home player', async () => {
             const props = {
@@ -518,21 +459,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -555,21 +483,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -592,21 +507,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -629,21 +531,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -666,21 +555,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -703,21 +579,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -740,21 +603,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -777,21 +627,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -814,21 +651,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -851,21 +675,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -888,21 +699,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -925,21 +723,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -962,6 +747,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
+            };
+            const matchTypeProps = {
                 otherMatches: [ ],
                 matchOptions: {
                     playerCount: 1,
@@ -969,15 +756,7 @@ describe('MatchPlayerSelection', () => {
                     startingScore: 501,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -1004,6 +783,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
+            };
+            const matchTypeProps = {
                 otherMatches: [ ],
                 matchOptions: {
                     playerCount: 1,
@@ -1011,15 +792,7 @@ describe('MatchPlayerSelection', () => {
                     startingScore: 501,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -1046,6 +819,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
+            };
+            const matchTypeProps = {
                 otherMatches: [ ],
                 matchOptions: {
                     playerCount: 1,
@@ -1053,15 +828,7 @@ describe('MatchPlayerSelection', () => {
                     startingScore: 501,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -1088,6 +855,8 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
+            };
+            const matchTypeProps = {
                 otherMatches: [ ],
                 matchOptions: {
                     playerCount: 1,
@@ -1095,15 +864,7 @@ describe('MatchPlayerSelection', () => {
                     startingScore: 501,
                 },
             };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-            };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -1126,11 +887,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
             const containerProps = {
                 disabled: false,
@@ -1140,7 +896,7 @@ describe('MatchPlayerSelection', () => {
                 homePlayers: [ homePlayer, newPlayer ],
                 awayPlayers: [ awayPlayer, newPlayer ],
             };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -1163,11 +919,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
             const containerProps = {
                 disabled: false,
@@ -1177,7 +928,7 @@ describe('MatchPlayerSelection', () => {
                 homePlayers: [ homePlayer, newPlayer ],
                 awayPlayers: [ awayPlayer, newPlayer ],
             };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -1200,11 +951,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
             const containerProps = {
                 disabled: true,
@@ -1215,7 +961,7 @@ describe('MatchPlayerSelection', () => {
                 awayPlayers: [ awayPlayer, newPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -1233,11 +979,6 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ ],
                     awayPlayers: [ ],
                 },
-                otherMatches: [],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
             };
             const containerProps = {
                 disabled: true,
@@ -1248,7 +989,7 @@ describe('MatchPlayerSelection', () => {
                 awayPlayers: [ awayPlayer, newPlayer ],
             };
 
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, containerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const homeScore = cells[1].querySelector('input');
@@ -1265,26 +1006,13 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [ ],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
                     recordScoresAsYouGo: true
                 }
             };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[0].querySelector('button.position-absolute');
@@ -1304,26 +1032,13 @@ describe('MatchPlayerSelection', () => {
                     homePlayers: [ homePlayer ],
                     awayPlayers: [ awayPlayer ],
                 },
-                otherMatches: [ ],
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const containerProps = {
-                disabled: false,
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
                     recordScoresAsYouGo: true
                 }
             };
-            await renderComponent(account, props, containerProps);
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[0].querySelector('button.position-absolute');

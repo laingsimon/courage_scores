@@ -20,6 +20,7 @@ import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
+import {MatchTypeContainer} from "./MatchTypeContainer";
 
 export function Score() {
     const { fixtureId } = useParams();
@@ -260,6 +261,9 @@ export function Score() {
 
             const season = seasons[gameData.seasonId];
             setSeason(season || { id: '00000', name: 'Not found' });
+
+            const division = divisions[gameData.divisionId];
+            setDivision(division || { id: '00000', name: 'Not found' });
         } catch (e) {
             onError(e);
         } finally {
@@ -403,15 +407,23 @@ export function Score() {
             setCreatePlayerFor(forMatchPlayerIndex);
         }
 
-        return (<MatchPlayerSelection
-            match={fixtureData.matches[index]}
-            onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
-            otherMatches={matchesExceptIndex}
-            matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
-            onMatchOptionsChanged={onMatchOptionsChanged}
-            on180={add180(fixtureData, setFixtureData)}
-            onHiCheck={addHiCheck(fixtureData, setFixtureData)}
-            setCreatePlayerFor={onCreatePlayer} />);
+        const matchTypeProps = {
+            matchOptions: elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions)),
+            otherMatches: matchesExceptIndex,
+            setCreatePlayerFor: onCreatePlayer,
+        };
+
+        return (<MatchTypeContainer {...matchTypeProps}>
+            <MatchPlayerSelection
+                match={fixtureData.matches[index]}
+                onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
+                otherMatches={matchesExceptIndex}
+                matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
+                onMatchOptionsChanged={onMatchOptionsChanged}
+                on180={add180(fixtureData, setFixtureData)}
+                onHiCheck={addHiCheck(fixtureData, setFixtureData)}
+                setCreatePlayerFor={onCreatePlayer} />
+        </MatchTypeContainer>);
     }
 
     function renderMergeMatch(index) {
@@ -501,7 +513,7 @@ export function Score() {
             homePlayers: homeTeam,
             awayPlayers: awayTeam,
             readOnly: !editable,
-            disabled: access === 'readonly',
+            disabled: access === 'readonly'
         }
 
         return (<div>

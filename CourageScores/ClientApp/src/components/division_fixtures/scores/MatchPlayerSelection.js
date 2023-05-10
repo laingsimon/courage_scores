@@ -7,13 +7,14 @@ import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "../LeagueFixtureContainer";
+import {useMatchType} from "./MatchTypeContainer";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, matchOptions, onMatchOptionsChanged,
-                                         setCreatePlayerFor, on180, onHiCheck }) {
+export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck }) {
     const { account, onError } = useApp();
     const { homePlayers, awayPlayers, seasonId, divisionId, readOnly, disabled } = useLeagueFixture();
+    const { matchOptions, otherMatches, setCreatePlayerFor } = useMatchType();
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
 
