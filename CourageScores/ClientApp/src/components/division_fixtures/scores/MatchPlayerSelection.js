@@ -105,34 +105,22 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
     }
 
     async function add180(sideName) {
-        try {
-            const players = match[sideName + 'Players'];
-            await on180(players[0]);
-        } catch (e) {
-            onError(e);
-        }
+        const players = match[sideName + 'Players'];
+        await on180(players[0]);
     }
 
     async function addHiCheck(sideName, score) {
-        try {
-            const players = match[sideName + 'Players'];
-            await onHiCheck(players[0], score.toString());
-        } catch (e) {
-            onError(e);
-        }
+        const players = match[sideName + 'Players'];
+        await onHiCheck(players[0], score.toString());
     }
 
-    const updateMatchScore = async (homeScore, awayScore) => {
-        try {
-            const newMatch = Object.assign({}, match);
-            newMatch.homeScore = homeScore;
-            newMatch.awayScore = awayScore;
+    async function updateMatchScore(homeScore, awayScore) {
+        const newMatch = Object.assign({}, match);
+        newMatch.homeScore = homeScore;
+        newMatch.awayScore = awayScore;
 
-            if (onMatchChanged) {
-                await onMatchChanged(newMatch);
-            }
-        } catch (e) {
-            onError(e);
+        if (onMatchChanged) {
+            await onMatchChanged(newMatch);
         }
     }
 
