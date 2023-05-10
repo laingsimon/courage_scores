@@ -4,6 +4,7 @@ import React from "react";
 import {cleanUp, renderApp, doClick, doChange} from "../../../tests/helpers";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {createTemporaryId} from "../../../Utilities";
+import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 
 describe('MatchPlayerSelection', () => {
     let context;
@@ -33,7 +34,7 @@ describe('MatchPlayerSelection', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(account, props) {
+    async function renderComponent(account, props, containerProps) {
         reportedError = null;
         updatedMatch = null;
         updatedMatchOptions = null;
@@ -51,13 +52,15 @@ describe('MatchPlayerSelection', () => {
                 },
                 account
             },
-            (<MatchPlayerSelection
-                onMatchChanged={onMatchChanged}
-                onMatchOptionsChanged={onMatchOptionsChanged}
-                on180={on180}
-                onHiCheck={onHiCheck}
-                setCreatePlayerFor={setCreatePlayerFor}
-                {...props} />),
+            (<LeagueFixtureContainer {...containerProps}>
+                <MatchPlayerSelection
+                    onMatchChanged={onMatchChanged}
+                    onMatchOptionsChanged={onMatchOptionsChanged}
+                    on180={on180}
+                    onHiCheck={onHiCheck}
+                    setCreatePlayerFor={setCreatePlayerFor}
+                    {...props} />
+            </LeagueFixtureContainer>),
             null,
             null,
             'tbody');
@@ -114,19 +117,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -145,19 +150,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -178,19 +185,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -213,19 +222,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -248,19 +259,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -284,19 +297,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, anotherHomePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, anotherHomePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -314,19 +329,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -352,19 +369,21 @@ describe('MatchPlayerSelection', () => {
                         playerCount: 1,
                     }
                 } ],
-                disabled: false,
-                homePlayers: [ homePlayer, anotherHomePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, anotherHomePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -390,19 +409,21 @@ describe('MatchPlayerSelection', () => {
                         playerCount: 1,
                     }
                 } ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -419,16 +440,18 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
+            };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
@@ -436,7 +459,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -452,16 +475,18 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
+            };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
@@ -469,7 +494,7 @@ describe('MatchPlayerSelection', () => {
                 }
             };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -494,18 +519,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -529,18 +556,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -564,18 +593,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -599,18 +630,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -634,18 +667,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -669,18 +704,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -704,18 +741,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -739,18 +778,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -774,18 +815,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -809,18 +852,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -844,18 +889,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -879,18 +926,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -914,19 +963,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                     startingScore: 501,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -954,19 +1005,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                     startingScore: 501,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -994,19 +1047,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                     startingScore: 501,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -1034,19 +1089,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                     startingScore: 501,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[4].querySelector('button[title]');
@@ -1070,18 +1127,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: true,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: true,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -1105,18 +1164,20 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: false,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: true,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
-            await renderComponent(account, props);
+            const containerProps = {
+                disabled: false,
+                readOnly: true,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
@@ -1140,19 +1201,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: true,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: true,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -1171,19 +1234,21 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ ],
                 },
                 otherMatches: [],
-                disabled: true,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
             };
+            const containerProps = {
+                disabled: true,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+            };
 
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const homeScore = cells[1].querySelector('input');
@@ -1201,23 +1266,25 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
+            };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
                     recordScoresAsYouGo: true
                 }
             };
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[0].querySelector('button.position-absolute');
@@ -1238,23 +1305,25 @@ describe('MatchPlayerSelection', () => {
                     awayPlayers: [ awayPlayer ],
                 },
                 otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
                 },
+            };
+            const containerProps = {
+                disabled: false,
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
             };
             const account = {
                 access: {
                     recordScoresAsYouGo: true
                 }
             };
-            await renderComponent(account, props);
+            await renderComponent(account, props, containerProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
             const matchOptionsButton = cells[0].querySelector('button.position-absolute');

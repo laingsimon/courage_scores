@@ -19,6 +19,7 @@ import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
+import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 
 export function Score() {
     const { fixtureId } = useParams();
@@ -402,18 +403,10 @@ export function Score() {
             setCreatePlayerFor(forMatchPlayerIndex);
         }
 
-        const editable = !saving && (getAccess() === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
-
         return (<MatchPlayerSelection
-            homePlayers={homeTeam}
-            awayPlayers={awayTeam}
             match={fixtureData.matches[index]}
-            disabled={getAccess() === 'readonly'}
-            readOnly={!editable}
             onMatchChanged={(newMatch) => onMatchChanged(newMatch, index)}
             otherMatches={matchesExceptIndex}
-            seasonId={fixtureData.seasonId}
-            divisionId={fixtureData.divisionId}
             matchOptions={elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions))}
             onMatchOptionsChanged={onMatchOptionsChanged}
             on180={add180(fixtureData, setFixtureData)}
@@ -501,6 +494,16 @@ export function Score() {
 
     try {
         const access = getAccess();
+        const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
+        const leagueFixtureData = {
+            seasonId: season.id,
+            divisionId: division.id,
+            homePlayers: homeTeam,
+            awayPlayers: awayTeam,
+            readOnly: !editable,
+            disabled: access === 'readonly',
+        }
+
         return (<div>
             <DivisionControls
                 originalSeasonData={season}
@@ -522,64 +525,66 @@ export function Score() {
                              to={`/division/${data.divisionId}/players/${season.id}`}>Players</NavLink>
                 </li>
             </ul>
-            <div className="light-background p-3 overflow-auto">
-                {fixtureData.address || access === 'admin'
-                    ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access}
-                                    fixtureData={fixtureData}/>)
-                    : null}
-                <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
-                    <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
-                                      setFixtureData={setFixtureData} submission={submission}/>
-                    {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (
-                        <tbody>
-                        <tr>
-                            <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
-                        </tr>
-                        {renderMatchPlayerSelection(0, 5, 1)}
-                        {renderMergeMatch(0)}
-                        {renderMatchPlayerSelection(1, 5, 1)}
-                        {renderMergeMatch(1)}
-                        {renderMatchPlayerSelection(2, 5, 1)}
-                        {renderMergeMatch(2)}
-                        {renderMatchPlayerSelection(3, 5, 1)}
-                        {renderMergeMatch(3)}
-                        {renderMatchPlayerSelection(4, 5, 1)}
-                        {renderMergeMatch(4)}
-                        <tr>
-                            <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
-                        </tr>
-                        {renderMatchPlayerSelection(5, 3, 2)}
-                        {renderMergeMatch(5)}
-                        {renderMatchPlayerSelection(6, 3, 2)}
-                        {renderMergeMatch(6)}
-                        <tr>
-                            <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
-                        </tr>
-                        {renderMatchPlayerSelection(7, 3, 3)}
-                        {renderMergeMatch(7)}
-                        {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
-                                <td colSpan="5" className="text-center border-0">Man of the match</td>
+            <LeagueFixtureContainer {...leagueFixtureData}>
+                <div className="light-background p-3 overflow-auto">
+                    {fixtureData.address || access === 'admin'
+                        ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access}
+                                        fixtureData={fixtureData}/>)
+                        : null}
+                    <table className={`table${access !== 'readonly' ? ' minimal-padding' : ''}`}>
+                        <ScoreCardHeading access={access} data={data} winner={winner} setSubmission={setSubmission}
+                                          setFixtureData={setFixtureData} submission={submission}/>
+                        {hasBeenPlayed || (access === 'admin' || (account && data.away && account.teamId === data.away.id && access === 'clerk')) ? (
+                            <tbody>
+                            <tr>
+                                <td colSpan="5" className="text-primary fw-bold text-center">Singles</td>
                             </tr>
-                        ) : null}
-                        {renderManOfTheMatchInput()}
-                        {renderMergeManOfTheMatch()}
-                        {render180sAndHiCheckInput()}
-                        {renderMerge180sAndHiCheck()}
-                        </tbody>) : (<tbody>
-                    <tr>
-                        <td colSpan="5">No scores, yet</td>
-                    </tr>
-                    </tbody>)}
-                </table>
-                {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
-                    <button className="btn btn-primary" onClick={saveScores}>
-                        {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
-                                         aria-hidden="true"></span>) : null}
-                        Save
-                    </button>) : null}
-                {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (
-                    <button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
-            </div>
+                            {renderMatchPlayerSelection(0, 5, 1)}
+                            {renderMergeMatch(0)}
+                            {renderMatchPlayerSelection(1, 5, 1)}
+                            {renderMergeMatch(1)}
+                            {renderMatchPlayerSelection(2, 5, 1)}
+                            {renderMergeMatch(2)}
+                            {renderMatchPlayerSelection(3, 5, 1)}
+                            {renderMergeMatch(3)}
+                            {renderMatchPlayerSelection(4, 5, 1)}
+                            {renderMergeMatch(4)}
+                            <tr>
+                                <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
+                            </tr>
+                            {renderMatchPlayerSelection(5, 3, 2)}
+                            {renderMergeMatch(5)}
+                            {renderMatchPlayerSelection(6, 3, 2)}
+                            {renderMergeMatch(6)}
+                            <tr>
+                                <td colSpan="5" className="text-primary fw-bold text-center">Triples</td>
+                            </tr>
+                            {renderMatchPlayerSelection(7, 3, 3)}
+                            {renderMergeMatch(7)}
+                            {access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin') ? (<tr>
+                                    <td colSpan="5" className="text-center border-0">Man of the match</td>
+                                </tr>
+                            ) : null}
+                            {renderManOfTheMatchInput()}
+                            {renderMergeManOfTheMatch()}
+                            {render180sAndHiCheckInput()}
+                            {renderMerge180sAndHiCheck()}
+                            </tbody>) : (<tbody>
+                        <tr>
+                            <td colSpan="5">No scores, yet</td>
+                        </tr>
+                        </tbody>)}
+                    </table>
+                    {access !== 'readonly' && (!data.resultsPublished || access === 'admin') ? (
+                        <button className="btn btn-primary" onClick={saveScores}>
+                            {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                             aria-hidden="true"></span>) : null}
+                            Save
+                        </button>) : null}
+                    {access === 'admin' && data.resultsPublished && (data.homeSubmission || data.awaySubmission) ? (
+                        <button className="btn btn-warning margin-left" onClick={unpublish}>Unpublish</button>) : null}
+                </div>
+            </LeagueFixtureContainer>
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save score"/>) : null}
             {createPlayerFor ? renderCreatePlayerDialog() : null}
