@@ -834,6 +834,76 @@ describe('MatchPlayerSelection', () => {
             expect(updatedMatch.awayScore).toEqual(3);
         });
 
+        it('sets homeScore to numberOfLegs if greater than numberOfLegs', async () => {
+            const props = {
+                match: {
+                    homeScore: null,
+                    awayScore: null,
+                    homePlayers: [ ],
+                    awayPlayers: [ ],
+                },
+                otherMatches: [],
+                disabled: false,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                matchOptions: {
+                    playerCount: 1,
+                    numberOfLegs: 5,
+                },
+            };
+            await renderComponent(account, props);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+
+            doChange(cells[1], 'input', '6');
+
+            expect(reportedError).toBeNull();
+            expect(createPlayerFor).toBeNull();
+            expect(updatedMatch).not.toBeNull();
+            expect(updatedMatch.homePlayers).toEqual([ ]);
+            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homeScore).toEqual(5);
+            expect(updatedMatch.awayScore).toEqual(null);
+        });
+
+        it('sets awayScore to numberOfLegs if greater than numberOfLegs', async () => {
+            const props = {
+                match: {
+                    homeScore: null,
+                    awayScore: null,
+                    homePlayers: [ ],
+                    awayPlayers: [ ],
+                },
+                otherMatches: [],
+                disabled: false,
+                homePlayers: [ homePlayer, newPlayer ],
+                awayPlayers: [ awayPlayer, newPlayer ],
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                matchOptions: {
+                    playerCount: 1,
+                    numberOfLegs: 5,
+                },
+            };
+            await renderComponent(account, props);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+
+            doChange(cells[3], 'input', '6');
+
+            expect(reportedError).toBeNull();
+            expect(createPlayerFor).toBeNull();
+            expect(updatedMatch).not.toBeNull();
+            expect(updatedMatch.homePlayers).toEqual([ ]);
+            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homeScore).toEqual(null);
+            expect(updatedMatch.awayScore).toEqual(5);
+        });
+
         it('changes away score down if entered home score + existing away score > numberOfLegs', async () => {
             const props = {
                 match: {

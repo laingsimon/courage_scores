@@ -67,14 +67,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, otherMatches, disa
             const oppositeSide = side === 'home' ? 'away' : 'home';
             const oppositeScore = match[oppositeSide + 'Score'];
             const newMatch = Object.assign({}, match);
-            const intScore = newScore ? Number.parseInt(newScore) : null;
             const numberOfLegs = matchOptions.numberOfLegs;
+            const intScore = newScore ? Math.min(Number.parseInt(newScore), numberOfLegs) : null;
 
-            if (intScore && intScore > numberOfLegs) {
-                newMatch[side + 'Score'] = numberOfLegs;
-            } else {
-                newMatch[side + 'Score'] = intScore;
-            }
+            newMatch[side + 'Score'] = intScore;
 
             if (intScore + oppositeScore > numberOfLegs) {
                 newMatch[oppositeSide + 'Score'] = numberOfLegs - intScore;
