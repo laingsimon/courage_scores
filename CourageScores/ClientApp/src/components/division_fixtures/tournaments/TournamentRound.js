@@ -117,7 +117,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         return `Round: ${depth}`;
     }
 
-    let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
     const hasNextRound = round.nextRound && round.nextRound.matches && any(round.nextRound.matches);
 

@@ -67,9 +67,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 .filter(f => (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
                     || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
 
-            if (any(equivalentFixtures)) {
-                return [ fixtureDate.date ];
-            }
+            return any(equivalentFixtures)
+                ? [fixtureDate.date]
+                : [];
         });
     }
 

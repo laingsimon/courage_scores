@@ -8,7 +8,6 @@ import {useApp} from "../../../AppContainer";
 
 export function EditTournament({ tournamentData, season, alreadyPlaying, disabled, saving, allPlayers, canSave, setTournamentData }) {
     const { account } = useApp();
-    let sideIndex = 0;
     const isAdmin = account && account.access && account.access.manageGames;
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);

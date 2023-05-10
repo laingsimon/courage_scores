@@ -5,7 +5,6 @@ import {any} from "../../../Utilities";
 import {useApp} from "../../../AppContainer";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {
-    let index = 0;
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
     const { onError } = useApp();
