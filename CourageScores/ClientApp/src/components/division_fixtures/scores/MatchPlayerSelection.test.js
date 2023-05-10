@@ -475,75 +475,6 @@ describe('MatchPlayerSelection', () => {
             const cells = Array.from(context.container.querySelectorAll('td'));
             expect(cells[0].textContent).not.toContain('📊');
         });
-
-        it('match options dialog', async () => {
-            const props = {
-                match: {
-                    homeScore: 1,
-                    awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
-                },
-                otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            await renderComponent(account, props);
-            expect(reportedError).toBeFalsy();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[4].querySelector('button[title]');
-            expect(matchOptionsButton.textContent).toEqual('🛠');
-
-            await doClick(matchOptionsButton);
-
-            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
-            expect(matchOptionsDialog).toBeTruthy();
-        });
-
-        it('sayg dialog', async () => {
-            const props = {
-                match: {
-                    homeScore: 1,
-                    awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
-                },
-                otherMatches: [ ],
-                disabled: false,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
-                readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
-                matchOptions: {
-                    playerCount: 1,
-                    numberOfLegs: 5,
-                },
-            };
-            const account = {
-                access: {
-                    recordScoresAsYouGo: true
-                }
-            };
-            await renderComponent(account, props);
-            expect(reportedError).toBeFalsy();
-            const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[0].querySelector('button.position-absolute');
-            expect(matchOptionsButton.textContent).toEqual('📊');
-
-            await doClick(matchOptionsButton);
-
-            const matchOptionsDialog = cells[0].querySelector('div.modal-dialog');
-            expect(matchOptionsDialog).toBeTruthy();
-        });
     });
 
     describe('interactivity', () => {
@@ -1094,6 +1025,42 @@ describe('MatchPlayerSelection', () => {
             });
         });
 
+        it('can close match options dialog', async () => {
+            const props = {
+                match: {
+                    homeScore: 1,
+                    awayScore: 1,
+                    homePlayers: [ homePlayer ],
+                    awayPlayers: [ awayPlayer ],
+                },
+                otherMatches: [ ],
+                disabled: false,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                matchOptions: {
+                    playerCount: 1,
+                    numberOfLegs: 5,
+                    startingScore: 501,
+                },
+            };
+            await renderComponent(account, props);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            const matchOptionsButton = cells[4].querySelector('button[title]');
+            expect(matchOptionsButton.textContent).toEqual('🛠');
+            await doClick(matchOptionsButton);
+            const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
+            expect(matchOptionsDialog).toBeTruthy();
+
+            await doClick(matchOptionsDialog, 'div.modal-footer > button');
+
+            expect(reportedError).toBeFalsy();
+            expect(cells[4].querySelector('div.modal-dialog')).toBeFalsy();
+        });
+
         it('cannot modify players when readonly', async () => {
             const props = {
                 match: {
@@ -1223,6 +1190,83 @@ describe('MatchPlayerSelection', () => {
             const awayScore = cells[3].querySelector('input');
             expect(homeScore).toBeFalsy();
             expect(awayScore).toBeFalsy();
+        });
+
+        it('can open sayg dialog', async () => {
+            const props = {
+                match: {
+                    homeScore: 1,
+                    awayScore: 1,
+                    homePlayers: [ homePlayer ],
+                    awayPlayers: [ awayPlayer ],
+                },
+                otherMatches: [ ],
+                disabled: false,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                matchOptions: {
+                    playerCount: 1,
+                    numberOfLegs: 5,
+                },
+            };
+            const account = {
+                access: {
+                    recordScoresAsYouGo: true
+                }
+            };
+            await renderComponent(account, props);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            const matchOptionsButton = cells[0].querySelector('button.position-absolute');
+            expect(matchOptionsButton.textContent).toEqual('📊');
+
+            await doClick(matchOptionsButton);
+
+            const matchOptionsDialog = cells[0].querySelector('div.modal-dialog');
+            expect(matchOptionsDialog).toBeTruthy();
+        });
+
+        it('can close sayg dialog', async () => {
+            const props = {
+                match: {
+                    homeScore: 1,
+                    awayScore: 1,
+                    homePlayers: [ homePlayer ],
+                    awayPlayers: [ awayPlayer ],
+                },
+                otherMatches: [ ],
+                disabled: false,
+                homePlayers: [ homePlayer ],
+                awayPlayers: [ awayPlayer ],
+                readOnly: false,
+                seasonId: seasonId,
+                divisionId: divisionId,
+                matchOptions: {
+                    playerCount: 1,
+                    numberOfLegs: 5,
+                },
+            };
+            const account = {
+                access: {
+                    recordScoresAsYouGo: true
+                }
+            };
+            await renderComponent(account, props);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            const matchOptionsButton = cells[0].querySelector('button.position-absolute');
+            expect(matchOptionsButton.textContent).toEqual('📊');
+            await doClick(matchOptionsButton);
+            const matchOptionsDialog = cells[0].querySelector('div.modal-dialog');
+            expect(matchOptionsDialog).toBeTruthy();
+
+            await doClick(matchOptionsDialog, 'div.modal-footer > button');
+
+            expect(reportedError).toBeFalsy();
+            expect(cells[0].querySelector('div.modal-dialog')).toBeFalsy();
         });
     });
 });
