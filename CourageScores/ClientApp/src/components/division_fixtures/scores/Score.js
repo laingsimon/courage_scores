@@ -21,6 +21,7 @@ import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
+import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "./MatchOptionHelpers";
 
 export function Score() {
     const { fixtureId } = useParams();
@@ -39,6 +40,7 @@ export function Score() {
     const [submission, setSubmission] = useState(null);
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
+    const access = getAccess();
 
     function renderCreatePlayerDialog() {
         const team = createPlayerFor.side === 'home' ? fixtureData.home : fixtureData.away;
@@ -234,7 +236,6 @@ export function Score() {
                 return;
             }
 
-            const access = getAccess();
             if (access === 'admin' || access === 'clerk') {
                 loadPlayerData(gameData);
             }
@@ -271,56 +272,6 @@ export function Score() {
         }
     }
 
-    function getMatchDefaults() {
-        return {
-            homePlayers:[],
-            awayPlayers:[]
-        };
-    }
-
-    function getMatchOptionDefaults(legIndex, matchOptions) {
-        return {
-            playerCount: matchOptions.playerCount[legIndex],
-            startingScore: matchOptions.startingScore[legIndex],
-            numberOfLegs: matchOptions.noOfLegs[legIndex],
-        };
-    }
-
-    function getMatchOptionsLookup(matchOptions) {
-        return {
-            playerCount: {
-                '0': elementAt(matchOptions, 0, op => op.playerCount) || 1,
-                '1': elementAt(matchOptions, 1, op => op.playerCount) || 1,
-                '2': elementAt(matchOptions, 2, op => op.playerCount) || 1,
-                '3': elementAt(matchOptions, 3, op => op.playerCount) || 1,
-                '4': elementAt(matchOptions, 4, op => op.playerCount) || 1,
-                '5': elementAt(matchOptions, 5, op => op.playerCount) || 2,
-                '6': elementAt(matchOptions, 6, op => op.playerCount) || 2,
-                '7': elementAt(matchOptions, 7, op => op.playerCount) || 3
-            },
-            startingScore: {
-                '0': elementAt(matchOptions, 0, op => op.startingScore) || 501,
-                '1': elementAt(matchOptions, 1, op => op.startingScore) || 501,
-                '2': elementAt(matchOptions, 2, op => op.startingScore) || 501,
-                '3': elementAt(matchOptions, 3, op => op.startingScore) || 501,
-                '4': elementAt(matchOptions, 4, op => op.startingScore) || 501,
-                '5': elementAt(matchOptions, 5, op => op.startingScore) || 501,
-                '6': elementAt(matchOptions, 6, op => op.startingScore) || 501,
-                '7': elementAt(matchOptions, 7, op => op.startingScore) || 601
-            },
-            noOfLegs: {
-                '0': elementAt(matchOptions, 0, op => op.numberOfLegs) || 5,
-                '1': elementAt(matchOptions, 1, op => op.numberOfLegs) || 5,
-                '2': elementAt(matchOptions, 2, op => op.numberOfLegs) || 5,
-                '3': elementAt(matchOptions, 3, op => op.numberOfLegs) || 5,
-                '4': elementAt(matchOptions, 4, op => op.numberOfLegs) || 5,
-                '5': elementAt(matchOptions, 5, op => op.numberOfLegs) || 3,
-                '6': elementAt(matchOptions, 6, op => op.numberOfLegs) || 3,
-                '7': elementAt(matchOptions, 7, op => op.numberOfLegs) || 3
-            },
-        };
-    }
-
     useEffect(() => {
             if (!fixtureData || !divisions) {
                 return;
@@ -334,7 +285,7 @@ export function Score() {
         [ divisions, fixtureData, data ]);
 
     async function saveScores() {
-        if (getAccess() === 'readonly') {
+        if (access === 'readonly') {
             return;
         }
 
@@ -427,7 +378,7 @@ export function Score() {
     }
 
     function renderMergeMatch(index) {
-        if (!fixtureData.resultsPublished && getAccess() === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData.resultsPublished && access === 'admin' && submission === null && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeMatch
                 readOnly={saving}
                 matchIndex={index}
@@ -442,8 +393,6 @@ export function Score() {
     }
 
     function renderManOfTheMatchInput() {
-        const access = getAccess();
-
         if (access !== 'readonly' && (!fixtureData.resultsPublished || access === 'admin')) {
             return (<ManOfTheMatchInput
                 fixtureData={fixtureData}
@@ -457,7 +406,7 @@ export function Score() {
 
     function renderMergeManOfTheMatch() {
         if (!fixtureData.resultsPublished
-            && getAccess() === 'admin'
+            && access === 'admin'
             && (data.homeSubmission || data.awaySubmission)
             && ((!data.home.manOfTheMatch && data.homeSubmission.home.manOfTheMatch) || (!data.away.manOfTheMatch && data.awaySubmission.away.manOfTheMatch))) {
             return (<MergeManOfTheMatch data={data} setData={setData} allPlayers={allPlayers} />);
@@ -469,14 +418,14 @@ export function Score() {
     function render180sAndHiCheckInput() {
         return (<HiCheckAnd180s
             saving={saving}
-            access={getAccess()}
+            access={access}
             fixtureData={fixtureData}
             setFixtureData={setFixtureData}
             allPlayers={allPlayers} />);
     }
 
     function renderMerge180sAndHiCheck() {
-        if (!fixtureData.resultsPublished && getAccess() === 'admin' && (data.homeSubmission || data.awaySubmission)) {
+        if (!fixtureData.resultsPublished && access === 'admin' && (data.homeSubmission || data.awaySubmission)) {
             return (<MergeHiCheckAnd180s data={data} fixtureData={fixtureData} setFixtureData={setFixtureData} />);
         }
 
@@ -505,7 +454,6 @@ export function Score() {
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
-        const access = getAccess();
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
             seasonId: season.id,
