@@ -20,7 +20,9 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: null, tournamentFixture: f, note: null }));
     const notesForDate = date.notes.filter(n => filters.apply({ date: date.date, fixture: null, tournamentFixture: null, note: n }));
     const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);
-    const fixturesForDate = (!isAdmin && !hasFixtures) ? [] : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
+    const fixturesForDate = (!isAdmin && !hasFixtures)
+        ? []
+        : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
 
     if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
         return null;
