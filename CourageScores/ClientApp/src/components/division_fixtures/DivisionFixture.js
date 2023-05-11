@@ -45,40 +45,32 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     function isSelectedInSameFixtureOnAnotherDate(t) {
-        for (let index = 0; index < fixtures.length; index++) {
-            const fixtureDate = fixtures[index];
+        const matching = fixtures.filter(fixtureDate => {
             if (fixtureDate.date === date) {
-                continue;
+                return false;
             }
 
-            if (any(fixtureDate.fixtures, f => f.isKnockout === false && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id)) {
-                return fixtureDate.date;
-            }
-        }
+            return any(fixtureDate.fixtures, f => f.isKnockout === false && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
+        });
 
-        return null;
+        return any(matching) ? matching[0].date : null;
     }
 
     function getLegsOnOtherDates(t) {
-        const matchingFixtureDates = [];
-        for (let index = 0; index < fixtures.length; index++) {
-            const fixtureDate = fixtures[index];
+        return fixtures.flatMap(fixtureDate => {
             if (fixtureDate.date === date) {
-                continue;
+                return [];
             }
 
-            const fixtureDateFixtures = fixtureDate.fixtures;
-            const equivalentFixtures = fixtureDateFixtures
+            const equivalentFixtures = fixtureDate.fixtures
                 .filter(f => !f.isKnockout)
                 .filter(f => (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
                     || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
 
-            if (any(equivalentFixtures)) {
-                matchingFixtureDates.push(fixtureDate.date);
-            }
-        }
-
-        return matchingFixtureDates;
+            return any(equivalentFixtures)
+                ? [fixtureDate.date]
+                : [];
+        });
     }
 
     function isSameAddress(t) {

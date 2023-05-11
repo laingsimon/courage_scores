@@ -28,7 +28,7 @@ export function sortBy(property, descending) {
         }
 
         const value = item[property];
-        if (value.toLowerCase) {
+        if (value && value.toLowerCase) {
             return value.toLowerCase();
         }
 
@@ -182,4 +182,36 @@ export function repeat(times, itemProvider) {
         items.push(itemProvider ? itemProvider(index) : index);
     }
     return items;
+}
+
+/*
+* Reduce the given items to have only one with the given property value
+* */
+export function distinct(items, property) {
+    function getValue(item, property) {
+        if (property.indexOf('.') !== -1) {
+            const parentProperty = property.substring(0, property.indexOf('.'));
+            const childProperty = property.substring(parentProperty.length + 1);
+            const parent = getValue(item, parentProperty);
+            return getValue(parent, childProperty);
+        }
+
+        const value = item[property];
+        if (value && value.toLowerCase) {
+            return value.toLowerCase();
+        }
+
+        return value;
+    }
+
+    const map = {};
+
+    items.forEach(item => {
+        const key = getValue(item, property);
+        if (!map[key]) {
+            map[key] = item;
+        }
+    });
+
+    return Object.values(map);
 }

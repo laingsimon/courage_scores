@@ -1,6 +1,6 @@
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
-import {any, sortBy} from "../../../Utilities";
+import {any, distinct, sortBy} from "../../../Utilities";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
 
@@ -8,22 +8,21 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     const { onError } = useApp();
 
     function getApplicablePlayers() {
-        const players = {
-        };
-
-        for (let index = 0; index < fixtureData.matches.length; index++) {
-            const match = fixtureData.matches[index];
+        const players = fixtureData.matches.flatMap((match) => {
+            const matchPlayers = [];
 
             (match.homePlayers || []).forEach(player => {
-                players[player.id] = player;
+                matchPlayers.push(player);
             });
 
             (match.awayPlayers || []).forEach(player => {
-                players[player.id] = player;
+                matchPlayers.push(player);
             });
-        }
 
-        return Object.values(players).sort(sortBy('name'));
+            return matchPlayers;
+        });
+
+        return distinct(players, 'id').sort(sortBy('name'));
     }
 
     try {

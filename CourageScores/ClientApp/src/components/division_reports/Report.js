@@ -7,7 +7,6 @@ export function Report({ rows, valueHeading }) {
         return (<NoRows />);
     }
 
-    let rowIndex = 0;
     return (<div>
         <table className="table table-striped">
             <thead>
@@ -19,7 +18,7 @@ export function Report({ rows, valueHeading }) {
             </tr>
             </thead>
             <tbody>
-            {rows.map(row => (<tr key={rowIndex++}>
+            {rows.map((row, rowIndex) => (<tr key={rowIndex}>
                 <td>{rowIndex + 1}</td>
                 <td>{row.playerName}</td>
                 <td>{row.teamName}</td>

@@ -1,5 +1,7 @@
 import React from 'react';
 import {useApp} from "../../../AppContainer";
+import {matchEquals} from "./MatchComparer";
+import {repeat} from "../../../Utilities";
 
 export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData }) {
     const { onError } = useApp();
@@ -22,54 +24,10 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
         }
     }
 
-    function matchEquals(x, y) {
-        if (!x && !y) {
-            return true;
-        }
-
-        if (!y || !x) {
-            return false;
-        }
-
-        return x.homeScore === y.homeScore
-            && x.awayScore === y.awayScore
-            && playersEqual(x.homePlayers, y.homePlayers)
-            && playersEqual(x.awayPlayers, y.awayPlayers);
-    }
-
-    function playersEqual(xPlayers, yPlayers) {
-        if (!xPlayers && !yPlayers) {
-            return true;
-        }
-
-        if (!xPlayers || !yPlayers) {
-            return false;
-        }
-
-        if (xPlayers.length !== yPlayers.length) {
-            return false;
-        }
-
-        for (let index = 0; index < xPlayers.length; index++) {
-            const xPlayer = xPlayers[index];
-            const yPlayer = yPlayers[index];
-
-            if (xPlayer.id !== yPlayer.id) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     function combinePlayers(homePlayers, awayPlayers) {
-        const players = [];
-
-        for (let index = 0; index < Math.max(homePlayers.length, awayPlayers.length); index++) {
-            players.push({ homePlayer: homePlayers[index], awayPlayer: awayPlayers[index] });
-        }
-
-        return players;
+        return repeat(
+            Math.max(homePlayers.length, awayPlayers.length),
+            index => { return { homePlayer: homePlayers[index], awayPlayer: awayPlayers[index] } });
     }
 
     function renderSubmissionMatch(match) {

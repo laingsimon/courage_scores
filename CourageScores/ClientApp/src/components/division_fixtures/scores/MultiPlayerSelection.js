@@ -5,14 +5,18 @@ import {any} from "../../../Utilities";
 import {useApp} from "../../../AppContainer";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {
-    let index = 0;
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
     const { onError } = useApp();
 
     async function addPlayer() {
         if (!player) {
-            alert('Ensure a player is selected first');
+            window.alert('Ensure a player is selected first');
+            return;
+        }
+
+        if (showNotes && !notes) {
+            window.alert('Enter the score first');
             return;
         }
 
@@ -50,9 +54,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     try {
         return (<div>
             <ol className="no-list-indent mb-0">
-                {(players || []).map(p => {
-                    index++;
-                    const playerIndex = index;
+                {(players || []).map((p, playerIndex) => {
                     return (<li key={playerIndex}>{disabled ? renderLinkToPlayer(p) : (<button
                         disabled={disabled || readOnly}
                         className={`btn btn-sm ${disabled ? 'btn-secondary' : 'btn-primary'} margin-right`}

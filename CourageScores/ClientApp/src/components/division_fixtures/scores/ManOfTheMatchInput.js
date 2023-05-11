@@ -1,6 +1,6 @@
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import React from "react";
-import {sortBy} from "../../../Utilities";
+import {distinct, sortBy} from "../../../Utilities";
 import {useApp} from "../../../AppContainer";
 
 export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData }) {
@@ -17,22 +17,21 @@ export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData
     }
 
     function applicablePlayers() {
-        const players = {
-        };
-
-        for (let index = 0; index < fixtureData.matches.length; index++) {
-            const match = fixtureData.matches[index];
+        const players = fixtureData.matches.flatMap((match) => {
+            const matchPlayers = [];
 
             (match.homePlayers || []).forEach(player => {
-                players[player.id] = player;
+                matchPlayers.push(player);
             });
 
             (match.awayPlayers || []).forEach(player => {
-                players[player.id] = player;
+                matchPlayers.push(player);
             });
-        }
 
-        return Object.values(players).sort(sortBy('name'));
+            return matchPlayers;
+        });
+
+        return distinct(players, 'id').sort(sortBy('name'));
     }
 
     if (!account) {

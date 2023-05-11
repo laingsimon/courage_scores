@@ -1,8 +1,11 @@
 import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
+import {useApp} from "../../../AppContainer";
 
 export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
                                  homeScore, on180, onHiCheck, singlePlayer }) {
+    const { onError } = useApp();
+
     function getLeg(legIndex) {
         const leg = data.legs[legIndex];
         if (leg) {
@@ -32,30 +35,34 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
     }
 
     async function recordWinner(winnerName) {
-        const newHomeScore = winnerName === 'home' ? homeScore + 1 : (homeScore || 0);
-        const newAwayScore = winnerName === 'away' ? awayScore + 1 : (awayScore || 0);
+        try {
+            const newHomeScore = winnerName === 'home' ? homeScore + 1 : (homeScore || 0);
+            const newAwayScore = winnerName === 'away' ? awayScore + 1 : (awayScore || 0);
 
-        const currentLegIndex = (homeScore || 0) + (awayScore || 0);
-        const currentLeg = data.legs[currentLegIndex];
+            const currentLegIndex = (homeScore || 0) + (awayScore || 0);
+            const currentLeg = data.legs[currentLegIndex];
 
-        if (!currentLeg.isLastLeg) {
-            const newData = addLeg(currentLegIndex + 1);
-            const newLeg = newData.legs[currentLegIndex + 1];
+            if (!currentLeg.isLastLeg) {
+                const newData = addLeg(currentLegIndex + 1);
+                const newLeg = newData.legs[currentLegIndex + 1];
 
-            if (!singlePlayer) {
-                newLeg.playerSequence = [currentLeg.playerSequence[1], currentLeg.playerSequence[0]];
-                newLeg.currentThrow = newLeg.playerSequence[0].value;
+                if (!singlePlayer) {
+                    newLeg.playerSequence = [currentLeg.playerSequence[1], currentLeg.playerSequence[0]];
+                    newLeg.currentThrow = newLeg.playerSequence[0].value;
+                }
+
+                if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0) {
+                    // prompt for who should throw first.
+                    newLeg.currentThrow = null;
+                }
+
+                await onChange(newData);
             }
 
-            if (newLeg.isLastLeg && newHomeScore === newAwayScore && newHomeScore > 0) {
-                // prompt for who should throw first.
-                newLeg.currentThrow = null;
-            }
-
-            await onChange(newData);
+            await onLegComplete(newHomeScore, newAwayScore);
+        } catch (e) {
+            onError(e);
         }
-
-        await onLegComplete(newHomeScore, newAwayScore);
     }
 
     const legIndex = (homeScore || 0) + (awayScore || 0);

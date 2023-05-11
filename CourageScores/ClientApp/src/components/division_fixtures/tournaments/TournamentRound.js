@@ -85,21 +85,18 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
             return !isPlaying;
         });
 
-        for (let index = 0; index < round.matches.length; index++) {
-            const match = round.matches[index];
-            // noinspection JSUnresolvedVariable
+        return sidesForTheNextRound.concat(round.matches.flatMap(match => {
             const scoreA = Number.parseInt(match.scoreA);
-            // noinspection JSUnresolvedVariable
             const scoreB = Number.parseInt(match.scoreB);
 
             if (scoreA > scoreB) {
-                sidesForTheNextRound.push(match.sideA);
+                return [ match.sideA ];
             } else if (scoreB > scoreA) {
-                sidesForTheNextRound.push(match.sideB);
+                return [ match.sideB ];
             }
-        }
 
-        return sidesForTheNextRound;
+            return [];
+        }));
     }
 
     function hasScore(score) {
@@ -120,7 +117,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         return `Round: ${depth}`;
     }
 
-    let matchIndex = 0;
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
     const hasNextRound = round.nextRound && round.nextRound.matches && any(round.nextRound.matches);
 
@@ -133,12 +129,10 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
             ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getRoundName() : (round.name || getRoundName())}</strong>)}
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
-        {(round.matches || []).map(match => {
-            const thisMatchIndex = matchIndex++;
-
+        {(round.matches || []).map((match, matchIndex) => {
             async function onMatchOptionsChanged(newMatchOptions) {
                 const newRound = Object.assign({}, round);
-                newRound.matchOptions[thisMatchIndex] = newMatchOptions;
+                newRound.matchOptions[matchIndex] = newMatchOptions;
 
                 if (onChange) {
                     await onChange(newRound);
@@ -146,16 +140,16 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
             }
 
             return (<TournamentRoundMatch
-                key={thisMatchIndex}
+                key={matchIndex}
                 hasNextRound={hasNextRound}
                 match={match}
                 round={round}
                 readOnly={readOnly}
                 sideMap={sideMap}
                 exceptSelected={exceptSelected}
-                matchIndex={thisMatchIndex}
+                matchIndex={matchIndex}
                 onChange={onChange}
-                matchOptions={elementAt(round.matchOptions || [], thisMatchIndex) || matchOptionDefaults}
+                matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
                 onMatchOptionsChanged={onMatchOptionsChanged}
                 on180={on180} onHiCheck={onHiCheck} />);
         })}

@@ -6,8 +6,7 @@ export function ReportGenerationMessages({ messages }) {
         return null;
     }
 
-    let index = 0;
     return (<ul className="d-print-none">
-        {messages.map(msg => (<li key={index++}>{msg}</li>))}
+        {messages.map((msg, index) => (<li key={index}>{msg}</li>))}
     </ul>);
 }

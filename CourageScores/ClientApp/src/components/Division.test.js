@@ -57,7 +57,10 @@ describe('Division', () => {
             {
                 account: account,
                 onError: (err) => {
-                    reportedError = err;
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
                 },
                 error: null,
                 seasons: toMap(seasons),

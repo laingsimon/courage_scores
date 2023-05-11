@@ -13,7 +13,6 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
     }
 
     function renderThrows(throws) {
-        let index = 0;
         let score = 0;
         let noOfDarts = 0;
 
@@ -22,7 +21,7 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
         }
 
         return (<ol>
-            {throws.map(legThrow => {
+            {throws.map((legThrow, index) => {
                 const newScore = score + legThrow.score;
                 const bust = newScore > leg.startingScore || newScore === leg.startingScore - 1 || legThrow.bust;
                 noOfDarts += legThrow.noOfDarts;
@@ -31,11 +30,11 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
                 }
                 const runningAverage = score / (noOfDarts / 3);
 
-                return (<li key={index++} title={`Running score: ${leg.startingScore - score}`}>
+                return (<li key={index} title={`Running score: ${leg.startingScore - score}`}>
                     {showMetric === 'throw' ? legThrow.score : null}
                     {showMetric === 'remaining' ? leg.startingScore - score : null}
                     {showAverage ? (<span> (avg {round2dp(runningAverage)})</span>) : null}
-                    {bust ? (<span className="opacity-25 float-end" key={index}>💥</span>) : null}
+                    {bust ? (<span className="opacity-25 float-end">💥</span>) : null}
                     {!showAverage && repeat(legThrow.noOfDarts, (index) => (<span className="opacity-25 float-end" key={index}>📌</span>))}
                 </li>);
             })}
