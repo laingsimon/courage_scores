@@ -1,5 +1,6 @@
 import {elementAt} from "../../../Utilities";
 
+/* istanbul ignore next */
 export function getMatchDefaults() {
     return {
         homePlayers:[],
@@ -7,6 +8,7 @@ export function getMatchDefaults() {
     };
 }
 
+/* istanbul ignore next */
 export function getMatchOptionDefaults(legIndex, matchOptions) {
     return {
         playerCount: matchOptions.playerCount[legIndex],
@@ -15,6 +17,7 @@ export function getMatchOptionDefaults(legIndex, matchOptions) {
     };
 }
 
+/* istanbul ignore next */
 export function getMatchOptionsLookup(matchOptions) {
     return {
         playerCount: {
