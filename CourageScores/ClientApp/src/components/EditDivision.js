@@ -1,11 +1,13 @@
 import React, {useState} from "react";
 import {valueChanged} from "../Utilities";
 import {useDependencies} from "../IocContainer";
+import {useApp} from "../AppContainer";
 
 export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { divisionApi } = useDependencies();
+    const { onError } = useApp();
 
     async function saveDivision() {
         if (saving || deleting) {
@@ -26,6 +28,8 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }

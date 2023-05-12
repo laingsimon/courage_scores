@@ -8,7 +8,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { seasonApi } = useDependencies();
-    const { seasons, divisions } = useApp();
+    const { seasons, divisions, onError } = useApp();
 
     async function saveSeason() {
         if (saving || deleting) {
@@ -29,6 +29,8 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }
