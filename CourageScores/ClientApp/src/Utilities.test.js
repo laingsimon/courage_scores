@@ -14,7 +14,8 @@ import {
     sortBy,
     sum,
     toMap,
-    distinct
+    distinct,
+    renderDate
 } from './Utilities';
 
 describe('Utilities', () => {
@@ -415,6 +416,14 @@ describe('Utilities', () => {
             expect(result).toEqual([
                 { age: 1 },
                 { age: 2 } ]);
+        });
+    });
+
+    describe('renderDate', () => {
+        it('should render the date correctly', () => {
+            const result = renderDate('2023-02-03T00:00:00');
+
+            expect(result).toEqual('3 Feb');
         });
     });
 });

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 import {DivisionControls} from "../../DivisionControls";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
-import {any, propChanged, sortBy, valueChanged} from "../../../Utilities";
+import {any, propChanged, renderDate, sortBy, valueChanged} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {TournamentSheet} from "./TournamentSheet";
@@ -183,10 +183,10 @@ export function Tournament() {
                                name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
                     : (<p>
-                        At <strong>{tournamentData.address}</strong> on <strong>{new Date(tournamentData.date).toDateString()}</strong>
+                        At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                         <span className="margin-left">
                         <ShareButton
-                            text={`Courage League: ${tournamentData.address} on ${new Date(tournamentData.date).toDateString()}`}/>
+                            text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
                     </span>
                     </p>)}
                 {canManageGames

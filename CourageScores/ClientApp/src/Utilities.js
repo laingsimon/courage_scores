@@ -215,3 +215,12 @@ export function distinct(items, property) {
 
     return Object.values(map);
 }
+
+/*
+* Render a date in dd-MMM format
+* */
+export function renderDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString(
+        'en-GB',
+        { month: "short", day: "numeric" });
+}

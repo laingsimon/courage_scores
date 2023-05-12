@@ -1,8 +1,8 @@
 import {useApp} from "../AppContainer";
+import {renderDate} from "../Utilities";
 
 export function About() {
     const { build } = useApp();
-    const dateTime = new Date(build.date);
 
     return (<div className="light-background p-3">
         <h3>About</h3>
@@ -43,7 +43,7 @@ export function About() {
             </tr>
             <tr>
                 <th>Date</th>
-                <td title={build.date}>{dateTime.toLocaleDateString()} {dateTime.toLocaleTimeString()}</td>
+                <td title={build.date}>{renderDate(build.date)} {new Date(build.date).toLocaleTimeString()}</td>
             </tr>
             </tbody>
         </table>

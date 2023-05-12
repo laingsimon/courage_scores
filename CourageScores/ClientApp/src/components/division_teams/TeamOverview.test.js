@@ -168,8 +168,8 @@ describe('TeamOverview', () => {
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
             expect(fixtureRows.length).toEqual(2);
-            assertFixtureRow(fixtureRows[0], 'Sat Feb 03 2001', team.name, 'Another team');
-            assertFixtureRow(fixtureRows[1], 'Mon Feb 05 2001', 'Another team', team.name);
+            assertFixtureRow(fixtureRows[0], '3 Feb', team.name, 'Another team');
+            assertFixtureRow(fixtureRows[1], '5 Feb', 'Another team', team.name);
         });
 
         it('renders players', async () => {

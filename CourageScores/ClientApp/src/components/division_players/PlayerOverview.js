@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "./DivisionPlayers";
 import {ShareButton} from "../ShareButton";
-import {any} from "../../Utilities";
+import {any, renderDate} from "../../Utilities";
 import {useDivisionData} from "../DivisionDataContainer";
 
 export function PlayerOverview({ playerId }) {
@@ -49,7 +49,7 @@ export function PlayerOverview({ playerId }) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
-                    <Link to={`/score/${fixture.id}`}>{new Date(date).toDateString()}</Link>
+                    <Link to={`/score/${fixture.id}`}>{renderDate(date)}</Link>
                     {fixture.isKnockout ? (<span className="margin-left">(Qualifier)</span>) : null}
                 </div>
             </td>
@@ -77,7 +77,7 @@ export function PlayerOverview({ playerId }) {
         return (<tr key={tournament.id}>
             <td>
                 <div className="position-absolute">
-                    <Link to={`/tournament/${tournament.id}`}>{new Date(date).toDateString()}</Link>
+                    <Link to={`/tournament/${tournament.id}`}>{renderDate(date)}</Link>
                 </div>
             </td>
             <td className="text-end" colSpan="3">

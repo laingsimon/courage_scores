@@ -1,5 +1,5 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {isEmpty, propChanged, sortBy} from "../../Utilities";
+import {isEmpty, propChanged, renderDate, sortBy} from "../../Utilities";
 import {ShareButton} from "../ShareButton";
 import {useDivisionData} from "../DivisionDataContainer";
 
@@ -25,7 +25,7 @@ export function FilterFixtures({ filter, setFilter }) {
 
     if (filter.date && isEmpty(dateFilters, f => f.value === filter.date)) {
         if (filter.date.match(/\d{4}-\d{2}-\d{2}/)) {
-            dateFilters.push({ value: filter.date, text: new Date(filter.date).toDateString() });
+            dateFilters.push({ value: filter.date, text: renderDate(filter.date) });
         } else {
             dateFilters.push({ value: filter.date, text: filter.date });
         }
