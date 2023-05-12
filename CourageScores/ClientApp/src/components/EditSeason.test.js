@@ -210,7 +210,6 @@ describe('EditSeason', () => {
         }, [ otherSeason ], divisions);
         expect(reportedError).toBeNull();
 
-        console.log(context.container.innerHTML);
         const otherSeasonMenuItem = context.container.querySelector('div.dropdown-menu button.dropdown-item');
         expect(otherSeasonMenuItem).toBeTruthy();
         expect(otherSeasonMenuItem.textContent).toEqual('OTHER SEASON');

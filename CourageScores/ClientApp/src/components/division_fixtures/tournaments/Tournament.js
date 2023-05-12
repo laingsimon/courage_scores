@@ -47,6 +47,8 @@ export function Tournament() {
                 setLoading('loading');
                 // noinspection JSIgnoredPromiseFromCall
                 loadFixtureData();
+            } else if (!seasons.length) {
+                onError('No seasons found');
             }
         },
         // eslint-disable-next-line
@@ -69,7 +71,7 @@ export function Tournament() {
                 throw new Error('Could not find the season for this tournament');
             }
 
-            const allPlayers = getAllPlayers(tournamentData, teams);
+            const allPlayers = getAllPlayers(tournamentData);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
@@ -159,13 +161,13 @@ export function Tournament() {
     try {
         return (<div>
             <DivisionControls
-                originalSeasonData={{
+                originalSeasonData={ season ? {
                     id: season.id,
                     name: season.name,
                     startDate: season.startDate.substring(0, 10),
                     endDate: season.endDate.substring(0, 10),
                     divisions: season.divisions
-                }}
+                } : {} }
                 originalDivisionData={division
                     ? {
                         id: division.id,
@@ -173,7 +175,7 @@ export function Tournament() {
                     }
                     : null}
                 overrideMode="fixtures"/>
-            <div className="light-background p-3">
+            {tournamentData ? (<div className="light-background p-3">
                 {canManageGames
                     ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
@@ -183,7 +185,7 @@ export function Tournament() {
                                name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
                     : (<p>
-                        At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
+                        {tournamentData.type || ''} At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                         <span className="margin-left">
                         <ShareButton
                             text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
@@ -242,7 +244,7 @@ export function Tournament() {
                     Save
                 </button>) : null}
                 {canManagePlayers ? (<button className="btn btn-primary d-print-none" onClick={() => setAddPlayerDialogOpen(true)}>Add player</button>) : null}
-            </div>
+            </div>) : (<div>Tournament not found</div>)}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}
             {addPlayerDialogOpen ? renderCreatePlayerDialog() : null}
