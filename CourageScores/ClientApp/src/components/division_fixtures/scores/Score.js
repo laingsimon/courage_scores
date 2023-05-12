@@ -5,7 +5,7 @@ import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {any, elementAt, isEmpty, propChanged, repeat, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, propChanged, renderDate, repeat, sortBy} from "../../../Utilities";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -478,7 +478,7 @@ export function Score() {
                              to={`/division/${data.divisionId}/fixtures/${season.id}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>{new Date(data.date).toDateString()}</NavLink>
+                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link} className="text-light"

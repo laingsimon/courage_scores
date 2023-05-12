@@ -1,11 +1,15 @@
 import React, {useState} from "react";
 import {valueChanged} from "../Utilities";
 import {useDependencies} from "../IocContainer";
+import {useApp} from "../AppContainer";
+import {useNavigate} from "react-router-dom";
 
 export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { divisionApi } = useDependencies();
+    const { onError } = useApp();
+    const navigate = useNavigate();
 
     async function saveDivision() {
         if (saving || deleting) {
@@ -26,6 +30,8 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }
@@ -45,7 +51,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
             const result = await divisionApi.delete(data.id);
 
             if (result.success) {
-                document.location.href = `https://${document.location.host}`;
+                navigate(`https://${document.location.host}`);
             } else {
                 setSaveError(result);
             }

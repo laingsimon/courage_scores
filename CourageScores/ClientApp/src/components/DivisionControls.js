@@ -5,7 +5,7 @@ import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
 import {EditDivision} from "./EditDivision";
 import {EditSeason} from "./EditSeason";
-import {any, isEmpty, sortBy} from "../Utilities";
+import {any, isEmpty, sortBy, renderDate} from "../Utilities";
 import {useApp} from "../AppContainer";
 
 export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged, originalDivisionData, overrideMode }) {
@@ -27,10 +27,6 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         } else {
             setOpenDropdown(null);
         }
-    }
-
-    function renderDate(dateStr) {
-        return new Date(dateStr).toLocaleDateString('en-GB', { month: "short", day: "numeric" });
     }
 
     function stripIdFromMode(mode) {
@@ -109,7 +105,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         return null;
     }
 
-    function navigateToFixtures() {
+    function navigateToSeason() {
         navigate(`/division/${originalDivisionData.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`);
     }
 
@@ -118,11 +114,11 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
             {divisionData ? renderEditDivisionDialog() : null}
             {seasonData ? renderEditSeasonDialog() : null}
             <ButtonDropdown isOpen={openDropdown === 'season' || !originalSeasonData} toggle={() => { if (any(seasons)) { toggleDropdown('season') } }}>
-                <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : navigateToFixtures}>
+                <button className={`btn ${isSeasonAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={isSeasonAdmin ? () => setSeasonData(toEditableSeason(originalSeasonData)) : navigateToSeason}>
                         {originalSeasonData
                             ? (<span>{originalSeasonData.name} ({renderDate(originalSeasonData.startDate)} - {renderDate(originalSeasonData.endDate)})</span>)
                             : (<span>Select a season</span>)}
-                    {isSeasonAdmin ? '✏' : ''}
+                    {isSeasonAdmin && originalSeasonData ? '✏' : ''}
                 </button>
                 {seasons.length ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                 {seasons.length ? (<DropdownMenu>
@@ -136,7 +132,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
             </ButtonDropdown>
             {originalDivisionData && divisions && originalSeasonData ? (
                 <ButtonDropdown isOpen={openDropdown === 'division'} toggle={() => { if (any(divisions, shouldShowDivision)) { toggleDropdown('division') } } }>
-                    <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={isDivisionAdmin ? () => setDivisionData(Object.assign({}, originalDivisionData)) : navigateToFixtures}>
+                    <button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`} onClick={isDivisionAdmin ? () => setDivisionData(Object.assign({}, originalDivisionData)) : navigateToSeason}>
                         {originalDivisionData.name}
                         {isDivisionAdmin ? '✏' : ''}
                     </button>

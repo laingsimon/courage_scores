@@ -130,7 +130,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
+            assertFixtureDate(fixtureDateElement, '13 Oct');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
             expect(noteElement.textContent).toEqual('📌Finals night!');
@@ -158,7 +158,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
+            assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
@@ -186,7 +186,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022 (Qualifier)');
+            assertFixtureDate(fixtureDateElement, '13 Oct (Qualifier)');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
@@ -214,7 +214,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
+            assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'away3');
@@ -241,7 +241,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022');
+            assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
@@ -276,7 +276,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022Who\'s playing?');
+            assertFixtureDate(fixtureDateElement, '13 OctWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
@@ -308,7 +308,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022Who\'s playing?');
+            assertFixtureDate(fixtureDateElement, '13 OctWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address');
@@ -338,7 +338,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteQualifier');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
             expect(noteElement.textContent).toEqual('📌Finals night!Edit');
@@ -366,7 +366,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
@@ -394,7 +394,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022 (Qualifier)📌 Add note');
+            assertFixtureDate(fixtureDateElement, '13 Oct (Qualifier)📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
@@ -422,7 +422,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add note');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'A team');
@@ -450,7 +450,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteQualifier');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
@@ -485,7 +485,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteWho\'s playing?');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
@@ -517,7 +517,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0);
-            assertFixtureDate(fixtureDateElement, 'Thu Oct 13 2022📌 Add noteWho\'s playing?');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address');

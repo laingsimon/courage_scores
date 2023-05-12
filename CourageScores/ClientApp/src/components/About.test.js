@@ -1,6 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import {cleanUp, renderApp} from "../tests/helpers";
+import {renderDate} from "../Utilities";
 import React from "react";
 import {About} from "./About";
 
@@ -88,7 +89,7 @@ describe('About', () => {
 
             const branchRow = getRow('Date');
             const cell = branchRow.querySelector('td');
-            const expectedDate = new Date(buildDate).toLocaleDateString() + ' ' + new Date(buildDate).toLocaleTimeString();
+            const expectedDate = renderDate(buildDate) + ' ' + new Date(buildDate).toLocaleTimeString();
             expect(cell.textContent).toEqual(expectedDate);
         });
     });

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, sortBy} from "../../Utilities";
+import {any, renderDate, sortBy} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -90,11 +90,11 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         }
         let sameFixtureDifferentDate = isSelectedInSameFixtureOnAnotherDate(t);
         if (sameFixtureDifferentDate) {
-            return `Already playing same leg on ${new Date(sameFixtureDifferentDate).toDateString()}`;
+            return `Already playing same leg on ${renderDate(sameFixtureDifferentDate)}`;
         }
         let legsOnOtherDates = getLegsOnOtherDates(t);
         if (legsOnOtherDates.length >= 2) {
-            return `Already playing both legs ${legsOnOtherDates.map(d => new Date(d).toDateString()).join(' & ')}`;
+            return `Already playing both legs ${legsOnOtherDates.map(renderDate).join(' & ')}`;
         }
 
         return null;
