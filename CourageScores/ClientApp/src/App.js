@@ -33,6 +33,7 @@ export function App({ shouldExcludeSurround }) {
     []);
 
     function onError(error) {
+        console.error(error);
         setError(mapError(error));
     }
 

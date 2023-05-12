@@ -28,7 +28,6 @@ export function Division() {
             setDivisionData(divisionData);
             return divisionData;
         } catch (e) {
-            console.error(e);
             onError(e);
         }
         finally {
