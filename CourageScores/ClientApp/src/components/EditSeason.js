@@ -3,12 +3,14 @@ import {any, propChanged, sortBy, valueChanged} from "../Utilities";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
+import {useNavigate} from "react-router-dom";
 
 export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }) {
     const [ saving, setSaving ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const { seasonApi } = useDependencies();
     const { seasons, divisions, onError } = useApp();
+    const navigate = useNavigate();
 
     async function saveSeason() {
         if (saving || deleting) {
@@ -50,7 +52,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
             const result = await seasonApi.delete(data.id);
 
             if (result.success) {
-                document.location.href = `https://${document.location.host}`;
+                navigate(`https://${document.location.host}`);
             } else {
                 setSaveError(result);
             }
