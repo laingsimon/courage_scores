@@ -1,22 +1,9 @@
 import {max, repeat, sortBy} from "../../../Utilities";
 import React from "react";
+import {getRoundNameFromMatches} from "./TournamentHelpers";
 
 export function TournamentSheet({ sides }) {
     const maxSideSize = max(sides, current => current.players ? current.players.length : 0);
-
-    function getRoundName(matches, depth) {
-        if (matches === 1) {
-            return 'Final';
-        }
-        if (matches === 2) {
-            return 'Semi-Final';
-        }
-        if (matches === 3 || matches === 4) {
-            return 'Quarter-Final';
-        }
-
-        return `Round: ${depth + 1}`;
-    }
 
     function renderWinner() {
         return (<div key="winner" className="d-flex flex-column m-2 flex-grow-1">
@@ -49,7 +36,7 @@ export function TournamentSheet({ sides }) {
 
     function renderRound(noOfMatches, byes, depth) {
         return (<div key={depth} className="d-flex flex-column m-2 flex-grow-1">
-            <div className="text-center fw-bold">{getRoundName(noOfMatches + byes, depth)}</div>
+            <div className="text-center fw-bold">{getRoundNameFromMatches(noOfMatches + byes, depth)}</div>
             {repeat(noOfMatches).map(index => (<div key={index} className="outline-dark m-2 min-width-150 min-height-50 position-relative">
                 {repeat((maxSideSize * 2) - 1).map(playerIndex => {
                     if (playerIndex === (maxSideSize / 2) || maxSideSize === 1) {
@@ -69,7 +56,6 @@ export function TournamentSheet({ sides }) {
 
     function renderPrintModeRound(sideCount) {
         let matches = sideCount;
-
         const rounds = [];
 
         for (let depth = 0; depth < 10; depth++) {
@@ -88,14 +74,12 @@ export function TournamentSheet({ sides }) {
         return rounds;
     }
 
-    let index = 0;
-
     return (<div className="d-screen-none">
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
             {renderPrintModeRound(sides.length)}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
-                .map(s => (<li className="list-group-item outline-dark" key={s.id}>{++index} - {s.name}</li>))}</ul>
+                .map((s, index) => (<li className="list-group-item outline-dark" key={s.id}>{index + 1} - {s.name}</li>))}</ul>
         </div>
     </div>);
 }
