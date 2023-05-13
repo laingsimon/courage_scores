@@ -189,6 +189,10 @@ export function repeat(times, itemProvider) {
 * */
 export function distinct(items, property) {
     function getValue(item, property) {
+        if (!property) {
+            return item;
+        }
+
         if (property.indexOf('.') !== -1) {
             const parentProperty = property.substring(0, property.indexOf('.'));
             const childProperty = property.substring(parentProperty.length + 1);
