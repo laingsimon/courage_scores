@@ -133,6 +133,12 @@ describe('NavMenu', () => {
             expect(errorCleared).toEqual(true);
         });
 
+        it('renders nav-menu error', async () => {
+            await renderComponent(settings, account, [null], seasons, false);
+
+            expect(context.container.textContent).toContain('ERROR:');
+        });
+
         it('collapses on navigate', async () => {
             await renderComponent(settings, account, divisions, seasons, false);
             expect(context.container.textContent).not.toContain('ERROR:');
