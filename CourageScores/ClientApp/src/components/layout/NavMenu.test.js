@@ -128,7 +128,9 @@ describe('NavMenu', () => {
             const practiceItem = items[2];
             expect(practiceItem.textContent).toEqual('Practice');
 
-            await doClick(practiceItem.querySelector('a'));
+            const link = practiceItem.querySelector('a');
+            link.href = '#';
+            await doClick(link);
 
             expect(errorCleared).toEqual(true);
         });
@@ -149,7 +151,9 @@ describe('NavMenu', () => {
             await doClick(toggler);
             expect(isExpanded()).toEqual(true);
 
-            await doClick(items[2].querySelector('a')); // click Practice
+            const link = items[2].querySelector('a');
+            link.href = '#';
+            await doClick(link); // click Practice
 
             expect(isExpanded()).toEqual(false);
         });
