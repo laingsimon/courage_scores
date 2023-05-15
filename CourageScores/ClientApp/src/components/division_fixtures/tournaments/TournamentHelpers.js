@@ -1,4 +1,4 @@
-﻿export function getRoundNameFromSides(round, sideLength, depth) {
+export function getRoundNameFromSides(round, sideLength, depth) {
     if (round.name) {
         return round.name;
     }
