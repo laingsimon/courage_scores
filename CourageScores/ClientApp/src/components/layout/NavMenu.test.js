@@ -207,8 +207,8 @@ describe('NavMenu', () => {
                 [division1, division2],
                 [onlyDivision1SeasonCurrent, bothDivisionsSeasonsNotCurrent],
                 false,
-                '/divisions/:divisionId/teams/:seasonId',
-                `/divisions/${division1.id}/teams/${onlyDivision1SeasonCurrent.id}`);
+                '/division/:divisionId/:mode/:seasonId',
+                `/division/${division1.id}/teams/${onlyDivision1SeasonCurrent.id}`);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const items = getDivisionItems();

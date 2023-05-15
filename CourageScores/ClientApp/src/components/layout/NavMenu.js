@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavLink} from 'reactstrap';
-import {Link, useLocation, useParams} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
 import {any, isEmpty} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
@@ -13,8 +13,6 @@ export function NavMenu() {
     const [navMenuError, setNavMenuError] = useState(null);
     const [currentLink, setCurrentLink] = useState(document.location.href);
     const location = useLocation();
-    const { seasonId } = useParams();
-    const requestedSeason = seasons ? seasons.filter(s => s.id === seasonId)[0] : null;
 
     useEffect(() => {
         setCurrentLink('https://' + document.location.host + location.pathname);
@@ -41,13 +39,8 @@ export function NavMenu() {
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
-    function getCurrentSeason() {
-        const currentSeason = seasons ? seasons.filter(s => s.isCurrent === true)[0] : null;
-        return currentSeason ? currentSeason.id : null;
-    }
-
     function shouldShowDivision(division) {
-        const season = requestedSeason || getCurrentSeason();
+        const season = seasons ? seasons.filter(s => s.isCurrent === true)[0] : null;
 
         if (!season || isEmpty(season.divisions || [])) {
             return true;
