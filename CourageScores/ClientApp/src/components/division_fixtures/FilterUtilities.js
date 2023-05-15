@@ -31,17 +31,16 @@ export function isLastFixtureBeforeToday(renderContext, fixtures, date) {
     return date === renderContext.lastFixtureDateBeforeToday;
 }
 
-export function isNextFeatureAfterToday(renderContext, date) {
-    const inFuture = isInFuture(date);
-    if (!inFuture) {
-        return false;
+export function isNextFixtureAfterToday(renderContext, date) {
+    if (isInFuture(date)) {
+        if (!renderContext.futureDateShown) {
+            renderContext.futureDateShown = date;
+        }
+
+        return renderContext.futureDateShown === date;
     }
 
-    if (!renderContext.futureDateShown) {
-        renderContext.futureDateShown = date;
-    }
-
-    return renderContext.futureDateShown === date;
+    return false;
 }
 
 export function optionallyInvertFilter(getFilter, filterInput, renderContext, fixtures) {
@@ -66,7 +65,7 @@ export function getDateFilter(date, renderContext, fixtures) {
             return new OrFilter([
                 new Filter(c => isToday(c.date)),
                 new Filter(c => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
-                new Filter(c => isNextFeatureAfterToday(renderContext, c.date))
+                new Filter(c => isNextFixtureAfterToday(renderContext, c.date))
             ]);
         default:
             if (date && date.match(/\d{4}-\d{2}/)) {

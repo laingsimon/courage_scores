@@ -28,9 +28,15 @@ describe('Score', () => {
             }
         }
     };
+    const originalConsoleLog = console.log;
+
+    beforeEach(() => {
+        console.log = () => {};
+    });
 
     afterEach(() => {
         cleanUp(context);
+        console.log = originalConsoleLog;
     });
 
     async function renderComponent(id, appData) {

@@ -11,7 +11,7 @@ export class Filter {
     }
 
     apply(item) {
-        return this._expression(item);
+        return !!this._expression(item);
     }
 }
 

@@ -4,7 +4,7 @@ import {useApp} from "../../AppContainer";
 export function Heading() {
     const { build } = useApp();
 
-    const version = build && build.version && build.branch !== 'release' && build.version.substring(0, 8);
+    const version = build && build.branch && build.version && build.branch !== 'release' && build.version.substring(0, 8);
 
     function showVersion() {
         window.alert(`Branch: ${build.branch}\nSHA: ${build.version.substring(0, 8)}`);
