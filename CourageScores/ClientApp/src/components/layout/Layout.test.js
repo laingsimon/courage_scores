@@ -68,7 +68,6 @@ describe('Layout', () => {
 
             expect(context.container.querySelector('.heading')).toBeFalsy();
             expect(context.container.querySelector('header')).toBeFalsy();
-            console.log(context.container.innerHTML);
             const content = context.container.querySelector('div.container');
             expect(content).toBeTruthy();
         });
