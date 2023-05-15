@@ -14,6 +14,7 @@ export function NavMenu() {
     const [currentLink, setCurrentLink] = useState(document.location.href);
     const location = useLocation();
     const { seasonId } = useParams();
+    const requestedSeason = seasons ? seasons.filter(s => s.id === seasonId)[0] : null;
 
     useEffect(() => {
         setCurrentLink('https://' + document.location.host + location.pathname);
@@ -40,24 +41,19 @@ export function NavMenu() {
         return `${settings.apiHost}/api/Account/${action}/?redirectUrl=${currentLink}`;
     }
 
-    function getCurrentSeasonId() {
-        const currentSeason = seasons.filter(s => s.isCurrent === true)[0];
+    function getCurrentSeason() {
+        const currentSeason = seasons ? seasons.filter(s => s.isCurrent === true)[0] : null;
         return currentSeason ? currentSeason.id : null;
     }
 
     function shouldShowDivision(division) {
-        const currentSeasonId = seasonId || getCurrentSeasonId();
+        const season = requestedSeason || getCurrentSeason();
 
-        if (!currentSeasonId) {
+        if (!season || isEmpty(season.divisions || [])) {
             return true;
         }
 
-        const currentSeason = seasons.filter(s => s.id === currentSeasonId)[0];
-        if (!currentSeason || isEmpty(currentSeason.divisions)) {
-            return true;
-        }
-
-        return any(currentSeason.divisions, d => d.id === division.id);
+        return any(season.divisions, d => d.id === division.id);
     }
 
     function hasAdminAccess(access) {
@@ -72,7 +68,7 @@ export function NavMenu() {
     }
 
     try {
-        return (<header className="d-print-none">
+        return (<header className="d-print-none" data-state={collapsed ? 'collapsed' : 'expanded'}>
             <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container
                     dark>
                 <NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>
