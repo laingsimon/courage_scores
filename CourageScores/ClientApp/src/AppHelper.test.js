@@ -4,6 +4,16 @@ import {mapError, mapForLogging} from "./AppHelper";
 
 describe('AppHelper', () => {
     describe('mapError', () => {
+        const oldConsoleError = console.error;
+
+        beforeEach(() => {
+            console.error = () => {};
+        })
+
+        afterEach(() => {
+            console.error = oldConsoleError;
+        })
+
         it('returns stack if provided', () => {
             const result = mapError({ message: 'MESSAGE', stack: 'STACK' });
 
