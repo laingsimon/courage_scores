@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange} from "../../tests/helpers";
 import React from "react";
 import {createTemporaryId} from "../../Utilities";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -11,16 +11,23 @@ describe('DivisionTeams', () => {
     let reportedError;
     let divisionReloaded = false;
     let account;
+    const teamApi = {
+        update: async (team) => {
+            return {
+                success: true,
+            };
+        }
+    }
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData) {
+    async function renderComponent(divisionData, divisions) {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            { },
+            { teamApi },
             {
                 account: account,
                 onError: (err) => {
@@ -29,7 +36,7 @@ describe('DivisionTeams', () => {
                         stack: err.stack
                     };
                 },
-                error: null,
+                divisions: divisions || [],
             },
             (<DivisionDataContainer {...divisionData}>
                 <DivisionTeams />
@@ -141,6 +148,40 @@ describe('DivisionTeams', () => {
             expect(reportedError).toBeNull();
             const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
             expect(addTeamButton).toBeTruthy();
+        });
+
+        it('renders add team dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(
+                { ...divisionData, onReloadDivision: onReloadDivision });
+            const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
+
+            await doClick(addTeamButton);
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('Create a new team...');
+        });
+
+        it('can create new team', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(
+                { ...divisionData, onReloadDivision: onReloadDivision });
+            const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
+            await doClick(addTeamButton);
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog.textContent).toContain('Create a new team...');
+
+            doChange(dialog, 'input[name="name"]', 'NEW TEAM');
+            const saveButton = Array.from(dialog.querySelectorAll('button')).filter(b => b.textContent === 'Add team')[0];
+            await doClick(saveButton);
+
+            expect(reportedError).toBeNull();
+            expect(divisionReloaded).toEqual(true);
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy(); // dialog closed
         });
     });
 });
