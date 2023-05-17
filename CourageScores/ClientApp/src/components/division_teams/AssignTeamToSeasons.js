@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useApp} from "../../AppContainer";
-import {all, any, stateChanged} from "../../Utilities";
+import {all, any, sortBy, stateChanged} from "../../Utilities";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useDependencies} from "../../IocContainer";
 
@@ -9,7 +9,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
     const { seasons, teams, onError, reloadAll } = useApp();
     const { teamApi } = useDependencies();
     const team = teams.filter(t => t.id === teamOverview.id)[0];
-    const initialSeasonIds = team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId);
+    const initialSeasonIds = team ? team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId) : [];
     const [ selectedSeasonIds, setSelectedSeasonIds ] = useState(initialSeasonIds);
     const [ saving, setSaving ] = useState(false);
     const [ copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason ] = useState(true);
@@ -122,7 +122,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
                 </div>
             </div>
             <ul className="list-group mb-3">
-                {seasons.map(renderSeason)}
+                {seasons.sort(sortBy('startDate')).map(renderSeason)}
             </ul>
             <div>
                 <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
