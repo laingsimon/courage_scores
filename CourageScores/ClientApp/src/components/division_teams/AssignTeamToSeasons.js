@@ -110,24 +110,30 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
         return (<div>Team not found: {teamOverview.name} ({teamOverview.id})</div>);
     }
 
-    return (<div>
-        <div>Associate <strong>{team.name}</strong> with the following seasons</div>
-        <div className="input-group mb-3">
-            <div className="form-check form-switch margin-right">
-                <input disabled={saving} className="form-check-input" type="checkbox" id="copyTeamFromCurrentSeason"
-                       checked={copyTeamFromCurrentSeason} onChange={stateChanged(setCopyTeamFromCurrentSeason)}/>
-                <label className="form-check-label" htmlFor="copyTeamFromCurrentSeason">Copy players from <strong>{currentSeason.name}</strong></label>
+    try {
+        return (<div>
+            <div>Associate <strong>{team.name}</strong> with the following seasons</div>
+            <div className="input-group mb-3">
+                <div className="form-check form-switch margin-right">
+                    <input disabled={saving} className="form-check-input" type="checkbox" id="copyTeamFromCurrentSeason"
+                           checked={copyTeamFromCurrentSeason} onChange={stateChanged(setCopyTeamFromCurrentSeason)}/>
+                    <label className="form-check-label" htmlFor="copyTeamFromCurrentSeason">Copy players
+                        from <strong>{currentSeason.name}</strong></label>
+                </div>
             </div>
-        </div>
-        <ul className="list-group mb-3">
-            {seasons.map(renderSeason)}
-        </ul>
-        <div>
-            <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
-            <button className="btn btn-success margin-right" onClick={saveChanges} disabled={!changes.changed}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                Apply changes
-            </button>
-        </div>
-    </div>);
+            <ul className="list-group mb-3">
+                {seasons.map(renderSeason)}
+            </ul>
+            <div>
+                <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
+                <button className="btn btn-success margin-right" onClick={saveChanges} disabled={!changes.changed}>
+                    {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                     aria-hidden="true"></span>) : null}
+                    Apply changes
+                </button>
+            </div>
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }
