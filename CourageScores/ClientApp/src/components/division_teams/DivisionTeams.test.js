@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../tests/helpers";
 import React from "react";
 import {createTemporaryId} from "../../Utilities";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -176,7 +176,7 @@ describe('DivisionTeams', () => {
             expect(dialog.textContent).toContain('Create a new team...');
 
             doChange(dialog, 'input[name="name"]', 'NEW TEAM');
-            const saveButton = Array.from(dialog.querySelectorAll('button')).filter(b => b.textContent === 'Add team')[0];
+            const saveButton = findButton(dialog, 'Add team');
             await doClick(saveButton);
 
             expect(reportedError).toBeNull();

@@ -62,3 +62,17 @@ export function cleanUp(context) {
         context.cleanUp();
     }
 }
+
+export function findButton(container, text) {
+    if (!container){
+        throw new Error('Container is null');
+    }
+    const matching = Array.from(container.querySelectorAll('button')).filter(b => b.textContent === text);
+    if (matching.length === 1) {
+        return matching[0];
+    }
+    if (matching.length === 0) {
+        throw new Error(`Unable to find button with text = ${text}`);
+    }
+    throw new Error(`Multiple buttons (${matching.length}) exist with text = ${text}`);
+}

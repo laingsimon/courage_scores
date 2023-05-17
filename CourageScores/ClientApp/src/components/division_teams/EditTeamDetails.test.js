@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../tests/helpers";
 import React from "react";
 import {createTemporaryId} from "../../Utilities";
 import {EditTeamDetails} from "./EditTeamDetails";
@@ -268,8 +268,7 @@ describe('EditTeamDetails', () => {
             let alert;
             window.alert = (message) => { alert = message };
 
-            const saveButton = Array.from(context.container.querySelectorAll('button')).filter(b => b.textContent === 'Save team')[0];
-            expect(saveButton).toBeTruthy();
+            const saveButton = findButton(context.container, 'Save team');
             await doClick(saveButton);
 
             expect(saved).toEqual(false);
@@ -301,8 +300,7 @@ describe('EditTeamDetails', () => {
                 newDivisionId: otherDivision.id,
             }, [ division, otherDivision ]);
 
-            const saveButton = Array.from(context.container.querySelectorAll('button')).filter(b => b.textContent === 'Save team')[0];
-            expect(saveButton).toBeTruthy();
+            const saveButton = findButton(context.container, 'Save team');
             await doClick(saveButton);
 
             expect(saved).toEqual(true);
@@ -340,8 +338,7 @@ describe('EditTeamDetails', () => {
                 newDivisionId: division.id,
             }, [ division, otherDivision ]);
 
-            const saveButton = Array.from(context.container.querySelectorAll('button')).filter(b => b.textContent === 'Add team')[0];
-            expect(saveButton).toBeTruthy();
+            const saveButton = findButton(context.container, 'Add team');
             await doClick(saveButton);
 
             expect(saved).toEqual(true);
@@ -375,8 +372,7 @@ describe('EditTeamDetails', () => {
                 newDivisionId: division.id,
             }, [ division ]);
 
-            const cancelButton = Array.from(context.container.querySelectorAll('button')).filter(b => b.textContent === 'Cancel')[0];
-            expect(cancelButton).toBeTruthy();
+            const cancelButton = findButton(context.container, 'Cancel');
             await doClick(cancelButton);
 
             expect(canceled).toEqual(true);
