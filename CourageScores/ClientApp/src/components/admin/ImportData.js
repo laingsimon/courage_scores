@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
-import {propChanged, valueChanged} from "../../Utilities";
+import {any, propChanged, valueChanged} from "../../Utilities";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 
@@ -39,6 +39,11 @@ export function ImportData() {
         const input = document.querySelector('input[type="file"]');
         if (input.files.length === 0) {
             window.alert(`Select a file first`);
+            return;
+        }
+
+        if (!any(importRequest.tables)) {
+            window.alert(`Select at least one table`);
             return;
         }
 
