@@ -27,7 +27,7 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division/{divisionId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionTeams(Guid divisionId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(Guid divisionId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
         filter ??= new DivisionDataFilter();
         filter.DivisionId = divisionId;
@@ -36,7 +36,7 @@ public class DivisionController : Controller
     }
 
     [HttpGet("/api/Division/{divisionId}/{seasonId}/Data")]
-    public async Task<DivisionDataDto> GetDivisionTeams(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
+    public async Task<DivisionDataDto> GetDivisionData(Guid? divisionId, Guid seasonId, [FromQuery] DivisionDataFilter? filter, CancellationToken token)
     {
         filter ??= new DivisionDataFilter();
         filter.DivisionId = divisionId == null || divisionId == Guid.Empty
@@ -47,13 +47,13 @@ public class DivisionController : Controller
         return await _divisionService.GetDivisionData(filter, token);
     }
 
-    [HttpGet("/api/Division/")]
+    [HttpGet("/api/Division")]
     public IAsyncEnumerable<DivisionDto> GetDivisions(CancellationToken token)
     {
         return _divisionService.GetAll(token);
     }
 
-    [HttpPut("/api/Division/")]
+    [HttpPut("/api/Division")]
     public async Task<ActionResultDto<DivisionDto>> AddOrUpdateDivision(EditDivisionDto division, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateDivisionCommand>().WithData(division);
