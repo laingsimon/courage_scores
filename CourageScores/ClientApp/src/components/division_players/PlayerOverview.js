@@ -41,11 +41,11 @@ export function PlayerOverview({ playerId }) {
         const tournamentFixture = fixtureDate.tournamentFixtures[0];
 
         return fixture
-            ? renderNormalFixture(fixture, fixtureDate.date)
+            ? renderLeagueFixture(fixture, fixtureDate.date)
             : renderTournamentFixture(tournamentFixture, fixtureDate.date);
     }
 
-    function renderNormalFixture(fixture, date) {
+    function renderLeagueFixture(fixture, date) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
