@@ -15,7 +15,7 @@ import {About} from "./components/About";
 import {getBuild, mapForLogging, mapError} from "./AppHelper";
 
 export function App({ shouldExcludeSurround }) {
-    const { divisionApi, accountApi, seasonApi, teamApi, errorApi } = useDependencies();
+    const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
@@ -39,6 +39,11 @@ export function App({ shouldExcludeSurround }) {
 
     function clearError() {
         setError(null);
+    }
+
+    function invalidCacheAndTryAgain() {
+        settings.invalidateCacheOnNextRequest = true;
+        clearError();
     }
 
     async function reloadAll() {
@@ -94,6 +99,7 @@ export function App({ shouldExcludeSurround }) {
         reloadSeasons,
         onError,
         clearError,
+        invalidCacheAndTryAgain,
         build: getBuild(),
         reportClientSideException,
     };

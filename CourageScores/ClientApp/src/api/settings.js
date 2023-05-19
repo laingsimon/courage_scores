@@ -1,4 +1,7 @@
 class Settings {
+    _apiHost;
+    _invalidCacheOnNextRequest;
+
     get apiHost() {
         if (!this._apiHost) {
             this._apiHost = document.location.hostname === 'localhost'
@@ -7,6 +10,19 @@ class Settings {
         }
 
         return this._apiHost;
+    }
+
+    get invalidateCacheOnNextRequest() {
+        if (this._invalidCacheOnNextRequest) {
+            this._invalidCacheOnNextRequest = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    set invalidateCacheOnNextRequest(value) {
+        this._invalidCacheOnNextRequest = value;
     }
 }
 
