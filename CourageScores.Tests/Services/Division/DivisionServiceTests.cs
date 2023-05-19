@@ -88,7 +88,7 @@ public class DivisionServiceTests
     {
         var notFound = new DivisionDataDto();
         var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
-        _divisionDataDtoFactory.Setup(f => f.DivisionNotFound()).Returns(notFound);
+        _divisionDataDtoFactory.Setup(f => f.DivisionNotFound(filter.DivisionId.Value, null)).Returns(notFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(() => null);
 
         var result = await _service.GetDivisionData(filter, _token);
@@ -102,7 +102,7 @@ public class DivisionServiceTests
         var notFound = new DivisionDataDto();
         var division = new DivisionDto { Deleted = new DateTime(2001, 02, 03) };
         var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
-        _divisionDataDtoFactory.Setup(f => f.DivisionNotFound()).Returns(notFound);
+        _divisionDataDtoFactory.Setup(f => f.DivisionNotFound(filter.DivisionId.Value, division)).Returns(notFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
 
         var result = await _service.GetDivisionData(filter, _token);

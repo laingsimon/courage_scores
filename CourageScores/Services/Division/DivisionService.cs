@@ -55,7 +55,7 @@ public class DivisionService : IDivisionService
             : await _genericDivisionService.Get(filter.DivisionId.Value, token);
         if (filter.DivisionId != null && (division == null || division.Deleted != null))
         {
-            return _divisionDataDtoFactory.DivisionNotFound();
+            return _divisionDataDtoFactory.DivisionNotFound(filter.DivisionId.Value, division);
         }
 
         var allSeasons = await _genericSeasonService.GetAll(token).ToList();

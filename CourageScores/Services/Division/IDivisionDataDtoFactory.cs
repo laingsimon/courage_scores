@@ -7,7 +7,7 @@ namespace CourageScores.Services.Division;
 public interface IDivisionDataDtoFactory
 {
     Task<DivisionDataDto> CreateDivisionDataDto(DivisionDataContext context, DivisionDto? division, CancellationToken token);
-    DivisionDataDto DivisionNotFound();
+    DivisionDataDto DivisionNotFound(Guid divisionId, DivisionDto? deleted);
     DivisionDataDto DivisionIdAndSeasonIdNotSupplied();
 
     Task<DivisionDataDto> SeasonNotFound(DivisionDto? division, IEnumerable<SeasonDto> allSeasons, CancellationToken token);
