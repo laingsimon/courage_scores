@@ -1,7 +1,7 @@
 import {isEmpty, repeat, round2dp, stateChanged} from "../../../Utilities";
 import React, {useState} from "react";
 
-export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
+export function LegStatistics({ leg, home, away, legNumber, singlePlayer, oneDartAverage }) {
     const homeStats = leg.home;
     const awayStats = leg.away;
     const [showThrows, setShowThrows] = useState(false);
@@ -28,7 +28,7 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
                 if (!bust) {
                     score = newScore;
                 }
-                const runningAverage = score / (noOfDarts / 3);
+                const runningAverage = score / (noOfDarts / 3) / (oneDartAverage ? 3 : 1);
 
                 return (<li key={index} title={`Running score: ${leg.startingScore - score}`}>
                     {showMetric === 'throw' ? legThrow.score : null}
@@ -66,14 +66,14 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer }) {
              </div>) : null}
         </td>
         <td className={leg.winner === 'home' ? 'bg-winner' : ''}>
-            Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3))}</strong> ({homeStats.noOfDarts} darts)<br />
+            Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({homeStats.noOfDarts} darts)<br />
             {leg.winner === 'home'
                 ? (<div>Checkout: <strong>{leg.home.throws[leg.home.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - homeStats.score}</strong></div>)}
             {showThrows ? (renderThrows(leg.home.throws)) : null}
         </td>
         {singlePlayer ? null : (<td className={leg.winner === 'away' ? 'bg-winner' : ''}>
-            Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3))}</strong> ({awayStats.noOfDarts} darts)<br />
+            Average: <strong>{round2dp(awayStats.score / (awayStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({awayStats.noOfDarts} darts)<br />
             {leg.winner === 'away'
                 ? (<div>Checkout: <strong>{leg.away.throws[leg.away.throws.length - 1].score}</strong></div>)
                 : (<div>Remaining: <strong>{leg.startingScore - awayStats.score}</strong></div>)}
