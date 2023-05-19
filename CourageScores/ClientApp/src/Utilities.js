@@ -189,6 +189,10 @@ export function repeat(times, itemProvider) {
 * */
 export function distinct(items, property) {
     function getValue(item, property) {
+        if (!property) {
+            return item;
+        }
+
         if (property.indexOf('.') !== -1) {
             const parentProperty = property.substring(0, property.indexOf('.'));
             const childProperty = property.substring(parentProperty.length + 1);
@@ -214,4 +218,13 @@ export function distinct(items, property) {
     });
 
     return Object.values(map);
+}
+
+/*
+* Render a date in dd-MMM format
+* */
+export function renderDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString(
+        'en-GB',
+        { month: "short", day: "numeric" });
 }

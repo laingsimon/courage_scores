@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useApp} from "../../AppContainer";
-import {all, any, stateChanged} from "../../Utilities";
+import {all, any, sortBy, stateChanged} from "../../Utilities";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useDependencies} from "../../IocContainer";
 
@@ -9,7 +9,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
     const { seasons, teams, onError, reloadAll } = useApp();
     const { teamApi } = useDependencies();
     const team = teams.filter(t => t.id === teamOverview.id)[0];
-    const initialSeasonIds = team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId);
+    const initialSeasonIds = team ? team.seasons.filter(ts => !ts.deleted).map(ts => ts.seasonId) : [];
     const [ selectedSeasonIds, setSelectedSeasonIds ] = useState(initialSeasonIds);
     const [ saving, setSaving ] = useState(false);
     const [ copyTeamFromCurrentSeason, setCopyTeamFromCurrentSeason ] = useState(true);
@@ -110,24 +110,30 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
         return (<div>Team not found: {teamOverview.name} ({teamOverview.id})</div>);
     }
 
-    return (<div>
-        <div>Associate <strong>{team.name}</strong> with the following seasons</div>
-        <div className="input-group mb-3">
-            <div className="form-check form-switch margin-right">
-                <input disabled={saving} className="form-check-input" type="checkbox" id="copyTeamFromCurrentSeason"
-                       checked={copyTeamFromCurrentSeason} onChange={stateChanged(setCopyTeamFromCurrentSeason)}/>
-                <label className="form-check-label" htmlFor="copyTeamFromCurrentSeason">Copy players from <strong>{currentSeason.name}</strong></label>
+    try {
+        return (<div>
+            <div>Associate <strong>{team.name}</strong> with the following seasons</div>
+            <div className="input-group mb-3">
+                <div className="form-check form-switch margin-right">
+                    <input disabled={saving} className="form-check-input" type="checkbox" id="copyTeamFromCurrentSeason"
+                           checked={copyTeamFromCurrentSeason} onChange={stateChanged(setCopyTeamFromCurrentSeason)}/>
+                    <label className="form-check-label" htmlFor="copyTeamFromCurrentSeason">Copy players
+                        from <strong>{currentSeason.name}</strong></label>
+                </div>
             </div>
-        </div>
-        <ul className="list-group mb-3">
-            {seasons.map(renderSeason)}
-        </ul>
-        <div>
-            <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
-            <button className="btn btn-success margin-right" onClick={saveChanges} disabled={!changes.changed}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-                Apply changes
-            </button>
-        </div>
-    </div>);
+            <ul className="list-group mb-3">
+                {seasons.sort(sortBy('startDate')).map(renderSeason)}
+            </ul>
+            <div>
+                <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
+                <button className="btn btn-success margin-right" onClick={saveChanges} disabled={!changes.changed}>
+                    {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
+                                     aria-hidden="true"></span>) : null}
+                    Apply changes
+                </button>
+            </div>
+        </div>);
+    } catch (e) {
+        onError(e);
+    }
 }

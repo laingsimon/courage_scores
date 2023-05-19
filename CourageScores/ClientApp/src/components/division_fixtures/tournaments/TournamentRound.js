@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {all, any, elementAt, isEmpty, toMap, valueChanged} from "../../../Utilities";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
+import {getRoundNameFromSides, hasScore, sideSelection} from "./TournamentHelpers";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180 }) {
     const [ newMatch, setNewMatch ] = useState({});
@@ -13,13 +14,6 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         numberOfLegs: 5,
     };
     const [changeRoundName, setChangeRoundName] = useState(false);
-
-    function sideSelection(side) {
-        return {
-            value: side.id,
-            text: side.name
-        };
-    }
 
     function setNewSide(sideId, property) {
         const newNewMatch = Object.assign({}, newMatch);
@@ -99,22 +93,13 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         }));
     }
 
-    function hasScore(score) {
-        return score !== null && score !== undefined;
-    }
+    async function onMatchOptionsChanged(newMatchOptions, matchIndex) {
+        const newRound = Object.assign({}, round);
+        newRound.matchOptions[matchIndex] = newMatchOptions;
 
-    function getRoundName() {
-        if (sides.length === 2) {
-            return 'Final';
+        if (onChange) {
+            await onChange(newRound);
         }
-        if (sides.length === 4) {
-            return 'Semi-Final';
-        }
-        if (sides.length === 8) {
-            return 'Quarter-Final';
-        }
-
-        return `Round: ${depth}`;
     }
 
     const allSidesSelected = round.matches && round.matches.length * 2 === sides.length;
@@ -126,19 +111,10 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
 
     return (<div className="my-3 p-1">
         {changeRoundName && !readOnly
-            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundName() : round.name} onBlur={() => setChangeRoundName(false)} />)
-            : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{round.name === null ? getRoundName() : (round.name || getRoundName())}</strong>)}
+            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundNameFromSides(round, sides.length, depth) : round.name} onBlur={() => setChangeRoundName(false)} />)
+            : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{getRoundNameFromSides(round, sides.length, depth)}</strong>)}
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
         {(round.matches || []).map((match, matchIndex) => {
-            async function onMatchOptionsChanged(newMatchOptions) {
-                const newRound = Object.assign({}, round);
-                newRound.matchOptions[matchIndex] = newMatchOptions;
-
-                if (onChange) {
-                    await onChange(newRound);
-                }
-            }
-
             return (<TournamentRoundMatch
                 key={matchIndex}
                 hasNextRound={hasNextRound}
@@ -150,24 +126,24 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
                 matchIndex={matchIndex}
                 onChange={onChange}
                 matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
-                onMatchOptionsChanged={onMatchOptionsChanged}
+                onMatchOptionsChanged={(newMatchOptions) => onMatchOptionsChanged(newMatchOptions, matchIndex)}
                 on180={on180} onHiCheck={onHiCheck} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>
                 <BootstrapDropdown value={newMatch.sideA ? newMatch.sideA.id : null}
-                               onChange={(side) => setNewSide(side, 'sideA')}
-                               options={sides.filter(s => exceptSelected(s, undefined, 'sideA')).map(sideSelection)}
-                               className="margin-right" />
+                   onChange={(side) => setNewSide(side, 'sideA')}
+                   options={sides.filter(s => exceptSelected(s, undefined, 'sideA')).map(sideSelection)}
+                   className="margin-right" />
             </td>
             <td></td>
             <td>vs</td>
             <td></td>
             <td>
                 <BootstrapDropdown value={newMatch.sideB ? newMatch.sideB.id : null}
-                               onChange={(side) => setNewSide(side, 'sideB')}
-                               options={sides.filter(s => exceptSelected(s, undefined, 'sideB')).map(sideSelection)}
-                               className="margin-right" />
+                   onChange={(side) => setNewSide(side, 'sideB')}
+                   options={sides.filter(s => exceptSelected(s, undefined, 'sideB')).map(sideSelection)}
+                   className="margin-right" />
             </td>
             <td>
                 <button disabled={readOnly} className="btn btn-primary btn-sm" onClick={addMatch}>➕</button>
@@ -175,7 +151,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         </tr>)}
         </tbody></table>
         {hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1)
-            ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly} depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} />)
+            ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
+                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} />)
             : null}
     </div>);
 }

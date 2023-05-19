@@ -15,20 +15,20 @@ public class Division : AuditedEntity, IPermissionedEntity
     public string Name { get; set; } = null!;
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto user)
+    public bool CanCreate(UserDto? user)
     {
-        return user.Access?.ManageDivisions == true;
+        return user?.Access?.ManageDivisions == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto user)
+    public bool CanEdit(UserDto? user)
     {
-        return user.Access?.ManageDivisions == true;
+        return user?.Access?.ManageDivisions == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto user)
+    public bool CanDelete(UserDto? user)
     {
-        return user.Access?.ManageDivisions == true;
+        return user?.Access?.ManageDivisions == true;
     }
 }

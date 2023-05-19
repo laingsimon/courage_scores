@@ -28,4 +28,6 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
 
         return CommandResult.SuccessNoMessage;
     }
+
+    public override bool RequiresLogin => false;
 }

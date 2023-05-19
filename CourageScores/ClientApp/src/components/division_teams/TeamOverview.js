@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../ShareButton";
-import {any} from "../../Utilities";
+import {any, renderDate} from "../../Utilities";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
 
@@ -36,7 +36,7 @@ export function TeamOverview({ teamId }) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
-                    <Link to={`/score/${fixture.id}`}>{new Date(fixtureDate.date).toDateString()}</Link>
+                    <Link to={`/score/${fixture.id}`}>{renderDate(fixtureDate.date)}</Link>
                     {fixture.isKnockout ? (<span className="margin-left">(Qualifier)</span>) : null}
                 </div>
             </td>

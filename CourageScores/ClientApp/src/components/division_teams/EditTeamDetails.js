@@ -13,6 +13,11 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
     const divisionOptions = divisions.map(division => { return { value: division.id, text: division.name }; });
 
     async function saveChanges() {
+        if (!name) {
+            window.alert('You must enter a team name');
+            return;
+        }
+
         if (saving) {
             return;
         }
@@ -68,16 +73,16 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
                 <span className="input-group-text">Division</span>
             </div>
             <BootstrapDropdown 
-                disabled={saving || !id} 
+                disabled={saving || !id || !onChange}
                 options={divisionOptions}
                 value={newDivisionId}
-                onChange={(newDivisionId) => onChange('newDivisionId', newDivisionId)} />
+                onChange={(newDivisionId) => onChange ? onChange('newDivisionId', newDivisionId) : null} />
         </div>
-        <button className="btn btn-primary margin-right" onClick={() => saveChanges()}>
+        <button className="btn btn-primary margin-right" onClick={saveChanges}>
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             {id ? 'Save team' : 'Add team'}
         </button>
-        <button className="btn btn-secondary" onClick={async () => onCancel ? await onCancel() : null}>Cancel</button>
+        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details" />) : null}
     </div>)
 }

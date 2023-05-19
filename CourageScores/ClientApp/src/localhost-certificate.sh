@@ -14,8 +14,8 @@ openssl pkcs12 -in localhost.pfx -clcerts -nokeys -out server.crt
 rm server.key.enc
 cp server.key server.pem
 cat server.crt >> server.pem
-cp server.pem 
 
+echo Copying certificate to webpack server
 mv ../node_modules/.cache/webpack-dev-server/server.pem ../node_modules/.cache/webpack-dev-server/server.pem.old
 cp server.pem ../node_modules/.cache/webpack-dev-server/server.pem
 

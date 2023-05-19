@@ -90,13 +90,24 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     }
 
     [ExcludeFromCodeCoverage]
-    public DivisionDataDto DivisionNotFound()
+    public DivisionDataDto DivisionNotFound(Guid divisionId, DivisionDto? deleted)
     {
+        if (deleted != null)
+        {
+            return new DivisionDataDto
+            {
+                DataErrors =
+                {
+                    $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})",
+                }
+            };
+        }
+
         return new DivisionDataDto
         {
             DataErrors =
             {
-                "Requested Division was not found, or has been deleted"
+                $"Requested division ({divisionId}) was not found"
             }
         };
     }

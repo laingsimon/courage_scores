@@ -9,7 +9,7 @@ import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 
 export function DivisionTeam({ team }) {
     const { id: divisionId, season, onReloadDivision } = useDivisionData();
-    const { account } = useApp();
+    const { account, onError } = useApp();
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));
     const [ editTeam, setEditTeam ] = useState(false);
     const [ addTeamToSeason, setAddTeamToSeason ] = useState(false);
@@ -22,38 +22,52 @@ export function DivisionTeam({ team }) {
     }
 
     function renderEditTeam() {
-        return (<Dialog title={`Edit team: ${team.name}`}>
-            <EditTeamDetails
-                id={teamDetails.id}
-                divisionId={divisionId}
-                seasonId={season.id}
-                {...teamDetails}
-                onCancel={() => setEditTeam(false)}
-                onChange={propChanged(teamDetails, setTeamDetails)}
-                onSaved={teamDetailSaved}
-            />
-        </Dialog>);
+        try {
+            return (<Dialog title={`Edit team: ${team.name}`}>
+                <EditTeamDetails
+                    id={teamDetails.id}
+                    divisionId={divisionId}
+                    seasonId={season.id}
+                    {...teamDetails}
+                    onCancel={() => setEditTeam(false)}
+                    onChange={propChanged(teamDetails, setTeamDetails)}
+                    onSaved={teamDetailSaved}
+                />
+            </Dialog>);
+        } catch (e) {
+            onError(e);
+        }
     }
 
     function renderAddTeamToSeason() {
-        return (<Dialog title={`Assign seasons`}>
-            <AssignTeamToSeasons teamOverview={team} onClose={() => setAddTeamToSeason(false)} />
-        </Dialog>);
+        try {
+            return (<Dialog title="Assign seasons">
+                <AssignTeamToSeasons teamOverview={team} onClose={() => setAddTeamToSeason(false)}/>
+            </Dialog>);
+        } catch (e) {
+            onError(e);
+        }
     }
 
-    return (<tr>
-        <td>
-            {isAdmin ? (<button onClick={() => setEditTeam(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)} className="btn btn-sm btn-primary margin-right">➕</button>) : null}
-            <Link to={`/division/${divisionId}/team:${team.id}`}>{team.name}</Link>
-            {editTeam && isAdmin ? renderEditTeam() : null}
-            {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
-        </td>
-        <td>{team.played}</td>
-        <td>{team.points}</td>
-        <td>{team.fixturesWon}</td>
-        <td>{team.fixturesLost}</td>
-        <td>{team.fixturesDrawn}</td>
-        <td>{team.difference}</td>
-    </tr>);
+    try {
+        return (<tr>
+            <td>
+                {isAdmin ? (<button onClick={() => setEditTeam(true)}
+                                    className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+                {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
+                                    className="btn btn-sm btn-primary margin-right">➕</button>) : null}
+                <Link to={`/division/${divisionId}/team:${team.id}`}>{team.name}</Link>
+                {editTeam && isAdmin ? renderEditTeam() : null}
+                {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
+            </td>
+            <td>{team.played}</td>
+            <td>{team.points}</td>
+            <td>{team.fixturesWon}</td>
+            <td>{team.fixturesLost}</td>
+            <td>{team.fixturesDrawn}</td>
+            <td>{team.difference}</td>
+        </tr>);
+    } catch (e) {
+        onError(e);
+    }
 }

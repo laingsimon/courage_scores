@@ -23,6 +23,28 @@ class Http {
         return this.send('PUT', relativeUrl, content);
     }
 
+    getPostHeaders() {
+        const defaultHeaders = {
+            'Content-Type': 'application/json'
+        };
+
+        if (this.settings.invalidateCacheOnNextRequest) {
+            defaultHeaders['Cache-Control'] = 'no-cache';
+        }
+
+        return defaultHeaders;
+    }
+
+    getGetHeaders() {
+        const defaultHeaders = {};
+
+        if (this.settings.invalidateCacheOnNextRequest) {
+            defaultHeaders['Cache-Control'] = 'no-cache';
+        }
+
+        return defaultHeaders;
+    }
+
     async send(httpMethod, relativeUrl, content) {
         if (relativeUrl.indexOf('/') !== 0) {
             relativeUrl = '/' + relativeUrl;
@@ -35,9 +57,7 @@ class Http {
                 method: httpMethod,
                 mode: 'cors',
                 body: JSON.stringify(content),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: this.getPostHeaders(),
                 credentials: 'include'
             });
 
@@ -51,7 +71,8 @@ class Http {
         const response = await fetch(absoluteUrl, {
             method: httpMethod,
             mode: 'cors',
-            credentials: 'include'
+            credentials: 'include',
+            headers: this.getGetHeaders(),
         });
 
         if (response.status === 204) {

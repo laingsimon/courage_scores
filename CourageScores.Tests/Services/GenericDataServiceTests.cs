@@ -128,6 +128,7 @@ public class GenericDataServiceTests
         var command = new Mock<IUpdateCommand<Model, object>>();
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => model);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
+        command.Setup(c => c.RequiresLogin).Returns(true);
 
         var result = await _service.Upsert(id, command.Object, _token);
 
@@ -135,6 +136,27 @@ public class GenericDataServiceTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Upsert_WhenNotLoggedIn_ReturnsSuccessfulWhenLoginNotRequired()
+    {
+        var repository = new Mock<IGenericRepository<AnonymousModel>>();
+        var adapter = new Mock<IAdapter<AnonymousModel, Dto>>();
+        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object);
+        var id = Guid.NewGuid();
+        var command = new Mock<IUpdateCommand<AnonymousModel, object>>();
+        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
+        _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
+        command.Setup(c => c.ApplyUpdate(It.IsAny<AnonymousModel>(), _token)).ReturnsAsync(() => commandResult);
+        command.Setup(c => c.RequiresLogin).Returns(false);
+
+        var result = await service.Upsert(id, command.Object, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Success, Is.True);
+        repository.Verify(r => r.Upsert(It.IsAny<AnonymousModel>(), _token));
     }
 
     [Test]
@@ -374,19 +396,37 @@ public class GenericDataServiceTests
         public const string EditAndDeletePermitted = nameof(EditAndDeletePermitted);
         public const string DeletePermitted = nameof(DeletePermitted);
 
-        public virtual bool CanCreate(UserDto user)
+        public virtual bool CanCreate(UserDto? user)
         {
-            return user.Name == CreatePermitted;
+            return user?.Name == CreatePermitted;
         }
 
-        public virtual bool CanEdit(UserDto user)
+        public virtual bool CanEdit(UserDto? user)
         {
-            return user.Name == EditPermitted || user.Name == EditAndDeletePermitted;
+            return user?.Name == EditPermitted || user?.Name == EditAndDeletePermitted;
         }
 
-        public virtual bool CanDelete(UserDto user)
+        public virtual bool CanDelete(UserDto? user)
         {
-            return user.Name == DeletePermitted || user.Name == EditAndDeletePermitted;
+            return user?.Name == DeletePermitted || user?.Name == EditAndDeletePermitted;
+        }
+    }
+
+    public class AnonymousModel : AuditedEntity, IPermissionedEntity
+    {
+        public bool CanCreate(UserDto? user)
+        {
+            return true;
+        }
+
+        public bool CanEdit(UserDto? user)
+        {
+            return false;
+        }
+
+        public bool CanDelete(UserDto? user)
+        {
+            return false;
         }
     }
 

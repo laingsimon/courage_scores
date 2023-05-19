@@ -14,7 +14,8 @@ import {
     sortBy,
     sum,
     toMap,
-    distinct
+    distinct,
+    renderDate
 } from './Utilities';
 
 describe('Utilities', () => {
@@ -389,7 +390,7 @@ describe('Utilities', () => {
                 { name: 'b' } ]);
         });
 
-        it('should sort items by nested property', () => {
+        it('should remove duplicates by nested property', () => {
             const items = [
                 { home: { name: 'a' } },
                 { home: { name: 'a' } },
@@ -403,7 +404,7 @@ describe('Utilities', () => {
                 { home: { name: 'b' } } ]);
         });
 
-        it('should sort items by numerical values', () => {
+        it('should remove duplicates by numerical values', () => {
             const items = [
                 { age: 1 },
                 { age: 1 },
@@ -415,6 +416,22 @@ describe('Utilities', () => {
             expect(result).toEqual([
                 { age: 1 },
                 { age: 2 } ]);
+        });
+
+        it('should remove duplicate values', () => {
+            const items = [ 1, 1, 2 ];
+
+            const result = distinct(items);
+
+            expect(result).toEqual([ 1, 2 ]);
+        });
+    });
+
+    describe('renderDate', () => {
+        it('should render the date correctly', () => {
+            const result = renderDate('2023-02-03T00:00:00');
+
+            expect(result).toEqual('3 Feb');
         });
     });
 });

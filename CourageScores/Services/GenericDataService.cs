@@ -57,7 +57,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     {
         var user = await _userService.GetUser(token);
 
-        if (user == null)
+        if (user == null && updateCommand.RequiresLogin)
         {
             return NotLoggedIn();
         }
