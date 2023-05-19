@@ -67,7 +67,13 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
 
     const legIndex = (homeScore || 0) + (awayScore || 0);
     if ((singlePlayer && homeScore === numberOfLegs) || (!singlePlayer && (legIndex === numberOfLegs || (homeScore > numberOfLegs / 2.0) || (awayScore > numberOfLegs / 2.0)))) {
-        return <MatchStatistics legs={data.legs} awayScore={awayScore} homeScore={homeScore} home={home} away={away} singlePlayer={singlePlayer} />
+        return <MatchStatistics
+            legs={data.legs}
+            awayScore={awayScore}
+            homeScore={homeScore}
+            home={home}
+            away={away}
+            singlePlayer={singlePlayer} />
     }
 
     const leg = getLeg(legIndex);
