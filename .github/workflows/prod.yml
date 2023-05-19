@@ -20,6 +20,8 @@ jobs:
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
 
   publish:
+    needs:
+     - setup
     uses: ./.github/workflows/publish.yml
     with: 
       upload: true
