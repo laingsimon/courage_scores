@@ -42,6 +42,8 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         return this;
     }
 
+    public virtual bool RequiresLogin => true;
+
     public class CommandResult
     {
         public static readonly CommandResult SuccessNoMessage = new() { Success = true };

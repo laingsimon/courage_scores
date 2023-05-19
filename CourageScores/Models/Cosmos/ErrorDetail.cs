@@ -15,17 +15,17 @@ public class ErrorDetail : AuditedEntity, IPermissionedEntity
     public string? UserAgent { get; set; }
     public string? Url { get; set; }
 
-    public bool CanCreate(UserDto user)
+    public bool CanCreate(UserDto? user)
     {
         return true;
     }
 
-    public bool CanEdit(UserDto user)
+    public bool CanEdit(UserDto? user)
     {
         return false;
     }
 
-    public bool CanDelete(UserDto user)
+    public bool CanDelete(UserDto? user)
     {
         return false;
     }

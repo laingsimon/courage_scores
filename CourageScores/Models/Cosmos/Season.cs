@@ -30,20 +30,20 @@ public class Season : AuditedEntity, IPermissionedEntity
     public string Name { get; set; } = null!;
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto user)
+    public bool CanCreate(UserDto? user)
     {
-        return user.Access?.ManageSeasons == true;
+        return user?.Access?.ManageSeasons == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto user)
+    public bool CanEdit(UserDto? user)
     {
-        return user.Access?.ManageSeasons == true;
+        return user?.Access?.ManageSeasons == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto user)
+    public bool CanDelete(UserDto? user)
     {
-        return user.Access?.ManageSeasons == true;
+        return user?.Access?.ManageSeasons == true;
     }
 }

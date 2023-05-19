@@ -88,21 +88,21 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
     public bool AccoladesCount { get; set; }
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto user)
+    public bool CanCreate(UserDto? user)
     {
-        return user.Access?.ManageGames == true;
+        return user?.Access?.ManageGames == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto user)
+    public bool CanEdit(UserDto? user)
     {
-        return user.Access?.ManageGames == true;
+        return user?.Access?.ManageGames == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto user)
+    public bool CanDelete(UserDto? user)
     {
-        return user.Access?.ManageGames == true;
+        return user?.Access?.ManageGames == true;
     }
 
     public void Accept(IGameVisitor visitor)

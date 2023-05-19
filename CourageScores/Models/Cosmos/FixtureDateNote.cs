@@ -27,20 +27,20 @@ public class FixtureDateNote : AuditedEntity, IPermissionedEntity
     public Guid? DivisionId { get; set; }
 
     [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto user)
+    public bool CanCreate(UserDto? user)
     {
-        return user.Access?.ManageNotes == true;
+        return user?.Access?.ManageNotes == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto user)
+    public bool CanEdit(UserDto? user)
     {
-        return user.Access?.ManageNotes == true;
+        return user?.Access?.ManageNotes == true;
     }
 
     [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto user)
+    public bool CanDelete(UserDto? user)
     {
-        return user.Access?.ManageNotes == true;
+        return user?.Access?.ManageNotes == true;
     }
 }
