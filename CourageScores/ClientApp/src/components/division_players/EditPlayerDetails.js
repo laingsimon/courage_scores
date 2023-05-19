@@ -136,11 +136,11 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
-        <button className="btn btn-primary margin-right" onClick={() => saveChanges()}>
+        <button className="btn btn-primary margin-right" onClick={saveChanges}>
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
             {id ? 'Save player' : 'Add player'}
         </button>
-        <button className="btn btn-secondary" onClick={async () => onCancel ? await onCancel() : null}>Cancel</button>
+        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save player details" />) : null}
     </div>)
 }
