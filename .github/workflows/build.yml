@@ -32,10 +32,3 @@ jobs:
             path-to-lcov: ./CourageScores.Tests/Coverage/coverage.info
             flag-name: dotnet
             parallel: true
-
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        with:
-          nunit_files: 'CourageScores.Tests/TestResults/*.xml'
-          check_run_annotations_branch: '*'
-          comment_mode: always

@@ -32,11 +32,6 @@ jobs:
           REACT_APP_SHA: "${{ inputs.commit-sha }}"
           REACT_APP_DATE: "${{ inputs.commit-date }}"
 
-      - name: Add coverage comment
-        uses: MishaKav/jest-coverage-comment@main
-        with:
-          coverage-summary-path: ./CourageScores/ClientApp/coverage/coverage-summary.json
-
       - name: Publish react coverage
         uses: coverallsapp/github-action@v1
         with:
@@ -44,11 +39,6 @@ jobs:
           base-path: ./CourageScores/ClientApp
           flag-name: React
           parallel: true
-
-      - name: complete code coverage 
-        uses: coverallsapp/github-action@v1
-        with:
-          parallel-finished: true
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
