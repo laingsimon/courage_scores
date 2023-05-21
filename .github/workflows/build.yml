@@ -26,6 +26,12 @@ jobs:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
 
+      - name: Publish dotnet coverage
+        uses: coverallsapp/github-action@v1
+        with:
+            path-to-lcov: ./CourageScores.Tests/Coverage/coverage.info
+            debug: true  
+
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         with:

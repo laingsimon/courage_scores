@@ -37,7 +37,7 @@ jobs:
         with:
           coverage-summary-path: ./CourageScores/ClientApp/coverage/coverage-summary.json
 
-      - name: Coveralls GitHub Action
+      - name: Publish react coverage
         uses: coverallsapp/github-action@v1
         with:
            path-to-lcov: ./CourageScores/ClientApp/coverage/lcov.info
