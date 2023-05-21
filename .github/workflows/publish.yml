@@ -39,6 +39,8 @@ jobs:
 
       - name: Coveralls GitHub Action
         uses: coverallsapp/github-action@v1
+        with:
+           path-to-lcov: ./CourageScores/ClientApp/coverage/lcov.info
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
