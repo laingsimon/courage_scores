@@ -41,6 +41,7 @@ jobs:
         uses: coverallsapp/github-action@v1
         with:
            path-to-lcov: ./CourageScores/ClientApp/coverage/lcov.info
+           debug: true
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
