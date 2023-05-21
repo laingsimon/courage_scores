@@ -33,9 +33,14 @@ jobs:
     needs:
       - publish
       - build
-    uses: coverallsapp/github-action@v1
-    with:
-      parallel-finished: true
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Complete coverage report
+        uses: coverallsapp/github-action@v1
+        with:
+          parallel-finished: true
 
   deploy:
     needs: 
