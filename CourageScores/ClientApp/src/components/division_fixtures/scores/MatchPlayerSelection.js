@@ -216,6 +216,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
             </td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

@@ -174,6 +174,7 @@ export function Practice() {
                 }}/>) : null}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

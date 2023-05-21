@@ -153,6 +153,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
                 : null}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

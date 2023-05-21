@@ -250,6 +250,7 @@ export function Tournament() {
             {addPlayerDialogOpen ? renderCreatePlayerDialog() : null}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

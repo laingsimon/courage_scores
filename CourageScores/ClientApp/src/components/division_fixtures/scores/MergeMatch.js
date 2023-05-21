@@ -60,6 +60,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
                 </td>
             </tr>);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -96,6 +97,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
             </td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

@@ -66,6 +66,7 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
             </td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

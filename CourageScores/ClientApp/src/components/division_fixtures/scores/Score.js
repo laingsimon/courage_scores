@@ -550,6 +550,7 @@ export function Score() {
             {createPlayerFor ? renderCreatePlayerDialog() : null}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

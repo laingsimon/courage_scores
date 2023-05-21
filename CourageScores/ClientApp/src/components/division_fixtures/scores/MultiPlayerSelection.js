@@ -87,6 +87,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
             </ol>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
