@@ -31,6 +31,14 @@ jobs:
     with: 
       dotnet-root: ${{ needs.setup.outputs.dotnet-root }}
 
+  publish-coverage:
+    needs:
+      - publish
+      - build
+    uses: coverallsapp/github-action@v1
+    with:
+      parallel-finished: true
+
   publish:
     needs: 
      - branch-name
