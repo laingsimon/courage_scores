@@ -42,6 +42,7 @@ jobs:
         with:
            path-to-lcov: ./CourageScores/ClientApp/coverage/lcov.info
            debug: true
+           base-path: ./CourageScores/ClientApp
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
