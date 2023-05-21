@@ -30,6 +30,7 @@ jobs:
         uses: coverallsapp/github-action@v1
         with:
             path-to-lcov: ./CourageScores.Tests/Coverage/coverage.info
+            flag-name: dotnet
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
