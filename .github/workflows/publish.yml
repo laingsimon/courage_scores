@@ -40,10 +40,15 @@ jobs:
       - name: Publish react coverage
         uses: coverallsapp/github-action@v1
         with:
-           path-to-lcov: ./CourageScores/ClientApp/coverage/lcov.info
-           debug: true
-           base-path: ./CourageScores/ClientApp
-           flag-name: React
+          path-to-lcov: ./CourageScores/ClientApp/coverage/lcov.info
+          base-path: ./CourageScores/ClientApp
+          flag-name: React
+          parallel: true
+
+      - name: complete code coverage 
+        uses: coverallsapp/github-action@v1
+        with:
+          parallel-finished: true
 
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
