@@ -35,6 +35,9 @@ jobs:
     needs:
       - publish
       - build
+
+    runs-on: ubuntu-latest
+
     steps:
       - name: Complete coverage collection
         uses: coverallsapp/github-action@v1
