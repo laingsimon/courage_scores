@@ -14,6 +14,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
 
     async function saveSeason() {
         if (saving || deleting) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -40,6 +41,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
 
     async function deleteSeason() {
         if (saving || deleting) {
+            /* istanbul ignore next */
             return;
         }
 

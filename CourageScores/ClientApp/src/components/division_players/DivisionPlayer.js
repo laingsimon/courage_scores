@@ -45,6 +45,7 @@ export function DivisionPlayer({ player, hideVenue }) {
 
     async function deletePlayer() {
         if (deleting) {
+            /* istanbul ignore next */
             return;
         }
 

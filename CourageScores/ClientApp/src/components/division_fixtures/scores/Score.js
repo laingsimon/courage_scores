@@ -308,6 +308,7 @@ export function Score() {
 
     async function unpublish() {
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 

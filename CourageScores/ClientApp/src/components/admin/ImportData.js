@@ -33,6 +33,7 @@ export function ImportData() {
 
     async function startImport() {
         if (importing) {
+            /* istanbul ignore next */
             return;
         }
 

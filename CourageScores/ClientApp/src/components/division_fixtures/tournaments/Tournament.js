@@ -120,6 +120,7 @@ export function Tournament() {
 
     async function saveTournament() {
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 

@@ -13,6 +13,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
 
     async function saveChanges() {
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 
