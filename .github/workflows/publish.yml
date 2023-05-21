@@ -37,6 +37,9 @@ jobs:
         with:
           coverage-summary-path: ./CourageScores/ClientApp/coverage/coverage-summary.json
 
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v1
+
       - name: Upload artifact for deployment job
         if: ${{ inputs.upload == true }}
         uses: actions/upload-artifact@v3
