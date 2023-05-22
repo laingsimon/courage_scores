@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../tests/helpers";
 import React from "react";
 import {Tournament} from "./Tournament";
 import {createTemporaryId, toMap, any} from "../../../Utilities";
@@ -13,6 +13,7 @@ describe('Tournament', () => {
     let divisionDataLookup;
     let tournamentDataLookup;
     let updatedTournamentData;
+    let createdPlayer;
     const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}_${seasonId}`;
@@ -38,6 +39,14 @@ describe('Tournament', () => {
             };
         }
     };
+    const playerApi = {
+        create: async (seasonId, teamId, playerDetails) => {
+            createdPlayer = { seasonId, teamId, playerDetails };
+            return {
+                success: true,
+            };
+        }
+    }
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
         if (!divisionDataLookup) {
@@ -58,10 +67,12 @@ describe('Tournament', () => {
         updatedTournamentData = [];
         reportedError = null;
         teamsReloaded = false;
+        createdPlayer = null;
         context = await renderApp(
             {
                 divisionApi,
                 tournamentApi,
+                playerApi
             },
             {
                 onError: (err) => {
@@ -571,7 +582,7 @@ describe('Tournament', () => {
                 expect(sides.textContent).toContain('SIDE 1');
             });
 
-            it('can add players', async () => {
+            it('can open add player dialog', async () => {
                 const tournamentData = {
                     id: createTemporaryId(),
                     seasonId: season.id,
@@ -608,6 +619,100 @@ describe('Tournament', () => {
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
                 expect(addPlayerDialog).toBeTruthy();
                 expect(addPlayerDialog.textContent).toContain('Add player');
+            });
+
+            it('can add players', async () => {
+                const tournamentData = {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    date: '2023-01-02T00:00:00',
+                    sides: [],
+                    address: 'ADDRESS',
+                    type: 'TYPE',
+                    notes: 'NOTES',
+                    accoladesQualify: true,
+                    round: null,
+                    oneEighties: null,
+                    over100Checkouts: null,
+                };
+                const divisionData = {
+                    fixtures: [],
+                };
+                tournamentDataLookup = {};
+                tournamentDataLookup[tournamentData.id] = tournamentData;
+                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+                const team = {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    seasons: [{
+                        seasonId: tournamentData.seasonId,
+                        divisionId: divisionData.id,
+                        players: [],
+                    }],
+                };
+                await renderComponent(tournamentData.id, {
+                    account,
+                    seasons: toMap([ season ]),
+                    teams: toMap([team]),
+                    divisions: [ division ],
+                }, false);
+                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
+                expect(addPlayerButton).toBeTruthy();
+                expect(addPlayerButton.textContent).toEqual('Add player');
+                await doClick(addPlayerButton);
+                const addPlayerDialog = context.container.querySelector('.modal-dialog');
+
+                doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
+                console.log(addPlayerDialog.innerHTML);
+                await doClick(addPlayerDialog, '.dropdown-menu .dropdown-item:not(.active)'); //select a team
+                await doClick(findButton(addPlayerDialog, 'Add player'));
+
+                expect(reportedError).toBeNull();
+                expect(createdPlayer).not.toBeNull();
+                expect(createdPlayer.teamId).toEqual(team.id);
+                expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
+                expect(createdPlayer.playerDetails).toEqual({
+                    name: 'NEW PLAYER',
+                });
+            });
+
+            it('can cancel add player dialog', async () => {
+                const tournamentData = {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    date: '2023-01-02T00:00:00',
+                    sides: [],
+                    address: 'ADDRESS',
+                    type: 'TYPE',
+                    notes: 'NOTES',
+                    accoladesQualify: true,
+                    round: null,
+                    oneEighties: null,
+                    over100Checkouts: null,
+                };
+                const divisionData = {
+                    fixtures: [],
+                };
+                tournamentDataLookup = {};
+                tournamentDataLookup[tournamentData.id] = tournamentData;
+                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+                await renderComponent(tournamentData.id, {
+                    account,
+                    seasons: toMap([ season ]),
+                    teams: [],
+                    divisions: [ division ],
+                }, false);
+                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
+                expect(addPlayerButton).toBeTruthy();
+                expect(addPlayerButton.textContent).toEqual('Add player');
+                await doClick(addPlayerButton);
+
+                const addPlayerDialog = context.container.querySelector('.modal-dialog');
+                await doClick(findButton(addPlayerDialog, 'Cancel'));
+
+                expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
             });
 
             it('can update details', async () => {
