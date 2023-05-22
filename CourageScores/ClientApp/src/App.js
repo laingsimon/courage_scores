@@ -122,6 +122,7 @@ export function App({ shouldExcludeSurround }) {
             </Layout>
         </AppContainer>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

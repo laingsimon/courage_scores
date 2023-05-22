@@ -12,7 +12,7 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let account;
     const teamApi = {
-        update: async (team) => {
+        update: async () => {
             return {
                 success: true,
             };

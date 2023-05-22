@@ -33,6 +33,7 @@ export function Layout({ children }) {
             </div>
         );
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

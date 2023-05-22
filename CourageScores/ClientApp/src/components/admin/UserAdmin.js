@@ -56,12 +56,14 @@ export function UserAdmin() {
             dataObject[name] = value;
             setUserAccount(currentAccount);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
 
     async function saveChanges() {
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 

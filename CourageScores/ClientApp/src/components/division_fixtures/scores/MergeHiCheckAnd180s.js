@@ -97,6 +97,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
             </td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

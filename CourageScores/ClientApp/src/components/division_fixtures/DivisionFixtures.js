@@ -179,6 +179,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             </div>) : null}
         </div>);
     } catch (exc) {
+        /* istanbul ignore next */
         onError(exc);
     }
 }

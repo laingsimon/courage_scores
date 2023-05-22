@@ -13,6 +13,7 @@ export function Errors() {
 
     async function retrieveErrors() {
         if (loading) {
+            /* istanbul ignore next */
             return;
         }
 

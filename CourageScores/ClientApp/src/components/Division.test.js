@@ -57,10 +57,14 @@ describe('Division', () => {
             {
                 account: account,
                 onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
+                    if (err.message) {
+                        reportedError = {
+                            message: err.message,
+                            stack: err.stack
+                        };
+                    } else {
+                        reportedError = err;
+                    }
                 },
                 error: null,
                 seasons: toMap(seasons),
@@ -381,6 +385,35 @@ describe('Division', () => {
             expect(divisionControl).not.toBeNull();
             expect(seasonControl.querySelector('button span').innerHTML).toEqual('Select a season');
             expect(divisionControl.querySelector('button').innerHTML).toEqual('All divisions');
+        });
+
+        it('renders error from api', async () => {
+            const divisionId = createTemporaryId();
+            const errorDivisionData = {
+                status: '400',
+                errors: {
+                    'key': 'some error',
+                }
+            };
+            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+
+            console.log = () => {};
+            await renderComponent(null, divisionId);
+
+            expect(reportedError).toEqual('Error accessing division: Code: 400 -- key: some error');
+        });
+
+        it('renders data errors from api', async () => {
+            const divisionId = createTemporaryId();
+            const errorDivisionData = {
+                dataErrors: ['some data error', 'another data error']
+            };
+            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+
+            console.log = () => {};
+            await renderComponent(null, divisionId);
+
+            expect(reportedError).toEqual('some data error, another data error');
         });
     });
 

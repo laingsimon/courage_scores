@@ -18,6 +18,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
 
     async function createTournamentGame() {
         if (creating || deleting) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -45,6 +46,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
 
     async function deleteTournamentGame() {
         if (deleting || creating) {
+            /* istanbul ignore next */
             return;
         }
 

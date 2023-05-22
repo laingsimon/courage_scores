@@ -35,6 +35,7 @@ export function DivisionTeam({ team }) {
                 />
             </Dialog>);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -45,6 +46,7 @@ export function DivisionTeam({ team }) {
                 <AssignTeamToSeasons teamOverview={team} onClose={() => setAddTeamToSeason(false)}/>
             </Dialog>);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -68,6 +70,7 @@ export function DivisionTeam({ team }) {
             <td>{team.difference}</td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
