@@ -36,7 +36,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
                             <h6>
                                 from {data.homeSubmission.editor || 'Home'}
                                 <button className="btn btn-sm btn-success margin-left"
-                                        onClick={() => mergeRecords('away', 'oneEighties')}>Merge
+                                        onClick={() => mergeRecords('home', 'oneEighties')}>Merge
                                 </button>
                             </h6>
                             <ol>
@@ -46,7 +46,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
                         </div>) : null}
                         {any(getRecordsToMerge('away', 'oneEighties')) ? (<div>
                             <h6>
-                                from {data.homeSubmission.editor || 'Away'}
+                                from {data.awaySubmission.editor || 'Away'}
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={() => mergeRecords('away', 'oneEighties')}>Merge
                                 </button>
@@ -82,7 +82,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
                         </div>) : null}
                         {any(getRecordsToMerge('away', 'over100Checkouts')) ? (<div>
                             <h6>
-                                from {data.homeSubmission.editor || 'Away'}
+                                from {data.awaySubmission.editor || 'Away'}
                                 <button className="btn btn-sm btn-success margin-left"
                                         onClick={() => mergeRecords('away', 'over100Checkouts')}>Merge
                                 </button>
