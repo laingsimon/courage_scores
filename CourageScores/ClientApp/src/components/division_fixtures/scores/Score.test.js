@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton, doChange} from "../../../tests/helpers";
 import React from "react";
 import {toMap, any, createTemporaryId} from "../../../Utilities";
 import {Score} from "./Score";
@@ -8,9 +8,12 @@ import {Score} from "./Score";
 describe('Score', () => {
     let context;
     let reportedError;
-    let account;
     let fixtureDataMap = {};
     let updatedFixtures;
+    let createdPlayer;
+    let teamsReloaded;
+    let newPlayerApiResult;
+    let saveGameApiResult;
     const mockGameApi = {
         get: async (fixtureId) => {
             if (any(Object.keys(fixtureDataMap), key => key === fixtureId)) {
@@ -21,12 +24,22 @@ describe('Score', () => {
         },
         updateScores: async (fixtureId, fixtureData) => {
             updatedFixtures[fixtureId] = fixtureData;
-            return {
+            return saveGameApiResult || {
                 success: true,
                 messages: [ 'Fixture updated' ],
                 result: fixtureData,
             }
         }
+    };
+    const mockPlayerApi = {
+        create: (seasonId, teamId, playerDetails) => {
+            const newPlayer = Object.assign({ id: createTemporaryId() }, playerDetails);
+            createdPlayer = { seasonId, teamId, playerDetails, newPlayer };
+            if (!newPlayerApiResult) {
+                throw new Error('You must set newPlayerApiResult to a factory method instance');
+            }
+            return newPlayerApiResult(createdPlayer);
+        },
     };
     const originalConsoleLog = console.log;
 
@@ -39,13 +52,20 @@ describe('Score', () => {
         console.log = originalConsoleLog;
     });
 
-    async function renderComponent(id, appData) {
+    async function renderComponent(id, appData, account) {
         reportedError = null;
         updatedFixtures = {};
+        createdPlayer = null;
+        teamsReloaded = false;
+        newPlayerApiResult = null;
+        saveGameApiResult = null;
         context = await renderApp(
-            { gameApi: mockGameApi },
             {
-                account: account,
+                gameApi: mockGameApi,
+                playerApi: mockPlayerApi,
+            },
+            {
+                account,
                 onError: (err) => {
                     if (err.message) {
                         reportedError = {
@@ -57,6 +77,10 @@ describe('Score', () => {
                     }
                 },
                 error: null,
+                reportClientSideException: () => {},
+                reloadTeams: () => {
+                    teamsReloaded = true;
+                },
                 ...appData
             },
             (<Score />),
@@ -203,8 +227,36 @@ describe('Score', () => {
     }
 
     describe('when logged out', () => {
-        beforeEach(() => {
-            account = null;
+        const account = null;
+
+        it('renders when fixture not found', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = null;
+
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toEqual('Game could not be found');
+        });
+
+        it('renders when fixture data not returned successfully', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = { status: 400, errors: { 'key': 'Some error' } };
+
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toEqual('Error accessing fixture: Code: 400 -- key: Some error');
+        });
+
+        it('renders when home or away are not defined', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = { };
+
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toEqual('Either home or away team are undefined for this game');
         });
 
         it('renders score card with no results', async () => {
@@ -212,7 +264,7 @@ describe('Score', () => {
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getUnplayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.light-background');
@@ -229,7 +281,7 @@ describe('Score', () => {
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.light-background');
@@ -258,7 +310,7 @@ describe('Score', () => {
             appData.divisions = [];
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no divisions are available');
         });
@@ -269,7 +321,7 @@ describe('Score', () => {
             appData.seasons = [];
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no seasons are available');
         });
@@ -280,23 +332,21 @@ describe('Score', () => {
             appData.teams = [];
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no teams are available');
         });
     });
 
     describe('when logged in', () => {
-        beforeEach(() => {
-            account = { access: { manageScores: true } };
-        });
+        const account = { access: { manageScores: true } };
 
         it('renders score card without results', async () => {
             const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getUnplayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.light-background');
@@ -326,7 +376,7 @@ describe('Score', () => {
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
             const container = context.container.querySelector('.light-background');
@@ -357,7 +407,7 @@ describe('Score', () => {
             appData.divisions = [];
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no divisions are available');
         });
@@ -368,7 +418,7 @@ describe('Score', () => {
             appData.seasons = [];
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no seasons are available');
         });
@@ -379,21 +429,228 @@ describe('Score', () => {
             appData.teams = [];
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
 
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toEqual('App has finished loading, no teams are available');
+        });
+
+        it('renders when team has no seasons', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            appData.teams = toMap(appData.teams.map(t => {
+                if (t.name === 'Home team') {
+                    t.seasons = null;
+                }
+                return t;
+            }));
+
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toEqual('home team has no seasons');
+        });
+
+        it('renders when team is not registered to season', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            appData.teams = toMap(appData.teams.map(t => {
+                if (t.name === 'Home team') {
+                    t.seasons = [];
+                }
+                return t;
+            }));
+
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toContain('home team has not registered for this season: ');
+        });
+
+        it('renders when team not found', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            appData.teams = toMap(appData.teams.filter(t => t.name !== 'Home team'));
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toContain('home team could not be found - ');
+        });
+
+        it('renders previously renamed players', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
+            const newHomeTeamPlayer = {
+                id: createTemporaryId(),
+                name: 'New name',
+                captain: true,
+            };
+            homeTeam.seasons[0].players.push(newHomeTeamPlayer);
+            const firstSinglesMatch = fixtureDataMap[fixtureId].matches[0];
+            firstSinglesMatch.homePlayers[0] = Object.assign(
+                {},
+                newHomeTeamPlayer,
+                { name: 'Old name' });
+            firstSinglesMatch.sut = true;
+
+            await renderComponent(fixtureId, appData, account);
+
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
+            expect(playerSelection.querySelector('.dropdown-toggle').textContent).toEqual('New name (nee Old name)');
+            const selectedPlayer = playerSelection.querySelector('.dropdown-menu .active');
+            console.log(playerSelection.innerHTML);
+            expect(selectedPlayer).toBeTruthy();
+            expect(selectedPlayer.textContent).toEqual('New name (nee Old name)');
+        });
+
+        it('can add a player to home team', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            newPlayerApiResult = (createdPlayer) => {
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                existingTeam.seasons = existingTeam.seasons.map(ts => {
+                    const newTeamSeason = Object.assign({}, ts);
+
+                    if (ts.seasonId === createdPlayer.seasonId) {
+                        newTeamSeason.players = newTeamSeason.players.concat([
+                            createdPlayer.newPlayer
+                        ]);
+                    }
+
+                    return newTeamSeason;
+                });
+
+                return {
+                    success: true,
+                    result: existingTeam,
+                };
+            }
+
+            expect(reportedError).toBeNull();
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
+            await doClick(findButton(playerSelection, 'Add a player...'));
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeTruthy();
+            expect(addPlayerDialog.textContent).toContain('Create home player...');
+            doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
+            await doClick(findButton(addPlayerDialog, 'Add player'));
+
+            expect(reportedError).toBeNull();
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can add a player to away team', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+
+            expect(reportedError).toBeNull();
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
+            await doClick(findButton(playerSelection, 'Add a player...'));
+
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeTruthy();
+            expect(addPlayerDialog.textContent).toContain('Create away player...');
+        });
+
+        it('can close add player dialog', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            expect(reportedError).toBeNull();
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
+            await doClick(findButton(playerSelection, 'Add a player...'));
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
+
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeFalsy();
         });
 
         it('can save scores', async () => {
             const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
-            await renderComponent(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
 
-            await doClick(context.container, 'div.light-background > button');
+            await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures[fixtureId]).not.toBeNull();
+        });
+
+        it('renders error if save fails', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            saveGameApiResult = {
+                success: false,
+            };
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(context.container.textContent).toContain('Could not save score');
+        });
+
+        it('can change player', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
+            const anotherHomePlayer = {
+                id: createTemporaryId(),
+                name: 'Another player'
+            };
+            homeTeam.seasons[0].players.push(anotherHomePlayer);
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
+
+            await doClick(findButton(playerSelection, 'Another player'));
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(reportedError).toBeNull();
+            expect(updatedFixtures[fixtureId]).not.toBeNull();
+            expect(updatedFixtures[fixtureId].matches[0].homePlayers).toEqual([anotherHomePlayer]);
+        });
+
+        it('can change match options', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
+
+            await doClick(findButton(playerSelection, '🛠'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            doChange(dialog, 'input[name="numberOfLegs"]', '30');
+            await doClick(findButton(dialog, 'Close'));
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(reportedError).toBeNull();
+            expect(updatedFixtures[fixtureId]).not.toBeNull();
+            expect(updatedFixtures[fixtureId].matchOptions[0].numberOfLegs).toEqual('30');
         });
     });
 });

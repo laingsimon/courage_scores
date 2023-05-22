@@ -22,6 +22,7 @@ import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "./MatchOptionHelpers";
+import {PageError} from "../../PageError";
 
 export function Score() {
     const { fixtureId } = useParams();
@@ -52,22 +53,22 @@ export function Score() {
                 const updatedTeamSeason = updatedTeamDetails.seasons.filter(ts => ts.seasonId === fixtureData.seasonId)[0];
                 if (!updatedTeamSeason) {
                     console.log(updatedTeamDetails);
-                    console.error('Could not find updated teamSeason');
+                    onError('Could not find updated teamSeason');
                     return;
                 }
 
                 const newPlayers = updatedTeamSeason.players.filter(p => p.name === newPlayerDetails.name);
                 if (!any(newPlayers)) {
                     console.log(updatedTeamSeason);
-                    console.error(`Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name}"`);
+                    onError(`Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name}"`);
                     return;
                 }
 
                 const newPlayer = newPlayers[0];
                 const match = fixtureData.matches[createPlayerFor.matchIndex];
                 if (!match) {
-                    console.error(`Unable to find match at index ${createPlayerFor.matchIndex}`);
                     console.log(createPlayerFor);
+                    onError(`Unable to find match at index ${createPlayerFor.matchIndex}`);
                     return;
                 }
 
@@ -204,8 +205,8 @@ export function Score() {
         [ teams ]);
 
     function loadPlayerData(gameData) {
-        const homeTeamPlayers = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches);
-        const awayTeamPlayers = loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches);
+        const homeTeamPlayers = loadTeamPlayers(gameData.home.id, gameData.seasonId, 'home', gameData.matches) || [];
+        const awayTeamPlayers = loadTeamPlayers(gameData.away.id, gameData.seasonId, 'away', gameData.matches) || [];
 
         setHomeTeam(homeTeamPlayers);
         setAwayTeam(awayTeamPlayers);
@@ -285,7 +286,8 @@ export function Score() {
         [ divisions, fixtureData, data ]);
 
     async function saveScores() {
-        if (access === 'readonly') {
+        if (saving) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -363,6 +365,8 @@ export function Score() {
             matchOptions: elementAt(fixtureData.matchOptions, index) || getMatchOptionDefaults(index, getMatchOptionsLookup(fixtureData.matchOptions)),
             otherMatches: matchesExceptIndex,
             setCreatePlayerFor: onCreatePlayer,
+            homePlayers: homeTeam,
+            awayPlayers: awayTeam,
         };
 
         return (<MatchTypeContainer {...matchTypeProps}>
@@ -437,8 +441,8 @@ export function Score() {
         return (<Loading />);
     }
 
-    if (!allPlayers) {
-        return (<div className="light-background p-3">There are no players for the home and/or away teams</div>);
+    if (!fixtureData || !fixtureData.matches) {
+        return (<PageError error="Unable to load score card, fixture data not loaded" />);
     }
 
     const finalScore = fixtureData.matches.map(match => {
