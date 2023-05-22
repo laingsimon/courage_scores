@@ -154,6 +154,18 @@ describe('TeamOverview', () => {
             expect(address.textContent).toEqual('Address: An address');
         });
 
+        it('renders team not found', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const teamId = createTemporaryId();
+            const teams = [ createTeam(teamId) ];
+
+            await renderComponent(divisionData, teams, createTemporaryId());
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).toContain('Team could not be found');
+        });
+
         it('renders fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
