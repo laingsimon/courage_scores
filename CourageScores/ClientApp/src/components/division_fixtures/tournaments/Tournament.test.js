@@ -664,7 +664,6 @@ describe('Tournament', () => {
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
 
                 doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
-                console.log(addPlayerDialog.innerHTML);
                 await doClick(addPlayerDialog, '.dropdown-menu .dropdown-item:not(.active)'); //select a team
                 await doClick(findButton(addPlayerDialog, 'Add player'));
 
