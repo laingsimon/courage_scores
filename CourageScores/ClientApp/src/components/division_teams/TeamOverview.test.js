@@ -52,7 +52,7 @@ describe('TeamOverview', () => {
         };
     }
 
-    function createTeam(teamId, seasonId) {
+    function createTeam(teamId) {
         return {
             id: teamId,
             name: 'A team',
@@ -141,7 +141,7 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const teamId = createTemporaryId();
-            const teams = [ createTeam(teamId, divisionData.season.id) ];
+            const teams = [ createTeam(teamId) ];
 
             await renderComponent(divisionData, teams, teamId);
 
@@ -157,7 +157,7 @@ describe('TeamOverview', () => {
         it('renders fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const team = createTeam(createTemporaryId(), divisionData.season.id);
+            const team = createTeam(createTemporaryId());
             divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
 
             await renderComponent(divisionData, [ team ], team.id);
@@ -172,10 +172,30 @@ describe('TeamOverview', () => {
             assertFixtureRow(fixtureRows[1], '5 Feb', 'Another team', team.name);
         });
 
+        it('renders postponed fixtures', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const team = createTeam(createTemporaryId());
+            divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
+            divisionData.fixtures[0].fixtures[0].postponed = true;
+
+            await renderComponent(divisionData, [ team ], team.id);
+
+            expect(reportedError).toBeNull();
+            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            expect(tableSections.length).toEqual(2);
+            const fixturesSection = tableSections[0];
+            const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
+            expect(fixtureRows.length).toEqual(2);
+            const cellText = Array.from(fixtureRows[0].querySelectorAll('td')).map(td => td.textContent);
+            expect(cellText[2]).toEqual('P');
+            expect(cellText[4]).toEqual('P');
+        });
+
         it('renders players', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const team = createTeam(createTemporaryId(), divisionData.season.id);
+            const team = createTeam(createTemporaryId());
             const player = createPlayer(team);
             divisionData.players.push(player);
 
@@ -196,7 +216,7 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const teamId = createTemporaryId();
-            const teams = [ createTeam(teamId, divisionData.season.id) ];
+            const teams = [ createTeam(teamId) ];
 
             await renderComponent(divisionData, teams, teamId);
 
@@ -212,7 +232,7 @@ describe('TeamOverview', () => {
         it('does not render fixtures', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const team = createTeam(createTemporaryId(), divisionData.season.id);
+            const team = createTeam(createTemporaryId());
 
             await renderComponent(divisionData, [ team ], team.id);
 
@@ -227,7 +247,7 @@ describe('TeamOverview', () => {
         it('does not render players', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            const team = createTeam(createTemporaryId(), divisionData.season.id);
+            const team = createTeam(createTemporaryId());
 
             await renderComponent(divisionData, [ team ], team.id);
 
