@@ -192,6 +192,27 @@ describe('TeamOverview', () => {
             expect(cellText[4]).toEqual('P');
         });
 
+        it('renders fixtures without scores', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            const team = createTeam(createTemporaryId());
+            divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
+            divisionData.fixtures[0].fixtures[0].homeScore = null;
+            divisionData.fixtures[0].fixtures[0].awayScore = null;
+
+            await renderComponent(divisionData, [ team ], team.id);
+
+            expect(reportedError).toBeNull();
+            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            expect(tableSections.length).toEqual(2);
+            const fixturesSection = tableSections[0];
+            const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
+            expect(fixtureRows.length).toEqual(2);
+            const cellText = Array.from(fixtureRows[0].querySelectorAll('td')).map(td => td.textContent);
+            expect(cellText[2]).toEqual('-');
+            expect(cellText[4]).toEqual('-');
+        });
+
         it('renders players', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
