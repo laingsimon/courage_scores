@@ -11,14 +11,13 @@ describe('DivisionFixtures', () => {
     let reportedError;
     let newFixtures;
     let divisionReloaded = false;
-    let account;
-    const mockSeasonApi = {
+    const seasonApi = {
 
     };
-    const mockGameApi = {
+    const gameApi = {
 
     };
-    const mockNoteApi = {
+    const noteApi = {
 
     };
 
@@ -26,20 +25,19 @@ describe('DivisionFixtures', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData) {
+    async function renderComponent(divisionData, account) {
         reportedError = null;
         newFixtures = null;
         divisionReloaded = false;
         context = await renderApp(
-            { seasonApi: mockSeasonApi, gameApi: mockGameApi, noteApi: mockNoteApi },
+            { seasonApi, gameApi, noteApi },
             {
-                account: account,
+                account,
                 onError: (err) => {
                     reportedError = err;
                 },
-                error: null,
             },
-            (<DivisionDataContainer {...divisionData}>
+            (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
                 <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures} />
             </DivisionDataContainer>));
     }
@@ -64,7 +62,7 @@ describe('DivisionFixtures', () => {
         };
     }
 
-    function assertFixture(tr, home, homeScore, awayScore, away) {
+    function assertFixture(tr, home, homeScore, awayScore, away, account) {
         const columns = tr.querySelectorAll('td');
         expect(columns.length).toEqual(5 + (account ? 1 : 0));
         expect(columns[0].textContent).toEqual(home);
@@ -80,7 +78,7 @@ describe('DivisionFixtures', () => {
         }
     }
 
-    function assertTournament(tr, text, winner) {
+    function assertTournament(tr, text, winner, account) {
         const columns = tr.querySelectorAll('td');
         expect(columns.length).toEqual((winner ? 2 : 1) + (account ? 1 : 0));
         expect(columns[0].textContent).toEqual(text);
@@ -93,7 +91,7 @@ describe('DivisionFixtures', () => {
         divisionReloaded = true;
     }
 
-    function getFixtureDateElement(index) {
+    function getFixtureDateElement(index, account) {
         const fixtureElements = context.container.querySelectorAll('div.light-background > div');
         expect(fixtureElements.length).toEqual(2 + (account ? 1 : 0));
         const fixtureDatesContainer = fixtureElements[1];
@@ -108,9 +106,7 @@ describe('DivisionFixtures', () => {
     }
 
     describe('when logged out', () => {
-        beforeEach(() => {
-            account = null;
-        });
+        const account = null;
 
         it('renders notes', async () => {
             const divisionId = createTemporaryId();
@@ -126,10 +122,10 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: [ ]
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
@@ -154,14 +150,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
+            assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1', account);
         });
 
         it('renders played knockout fixtures', async () => {
@@ -182,14 +178,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct (Qualifier)');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
+            assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout', account);
         });
 
         it('renders postponed fixtures', async () => {
@@ -210,14 +206,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'away3');
+            assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'away3', account);
         });
 
         it('renders byes', async () => {
@@ -237,14 +233,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
+            assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye', account);
         });
 
         it('renders played tournaments', async () => {
@@ -272,14 +268,14 @@ describe('DivisionFixtures', () => {
                 } ]
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 OctWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
+            assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side', account);
         });
 
         it('renders unplayed tournaments', async () => {
@@ -304,21 +300,25 @@ describe('DivisionFixtures', () => {
                 }]
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 OctWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertTournament(fixturesForDate[0], 'Pairs at another address');
+            assertTournament(fixturesForDate[0], 'Pairs at another address', account);
         });
     });
 
     describe('when logged in', () => {
-        beforeEach(() => {
-            account = { access: { manageGames: true, manageNotes: true, manageScores: true } };
-        });
+        const account = {
+            access: {
+                manageGames: true,
+                manageNotes: true,
+                manageScores: true
+            },
+        };
 
         it('renders notes', async () => {
             const divisionId = createTemporaryId();
@@ -334,10 +334,10 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: [ ]
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
             const noteElement = fixtureDateElement.querySelector('.alert-warning');
             expect(noteElement).toBeTruthy();
@@ -362,14 +362,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1');
+            assertFixture(fixturesForDate[0], 'home1', '1', '2', 'away1', account);
         });
 
         it('renders played knockout fixtures', async () => {
@@ -390,14 +390,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct (Qualifier)📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout');
+            assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout', account);
         });
 
         it('renders postponed fixtures', async () => {
@@ -418,14 +418,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'A team');
+            assertFixture(fixturesForDate[0], 'home3', 'P', 'P', 'A team', account);
         });
 
         it('renders byes', async () => {
@@ -446,14 +446,14 @@ describe('DivisionFixtures', () => {
                 tournamentFixtures: []
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteQualifier');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye');
+            assertFixture(fixturesForDate[0], 'home4 - bye', '', '', 'Bye', account);
         });
 
         it('renders played tournaments', async () => {
@@ -481,14 +481,14 @@ describe('DivisionFixtures', () => {
                 } ]
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side');
+            assertTournament(fixturesForDate[0], 'Pairs at an address', 'The winning side', account);
         });
 
         it('renders unplayed tournaments', async () => {
@@ -513,14 +513,14 @@ describe('DivisionFixtures', () => {
                 }]
             });
 
-            await renderComponent({ ...divisionData, onReloadDivision: onReloadDivision });
+            await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
-            const fixtureDateElement = getFixtureDateElement(0);
+            const fixtureDateElement = getFixtureDateElement(0, account);
             assertFixtureDate(fixtureDateElement, '13 Oct📌 Add noteWho\'s playing?');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
-            assertTournament(fixturesForDate[0], 'Pairs at another address');
+            assertTournament(fixturesForDate[0], 'Pairs at another address', null, account);
         });
     });
 });
