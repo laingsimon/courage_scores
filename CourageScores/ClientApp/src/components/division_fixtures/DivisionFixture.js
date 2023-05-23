@@ -12,8 +12,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         text: 'Bye',
         value: '',
     };
-    const { account, teams: allTeams } = useApp();
-    const { id: divisionId, fixtures, season, teams, onReloadDivision, onError } = useDivisionData();
+    const { account, teams: allTeams, onError } = useApp();
+    const { id: divisionId, fixtures, season, teams, onReloadDivision } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -92,8 +92,10 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         if (sameFixtureDifferentDate) {
             return `Already playing same leg on ${renderDate(sameFixtureDifferentDate)}`;
         }
+
         let legsOnOtherDates = getLegsOnOtherDates(t);
         if (legsOnOtherDates.length >= 2) {
+            // NOTE: it doesn't seem possible to reach this code, to do so would require Already playing same leg to not have returned
             return `Already playing both legs ${legsOnOtherDates.map(renderDate).join(' & ')}`;
         }
 
@@ -101,22 +103,29 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     }
 
     function onChangeAwayTeam(teamId) {
+        if (readOnly) {
+            return;
+        }
+
         onUpdateFixtures(currentFixtureDates => {
             const fixtureDate = currentFixtureDates.filter(fd => fd.date === date)[0];
 
+            // istanbul ignore next
             if (!fixtureDate) {
-                console.error(`Could not find fixture date: ${date}`);
+                onError(`Could not find fixture date: ${date}`);
                 return null;
             }
 
+            // istanbul ignore next
             if (!fixtureDate.fixtures) {
-                console.error('Fixture date has no fixtures');
+                onError('Fixture date has no fixtures');
                 return null;
             }
 
             const fixtureDateFixture = fixtureDate.fixtures.filter(f => f.id === fixture.id)[0];
+            // istanbul ignore next
             if (!fixtureDateFixture) {
-                console.error(`Could not find fixture with id ${fixture.id}`);
+                onError(`Could not find fixture with id ${fixture.id}`);
                 return null;
             }
 
@@ -204,6 +213,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
             setSaving(true);
             if (awayTeamId === '') {
+                // NOTE: This branch is unreachable as the save button is never rendered when there is no awayTeamId
+
                 const result = await gameApi.delete(fixture.id);
 
                 if (result.success) {

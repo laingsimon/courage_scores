@@ -72,7 +72,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
     try {
         return (<tr>
             <td colSpan="2" className="hover-highlight">
-                <strong>from {homeSubmissionMatch.author}</strong>
+                <strong>from {homeSubmission.author}</strong>
                 {renderSubmissionMatch(homeSubmissionMatch)}
                 <div className="text-center">
                     <button disabled={readOnly} onClick={() => acceptSubmission(homeSubmissionMatch)}
@@ -87,7 +87,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
                 </div>
             </td>
             <td colSpan="2" className="hover-highlight">
-                <strong>from {awaySubmissionMatch.author}</strong>
+                <strong>from {awaySubmission.author} xx</strong>
                 {renderSubmissionMatch(awaySubmissionMatch)}
                 <div className="text-center">
                     <button disabled={readOnly} onClick={() => acceptSubmission(awaySubmissionMatch)}

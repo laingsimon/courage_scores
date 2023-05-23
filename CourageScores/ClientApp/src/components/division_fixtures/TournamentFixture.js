@@ -9,7 +9,6 @@ import {useDivisionData} from "../DivisionDataContainer";
 export function TournamentFixture({ tournament, onTournamentChanged, date, expanded }) {
     const { id: divisionId, season, players: allPlayers } = useDivisionData();
     const { account } = useApp();
-    const isProposedTournament = tournament.proposed;
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
@@ -118,18 +117,18 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
         return (<strong className="text-primary">{winningSide.name}</strong>);
     }
 
-    if (isProposedTournament && !isAdmin) {
-        // don't show proposed tournament addresses when not an admin
-        return null;
-    }
+    if (tournament.proposed) {
+        if (!isAdmin) {
+            // don't show proposed tournament addresses when not an admin
+            return null;
+        }
 
-    if (isProposedTournament) {
         return (<tr>
             <td colSpan="5">
                 Tournament at <strong>{tournament.address}</strong>
             </td>
             <td className="medium-column-width text-end">
-                {isAdmin && isProposedTournament ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
+                {isAdmin && tournament.proposed ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
                         {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '➕'}
                     </button>)
                     : null}

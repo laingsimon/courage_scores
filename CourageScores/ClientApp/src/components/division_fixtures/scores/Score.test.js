@@ -502,7 +502,6 @@ describe('Score', () => {
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             expect(playerSelection.querySelector('.dropdown-toggle').textContent).toEqual('New name (nee Old name)');
             const selectedPlayer = playerSelection.querySelector('.dropdown-menu .active');
-            console.log(playerSelection.innerHTML);
             expect(selectedPlayer).toBeTruthy();
             expect(selectedPlayer.textContent).toEqual('New name (nee Old name)');
         });
