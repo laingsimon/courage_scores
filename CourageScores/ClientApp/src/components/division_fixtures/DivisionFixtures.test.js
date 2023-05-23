@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../tests/helpers";
+import {cleanUp, renderApp, findButton, doClick, doChange} from "../../tests/helpers";
 import React from "react";
 import {createTemporaryId} from "../../Utilities";
 import {DivisionFixtures} from "./DivisionFixtures";
@@ -11,6 +11,7 @@ describe('DivisionFixtures', () => {
     let reportedError;
     let newFixtures;
     let divisionReloaded = false;
+    let updatedNote;
     const seasonApi = {
 
     };
@@ -18,28 +19,41 @@ describe('DivisionFixtures', () => {
 
     };
     const noteApi = {
-
+        upsert: async (note) => {
+            updatedNote = note;
+            return { success: true };
+        },
     };
+    const tournamentApi = {
+        update: async () => {
+            return { success: true };
+        }
+    }
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData, account) {
+    async function renderComponent(divisionData, account, route, path) {
         reportedError = null;
         newFixtures = null;
         divisionReloaded = false;
+        updatedNote = null;
         context = await renderApp(
-            { seasonApi, gameApi, noteApi },
+            { seasonApi, gameApi, noteApi, tournamentApi },
             {
                 account,
                 onError: (err) => {
                     reportedError = err;
                 },
+                seasons: [],
+                divisions: []
             },
-            (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
+            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData}>
                 <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures} />
-            </DivisionDataContainer>));
+            </DivisionDataContainer>),
+            route,
+            path);
     }
 
     function getInSeasonDivisionData(divisionId) {
@@ -309,6 +323,69 @@ describe('DivisionFixtures', () => {
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address', account);
         });
+
+        it('renders tournament players', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    notes: 'Someone to run the venue',
+                    players: [],
+                    proposed: false,
+                    seasonId: divisionData.season.id,
+                    sides: [ {
+                        id: createTemporaryId(),
+                        name: 'The winning side',
+                        players: [{
+                            id: createTemporaryId(),
+                            name: 'SIDE PLAYER',
+                        }]
+                    }],
+                    type: 'Pairs'
+                }]
+            });
+
+            await renderComponent(divisionData, account, '/division', '/division#show-who-is-playing');
+
+            expect(reportedError).toBeNull();
+            const fixtureDateElement = getFixtureDateElement(0, account);
+            expect(fixtureDateElement.textContent).toContain('SIDE PLAYER');
+        });
+
+        it('can change filters', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    notes: 'Someone to run the venue',
+                    players: [],
+                    proposed: false,
+                    seasonId: divisionData.season.id,
+                    sides: [ {
+                        name: 'The winning side'
+                    }],
+                    type: 'Pairs'
+                }]
+            });
+            await renderComponent(divisionData, account);
+            const filterContainer = context.container.querySelector('.light-background > div:first-child');
+
+            await doClick(filterContainer, '.dropdown-menu .dropdown-item:not(.active)');
+
+            expect(reportedError).toBeNull();
+        });
     });
 
     describe('when logged in', () => {
@@ -521,6 +598,213 @@ describe('DivisionFixtures', () => {
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertTournament(fixturesForDate[0], 'Pairs at another address', null, account);
+        });
+
+        it('reloads tournaments if they are changed', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ { id: createTemporaryId(), note: 'A note' } ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    players: [],
+                    proposed: true,
+                    seasonId: divisionData.season.id,
+                    sides: [ ]
+                } ]
+            });
+            await renderComponent(
+                {
+                    ...divisionData,
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                        return divisionData;
+                    }
+                },
+                account);
+
+            const fixtureDateElement = getFixtureDateElement(0, account);
+            await doClick(findButton(fixtureDateElement, '➕'));
+
+            expect(reportedError).toBeNull();
+            expect(divisionReloaded).toEqual(true);
+            expect(newFixtures).not.toBeNull();
+        });
+
+        it('can add a note', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            const teamId = createTemporaryId();
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ {
+                    id: teamId,
+                    homeScore: null,
+                    homeTeam: { id: teamId, name: 'home5 - bye', address: 'home5' },
+                    awayScore: null,
+                    isKnockout: false,
+                    postponed: false,
+                } ],
+                notes: [ ],
+                tournamentFixtures: []
+            });
+            await renderComponent(divisionData, account);
+            const fixtureDateElement = getFixtureDateElement(0, account);
+            const addNoteButton = findButton(fixtureDateElement, '📌 Add note');
+
+            await doClick(addNoteButton);
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('Create note');
+        });
+
+        it('can edit a note', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ {
+                    id: createTemporaryId(),
+                    date: '2022-10-13T00:00:00',
+                    note: 'A note'
+                } ],
+                tournamentFixtures: []
+            });
+            await renderComponent(divisionData, account);
+            const fixtureDateElement = getFixtureDateElement(0, account);
+            const editNoteButton = findButton(fixtureDateElement.querySelector('.alert'), 'Edit');
+
+            await doClick(editNoteButton);
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('Edit note');
+        });
+
+        it('can save changes to notes', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ {
+                    id: createTemporaryId(),
+                    date: '2022-10-13T00:00:00',
+                    note: 'A note'
+                } ],
+                tournamentFixtures: []
+            });
+            await renderComponent(divisionData, account);
+            const fixtureDateElement = getFixtureDateElement(0, account);
+            const editNoteButton = findButton(fixtureDateElement.querySelector('.alert'), 'Edit');
+            await doClick(editNoteButton);
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            doChange(dialog, 'textarea[name="note"]', 'New note');
+            await doClick(findButton(dialog, 'Save'));
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+            expect(divisionReloaded).toEqual(true);
+            expect(updatedNote).not.toBeNull();
+        });
+
+        it('can open add date dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+            const addDateButton = findButton(context.container, '➕ Add date');
+
+            await doClick(addDateButton);
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('Add date');
+        });
+
+        it('can close add date dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+            const addDateButton = findButton(context.container, '➕ Add date');
+
+            await doClick(addDateButton);
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeFalsy();
+        });
+
+        it('prevents adding a date when no date selected', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+            await doClick(findButton(context.container, '➕ Add date'));
+            const dialog = context.container.querySelector('.modal-dialog');
+            let alert;
+            window.alert = (message) => alert = message;
+
+            await doClick(findButton(dialog, 'Add date'));
+
+            expect(reportedError).toBeNull();
+            expect(newFixtures).toBeNull();
+            expect(alert).toEqual('Select a date first');
+        });
+
+        it('does not add date if already exists', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ { id: createTemporaryId(), note: 'A note' } ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    players: [],
+                    proposed: true,
+                    seasonId: divisionData.season.id,
+                    sides: [ ]
+                } ]
+            });
+            await renderComponent(divisionData, account);
+            await doClick(findButton(context.container, '➕ Add date'));
+            const dialog = context.container.querySelector('.modal-dialog');
+
+            doChange(dialog, 'input[type="date"]', '2022-10-13');
+            await doClick(findButton(dialog, 'Add date'));
+
+            expect(reportedError).toBeNull();
+            expect(newFixtures).toBeNull();
+        });
+
+        it('can add a date', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+            await doClick(findButton(context.container, '➕ Add date'));
+            const dialog = context.container.querySelector('.modal-dialog');
+
+            doChange(dialog, 'input[type="date"]', '2023-05-06');
+            await doClick(dialog, 'input[name="isKnockout"]');
+            await doClick(findButton(dialog, 'Add date'));
+
+            expect(reportedError).toBeNull();
+            expect(newFixtures).not.toBeNull();
+            expect(newFixtures[0].date).toEqual('2023-05-06T00:00:00');
+            expect(newFixtures[0].isNew).toEqual(true);
+            expect(newFixtures[0].isKnockout).toEqual(true);
         });
     });
 });
