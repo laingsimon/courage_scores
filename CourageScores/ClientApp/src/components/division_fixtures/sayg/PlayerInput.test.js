@@ -46,7 +46,7 @@ describe('PlayerInput', () => {
                 on180={on180}
                 onHiCheck={onHiCheck}
                 onChange={onChange}
-                onLegComplete={onLegComplete}/>);
+                onLegComplete={onLegComplete} />);
     }
 
     function setScoreInput(score) {

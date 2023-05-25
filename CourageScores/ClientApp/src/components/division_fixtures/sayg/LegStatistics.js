@@ -44,7 +44,7 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer, oneDar
     return (<tr>
         <td>
             Leg: {legNumber}<br />
-            Winner: <strong className="text-primary">{leg.winner === 'home' ? home : away}</strong>
+            {leg.winner && !singlePlayer ? (<>Winner: <strong className="text-primary">{leg.winner === 'home' ? home : away}</strong></>) : null}
             <div className="form-check form-switch margin-right">
                 <input className="form-check-input" type="checkbox" id={`showThrows_${legNumber}`}
                        checked={showThrows} onChange={stateChanged(setShowThrows)}/>
