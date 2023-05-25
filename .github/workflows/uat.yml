@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Complete coverage report
-        uses: coverallsapp/github-action@v1
+        uses: coverallsapp/github-action@v2
         with:
           parallel-finished: true
 
