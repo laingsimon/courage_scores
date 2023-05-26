@@ -133,7 +133,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -165,7 +165,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -216,7 +216,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -262,7 +262,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -317,7 +317,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -377,7 +377,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -424,7 +424,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -456,7 +456,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -491,7 +491,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -527,13 +527,13 @@ describe('Tournament', () => {
                 expect(notes.textContent).toContain('Notes');
                 expect(notes.querySelector('textarea').value).toEqual('NOTES');
                 // accolades qualify
-                const accoladesQualifyAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
-                expect(accoladesQualifyAndDivision).toBeTruthy();
-                expect(accoladesQualifyAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
-                expect(accoladesQualifyAndDivision.querySelector('input').checked).toEqual(true);
+                const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
+                expect(accoladesCountAndDivision).toBeTruthy();
+                expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
+                expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
                 // division
-                expect(accoladesQualifyAndDivision.textContent).toContain('Division:');
-                expect(accoladesQualifyAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
+                expect(accoladesCountAndDivision.textContent).toContain('Division:');
+                expect(accoladesCountAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
             });
 
             it('tournament with sides and players', async () => {
@@ -555,7 +555,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -592,7 +592,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -631,7 +631,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -686,7 +686,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -724,7 +724,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -748,9 +748,9 @@ describe('Tournament', () => {
                 doChange(type, 'input', 'NEW TYPE');
                 const notes = context.container.querySelector('.light-background > div:nth-child(3)');
                 doChange(notes, 'textarea', 'NEW NOTES');
-                const accoladesQualifyAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
-                await doClick(accoladesQualifyAndDivision, 'input');
-                const divisionOption = accoladesQualifyAndDivision.querySelector('.dropdown-item:not(.active)');
+                const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
+                await doClick(accoladesCountAndDivision, 'input');
+                const divisionOption = accoladesCountAndDivision.querySelector('.dropdown-item:not(.active)');
                 expect(divisionOption.textContent).toEqual('All divisions');
                 await doClick(divisionOption);
 
@@ -760,7 +760,7 @@ describe('Tournament', () => {
                         address: 'NEW ADDRESS',
                         type: 'NEW TYPE',
                         notes: 'NEW NOTES',
-                        accoladesQualify: false,
+                        accoladesCount: false,
                         divisionId: null,
                     });
             });
@@ -775,7 +775,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,

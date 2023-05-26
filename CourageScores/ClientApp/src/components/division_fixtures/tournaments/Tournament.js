@@ -216,9 +216,9 @@ export function Tournament() {
                 {canManageGames
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <div className="form-check form-switch margin-right">
-                            <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesQualify" id="accoladesQualify"
-                                   checked={tournamentData.accoladesQualify} onChange={valueChanged(tournamentData, setTournamentData)} />
-                            <label className="form-check-label" htmlFor="accoladesQualify">Include 180s and Hi-checks in players table?</label>
+                            <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount"
+                                   checked={tournamentData.accoladesCount} onChange={valueChanged(tournamentData, setTournamentData)} />
+                            <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks in players table?</label>
                         </div>
 
                         <span className="margin-right">Division:</span>
