@@ -26,12 +26,12 @@ public class TournamentGameTests
     }
 
     [Test]
-    public void Accept_GivenHiCheckoutAndAccoladesQualify_VisitsHiCheckout()
+    public void Accept_GivenHiCheckoutAndAccoladesCount_VisitsHiCheckout()
     {
         var visitor = new Mock<IGameVisitor>();
         var player = new NotableTournamentPlayer();
         _game.Over100Checkouts.Add(player);
-        _game.AccoladesQualify = true;
+        _game.AccoladesCount = true;
 
         _game.Accept(visitor.Object);
 
@@ -44,7 +44,7 @@ public class TournamentGameTests
         var visitor = new Mock<IGameVisitor>();
         var player = new NotableTournamentPlayer();
         _game.Over100Checkouts.Add(player);
-        _game.AccoladesQualify = false;
+        _game.AccoladesCount = false;
 
         _game.Accept(visitor.Object);
 
@@ -52,12 +52,12 @@ public class TournamentGameTests
     }
 
     [Test]
-    public void Accept_GivenOneEightiesAndAccoladesQualify_VisitsOneEighty()
+    public void Accept_GivenOneEightiesAndAccoladesCount_VisitsOneEighty()
     {
         var visitor = new Mock<IGameVisitor>();
         var player = new TournamentPlayer();
         _game.OneEighties.Add(player);
-        _game.AccoladesQualify = true;
+        _game.AccoladesCount = true;
 
         _game.Accept(visitor.Object);
 
@@ -70,7 +70,7 @@ public class TournamentGameTests
         var visitor = new Mock<IGameVisitor>();
         var player = new TournamentPlayer();
         _game.OneEighties.Add(player);
-        _game.AccoladesQualify = false;
+        _game.AccoladesCount = false;
 
         _game.Accept(visitor.Object);
 
