@@ -515,7 +515,7 @@ export function Score() {
                             {renderMatchPlayerSelection(4, 5, 1)}
                             {renderMergeMatch(4)}
                             <tr>
-                                <td colSpan="5" className="text-primary fw-bold text-center">Doubles</td>
+                                <td colSpan="5" className="text-primary fw-bold text-center">Pairs</td>
                             </tr>
                             {renderMatchPlayerSelection(5, 3, 2)}
                             {renderMergeMatch(5)}

@@ -296,7 +296,7 @@ describe('Score', () => {
             assertMatchRow(matchRows[3], 'Home player', '3', '', '2', 'Away player');
             assertMatchRow(matchRows[4], 'Home player', '3', '', '2', 'Away player');
             assertMatchRow(matchRows[5], 'Home player', '3', '', '2', 'Away player');
-            assertMatchRow(matchRows[6], 'Doubles');
+            assertMatchRow(matchRows[6], 'Pairs');
             assertMatchRow(matchRows[7], 'Home player', '3', '', '0', 'Away player');
             assertMatchRow(matchRows[8], 'Home player', '3', '', '0', 'Away player');
             assertMatchRow(matchRows[9], 'Triples');
@@ -361,7 +361,7 @@ describe('Score', () => {
             assertMatchRow(matchRows[3], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
-            assertMatchRow(matchRows[6], 'Doubles');
+            assertMatchRow(matchRows[6], 'Pairs');
             assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
             assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
             assertMatchRow(matchRows[9], 'Triples');
@@ -391,7 +391,7 @@ describe('Score', () => {
             assertMatchRow(matchRows[3], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[4], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
             assertMatchRow(matchRows[5], 'Home playerAdd a player...', '', '', '', 'Away playerAdd a player...');
-            assertMatchRow(matchRows[6], 'Doubles');
+            assertMatchRow(matchRows[6], 'Pairs');
             assertMatchRow(matchRows[7], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
             assertMatchRow(matchRows[8], 'Home playerAdd a player...  Home playerAdd a player...', '', '', '', 'Away playerAdd a player...  Away playerAdd a player...');
             assertMatchRow(matchRows[9], 'Triples');
