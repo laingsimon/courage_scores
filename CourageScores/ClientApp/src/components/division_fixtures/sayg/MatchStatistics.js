@@ -2,8 +2,11 @@ import {sum} from "../../../Utilities";
 import {MatchDartCount} from "./MatchDartCount";
 import {MatchAverage} from "./MatchAverage";
 import {LegStatistics} from "./LegStatistics";
+import {useState} from "react";
 
 export function MatchStatistics({ legs, homeScore, awayScore, home, away, singlePlayer }) {
+    const [ oneDartAverage, setOneDartAverage ] = useState(false);
+
     function sumOf(player, prop) {
         return sum(Object.values(legs), leg => leg[player][prop]);
     }
@@ -31,14 +34,17 @@ export function MatchStatistics({ legs, homeScore, awayScore, home, away, single
                     leg={legs[legIndex]}
                     home={home}
                     away={away}
-                    singlePlayer={singlePlayer} />);
+                    singlePlayer={singlePlayer}
+                    oneDartAverage={oneDartAverage} />);
             })}
             </tbody>
             <tfoot>
                 <MatchAverage
                     homeAverage={sumOf('home', 'score') / (sumOf('home', 'noOfDarts') / 3)}
                     awayAverage={sumOf('away', 'score') / (sumOf('away', 'noOfDarts') / 3)}
-                    singlePlayer={singlePlayer} />
+                    singlePlayer={singlePlayer}
+                    oneDartAverage={oneDartAverage}
+                    setOneDartAverage={setOneDartAverage} />
                 <MatchDartCount
                     homeCount={sumOf('home', 'noOfDarts')}
                     awayCount={sumOf('away', 'noOfDarts')}

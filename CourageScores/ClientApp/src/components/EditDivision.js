@@ -13,6 +13,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
 
     async function saveDivision() {
         if (saving || deleting) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -39,6 +40,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
 
     async function deleteDivision() {
         if (deleting || saving) {
+            /* istanbul ignore next */
             return;
         }
 

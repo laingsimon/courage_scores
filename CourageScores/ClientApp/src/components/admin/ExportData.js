@@ -30,6 +30,7 @@ export function ExportData() {
 
     async function startExport() {
         if (exporting) {
+            /* istanbul ignore next */
             return;
         }
 

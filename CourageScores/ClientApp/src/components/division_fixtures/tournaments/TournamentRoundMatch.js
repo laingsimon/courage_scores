@@ -6,14 +6,10 @@ import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180 }) {
-    const { account } = useApp();
-    // noinspection JSUnresolvedVariable
+    const { account, onError } = useApp();
     const scoreA = Number.parseInt(match.scoreA);
-    // noinspection JSUnresolvedVariable
     const scoreB = Number.parseInt(match.scoreB);
-    // noinspection JSUnresolvedVariable
     const scoreARecorded = hasScore(match.scoreA);
-    // noinspection JSUnresolvedVariable
     const scoreBRecorded = hasScore(match.scoreB);
     const hasBothScores = scoreARecorded && scoreBRecorded;
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
@@ -31,22 +27,30 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     }
 
     async function updateMatch(property, sideId) {
-        const newRound = Object.assign({}, round);
-        const match = newRound.matches[matchIndex];
-        match[property] = sideMap[sideId];
+        try {
+            const newRound = Object.assign({}, round);
+            const match = newRound.matches[matchIndex];
+            match[property] = sideMap[sideId];
 
-        if (onChange) {
-            await onChange(newRound);
+            if (onChange) {
+                await onChange(newRound);
+            }
+        } catch (e) {
+            onError(e);
         }
     }
 
     async function changeScore(event, property) {
-        const newRound = Object.assign({}, round);
-        const match = newRound.matches[matchIndex];
-        match[property] = event.target.value;
+        try {
+            const newRound = Object.assign({}, round);
+            const match = newRound.matches[matchIndex];
+            match[property] = event.target.value;
 
-        if (onChange) {
-            await onChange(newRound);
+            if (onChange) {
+                await onChange(newRound);
+            }
+        } catch (e) {
+            onError(e);
         }
     }
 

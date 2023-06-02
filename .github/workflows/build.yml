@@ -21,14 +21,15 @@ jobs:
           DOTNET_NOLOGO: true
 
       - name: Test with dotnet
-        run: dotnet test --configuration Release --logger:nunit
+        run: dotnet test --configuration Release --logger:nunit /p:CollectCoverage=true /p:CoverletOutput=Coverage/ /p:CoverletOutputFormat=lcov
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: true
           DOTNET_NOLOGO: true
 
-      - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+      - name: Publish dotnet coverage
+        uses: coverallsapp/github-action@v2
         with:
-          nunit_files: 'CourageScores.Tests/TestResults/*.xml'
-          check_run_annotations_branch: '*'
-          comment_mode: always
+            file: ./CourageScores.Tests/Coverage/coverage.info
+            flag-name: dotnet
+            parallel: true
+            format: lcov

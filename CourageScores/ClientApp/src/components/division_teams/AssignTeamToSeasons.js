@@ -134,6 +134,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
             </div>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

@@ -1,8 +1,8 @@
 import {round2dp} from "../../../Utilities";
 
 export function PreviousPlayerScore({ home, away, leg, undoLastThrow }) {
-    const oppositePlayer = opposite(leg.currentThrow);
-    const accumulator = leg[oppositePlayer];
+    const opponent = opposite(leg.currentThrow);
+    const accumulator = leg[opponent];
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
     const playerLookup = {
         home: home,
@@ -13,10 +13,6 @@ export function PreviousPlayerScore({ home, away, leg, undoLastThrow }) {
         return player === 'home' ? 'away' : 'home';
     }
 
-    if (!leg[oppositePlayer].score) {
-        return null;
-    }
-
     async function changeScore() {
         if (!window.confirm('Are you sure you want to change this score?')) {
             return;
@@ -25,9 +21,13 @@ export function PreviousPlayerScore({ home, away, leg, undoLastThrow }) {
         await undoLastThrow();
     }
 
+    if (!leg[opponent].score) {
+        return null;
+    }
+
     return (<div className="text-secondary-50 text-center">
         <p className="my-0">
-            <strong>{playerLookup[oppositePlayer]} </strong> requires <strong className="text-dark">{leg.startingScore - accumulator.score}</strong>
+            <strong>{playerLookup[opponent]} </strong> requires <strong className="text-dark">{leg.startingScore - accumulator.score}</strong>
         </p>
         <p className="my-0" onClick={changeScore} title="Click to change score">
             thrown <strong>{accumulator.noOfDarts}</strong> darts

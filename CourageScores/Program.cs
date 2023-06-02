@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using CourageScores;
@@ -85,3 +86,9 @@ app.UseEndpoints(endpoints =>
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+[ExcludeFromCodeCoverage]
+public partial class Program
+{
+
+}

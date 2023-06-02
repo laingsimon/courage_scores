@@ -43,7 +43,7 @@ export function DivisionReports() {
 
         return (<div>
             <BootstrapDropdown
-                onChange={(value) => setActiveReport(value)}
+                onChange={setActiveReport}
                 options={reportData.reports.map(report => { return { value: report.name, text: report.description }})}
                 value={activeReport}
                 className="d-print-none" />

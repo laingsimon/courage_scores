@@ -12,7 +12,7 @@ public class EditTournamentGameDto
     public string? Type { get; set; }
     public List<TournamentSideDto> Sides { get; set; } = new();
     public TournamentRoundDto? Round { get; set; }
-    public bool AccoladesQualify { get; set; }
+    public bool AccoladesCount { get; set; }
     public Guid? DivisionId { get; set; }
 
     public List<RecordTournamentScoresPlayerDto> OneEighties { get; set; } = new ();

@@ -62,6 +62,27 @@ describe('HiCheckAnd180s', () => {
         it('when no selected players', async () => {
             const fixtureData = {
                 matches: [ {
+                    homePlayers: null,
+                    awayPlayers: null
+                } ],
+                resultsPublished: false,
+                divisionId: createTemporaryId(),
+                seasonId: createTemporaryId(),
+                oneEighties: [],
+                over100Checkouts: []
+            };
+
+            await renderComponent(false, 'readonly', fixtureData);
+
+            const cells = context.container.querySelectorAll('td');
+            expect(cells.length).toEqual(1);
+            expect(cells[0].colSpan).toEqual(5);
+            expect(cells[0].textContent).toEqual('Select some player/s to add 180s and hi-checks');
+        });
+
+        it('when empty selected players', async () => {
+            const fixtureData = {
+                matches: [ {
                     homePlayers: [],
                     awayPlayers: []
                 } ],

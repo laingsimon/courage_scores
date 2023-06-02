@@ -9,10 +9,11 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const { playerApi } = useDependencies();
-    const { teams, divisions } = useApp();
+    const { teams, divisions, onError } = useApp();
 
     async function saveChanges() {
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -50,6 +51,8 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
             } else {
                 setSaveError(response);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setSaving(false);
         }

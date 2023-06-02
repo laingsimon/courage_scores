@@ -19,6 +19,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
         }
 
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -72,7 +73,7 @@ export function EditTeamDetails({ id, name, address, divisionId, onSaved, onChan
             <div className="input-group-prepend">
                 <span className="input-group-text">Division</span>
             </div>
-            <BootstrapDropdown 
+            <BootstrapDropdown
                 disabled={saving || !id || !onChange}
                 options={divisionOptions}
                 value={newDivisionId}

@@ -134,6 +134,7 @@ export function Division() {
             </DivisionDataContainer>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

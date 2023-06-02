@@ -14,6 +14,7 @@ export function FixtureDateNote({ note, setEditNote, preventDelete }) {
 
     async function deleteNote(note) {
         if (deletingNote) {
+            /* istanbul ignore next */
             return;
         }
 

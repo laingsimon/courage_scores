@@ -72,6 +72,7 @@ export function AdminHome() {
             </AdminContainer>)}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

@@ -14,6 +14,7 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
 
     async function saveNote() {
         if (savingNote) {
+            /* istanbul ignore next */
             return;
         }
 

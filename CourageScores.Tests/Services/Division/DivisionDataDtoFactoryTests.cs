@@ -164,7 +164,7 @@ public class DivisionDataDtoFactoryTests
         {
             Date = new DateTime(2001, 02, 03),
             Id = Guid.NewGuid(),
-            AccoladesQualify = true,
+            AccoladesCount = true,
         };
         var context = new DivisionDataContext(
             new[] { game },

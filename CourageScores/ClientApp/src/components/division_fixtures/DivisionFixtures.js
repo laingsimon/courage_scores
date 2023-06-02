@@ -87,6 +87,7 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     function startAddNote(date) {
         if (!date) {
+            // NOTE: This branch may not be reachable, the note dialog is always opened with an existing note (that has a date) or from a fixture date
             window.alert('Select a date first');
             return;
         }
@@ -179,6 +180,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             </div>) : null}
         </div>);
     } catch (exc) {
+        /* istanbul ignore next */
         onError(exc);
     }
 }

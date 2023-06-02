@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../tests/helpers";
 import React from "react";
 import {Tournament} from "./Tournament";
 import {createTemporaryId, toMap, any} from "../../../Utilities";
@@ -13,6 +13,7 @@ describe('Tournament', () => {
     let divisionDataLookup;
     let tournamentDataLookup;
     let updatedTournamentData;
+    let createdPlayer;
     const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}_${seasonId}`;
@@ -38,6 +39,14 @@ describe('Tournament', () => {
             };
         }
     };
+    const playerApi = {
+        create: async (seasonId, teamId, playerDetails) => {
+            createdPlayer = { seasonId, teamId, playerDetails };
+            return {
+                success: true,
+            };
+        }
+    }
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
         if (!divisionDataLookup) {
@@ -58,10 +67,12 @@ describe('Tournament', () => {
         updatedTournamentData = [];
         reportedError = null;
         teamsReloaded = false;
+        createdPlayer = null;
         context = await renderApp(
             {
                 divisionApi,
                 tournamentApi,
+                playerApi
             },
             {
                 onError: (err) => {
@@ -122,7 +133,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -154,7 +165,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -205,7 +216,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -251,7 +262,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -306,7 +317,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -366,7 +377,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -413,7 +424,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -445,7 +456,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -480,7 +491,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -516,13 +527,13 @@ describe('Tournament', () => {
                 expect(notes.textContent).toContain('Notes');
                 expect(notes.querySelector('textarea').value).toEqual('NOTES');
                 // accolades qualify
-                const accoladesQualifyAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
-                expect(accoladesQualifyAndDivision).toBeTruthy();
-                expect(accoladesQualifyAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
-                expect(accoladesQualifyAndDivision.querySelector('input').checked).toEqual(true);
+                const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
+                expect(accoladesCountAndDivision).toBeTruthy();
+                expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
+                expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
                 // division
-                expect(accoladesQualifyAndDivision.textContent).toContain('Division:');
-                expect(accoladesQualifyAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
+                expect(accoladesCountAndDivision.textContent).toContain('Division:');
+                expect(accoladesCountAndDivision.querySelector('.dropdown-item.active').textContent).toEqual('DIVISION');
             });
 
             it('tournament with sides and players', async () => {
@@ -544,7 +555,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -571,7 +582,7 @@ describe('Tournament', () => {
                 expect(sides.textContent).toContain('SIDE 1');
             });
 
-            it('can add players', async () => {
+            it('can open add player dialog', async () => {
                 const tournamentData = {
                     id: createTemporaryId(),
                     seasonId: season.id,
@@ -581,7 +592,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -610,6 +621,99 @@ describe('Tournament', () => {
                 expect(addPlayerDialog.textContent).toContain('Add player');
             });
 
+            it('can add players', async () => {
+                const tournamentData = {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    date: '2023-01-02T00:00:00',
+                    sides: [],
+                    address: 'ADDRESS',
+                    type: 'TYPE',
+                    notes: 'NOTES',
+                    accoladesCount: true,
+                    round: null,
+                    oneEighties: null,
+                    over100Checkouts: null,
+                };
+                const divisionData = {
+                    fixtures: [],
+                };
+                tournamentDataLookup = {};
+                tournamentDataLookup[tournamentData.id] = tournamentData;
+                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+                const team = {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    seasons: [{
+                        seasonId: tournamentData.seasonId,
+                        divisionId: divisionData.id,
+                        players: [],
+                    }],
+                };
+                await renderComponent(tournamentData.id, {
+                    account,
+                    seasons: toMap([ season ]),
+                    teams: toMap([team]),
+                    divisions: [ division ],
+                }, false);
+                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
+                expect(addPlayerButton).toBeTruthy();
+                expect(addPlayerButton.textContent).toEqual('Add player');
+                await doClick(addPlayerButton);
+                const addPlayerDialog = context.container.querySelector('.modal-dialog');
+
+                doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
+                await doClick(addPlayerDialog, '.dropdown-menu .dropdown-item:not(.active)'); //select a team
+                await doClick(findButton(addPlayerDialog, 'Add player'));
+
+                expect(reportedError).toBeNull();
+                expect(createdPlayer).not.toBeNull();
+                expect(createdPlayer.teamId).toEqual(team.id);
+                expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
+                expect(createdPlayer.playerDetails).toEqual({
+                    name: 'NEW PLAYER',
+                });
+            });
+
+            it('can cancel add player dialog', async () => {
+                const tournamentData = {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    date: '2023-01-02T00:00:00',
+                    sides: [],
+                    address: 'ADDRESS',
+                    type: 'TYPE',
+                    notes: 'NOTES',
+                    accoladesCount: true,
+                    round: null,
+                    oneEighties: null,
+                    over100Checkouts: null,
+                };
+                const divisionData = {
+                    fixtures: [],
+                };
+                tournamentDataLookup = {};
+                tournamentDataLookup[tournamentData.id] = tournamentData;
+                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+                await renderComponent(tournamentData.id, {
+                    account,
+                    seasons: toMap([ season ]),
+                    teams: [],
+                    divisions: [ division ],
+                }, false);
+                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
+                expect(addPlayerButton).toBeTruthy();
+                expect(addPlayerButton.textContent).toEqual('Add player');
+                await doClick(addPlayerButton);
+
+                const addPlayerDialog = context.container.querySelector('.modal-dialog');
+                await doClick(findButton(addPlayerDialog, 'Cancel'));
+
+                expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+            });
+
             it('can update details', async () => {
                 const tournamentData = {
                     id: createTemporaryId(),
@@ -620,7 +724,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
@@ -644,9 +748,9 @@ describe('Tournament', () => {
                 doChange(type, 'input', 'NEW TYPE');
                 const notes = context.container.querySelector('.light-background > div:nth-child(3)');
                 doChange(notes, 'textarea', 'NEW NOTES');
-                const accoladesQualifyAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
-                await doClick(accoladesQualifyAndDivision, 'input');
-                const divisionOption = accoladesQualifyAndDivision.querySelector('.dropdown-item:not(.active)');
+                const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
+                await doClick(accoladesCountAndDivision, 'input');
+                const divisionOption = accoladesCountAndDivision.querySelector('.dropdown-item:not(.active)');
                 expect(divisionOption.textContent).toEqual('All divisions');
                 await doClick(divisionOption);
 
@@ -656,7 +760,7 @@ describe('Tournament', () => {
                         address: 'NEW ADDRESS',
                         type: 'NEW TYPE',
                         notes: 'NEW NOTES',
-                        accoladesQualify: false,
+                        accoladesCount: false,
                         divisionId: null,
                     });
             });
@@ -671,7 +775,7 @@ describe('Tournament', () => {
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
-                    accoladesQualify: true,
+                    accoladesCount: true,
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,

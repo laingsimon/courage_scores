@@ -1,6 +1,8 @@
-﻿namespace CourageScores.Models.Cosmos.Game.Sayg;
+﻿using CourageScores.Models.Dtos.Identity;
 
-public class RecordedScoreAsYouGo : AuditedEntity
+namespace CourageScores.Models.Cosmos.Game.Sayg;
+
+public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity
 {
     public Dictionary<int, Leg> Legs { get; set; } = new();
     public string YourName { get; set; } = null!;
@@ -9,4 +11,19 @@ public class RecordedScoreAsYouGo : AuditedEntity
     public int StartingScore { get; set; }
     public int HomeScore { get; set; }
     public int? AwayScore { get; set; }
+
+    public bool CanCreate(UserDto? user)
+    {
+        return true;
+    }
+
+    public bool CanEdit(UserDto? user)
+    {
+        return true;
+    }
+
+    public bool CanDelete(UserDto? user)
+    {
+        return true;
+    }
 }

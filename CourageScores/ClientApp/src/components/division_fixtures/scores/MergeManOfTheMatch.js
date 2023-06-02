@@ -18,7 +18,7 @@ export function MergeManOfTheMatch({ data, setData, allPlayers }) {
     return (<tr>
         {data.home.manOfTheMatch ? (<td colSpan="2">Merged</td>) : (<td colSpan="2">
             {data.homeSubmission && data.homeSubmission.home.manOfTheMatch
-                ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('away', data.homeSubmission.home.manOfTheMatch)}>
+                ? (<button className="btn btn-success btn-sm" onClick={() => setManOfMatch('home', data.homeSubmission.home.manOfTheMatch)}>
                     Use {allPlayers.filter(p => p.id === data.homeSubmission.home.manOfTheMatch)[0].name}
                 </button>)
                 : (<button className="btn btn-secondary btn-sm" disabled={true}>Nothing to merge</button>)}

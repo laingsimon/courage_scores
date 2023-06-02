@@ -56,7 +56,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             Id = division?.Id ?? Guid.Empty,
             Name = division?.Name ?? "<all divisions>",
             Teams = teamResults
-                .OrderByDescending(t => t.Points)
+                .OrderByDescending(t => t.FixturesWon)
                 .ThenByDescending(t => t.Difference)
                 .ThenBy(t => t.Name)
                 .ApplyRanks()

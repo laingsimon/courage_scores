@@ -60,6 +60,7 @@ export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData
             </td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

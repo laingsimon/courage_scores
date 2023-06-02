@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
 import {Link} from "react-router-dom";
-import {any, propChanged, stateChanged, repeat} from "../../../Utilities";
+import {any, propChanged, stateChanged, repeat, distinct} from "../../../Utilities";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
@@ -87,9 +87,9 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
     }
 
     function exceptPlayers(playerIndex, propertyName) {
-        const exceptPlayerIds = (otherMatches || []).flatMap(otherMatch => {
+        const exceptPlayerIds = distinct((otherMatches || []).flatMap(otherMatch => {
             return (otherMatch[propertyName] || []).filter(p => p || false).map(player => player ? player.id : null);
-        });
+        }));
 
         const playerList = match[propertyName];
         if (!playerList) {
@@ -216,6 +216,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
             </td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

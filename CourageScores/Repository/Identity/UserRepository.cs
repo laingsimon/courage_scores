@@ -7,13 +7,13 @@ namespace CourageScores.Repository.Identity;
 [ExcludeFromCodeCoverage]
 public class UserRepository : IUserRepository
 {
-    private readonly Container _container;
+    private readonly Lazy<Container> _container;
     private readonly string _tableName;
 
     public UserRepository(Database database)
     {
         _tableName = nameof(User).ToLower();
-        _container = database.CreateContainerIfNotExistsAsync(_tableName, "/emailAddress").Result;
+        _container = new Lazy<Container>(() => database.CreateContainerIfNotExistsAsync(_tableName, "/emailAddress").Result);
     }
 
     public async Task<User?> GetUser(string emailAddress)
@@ -36,13 +36,13 @@ public class UserRepository : IUserRepository
 
     public async Task<User> UpsertUser(User user)
     {
-        await _container.UpsertItemAsync(user, new PartitionKey(user.EmailAddress));
+        await _container.Value.UpsertItemAsync(user, new PartitionKey(user.EmailAddress));
         return await GetUser(user.EmailAddress) ?? throw new InvalidOperationException("User could not be created");
     }
 
     private async IAsyncEnumerable<User> Query(string? query)
     {
-        var iterator = _container.GetItemQueryIterator<User>(query);
+        var iterator = _container.Value.GetItemQueryIterator<User>(query);
         while (iterator.HasMoreResults)
         {
             var nextResult = await iterator.ReadNextAsync();
