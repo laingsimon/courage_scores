@@ -8,23 +8,23 @@ namespace CourageScores.Repository;
 [ExcludeFromCodeCoverage]
 public abstract class CosmosDbRepository<T> where T : CosmosEntity
 {
-    private readonly Container _container;
+    private readonly Lazy<Container> _container;
     protected readonly string TableName;
 
     protected CosmosDbRepository(Database database)
     {
         TableName = typeof(T).Name.ToLower();
-        _container = database.CreateContainerIfNotExistsAsync(TableName, "/id").Result;
+        _container = new Lazy<Container>(() => database.CreateContainerIfNotExistsAsync(TableName, "/id").Result);
     }
 
     protected async Task UpsertItem(T item, CancellationToken token)
     {
-        await _container.UpsertItemAsync(item, new PartitionKey(item.Id.ToString()), cancellationToken: token);
+        await _container.Value.UpsertItemAsync(item, new PartitionKey(item.Id.ToString()), cancellationToken: token);
     }
 
     protected async IAsyncEnumerable<T> Query(string? query, [EnumeratorCancellation] CancellationToken token)
     {
-        var iterator = _container.GetItemQueryIterator<T>(query);
+        var iterator = _container.Value.GetItemQueryIterator<T>(query);
         while (iterator.HasMoreResults && !token.IsCancellationRequested)
         {
             var nextResult = await iterator.ReadNextAsync(token);
