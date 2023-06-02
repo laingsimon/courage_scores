@@ -12,7 +12,7 @@ public class CosmosDatabaseFactory : ICosmosDatabaseFactory
     public CosmosDatabaseFactory(IConfiguration configuration)
     {
         _configuration = configuration;
-        _getDatabase = new Lazy<Database>(() => CreateDatabaseInternal().Result, LazyThreadSafetyMode.ExecutionAndPublication);
+        _getDatabase = new Lazy<Database>(() => GetOrCreateDatabase().Result, LazyThreadSafetyMode.ExecutionAndPublication);
     }
 
     public Task<Database> CreateDatabase()
@@ -20,14 +20,16 @@ public class CosmosDatabaseFactory : ICosmosDatabaseFactory
         return Task.FromResult(_getDatabase.Value);
     }
 
-    private async Task<Database> CreateDatabaseInternal()
+    private async Task<Database> GetOrCreateDatabase()
     {
+        var throughput = int.TryParse(_configuration["DatabaseScale"], out var scale)
+            ? ThroughputProperties.CreateAutoscaleThroughput(scale)
+            : ThroughputProperties.CreateAutoscaleThroughput(1000);
+
         var databaseName = _configuration["CosmosDb_DatabaseName"];
         var account = _configuration["CosmosDb_Endpoint"];
         var key = _configuration["CosmosDb_Key"];
         var client = new CosmosClient(account, key);
-        var database = await client.CreateDatabaseIfNotExistsAsync(databaseName);
-
-        return database;
+        return await client.CreateDatabaseIfNotExistsAsync(databaseName, throughput);
     }
 }
