@@ -2,8 +2,10 @@
 
 namespace CourageScores.Models.Dtos;
 
-public class ErrorDetailDto : AuditedDto
+public class ErrorDetailDto : AuditedDto, IIntegrityCheckDto
 {
+    public DateTime? LastUpdated { get; set; }
+
     public SourceSystem Source { get; set; }
     public DateTime Time { get; set; }
     public string Message { get; set; } = null!;

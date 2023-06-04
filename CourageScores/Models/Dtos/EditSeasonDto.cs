@@ -3,8 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos;
 
 [ExcludeFromCodeCoverage]
-public class EditSeasonDto
+public class EditSeasonDto : IIntegrityCheckDto
 {
+    public DateTime? LastUpdated { get; set; }
+
     /// <summary>
     /// The id for the entity
     /// </summary>

@@ -66,6 +66,7 @@ public class AddOrUpdateSeasonCommandTests
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
             DivisionIds = { _division.Id },
+            LastUpdated = _season.Updated,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
@@ -89,6 +90,7 @@ public class AddOrUpdateSeasonCommandTests
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
             CopyTeamsFromSeasonId = Guid.NewGuid(),
+            LastUpdated = _season.Updated,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
@@ -135,6 +137,7 @@ public class AddOrUpdateSeasonCommandTests
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
             CopyTeamsFromSeasonId = otherSeasonId,
+            LastUpdated = _season.Updated,
         };
         _seasonService.Setup(s => s.Get(otherSeasonId, _token)).ReturnsAsync(() => null);
 
@@ -159,6 +162,7 @@ public class AddOrUpdateSeasonCommandTests
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
             CopyTeamsFromSeasonId = otherSeason.Id,
+            LastUpdated = _season.Updated,
         };
         _seasonService.Setup(s => s.Get(otherSeason.Id, _token)).ReturnsAsync(otherSeason);
         _teamService.Setup(s => s.GetTeamsForSeason(otherSeason.Id, _token)).Returns(TestUtilities.AsyncEnumerable<TeamDto>());
@@ -186,6 +190,7 @@ public class AddOrUpdateSeasonCommandTests
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
             CopyTeamsFromSeasonId = otherSeason.Id,
+            LastUpdated = _season.Updated,
         };
         var otherSeasonTeam = new TeamDto
         {

@@ -46,6 +46,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update = new EditTournamentGameDto
         {
             Date = new DateTime(2001, 02, 03),
+            LastUpdated = _game.Updated,
         };
         _cacheFlags = new ScopedCacheManagementFlags();
 

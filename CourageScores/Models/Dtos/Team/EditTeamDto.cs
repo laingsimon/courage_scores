@@ -3,8 +3,10 @@
 namespace CourageScores.Models.Dtos.Team;
 
 [ExcludeFromCodeCoverage]
-public class EditTeamDto
+public class EditTeamDto : IIntegrityCheckDto
 {
+    public DateTime? LastUpdated { get; set; }
+
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string Address { get; set; } = null!;

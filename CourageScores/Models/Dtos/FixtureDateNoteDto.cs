@@ -3,8 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos;
 
 [ExcludeFromCodeCoverage]
-public class FixtureDateNoteDto : AuditedDto
+public class FixtureDateNoteDto : AuditedDto, IIntegrityCheckDto
 {
+    public DateTime? LastUpdated { get; set; }
+
     /// <summary>
     /// The date for which this note applies
     /// </summary>
