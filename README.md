@@ -1,4 +1,4 @@
-# courage_scores
+# Courage Scores
 
 [![PROD build status](https://github.com/laingsimon/courage_scores/actions/workflows/prod.yml/badge.svg)](https://github.com/laingsimon/courage_scores/actions)
 [![UAT build status](https://github.com/laingsimon/courage_scores/actions/workflows/uat.yml/badge.svg)](https://github.com/laingsimon/courage_scores/actions)
