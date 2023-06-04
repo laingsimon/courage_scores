@@ -14,9 +14,9 @@ describe('DivisionTeam', () => {
     let apiResponse;
 
     const teamApi = {
-        update: async (team) => {
-            updatedTeam = team;
-            return apiResponse || { success: true };
+        update: async (team, lastUpdated) => {
+            updatedTeam = { team, lastUpdated };
+            return apiResponse || { success: true, result: team };
         }
     };
 
@@ -161,7 +161,8 @@ describe('DivisionTeam', () => {
                 fixturesWon: 3,
                 fixturesLost: 4,
                 fixturesDrawn: 5,
-                difference: 6
+                difference: 6,
+                updated: '2023-07-01T00:00:00',
             };
             await renderComponent(team, account, { id: division.id, season });
             expect(reportedError).toBeNull();
@@ -176,7 +177,8 @@ describe('DivisionTeam', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedTeam).not.toBeNull();
-            expect(updatedTeam.name).toEqual('NEW TEAM');
+            expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
+            expect(updatedTeam.team.name).toEqual('NEW TEAM');
         });
 
         it('can close edit dialog', async () => {

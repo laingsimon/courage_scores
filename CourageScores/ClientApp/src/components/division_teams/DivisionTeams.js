@@ -34,9 +34,8 @@ export function DivisionTeams() {
             <EditTeamDetails
                 divisionId={divisionId}
                 seasonId={season.id}
-                {...teamDetails}
+                team={teamDetails}
                 onCancel={() => setNewTeam(false)}
-                id={null}
                 onSaved={onTeamCreated}
                 onChange={onChange}/>
         </Dialog>);

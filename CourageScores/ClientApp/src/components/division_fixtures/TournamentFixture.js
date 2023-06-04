@@ -29,7 +29,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            });
+            }, tournament.updated);
 
             if (response.success) {
                 if (onTournamentChanged) {

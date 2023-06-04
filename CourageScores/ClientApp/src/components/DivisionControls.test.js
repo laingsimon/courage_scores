@@ -21,16 +21,16 @@ describe('DivisionControls', () => {
     let updatedSeason;
     let updatedDivision;
     const seasonApi = {
-        update: (data) => {
-            updatedSeason = data;
+        update: (data, lastUpdated) => {
+            updatedSeason = { data, lastUpdated };
             return {
                 success: true
             }
         }
     };
     const divisionApi = {
-        update: (data) => {
-            updatedDivision = data;
+        update: (data, lastUpdated) => {
+            updatedDivision = { data, lastUpdated };
             return {
                 success: true
             }

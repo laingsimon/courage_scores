@@ -25,8 +25,8 @@ describe('EditSeason', () => {
     let apiResponse;
     let deletedId;
     const seasonApi = {
-        update: (data) => {
-            updatedSeason = data;
+        update: (data, lastUpdated) => {
+            updatedSeason = { data, lastUpdated };
             return apiResponse;
         },
         delete: (id) => {

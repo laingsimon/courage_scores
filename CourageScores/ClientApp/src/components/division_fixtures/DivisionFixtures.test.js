@@ -12,6 +12,7 @@ describe('DivisionFixtures', () => {
     let newFixtures;
     let divisionReloaded = false;
     let updatedNote;
+    let createdNote;
     const seasonApi = {
 
     };
@@ -19,8 +20,12 @@ describe('DivisionFixtures', () => {
 
     };
     const noteApi = {
-        upsert: async (note) => {
-            updatedNote = note;
+        create: async (note) => {
+            createdNote = note;
+            return { success: true };
+        },
+        upsert: async (id, note, lastUpdated) => {
+            updatedNote = { id, note, lastUpdated };
             return { success: true };
         },
     };
@@ -39,6 +44,7 @@ describe('DivisionFixtures', () => {
         newFixtures = null;
         divisionReloaded = false;
         updatedNote = null;
+        createdNote = null;
         context = await renderApp(
             { seasonApi, gameApi, noteApi, tournamentApi },
             {

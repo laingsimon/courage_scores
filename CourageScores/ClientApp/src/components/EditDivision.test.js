@@ -25,8 +25,8 @@ describe('EditDivision', () => {
     let apiResponse;
     let deletedId;
     const divisionApi = {
-        update: (data) => {
-            updatedDivision = data;
+        update: (data, lastUpdated) => {
+            updatedDivision = { data, lastUpdated };
             return apiResponse;
         },
         delete: (id) => {

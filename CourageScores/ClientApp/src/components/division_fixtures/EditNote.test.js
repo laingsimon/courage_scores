@@ -9,16 +9,21 @@ describe('EditNote', () => {
     let context;
     let reportedError;
     let savedNote;
+    let createdNote;
     let changedNote;
     let closed;
     let saved;
     let saveResult;
 
     const noteApi = {
-        upsert: async (id, note) => {
-            savedNote = { id, note };
+        create: async (note) => {
+            createdNote = note;
             return saveResult || { success: true };
-        }
+        },
+        upsert: async (id, note, lastUpdated) => {
+            savedNote = { id, note, lastUpdated };
+            return saveResult || { success: true };
+        },
     }
 
     function onNoteChanged(note) {
@@ -39,6 +44,7 @@ describe('EditNote', () => {
         reportedError = null;
         savedNote = null;
         changedNote = null;
+        createdNote = null;
         closed = false;
         saved = false;
         context = await renderApp(
@@ -344,6 +350,7 @@ describe('EditNote', () => {
                 note: 'Some note',
                 seasonId: season.id,
                 divisionId: null,
+                updated: '2023-07-01T00:00:00',
             }, divisions, seasons);
             const saveButton = context.container.querySelector('.modal-body > div:last-child > button:last-child');
             expect(saveButton).toBeTruthy();
@@ -354,6 +361,7 @@ describe('EditNote', () => {
 
             expect(alert).toBeNull();
             expect(savedNote).not.toBeNull();
+            expect(savedNote.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(saved).toEqual(true);
         });
 

@@ -30,7 +30,9 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
 
         setSavingNote(true);
         try{
-            const response = await noteApi.upsert(note.id, note);
+            const response = note.id
+                ? await noteApi.upsert(note.id, note, note.updated)
+                : await noteApi.create(note);
 
             if (response.success) {
                 if (onSaved) {

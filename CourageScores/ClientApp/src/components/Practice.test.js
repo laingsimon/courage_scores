@@ -21,8 +21,8 @@ describe('Practice', () => {
             get: async (id) => {
                 return saygData[id];
             },
-            upsert: (data) => {
-                saygData[data.id] = data;
+            upsert: (data, lastUpdated) => {
+                saygData[data.id] = { data, lastUpdated };
                 return {
                     result: saygData[data.id],
                     success: true,
@@ -42,12 +42,14 @@ describe('Practice', () => {
         context = await renderApp(
             { saygApi },
             {
-                account: account, appLoading: false, onError: (err) => {
+                account: account,
+                appLoading: false,
+                onError: (err) => {
                     reportedError = {
                         message: err.message,
                         stack: err.stack
                     };
-                }
+                },
             },
             (<Practice/>),
             '/practice',
@@ -90,9 +92,7 @@ describe('Practice', () => {
             startingScore: 123,
             numberOfLegs: 2,
             legs: {
-                '0': {
-
-                }
+                '0': {}
             },
             homeScore: 1,
             yourName: 'you',
@@ -114,8 +114,7 @@ describe('Practice', () => {
         const jsonData = {
             startingScore: 123,
             numberOfLegs: 1,
-            legs: {
-            },
+            legs: {},
             homeScore: 1,
             awayScore: 2,
             yourName: 'you',

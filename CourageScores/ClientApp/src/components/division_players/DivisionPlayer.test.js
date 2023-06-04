@@ -19,8 +19,8 @@ describe('DivisionPlayer', () => {
             deletedPlayer = { seasonId, teamId, playerId };
             return apiResponse || { success: true };
         },
-        update: async (seasonId, teamId, playerId, playerDetails) => {
-            updatedPlayer = { seasonId, teamId, playerId, playerDetails };
+        update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
+            updatedPlayer = { seasonId, teamId, playerId, playerDetails, lastUpdated };
             return apiResponse || { success: true };
         }
     }
@@ -341,6 +341,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
+                expect(reportedError).toBeNull();
                 expect(updatedPlayer).not.toBeNull();
                 expect(updatedPlayer.playerDetails.name).toEqual('NEW NAME');
                 expect(divisionReloaded).toEqual(true);
@@ -362,6 +363,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
+                expect(reportedError).toBeNull();
                 expect(updatedPlayer).not.toBeNull();
                 expect(nameCell.textContent).toContain('Could not save player details');
                 expect(divisionReloaded).toEqual(false);

@@ -14,8 +14,8 @@ describe('TournamentFixture', () => {
     let deletedId;
 
     const tournamentApi = {
-        update: async (data) => {
-            savedTournament = data;
+        update: async (data, lastUpdated) => {
+            savedTournament = { data, lastUpdated };
             return { success: true };
         },
         delete: async (id) => {
@@ -312,6 +312,7 @@ describe('TournamentFixture', () => {
                 sides: [],
                 winningSide: null,
                 type: 'TYPE',
+                updated: '2023-07-01T00:00:00',
             };
             await renderComponent(
                 { tournament, date: '2023-05-06T00:00:00', expanded: false },
@@ -323,7 +324,8 @@ describe('TournamentFixture', () => {
             await doClick(addButton);
 
             expect(reportedError).toBeNull();
-            expect(savedTournament).toEqual({
+            expect(savedTournament.lastUpdated).toEqual('2023-07-01T00:00:00');
+            expect(savedTournament.data).toEqual({
                 date: '2023-05-06T00:00:00',
                 address: 'ADDRESS',
                 divisionId: division.id,

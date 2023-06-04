@@ -32,7 +32,7 @@ export function DivisionPlayer({ player, hideVenue }) {
         return (<Dialog title={`Edit player: ${player.name}`}>
             <EditPlayerDetails
                 gameId={null}
-                {...playerDetails}
+                player={playerDetails}
                 team={team}
                 seasonId={season.id}
                 divisionId={divisionId}

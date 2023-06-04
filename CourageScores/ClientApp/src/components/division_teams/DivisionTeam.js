@@ -25,10 +25,10 @@ export function DivisionTeam({ team }) {
         try {
             return (<Dialog title={`Edit team: ${team.name}`}>
                 <EditTeamDetails
-                    id={teamDetails.id}
                     divisionId={divisionId}
+                    newDivisionId={teamDetails.newDivisionId}
                     seasonId={season.id}
-                    {...teamDetails}
+                    team={teamDetails}
                     onCancel={() => setEditTeam(false)}
                     onChange={propChanged(teamDetails, setTeamDetails)}
                     onSaved={teamDetailSaved}

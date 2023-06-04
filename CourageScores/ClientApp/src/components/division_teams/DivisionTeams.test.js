@@ -12,9 +12,10 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let account;
     const teamApi = {
-        update: async () => {
+        update: async (team, lastUpdated) => {
             return {
                 success: true,
+                result: team,
             };
         }
     }

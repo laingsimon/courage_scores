@@ -92,7 +92,7 @@ export function Score() {
         return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
             <EditPlayerDetails
                 id={null}
-                {...newPlayerDetails}
+                player={newPlayerDetails}
                 seasonId={fixtureData.seasonId}
                 gameId={fixtureData.id}
                 team={team}
@@ -293,7 +293,7 @@ export function Score() {
 
         try {
             setSaving(true);
-            const response = await gameApi.updateScores(fixtureId, fixtureData);
+            const response = await gameApi.updateScores(fixtureId, fixtureData, fixtureData.updated);
 
             if (!response.success) {
                 setSaveError(response);

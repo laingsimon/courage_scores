@@ -24,7 +24,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
 
         try {
             setSaving(true);
-            const result = await divisionApi.update(data);
+            const result = await divisionApi.update(data, data.updated);
 
             if (result.success) {
                 await onSave();

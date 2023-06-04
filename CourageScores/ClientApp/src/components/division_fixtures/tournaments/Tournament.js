@@ -29,7 +29,7 @@ export function Tournament() {
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
     const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
-    const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
+    const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
 
     useEffect(() => {
@@ -127,7 +127,7 @@ export function Tournament() {
         setSaving(true);
 
         try {
-            const response = await tournamentApi.update(tournamentData);
+            const response = await tournamentApi.update(tournamentData, tournamentData.updated);
             if (!response.success) {
                 setSaveError(response);
             }
@@ -140,7 +140,7 @@ export function Tournament() {
         return (<Dialog title={`Add a player...`}>
             <EditPlayerDetails
                 id={null}
-                {...newPlayerDetails}
+                player={newPlayerDetails}
                 seasonId={season.id}
                 divisionId={tournamentData.divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
@@ -153,6 +153,7 @@ export function Tournament() {
     async function reloadPlayers() {
         await reloadTeams();
         setAddPlayerDialogOpen(false);
+        setNewPlayerDetails({ name: '', captain: false });
     }
 
     if (loading !== 'ready') {

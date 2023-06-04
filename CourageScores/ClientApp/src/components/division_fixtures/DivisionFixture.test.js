@@ -16,8 +16,8 @@ describe('DivisionFixture', () => {
     let deletedFixture;
 
     const gameApi = {
-        update: async (fixture) => {
-            savedFixture = fixture;
+        update: async (fixture, lastUpdated) => {
+            savedFixture = { fixture, lastUpdated };
             return { success: true };
         },
         delete: async (id) => {

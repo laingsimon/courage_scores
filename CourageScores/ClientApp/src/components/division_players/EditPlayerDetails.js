@@ -5,7 +5,7 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {sortBy} from "../../Utilities";
 
-export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId }) {
+export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId, player }) {
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
     const { playerApi } = useDependencies();
@@ -17,11 +17,11 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
             return;
         }
 
-        if ((!team || !team.id) && !teamId) {
+        if ((!team || !team.id) && !player.teamId) {
             window.alert('Please select a team');
             return;
         }
-        if (!name) {
+        if (!player.name) {
             window.alert('Please enter a name');
             return;
         }
@@ -30,19 +30,19 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
 
         try {
             const playerDetails = {
-                name: name,
-                captain: captain,
-                emailAddress: emailAddress,
+                name: player.name,
+                captain: player.captain,
+                emailAddress: player.emailAddress,
                 newTeamId: newTeamId
             };
 
-            if (id && gameId) {
+            if (player.id && gameId) {
                 playerDetails.gameId = gameId;
             }
 
-            const response = id
-                ? await playerApi.update(seasonId, teamId || team.id, id, playerDetails)
-                : await playerApi.create(seasonId, teamId || team.id, playerDetails);
+            const response = player.id
+                ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails, player.updated)
+                : await playerApi.create(seasonId, player.teamId || team.id, playerDetails);
 
             if (response.success) {
                 if (onSaved) {
@@ -92,7 +92,7 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
                 </div>
                 <BootstrapDropdown
                     onChange={value => onChange('teamId', value)}
-                    value={teamId || (team ? team.id : '')}
+                    value={player.teamId || (team ? team.id : '')}
                     options={[{ value: '', text: 'Select team' }].concat(getTeamOptions())} />
             </div>
         );
@@ -117,31 +117,31 @@ export function EditPlayerDetails({ id, name, captain, emailAddress, teamId, onS
     }
 
     return (<div>
-        {id ? renderSelectTeamForExistingPlayer() : renderSelectTeamForNewPlayer()}
+        {player.id ? renderSelectTeamForExistingPlayer() : renderSelectTeamForNewPlayer()}
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="name" value={name || ''} onChange={valueChanged}/>
+                   name="name" value={player.name || ''} onChange={valueChanged}/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Email address (optional)</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="emailAddress" value={emailAddress || ''} placeholder="Email address hidden, enter address to update" onChange={valueChanged}/>
+                   name="emailAddress" value={player.emailAddress || ''} placeholder="Email address hidden, enter address to update" onChange={valueChanged}/>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} type="checkbox"
-                   name="captain" id="captain" checked={captain || false} onChange={valueChanged} className="form-check-input" />
+                   name="captain" id="captain" checked={player.captain || false} onChange={valueChanged} className="form-check-input" />
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
         <button className="btn btn-primary margin-right" onClick={saveChanges}>
             {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            {id ? 'Save player' : 'Add player'}
+            {player.id ? 'Save player' : 'Add player'}
         </button>
         <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save player details" />) : null}
