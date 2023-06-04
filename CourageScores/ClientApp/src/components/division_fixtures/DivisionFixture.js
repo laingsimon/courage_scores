@@ -131,8 +131,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
             const newFixture = Object.assign({}, fixtureDateFixture);
             newFixture.originalAwayTeamId = newFixture.originalAwayTeamId || (newFixture.awayTeam ? newFixture.awayTeam.id : 'unset');
+            const team = teams.filter(t => t.id === teamId)[0];
             newFixture.awayTeam = teamId
-                ? { id: teamId, name: '' }
+                ? { id: teamId, name: team ? team.name : '<unknown>' }
                 : null;
             fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id).concat([ newFixture ]).sort(sortBy('homeTeam.name'));
 
