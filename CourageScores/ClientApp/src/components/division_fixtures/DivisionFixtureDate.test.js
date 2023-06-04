@@ -556,7 +556,7 @@ describe('DivisionFixtureDate', () => {
             const expected = Object.assign({}, fixtureDate);
             const expectedAwayTeam = {
                 id: anotherTeam.id,
-                name: '',
+                name: anotherTeam.name,
             };
             expected.fixtures[0] = Object.assign(
                 {},
