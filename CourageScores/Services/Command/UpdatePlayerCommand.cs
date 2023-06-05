@@ -105,6 +105,16 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new CommandOutcome<TeamPlayer>(false, $"Team does not have a player with this id for the {season.Name} season", null);
         }
 
+        if (player.Updated != _player.LastUpdated)
+        {
+            return new CommandOutcome<TeamPlayer>(
+                false,
+                _player.LastUpdated == null
+                    ? $"Unable to update {nameof(TeamPlayer)}, data integrity token is missing"
+                    : $"Unable to update {nameof(TeamPlayer)}, {player.Editor} updated it before you at {player.Updated:d MMM yyyy HH:mm:ss}",
+                null);
+        }
+
         var updatedGames = await UpdateGames(token).CountAsync();
 
         if (_player.NewTeamId != null && _player.NewTeamId != model.Id)
