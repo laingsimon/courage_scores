@@ -108,6 +108,22 @@ export function stateChanged(set) {
     }
 }
 
+/* An event handler that will invoke a function with the name of the element and its value */
+export function handleChange(handler) {
+    if (!handler) {
+        // prevent updates
+        return () => false;
+    }
+
+    return async (event) => {
+        const value = event.target.type === 'checkbox'
+            ? event.target.checked
+            : event.target.value;
+
+        await handler(event.target.name, value);
+    };
+}
+
 /*
 * Return true if there are any items (that match the optional predicate)
 * */

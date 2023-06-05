@@ -3,9 +3,9 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
+import {handleChange} from "../../Utilities";
 
 export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seasonId, team }) {
-
     const { divisions } = useApp();
     const { teamApi } = useDependencies();
     const [ saving, setSaving ] = useState(false);
@@ -50,12 +50,6 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
         }
     }
 
-    async function valueChanged(event) {
-        if (onChange) {
-            await onChange(event.target.name, event.target.value);
-        }
-    }
-
     return (<div>
         <h4>Team details</h4>
         <div className="input-group mb-3">
@@ -63,14 +57,14 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
                 <span className="input-group-text">Name</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="name" value={team.name} onChange={valueChanged}/>
+                   name="name" value={team.name} onChange={handleChange(onChange)}/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Address</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="address" value={team.address} onChange={valueChanged}/>
+                   name="address" value={team.address} onChange={handleChange(onChange)}/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">

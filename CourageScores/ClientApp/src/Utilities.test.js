@@ -15,7 +15,7 @@ import {
     sum,
     toMap,
     distinct,
-    renderDate
+    renderDate, handleChange
 } from './Utilities';
 
 describe('Utilities', () => {
@@ -432,6 +432,57 @@ describe('Utilities', () => {
             const result = renderDate('2023-02-03T00:00:00');
 
             expect(result).toEqual('3 Feb');
+        });
+    });
+
+    describe('handleChange', () => {
+        it('should return canceling event-handler if no callback provided', async () => {
+            const eventHandler = handleChange(null);
+            const event = {
+                target: {
+                    name: 'foo',
+                    value: 'bar',
+                    type: 'input',
+                },
+            };
+
+            const result = await eventHandler(event);
+
+            expect(result).toEqual(false);
+        });
+
+        it('should return event-handler that supports checkboxes', async () => {
+            let handled = null;
+            const eventHandler = handleChange((name, value) => { handled = { name, value }; });
+            const event = {
+                target: {
+                    name: 'foo',
+                    checked: true,
+                    type: 'checkbox',
+                },
+            };
+
+            await eventHandler(event);
+
+            expect(handled.name).toEqual('foo');
+            expect(handled.value).toEqual(true);
+        });
+
+        it('should return event-handler that supports inputs', async () => {
+            let handled = null;
+            const eventHandler = handleChange((name, value) => { handled = { name, value }; });
+            const event = {
+                target: {
+                    name: 'foo',
+                    value: 'bar',
+                    type: 'input',
+                },
+            };
+
+            await eventHandler(event);
+
+            expect(handled.name).toEqual('foo');
+            expect(handled.value).toEqual('bar');
         });
     });
 });
