@@ -56,6 +56,7 @@ public class DivisionPlayerAdapterTests
             Id = Guid.NewGuid(),
             Name = "player",
             Captain = true,
+            Updated = new DateTime(2001, 02, 03),
         };
         var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
         var fixtures = new Dictionary<DateTime, Guid>();
@@ -75,6 +76,7 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.TeamId, Is.EqualTo(team.Id));
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.EqualTo(fixtures));
+        Assert.That(result.Updated, Is.EqualTo(player.Updated));
     }
 
     [Test]
@@ -90,6 +92,7 @@ public class DivisionPlayerAdapterTests
             Id = Guid.NewGuid(),
             Name = "Player",
             Captain = true,
+            Updated = new DateTime(2001, 02, 03),
         };
 
         var result = await _adapter.Adapt(team, player, _token);
@@ -107,5 +110,6 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.TeamId, Is.EqualTo(team.Id));
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.Empty);
+        Assert.That(result.Updated, Is.EqualTo(player.Updated));
     }
 }

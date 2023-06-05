@@ -20,4 +20,6 @@ public class DivisionPlayerDto : IRankedDto
     public PlayerPerformanceDto Singles { get; set; } = new();
     public PlayerPerformanceDto Pairs { get; set; } = new();
     public PlayerPerformanceDto Triples { get; set; } = new();
+
+    public DateTime? Updated { get; set; }
 }
