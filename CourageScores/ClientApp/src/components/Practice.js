@@ -86,7 +86,7 @@ export function Practice() {
         }
 
         try {
-            const response = await saygApi.upsert(sayg, sayg.updated);
+            const response = await saygApi.upsert(sayg);
             if (response.success) {
                 setSayg(response.result);
                 navigate(`/practice#${response.result.id}`);

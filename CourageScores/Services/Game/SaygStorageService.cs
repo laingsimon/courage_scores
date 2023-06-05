@@ -30,6 +30,9 @@ public class SaygStorageService : ISaygStorageService
         {
             data.Id = Guid.NewGuid();
         }
+
+        // TODO: #334: Check the existing SAYG update, reject if different
+
         var result = await _repository.Upsert(data, token);
 
         return new ActionResultDto<RecordedScoreAsYouGoDto>

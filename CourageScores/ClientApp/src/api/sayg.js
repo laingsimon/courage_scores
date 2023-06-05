@@ -7,12 +7,8 @@ class SaygApi {
         return this.http.get(`/api/Game/Sayg/${id}`);
     }
 
-    upsert(data, lastUpdated) {
-        if (!lastUpdated) {
-            throw new Error('lastUpdated must be provided when updating a record');
-        }
-
-        return this.http.post(`/api/Game/Sayg`, Object.assign({ lastUpdated }, data));
+    upsert(data) {
+        return this.http.post(`/api/Game/Sayg`, data);
     }
 
     delete(id) {
