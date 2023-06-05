@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {valueChanged} from "../../../helpers/events";
 import {all, any, elementAt, isEmpty, toMap} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
-import {getRoundNameFromSides, hasScore, sideSelection} from "./TournamentHelpers";
+import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
 
 export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180 }) {
     const [ newMatch, setNewMatch ] = useState({});

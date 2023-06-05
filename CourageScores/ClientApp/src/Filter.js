@@ -1,4 +1,4 @@
-import {all, any} from "../helpers/collections";
+import {all, any} from "./helpers/collections";
 
 export class Filter {
     _expression;

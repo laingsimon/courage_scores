@@ -4,10 +4,10 @@ import {
     getRoundNameFromMatches,
     getRoundNameFromSides,
     hasScore
-} from "./TournamentHelpers";
-import { distinct } from "../../../helpers/collections";
+} from "./tournaments";
+import { distinct } from "./collections";
 
-describe('TournamentHelpers', () => {
+describe('tournaments', () => {
     describe('getRoundNameFromSides', () => {
         it('returns round name if exists', () => {
             const round = {

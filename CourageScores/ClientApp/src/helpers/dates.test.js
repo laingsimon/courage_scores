@@ -1,15 +1,10 @@
 // noinspection JSUnresolvedReference
 
 import {
-    changeFilter,
-    getDateFilter, getFilters, getTeamIdFilter, getTypeFilter, initFilter,
     isInFuture,
     isInPast,
-    isLastFixtureBeforeToday,
-    isNextFixtureAfterToday,
     isToday,
-    optionallyInvertFilter
-} from "./FilterUtilities";
+} from "./dates";
 
 describe('dates', () => {
     const today = date(0);

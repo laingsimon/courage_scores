@@ -6,9 +6,9 @@ import {
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
     optionallyInvertFilter
-} from "./FilterUtilities";
+} from "./filters";
 
-describe('FilterUtilities', () => {
+describe('filters', () => {
     const today = date(0);
     const future = date(1);
     const past = date(-1);

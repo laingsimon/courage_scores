@@ -1,4 +1,4 @@
-import {elementAt} from "../../../helpers/collections";
+import {elementAt} from "./collections";
 
 /* istanbul ignore next */
 export function getMatchDefaults() {

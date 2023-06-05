@@ -1,6 +1,6 @@
-import {any} from "../../helpers/collections";
+import {any} from "./collections";
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
-import {isInFuture, isInPast, isToday} from "../../helpers/dates";
+import {isInFuture, isInPast, isToday} from "./dates";
 
 export function isLastFixtureBeforeToday(renderContext, fixtures, date) {
     if (!renderContext.lastFixtureDateBeforeToday) {
