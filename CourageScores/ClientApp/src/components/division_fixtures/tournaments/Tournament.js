@@ -41,15 +41,15 @@ export function Tournament() {
     }, [account]);
 
     useEffect(() => {
-            if (loading !== 'init') {
+            if (loading !== 'init' || appLoading) {
                 return;
             }
 
-            if (!appLoading && seasons.length) {
+            if (seasons.length) {
                 setLoading('loading');
                 // noinspection JSIgnoredPromiseFromCall
                 loadFixtureData();
-            } else if (!seasons.length) {
+            } else {
                 onError('No seasons found');
             }
         },
