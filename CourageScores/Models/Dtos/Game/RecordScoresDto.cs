@@ -4,7 +4,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
-public class RecordScoresDto : IGameDto
+public class RecordScoresDto : IGameDto, IIntegrityCheckDto
 {
     public ManOfTheMatchDto? Home { get; set; } = new();
     public ManOfTheMatchDto? Away { get; set; } = new();
@@ -17,6 +17,7 @@ public class RecordScoresDto : IGameDto
     public List<RecordScoresGamePlayerDto> OneEighties { get; set; } = new();
     public List<GameOver100CheckoutDto> Over100Checkouts { get; set; } = new();
     public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
+    public DateTime? LastUpdated { get; set; }
 
     [ExcludeFromCodeCoverage]
     public class ManOfTheMatchDto

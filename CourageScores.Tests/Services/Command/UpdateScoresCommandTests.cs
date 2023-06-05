@@ -68,8 +68,13 @@ public class UpdateScoresCommandTests
         {
             Home = new GameTeam(),
             Away = new GameTeam(),
+            Updated = new DateTime(2001, 02, 03),
+            Editor = "EDITOR",
         };
-        _scores = new RecordScoresDto();
+        _scores = new RecordScoresDto
+        {
+            LastUpdated = new DateTime(2001, 02, 03),
+        };
         _user = new UserDto
         {
             Access = new AccessDto
@@ -184,6 +189,36 @@ public class UpdateScoresCommandTests
         Assert.That(_game.Matches[0].Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_game.DivisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenLastUpdatedIsDifferent_ReturnsUnsuccessful()
+    {
+        _user!.Access!.ManageScores = true;
+        _user!.Access!.RecordScoresAsYouGo = true;
+        _scores.LastUpdated = new DateTime(2004, 05, 06);
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Message, Is.EqualTo("Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00"));
+        Assert.That(result.Success, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenLastUpdatedIsMissing_ReturnsUnsuccessful()
+    {
+        _user!.Access!.ManageScores = true;
+        _user!.Access!.RecordScoresAsYouGo = true;
+        _scores.LastUpdated = null;
+
+        var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Message, Is.EqualTo("Unable to update Game, data integrity token is missing"));
+        Assert.That(result.Success, Is.False);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
 
     [Test]

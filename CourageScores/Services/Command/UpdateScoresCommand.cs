@@ -79,7 +79,12 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         if (user.Access?.ManageScores == true)
         {
             // edit the root game record
-            await UpdateResults(game, token);
+            var result = await UpdateResults(game, token);
+            if (!result.Success)
+            {
+                return result;
+            }
+
             _cacheFlags.EvictDivisionDataCacheForDivisionId = game.DivisionId;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
@@ -156,13 +161,27 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (user.TeamId == game.Home.Id)
         {
-            await UpdateResults(MergeDetails(game, game.HomeSubmission ??= new Models.Cosmos.Game.Game()), token);
-            await _auditingHelper.SetUpdated(game.HomeSubmission, token);
+            var result = await UpdateResults(MergeDetails(game, game.HomeSubmission ??= NewSubmission(game)), token);
+            if (result.Success)
+            {
+                await _auditingHelper.SetUpdated(game.HomeSubmission, token);
+            }
+            else
+            {
+                return result;
+            }
         }
         else if (user.TeamId == game.Away.Id)
         {
-            await UpdateResults(MergeDetails(game, game.AwaySubmission ??= new Models.Cosmos.Game.Game()), token);
-            await _auditingHelper.SetUpdated(game.AwaySubmission, token);
+            var result = await UpdateResults(MergeDetails(game, game.AwaySubmission ??= NewSubmission(game)), token);
+            if (result.Success)
+            {
+                await _auditingHelper.SetUpdated(game.AwaySubmission, token);
+            }
+            else
+            {
+                return result;
+            }
         }
         else
         {
@@ -172,6 +191,15 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         // TODO: #123: If both home/away submissions are the same then record the details in the main game
 
         return new CommandOutcome<GameDto>(true, "Submission updated", null);
+    }
+
+    private static Models.Cosmos.Game.Game NewSubmission(Models.Cosmos.Game.Game game)
+    {
+        return new Models.Cosmos.Game.Game
+        {
+            Updated = game.Updated,
+            Editor = game.Editor,
+        };
     }
 
     private static Models.Cosmos.Game.Game MergeDetails(Models.Cosmos.Game.Game game, Models.Cosmos.Game.Game submission)
@@ -189,11 +217,19 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return submission;
     }
 
-    private async Task UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<CommandOutcome<GameDto>> UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
     {
-#pragma warning disable CS8602
+        if (game.Updated != _scores!.LastUpdated)
+        {
+            return new CommandOutcome<GameDto>(
+                false,
+                _scores.LastUpdated == null
+                    ? $"Unable to update {nameof(Game)}, data integrity token is missing"
+                    : $"Unable to update {nameof(Game)}, {game.Editor} updated it before you at {game.Updated:d MMM yyyy HH:mm:ss}",
+                null);
+        }
+
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
-#pragma warning restore CS8602
         {
             var updatedMatch = _scores.Matches.ElementAtOrDefault(index);
             var currentMatch = game.Matches.ElementAtOrDefault(index);
@@ -217,6 +253,8 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             game.Away.ManOfTheMatch = _scores.Away?.ManOfTheMatch;
             game.Version = Models.Cosmos.Game.Game.CurrentVersion;
         }
+
+        return new CommandOutcome<GameDto>(true, "Game updated", null);
     }
 
     private static string FormatActionResult(ActionResultDto<TeamDto> actionResultDto)
