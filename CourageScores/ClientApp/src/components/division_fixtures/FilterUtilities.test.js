@@ -3,11 +3,8 @@
 import {
     changeFilter,
     getDateFilter, getFilters, getTeamIdFilter, getTypeFilter, initFilter,
-    isInFuture,
-    isInPast,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
-    isToday,
     optionallyInvertFilter
 } from "./FilterUtilities";
 
@@ -21,48 +18,6 @@ describe('FilterUtilities', () => {
         date.setMonth(date.getMonth() + monthOffset);
         return date.toISOString();
     }
-
-    describe('isInPast', () => {
-        it('returns true for a past date', () => {
-            expect(isInPast(past)).toEqual(true);
-        });
-
-        it('returns false for today', () => {
-            expect(isInPast(today)).toEqual(false);
-        });
-
-        it('returns false for a future date', () => {
-            expect(isInPast(future)).toEqual(false);
-        });
-    });
-
-    describe('isInFuture', () => {
-        it('returns false for a past date', () => {
-            expect(isInFuture(past)).toEqual(false);
-        });
-
-        it('returns true for today', () => {
-            expect(isInFuture(today)).toEqual(false);
-        });
-
-        it('returns true for a future date', () => {
-            expect(isInFuture(future)).toEqual(true);
-        });
-    });
-
-    describe('isToday', () => {
-        it('returns false for a past date', () => {
-            expect(isToday(past)).toEqual(false);
-        });
-
-        it('returns true for today', () => {
-            expect(isToday(today)).toEqual(true);
-        });
-
-        it('returns false for a future date', () => {
-            expect(isToday(future)).toEqual(false);
-        });
-    });
 
     describe('isLastFixtureBeforeToday', () => {
         it('returns true if date is same as lastFixtureDateBeforeToday', () => {

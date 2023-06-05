@@ -1,4 +1,4 @@
-import {getFilters, isInPast, isToday} from "./FilterUtilities";
+import {getFilters} from "./FilterUtilities";
 import {any, isEmpty} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
@@ -8,6 +8,7 @@ import React from "react";
 import {useApp} from "../../AppContainer";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
+import {isInPast, isToday} from "../../helpers/dates";
 
 export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
     const { account } = useApp();
