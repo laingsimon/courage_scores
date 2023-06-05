@@ -10,7 +10,7 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
     const [savingNote, setSavingNote] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const { noteApi } = useDependencies();
-    const { divisions, seasons } = useApp();
+    const { divisions, seasons, onError } = useApp();
 
     async function saveNote() {
         if (savingNote) {
@@ -41,8 +41,9 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
             } else {
                 setSaveError(response);
             }
-        }
-        finally {
+        } catch (e) {
+            onError(e);
+        } finally {
             setSavingNote(false);
         }
     }
