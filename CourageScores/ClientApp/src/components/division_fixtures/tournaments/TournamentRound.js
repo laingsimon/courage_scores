@@ -110,7 +110,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         return <div className="alert-warning p-3 mb-2">No matches defined</div>
     }
 
-    return (<div className="my-3 p-1">
+    return (<div className="mt-3">
         {changeRoundName && !readOnly
             ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundNameFromSides(round, sides.length, depth) : round.name} onBlur={() => setChangeRoundName(false)} />)
             : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{getRoundNameFromSides(round, sides.length, depth)}</strong>)}
