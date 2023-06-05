@@ -132,6 +132,8 @@ export function Tournament() {
             const response = await tournamentApi.update(tournamentData, tournamentData.updated);
             if (!response.success) {
                 setSaveError(response);
+            } else {
+                setTournamentData(response.result);
             }
         } finally {
             setSaving(false);
