@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedReference
 
-import {mapError, mapForLogging} from "./AppHelper";
+import {mapError, mapForLogging} from "./errors";
 
-describe('AppHelper', () => {
+describe('errors', () => {
     describe('mapError', () => {
         const oldConsoleError = console.error;
 
@@ -65,9 +65,5 @@ describe('AppHelper', () => {
 
             expect(result.type).toBeNull();
         });
-    });
-
-    describe('getBuildDetail', () => {
-        // tested via App.test.js as it requires access to the DOM
     });
 });

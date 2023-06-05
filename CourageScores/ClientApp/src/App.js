@@ -12,7 +12,8 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
-import {getBuild, mapForLogging, mapError} from "./AppHelper";
+import {mapForLogging, mapError} from "./helpers/errors";
+import {getBuild} from "./helpers/build";
 
 export function App({ shouldExcludeSurround }) {
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
