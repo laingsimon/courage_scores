@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton, doChange} from "../../helpers/tests";
 import React from "react";
 import {DivisionPlayer} from "./DivisionPlayer";
 import {DivisionDataContainer} from "../DivisionDataContainer";

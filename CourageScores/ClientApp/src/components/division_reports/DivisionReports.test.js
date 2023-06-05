@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, renderApp} from "../../tests/helpers";
+import {cleanUp, doClick, renderApp} from "../../helpers/tests";
 import React from "react";
 import {act} from "@testing-library/react";
 import {createTemporaryId} from "../../helpers/projection";

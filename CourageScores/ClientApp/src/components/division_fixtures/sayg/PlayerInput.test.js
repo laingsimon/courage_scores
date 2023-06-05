@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, doChange} from "../../../helpers/tests";
 import React from "react";
 import {PlayerInput} from "./PlayerInput";
 

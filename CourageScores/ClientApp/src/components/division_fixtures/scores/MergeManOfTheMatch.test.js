@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
 

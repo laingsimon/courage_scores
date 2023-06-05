@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";

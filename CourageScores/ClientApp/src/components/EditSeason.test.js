@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
 import {createTemporaryId} from "../helpers/projection";

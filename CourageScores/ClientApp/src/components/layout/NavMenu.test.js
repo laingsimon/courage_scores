@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../helpers/tests";
 import React from "react";
 import {NavMenu} from "./NavMenu";
 import {createTemporaryId} from "../../helpers/projection";

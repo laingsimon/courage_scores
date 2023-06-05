@@ -5,7 +5,7 @@ import {AdminContainer} from "./AdminContainer";
 import React from "react";
 import {Errors} from "./Errors";
 import {all} from "../../helpers/collections";
-import {doClick,doChange,renderApp,cleanUp} from "../../tests/helpers";
+import {doClick,doChange,renderApp,cleanUp} from "../../helpers/tests";
 
 describe('Errors', () => {
     let context;

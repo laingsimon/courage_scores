@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../tests/helpers";
+import {cleanUp, renderApp} from "../helpers/tests";
 import {Division} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
