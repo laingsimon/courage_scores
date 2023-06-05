@@ -165,19 +165,8 @@ export function Tournament() {
     try {
         return (<div>
             <DivisionControls
-                originalSeasonData={ season ? {
-                    id: season.id,
-                    name: season.name,
-                    startDate: season.startDate.substring(0, 10),
-                    endDate: season.endDate.substring(0, 10),
-                    divisions: season.divisions
-                } : {} }
-                originalDivisionData={division
-                    ? {
-                        id: division.id,
-                        name: division.name
-                    }
-                    : null}
+                originalSeasonData={season}
+                originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="light-background p-3">
                 {canManageGames

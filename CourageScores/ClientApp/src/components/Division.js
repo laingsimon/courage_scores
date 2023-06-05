@@ -77,7 +77,7 @@ export function Division() {
         return (<div>
             <DivisionControls
                 originalSeasonData={divisionData.season}
-                originalDivisionData={{name: divisionData.name, id: divisionData.id}}
+                originalDivisionData={{name: divisionData.name, id: divisionData.id, updated: divisionData.updated}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />
             <ul className="nav nav-tabs">
                 <li className="nav-item">

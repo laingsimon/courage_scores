@@ -76,12 +76,14 @@ public class DivisionDataDtoFactoryTests
         {
             Id = Guid.NewGuid(),
             Name = "division 1",
+            Updated = new DateTime(2001, 02, 03),
         };
 
         var result = await _factory.CreateDivisionDataDto(context, division, _token);
 
         Assert.That(result.Id, Is.EqualTo(division.Id));
         Assert.That(result.Name, Is.EqualTo("division 1"));
+        Assert.That(result.Updated, Is.EqualTo(division.Updated));
     }
 
     [Test]
