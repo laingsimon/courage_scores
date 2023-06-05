@@ -3,7 +3,7 @@
 import {cleanUp, doClick, renderApp} from "../../tests/helpers";
 import React from "react";
 import {act} from "@testing-library/react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
 

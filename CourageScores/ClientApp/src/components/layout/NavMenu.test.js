@@ -3,7 +3,7 @@
 import {cleanUp, renderApp, doClick} from "../../tests/helpers";
 import React from "react";
 import {NavMenu} from "./NavMenu";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('NavMenu', () => {
     let context;

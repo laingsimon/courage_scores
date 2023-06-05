@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
-import {any, propChanged, valueChanged} from "../../Utilities";
+import {any} from "../../helpers/collections";
+import {propChanged, valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 

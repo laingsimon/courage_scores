@@ -1,6 +1,8 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
-import {any, createTemporaryId, valueChanged} from "../Utilities";
+import {any} from "../helpers/collections";
+import {createTemporaryId} from "../helpers/projection";
+import {valueChanged} from "../helpers/events";
 import {ShareButton} from "./ShareButton";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";

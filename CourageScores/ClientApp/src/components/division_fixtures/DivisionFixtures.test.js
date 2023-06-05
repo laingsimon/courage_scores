@@ -2,7 +2,7 @@
 
 import {cleanUp, renderApp, findButton, doClick, doChange} from "../../tests/helpers";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 

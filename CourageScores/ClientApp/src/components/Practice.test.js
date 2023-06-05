@@ -3,7 +3,7 @@
 import {cleanUp, renderApp} from "../tests/helpers";
 import React from "react";
 import {Practice} from "./Practice";
-import {createTemporaryId} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
 
 describe('Practice', () => {
     let context;

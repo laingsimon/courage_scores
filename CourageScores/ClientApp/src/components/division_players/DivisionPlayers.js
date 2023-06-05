@@ -1,7 +1,7 @@
 import React from 'react';
 import {DivisionPlayer} from "./DivisionPlayer";
 import {useDivisionData} from "../DivisionDataContainer";
-import {sortBy} from "../../Utilities";
+import {sortBy} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 
 export function DivisionPlayers({ hideVenue, hideHeading, players }) {

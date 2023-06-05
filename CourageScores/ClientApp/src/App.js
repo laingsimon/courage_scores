@@ -1,7 +1,7 @@
 import './custom.css';
 import {useDependencies} from "./IocContainer";
 import React, {useEffect, useState} from "react";
-import {toMap} from "./Utilities";
+import {toMap} from "./helpers/collections";
 import {Layout} from "./components/layout/Layout";
 import {Route, Routes} from "react-router-dom";
 import {Home} from "./components/Home";

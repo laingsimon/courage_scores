@@ -1,5 +1,5 @@
 import React from "react";
-import {any, isEmpty} from "../../../Utilities";
+import {any, isEmpty} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
 export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {

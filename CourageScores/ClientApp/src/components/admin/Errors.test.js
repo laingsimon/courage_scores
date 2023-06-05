@@ -4,7 +4,7 @@ import {act} from "@testing-library/react";
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
 import {Errors} from "./Errors";
-import {all} from "../../Utilities";
+import {all} from "../../helpers/collections";
 import {doClick,doChange,renderApp,cleanUp} from "../../tests/helpers";
 
 describe('Errors', () => {

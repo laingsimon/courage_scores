@@ -2,7 +2,7 @@
 
 import React from "react";
 import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
 
 describe('MergeManOfTheMatch', () => {

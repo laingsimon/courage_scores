@@ -3,7 +3,7 @@
 import {cleanUp, renderApp, doClick, doChange} from "../tests/helpers";
 import React from "react";
 import {EditDivision} from "./EditDivision";
-import {createTemporaryId} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
 
 const mockedUsedNavigate = jest.fn();
 

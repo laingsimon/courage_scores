@@ -3,7 +3,7 @@
 import React from "react";
 import {cleanUp, doClick, renderApp, doChange} from "../../../tests/helpers";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('MultiPlayerSelection', () => {
     let context;

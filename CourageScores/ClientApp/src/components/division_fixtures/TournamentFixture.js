@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, isEmpty, sortBy} from "../../Utilities";
+import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";

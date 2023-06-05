@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from "react-router-dom";
-import {any} from "../../../Utilities";
+import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {

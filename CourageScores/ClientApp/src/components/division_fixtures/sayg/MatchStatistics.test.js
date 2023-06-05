@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, renderApp} from "../../../tests/helpers";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
 

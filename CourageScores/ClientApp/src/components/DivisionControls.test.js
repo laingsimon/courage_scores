@@ -3,7 +3,8 @@
 import {cleanUp, renderApp, doClick} from "../tests/helpers";
 import React from "react";
 import {DivisionControls} from "./DivisionControls";
-import {createTemporaryId, renderDate} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
+import {renderDate} from "../helpers/rendering";
 
 const mockedUsedNavigate = jest.fn();
 

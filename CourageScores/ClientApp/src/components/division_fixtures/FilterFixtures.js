@@ -1,5 +1,7 @@
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {isEmpty, propChanged, renderDate, sortBy} from "../../Utilities";
+import {isEmpty, sortBy} from "../../helpers/collections";
+import {propChanged} from "../../helpers/events";
+import {renderDate} from "../../helpers/rendering";
 import {ShareButton} from "../ShareButton";
 import {useDivisionData} from "../DivisionDataContainer";
 

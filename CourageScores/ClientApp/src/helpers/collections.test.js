@@ -1,24 +1,17 @@
-// noinspection JSUnresolvedReference
-
-import React from "react";
 import {
     all,
     any,
     count,
-    createTemporaryId,
+    distinct,
     elementAt,
     isEmpty,
-    max, propChanged,
-    repeat,
-    round2dp,
+    max,
     sortBy,
     sum,
-    toMap,
-    distinct,
-    renderDate, handleChange
-} from './Utilities';
+    toMap
+} from "./collections.js";
 
-describe('Utilities', () => {
+describe('collections', () => {
     describe('toMap', () => {
         it('should return map of items', () => {
             const items = [
@@ -134,22 +127,13 @@ describe('Utilities', () => {
         });
     });
 
-    describe('createTemporaryId', () => {
-        it('should create different ids', () => {
-            const first = createTemporaryId();
-            const second = createTemporaryId();
-
-            expect(second).not.toEqual(first);
-        });
-    });
-
     describe('any', () => {
         it('should return true if items found', () => {
-           const items = [ 1 ];
+            const items = [ 1 ];
 
-           const result = any(items);
+            const result = any(items);
 
-           expect(result).toEqual(true);
+            expect(result).toEqual(true);
         });
 
         it('should return true if items found', () => {
@@ -265,22 +249,22 @@ describe('Utilities', () => {
 
     describe('sum', () => {
         it('should return a sum of the items', () => {
-           const items = [ 1, 2, 3 ];
+            const items = [ 1, 2, 3 ];
 
-           const result = sum(items, i => i);
+            const result = sum(items, i => i);
 
-           expect(result).toEqual(6);
+            expect(result).toEqual(6);
         });
     });
 
     describe('max', () => {
-       it('should return value of max item', () => {
+        it('should return value of max item', () => {
             const items = [ 1, 2, 3 ];
 
             const result = max(items, i => i);
 
             expect(result).toEqual(3);
-       });
+        });
 
         it('should return 0 when empty', () => {
             const items = [ ];
@@ -291,31 +275,13 @@ describe('Utilities', () => {
         });
     });
 
-    describe('round2dp', () => {
-       it('should round numbers', () => {
-            const value = 12.345;
-
-            const result = round2dp(value);
-
-            expect(result).toEqual(12.35);
-       });
-
-        it('should not affect integers', () => {
-            const value = 12;
-
-            const result = round2dp(value);
-
-            expect(result).toEqual(12);
-        });
-    });
-
     describe('elementAt', () => {
         it('should return item at index', () => {
-           const items = [ 1, 2, 3 ];
+            const items = [ 1, 2, 3 ];
 
-           const result = elementAt(items, 1);
+            const result = elementAt(items, 1);
 
-           expect(result).toEqual(2);
+            expect(result).toEqual(2);
         });
 
         it('should return item at index adapted', () => {
@@ -332,46 +298,6 @@ describe('Utilities', () => {
             const result = elementAt(items, 5);
 
             expect(result).toEqual(null);
-        });
-    });
-
-    describe('repeat', () => {
-        it('should return empty array', () => {
-            const result = repeat(0, i => i);
-
-            expect(result).toEqual([]);
-        });
-
-        it('should return array of items', () => {
-            const result = repeat(2, i => i);
-
-            expect(result).toEqual([ 0, 1 ]);
-        });
-
-        it('should return array of index', () => {
-            const result = repeat(2);
-
-            expect(result).toEqual([ 0, 1 ]);
-        });
-    });
-
-    describe('propChanged', () => {
-        it('updates single property when named', () => {
-            let newValue;
-
-            const func = propChanged({ name: 'Simon', age: 40 }, v => newValue = v, 'name');
-            func('Laing');
-
-            expect(newValue).toEqual({ name: 'Laing', age: 40 });
-        });
-
-        it('allows property to be provided at update time', () => {
-            let newValue;
-
-            const func = propChanged({ name: 'Simon', age: 40 }, v => newValue = v);
-            func('name', 'Laing');
-
-            expect(newValue).toEqual({ name: 'Laing', age: 40 });
         });
     });
 
@@ -424,65 +350,6 @@ describe('Utilities', () => {
             const result = distinct(items);
 
             expect(result).toEqual([ 1, 2 ]);
-        });
-    });
-
-    describe('renderDate', () => {
-        it('should render the date correctly', () => {
-            const result = renderDate('2023-02-03T00:00:00');
-
-            expect(result).toEqual('3 Feb');
-        });
-    });
-
-    describe('handleChange', () => {
-        it('should return canceling event-handler if no callback provided', async () => {
-            const eventHandler = handleChange(null);
-            const event = {
-                target: {
-                    name: 'foo',
-                    value: 'bar',
-                    type: 'input',
-                },
-            };
-
-            const result = await eventHandler(event);
-
-            expect(result).toEqual(false);
-        });
-
-        it('should return event-handler that supports checkboxes', async () => {
-            let handled = null;
-            const eventHandler = handleChange((name, value) => { handled = { name, value }; });
-            const event = {
-                target: {
-                    name: 'foo',
-                    checked: true,
-                    type: 'checkbox',
-                },
-            };
-
-            await eventHandler(event);
-
-            expect(handled.name).toEqual('foo');
-            expect(handled.value).toEqual(true);
-        });
-
-        it('should return event-handler that supports inputs', async () => {
-            let handled = null;
-            const eventHandler = handleChange((name, value) => { handled = { name, value }; });
-            const event = {
-                target: {
-                    name: 'foo',
-                    value: 'bar',
-                    type: 'input',
-                },
-            };
-
-            await eventHandler(event);
-
-            expect(handled.name).toEqual('foo');
-            expect(handled.value).toEqual('bar');
         });
     });
 });

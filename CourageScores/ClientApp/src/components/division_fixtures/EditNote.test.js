@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import {cleanUp, renderApp, doChange, doClick} from "../../tests/helpers";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {EditNote} from "./EditNote";
 

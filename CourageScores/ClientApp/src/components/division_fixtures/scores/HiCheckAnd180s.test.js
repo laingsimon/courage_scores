@@ -3,7 +3,7 @@
 import React from "react";
 import {cleanUp, doClick, renderApp, doChange} from "../../../tests/helpers";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('HiCheckAnd180s', () => {
     let context;

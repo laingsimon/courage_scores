@@ -1,4 +1,5 @@
-import {max, repeat, sortBy} from "../../../Utilities";
+import {max, sortBy} from "../../../helpers/collections";
+import {repeat} from "../../../helpers/projection";
 import React from "react";
 import {getRoundNameFromMatches} from "./TournamentHelpers";
 

@@ -1,4 +1,4 @@
-import {any} from "../../Utilities";
+import {any} from "../../helpers/collections";
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
 
 export function isInPast(date) {

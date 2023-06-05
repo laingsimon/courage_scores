@@ -1,7 +1,8 @@
 ﻿// noinspection JSUnresolvedFunction
 
 import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
-import {createTemporaryId, renderDate} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
+import {renderDate} from "../../helpers/rendering";
 import React from "react";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {DivisionDataContainer} from "../DivisionDataContainer";

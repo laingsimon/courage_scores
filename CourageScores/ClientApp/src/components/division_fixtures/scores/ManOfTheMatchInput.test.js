@@ -2,7 +2,7 @@
 
 import React from "react";
 import {cleanUp, doClick, renderApp} from "../../../tests/helpers";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 
 describe('ManOfTheMatchInput', () => {

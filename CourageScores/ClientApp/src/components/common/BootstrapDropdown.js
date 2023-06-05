@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
-import {isEmpty} from "../../Utilities";
+import {isEmpty} from "../../helpers/collections";
 
 export function BootstrapDropdown({value, onChange, options, color, className, disabled, readOnly, onOpen, slim }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);

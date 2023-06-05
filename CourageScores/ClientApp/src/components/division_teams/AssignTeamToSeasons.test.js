@@ -2,7 +2,7 @@
 
 import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 

@@ -1,5 +1,6 @@
 import {getFilters, isInPast, isToday} from "./FilterUtilities";
-import {any, isEmpty, renderDate} from "../../Utilities";
+import {any, isEmpty} from "../../helpers/collections";
+import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionFixture} from "./DivisionFixture";
 import {TournamentFixture} from "./TournamentFixture";

@@ -2,7 +2,7 @@
 
 import {cleanUp, renderApp} from "../../../tests/helpers";
 import React from "react";
-import {createTemporaryId, repeat} from "../../../Utilities";
+import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {TournamentSheet} from "./TournamentSheet";
 
 describe('TournamentSheet', () => {

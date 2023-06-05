@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TournamentFixture} from "./TournamentFixture";

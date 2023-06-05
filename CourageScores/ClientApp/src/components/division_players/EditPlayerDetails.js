@@ -3,7 +3,8 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {handleChange, sortBy} from "../../Utilities";
+import {sortBy} from "../../helpers/collections";
+import {handleChange} from "../../helpers/events";
 
 export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId, player }) {
     const [ saving, setSaving ] = useState(false);

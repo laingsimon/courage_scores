@@ -3,7 +3,8 @@
 import {cleanUp, renderApp} from "../../tests/helpers";
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {createTemporaryId, renderDate} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
+import {renderDate} from "../../helpers/rendering";
 import {PlayerOverview} from "./PlayerOverview";
 
 describe('PlayerOverview', () => {

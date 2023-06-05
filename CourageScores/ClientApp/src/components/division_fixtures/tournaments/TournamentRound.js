@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {all, any, elementAt, isEmpty, toMap, valueChanged} from "../../../Utilities";
+import {valueChanged} from "../../../helpers/events";
+import {all, any, elementAt, isEmpty, toMap} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "./TournamentHelpers";
 

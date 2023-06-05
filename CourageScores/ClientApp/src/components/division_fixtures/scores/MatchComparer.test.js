@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedReference
 
 import {matchEquals} from "./MatchComparer";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('MatchComparer', () => {
     describe('matchEquals', () => {

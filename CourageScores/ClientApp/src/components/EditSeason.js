@@ -1,5 +1,6 @@
 import React, {useState} from "react";
-import {any, propChanged, sortBy, valueChanged} from "../Utilities";
+import {any, sortBy} from "../helpers/collections";
+import {propChanged, valueChanged} from "../helpers/events";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";

@@ -3,7 +3,7 @@
 import React from "react";
 import {cleanUp, renderApp, doClick, doChange} from "../../../tests/helpers";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 

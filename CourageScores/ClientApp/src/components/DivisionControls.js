@@ -5,7 +5,8 @@ import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
 import {EditDivision} from "./EditDivision";
 import {EditSeason} from "./EditSeason";
-import {any, isEmpty, sortBy, renderDate} from "../Utilities";
+import {any, isEmpty, sortBy} from "../helpers/collections";
+import {renderDate} from "../helpers/rendering";
 import {useApp} from "../AppContainer";
 
 export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged, originalDivisionData, overrideMode }) {

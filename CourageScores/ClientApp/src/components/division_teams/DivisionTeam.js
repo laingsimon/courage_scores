@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
 import {Link} from "react-router-dom";
-import {propChanged} from "../../Utilities";
+import {propChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";

@@ -5,7 +5,7 @@ import {
     getRoundNameFromSides,
     hasScore
 } from "./TournamentHelpers";
-import { distinct } from "../../../Utilities";
+import { distinct } from "../../../helpers/collections";
 
 describe('TournamentHelpers', () => {
     describe('getRoundNameFromSides', () => {

@@ -3,7 +3,8 @@
 import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../tests/helpers";
 import React from "react";
 import {Tournament} from "./Tournament";
-import {createTemporaryId, toMap, any} from "../../../Utilities";
+import {toMap, any} from "../../../helpers/collections";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('Tournament', () => {
     const EMPTY_ID = '00000000-0000-0000-0000-000000000000';

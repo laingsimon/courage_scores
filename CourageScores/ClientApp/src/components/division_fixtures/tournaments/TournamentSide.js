@@ -1,6 +1,8 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {toMap, createTemporaryId, sortBy, any, isEmpty, valueChanged} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
+import {valueChanged} from "../../../helpers/events";
+import {toMap, sortBy, any, isEmpty} from "../../../helpers/collections";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Link} from "react-router-dom";
 import {useApp} from "../../../AppContainer";

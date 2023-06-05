@@ -4,7 +4,7 @@ import {cleanUp, renderApp, doClick, findButton, doChange} from "../../tests/hel
 import React from "react";
 import {DivisionPlayer} from "./DivisionPlayer";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('DivisionPlayer', () => {
     let context;

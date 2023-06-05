@@ -3,7 +3,7 @@ import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {propChanged} from "../../Utilities";
+import {propChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";

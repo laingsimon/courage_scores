@@ -1,4 +1,4 @@
-import {isEmpty} from "../../Utilities";
+import {isEmpty} from "../../helpers/collections";
 import React from "react";
 import {NoRows} from "./NoRows";
 

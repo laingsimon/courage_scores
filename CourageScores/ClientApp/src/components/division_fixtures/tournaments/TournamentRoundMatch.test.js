@@ -2,7 +2,8 @@
 
 import {cleanUp, renderApp, findButton, doClick, doChange} from "../../../tests/helpers";
 import React from "react";
-import {createTemporaryId, toMap, any} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
+import {toMap, any} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 
 describe('TournamentRoundMatch', () => {

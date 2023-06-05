@@ -1,6 +1,6 @@
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import React from "react";
-import {distinct, sortBy} from "../../../Utilities";
+import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
 export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData }) {

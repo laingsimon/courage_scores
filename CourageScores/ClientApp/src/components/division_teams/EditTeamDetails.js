@@ -3,7 +3,7 @@ import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {handleChange} from "../../Utilities";
+import {handleChange} from "../../helpers/events";
 
 export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seasonId, team }) {
     const { divisions } = useApp();
