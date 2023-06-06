@@ -43,6 +43,7 @@ public class DivisionData
     public class PlayerScore
     {
         public IGamePlayer? Player { get; init; }
+        public GameTeam? Team { get; init; }
 
         public int OneEighties { get; set; }
         public int HiCheckout { get; set; }
