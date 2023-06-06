@@ -202,8 +202,19 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             {
                 playerTuple = new DivisionData.TeamPlayerTuple(
                     new TeamPlayerDto
-                        { Name = score.Player?.Name ?? "Not found", Id = id },
-                    new TeamDto { Name = "Not found - " + id });
+                    {
+                        Id = id,
+                        Name = score.Player != null
+                            ? $"Invalid player {score.Player.Name} ({id})"
+                            : "Player not found - " + id,
+                    },
+                    new TeamDto
+                    {
+                        Id = score.Team?.Id ?? Guid.Empty,
+                        Name = score.Team != null
+                            ? $"Invalid team {score.Team.Name} ({score.Team.Id})"
+                            : "Team not found",
+                    });
             }
 
             var fixtures = divisionData.PlayersToFixtures.TryGetValue(id, out var fixture)

@@ -48,7 +48,11 @@ public class DivisionDataGameVisitor : IGameVisitor
         {
             if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
             {
-                playerScore = new DivisionData.PlayerScore();
+                playerScore = new DivisionData.PlayerScore
+                {
+                    Player = player,
+                    Team = GetTeam(team),
+                };
                 _divisionData.Players.Add(player.Id, playerScore);
             }
 
@@ -74,7 +78,11 @@ public class DivisionDataGameVisitor : IGameVisitor
         {
             if (!_divisionData.Players.TryGetValue(player.Id, out var playerScore))
             {
-                playerScore = new DivisionData.PlayerScore();
+                playerScore = new DivisionData.PlayerScore
+                {
+                    Player = player,
+                    Team = GetTeam(team),
+                };
                 _divisionData.Players.Add(player.Id, playerScore);
             }
 
@@ -97,7 +105,7 @@ public class DivisionDataGameVisitor : IGameVisitor
     {
         if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            score = new DivisionData.PlayerScore { Player = player };
+            score = new DivisionData.PlayerScore { Player = player, Team = FindTeamForPlayer(player) };
             _divisionData.Players.Add(player.Id, score);
         }
 
@@ -113,7 +121,7 @@ public class DivisionDataGameVisitor : IGameVisitor
 
         if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            score = new DivisionData.PlayerScore { Player = player };
+            score = new DivisionData.PlayerScore { Player = player, Team = FindTeamForPlayer(player) };
             _divisionData.Players.Add(player.Id, score);
         }
 
@@ -178,6 +186,47 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
 
         score.FixturesLost++;
+    }
+
+    private GameTeam? FindTeamForPlayer(IGamePlayer player)
+    {
+        if (_lastGame == null)
+        {
+            return null;
+        }
+
+        foreach (var match in _lastGame.Matches)
+        {
+            if (match.HomePlayers.Any(p => p.Id == player.Id))
+            {
+                return GetTeam(TeamDesignation.Home);
+            }
+
+            if (match.AwayPlayers.Any(p => p.Id == player.Id))
+            {
+                return GetTeam(TeamDesignation.Away);
+            }
+        }
+
+        return null;
+    }
+
+    private GameTeam? GetTeam(TeamDesignation teamDesignation)
+    {
+        if (_lastGame == null)
+        {
+            return null;
+        }
+
+        switch (teamDesignation)
+        {
+            case TeamDesignation.Home:
+                return _lastGame?.Home;
+            case TeamDesignation.Away:
+                return _lastGame?.Away;
+            default:
+                return null;
+        }
     }
 
     private class PlayersToFixturesLookupVisitor : IGameVisitor
