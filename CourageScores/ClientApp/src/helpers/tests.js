@@ -5,6 +5,8 @@ import {AppContainer} from "../AppContainer";
 import ReactDOM from "react-dom/client";
 import React from "react";
 
+/* istanbul ignore file */
+
 export async function doClick(container, selector) {
     const item = selector ? container.querySelector(selector) : container;
     // noinspection JSUnresolvedFunction
