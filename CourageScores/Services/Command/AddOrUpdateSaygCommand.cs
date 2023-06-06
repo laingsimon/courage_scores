@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -26,5 +27,6 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         return CommandResult.SuccessNoMessage;
     }
 
+    [ExcludeFromCodeCoverage]
     public override bool RequiresLogin => false;
 }
