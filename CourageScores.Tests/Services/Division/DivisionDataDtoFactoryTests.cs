@@ -139,6 +139,82 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
+    public async Task CreateDivisionDataDto_GivenCrossDivisionalFixtures_SetsTeamsCorrectly()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division 1",
+        };
+        var thisDivisionPlayer = new GamePlayer { Id = Guid.NewGuid(), Name = "This division player" };
+        var otherDivisionPlayer = new GamePlayer { Id = Guid.NewGuid(), Name = "Other division player" };
+        var thisDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 1 - Playing",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                    Players = { new TeamPlayerDto { Id = thisDivisionPlayer.Id, Name = thisDivisionPlayer.Name } }
+                }
+            },
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 2 - Playing",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = Guid.NewGuid(),
+                    Players = { new TeamPlayerDto { Id = otherDivisionPlayer.Id, Name = otherDivisionPlayer.Name } }
+                }
+            },
+        };
+        var game = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            SeasonId = season.Id,
+            IsKnockout = true,
+            Home = new GameTeam { Id = thisDivisionTeam.Id },
+            Away = new GameTeam { Id = otherDivisionTeam.Id },
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { thisDivisionPlayer },
+                    AwayPlayers = { otherDivisionPlayer },
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { game },
+            new List<TeamDto> { thisDivisionTeam },
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            season);
+
+        var result = await _factory.CreateDivisionDataDto(context, division, _token);
+
+        Assert.That(result.Teams.Select(t => t.Name), Is.EqualTo(new[]
+        {
+            "Team 1 - Playing",
+        }));
+    }
+
+    [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsFixturesCorrectly()
     {
         var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
@@ -241,6 +317,79 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
         Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[] { player1.Name, player2.Name }));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenCrossDivisionalFixtures_SetsCurrentDivisionPlayersCorrectly()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division 1",
+        };
+        var thisDivisionPlayer = new GamePlayer { Id = Guid.NewGuid(), Name = "This division player" };
+        var otherDivisionPlayer = new GamePlayer { Id = Guid.NewGuid(), Name = "Other division player" };
+        var thisDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 1 - Playing",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                    Players = { new TeamPlayerDto { Id = thisDivisionPlayer.Id, Name = thisDivisionPlayer.Name } }
+                }
+            },
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 2 - Playing",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = Guid.NewGuid(),
+                    Players = { new TeamPlayerDto { Id = otherDivisionPlayer.Id, Name = otherDivisionPlayer.Name } }
+                }
+            },
+        };
+        var game = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            SeasonId = season.Id,
+            IsKnockout = true,
+            Home = new GameTeam { Id = thisDivisionTeam.Id },
+            Away = new GameTeam { Id = otherDivisionTeam.Id },
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { thisDivisionPlayer },
+                    AwayPlayers = { otherDivisionPlayer },
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { game },
+            new List<TeamDto> { thisDivisionTeam },
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            season);
+
+        var result = await _factory.CreateDivisionDataDto(context, division, _token);
+
+        Assert.That(result.Players.Select(f => f.Name), Is.EquivalentTo(new[] { thisDivisionPlayer.Name }));
     }
 
     [Test]

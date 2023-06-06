@@ -46,7 +46,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
 
         var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);
-        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, token).ToList();
+        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
@@ -161,7 +161,13 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         foreach (var (id, score) in divisionData.Teams)
         {
-            var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id) ?? new TeamDto { Name = "Not found - " + id, Address = "Not found" };
+            var teamInSeasonAndDivision = teamsInSeasonAndDivision.SingleOrDefault(t => t.Id == id);
+            if (teamInSeasonAndDivision == null)
+            {
+                divisionData.DataErrors.Add($"Potential cross-division team found: {id}");
+                continue;
+            }
+
             var playersInTeam = playerResults.Where(p => p.Team == teamInSeasonAndDivision.Name).ToList();
 
             yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, token);
@@ -191,9 +197,9 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(
-        DivisionData divisionData,
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData,
         IReadOnlyDictionary<Guid, DivisionData.TeamPlayerTuple> playerToTeamLookup,
+        DivisionDataContext context,
         [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
@@ -202,8 +208,26 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             {
                 playerTuple = new DivisionData.TeamPlayerTuple(
                     new TeamPlayerDto
-                        { Name = score.Player?.Name ?? "Not found", Id = id },
-                    new TeamDto { Name = "Not found - " + id });
+                    {
+                        Id = id,
+                        Name = score.Player != null
+                            ? $"Invalid player {score.Player.Name} ({id})"
+                            : "Player not found - " + id,
+                    },
+                    new TeamDto
+                    {
+                        Id = score.Team?.Id ?? Guid.Empty,
+                        Name = score.Team != null
+                            ? $"Invalid team {score.Team.Name} ({score.Team.Id})"
+                            : "Team not found",
+                    });
+            }
+
+            if (context.TeamsInSeasonAndDivision.All(t => t.Id != playerTuple.Team.Id))
+            {
+                // player may exist for another division, for example when there are cross-division knockout fixtures
+                divisionData.DataErrors.Add($"Found potential cross-division player/team: {playerTuple.Player.Name}/{playerTuple.Team.Name}");
+                continue;
             }
 
             var fixtures = divisionData.PlayersToFixtures.TryGetValue(id, out var fixture)
