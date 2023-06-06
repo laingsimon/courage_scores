@@ -21,10 +21,10 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             Id = game.Id,
             HomeTeam = await _divisionFixtureTeamAdapter.Adapt(game.Home, homeTeam?.Address, token),
             AwayTeam = await _divisionFixtureTeamAdapter.Adapt(game.Away, awayTeam?.Address, token),
-            HomeScore = game.Matches.Any() && game.Matches.All(m => m.AwayPlayers.Any() && m.HomePlayers.Any())
+            HomeScore = (game.Matches.Any() && game.Matches.All(m => m.AwayPlayers.Any() && m.HomePlayers.Any())) || game.IsKnockout
                 ? matches.Count(m => m.HomeScore > m.AwayScore)
                 : null,
-            AwayScore = game.Matches.Any() && game.Matches.All(m => m.AwayPlayers.Any() && m.HomePlayers.Any())
+            AwayScore = (game.Matches.Any() && game.Matches.All(m => m.AwayPlayers.Any() && m.HomePlayers.Any())) || game.IsKnockout
                 ? matches.Count(m => m.AwayScore > m.HomeScore)
                 : null,
             Postponed = game.Postponed,
