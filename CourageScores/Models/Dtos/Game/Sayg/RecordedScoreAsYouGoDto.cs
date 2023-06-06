@@ -1,5 +1,8 @@
-﻿namespace CourageScores.Models.Dtos.Game.Sayg;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace CourageScores.Models.Dtos.Game.Sayg;
+
+[ExcludeFromCodeCoverage]
 public class RecordedScoreAsYouGoDto : AuditedDto
 {
     /// <summary>
