@@ -96,6 +96,14 @@ public class UpdateScoresCommandTests
     }
 
     [Test]
+    public void ApplyUpdate_WithoutData_Throws()
+    {
+        Assert.That(
+            async () => await _command.ApplyUpdate(_game, _token),
+            Throws.InvalidOperationException);
+    }
+
+    [Test]
     public async Task ApplyUpdate_WhenGameDeleted_ReturnsUnsuccessful()
     {
         _game.Deleted = new DateTime(2001, 02, 03);

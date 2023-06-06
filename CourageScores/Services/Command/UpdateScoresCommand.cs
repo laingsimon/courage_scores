@@ -183,10 +183,6 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                 return result;
             }
         }
-        else
-        {
-            return new CommandOutcome<GameDto>(false, "User is not permitted to submit results for home or away teams", null);
-        }
 
         // TODO: #123: If both home/away submissions are the same then record the details in the main game
 
