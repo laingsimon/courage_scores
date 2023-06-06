@@ -343,7 +343,27 @@ describe('EditNote', () => {
             expect(savedNote).toBeNull();
         });
 
-        it('can save changes', async () => {
+        it('can create note', async () => {
+            await renderComponent({
+                date: '2023-05-01T00:00:00',
+                note: 'Some note',
+                seasonId: season.id,
+                divisionId: null,
+                updated: '2023-07-01T00:00:00',
+            }, divisions, seasons);
+            const saveButton = context.container.querySelector('.modal-body > div:last-child > button:last-child');
+            expect(saveButton).toBeTruthy();
+            expect(saveButton.textContent).toEqual('Save');
+            alert = null;
+
+            await doClick(saveButton);
+
+            expect(alert).toBeNull();
+            expect(createdNote).not.toBeNull();
+            expect(saved).toEqual(true);
+        });
+
+        it('can update note', async () => {
             await renderComponent({
                 id: createTemporaryId(),
                 date: '2023-05-01T00:00:00',
