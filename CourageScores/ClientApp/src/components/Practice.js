@@ -86,10 +86,13 @@ export function Practice() {
         }
 
         try {
-            const response = await saygApi.upsert(sayg);
+            const response = await saygApi.upsert(sayg, sayg.updated);
             if (response.success) {
+                response.result.loaded = true;
                 setSayg(response.result);
-                navigate(`/practice#${response.result.id}`);
+                if (location.hash !== `#${response.result.id}`) {
+                    navigate(`/practice#${response.result.id}`);
+                }
                 return '#' + response.result.id;
             }
             setSaveError(response);

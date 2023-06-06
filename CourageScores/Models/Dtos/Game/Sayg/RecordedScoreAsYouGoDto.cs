@@ -1,6 +1,6 @@
 ﻿namespace CourageScores.Models.Dtos.Game.Sayg;
 
-public class RecordedScoreAsYouGoDto : AuditedDto, IIntegrityCheckDto
+public class RecordedScoreAsYouGoDto : AuditedDto
 {
     /// <summary>
     /// The legs for the match
@@ -36,6 +36,4 @@ public class RecordedScoreAsYouGoDto : AuditedDto, IIntegrityCheckDto
     /// Opponent score, if applicable
     /// </summary>
     public int? AwayScore { get; set; }
-
-    public DateTime? LastUpdated { get; set; }
 }
