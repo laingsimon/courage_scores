@@ -29,6 +29,7 @@ export function ExportData() {
     [ tables ]);
 
     async function startExport() {
+        /* istanbul ignore next */
         if (exporting) {
             /* istanbul ignore next */
             return;

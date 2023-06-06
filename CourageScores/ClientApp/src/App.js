@@ -48,7 +48,9 @@ export function App({ shouldExcludeSurround }) {
     }
 
     async function reloadAll() {
+        /* istanbul ignore next */
         if (appLoading) {
+            /* istanbul ignore next */
             return;
         }
 

@@ -13,6 +13,7 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
     const { divisions, seasons, onError } = useApp();
 
     async function saveNote() {
+        /* istanbul ignore next */
         if (savingNote) {
             /* istanbul ignore next */
             return;

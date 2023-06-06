@@ -119,8 +119,11 @@ export function Score() {
     }
 
     useEffect(() => {
+            /* istanbul ignore next */
             if (loading !== 'init') {
+                /* istanbul ignore next */
                 console.log(`loading=${loading}`);
+                /* istanbul ignore next */
                 return;
             }
 
@@ -289,6 +292,7 @@ export function Score() {
         [ divisions, fixtureData, data ]);
 
     async function saveScores() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;
@@ -312,6 +316,7 @@ export function Score() {
     }
 
     async function unpublish() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;

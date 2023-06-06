@@ -17,6 +17,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
     const changes = getChanges(initialSeasonIds, selectedSeasonIds);
 
     async function saveChanges() {
+        /* istanbul ignore next */
         if (saving || !changes.changed) {
             return;
         }

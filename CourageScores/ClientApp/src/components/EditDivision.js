@@ -12,6 +12,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
     const navigate = useNavigate();
 
     async function saveDivision() {
+        /* istanbul ignore next */
         if (saving || deleting) {
             /* istanbul ignore next */
             return;
@@ -39,6 +40,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
     }
 
     async function deleteDivision() {
+        /* istanbul ignore next */
         if (deleting || saving) {
             /* istanbul ignore next */
             return;

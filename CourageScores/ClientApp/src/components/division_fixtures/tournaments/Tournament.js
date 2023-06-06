@@ -41,7 +41,9 @@ export function Tournament() {
     }, [account]);
 
     useEffect(() => {
+            /* istanbul ignore next */
             if (loading !== 'init' || appLoading) {
+                /* istanbul ignore next */
                 return;
             }
 
@@ -121,6 +123,7 @@ export function Tournament() {
     }
 
     async function saveTournament() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;

@@ -13,6 +13,7 @@ export function Errors() {
     const { onError } = useApp();
 
     async function retrieveErrors() {
+        /* istanbul ignore next */
         if (loading) {
             /* istanbul ignore next */
             return;

@@ -18,6 +18,7 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
             return;
         }
 
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;

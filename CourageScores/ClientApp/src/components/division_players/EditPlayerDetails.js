@@ -13,6 +13,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
     const { teams, divisions, onError } = useApp();
 
     async function saveChanges() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;

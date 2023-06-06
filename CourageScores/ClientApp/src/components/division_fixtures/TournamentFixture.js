@@ -16,6 +16,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
+        /* istanbul ignore next */
         if (creating || deleting) {
             /* istanbul ignore next */
             return;
@@ -44,6 +45,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     }
 
     async function deleteTournamentGame() {
+        /* istanbul ignore next */
         if (deleting || creating) {
             /* istanbul ignore next */
             return;

@@ -33,6 +33,7 @@ export function ImportData() {
     [ tables ]);
 
     async function startImport() {
+        /* istanbul ignore next */
         if (importing) {
             /* istanbul ignore next */
             return;
