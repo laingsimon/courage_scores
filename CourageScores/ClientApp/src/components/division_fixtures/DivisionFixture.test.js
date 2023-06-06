@@ -548,6 +548,64 @@ describe('DivisionFixture', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
+            expect(updatedFixtures([ { date, fixtures: [ fixture ] } ])).toEqual([{
+                date,
+                fixtures: [ {
+                    id: fixture.id,
+                    date,
+                    homeTeam,
+                    awayTeam: {
+                        id: anotherTeam.id,
+                        name: anotherTeam.name,
+                    },
+                    originalAwayTeamId: 'unset',
+                } ]
+            }]);
+        });
+
+        it('can change away team for qualifiers', async () => {
+            const date = '2023-05-06T00:00:00';
+            const anotherTeam = {
+                id: createTemporaryId(),
+                name: 'ANOTHER TEAM',
+                address: 'ANOTHER ADDRESS',
+                seasons: [],
+            };
+            const fixture = {
+                id: createTemporaryId(),
+                date: date,
+                homeTeam: homeTeam,
+            };
+            await renderComponent(
+                { fixture, date, readOnly: false },
+                {
+                    id: division.id,
+                    fixtures: [ { date, fixtures: [ fixture ], isKnockout: true } ],
+                    season,
+                    teams: [ homeTeam, awayTeam, anotherTeam ]
+                },
+                account,
+                toMap([ homeTeam, awayTeam, anotherTeam ]));
+            const awayCell = context.container.querySelector('td:nth-child(5)');
+
+            await doClick(findButton(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM'));
+
+            expect(reportedError).toBeNull();
+            expect(updatedFixtures).not.toBeNull();
+            expect(updatedFixtures([ { date, fixtures: [ fixture ], isKnockout: true } ])).toEqual([{
+                date,
+                fixtures: [ {
+                    date,
+                    homeTeam,
+                    awayTeam: {
+                        id: anotherTeam.id,
+                        name: anotherTeam.name,
+                    },
+                    id: fixture.id,
+                    originalAwayTeamId: 'unset',
+                } ],
+                isKnockout: true,
+            }]);
         });
 
         it('can save league fixture change', async () => {
