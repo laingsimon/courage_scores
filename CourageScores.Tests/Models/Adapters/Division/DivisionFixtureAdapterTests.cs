@@ -243,7 +243,7 @@ public class DivisionFixtureAdapterTests
         var game = new CourageScores.Models.Cosmos.Game.Game
         {
             Id = Guid.NewGuid(),
-            IsKnockout = true,
+            IsKnockout = false,
             Address = "address",
             Postponed = true,
             Date = new DateTime(2001, 02, 03),
@@ -272,6 +272,43 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
         Assert.That(result.HomeScore, Is.Null);
         Assert.That(result.AwayScore, Is.Null);
+    }
+
+    [Test]
+    public async Task Adapt_WithNoPlayersInAnyKnockoutMatch_ReturnsScoresForFixture()
+    {
+        var game = new CourageScores.Models.Cosmos.Game.Game
+        {
+            Id = Guid.NewGuid(),
+            IsKnockout = true,
+            Address = "address",
+            Postponed = true,
+            Date = new DateTime(2001, 02, 03),
+            Matches =
+            {
+                new GameMatch
+                {
+                    Deleted = null,
+                    HomeScore = 2,
+                    AwayScore = 1,
+                },
+            },
+            Home = new GameTeam
+            {
+                Id = _homeTeam.Id,
+            },
+            Away = new GameTeam
+            {
+                Id = _awayTeam.Id,
+            },
+        };
+
+        var result = await _adapter.Adapt(game, _homeTeam, _awayTeam, _token);
+
+        _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
+        _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
+        Assert.That(result.HomeScore, Is.EqualTo(1));
+        Assert.That(result.AwayScore, Is.EqualTo(0));
     }
 
     [TestCase(true, true)]
