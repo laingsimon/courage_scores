@@ -77,19 +77,9 @@ describe('TournamentFixture', () => {
         };
         const account = null;
 
-        function assertPlayerDisplayWithoutSideNameOrTeamLink(playersCell, ordinal, players) {
-            const side = playersCell.querySelector(`div.px-3 > span:nth-child(${ordinal})`);
-            expect(side).toBeTruthy();
-            players.forEach(player => {
-                expect(side.textContent).toContain(player.name);
-            });
-            expect(side.querySelector('a')).toBeFalsy();
-        }
-
-        function assertPlayerDisplayWithSideNameNoTeamLink(playersCell, ordinal, sideName, players) {
+        function assertPlayerDisplayWithPlayerLinks(playersCell, ordinal, players) {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
-            expect(side.querySelector('strong').textContent).toEqual(sideName);
 
             assertPlayersAndLinks(side, players);
         }
@@ -262,10 +252,10 @@ describe('TournamentFixture', () => {
 
             expect(reportedError).toBeNull();
             const playersCell = context.container.querySelector('td:first-child');
-            assertPlayerDisplayWithoutSideNameOrTeamLink(playersCell, 1, [ player4, player5 ]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 1, [ player4, player5 ]);
             assertSinglePlayerDisplay(playersCell, 2, side1.name, player1);
             assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ player2, player3 ]);
-            assertPlayerDisplayWithSideNameNoTeamLink(playersCell, 4, side4.name, [ player6, player7 ]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 4, [ player6, player7 ]);
         });
     });
 

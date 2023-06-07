@@ -87,7 +87,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             {tournament.sides.map(side => {
                 side.players.sort(sortBy('name'));
                 const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
-                let name = (<strong>{side.name}</strong>);
+                let name;
                 if (side.teamId && side.players.length !== 1) {
                     name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
                 } else if (side.players.length === 1) {
@@ -95,14 +95,10 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
                     name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</Link>);
                 }
 
-                if (sideNameSameAsPlayerNames || isEmpty(side.players)) {
-                    return (<span className="comma-before-except-first no-wrap" key={side.id}>{name}</span>);
-                }
-
                 return (<div key={side.id}>
                     {name}
-                    {any(side.players) && !sideNameSameAsPlayerNames
-                        ? (<label className="csv-nodes colon-before">{side.players.map(renderLinkToPlayer)}</label>)
+                    {any(side.players)
+                        ? (<label className="csv-nodes">{side.players.map(renderLinkToPlayer)}</label>)
                         : null}
                 </div>);
             })}
