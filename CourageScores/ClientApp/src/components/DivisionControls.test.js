@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
 import React from "react";
 import {DivisionControls} from "./DivisionControls";
 import {createTemporaryId} from "../helpers/projection";
@@ -491,10 +491,8 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${division5.id}/OVERRIDE/${season6.id}`);
-                const shownButton = group.querySelector('button.btn-light') || group.querySelector('button.btn-info');
-                expect(shownButton).toBeTruthy();
 
-                await doClick(shownButton);
+                await doClick(findButton(group, 'Season 5 (7 May - 7 Aug)'));
 
                 expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.id}/OVERRIDE/${season5.id}`);
             });
@@ -513,10 +511,8 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${division5.id}/team:TEAM_ID/${season6.id}`);
-                const shownButton = group.querySelector('button.btn-light') || group.querySelector('button.btn-info');
-                expect(shownButton).toBeTruthy();
 
-                await doClick(shownButton);
+                await doClick(findButton(group, 'Season 5 (7 May - 7 Aug)'));
 
                 expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.id}/teams/${season5.id}`);
             });
@@ -535,10 +531,8 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${division5.id}/player:PLAYER_ID/${season6.id}`);
-                const shownButton = group.querySelector('button.btn-light') || group.querySelector('button.btn-info');
-                expect(shownButton).toBeTruthy();
 
-                await doClick(shownButton);
+                await doClick(findButton(group, 'Season 5 (7 May - 7 Aug)'));
 
                 expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.id}/players/${season5.id}`);
             });
@@ -576,10 +570,8 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const editSeasonButton = getSeasonButtonGroup().querySelector('button.btn-info');
-                expect(editSeasonButton).toBeTruthy();
 
-                await doClick(editSeasonButton);
+                await doClick(findButton(getSeasonButtonGroup(), 'Season 5 (7 May - 7 Aug)✏'));
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeTruthy();
@@ -609,13 +601,9 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const editSeasonButton = getSeasonButtonGroup().querySelector('button.btn-info');
-                expect(editSeasonButton).toBeTruthy();
-                await doClick(editSeasonButton);
+                await doClick(findButton(getSeasonButtonGroup(), 'Season 5 (7 May - 7 Aug)✏'));
 
-                const saveButton = Array.from(context.container.querySelectorAll('.btn-group .modal-dialog button'))
-                    .filter(btn => btn.textContent === 'Update season')[0];
-                await doClick(saveButton);
+                await doClick(findButton(context.container, 'Update season'));
 
                 expect(reportedError).toBeNull();
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
@@ -632,13 +620,9 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const editSeasonButton = getSeasonButtonGroup().querySelector('button.btn-info');
-                expect(editSeasonButton).toBeTruthy();
-                await doClick(editSeasonButton);
+                await doClick(findButton(getSeasonButtonGroup(), 'Season 5 (7 May - 7 Aug)✏'));
 
-                const closeButton = Array.from(context.container.querySelectorAll('.btn-group .modal-dialog button'))
-                    .filter(btn => btn.textContent === 'Close')[0];
-                await doClick(closeButton);
+                await doClick(findButton(context.container, 'Close'));
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();
@@ -651,10 +635,8 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const editDivisionButton = getDivisionButtonGroup().querySelector('button.btn-info');
-                expect(editDivisionButton).toBeTruthy();
 
-                await doClick(editDivisionButton);
+                await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeTruthy();
@@ -684,13 +666,9 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const editDivisionButton = getDivisionButtonGroup().querySelector('button.btn-info');
-                expect(editDivisionButton).toBeTruthy();
-                await doClick(editDivisionButton);
+                await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
-                const saveButton = Array.from(context.container.querySelectorAll('.btn-group .modal-dialog button'))
-                    .filter(btn => btn.textContent === 'Update division')[0];
-                await doClick(saveButton);
+                await doClick(findButton(context.container, 'Update division'));
 
                 expect(reportedError).toBeNull();
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
@@ -707,13 +685,9 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const editDivisionButton = getDivisionButtonGroup().querySelector('button.btn-info');
-                expect(editDivisionButton).toBeTruthy();
-                await doClick(editDivisionButton);
+                await doClick(findButton(getDivisionButtonGroup(), 'Division 5✏'));
 
-                const closeButton = Array.from(context.container.querySelectorAll('.btn-group .modal-dialog button'))
-                    .filter(btn => btn.textContent === 'Close')[0];
-                await doClick(closeButton);
+                await doClick(findButton(context.container, 'Close'));
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeFalsy();

@@ -304,9 +304,8 @@ describe('TournamentRoundMatch', () => {
                     matchOptions: {},
                 }, account);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
-                const saygButton = findButton(cells[0], '📊');
 
-                await doClick(saygButton);
+                await doClick(findButton(cells[0], '📊'));
 
                 expect(reportedError).toBeNull();
                 const dialog = context.container.querySelector('.modal-dialog');
@@ -457,9 +456,8 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            const saygButton = findButton(cells[0], '📊');
 
-            await doClick(saygButton);
+            await doClick(findButton(cells[0], '📊'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -518,9 +516,8 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            const saygButton = findButton(cells[0], '📊');
 
-            await doClick(saygButton);
+            await doClick(findButton(cells[0], '📊'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');

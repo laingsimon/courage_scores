@@ -652,8 +652,7 @@ describe('DivisionFixtureDate', () => {
                 showPlayers: {},
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
-            const addNoteButton = findButton(context.container, '📌 Add note');
-            await doClick(addNoteButton);
+            await doClick(findButton(context.container, '📌 Add note'));
 
             expect(startingToAddNote).toEqual(fixtureDate.date);
         });

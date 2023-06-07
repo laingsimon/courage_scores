@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
 import React from "react";
 import {PlayLeg} from "./PlayLeg";
 
@@ -209,10 +209,8 @@ describe('PlayLeg', () => {
             awayScore: 0,
             singlePlayer: false,
         });
-        const buttons = Array.from(context.container.querySelectorAll('button'));
-        const homeButton = buttons[0];
 
-        await doClick(homeButton);
+        await doClick(findButton(context.container, '🎯HOME'));
 
         expect(changedLeg).toEqual({
             playerSequence: [ { text: 'HOME', value: 'home' }, { text: 'AWAY', value: 'away' } ],
@@ -234,10 +232,8 @@ describe('PlayLeg', () => {
             awayScore: 2,
             singlePlayer: false,
         });
-        const buttons = Array.from(context.container.querySelectorAll('button'));
-        const awayButton = buttons[1];
 
-        await doClick(awayButton);
+        await doClick(findButton(context.container, '🎯AWAY'));
 
         expect(changedLeg).toEqual({
             playerSequence: [ { text: 'AWAY', value: 'away' }, { text: 'HOME', value: 'home' } ],

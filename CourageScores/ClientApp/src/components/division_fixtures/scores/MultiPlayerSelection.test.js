@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, renderApp, doChange} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp, doChange, findButton} from "../../../helpers/tests";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {createTemporaryId} from "../../../helpers/projection";
 
@@ -274,7 +274,7 @@ describe('MultiPlayerSelection', () => {
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
 
-            await doClick(selectedPlayer, 'button');
+            await doClick(findButton(selectedPlayer, 'PLAYER 🗑'));
 
             // passes because <button ... disabled=true ... />
             expect(removedPlayer).toBeNull();
@@ -287,8 +287,8 @@ describe('MultiPlayerSelection', () => {
             });
             expect(reportedError).toBeNull();
 
-            await doClick(context.container, 'ol > li:last-child button.dropdown-item:last-child'); // select first player
-            await doClick(context.container, 'ol > li:last-child > button'); // click +
+            await doClick(findButton(context.container, 'PLAYER'));
+            await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).not.toBeNull();
             expect(addedPlayer.player).toEqual(player);
@@ -303,7 +303,7 @@ describe('MultiPlayerSelection', () => {
             expect(reportedError).toBeNull();
 
             // no player selected
-            await doClick(context.container, 'ol > li:last-child > button'); // click +
+            await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).toBeNull();
             expect(alert).toEqual('Ensure a player is selected first');
@@ -317,9 +317,9 @@ describe('MultiPlayerSelection', () => {
             });
             expect(reportedError).toBeNull();
 
-            await doClick(context.container, 'ol > li:last-child button.dropdown-item:last-child'); // select first player
+            await doClick(findButton(context.container, 'PLAYER'));
             doChange(context.container, 'ol > li:last-child > input[type="number"]', '100');
-            await doClick(context.container, 'ol > li:last-child > button'); // click +
+            await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).not.toBeNull();
             expect(addedPlayer.player).toEqual(player);
@@ -334,9 +334,9 @@ describe('MultiPlayerSelection', () => {
             });
             expect(reportedError).toBeNull();
 
-            await doClick(context.container, 'ol > li:last-child button.dropdown-item:last-child'); // select first player
+            await doClick(findButton(context.container, 'PLAYER'));
             // notes not updated
-            await doClick(context.container, 'ol > li:last-child > button'); // click +
+            await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).toBeNull();
             expect(alert).toEqual('Enter the score first');
@@ -351,7 +351,7 @@ describe('MultiPlayerSelection', () => {
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];
 
-            await doClick(selectedPlayer, 'button');
+            await doClick(findButton(selectedPlayer, 'PLAYER 🗑'));
 
             expect(removedPlayer).not.toBeNull();
             expect(removedPlayer.id).toEqual(player.id);

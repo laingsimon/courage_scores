@@ -285,8 +285,7 @@ describe('EditTeamDetails', () => {
             let alert;
             window.alert = (message) => { alert = message };
 
-            const saveButton = findButton(context.container, 'Save team');
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(false);
             expect(alert).toEqual('You must enter a team name');
@@ -321,8 +320,7 @@ describe('EditTeamDetails', () => {
                 seasonId: team.seasonId,
             }, [ division, otherDivision ]);
 
-            const saveButton = findButton(context.container, 'Save team');
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(true);
             expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
@@ -361,8 +359,7 @@ describe('EditTeamDetails', () => {
                 seasonId: team.seasonId,
             }, [ division, otherDivision ]);
 
-            const saveButton = findButton(context.container, 'Add team');
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Add team'));
 
             expect(saved).toEqual(true);
             expect(updatedTeam.lastUpdated).toBeFalsy();
@@ -398,8 +395,7 @@ describe('EditTeamDetails', () => {
                 seasonId: team.seasonId,
             }, [ division ]);
 
-            const cancelButton = findButton(context.container, 'Cancel');
-            await doClick(cancelButton);
+            await doClick(findButton(context.container, 'Cancel'));
 
             expect(canceled).toEqual(true);
         });

@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
 import {createTemporaryId} from "../helpers/projection";
@@ -231,7 +231,7 @@ describe('EditSeason', () => {
             data: season,
         }, [ season ], divisions);
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update season'));
 
         expect(alert).toEqual('Enter a season name');
         expect(saved).toEqual(false);
@@ -250,7 +250,7 @@ describe('EditSeason', () => {
         }, [ season ], divisions);
         expect(reportedError).toBeNull();
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update season'));
 
         expect(reportedError).toBeNull();
         expect(alert).toBeNull();
@@ -274,7 +274,7 @@ describe('EditSeason', () => {
             success: false
         }
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update season'));
 
         expect(reportedError).toBeNull();
         expect(saveError).toEqual(apiResponse);
@@ -293,7 +293,7 @@ describe('EditSeason', () => {
         }, [ season ], divisions);
         expect(reportedError).toBeNull();
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(confirm).toEqual('Are you sure you want to delete the SEASON season?');
         expect(saved).toEqual(false);
@@ -313,7 +313,7 @@ describe('EditSeason', () => {
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(reportedError).toBeNull();
         expect(deletedId).toEqual(season.id);
@@ -336,7 +336,7 @@ describe('EditSeason', () => {
             success: false
         };
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(reportedError).toBeNull();
         expect(deletedId).toEqual(season.id);
@@ -357,7 +357,7 @@ describe('EditSeason', () => {
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(mockedUsedNavigate).toHaveBeenCalledWith('https://localhost');
     });

@@ -1,8 +1,7 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, renderApp} from "../../helpers/tests";
+import {cleanUp, doClick, renderApp, findButton} from "../../helpers/tests";
 import React from "react";
-import {act} from "@testing-library/react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
@@ -96,9 +95,7 @@ describe('DivisionTeams', () => {
                 messages: [ ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
         });
@@ -117,9 +114,7 @@ describe('DivisionTeams', () => {
                 messages: [ 'A message' ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const messages = context.container.querySelectorAll('.light-background ul > li');
@@ -145,9 +140,7 @@ describe('DivisionTeams', () => {
                 messages: [ ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const reportOptions = context.container.querySelectorAll('.light-background div.btn-group > div[role="menu"] > button');
@@ -176,9 +169,7 @@ describe('DivisionTeams', () => {
                 messages: [ ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const reportTable = context.container.querySelector('.light-background table');

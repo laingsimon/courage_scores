@@ -312,9 +312,8 @@ describe('TournamentFixture', () => {
                 { id: division.id, season, players: [ player ] },
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
-            const addButton = findButton(adminCell, '➕');
 
-            await doClick(addButton);
+            await doClick(findButton(adminCell, '➕'));
 
             expect(reportedError).toBeNull();
             expect(savedTournament.data).toEqual({
@@ -340,11 +339,10 @@ describe('TournamentFixture', () => {
                 { id: division.id, season, players: [ player ] },
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
-            const deleteButton = findButton(adminCell, '🗑');
             let confirm;
             window.confirm = (message) => { confirm = message; return true; };
 
-            await doClick(deleteButton);
+            await doClick(findButton(adminCell, '🗑'));
 
             expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
             expect(reportedError).toBeNull();
