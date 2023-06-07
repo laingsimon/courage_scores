@@ -91,9 +91,11 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
                     title="Could not save note" />)
                 : null}
         </div>
-        <div className="text-end">
-            <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
-            <button className="btn btn-primary margin-right" onClick={saveNote}>
+        <div className="modal-footer px-0">
+            <div className="left-aligned">
+                <button className="btn btn-secondary" onClick={onClose}>Close</button>
+            </div>
+            <button className="btn btn-primary" onClick={saveNote}>
                 {savingNote ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save
             </button>

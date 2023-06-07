@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {FixtureDateNote} from "./FixtureDateNote";
@@ -123,16 +123,13 @@ describe('FixtureDateNote', () => {
                 note: '**some markdown**',
             };
             await renderComponent(note, false, account, setEditNote);
-            const buttons = Array.from(context.container.querySelectorAll('button'));
-            const closeButton = buttons[0];
-            expect(closeButton.textContent).toEqual('');
             let confirm;
             window.confirm = (message) => {
                 confirm = message;
                 return true;
             }
 
-            await doClick(closeButton);
+            await doClick(context.container.querySelector('button.btn-close'));
 
             expect(confirm).toEqual('Are you sure you want to delete this note?');
             expect(deletedNoteId).toEqual(note.id);
@@ -149,16 +146,13 @@ describe('FixtureDateNote', () => {
                 note: '**some markdown**',
             };
             await renderComponent(note, false, account, setEditNote);
-            const buttons = Array.from(context.container.querySelectorAll('button'));
-            const closeButton = buttons[0];
-            expect(closeButton.textContent).toEqual('');
             let confirm;
             window.confirm = (message) => {
                 confirm = message;
                 return false;
             }
 
-            await doClick(closeButton);
+            await doClick(context.container.querySelector('button.btn-close'));
 
             expect(confirm).toEqual('Are you sure you want to delete this note?');
             expect(deletedNoteId).toBeNull();
@@ -175,14 +169,12 @@ describe('FixtureDateNote', () => {
                 note: '**some markdown**',
             };
             await renderComponent(note, false, account, setEditNote);
-            const buttons = Array.from(context.container.querySelectorAll('button'));
-            const closeButton = buttons[0];
             let alert;
             window.confirm = () => true;
             window.alert = (message) => alert = message;
             deleteResult = { success: false };
 
-            await doClick(closeButton);
+            await doClick(context.container.querySelector('button.btn-close'));
 
             expect(alert).toEqual('Could not delete note');
         });
@@ -198,11 +190,8 @@ describe('FixtureDateNote', () => {
                 note: '**some markdown**',
             };
             await renderComponent(note, false, account, setEditNote);
-            const buttons = Array.from(context.container.querySelectorAll('button'));
-            const editButton = buttons[1];
-            expect(editButton.textContent).toEqual('Edit');
 
-            await doClick(editButton);
+            await doClick(findButton(context.container, 'Edit'));
 
             expect(editNote).toEqual(note);
         });

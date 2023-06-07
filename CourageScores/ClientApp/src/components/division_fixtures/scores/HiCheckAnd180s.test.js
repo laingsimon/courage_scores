@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, renderApp, doChange} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp, doChange, findButton} from "../../../helpers/tests";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
 import {createTemporaryId} from "../../../helpers/projection";
 
@@ -352,7 +352,7 @@ describe('HiCheckAnd180s', () => {
                const options = addPlayerContainer.querySelector('div.btn-group > div');
                expect(options.querySelector('button:nth-child(2)').textContent).toEqual('AWAY player');
                await doClick(options, 'button:nth-child(2)'); // < unselected, AWAY player, HOME player >
-               await doClick(addPlayerContainer, 'button.btn-outline-primary');
+               await doClick(findButton(addPlayerContainer, '➕'));
 
                expect(updatedFixtureData).toBeTruthy();
                expect(updatedFixtureData.oneEighties).toEqual([
@@ -383,10 +383,7 @@ describe('HiCheckAnd180s', () => {
                await renderComponent(false, 'admin', fixtureData);
                const td180s = context.container.querySelectorAll('td')[0];
                expect(td180s).toBeTruthy();
-               const remove180Button = td180s.querySelector('ol > li:first-child > button');
-               expect(remove180Button).toBeTruthy();
-               expect(remove180Button.textContent).toEqual('HOME player 🗑');
-               await doClick(remove180Button);
+               await doClick(findButton(td180s, 'HOME player 🗑'));
 
                expect(updatedFixtureData).toBeTruthy();
                expect(updatedFixtureData.oneEighties).toEqual([]);
@@ -420,7 +417,7 @@ describe('HiCheckAnd180s', () => {
                const options = addPlayerContainer.querySelector('div.btn-group > div');
                expect(options.querySelector('button:nth-child(2)').textContent).toEqual('AWAY player');
                await doClick(options, 'button:nth-child(2)'); // < unselected, AWAY player, HOME player >
-               await doClick(addPlayerContainer, 'button.btn-outline-primary');
+               await doClick(findButton(addPlayerContainer, '➕'));
 
                expect(updatedFixtureData).toBeTruthy();
                expect(updatedFixtureData.over100Checkouts).toEqual([
@@ -451,10 +448,7 @@ describe('HiCheckAnd180s', () => {
                await renderComponent(false, 'admin', fixtureData);
                const tdHiChecks = context.container.querySelectorAll('td')[2];
                expect(tdHiChecks).toBeTruthy();
-               const removeHiCheckButton = tdHiChecks.querySelector('ol > li:first-child > button');
-               expect(removeHiCheckButton).toBeTruthy();
-               expect(removeHiCheckButton.textContent).toEqual('HOME player (100) 🗑');
-               await doClick(removeHiCheckButton);
+               await doClick(findButton(tdHiChecks, 'HOME player (100) 🗑'));
 
                expect(updatedFixtureData).toBeTruthy();
                expect(updatedFixtureData.over100Checkouts).toEqual([]);

@@ -142,9 +142,8 @@ describe('DivisionTeam', () => {
             await renderComponent(team, account, { id: division.id, season });
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
-            const editButton = findButton(firstCell, '✏️');
 
-            await doClick(editButton);
+            await doClick(findButton(firstCell, '✏️'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -167,13 +166,11 @@ describe('DivisionTeam', () => {
             await renderComponent(team, account, { id: division.id, season });
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
-            const editButton = findButton(firstCell, '✏️');
-            await doClick(editButton);
+            await doClick(findButton(firstCell, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
 
             doChange(dialog, 'input[name="name"]', 'NEW TEAM');
-            const saveButton = findButton(dialog, 'Save team');
-            await doClick(saveButton);
+            await doClick(findButton(dialog, 'Save team'));
 
             expect(reportedError).toBeNull();
             expect(updatedTeam).not.toBeNull();
@@ -195,11 +192,9 @@ describe('DivisionTeam', () => {
             await renderComponent(team, account, { id: division.id, season });
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
-            const editButton = findButton(firstCell, '✏️');
-            await doClick(editButton);
-            const cancelButton = findButton(context.container.querySelector('.modal-dialog'), 'Cancel');
+            await doClick(findButton(firstCell, '✏️'));
 
-            await doClick(cancelButton);
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
@@ -220,9 +215,8 @@ describe('DivisionTeam', () => {
             await renderComponent(team, account, { id: division.id, season }, [ team ]);
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
-            const editButton = findButton(firstCell, '➕');
 
-            await doClick(editButton);
+            await doClick(findButton(firstCell, '➕'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -245,8 +239,7 @@ describe('DivisionTeam', () => {
             await renderComponent(team, account, { id: division.id, season }, [ team ]);
             expect(reportedError).toBeNull();
             const firstCell = context.container.querySelector('td:first-child');
-            const editButton = findButton(firstCell, '➕');
-            await doClick(editButton);
+            await doClick(findButton(firstCell, '➕'));
             const dialog = context.container.querySelector('.modal-dialog');
 
             await doClick(findButton(dialog, 'Close'));

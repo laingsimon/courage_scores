@@ -145,7 +145,7 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     function renderNewDateDialog() {
         return (<Dialog title="Add a date to the season" slim={true}>
-            <div>
+            <div className="pb-2">
                 <span className="margin-right">Select date:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
                        className="margin-right" value={newDate} onChange={stateChanged(setNewDate)}/>
@@ -156,9 +156,11 @@ export function DivisionFixtures({ setNewFixtures }) {
                     <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                 </div>
             </div>
-            <div className="mt-3 text-end">
-                <button className="btn btn-primary margin-right" onClick={addNewDate}>Add date</button>
-                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
+            <div className="modal-footer px-0">
+                <div className="left-aligned">
+                    <button className="btn btn-secondary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
+                </div>
+                <button className="btn btn-primary" onClick={addNewDate}>Add date</button>
             </div>
         </Dialog>);
     }

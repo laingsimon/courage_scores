@@ -267,8 +267,7 @@ describe('DivisionPlayer', () => {
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 expect(nameCell.textContent).toContain('NAME');
 
-                const editPlayerButton = findButton(nameCell, '✏️');
-                await doClick(editPlayerButton);
+                await doClick(findButton(nameCell, '✏️'));
 
                 const dialog = nameCell.querySelector('.modal-dialog');
                 expect(dialog).toBeTruthy();

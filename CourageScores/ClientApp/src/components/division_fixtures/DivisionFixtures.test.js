@@ -663,9 +663,8 @@ describe('DivisionFixtures', () => {
             });
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            const addNoteButton = findButton(fixtureDateElement, '📌 Add note');
 
-            await doClick(addNoteButton);
+            await doClick(findButton(fixtureDateElement, '📌 Add note'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -688,9 +687,8 @@ describe('DivisionFixtures', () => {
             });
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            const editNoteButton = findButton(fixtureDateElement.querySelector('.alert'), 'Edit');
 
-            await doClick(editNoteButton);
+            await doClick(findButton(fixtureDateElement.querySelector('.alert'), 'Edit'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -713,8 +711,7 @@ describe('DivisionFixtures', () => {
             });
             await renderComponent(divisionData, account);
             const fixtureDateElement = getFixtureDateElement(0, account);
-            const editNoteButton = findButton(fixtureDateElement.querySelector('.alert'), 'Edit');
-            await doClick(editNoteButton);
+            await doClick(findButton(fixtureDateElement.querySelector('.alert'), 'Edit'));
 
             const dialog = context.container.querySelector('.modal-dialog');
             doChange(dialog, 'textarea[name="note"]', 'New note');
@@ -730,9 +727,8 @@ describe('DivisionFixtures', () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
             await renderComponent(divisionData, account);
-            const addDateButton = findButton(context.container, '➕ Add date');
 
-            await doClick(addDateButton);
+            await doClick(findButton(context.container, '➕ Add date'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -744,9 +740,8 @@ describe('DivisionFixtures', () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
             await renderComponent(divisionData, account);
-            const addDateButton = findButton(context.container, '➕ Add date');
 
-            await doClick(addDateButton);
+            await doClick(findButton(context.container, '➕ Add date'));
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
 
             expect(reportedError).toBeNull();
