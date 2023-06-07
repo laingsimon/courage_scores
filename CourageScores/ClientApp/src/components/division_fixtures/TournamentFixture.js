@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, isEmpty, sortBy} from "../../helpers/collections";
+import {any, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -86,7 +86,6 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
         return (<div className="px-3">
             {tournament.sides.map(side => {
                 side.players.sort(sortBy('name'));
-                const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
                 let name;
                 if (side.teamId && side.players.length !== 1) {
                     name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
