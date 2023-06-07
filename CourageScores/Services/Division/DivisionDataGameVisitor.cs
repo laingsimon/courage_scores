@@ -12,7 +12,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         _divisionData = divisionData;
     }
 
-    public void VisitDataError(string dataError)
+    public void VisitDataError(IVisitorScope scope, string dataError)
     {
         if (_lastGame != null)
         {
@@ -31,17 +31,17 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
 
         var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
-        game.Accept(playerGamesVisitor);
+        game.Accept(new VisitorScope(), playerGamesVisitor);
     }
 
     public void VisitGame(TournamentGame game)
     {
         _lastGame = null;
         var playerGamesVisitor = new PlayersToFixturesLookupVisitor(game.Id, game.Date, _divisionData);
-        game.Accept(playerGamesVisitor);
+        game.Accept(new VisitorScope(), playerGamesVisitor);
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
+    public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
         var winRateRecorded = false;
         foreach (var player in players)
@@ -71,7 +71,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
+    public void VisitMatchLost(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
         var winRateRecorded = false;
         foreach (var player in players)
@@ -101,7 +101,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitOneEighty(IGamePlayer player)
+    public void VisitOneEighty(IVisitorScope scope, IGamePlayer player)
     {
         if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
@@ -112,7 +112,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.OneEighties++;
     }
 
-    public void VisitHiCheckout(INotablePlayer player)
+    public void VisitHiCheckout(IVisitorScope scope, INotablePlayer player)
     {
         if (!int.TryParse(player.Notes, out var hiCheck))
         {
@@ -131,7 +131,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
     }
 
-    public void VisitTeam(GameTeam team, GameState gameState)
+    public void VisitTeam(IVisitorScope scope, GameTeam team, GameState gameState)
     {
         if (gameState != GameState.Played)
         {
@@ -147,7 +147,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.FixturesPlayed++;
     }
 
-    public void VisitGameDraw(GameTeam home, GameTeam away)
+    public void VisitGameDraw(IVisitorScope scope, GameTeam home, GameTeam away)
     {
         if (!_divisionData.Teams.TryGetValue(home.Id, out var homeScore))
         {
@@ -166,7 +166,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         awayScore.FixturesDrawn++;
     }
 
-    public void VisitGameWinner(GameTeam team)
+    public void VisitGameWinner(IVisitorScope scope, GameTeam team)
     {
         if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
@@ -177,7 +177,7 @@ public class DivisionDataGameVisitor : IGameVisitor
         score.FixturesWon++;
     }
 
-    public void VisitGameLoser(GameTeam team)
+    public void VisitGameLoser(IVisitorScope scope, GameTeam team)
     {
         if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
@@ -242,7 +242,7 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData = divisionData;
         }
 
-        public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+        public void VisitPlayer(IVisitorScope scope, GamePlayer player, int matchPlayerCount)
         {
             if (!_divisionData.PlayersToFixtures.TryGetValue(player.Id, out var gameLookup))
             {

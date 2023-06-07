@@ -8,10 +8,13 @@ namespace CourageScores.Tests.Models.Cosmos.Game;
 public class GameTests
 {
     private CourageScores.Models.Cosmos.Game.Game _game = null!;
+    private Mock<IVisitorScope> _visitorScope = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _visitorScope = new Mock<IVisitorScope>();
+        _visitorScope.Setup(s => s.With(It.IsAny<IVisitorScope>())).Returns(_visitorScope.Object);
         _game = new CourageScores.Models.Cosmos.Game.Game
         {
             Home = new GameTeam
@@ -32,7 +35,7 @@ public class GameTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
         visitor.Verify(v => v.VisitGame(_game));
     }
@@ -42,10 +45,10 @@ public class GameTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Pending));
-        visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Pending));
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Home, GameState.Pending));
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Away, GameState.Pending));
     }
 
     [Test]
@@ -54,10 +57,10 @@ public class GameTests
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch { HomeScore = 1 });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Played));
-        visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Played));
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Home, GameState.Played));
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Away, GameState.Played));
     }
 
     [Test]
@@ -65,9 +68,9 @@ public class GameTests
     {
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch { AwayScore = 1 });
-        _game.Accept(visitor.Object);
-        visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Played));
-        visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Played));
+        _game.Accept(_visitorScope.Object, visitor.Object);
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Home, GameState.Played));
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Away, GameState.Played));
     }
 
     [Test]
@@ -75,9 +78,9 @@ public class GameTests
     {
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch());
-        _game.Accept(visitor.Object);
-        visitor.Verify(v => v.VisitTeam(_game.Home, GameState.Pending));
-        visitor.Verify(v => v.VisitTeam(_game.Away, GameState.Pending));
+        _game.Accept(_visitorScope.Object, visitor.Object);
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Home, GameState.Pending));
+        visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Away, GameState.Pending));
     }
 
     [Test]
@@ -85,9 +88,9 @@ public class GameTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitManOfTheMatch(It.IsAny<Guid>()), Times.Never);
+        visitor.Verify(v => v.VisitManOfTheMatch(It.IsAny<IVisitorScope>(), It.IsAny<Guid>()), Times.Never);
     }
 
     [Test]
@@ -97,10 +100,10 @@ public class GameTests
         _game.Home.ManOfTheMatch = Guid.NewGuid();
         _game.Away.ManOfTheMatch = Guid.NewGuid();
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitManOfTheMatch(_game.Home.ManOfTheMatch));
-        visitor.Verify(v => v.VisitManOfTheMatch(_game.Away.ManOfTheMatch));
+        visitor.Verify(v => v.VisitManOfTheMatch(_visitorScope.Object, _game.Home.ManOfTheMatch));
+        visitor.Verify(v => v.VisitManOfTheMatch(_visitorScope.Object, _game.Away.ManOfTheMatch));
     }
 
     [Test]
@@ -113,10 +116,10 @@ public class GameTests
             AwayScore = 2,
         });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitGameWinner(It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameLoser(It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameWinner(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameLoser(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -131,10 +134,10 @@ public class GameTests
             AwayScore = 2,
         });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitGameLoser(_game.Home));
-        visitor.Verify(v => v.VisitGameWinner(_game.Away));
+        visitor.Verify(v => v.VisitGameLoser(_visitorScope.Object, _game.Home));
+        visitor.Verify(v => v.VisitGameWinner(_visitorScope.Object, _game.Away));
     }
 
     [Test]
@@ -149,10 +152,10 @@ public class GameTests
             AwayScore = 1,
         });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitGameWinner(_game.Home));
-        visitor.Verify(v => v.VisitGameLoser(_game.Away));
+        visitor.Verify(v => v.VisitGameWinner(_visitorScope.Object, _game.Home));
+        visitor.Verify(v => v.VisitGameLoser(_visitorScope.Object, _game.Away));
     }
 
     [Test]
@@ -174,9 +177,9 @@ public class GameTests
             AwayScore = 3,
         });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitGameDraw(_game.Home, _game.Away));
+        visitor.Verify(v => v.VisitGameDraw(_visitorScope.Object, _game.Home, _game.Away));
     }
 
     [Test]
@@ -191,11 +194,11 @@ public class GameTests
             AwayScore = 0,
         });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitGameDraw(It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameWinner(It.IsAny<GameTeam>()), Times.Never);
-        visitor.Verify(v => v.VisitGameLoser(It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameDraw(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameWinner(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameLoser(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -208,9 +211,9 @@ public class GameTests
             AwayScore = 1,
         });
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitGameDraw(It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
+        visitor.Verify(v => v.VisitGameDraw(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -221,9 +224,9 @@ public class GameTests
         _game.AccoladesCount = true;
         _game.OneEighties.Add(player);
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitOneEighty(player));
+        visitor.Verify(v => v.VisitOneEighty(_visitorScope.Object, player));
     }
 
     [Test]
@@ -234,9 +237,9 @@ public class GameTests
         _game.AccoladesCount = true;
         _game.Over100Checkouts.Add(player);
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitHiCheckout(player));
+        visitor.Verify(v => v.VisitHiCheckout(_visitorScope.Object, player));
     }
 
     [Test]
@@ -247,9 +250,9 @@ public class GameTests
         _game.AccoladesCount = false;
         _game.OneEighties.Add(player);
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitOneEighty(It.IsAny<GamePlayer>()), Times.Never);
+        visitor.Verify(v => v.VisitOneEighty(It.IsAny<IVisitorScope>(), It.IsAny<GamePlayer>()), Times.Never);
     }
 
     [Test]
@@ -260,8 +263,8 @@ public class GameTests
         _game.AccoladesCount = false;
         _game.Over100Checkouts.Add(player);
 
-        _game.Accept(visitor.Object);
+        _game.Accept(_visitorScope.Object, visitor.Object);
 
-        visitor.Verify(v => v.VisitHiCheckout(It.IsAny<NotablePlayer>()), Times.Never);
+        visitor.Verify(v => v.VisitHiCheckout(It.IsAny<IVisitorScope>(), It.IsAny<NotablePlayer>()), Times.Never);
     }
 }

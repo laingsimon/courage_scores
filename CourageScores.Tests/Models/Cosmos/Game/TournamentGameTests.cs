@@ -8,6 +8,7 @@ namespace CourageScores.Tests.Models.Cosmos.Game;
 public class TournamentGameTests
 {
     private TournamentGame _game = null!;
+    private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [SetUp]
     public void SetupEachTest()
@@ -20,7 +21,7 @@ public class TournamentGameTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
         visitor.Verify(v => v.VisitGame(_game));
     }
@@ -33,9 +34,9 @@ public class TournamentGameTests
         _game.Over100Checkouts.Add(player);
         _game.AccoladesCount = true;
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitHiCheckout(player));
+        visitor.Verify(v => v.VisitHiCheckout(VisitorScope, player));
     }
 
     [Test]
@@ -46,9 +47,9 @@ public class TournamentGameTests
         _game.Over100Checkouts.Add(player);
         _game.AccoladesCount = false;
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitHiCheckout(player), Times.Never);
+        visitor.Verify(v => v.VisitHiCheckout(It.IsAny<IVisitorScope>(), player), Times.Never);
     }
 
     [Test]
@@ -59,9 +60,9 @@ public class TournamentGameTests
         _game.OneEighties.Add(player);
         _game.AccoladesCount = true;
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitOneEighty(player));
+        visitor.Verify(v => v.VisitOneEighty(VisitorScope, player));
     }
 
     [Test]
@@ -72,9 +73,9 @@ public class TournamentGameTests
         _game.OneEighties.Add(player);
         _game.AccoladesCount = false;
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitOneEighty(player), Times.Never);
+        visitor.Verify(v => v.VisitOneEighty(It.IsAny<IVisitorScope>(), player), Times.Never);
     }
 
     [Test]
@@ -84,9 +85,9 @@ public class TournamentGameTests
         var side = new TournamentSide();
         _game.Sides.Add(side);
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitSide(side));
+        visitor.Verify(v => v.VisitSide(VisitorScope, side));
     }
 
     [Test]
@@ -94,9 +95,9 @@ public class TournamentGameTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitRound(It.IsAny<TournamentRound>()), Times.Never);
+        visitor.Verify(v => v.VisitRound(It.IsAny<IVisitorScope>(), It.IsAny<TournamentRound>()), Times.Never);
     }
 
     [Test]
@@ -106,8 +107,8 @@ public class TournamentGameTests
         var round = new TournamentRound();
         _game.Round = round;
 
-        _game.Accept(visitor.Object);
+        _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitRound(round));
+        visitor.Verify(v => v.VisitRound(VisitorScope, round));
     }
 }

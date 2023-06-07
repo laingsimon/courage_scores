@@ -105,8 +105,10 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
         return user?.Access?.ManageGames == true;
     }
 
-    public void Accept(IGameVisitor visitor)
+    public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
+        scope = scope.With(new VisitorScope { Game = this });
+
         visitor.VisitGame(this);
 
         if (Postponed)
@@ -114,37 +116,37 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             return;
         }
 
-        visitor.VisitTeam(Home, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
+        visitor.VisitTeam(scope, Home, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
         if (Home.ManOfTheMatch != null)
         {
-            visitor.VisitManOfTheMatch(Home.ManOfTheMatch);
+            visitor.VisitManOfTheMatch(scope, Home.ManOfTheMatch);
         }
 
-        visitor.VisitTeam(Away, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
+        visitor.VisitTeam(scope, Away, Matches.Any(m => m.HomeScore > 0 || m.AwayScore > 0) ? GameState.Played : GameState.Pending);
         if (Away.ManOfTheMatch != null)
         {
-            visitor.VisitManOfTheMatch(Away.ManOfTheMatch);
+            visitor.VisitManOfTheMatch(scope, Away.ManOfTheMatch);
         }
 
         var gameScore = new GameScoreVisitor(Home, Away);
         foreach (var match in Matches)
         {
-            match.Accept(gameScore);
-            match.Accept(visitor);
+            match.Accept(scope, gameScore);
+            match.Accept(scope, visitor);
         }
 
-        gameScore.Accept(visitor);
+        gameScore.Accept(scope, visitor);
 
         if (AccoladesCount)
         {
             foreach (var player in OneEighties)
             {
-                visitor.VisitOneEighty(player);
+                visitor.VisitOneEighty(scope, player);
             }
 
             foreach (var player in Over100Checkouts)
             {
-                visitor.VisitHiCheckout(player);
+                visitor.VisitHiCheckout(scope, player);
             }
         }
     }
@@ -162,7 +164,7 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             _away = away;
         }
 
-        public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
+        public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
         {
             if (players.Count == 0)
             {
@@ -180,21 +182,21 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             }
         }
 
-        public void Accept(IGameVisitor visitor)
+        public void Accept(IVisitorScope scope, IGameVisitor visitor)
         {
             if (_homeScore > _awayScore)
             {
-                visitor.VisitGameWinner(_home);
-                visitor.VisitGameLoser(_away);
+                visitor.VisitGameWinner(scope, _home);
+                visitor.VisitGameLoser(scope, _away);
             }
             else if (_awayScore > _homeScore)
             {
-                visitor.VisitGameWinner(_away);
-                visitor.VisitGameLoser(_home);
+                visitor.VisitGameWinner(scope, _away);
+                visitor.VisitGameLoser(scope, _home);
             }
             else if (_homeScore == _awayScore && _homeScore > 0)
             {
-                visitor.VisitGameDraw(_home, _away);
+                visitor.VisitGameDraw(scope, _home, _away);
             }
         }
     }
