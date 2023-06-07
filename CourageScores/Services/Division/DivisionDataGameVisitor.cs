@@ -43,6 +43,12 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
+        if (scope.Game?.IsKnockout == true)
+        {
+            // don't include knockout wins/losses in players table
+            return;
+        }
+
         var winRateRecorded = false;
         foreach (var player in players)
         {
@@ -73,6 +79,12 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitMatchLost(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
+        if (scope.Game?.IsKnockout == true)
+        {
+            // don't include knockout wins/losses in players table
+            return;
+        }
+
         var winRateRecorded = false;
         foreach (var player in players)
         {
@@ -149,6 +161,12 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGameDraw(IVisitorScope scope, GameTeam home, GameTeam away)
     {
+        if (scope.Game?.IsKnockout == true)
+        {
+            // don't include knockout draws in teams table
+            return;
+        }
+
         if (!_divisionData.Teams.TryGetValue(home.Id, out var homeScore))
         {
             homeScore = new DivisionData.TeamScore();
@@ -168,6 +186,12 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGameWinner(IVisitorScope scope, GameTeam team)
     {
+        if (scope.Game?.IsKnockout == true)
+        {
+            // don't include knockout wins in teams table
+            return;
+        }
+
         if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
             score = new DivisionData.TeamScore();
@@ -179,6 +203,12 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitGameLoser(IVisitorScope scope, GameTeam team)
     {
+        if (scope.Game?.IsKnockout == true)
+        {
+            // don't include knockout losses in teams table
+            return;
+        }
+
         if (!_divisionData.Teams.TryGetValue(team.Id, out var score))
         {
             score = new DivisionData.TeamScore();
