@@ -15,12 +15,24 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
 
     protected override Task<CommandResult> ApplyUpdates(FixtureDateNote model, EditFixtureDateNoteDto update, CancellationToken token)
     {
+        var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(model, update);
+
         model.Date = update.Date;
         model.Note = update.Note.Trim();
         model.SeasonId = update.SeasonId;
         model.DivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
-        _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
         return Task.FromResult(CommandResult.SuccessNoMessage);
+    }
+
+    private static Guid GetDivisionIdToEvictFromCache(FixtureDateNote model, EditFixtureDateNoteDto update)
+    {
+        if (model.DivisionId == update.DivisionId)
+        {
+            return model.DivisionId ?? ScopedCacheManagementFlags.EvictAll;
+        }
+
+        return ScopedCacheManagementFlags.EvictAll;
     }
 }

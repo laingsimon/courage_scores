@@ -33,14 +33,14 @@ public class CachingDivisionService : ICachingDivisionService
         if (divisionId != null)
         {
             // invalidate caches where division id matches, any season id
-            var keys = CacheKeys.Where(key => key.Filter.DivisionId == divisionId.Value || divisionId == Guid.Empty).ToArray();
+            var keys = CacheKeys.Where(key => key.Filter.DivisionId == divisionId.Value || (divisionId == Guid.Empty && key.Filter.DivisionId != null)).ToArray();
             InvalidateCaches(keys);
         }
 
         if (seasonId != null)
         {
             // invalidate caches where season id matches, any division id
-            var keys = CacheKeys.Where(key => key.Filter.SeasonId == seasonId.Value || seasonId == Guid.Empty).ToArray();
+            var keys = CacheKeys.Where(key => key.Filter.SeasonId == seasonId.Value || (seasonId == Guid.Empty && key.Filter.SeasonId != null)).ToArray();
             InvalidateCaches(keys);
         }
 
