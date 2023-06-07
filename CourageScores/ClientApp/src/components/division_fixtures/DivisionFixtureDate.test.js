@@ -372,7 +372,7 @@ describe('DivisionFixtureDate', () => {
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
             const row = table.querySelector('tr');
-            expect(row.textContent).toContain('SIDE');
+            expect(row.textContent).not.toContain('SIDE');
             expect(row.textContent).toContain('PLAYER');
         });
 

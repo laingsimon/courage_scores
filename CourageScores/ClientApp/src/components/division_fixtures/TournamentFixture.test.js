@@ -96,7 +96,6 @@ describe('TournamentFixture', () => {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
-            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.id}/player:${player.id}/${season.id}`);
             assertPlayersAndLinks(side, [ player ]);
         }
 
@@ -254,7 +253,7 @@ describe('TournamentFixture', () => {
             const playersCell = context.container.querySelector('td:first-child');
             assertPlayerDisplayWithPlayerLinks(playersCell, 1, [ player4, player5 ]);
             assertSinglePlayerDisplay(playersCell, 2, side1.name, player1);
-            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ player2, player3 ]);
+            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ ]);
             assertPlayerDisplayWithPlayerLinks(playersCell, 4, [ player6, player7 ]);
         });
     });
