@@ -2,5 +2,5 @@ namespace CourageScores.Models.Cosmos.Game;
 
 public interface IGameVisitable
 {
-    void Accept(IGameVisitor visitor);
+    void Accept(IVisitorScope scope, IGameVisitor visitor);
 }

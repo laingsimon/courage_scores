@@ -29,8 +29,8 @@ public class TournamentMatch : AuditedEntity, IGameVisitable
 
     public ScoreAsYouGo? Sayg { get; set; }
 
-    public void Accept(IGameVisitor visitor)
+    public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
-        visitor.VisitMatch(this);
+        visitor.VisitMatch(scope, this);
     }
 }
