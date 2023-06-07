@@ -4,7 +4,7 @@ import {cleanUp, renderApp, doClick, findButton, doChange} from "../../helpers/t
 import React from "react";
 import {DivisionPlayer} from "./DivisionPlayer";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {createTemporaryId} from "../../helpers/projection";
+import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
 
 describe('DivisionPlayer', () => {
     let context;
@@ -200,7 +200,7 @@ describe('DivisionPlayer', () => {
 
             it('team name only if no team id', async () => {
                 const noTeamPlayer = Object.assign({}, player);
-                noTeamPlayer.teamId = '00000000-0000-0000-0000-000000000000';
+                noTeamPlayer.teamId = EMPTY_ID;
                 await renderComponent({
                         player: noTeamPlayer,
                         hideVenue: false

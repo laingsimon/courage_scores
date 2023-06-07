@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
-import {createTemporaryId} from "../../../helpers/projection";
+import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 import {valueChanged} from "../../../helpers/events";
 import {toMap, sortBy, any, isEmpty} from "../../../helpers/collections";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
@@ -195,7 +195,7 @@ export function TournamentSide({ seasonId, side, onChange, otherSides, winner, r
 
         return (<ol className="no-list-indent">
             {side.players.map(p => (<li key={p.id}>
-                {p.divisionId && p.divisionId !== '00000000-0000-0000-0000-000000000000' ? (<Link to={`/division/${p.divisionId}/player:${p.id}/${seasonId}`}>{p.name}</Link>) : p.name}
+                {p.divisionId && p.divisionId !== EMPTY_ID ? (<Link to={`/division/${p.divisionId}/player:${p.id}/${seasonId}`}>{p.name}</Link>) : p.name}
             </li>))}
         </ol>);
     }
@@ -206,7 +206,7 @@ export function TournamentSide({ seasonId, side, onChange, otherSides, winner, r
            : null;
 
         let name = side.name;
-        if (singlePlayer && singlePlayer.divisionId && singlePlayer.divisionId !== '00000000-0000-0000-0000-000000000000') {
+        if (singlePlayer && singlePlayer.divisionId && singlePlayer.divisionId !== EMPTY_ID) {
             name = (<Link to={`/division/${singlePlayer.divisionId}/player:${singlePlayer.id}/${seasonId}`}>{side.name}</Link>);
         } else if (side.teamId && teamMap[side.teamId]) {
             const team = side.teamId ? teamMap[side.teamId] : null;

@@ -3,6 +3,7 @@ import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from "react-router-dom";
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
+import {EMPTY_ID} from "../../../helpers/projection";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {
     const [player, setPlayer] = useState(null);
@@ -44,7 +45,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
 
     function renderLinkToPlayer(p) {
         const divId = (divisionId || p.divisionId);
-        if (divId && divId !== '00000000-0000-0000-0000-000000000000' && seasonId) {
+        if (divId && divId !== EMPTY_ID && seasonId) {
             return (<Link to={`/division/${divId}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
         }
 

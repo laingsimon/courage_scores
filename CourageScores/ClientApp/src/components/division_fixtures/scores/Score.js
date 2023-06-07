@@ -7,7 +7,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
 import {any, elementAt, isEmpty, sortBy} from "../../../helpers/collections";
 import {propChanged} from "../../../helpers/events";
-import {repeat} from "../../../helpers/projection";
+import {EMPTY_ID, repeat} from "../../../helpers/projection";
 import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
@@ -447,8 +447,8 @@ export function Score() {
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
-        const season = seasons[fixtureData.seasonId] || { id: '00000', name: 'Not found' };
-        const division = divisions[fixtureData.divisionId] || { id: '00000', name: 'Not found' };
+        const season = seasons[fixtureData.seasonId] || { id: EMPTY_ID, name: 'Not found' };
+        const division = divisions[fixtureData.divisionId] || { id: EMPTY_ID, name: 'Not found' };
 
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {

@@ -14,6 +14,7 @@ import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
+import {EMPTY_ID} from "../../../helpers/projection";
 
 export function Tournament() {
     const { tournamentId } = useParams();
@@ -69,8 +70,7 @@ export function Tournament() {
             setTournamentData(tournamentData);
 
             const allPlayers = getAllPlayers(tournamentData);
-            const anyDivisionId = '00000000-0000-0000-0000-000000000000';
-            const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
+            const divisionData = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
             const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(sortBy('name'));
@@ -160,7 +160,7 @@ export function Tournament() {
     }
 
     try {
-        const season = seasons[tournamentData.seasonId];
+        const season = tournamentData ? seasons[tournamentData.seasonId] : { id: EMPTY_ID, name: 'Not found' };
         if (!season) {
             // noinspection ExceptionCaughtLocallyJS
             throw new Error('Could not find the season for this tournament');

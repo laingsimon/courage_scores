@@ -4,10 +4,9 @@ import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../helper
 import React from "react";
 import {Tournament} from "./Tournament";
 import {toMap, any} from "../../../helpers/collections";
-import {createTemporaryId} from "../../../helpers/projection";
+import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 
 describe('Tournament', () => {
-    const EMPTY_ID = '00000000-0000-0000-0000-000000000000';
     let context;
     let reportedError;
     let teamsReloaded;

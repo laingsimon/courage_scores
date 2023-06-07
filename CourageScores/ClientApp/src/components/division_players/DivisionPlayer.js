@@ -7,6 +7,7 @@ import {propChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {EMPTY_ID} from "../../helpers/projection";
 
 export function DivisionPlayer({ player, hideVenue }) {
     const { account, reloadTeams } = useApp();
@@ -87,7 +88,7 @@ export function DivisionPlayer({ player, hideVenue }) {
         {hideVenue
             ? null
             : (<td>
-                {team.id === '00000000-0000-0000-0000-000000000000'
+                {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
                     : (<Link disabled={deleting} to={`/division/${divisionId}/team:${team.id}/${season.id}`} className="margin-right">
                         {deleting ? (<s>{player.team}</s>) : player.team}

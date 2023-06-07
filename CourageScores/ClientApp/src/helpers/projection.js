@@ -20,3 +20,5 @@ export function repeat(times, itemProvider) {
     }
     return items;
 }
+
+export const EMPTY_ID = '00000000-0000-0000-0000-000000000000';
