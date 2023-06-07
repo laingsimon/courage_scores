@@ -10,6 +10,7 @@ namespace CourageScores.Tests.Services.Report;
 public class RequestedDivisionOnlyReportTests
 {
     private readonly CancellationToken _token = new CancellationToken();
+    private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [Test]
     public async Task GetReport_ReturnsUnderlyingReport()
@@ -70,10 +71,10 @@ public class RequestedDivisionOnlyReportTests
         report.VisitGame(game);
 
         report.VisitGame(new CourageScores.Models.Cosmos.Game.Game { DivisionId = Guid.NewGuid() });
-        report.VisitMatch(new GameMatch());
+        report.VisitMatch(VisitorScope, new GameMatch());
 
         underlying.Verify(r => r.VisitGame(It.IsAny<CourageScores.Models.Cosmos.Game.Game>()), Times.Once);
-        underlying.Verify(r => r.VisitMatch(It.IsAny<GameMatch>()), Times.Never);
+        underlying.Verify(r => r.VisitMatch(It.IsAny<IVisitorScope>(), It.IsAny<GameMatch>()), Times.Never);
     }
 
     [Test]
@@ -88,9 +89,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitMatch(match);
+        report.VisitMatch(VisitorScope, match);
 
-        underlying.Verify(r => r.VisitMatch(match));
+        underlying.Verify(r => r.VisitMatch(VisitorScope, match));
     }
 
     [Test]
@@ -105,9 +106,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitMatch(match);
+        report.VisitMatch(VisitorScope, match);
 
-        underlying.Verify(r => r.VisitMatch(It.IsAny<GameMatch>()), Times.Never);
+        underlying.Verify(r => r.VisitMatch(It.IsAny<IVisitorScope>(), It.IsAny<GameMatch>()), Times.Never);
     }
 
     [Test]
@@ -121,9 +122,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitMatchWin(Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
+        report.VisitMatchWin(VisitorScope, Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
 
-        underlying.Verify(r => r.VisitMatchWin(It.IsAny<IReadOnlyCollection<GamePlayer>>(), TeamDesignation.Away, 1, 2));
+        underlying.Verify(r => r.VisitMatchWin(VisitorScope, It.IsAny<IReadOnlyCollection<GamePlayer>>(), TeamDesignation.Away, 1, 2));
     }
 
     [Test]
@@ -137,9 +138,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitMatchWin(Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
+        report.VisitMatchWin(VisitorScope, Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
 
-        underlying.Verify(r => r.VisitMatchWin(It.IsAny<IReadOnlyCollection<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        underlying.Verify(r => r.VisitMatchWin(VisitorScope, It.IsAny<IReadOnlyCollection<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Test]
@@ -153,9 +154,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitMatchLost(Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
+        report.VisitMatchLost(VisitorScope, Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
 
-        underlying.Verify(r => r.VisitMatchLost(It.IsAny<IReadOnlyCollection<GamePlayer>>(), TeamDesignation.Away, 1, 2));
+        underlying.Verify(r => r.VisitMatchLost(VisitorScope, It.IsAny<IReadOnlyCollection<GamePlayer>>(), TeamDesignation.Away, 1, 2));
     }
 
     [Test]
@@ -169,9 +170,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitMatchLost(Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
+        report.VisitMatchLost(VisitorScope, Array.Empty<GamePlayer>(), TeamDesignation.Away, 1, 2);
 
-        underlying.Verify(r => r.VisitMatchLost(It.IsAny<IReadOnlyCollection<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        underlying.Verify(r => r.VisitMatchLost(It.IsAny<IVisitorScope>(), It.IsAny<IReadOnlyCollection<GamePlayer>>(), It.IsAny<TeamDesignation>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
     [Test]
@@ -185,9 +186,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitOneEighty(new GamePlayer());
+        report.VisitOneEighty(VisitorScope, new GamePlayer());
 
-        underlying.Verify(r => r.VisitOneEighty(It.IsAny<GamePlayer>()));
+        underlying.Verify(r => r.VisitOneEighty(VisitorScope, It.IsAny<GamePlayer>()));
     }
 
     [Test]
@@ -201,9 +202,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitOneEighty(new GamePlayer());
+        report.VisitOneEighty(VisitorScope, new GamePlayer());
 
-        underlying.Verify(r => r.VisitOneEighty(It.IsAny<GamePlayer>()), Times.Never);
+        underlying.Verify(r => r.VisitOneEighty(It.IsAny<IVisitorScope>(), It.IsAny<GamePlayer>()), Times.Never);
     }
 
     [Test]
@@ -217,9 +218,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitHiCheckout(new NotablePlayer());
+        report.VisitHiCheckout(VisitorScope, new NotablePlayer());
 
-        underlying.Verify(r => r.VisitHiCheckout(It.IsAny<NotablePlayer>()));
+        underlying.Verify(r => r.VisitHiCheckout(VisitorScope, It.IsAny<NotablePlayer>()));
     }
 
     [Test]
@@ -233,9 +234,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitHiCheckout(new NotablePlayer());
+        report.VisitHiCheckout(VisitorScope, new NotablePlayer());
 
-        underlying.Verify(r => r.VisitHiCheckout(It.IsAny<NotablePlayer>()), Times.Never);
+        underlying.Verify(r => r.VisitHiCheckout(It.IsAny<IVisitorScope>(), It.IsAny<NotablePlayer>()), Times.Never);
     }
 
     [Test]
@@ -249,9 +250,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitTeam(new GameTeam(), GameState.Pending);
+        report.VisitTeam(VisitorScope, new GameTeam(), GameState.Pending);
 
-        underlying.Verify(r => r.VisitTeam(It.IsAny<GameTeam>(), GameState.Pending));
+        underlying.Verify(r => r.VisitTeam(VisitorScope, It.IsAny<GameTeam>(), GameState.Pending));
     }
 
     [Test]
@@ -265,9 +266,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitTeam(new GameTeam(), GameState.Pending);
+        report.VisitTeam(VisitorScope, new GameTeam(), GameState.Pending);
 
-        underlying.Verify(r => r.VisitTeam(It.IsAny<GameTeam>(), It.IsAny<GameState>()), Times.Never);
+        underlying.Verify(r => r.VisitTeam(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>(), It.IsAny<GameState>()), Times.Never);
     }
 
     [Test]
@@ -281,9 +282,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitManOfTheMatch(Guid.NewGuid());
+        report.VisitManOfTheMatch(VisitorScope, Guid.NewGuid());
 
-        underlying.Verify(r => r.VisitManOfTheMatch(It.IsAny<Guid>()));
+        underlying.Verify(r => r.VisitManOfTheMatch(VisitorScope, It.IsAny<Guid>()));
     }
 
     [Test]
@@ -297,9 +298,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitManOfTheMatch(Guid.NewGuid());
+        report.VisitManOfTheMatch(VisitorScope, Guid.NewGuid());
 
-        underlying.Verify(r => r.VisitManOfTheMatch(It.IsAny<Guid>()), Times.Never);
+        underlying.Verify(r => r.VisitManOfTheMatch(It.IsAny<IVisitorScope>(), It.IsAny<Guid>()), Times.Never);
     }
 
     [Test]
@@ -313,9 +314,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitPlayer(new GamePlayer(), 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer(), 1);
 
-        underlying.Verify(r => r.VisitPlayer(It.IsAny<GamePlayer>(), 1));
+        underlying.Verify(r => r.VisitPlayer(VisitorScope, It.IsAny<GamePlayer>(), 1));
     }
 
     [Test]
@@ -329,9 +330,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitPlayer(new GamePlayer(), 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer(), 1);
 
-        underlying.Verify(r => r.VisitPlayer(It.IsAny<GamePlayer>(), It.IsAny<int>()), Times.Never);
+        underlying.Verify(r => r.VisitPlayer(It.IsAny<IVisitorScope>(), It.IsAny<GamePlayer>(), It.IsAny<int>()), Times.Never);
     }
 
     [Test]
@@ -345,9 +346,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitGameDraw(new GameTeam(), new GameTeam());
+        report.VisitGameDraw(VisitorScope, new GameTeam(), new GameTeam());
 
-        underlying.Verify(r => r.VisitGameDraw(It.IsAny<GameTeam>(), It.IsAny<GameTeam>()));
+        underlying.Verify(r => r.VisitGameDraw(VisitorScope, It.IsAny<GameTeam>(), It.IsAny<GameTeam>()));
     }
 
     [Test]
@@ -361,9 +362,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitGameDraw(new GameTeam(), new GameTeam());
+        report.VisitGameDraw(VisitorScope, new GameTeam(), new GameTeam());
 
-        underlying.Verify(r => r.VisitGameDraw(It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
+        underlying.Verify(r => r.VisitGameDraw(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -377,9 +378,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitGameWinner(new GameTeam());
+        report.VisitGameWinner(VisitorScope, new GameTeam());
 
-        underlying.Verify(r => r.VisitGameWinner(It.IsAny<GameTeam>()));
+        underlying.Verify(r => r.VisitGameWinner(VisitorScope, It.IsAny<GameTeam>()));
     }
 
     [Test]
@@ -393,9 +394,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitGameWinner(new GameTeam());
+        report.VisitGameWinner(VisitorScope, new GameTeam());
 
-        underlying.Verify(r => r.VisitGameWinner(It.IsAny<GameTeam>()), Times.Never);
+        underlying.Verify(r => r.VisitGameWinner(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -409,9 +410,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitGameLoser(new GameTeam());
+        report.VisitGameLoser(VisitorScope, new GameTeam());
 
-        underlying.Verify(r => r.VisitGameLoser(It.IsAny<GameTeam>()));
+        underlying.Verify(r => r.VisitGameLoser(VisitorScope, It.IsAny<GameTeam>()));
     }
 
     [Test]
@@ -425,9 +426,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitGameLoser(new GameTeam());
+        report.VisitGameLoser(VisitorScope, new GameTeam());
 
-        underlying.Verify(r => r.VisitGameLoser(It.IsAny<GameTeam>()), Times.Never);
+        underlying.Verify(r => r.VisitGameLoser(It.IsAny<IVisitorScope>(), It.IsAny<GameTeam>()), Times.Never);
     }
 
     [Test]
@@ -441,9 +442,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitDataError("error");
+        report.VisitDataError(VisitorScope, "error");
 
-        underlying.Verify(r => r.VisitDataError("error"));
+        underlying.Verify(r => r.VisitDataError(VisitorScope, "error"));
     }
 
     [Test]
@@ -457,9 +458,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitDataError("error");
+        report.VisitDataError(VisitorScope, "error");
 
-        underlying.Verify(r => r.VisitDataError(It.IsAny<string>()), Times.Never);
+        underlying.Verify(r => r.VisitDataError(It.IsAny<IVisitorScope>(), It.IsAny<string>()), Times.Never);
     }
 
     [Test]
@@ -504,10 +505,10 @@ public class RequestedDivisionOnlyReportTests
         report.VisitGame(game);
 
         report.VisitGame(new TournamentGame { DivisionId = Guid.NewGuid() });
-        report.VisitMatch(new TournamentMatch());
+        report.VisitMatch(VisitorScope, new TournamentMatch());
 
         underlying.Verify(r => r.VisitGame(It.IsAny<TournamentGame>()), Times.Once);
-        underlying.Verify(r => r.VisitMatch(It.IsAny<TournamentMatch>()), Times.Never);
+        underlying.Verify(r => r.VisitMatch(It.IsAny<IVisitorScope>(), It.IsAny<TournamentMatch>()), Times.Never);
     }
 
     [Test]
@@ -521,9 +522,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitTournamentPlayer(new TournamentPlayer());
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer());
 
-        underlying.Verify(r => r.VisitTournamentPlayer(It.IsAny<TournamentPlayer>()));
+        underlying.Verify(r => r.VisitTournamentPlayer(VisitorScope, It.IsAny<TournamentPlayer>()));
     }
 
     [Test]
@@ -537,9 +538,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitTournamentPlayer(new TournamentPlayer());
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer());
 
-        underlying.Verify(r => r.VisitTournamentPlayer(It.IsAny<TournamentPlayer>()), Times.Never);
+        underlying.Verify(r => r.VisitTournamentPlayer(It.IsAny<IVisitorScope>(), It.IsAny<TournamentPlayer>()), Times.Never);
     }
 
     [Test]
@@ -553,9 +554,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitRound(new TournamentRound());
+        report.VisitRound(VisitorScope, new TournamentRound());
 
-        underlying.Verify(r => r.VisitRound(It.IsAny<TournamentRound>()));
+        underlying.Verify(r => r.VisitRound(VisitorScope, It.IsAny<TournamentRound>()));
     }
 
     [Test]
@@ -569,9 +570,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitRound(new TournamentRound());
+        report.VisitRound(VisitorScope, new TournamentRound());
 
-        underlying.Verify(r => r.VisitRound(It.IsAny<TournamentRound>()), Times.Never);
+        underlying.Verify(r => r.VisitRound(It.IsAny<IVisitorScope>(), It.IsAny<TournamentRound>()), Times.Never);
     }
 
     [Test]
@@ -585,9 +586,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitFinal(new TournamentMatch());
+        report.VisitFinal(VisitorScope, new TournamentMatch());
 
-        underlying.Verify(r => r.VisitFinal(It.IsAny<TournamentMatch>()));
+        underlying.Verify(r => r.VisitFinal(VisitorScope, It.IsAny<TournamentMatch>()));
     }
 
     [Test]
@@ -601,9 +602,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitFinal(new TournamentMatch());
+        report.VisitFinal(VisitorScope, new TournamentMatch());
 
-        underlying.Verify(r => r.VisitFinal(It.IsAny<TournamentMatch>()), Times.Never);
+        underlying.Verify(r => r.VisitFinal(It.IsAny<IVisitorScope>(), It.IsAny<TournamentMatch>()), Times.Never);
     }
 
     [Test]
@@ -617,9 +618,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitTournamentWinner(new TournamentSide());
+        report.VisitTournamentWinner(VisitorScope, new TournamentSide());
 
-        underlying.Verify(r => r.VisitTournamentWinner(It.IsAny<TournamentSide>()));
+        underlying.Verify(r => r.VisitTournamentWinner(VisitorScope, It.IsAny<TournamentSide>()));
     }
 
     [Test]
@@ -633,9 +634,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitTournamentWinner(new TournamentSide());
+        report.VisitTournamentWinner(VisitorScope, new TournamentSide());
 
-        underlying.Verify(r => r.VisitTournamentWinner(It.IsAny<TournamentSide>()), Times.Never);
+        underlying.Verify(r => r.VisitTournamentWinner(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
     }
 
     [Test]
@@ -649,9 +650,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitMatch(new TournamentMatch());
+        report.VisitMatch(VisitorScope, new TournamentMatch());
 
-        underlying.Verify(r => r.VisitMatch(It.IsAny<TournamentMatch>()));
+        underlying.Verify(r => r.VisitMatch(VisitorScope, It.IsAny<TournamentMatch>()));
     }
 
     [Test]
@@ -665,9 +666,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitMatch(new TournamentMatch());
+        report.VisitMatch(VisitorScope, new TournamentMatch());
 
-        underlying.Verify(r => r.VisitMatch(It.IsAny<TournamentMatch>()), Times.Never);
+        underlying.Verify(r => r.VisitMatch(It.IsAny<IVisitorScope>(), It.IsAny<TournamentMatch>()), Times.Never);
     }
 
     [Test]
@@ -681,9 +682,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitSide(new TournamentSide());
+        report.VisitSide(VisitorScope, new TournamentSide());
 
-        underlying.Verify(r => r.VisitSide(It.IsAny<TournamentSide>()));
+        underlying.Verify(r => r.VisitSide(VisitorScope, It.IsAny<TournamentSide>()));
     }
 
     [Test]
@@ -697,9 +698,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitSide(new TournamentSide());
+        report.VisitSide(VisitorScope, new TournamentSide());
 
-        underlying.Verify(r => r.VisitSide(It.IsAny<TournamentSide>()), Times.Never);
+        underlying.Verify(r => r.VisitSide(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
     }
 
     [Test]
@@ -713,9 +714,9 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitDataError("error");
+        report.VisitDataError(VisitorScope, "error");
 
-        underlying.Verify(r => r.VisitDataError("error"));
+        underlying.Verify(r => r.VisitDataError(VisitorScope, "error"));
     }
 
     [Test]
@@ -729,8 +730,8 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
-        report.VisitDataError("error");
+        report.VisitDataError(VisitorScope, "error");
 
-        underlying.Verify(r => r.VisitDataError(It.IsAny<string>()), Times.Never);
+        underlying.Verify(r => r.VisitDataError(It.IsAny<IVisitorScope>(), It.IsAny<string>()), Times.Never);
     }
 }

@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters.Division;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
@@ -36,13 +37,14 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData);
+        var visitorScope = new VisitorScope();
         foreach (var game in context.AllGames())
         {
-            game.Accept(gameVisitor);
+            game.Accept(visitorScope, gameVisitor);
         }
         foreach (var tournamentGame in context.AllTournamentGames(division?.Id))
         {
-            tournamentGame.Accept(gameVisitor);
+            tournamentGame.Accept(visitorScope, gameVisitor);
         }
 
         var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);

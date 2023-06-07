@@ -34,39 +34,39 @@ public class GameMatch : AuditedEntity, IGameVisitable
 
     public ScoreAsYouGo? Sayg { get; set; }
 
-    public void Accept(IGameVisitor visitor)
+    public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
-        visitor.VisitMatch(this);
+        visitor.VisitMatch(scope, this);
 
         if (HomePlayers.Count != AwayPlayers.Count)
         {
             var homePlayerList = string.Join(", ", HomePlayers.Select(p => p.Name));
             var awayPlayerList = string.Join(", ", AwayPlayers.Select(p => p.Name));
-            visitor.VisitDataError($"Mismatching number of players: Home players ({HomePlayers.Count}): [{homePlayerList}] vs Away players ({AwayPlayers.Count}): [{awayPlayerList}]");
+            visitor.VisitDataError(scope, $"Mismatching number of players: Home players ({HomePlayers.Count}): [{homePlayerList}] vs Away players ({AwayPlayers.Count}): [{awayPlayerList}]");
             return;
         }
 
         foreach (var player in HomePlayers)
         {
-            visitor.VisitPlayer(player, HomePlayers.Count);
+            visitor.VisitPlayer(scope, player, HomePlayers.Count);
         }
 
         foreach (var player in AwayPlayers)
         {
-            visitor.VisitPlayer(player, AwayPlayers.Count);
+            visitor.VisitPlayer(scope, player, AwayPlayers.Count);
         }
 
         if (HomeScore.HasValue && AwayScore.HasValue)
         {
             if (HomeScore > AwayScore)
             {
-                visitor.VisitMatchWin(HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
-                visitor.VisitMatchLost(AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
+                visitor.VisitMatchWin(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
+                visitor.VisitMatchLost(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
             }
             else if (AwayScore > HomeScore)
             {
-                visitor.VisitMatchWin(AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
-                visitor.VisitMatchLost(HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
+                visitor.VisitMatchWin(scope, AwayPlayers, TeamDesignation.Away, AwayScore.Value, HomeScore.Value);
+                visitor.VisitMatchLost(scope, HomePlayers, TeamDesignation.Home, HomeScore.Value, AwayScore.Value);
             }
 
             // must be a 0-0 record (i.e. not played) - draw's aren't possible in matches (legs are 3,5 or 7 normally)

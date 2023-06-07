@@ -17,13 +17,13 @@ public class TournamentSide : AuditedEntity, IGameVisitable
     /// </summary>
     public List<TournamentPlayer> Players { get; set; } = new();
 
-    public void Accept(IGameVisitor visitor)
+    public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
-        visitor.VisitSide(this);
+        visitor.VisitSide(scope, this);
 
         foreach (var player in Players)
         {
-            visitor.VisitTournamentPlayer(player);
+            visitor.VisitTournamentPlayer(scope, player);
         }
     }
 }

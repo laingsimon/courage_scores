@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Repository;
@@ -50,12 +51,13 @@ public class ReportService : IReportService
         var games = _gameRepository.GetSome($"t.SeasonId = '{request.SeasonId}'", token);
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
+        var visitorScope = new VisitorScope();
 
         await foreach (var game in games.WithCancellation(token))
         {
             gameCount++;
-            game.Accept(playerLookup);
-            game.Accept(reportVisitor);
+            game.Accept(visitorScope, playerLookup);
+            game.Accept(visitorScope, reportVisitor);
         }
 
         return new ReportCollectionDto
