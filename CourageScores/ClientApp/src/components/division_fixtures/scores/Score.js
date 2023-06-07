@@ -39,8 +39,6 @@ export function Score() {
     const [allPlayers, setAllPlayers] = useState([]);
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
-    const [season, setSeason] = useState(null);
-    const [division, setDivision] = useState(null);
     const [submission, setSubmission] = useState(null);
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
@@ -266,30 +264,12 @@ export function Score() {
 
             setFixtureData(gameData);
             setData(gameData);
-
-            const season = seasons[gameData.seasonId];
-            setSeason(season || { id: '00000', name: 'Not found' });
-
-            const division = divisions[gameData.divisionId];
-            setDivision(division || { id: '00000', name: 'Not found' });
         } catch (e) {
             onError(e);
         } finally {
             setLoading('ready');
         }
     }
-
-    useEffect(() => {
-            if (!fixtureData || !divisions) {
-                return;
-            }
-
-            const division = divisions[fixtureData.divisionId];
-            if (division) {
-                setDivision(division);
-            }
-        },
-        [ divisions, fixtureData, data ]);
 
     async function saveScores() {
         /* istanbul ignore next */
@@ -467,6 +447,9 @@ export function Score() {
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
+        const season = seasons[fixtureData.seasonId] || { id: '00000', name: 'Not found' };
+        const division = divisions[fixtureData.divisionId] || { id: '00000', name: 'Not found' };
+
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
             seasonId: season.id,

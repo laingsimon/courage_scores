@@ -26,7 +26,6 @@ export function Tournament() {
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
-    const [season, setSeason] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
@@ -69,12 +68,6 @@ export function Tournament() {
 
             setTournamentData(tournamentData);
 
-            const season = seasons[tournamentData.seasonId];
-            if (!season) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new Error('Could not find the season for this tournament');
-            }
-
             const allPlayers = getAllPlayers(tournamentData);
             const anyDivisionId = '00000000-0000-0000-0000-000000000000';
             const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
@@ -86,7 +79,6 @@ export function Tournament() {
             tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
 
             setAlreadyPlaying(tournamentPlayerMap);
-            setSeason(season);
             setAllPlayers(allPlayers);
         } catch (e) {
             onError(e);
@@ -143,7 +135,7 @@ export function Tournament() {
         }
     }
 
-    function renderCreatePlayerDialog() {
+    function renderCreatePlayerDialog(season) {
         return (<Dialog title={`Add a player...`}>
             <EditPlayerDetails
                 id={null}
@@ -168,6 +160,12 @@ export function Tournament() {
     }
 
     try {
+        const season = seasons[tournamentData.seasonId];
+        if (!season) {
+            // noinspection ExceptionCaughtLocallyJS
+            throw new Error('Could not find the season for this tournament');
+        }
+
         return (<div>
             <DivisionControls
                 originalSeasonData={season}
@@ -245,7 +243,7 @@ export function Tournament() {
             </div>) : (<div>Tournament not found</div>)}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}
-            {addPlayerDialogOpen ? renderCreatePlayerDialog() : null}
+            {addPlayerDialogOpen ? renderCreatePlayerDialog(season) : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */
