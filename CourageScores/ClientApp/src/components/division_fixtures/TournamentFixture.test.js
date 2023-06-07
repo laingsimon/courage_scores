@@ -14,6 +14,10 @@ describe('TournamentFixture', () => {
     let deletedId;
 
     const tournamentApi = {
+        create: async (data) => {
+            savedTournament = { data };
+            return { success: true };
+        },
         update: async (data, lastUpdated) => {
             savedTournament = { data, lastUpdated };
             return { success: true };
@@ -324,7 +328,6 @@ describe('TournamentFixture', () => {
             await doClick(addButton);
 
             expect(reportedError).toBeNull();
-            expect(savedTournament.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(savedTournament.data).toEqual({
                 date: '2023-05-06T00:00:00',
                 address: 'ADDRESS',
