@@ -14,6 +14,10 @@ describe('TournamentFixture', () => {
     let deletedId;
 
     const tournamentApi = {
+        create: async (data) => {
+            savedTournament = { data };
+            return { success: true };
+        },
         update: async (data, lastUpdated) => {
             savedTournament = { data, lastUpdated };
             return { success: true };
@@ -73,19 +77,9 @@ describe('TournamentFixture', () => {
         };
         const account = null;
 
-        function assertPlayerDisplayWithoutSideNameOrTeamLink(playersCell, ordinal, players) {
-            const side = playersCell.querySelector(`div.px-3 > span:nth-child(${ordinal})`);
-            expect(side).toBeTruthy();
-            players.forEach(player => {
-                expect(side.textContent).toContain(player.name);
-            });
-            expect(side.querySelector('a')).toBeFalsy();
-        }
-
-        function assertPlayerDisplayWithSideNameNoTeamLink(playersCell, ordinal, sideName, players) {
+        function assertPlayerDisplayWithPlayerLinks(playersCell, ordinal, players) {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
-            expect(side.querySelector('strong').textContent).toEqual(sideName);
 
             assertPlayersAndLinks(side, players);
         }
@@ -102,7 +96,6 @@ describe('TournamentFixture', () => {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
-            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.id}/player:${player.id}/${season.id}`);
             assertPlayersAndLinks(side, [ player ]);
         }
 
@@ -258,10 +251,10 @@ describe('TournamentFixture', () => {
 
             expect(reportedError).toBeNull();
             const playersCell = context.container.querySelector('td:first-child');
-            assertPlayerDisplayWithoutSideNameOrTeamLink(playersCell, 1, [ player4, player5 ]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 1, [ player4, player5 ]);
             assertSinglePlayerDisplay(playersCell, 2, side1.name, player1);
-            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ player2, player3 ]);
-            assertPlayerDisplayWithSideNameNoTeamLink(playersCell, 4, side4.name, [ player6, player7 ]);
+            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ ]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 4, [ player6, player7 ]);
         });
     });
 
@@ -324,7 +317,6 @@ describe('TournamentFixture', () => {
             await doClick(addButton);
 
             expect(reportedError).toBeNull();
-            expect(savedTournament.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(savedTournament.data).toEqual({
                 date: '2023-05-06T00:00:00',
                 address: 'ADDRESS',

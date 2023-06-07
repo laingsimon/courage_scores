@@ -32,6 +32,9 @@ describe('DivisionFixtures', () => {
     const tournamentApi = {
         update: async () => {
             return { success: true };
+        },
+        create: async () => {
+            return { success: true };
         }
     }
 
