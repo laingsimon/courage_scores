@@ -126,9 +126,11 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
             <ul className="list-group mb-3">
                 {seasons.sort(sortBy('startDate')).map(renderSeason)}
             </ul>
-            <div>
-                <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
-                <button className="btn btn-success margin-right" onClick={saveChanges} disabled={!changes.changed}>
+            <div className="modal-footer px-0">
+                <div className="left-aligned">
+                    <button className="btn btn-secondary" onClick={onClose}>Close</button>
+                </div>
+                <button className="btn btn-primary" onClick={saveChanges} disabled={!changes.changed}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}
                     Apply changes

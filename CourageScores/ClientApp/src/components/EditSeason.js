@@ -111,13 +111,15 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
                 {divisions.sort(sortBy('name')).map(d => (<li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`} onClick={async () => await toggleDivision(d.id)}>{d.name}</li>))}
             </ul>
         </div>
-        <div className="mt-3 text-end">
-            <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
+        <div className="modal-footer px-0">
+            <div className="left-aligned">
+                <button className="btn btn-secondary" onClick={onClose}>Close</button>
+            </div>
             {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteSeason}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Delete season
             </button>) : null}
-            <button className="btn btn-success margin-right" onClick={saveSeason}>
+            <button className="btn btn-primary" onClick={saveSeason}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 {data.id ? 'Update season' : 'Create season'}
             </button>

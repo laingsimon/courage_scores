@@ -77,11 +77,15 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
                 value={team.newDivisionId}
                 onChange={(newDivisionId) => onChange ? onChange('newDivisionId', newDivisionId) : null} />
         </div>
-        <button className="btn btn-primary margin-right" onClick={saveChanges}>
-            {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            {team.id ? 'Save team' : 'Add team'}
-        </button>
-        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+        <div className="modal-footer px-0">
+            <div className="left-aligned">
+                <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+            </div>
+            <button className="btn btn-primary" onClick={saveChanges}>
+                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {team.id ? 'Save team' : 'Add team'}
+            </button>
+        </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details" />) : null}
     </div>)
 }

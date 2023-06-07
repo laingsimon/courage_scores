@@ -372,3 +372,10 @@ input.no-spinner {
 .margin-right-50 {
   margin-right: 50px;
 }
+
+.left-aligned {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: auto;
+  margin: 0;
+}

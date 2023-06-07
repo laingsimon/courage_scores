@@ -130,11 +130,15 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
-        <button className="btn btn-primary margin-right" onClick={saveChanges}>
-            {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
-            {player.id ? 'Save player' : 'Add player'}
-        </button>
-        <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+        <div className="modal-footer px-0">
+            <div className="left-aligned">
+                <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
+            </div>
+            <button className="btn btn-primary" onClick={saveChanges}>
+                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {player.id ? 'Save player' : 'Add player'}
+            </button>
+        </div>
         {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save player details" />) : null}
     </div>)
 }
