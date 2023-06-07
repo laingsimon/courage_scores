@@ -24,7 +24,7 @@ public class HighestCheckoutReport : IReport
         };
     }
 
-    public void VisitHiCheckout(NotablePlayer player)
+    public void VisitHiCheckout(IVisitorScope visitorScope, INotablePlayer player)
     {
         if (!int.TryParse(player.Notes, out var checkout))
         {

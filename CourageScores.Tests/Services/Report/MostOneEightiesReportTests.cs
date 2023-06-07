@@ -14,6 +14,7 @@ public class MostOneEightiesReportTests
     private readonly PlayerDetails _dave = new PlayerDetails { PlayerName = "Dave", TeamName = "TEAM1", TeamId = Guid.NewGuid(), };
     private readonly PlayerDetails _jon = new PlayerDetails { PlayerName = "Jon", TeamName = "TEAM2", TeamId = Guid.NewGuid(), };
     private Mock<IPlayerLookup> _playerLookup = null!;
+    private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [SetUp]
     public void SetupEachTest()
@@ -39,8 +40,8 @@ public class MostOneEightiesReportTests
     public async Task GetReport_GivenOneEightyTwice_ReturnsRowOnce()
     {
         var report = new MostOneEightiesReport(topCount: 3);
-        report.VisitOneEighty(new GamePlayer { Id = _jonId });
-        report.VisitOneEighty(new GamePlayer { Id = _jonId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _jonId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _jonId });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -55,8 +56,8 @@ public class MostOneEightiesReportTests
     public async Task GetReport_GivenDifferentPlayersScoreOneEighty_ReturnsRowOnce()
     {
         var report = new MostOneEightiesReport(topCount: 3);
-        report.VisitOneEighty(new GamePlayer { Id = _jonId });
-        report.VisitOneEighty(new GamePlayer { Id = _daveId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _jonId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _daveId });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -71,11 +72,11 @@ public class MostOneEightiesReportTests
     public async Task GetReport_GivenMoreOneEightyPlayersThanLimit_ReturnsAtMostRowCount()
     {
         var report = new MostOneEightiesReport(topCount: 2);
-        report.VisitOneEighty(new GamePlayer { Id = _jonId });
-        report.VisitOneEighty(new GamePlayer { Id = _jonId });
-        report.VisitOneEighty(new GamePlayer { Id = _daveId });
-        report.VisitOneEighty(new GamePlayer { Id = _daveId });
-        report.VisitOneEighty(new GamePlayer { Id = Guid.NewGuid() });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _jonId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _jonId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _daveId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = _daveId });
+        report.VisitOneEighty(VisitorScope, new GamePlayer { Id = Guid.NewGuid() });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 

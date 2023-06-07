@@ -28,72 +28,72 @@ public class CompositeGameVisitor : IGameVisitor
         ForEachVisitor(visitor => visitor.VisitGame(game));
     }
 
-    public void VisitMatch(GameMatch match)
+    public void VisitMatch(IVisitorScope scope, GameMatch match)
     {
-        ForEachVisitor(visitor => visitor.VisitMatch(match));
+        ForEachVisitor(visitor => visitor.VisitMatch(scope, match));
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
+    public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
-        ForEachVisitor(visitor => visitor.VisitMatchWin(players, team, winningScore, losingScore));
+        ForEachVisitor(visitor => visitor.VisitMatchWin(scope, players, team, winningScore, losingScore));
     }
 
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore,
+    public void VisitMatchLost(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore,
         int winningScore)
     {
-        ForEachVisitor(visitor => visitor.VisitMatchLost(players, team, losingScore, winningScore));
+        ForEachVisitor(visitor => visitor.VisitMatchLost(scope, players, team, losingScore, winningScore));
     }
 
-    public void VisitOneEighty(IGamePlayer player)
+    public void VisitOneEighty(IVisitorScope scope, IGamePlayer player)
     {
-        ForEachVisitor(visitor => visitor.VisitOneEighty(player));
+        ForEachVisitor(visitor => visitor.VisitOneEighty(scope, player));
     }
 
-    public void VisitHiCheckout(NotablePlayer player)
+    public void VisitHiCheckout(IVisitorScope scope, INotablePlayer player)
     {
-        ForEachVisitor(visitor => visitor.VisitHiCheckout(player));
+        ForEachVisitor(visitor => visitor.VisitHiCheckout(scope, player));
     }
 
-    public void VisitTeam(GameTeam team, GameState gameState)
+    public void VisitTeam(IVisitorScope scope, GameTeam team, GameState gameState)
     {
-        ForEachVisitor(visitor => visitor.VisitTeam(team, gameState));
+        ForEachVisitor(visitor => visitor.VisitTeam(scope, team, gameState));
     }
 
-    public void VisitManOfTheMatch(Guid? manOfTheMatch)
+    public void VisitManOfTheMatch(IVisitorScope scope, Guid? manOfTheMatch)
     {
         if (_canAccessManOfTheMatch)
         {
-            ForEachVisitor(visitor => visitor.VisitManOfTheMatch(manOfTheMatch));
+            ForEachVisitor(visitor => visitor.VisitManOfTheMatch(scope, manOfTheMatch));
         }
     }
 
-    public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+    public void VisitPlayer(IVisitorScope scope, GamePlayer player, int matchPlayerCount)
     {
-        ForEachVisitor(visitor => visitor.VisitPlayer(player, matchPlayerCount));
+        ForEachVisitor(visitor => visitor.VisitPlayer(scope, player, matchPlayerCount));
     }
 
-    public void VisitTournamentPlayer(TournamentPlayer player)
+    public void VisitTournamentPlayer(IVisitorScope scope, TournamentPlayer player)
     {
-        ForEachVisitor(visitor => visitor.VisitTournamentPlayer(player));
+        ForEachVisitor(visitor => visitor.VisitTournamentPlayer(scope, player));
     }
 
-    public void VisitGameDraw(GameTeam home, GameTeam away)
+    public void VisitGameDraw(IVisitorScope scope, GameTeam home, GameTeam away)
     {
-        ForEachVisitor(visitor => visitor.VisitGameDraw(home, away));
+        ForEachVisitor(visitor => visitor.VisitGameDraw(scope, home, away));
     }
 
-    public void VisitGameWinner(GameTeam team)
+    public void VisitGameWinner(IVisitorScope scope, GameTeam team)
     {
-        ForEachVisitor(visitor => visitor.VisitGameWinner(team));
+        ForEachVisitor(visitor => visitor.VisitGameWinner(scope, team));
     }
 
-    public void VisitGameLoser(GameTeam team)
+    public void VisitGameLoser(IVisitorScope scope, GameTeam team)
     {
-        ForEachVisitor(visitor => visitor.VisitGameLoser(team));
+        ForEachVisitor(visitor => visitor.VisitGameLoser(scope, team));
     }
 
-    public void VisitDataError(string dataError)
+    public void VisitDataError(IVisitorScope scope, string dataError)
     {
-        ForEachVisitor(visitor => visitor.VisitDataError(dataError));
+        ForEachVisitor(visitor => visitor.VisitDataError(scope, dataError));
     }
 }

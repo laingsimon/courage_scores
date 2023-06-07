@@ -30,32 +30,32 @@ public class TournamentRound : AuditedEntity, IGameVisitable
     /// </summary>
     public List<GameMatchOption?> MatchOptions { get; set; } = new();
 
-    public void Accept(IGameVisitor visitor)
+    public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
-        visitor.VisitRound(this);
+        visitor.VisitRound(scope, this);
 
         foreach (var match in Matches)
         {
-            match.Accept(visitor);
+            match.Accept(scope, visitor);
         }
 
-        NextRound?.Accept(visitor);
+        NextRound?.Accept(scope, visitor);
 
         if (Sides.Count == 2 && Matches.Count == 1)
         {
             // get the winner
             var match = Matches.Single();
-            visitor.VisitFinal(match);
+            visitor.VisitFinal(scope, match);
 
             if (match.ScoreA != null && match.ScoreB != null)
             {
                 if (match.ScoreA > match.ScoreB)
                 {
-                    visitor.VisitTournamentWinner(match.SideA);
+                    visitor.VisitTournamentWinner(scope, match.SideA);
                 }
                 else if (match.ScoreB > match.ScoreA)
                 {
-                    visitor.VisitTournamentWinner(match.SideB);
+                    visitor.VisitTournamentWinner(scope, match.SideB);
                 }
             }
         }

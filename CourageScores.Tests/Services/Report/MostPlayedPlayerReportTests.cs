@@ -14,6 +14,7 @@ public class MostPlayedPlayerReportTests
     private readonly PlayerDetails _dave = new PlayerDetails { PlayerName = "Dave", TeamName = "TEAM1", TeamId = Guid.NewGuid(), };
     private readonly PlayerDetails _jon = new PlayerDetails { PlayerName = "Jon", TeamName = "TEAM2", TeamId = Guid.NewGuid(), };
     private Mock<IPlayerLookup> _playerLookup = null!;
+    private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [SetUp]
     public void SetupEachTest()
@@ -40,8 +41,8 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenLeagueSinglesOneEightyTwice_ReturnsRowOnce(bool singlesOnly, int score)
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: singlesOnly);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -57,8 +58,8 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenLeaguePairsOneEighty_ReturnsCorrectScore(bool singlesOnly, int score)
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: singlesOnly);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 2);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 2);
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -74,8 +75,8 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenLeagueTriplesOneEighty_IgnoresScore(bool singlesOnly, int score)
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: singlesOnly);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 3);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 3);
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -90,7 +91,7 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenTournamentOneEightyAndSinglesOnly_IgnoresScore()
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: true);
-        report.VisitTournamentPlayer(new GamePlayer { Id = _jonId });
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer { Id = _jonId });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -101,7 +102,7 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenTournamentOneEightyAndAllMatches_ReturnsCorrectScore()
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: false);
-        report.VisitTournamentPlayer(new GamePlayer { Id = _jonId });
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer { Id = _jonId });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -116,8 +117,8 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenSinglesLeagueDifferentPlayersScoreOneEighty_ReturnsRowOnce()
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: true);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _daveId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _daveId }, 1);
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -132,8 +133,8 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenTournamentPlayerScoresOneEightyTwice_ReturnsRowOnce()
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: false);
-        report.VisitTournamentPlayer(new GamePlayer { Id = _jonId });
-        report.VisitTournamentPlayer(new GamePlayer { Id = _jonId });
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer { Id = _jonId });
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer { Id = _jonId });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -148,8 +149,8 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenTournamentDifferentPlayersScoreOneEighty_ReturnsRowOnce()
     {
         var report = new MostPlayedPlayerReport(topCount: 3, singlesOnly: false);
-        report.VisitTournamentPlayer(new GamePlayer { Id = _jonId });
-        report.VisitTournamentPlayer(new GamePlayer { Id = _daveId });
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer { Id = _jonId });
+        report.VisitTournamentPlayer(VisitorScope, new TournamentPlayer { Id = _daveId });
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 
@@ -164,11 +165,11 @@ public class MostPlayedPlayerReportTests
     public async Task GetReport_GivenMoreOneEightyPlayersThanLimit_ReturnsAtMostRowCount()
     {
         var report = new MostPlayedPlayerReport(topCount: 2);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _jonId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _daveId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = _daveId }, 1);
-        report.VisitPlayer(new GamePlayer { Id = Guid.NewGuid() }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _jonId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _daveId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = _daveId }, 1);
+        report.VisitPlayer(VisitorScope, new GamePlayer { Id = Guid.NewGuid() }, 1);
 
         var result = await report.GetReport(_playerLookup.Object, _token);
 

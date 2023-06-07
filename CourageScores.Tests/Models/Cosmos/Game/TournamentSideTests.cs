@@ -8,6 +8,7 @@ namespace CourageScores.Tests.Models.Cosmos.Game;
 public class TournamentSideTests
 {
     private TournamentSide _side = null!;
+    private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [SetUp]
     public void SetupEachTest()
@@ -20,9 +21,9 @@ public class TournamentSideTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _side.Accept(visitor.Object);
+        _side.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitSide(_side));
+        visitor.Verify(v => v.VisitSide(VisitorScope, _side));
     }
 
     [Test]
@@ -32,8 +33,8 @@ public class TournamentSideTests
         var player = new TournamentPlayer();
         _side.Players.Add(player);
 
-        _side.Accept(visitor.Object);
+        _side.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitTournamentPlayer(player));
+        visitor.Verify(v => v.VisitTournamentPlayer(VisitorScope, player));
     }
 }

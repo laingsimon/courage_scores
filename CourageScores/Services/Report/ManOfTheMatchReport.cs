@@ -1,3 +1,4 @@
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Report;
 
 namespace CourageScores.Services.Report;
@@ -23,7 +24,7 @@ public class ManOfTheMatchReport : IReport
         };
     }
 
-    public void VisitManOfTheMatch(Guid? manOfTheMatch)
+    public void VisitManOfTheMatch(IVisitorScope visitorScope, Guid? manOfTheMatch)
     {
         if (!manOfTheMatch.HasValue)
         {

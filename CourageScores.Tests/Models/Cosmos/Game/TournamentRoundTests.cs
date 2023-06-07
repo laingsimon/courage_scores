@@ -8,6 +8,7 @@ namespace CourageScores.Tests.Models.Cosmos.Game;
 public class TournamentRoundTests
 {
     private TournamentRound _round = null!;
+    private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [SetUp]
     public void SetupEachTest()
@@ -20,9 +21,9 @@ public class TournamentRoundTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitRound(_round));
+        visitor.Verify(v => v.VisitRound(VisitorScope, _round));
     }
 
     [Test]
@@ -32,9 +33,9 @@ public class TournamentRoundTests
         var match = new TournamentMatch();
         _round.Matches.Add(match);
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitMatch(match));
+        visitor.Verify(v => v.VisitMatch(VisitorScope, match));
     }
 
     [Test]
@@ -42,9 +43,9 @@ public class TournamentRoundTests
     {
         var visitor = new Mock<IGameVisitor>();
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitRound(It.IsAny<TournamentRound>()));
+        visitor.Verify(v => v.VisitRound(VisitorScope, It.IsAny<TournamentRound>()));
     }
 
     [Test]
@@ -54,9 +55,9 @@ public class TournamentRoundTests
         var round = new TournamentRound();
         _round.NextRound = round;
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitRound(round));
+        visitor.Verify(v => v.VisitRound(VisitorScope, round));
     }
 
     [Test]
@@ -68,9 +69,9 @@ public class TournamentRoundTests
         _round.Sides.Add(new TournamentSide());
         _round.Sides.Add(new TournamentSide());
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitFinal(final));
+        visitor.Verify(v => v.VisitFinal(VisitorScope, final));
     }
 
     [Test]
@@ -89,9 +90,9 @@ public class TournamentRoundTests
         _round.Matches.Add(final);
         _round.Sides.AddRange(new[] { sideA, sideB });
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitTournamentWinner(sideA));
+        visitor.Verify(v => v.VisitTournamentWinner(VisitorScope, sideA));
     }
 
     [Test]
@@ -110,9 +111,9 @@ public class TournamentRoundTests
         _round.Matches.Add(final);
         _round.Sides.AddRange(new[] { sideA, sideB });
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitTournamentWinner(sideB));
+        visitor.Verify(v => v.VisitTournamentWinner(VisitorScope, sideB));
     }
 
     [Test]
@@ -131,9 +132,9 @@ public class TournamentRoundTests
         _round.Matches.Add(final);
         _round.Sides.AddRange(new[] { sideA, sideB });
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitTournamentWinner(It.IsAny<TournamentSide>()), Times.Never);
+        visitor.Verify(v => v.VisitTournamentWinner(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
     }
 
     [Test]
@@ -152,8 +153,8 @@ public class TournamentRoundTests
         _round.Matches.Add(final);
         _round.Sides.AddRange(new[] { sideA, sideB });
 
-        _round.Accept(visitor.Object);
+        _round.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitTournamentWinner(It.IsAny<TournamentSide>()), Times.Never);
+        visitor.Verify(v => v.VisitTournamentWinner(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
     }
 }

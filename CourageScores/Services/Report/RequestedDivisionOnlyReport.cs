@@ -37,99 +37,99 @@ public class RequestedDivisionOnlyReport : IReport
         }
     }
 
-    public void VisitMatch(GameMatch match)
+    public void VisitMatch(IVisitorScope scope, GameMatch match)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitMatch(match);
+            _report.VisitMatch(scope, match);
         }
     }
 
-    public void VisitMatchWin(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
+    public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitMatchWin(players, team, winningScore, losingScore);
+            _report.VisitMatchWin(scope, players, team, winningScore, losingScore);
         }
     }
 
-    public void VisitMatchLost(IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
+    public void VisitMatchLost(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int losingScore, int winningScore)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitMatchLost(players, team, losingScore, winningScore);
+            _report.VisitMatchLost(scope, players, team, losingScore, winningScore);
         }
     }
 
-    public void VisitOneEighty(IGamePlayer player)
+    public void VisitOneEighty(IVisitorScope scope, IGamePlayer player)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitOneEighty(player);
+            _report.VisitOneEighty(scope, player);
         }
     }
 
-    public void VisitHiCheckout(INotablePlayer player)
+    public void VisitHiCheckout(IVisitorScope scope, INotablePlayer player)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitHiCheckout(player);
+            _report.VisitHiCheckout(scope, player);
         }
     }
 
-    public void VisitTeam(GameTeam team, GameState gameState)
+    public void VisitTeam(IVisitorScope scope, GameTeam team, GameState gameState)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitTeam(team, gameState);
+            _report.VisitTeam(scope, team, gameState);
         }
     }
 
-    public void VisitManOfTheMatch(Guid? manOfTheMatch)
+    public void VisitManOfTheMatch(IVisitorScope scope, Guid? manOfTheMatch)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitManOfTheMatch(manOfTheMatch);
+            _report.VisitManOfTheMatch(scope, manOfTheMatch);
         }
     }
 
-    public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+    public void VisitPlayer(IVisitorScope scope, GamePlayer player, int matchPlayerCount)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitPlayer(player, matchPlayerCount);
+            _report.VisitPlayer(scope, player, matchPlayerCount);
         }
     }
 
-    public void VisitTournamentPlayer(TournamentPlayer player)
+    public void VisitTournamentPlayer(IVisitorScope scope, TournamentPlayer player)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitTournamentPlayer(player);
+            _report.VisitTournamentPlayer(scope, player);
         }
     }
 
-    public void VisitGameDraw(GameTeam home, GameTeam away)
+    public void VisitGameDraw(IVisitorScope scope, GameTeam home, GameTeam away)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitGameDraw(home, away);
+            _report.VisitGameDraw(scope, home, away);
         }
     }
 
-    public void VisitGameWinner(GameTeam team)
+    public void VisitGameWinner(IVisitorScope scope, GameTeam team)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitGameWinner(team);
+            _report.VisitGameWinner(scope, team);
         }
     }
 
-    public void VisitGameLoser(GameTeam team)
+    public void VisitGameLoser(IVisitorScope scope, GameTeam team)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitGameLoser(team);
+            _report.VisitGameLoser(scope, team);
         }
     }
 
@@ -143,51 +143,51 @@ public class RequestedDivisionOnlyReport : IReport
         }
     }
 
-    public void VisitRound(TournamentRound tournamentRound)
+    public void VisitRound(IVisitorScope scope, TournamentRound tournamentRound)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitRound(tournamentRound);
+            _report.VisitRound(scope, tournamentRound);
         }
     }
 
-    public void VisitFinal(TournamentMatch match)
+    public void VisitFinal(IVisitorScope scope, TournamentMatch match)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitFinal(match);
+            _report.VisitFinal(scope, match);
         }
     }
 
-    public void VisitTournamentWinner(TournamentSide side)
+    public void VisitTournamentWinner(IVisitorScope scope, TournamentSide side)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitTournamentWinner(side);
+            _report.VisitTournamentWinner(scope, side);
         }
     }
 
-    public void VisitMatch(TournamentMatch match)
+    public void VisitMatch(IVisitorScope scope, TournamentMatch match)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitMatch(match);
+            _report.VisitMatch(scope, match);
         }
     }
 
-    public void VisitSide(TournamentSide tournamentSide)
+    public void VisitSide(IVisitorScope scope, TournamentSide tournamentSide)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitSide(tournamentSide);
+            _report.VisitSide(scope, tournamentSide);
         }
     }
 
-    public void VisitDataError(string dataError)
+    public void VisitDataError(IVisitorScope scope, string dataError)
     {
         if (IsForRequestedDivision())
         {
-            _report.VisitDataError(dataError);
+            _report.VisitDataError(scope, dataError);
         }
     }
 }

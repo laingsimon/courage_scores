@@ -81,7 +81,7 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
         return user?.Access?.ManageGames == true;
     }
 
-    public void Accept(IGameVisitor visitor)
+    public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
         visitor.VisitGame(this);
 
@@ -89,20 +89,20 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
         {
             foreach (var player in Over100Checkouts)
             {
-                visitor.VisitHiCheckout(player);
+                visitor.VisitHiCheckout(scope, player);
             }
 
             foreach (var player in OneEighties)
             {
-                visitor.VisitOneEighty(player);
+                visitor.VisitOneEighty(scope, player);
             }
         }
 
         foreach (var side in Sides)
         {
-            side.Accept(visitor);
+            side.Accept(scope, visitor);
         }
 
-        Round?.Accept(visitor);
+        Round?.Accept(scope, visitor);
     }
 }
