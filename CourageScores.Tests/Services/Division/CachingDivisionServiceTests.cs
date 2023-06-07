@@ -1,3 +1,4 @@
+using CourageScores.Filters;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Identity;
@@ -290,6 +291,26 @@ public class CachingDivisionServiceTests
     }
 
     [Test]
+    public async Task InvalidateCaches_GivenEvictAllSeasons_InvalidatesCachesForAllSeasons()
+    {
+        var seasonId = Guid.NewGuid();
+        var anotherSeasonId = Guid.NewGuid();
+        var divisionId = Guid.NewGuid();
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = anotherSeasonId }, _token);
+        await _service.Get(divisionId, _token);
+
+        await _service.InvalidateCaches(divisionId: null, seasonId: ScopedCacheManagementFlags.EvictAll);
+
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = anotherSeasonId }, _token);
+        await _service.Get(divisionId, _token);
+        _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
+        _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == anotherSeasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
+        _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(1));
+    }
+
+    [Test]
     public async Task InvalidateCaches_GivenDivisionId_InvalidatesCachesForDivision()
     {
         var seasonId = Guid.NewGuid();
@@ -303,6 +324,29 @@ public class CachingDivisionServiceTests
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(2));
+    }
+
+    [Test]
+    public async Task InvalidateCaches_GivenEvictAllDivisions_InvalidatesCachesForAllDivisions()
+    {
+        var seasonId = Guid.NewGuid();
+        var divisionId = Guid.NewGuid();
+        var anotherDivisionId = Guid.NewGuid();
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = anotherDivisionId, SeasonId = seasonId }, _token);
+        await _service.Get(divisionId, _token);
+        await _service.Get(anotherDivisionId, _token);
+
+        await _service.InvalidateCaches(divisionId: ScopedCacheManagementFlags.EvictAll, seasonId: null);
+
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = anotherDivisionId, SeasonId = seasonId }, _token);
+        await _service.Get(divisionId, _token);
+        await _service.Get(anotherDivisionId, _token);
+        _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
+        _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == anotherDivisionId), _token), Times.Exactly(2));
+        _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(2));
+        _underlyingService.Verify(s => s.Get(anotherDivisionId, _token), Times.Exactly(2));
     }
 
     [Test]
