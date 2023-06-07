@@ -26,7 +26,7 @@ public class MostPlayedPlayerReport : IReport
         };
     }
 
-    public void VisitTournamentPlayer(GamePlayer player)
+    public void VisitTournamentPlayer(IVisitorScope visitorScope, TournamentPlayer player)
     {
         if (_singlesOnly)
         {
@@ -43,7 +43,7 @@ public class MostPlayedPlayerReport : IReport
         }
     }
 
-    public void VisitPlayer(GamePlayer player, int matchPlayerCount)
+    public void VisitPlayer(IVisitorScope visitorScope, GamePlayer player, int matchPlayerCount)
     {
         if (_singlesOnly && matchPlayerCount != 1)
         {
