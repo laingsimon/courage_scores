@@ -1,4 +1,5 @@
 ﻿using CourageScores.Models.Cosmos;
+using CourageScores.Models.Dtos;
 using CourageScores.Services.Command;
 using NUnit.Framework;
 
@@ -38,7 +39,7 @@ public class AddOrUpdateCommandTests
     [Test]
     public async Task ApplyUpdate_WhenModelIsDeleted_ThenReturnsFalse()
     {
-        var update = new Model();
+        var update = new ModelDto();
         var command = new MockCommand();
         var model = new Model
         {
@@ -54,7 +55,7 @@ public class AddOrUpdateCommandTests
     [Test]
     public async Task ApplyUpdate_WhenModelHasNoId_ThenModelIsCreated()
     {
-        var update = new Model();
+        var update = new ModelDto();
         var command = new MockCommand();
         var model = new Model();
 
@@ -71,12 +72,15 @@ public class AddOrUpdateCommandTests
     [Test]
     public async Task ApplyUpdate_WhenModelHasAnId_ThenModelIsUpdated()
     {
-        var update = new Model();
-        var command = new MockCommand();
         var model = new Model
         {
             Id = Guid.NewGuid(),
         };
+        var update = new ModelDto
+        {
+            LastUpdated = model.Updated,
+        };
+        var command = new MockCommand();
 
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
@@ -87,7 +91,46 @@ public class AddOrUpdateCommandTests
         Assert.That(command.ApplyUpdatesUpdate, Is.SameAs(update));
     }
 
-    private class MockCommand : AddOrUpdateCommand<Model, Model>
+    [Test]
+    public async Task ApplyUpdate_WhenModelHasAnIncorrectLastUpdated_ThenModelIsNotUpdated()
+    {
+        var update = new ModelDto
+        {
+            LastUpdated = new DateTime(2023, 04, 05, 07, 08, 09),
+        };
+        var command = new MockCommand();
+        var model = new Model
+        {
+            Id = Guid.NewGuid(),
+            Updated = new DateTime(2021, 01, 01, 01, 01, 01),
+            Editor = "EDITOR",
+        };
+
+        var result = await command.WithData(update).ApplyUpdate(model, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01"));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenModelHasANullLastUpdated_ThenModelIsNotUpdated()
+    {
+        var update = new ModelDto();
+        var command = new MockCommand();
+        var model = new Model
+        {
+            Id = Guid.NewGuid(),
+            Updated = new DateTime(2021, 01, 01, 01, 01, 01),
+            Editor = "EDITOR",
+        };
+
+        var result = await command.WithData(update).ApplyUpdate(model, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Unable to update Model, data integrity token is missing"));
+    }
+
+    private class MockCommand : AddOrUpdateCommand<Model, ModelDto>
     {
         public MockCommand(CommandResult? result = null)
         {
@@ -95,10 +138,10 @@ public class AddOrUpdateCommandTests
         }
 
         public CommandResult ApplyResult { get; }
-        public Model? ApplyUpdatesUpdate { get; private set; }
+        public ModelDto? ApplyUpdatesUpdate { get; private set; }
         public Model? ApplyUpdatesModel { get; private set; }
 
-        protected override Task<CommandResult> ApplyUpdates(Model model, Model update, CancellationToken token)
+        protected override Task<CommandResult> ApplyUpdates(Model model, ModelDto update, CancellationToken token)
         {
             ApplyUpdatesModel = model;
             ApplyUpdatesUpdate = update;
@@ -109,5 +152,10 @@ public class AddOrUpdateCommandTests
     private class Model : AuditedEntity
     {
 
+    }
+
+    private class ModelDto : AuditedEntity, IIntegrityCheckDto
+    {
+        public DateTime? LastUpdated { get; set; }
     }
 }

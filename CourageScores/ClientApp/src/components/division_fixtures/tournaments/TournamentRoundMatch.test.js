@@ -1,8 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, findButton, doClick, doChange} from "../../../helpers/tests";
 import React from "react";
-import {createTemporaryId, toMap, any} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
+import {toMap, any} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 
 describe('TournamentRoundMatch', () => {

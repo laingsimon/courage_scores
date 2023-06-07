@@ -1,4 +1,4 @@
-import {round2dp} from "../../../Utilities";
+import {round2dp} from "../../../helpers/rendering";
 
 export function PreviousPlayerScore({ home, away, leg, undoLastThrow }) {
     const opponent = opposite(leg.currentThrow);

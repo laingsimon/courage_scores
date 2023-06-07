@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange} from "../helpers/tests";
 import React from "react";
 import {EditDivision} from "./EditDivision";
-import {createTemporaryId} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -25,8 +25,8 @@ describe('EditDivision', () => {
     let apiResponse;
     let deletedId;
     const divisionApi = {
-        update: (data) => {
-            updatedDivision = data;
+        update: (data, lastUpdated) => {
+            updatedDivision = { data, lastUpdated };
             return apiResponse;
         },
         delete: (id) => {

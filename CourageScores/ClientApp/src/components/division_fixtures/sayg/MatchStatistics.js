@@ -1,4 +1,4 @@
-import {sum} from "../../../Utilities";
+import {sum} from "../../../helpers/collections";
 import {MatchDartCount} from "./MatchDartCount";
 import {MatchAverage} from "./MatchAverage";
 import {LegStatistics} from "./LegStatistics";

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, isEmpty, sortBy} from "../../Utilities";
+import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -16,6 +16,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
+        /* istanbul ignore next */
         if (creating || deleting) {
             /* istanbul ignore next */
             return;
@@ -29,7 +30,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            });
+            }, tournament.updated);
 
             if (response.success) {
                 if (onTournamentChanged) {
@@ -44,6 +45,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     }
 
     async function deleteTournamentGame() {
+        /* istanbul ignore next */
         if (deleting || creating) {
             /* istanbul ignore next */
             return;

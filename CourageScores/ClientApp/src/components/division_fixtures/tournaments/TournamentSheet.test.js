@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../../tests/helpers";
+import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
-import {createTemporaryId, repeat} from "../../../Utilities";
+import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {TournamentSheet} from "./TournamentSheet";
 
 describe('TournamentSheet', () => {

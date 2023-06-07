@@ -3,8 +3,12 @@ class SeasonApi {
         this.http = http;
     }
 
-    update(season) {
-        return this.http.put(`/api/Season`, season);
+    update(season, lastUpdated) {
+        if (!lastUpdated) {
+            throw new Error('lastUpdated must be provided when updating a record');
+        }
+
+        return this.http.put(`/api/Season`, Object.assign({ lastUpdated }, season));
     }
 
     delete(id) {

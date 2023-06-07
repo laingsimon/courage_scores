@@ -1,6 +1,7 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
-import {any, createTemporaryId, valueChanged} from "../Utilities";
+import {any} from "../helpers/collections";
+import {valueChanged} from "../helpers/events";
 import {ShareButton} from "./ShareButton";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
@@ -22,7 +23,6 @@ export function Practice() {
         numberOfLegs: 3,
         startingScore: 501,
         legs: {},
-        id: createTemporaryId(),
         loaded: false,
     });
     const [ dataError, setDataError ] = useState(null);
@@ -70,6 +70,7 @@ export function Practice() {
             }
 
             sayg.loaded = true;
+            sayg.lastUpdated = sayg.updated;
             setSayg(sayg);
         } catch (e) {
             setDataError(e.message);
@@ -86,8 +87,12 @@ export function Practice() {
         try {
             const response = await saygApi.upsert(sayg);
             if (response.success) {
+                response.result.loaded = true;
+                response.result.lastUpdated = response.result.updated;
                 setSayg(response.result);
-                navigate(`/practice#${response.result.id}`);
+                if (location.hash !== `#${response.result.id}`) {
+                    navigate(`/practice#${response.result.id}`);
+                }
                 return '#' + response.result.id;
             }
             setSaveError(response);

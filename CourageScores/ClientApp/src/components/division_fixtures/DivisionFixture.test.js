@@ -1,7 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
-import {createTemporaryId, toMap, renderDate} from "../../Utilities";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {renderDate} from "../../helpers/rendering";
+import {createTemporaryId} from "../../helpers/projection";
+import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionFixture} from "./DivisionFixture";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -16,8 +18,8 @@ describe('DivisionFixture', () => {
     let deletedFixture;
 
     const gameApi = {
-        update: async (fixture) => {
-            savedFixture = fixture;
+        update: async (fixture, lastUpdated) => {
+            savedFixture = { fixture, lastUpdated };
             return { success: true };
         },
         delete: async (id) => {

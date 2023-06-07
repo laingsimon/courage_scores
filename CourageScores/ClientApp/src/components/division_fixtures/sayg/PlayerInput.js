@@ -1,4 +1,5 @@
-import {round2dp, stateChanged} from "../../../Utilities";
+import {round2dp} from "../../../helpers/rendering";
+import {stateChanged} from "../../../helpers/events";
 import {useState} from "react";
 import {useApp} from "../../../AppContainer";
 

@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";

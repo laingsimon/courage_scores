@@ -4,7 +4,7 @@ using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
 
-public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, FixtureDateNoteDto>
+public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFixtureDateNoteDto>
 {
     private readonly ScopedCacheManagementFlags _cacheFlags;
 
@@ -13,7 +13,7 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, Fixtur
         _cacheFlags = cacheFlags;
     }
 
-    protected override Task<CommandResult> ApplyUpdates(FixtureDateNote model, FixtureDateNoteDto update, CancellationToken token)
+    protected override Task<CommandResult> ApplyUpdates(FixtureDateNote model, EditFixtureDateNoteDto update, CancellationToken token)
     {
         model.Date = update.Date;
         model.Note = update.Note.Trim();

@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionTeams} from "./DivisionTeams";
 
@@ -12,9 +12,10 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let account;
     const teamApi = {
-        update: async () => {
+        update: async (team, lastUpdated) => {
             return {
                 success: true,
+                result: team,
             };
         }
     }

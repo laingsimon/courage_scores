@@ -1,5 +1,6 @@
 import React, {useState} from "react";
-import {any, propChanged, sortBy, valueChanged} from "../Utilities";
+import {any, sortBy} from "../helpers/collections";
+import {propChanged, valueChanged} from "../helpers/events";
 import {BootstrapDropdown} from "./common/BootstrapDropdown";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
@@ -13,6 +14,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
     const navigate = useNavigate();
 
     async function saveSeason() {
+        /* istanbul ignore next */
         if (saving || deleting) {
             /* istanbul ignore next */
             return;
@@ -25,7 +27,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
 
         try {
             setSaving(true);
-            const result = await seasonApi.update(data);
+            const result = await seasonApi.update(data, data.updated);
 
             if (result.success) {
                 await onSave();
@@ -40,6 +42,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
     }
 
     async function deleteSeason() {
+        /* istanbul ignore next */
         if (saving || deleting) {
             /* istanbul ignore next */
             return;

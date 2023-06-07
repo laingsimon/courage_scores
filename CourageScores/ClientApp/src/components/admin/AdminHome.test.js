@@ -3,7 +3,7 @@
 import React from "react";
 import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
-import {renderApp,cleanUp} from "../../tests/helpers";
+import {renderApp,cleanUp} from "../../helpers/tests";
 
 describe('AdminHome', () => {
     let container;

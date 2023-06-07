@@ -29,14 +29,14 @@ public class NoteController : Controller
     }
 
     [HttpPut("/api/Note/{id}")]
-    public async Task<ActionResultDto<FixtureDateNoteDto>> Upsert(Guid id, FixtureDateNoteDto note, CancellationToken token)
+    public async Task<ActionResultDto<FixtureDateNoteDto>> Upsert(Guid id, EditFixtureDateNoteDto note, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateNoteCommand>().WithData(note);
         return await _noteService.Upsert(id, command, token);
     }
 
     [HttpPost("/api/Note")]
-    public async Task<ActionResultDto<FixtureDateNoteDto>> Create(FixtureDateNoteDto note, CancellationToken token)
+    public async Task<ActionResultDto<FixtureDateNoteDto>> Create(EditFixtureDateNoteDto note, CancellationToken token)
     {
         return await Upsert(Guid.NewGuid(), note, token);
     }

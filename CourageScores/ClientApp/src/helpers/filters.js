@@ -1,21 +1,6 @@
-import {any} from "../../Utilities";
+import {any} from "./collections";
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
-
-export function isInPast(date) {
-    const today = new Date(new Date().toDateString());
-    return new Date(date) < today;
-}
-
-export function isInFuture(date) {
-    const today = new Date(new Date().toDateString());
-    const tomorrow = new Date(today.setDate(today.getDate() + 1));
-    return new Date(date) >= tomorrow;
-}
-
-export function isToday(date) {
-    const today = new Date().toDateString();
-    return today === new Date(date).toDateString();
-}
+import {isInFuture, isInPast, isToday} from "./dates";
 
 export function isLastFixtureBeforeToday(renderContext, fixtures, date) {
     if (!renderContext.lastFixtureDateBeforeToday) {

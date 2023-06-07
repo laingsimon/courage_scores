@@ -93,7 +93,6 @@ public static class DependencyInjectionExtensions
         services.AddScoped<CachingTeamService>();
         services.AddScoped(typeof(CachingDataService<,>));
         services.AddScoped<ICachingDivisionService, CachingDivisionService>();
-        services.AddScoped<ISaygStorageService, SaygStorageService>();
 
         services.AddScoped<ICosmosTableService, CosmosTableService>();
         services.AddScoped<IDataImporterFactory, DataImporterFactory>();
@@ -125,6 +124,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<FixtureDateNote, FixtureDateNoteDto, FixtureDateNoteAdapter>(services);
         AddAdapter<TournamentPlayer, TournamentPlayerDto, TournamentPlayerAdapter>(services);
         AddAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto, NotableTournamentPlayerAdapter>(services);
+        AddAdapter<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto, RecordedScoreAsYouGoAdapter>(services);
 
         AddAdapter<Team, TeamDto, TeamAdapter>(services);
         AddAdapter<TeamPlayer, TeamPlayerDto, TeamPlayerAdapter>(services);
@@ -151,7 +151,6 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<LegPlayerSequence, LegPlayerSequenceDto>, LegPlayerSequenceAdapter>();
         services.AddScoped<ISimpleAdapter<LegThrow, LegThrowDto>, LegThrowAdapter>();
         services.AddScoped<ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>, ScoreAsYouGoAdapter>();
-        services.AddScoped<ISimpleAdapter<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>, RecordedScoreAsYouGoAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

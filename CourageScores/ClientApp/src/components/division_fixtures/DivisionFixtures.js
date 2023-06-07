@@ -2,11 +2,12 @@ import React, {useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
-import {any, isEmpty, sortBy, stateChanged} from "../../Utilities";
+import {any, isEmpty, sortBy} from "../../helpers/collections";
+import {stateChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
-import {changeFilter, initFilter} from "./FilterUtilities";
+import {changeFilter, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 
 export function DivisionFixtures({ setNewFixtures }) {

@@ -19,8 +19,12 @@ class DivisionApi {
         return this.http.get(`/api/Division/${divisionId}/Data`, {});
     }
 
-    update(details) {
-        return this.http.put(`/api/Division`, details);
+    update(details, lastUpdated) {
+        if (!lastUpdated) {
+            throw new Error('lastUpdated must be provided when updating a record');
+        }
+
+        return this.http.put(`/api/Division`, Object.assign({ lastUpdated }, details));
     }
 
     delete(id) {

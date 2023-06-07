@@ -5,7 +5,10 @@ import {Link} from 'react-router-dom';
 import {NavLink} from "reactstrap";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {DivisionControls} from "../../DivisionControls";
-import {any, elementAt, isEmpty, propChanged, renderDate, repeat, sortBy} from "../../../Utilities";
+import {any, elementAt, isEmpty, sortBy} from "../../../helpers/collections";
+import {propChanged} from "../../../helpers/events";
+import {EMPTY_ID, repeat} from "../../../helpers/projection";
+import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
 import {MergeMatch} from "./MergeMatch";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
@@ -21,7 +24,7 @@ import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
-import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "./MatchOptionHelpers";
+import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
 import {PageError} from "../../PageError";
 
 export function Score() {
@@ -36,8 +39,6 @@ export function Score() {
     const [allPlayers, setAllPlayers] = useState([]);
     const [saving, setSaving] = useState(false);
     const [saveError, setSaveError] = useState(null);
-    const [season, setSeason] = useState(null);
-    const [division, setDivision] = useState(null);
     const [submission, setSubmission] = useState(null);
     const [ createPlayerFor, setCreatePlayerFor ] = useState(null);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
@@ -92,7 +93,7 @@ export function Score() {
         return (<Dialog title={`Create ${createPlayerFor.side} player...`}>
             <EditPlayerDetails
                 id={null}
-                {...newPlayerDetails}
+                player={newPlayerDetails}
                 seasonId={fixtureData.seasonId}
                 gameId={fixtureData.id}
                 team={team}
@@ -116,8 +117,11 @@ export function Score() {
     }
 
     useEffect(() => {
+            /* istanbul ignore next */
             if (loading !== 'init') {
+                /* istanbul ignore next */
                 console.log(`loading=${loading}`);
+                /* istanbul ignore next */
                 return;
             }
 
@@ -260,12 +264,6 @@ export function Score() {
 
             setFixtureData(gameData);
             setData(gameData);
-
-            const season = seasons[gameData.seasonId];
-            setSeason(season || { id: '00000', name: 'Not found' });
-
-            const division = divisions[gameData.divisionId];
-            setDivision(division || { id: '00000', name: 'Not found' });
         } catch (e) {
             onError(e);
         } finally {
@@ -273,19 +271,8 @@ export function Score() {
         }
     }
 
-    useEffect(() => {
-            if (!fixtureData || !divisions) {
-                return;
-            }
-
-            const division = divisions[fixtureData.divisionId];
-            if (division) {
-                setDivision(division);
-            }
-        },
-        [ divisions, fixtureData, data ]);
-
     async function saveScores() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;
@@ -293,7 +280,7 @@ export function Score() {
 
         try {
             setSaving(true);
-            const response = await gameApi.updateScores(fixtureId, fixtureData);
+            const response = await gameApi.updateScores(fixtureId, fixtureData, fixtureData.updated);
 
             if (!response.success) {
                 setSaveError(response);
@@ -309,6 +296,7 @@ export function Score() {
     }
 
     async function unpublish() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;
@@ -459,6 +447,9 @@ export function Score() {
     const hasBeenPlayed = any(fixtureData.matches, m => m.homeScore || m.awayScore);
 
     try {
+        const season = seasons[fixtureData.seasonId] || { id: EMPTY_ID, name: 'Not found' };
+        const division = divisions[fixtureData.divisionId] || { id: EMPTY_ID, name: 'Not found' };
+
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
             seasonId: season.id,

@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp} from "./tests/helpers";
+import {cleanUp} from "./helpers/tests";
 import React from "react";
 import {App} from "./App";
-import {createTemporaryId} from "./Utilities";
+import {createTemporaryId} from "./helpers/projection";
 import {act} from "@testing-library/react";
 import {MemoryRouter} from "react-router-dom";
 import {IocContainer} from "./IocContainer";

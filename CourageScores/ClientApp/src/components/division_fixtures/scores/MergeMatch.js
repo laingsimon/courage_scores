@@ -1,7 +1,7 @@
 import React from 'react';
 import {useApp} from "../../../AppContainer";
 import {matchEquals} from "./MatchComparer";
-import {repeat} from "../../../Utilities";
+import {repeat} from "../../../helpers/projection";
 
 export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, awaySubmission, setFixtureData, fixtureData }) {
     const { onError } = useApp();

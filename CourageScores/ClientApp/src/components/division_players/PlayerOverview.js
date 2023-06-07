@@ -2,7 +2,8 @@ import React from 'react';
 import {Link} from "react-router-dom";
 import {DivisionPlayers} from "./DivisionPlayers";
 import {ShareButton} from "../ShareButton";
-import {any, renderDate} from "../../Utilities";
+import {any} from "../../helpers/collections";
+import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 
 export function PlayerOverview({ playerId }) {

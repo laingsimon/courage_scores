@@ -4,7 +4,7 @@ import {Dialog} from "../common/Dialog";
 import {EditTeamDetails} from "./EditTeamDetails";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
-import {sortBy} from "../../Utilities";
+import {sortBy} from "../../helpers/collections";
 
 export function DivisionTeams() {
     const { id: divisionId, season, teams, onReloadDivision } = useDivisionData();
@@ -34,9 +34,8 @@ export function DivisionTeams() {
             <EditTeamDetails
                 divisionId={divisionId}
                 seasonId={season.id}
-                {...teamDetails}
+                team={teamDetails}
                 onCancel={() => setNewTeam(false)}
-                id={null}
                 onSaved={onTeamCreated}
                 onChange={onChange}/>
         </Dialog>);

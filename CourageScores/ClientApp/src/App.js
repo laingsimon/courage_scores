@@ -1,7 +1,7 @@
 import './custom.css';
 import {useDependencies} from "./IocContainer";
 import React, {useEffect, useState} from "react";
-import {toMap} from "./Utilities";
+import {toMap} from "./helpers/collections";
 import {Layout} from "./components/layout/Layout";
 import {Route, Routes} from "react-router-dom";
 import {Home} from "./components/Home";
@@ -12,7 +12,8 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
-import {getBuild, mapForLogging, mapError} from "./AppHelper";
+import {mapForLogging, mapError} from "./helpers/errors";
+import {getBuild} from "./helpers/build";
 
 export function App({ shouldExcludeSurround }) {
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
@@ -47,7 +48,9 @@ export function App({ shouldExcludeSurround }) {
     }
 
     async function reloadAll() {
+        /* istanbul ignore next */
         if (appLoading) {
+            /* istanbul ignore next */
             return;
         }
 

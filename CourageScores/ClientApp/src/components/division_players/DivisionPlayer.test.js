@@ -1,10 +1,10 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton, doChange} from "../../helpers/tests";
 import React from "react";
 import {DivisionPlayer} from "./DivisionPlayer";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
 
 describe('DivisionPlayer', () => {
     let context;
@@ -19,8 +19,8 @@ describe('DivisionPlayer', () => {
             deletedPlayer = { seasonId, teamId, playerId };
             return apiResponse || { success: true };
         },
-        update: async (seasonId, teamId, playerId, playerDetails) => {
-            updatedPlayer = { seasonId, teamId, playerId, playerDetails };
+        update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
+            updatedPlayer = { seasonId, teamId, playerId, playerDetails, lastUpdated };
             return apiResponse || { success: true };
         }
     }
@@ -200,7 +200,7 @@ describe('DivisionPlayer', () => {
 
             it('team name only if no team id', async () => {
                 const noTeamPlayer = Object.assign({}, player);
-                noTeamPlayer.teamId = '00000000-0000-0000-0000-000000000000';
+                noTeamPlayer.teamId = EMPTY_ID;
                 await renderComponent({
                         player: noTeamPlayer,
                         hideVenue: false
@@ -341,6 +341,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
+                expect(reportedError).toBeNull();
                 expect(updatedPlayer).not.toBeNull();
                 expect(updatedPlayer.playerDetails.name).toEqual('NEW NAME');
                 expect(divisionReloaded).toEqual(true);
@@ -362,6 +363,7 @@ describe('DivisionPlayer', () => {
 
                 await doClick(findButton(dialog, 'Save player'));
 
+                expect(reportedError).toBeNull();
                 expect(updatedPlayer).not.toBeNull();
                 expect(nameCell.textContent).toContain('Could not save player details');
                 expect(divisionReloaded).toEqual(false);

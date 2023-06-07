@@ -1,9 +1,13 @@
-﻿using CourageScores.Models.Cosmos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos;
 
 namespace CourageScores.Models.Dtos;
 
-public class ErrorDetailDto : AuditedDto
+[ExcludeFromCodeCoverage]
+public class ErrorDetailDto : AuditedDto, IIntegrityCheckDto
 {
+    public DateTime? LastUpdated { get; set; }
+
     public SourceSystem Source { get; set; }
     public DateTime Time { get; set; }
     public string Message { get; set; } = null!;

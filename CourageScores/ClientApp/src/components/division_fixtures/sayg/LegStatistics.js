@@ -1,4 +1,7 @@
-import {isEmpty, repeat, round2dp, stateChanged} from "../../../Utilities";
+import {isEmpty} from "../../../helpers/collections";
+import {round2dp} from "../../../helpers/rendering";
+import {stateChanged} from "../../../helpers/events";
+import {repeat} from "../../../helpers/projection";
 import React, {useState} from "react";
 
 export function LegStatistics({ leg, home, away, legNumber, singlePlayer, oneDartAverage }) {

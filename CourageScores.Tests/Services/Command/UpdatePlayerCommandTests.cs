@@ -79,6 +79,8 @@ public class UpdatePlayerCommandTests
         {
             Id = Guid.NewGuid(),
             Name = "PLAYER",
+            Updated = new DateTime(2001, 02, 03),
+            Editor = "EDITOR",
         };
         _teamSeason = new TeamSeason
         {
@@ -96,6 +98,7 @@ public class UpdatePlayerCommandTests
             Name = "PLAYER (new)",
             Captain = true,
             EmailAddress = "email@address.com",
+            LastUpdated = new DateTime(2001, 02, 03),
         };
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -191,6 +194,38 @@ public class UpdatePlayerCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Message, Is.EqualTo("Team does not have a player with this id for the SEASON season"));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenLastUpdatedIsMissing_ReturnsUnsuccessful()
+    {
+        _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+        _update.NewTeamId = _team.Id;
+        _update.LastUpdated = null;
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Unable to update TeamPlayer, data integrity token is missing"));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenLastUpdatedIsDifferent_ReturnsUnsuccessful()
+    {
+        _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+        _update.NewTeamId = _team.Id;
+        _teamPlayer.Updated = new DateTime(2002, 03, 04);
+
+        var result = await _command
+            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ApplyUpdate(_team, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Message, Is.EqualTo("Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00"));
     }
 
     [Test]

@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {valueChanged} from "../Utilities";
+import {valueChanged} from "../helpers/events";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
@@ -12,6 +12,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
     const navigate = useNavigate();
 
     async function saveDivision() {
+        /* istanbul ignore next */
         if (saving || deleting) {
             /* istanbul ignore next */
             return;
@@ -24,7 +25,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
 
         try {
             setSaving(true);
-            const result = await divisionApi.update(data);
+            const result = await divisionApi.update(data, data.updated);
 
             if (result.success) {
                 await onSave();
@@ -39,6 +40,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
     }
 
     async function deleteDivision() {
+        /* istanbul ignore next */
         if (deleting || saving) {
             /* istanbul ignore next */
             return;
@@ -72,7 +74,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
         <div className="mt-3 text-end">
             <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
             {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteDivision}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Delete division
             </button>) : null}
             <button className="btn btn-success margin-right" onClick={saveDivision}>

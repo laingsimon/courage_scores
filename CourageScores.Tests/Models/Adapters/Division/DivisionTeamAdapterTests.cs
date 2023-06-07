@@ -20,6 +20,7 @@ public class DivisionTeamAdapterTests
             Id = Guid.NewGuid(),
             Name = "team",
             Address = "address",
+            Updated = new DateTime(2023, 01, 02),
         };
         var score = new DivisionData.TeamScore
         {
@@ -53,6 +54,7 @@ public class DivisionTeamAdapterTests
         Assert.That(result.WinRate, Is.EqualTo(10+20+30));
         Assert.That(result.LossRate, Is.EqualTo(11+12+13));
         Assert.That(result.Difference, Is.EqualTo((10+20+30) - (11+12+13)));
+        Assert.That(result.Updated, Is.EqualTo(team.Updated));
     }
 
     [Test]
@@ -63,6 +65,7 @@ public class DivisionTeamAdapterTests
             Id = Guid.NewGuid(),
             Name = "team",
             Address = "address",
+            Updated = new DateTime(2023, 01, 02),
         };
 
         var result = await _adapter.WithoutFixtures(team, _token);
@@ -72,5 +75,6 @@ public class DivisionTeamAdapterTests
         Assert.That(result.Address, Is.EqualTo(team.Address));
         Assert.That(result.Played, Is.EqualTo(0));
         Assert.That(result.Points, Is.EqualTo(0));
+        Assert.That(result.Updated, Is.EqualTo(team.Updated));
     }
 }

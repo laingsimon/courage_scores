@@ -1,9 +1,11 @@
 using CourageScores.Models.Cosmos;
+using CourageScores.Models.Dtos;
 
 namespace CourageScores.Services.Command;
 
 public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, TModel>
     where TModel: AuditedEntity
+    where TDto: IIntegrityCheckDto
 {
     private TDto? _update;
 
@@ -24,6 +26,15 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         {
             create = true;
             model.Id = Guid.NewGuid();
+        }
+        else if (model.Updated != _update!.LastUpdated)
+        {
+            return new CommandOutcome<TModel>(
+                false,
+                _update.LastUpdated == null
+                    ? $"Unable to update {typeof(TModel).Name}, data integrity token is missing"
+                    : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}",
+                null);
         }
 
         var result = await ApplyUpdates(model, _update!, token);

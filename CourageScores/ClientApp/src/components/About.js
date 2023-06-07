@@ -1,5 +1,5 @@
 import {useApp} from "../AppContainer";
-import {renderDate} from "../Utilities";
+import {renderDate} from "../helpers/rendering";
 
 export function About() {
     const { build } = useApp();

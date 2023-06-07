@@ -1,5 +1,5 @@
 import React from 'react';
-import {any, sortBy} from "../../Utilities";
+import {any, sortBy} from "../../helpers/collections";
 
 export function TableSelection({ allTables, selected, onTableChange, requireCanExport, requireCanImport }) {
     async function toggleTable(table) {

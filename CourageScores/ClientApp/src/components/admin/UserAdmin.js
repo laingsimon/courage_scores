@@ -62,6 +62,7 @@ export function UserAdmin() {
     }
 
     async function saveChanges() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;

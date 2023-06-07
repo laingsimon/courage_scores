@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange} from "../../tests/helpers";
+import {cleanUp, renderApp, findButton, doClick, doChange} from "../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 
@@ -12,6 +12,7 @@ describe('DivisionFixtures', () => {
     let newFixtures;
     let divisionReloaded = false;
     let updatedNote;
+    let createdNote;
     const seasonApi = {
 
     };
@@ -19,8 +20,12 @@ describe('DivisionFixtures', () => {
 
     };
     const noteApi = {
-        upsert: async (note) => {
-            updatedNote = note;
+        create: async (note) => {
+            createdNote = note;
+            return { success: true };
+        },
+        upsert: async (id, note, lastUpdated) => {
+            updatedNote = { id, note, lastUpdated };
             return { success: true };
         },
     };
@@ -39,6 +44,7 @@ describe('DivisionFixtures', () => {
         newFixtures = null;
         divisionReloaded = false;
         updatedNote = null;
+        createdNote = null;
         context = await renderApp(
             { seasonApi, gameApi, noteApi, tournamentApi },
             {

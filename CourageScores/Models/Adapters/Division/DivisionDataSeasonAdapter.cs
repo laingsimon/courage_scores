@@ -14,6 +14,7 @@ public class DivisionDataSeasonAdapter : IDivisionDataSeasonAdapter
             StartDate = season.StartDate,
             EndDate = season.EndDate,
             Divisions = season.Divisions,
+            Updated = season.Updated,
         });
     }
 }

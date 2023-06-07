@@ -1,8 +1,8 @@
 ﻿// noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, findButton} from "../../../tests/helpers";
-import {createTemporaryId} from "../../../Utilities";
+import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {createTemporaryId} from "../../../helpers/projection";
 import {MergeMatch} from "./MergeMatch";
 
 describe('MergeMatch', () => {

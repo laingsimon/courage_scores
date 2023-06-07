@@ -13,6 +13,7 @@ export function FixtureDateNote({ note, setEditNote, preventDelete }) {
     const isNoteAdmin = account && account.access && account.access.manageNotes;
 
     async function deleteNote(note) {
+        /* istanbul ignore next */
         if (deletingNote) {
             /* istanbul ignore next */
             return;

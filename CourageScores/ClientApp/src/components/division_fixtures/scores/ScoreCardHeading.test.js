@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
 import {ScoreCardHeading} from "./ScoreCardHeading";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 
 describe('ScoreCardHeading', () => {
     let context;

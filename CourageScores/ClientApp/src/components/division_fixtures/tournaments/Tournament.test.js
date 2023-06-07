@@ -1,12 +1,12 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../helpers/tests";
 import React from "react";
 import {Tournament} from "./Tournament";
-import {createTemporaryId, toMap, any} from "../../../Utilities";
+import {toMap, any} from "../../../helpers/collections";
+import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 
 describe('Tournament', () => {
-    const EMPTY_ID = '00000000-0000-0000-0000-000000000000';
     let context;
     let reportedError;
     let teamsReloaded;
@@ -32,8 +32,8 @@ describe('Tournament', () => {
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data) => {
-            updatedTournamentData.push(data);
+        update: async (data, lastUpdated) => {
+            updatedTournamentData.push({ data, lastUpdated });
             return {
                 success: true,
             };
@@ -103,7 +103,9 @@ describe('Tournament', () => {
     async function assertDataChange(existingData, expectedChange) {
         await doClick(context.container, '.light-background > button:nth-child(7)');
         expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
-        expect(updatedTournamentData.shift()).toEqual(
+        const update = updatedTournamentData.shift();
+        expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
+        expect(update.data).toEqual(
             Object.assign({}, existingData, expectedChange));
     }
 
@@ -672,6 +674,9 @@ describe('Tournament', () => {
                 expect(createdPlayer.teamId).toEqual(team.id);
                 expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
                 expect(createdPlayer.playerDetails).toEqual({
+                    captain: false,
+                    newTeamId: undefined,
+                    emailAddress: undefined,
                     name: 'NEW PLAYER',
                 });
             });
@@ -728,6 +733,7 @@ describe('Tournament', () => {
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
+                    updated: '2023-07-01T00:00:00',
                 };
                 const divisionData = {
                     fixtures: [],

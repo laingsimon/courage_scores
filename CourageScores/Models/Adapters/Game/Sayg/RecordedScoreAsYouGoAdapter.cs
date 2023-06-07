@@ -4,7 +4,7 @@ using CourageScores.Services;
 
 namespace CourageScores.Models.Adapters.Game.Sayg;
 
-public class RecordedScoreAsYouGoAdapter : ISimpleAdapter<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>
+public class RecordedScoreAsYouGoAdapter : IAdapter<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>
 {
     private readonly ISimpleAdapter<Leg, LegDto> _legAdapter;
 
@@ -26,7 +26,7 @@ public class RecordedScoreAsYouGoAdapter : ISimpleAdapter<RecordedScoreAsYouGo, 
             OpponentName = model.OpponentName,
             NumberOfLegs = model.NumberOfLegs,
             StartingScore = model.StartingScore,
-        };
+        }.AddAuditProperties(model);
     }
 
     public async Task<RecordedScoreAsYouGo> Adapt(RecordedScoreAsYouGoDto dto, CancellationToken token)
@@ -42,6 +42,6 @@ public class RecordedScoreAsYouGoAdapter : ISimpleAdapter<RecordedScoreAsYouGo, 
             OpponentName = dto.OpponentName,
             NumberOfLegs = dto.NumberOfLegs,
             StartingScore = dto.StartingScore,
-        };
+        }.AddAuditProperties(dto);
     }
 }

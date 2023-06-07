@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {any, isEmpty, stateChanged} from "../../Utilities";
+import {any, isEmpty} from "../../helpers/collections";
+import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {ReportNotFound} from "./ReportNotFound";

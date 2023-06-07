@@ -1,9 +1,10 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../helpers/tests";
 import React from "react";
 import {DivisionControls} from "./DivisionControls";
-import {createTemporaryId, renderDate} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
+import {renderDate} from "../helpers/rendering";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -21,16 +22,16 @@ describe('DivisionControls', () => {
     let updatedSeason;
     let updatedDivision;
     const seasonApi = {
-        update: (data) => {
-            updatedSeason = data;
+        update: (data, lastUpdated) => {
+            updatedSeason = { data, lastUpdated };
             return {
                 success: true
             }
         }
     };
     const divisionApi = {
-        update: (data) => {
-            updatedDivision = data;
+        update: (data, lastUpdated) => {
+            updatedDivision = { data, lastUpdated };
             return {
                 success: true
             }

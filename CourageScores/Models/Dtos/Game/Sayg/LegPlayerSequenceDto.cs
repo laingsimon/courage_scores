@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Game.Sayg;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Game.Sayg;
 
 /// <summary>
 /// The position of the player in the sequence of players
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class LegPlayerSequenceDto
 {
     /// <summary>

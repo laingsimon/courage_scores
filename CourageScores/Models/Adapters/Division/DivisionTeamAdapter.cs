@@ -26,6 +26,7 @@ public class DivisionTeamAdapter : IDivisionTeamAdapter
             MatchesLost = players.Sum(p => p.Singles.MatchesLost + p.Pairs.MatchesLost + p.Triples.MatchesLost),
             WinRate = winRate,
             LossRate = lossRate,
+            Updated = team.Updated,
         });
     }
 
@@ -38,6 +39,7 @@ public class DivisionTeamAdapter : IDivisionTeamAdapter
             Played = 0,
             Name = team.Name,
             Points = 0,
+            Updated = team.Updated,
         });
     }
 }

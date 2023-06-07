@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../tests/helpers";
-import {renderDate} from "../../Utilities";
+import {cleanUp, renderApp} from "../../helpers/tests";
+import {renderDate} from "../../helpers/rendering";
 import React from "react";
 import {FilterFixtures} from "./FilterFixtures";
 import {DivisionDataContainer} from "../DivisionDataContainer";
