@@ -50,6 +50,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             };
         }
 
+        var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(game, update);
+
         var user = (await _userService.GetUser(token))!;
         game.Address = update.Address;
         game.Date = update.Date;
@@ -71,7 +73,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await SetUpdated(game.Round, game.Sides, token);
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
-        _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
         return CommandResult.SuccessNoMessage;
     }
 
@@ -174,5 +176,15 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Notes = player.Notes,
             DivisionId = player.DivisionId,
         };
+    }
+
+    private static Guid GetDivisionIdToEvictFromCache(TournamentGame game, EditTournamentGameDto update)
+    {
+        if (game.DivisionId == update.DivisionId)
+        {
+            return game.DivisionId ?? ScopedCacheManagementFlags.EvictAll;
+        }
+
+        return ScopedCacheManagementFlags.EvictAll;
     }
 }
