@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 import {Link} from "react-router-dom";
@@ -21,6 +21,10 @@ export function DivisionPlayer({ player, hideVenue }) {
         name: player.team
     };
     const { playerApi } = useDependencies();
+
+    useEffect(() => {
+        setPlayerDetails(Object.assign({}, player));
+    }, [player]);
 
     async function playerDetailSaved() {
         await onReloadDivision();
