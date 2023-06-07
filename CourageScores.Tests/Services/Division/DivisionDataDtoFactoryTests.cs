@@ -368,7 +368,7 @@ public class DivisionDataDtoFactoryTests
             Date = new DateTime(2001, 02, 03),
             Id = Guid.NewGuid(),
             SeasonId = season.Id,
-            IsKnockout = true,
+            IsKnockout = false,
             Home = new GameTeam { Id = thisDivisionTeam.Id },
             Away = new GameTeam { Id = otherDivisionTeam.Id },
             Matches =
