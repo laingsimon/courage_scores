@@ -146,9 +146,7 @@ describe('NavMenu', () => {
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
             const items = Array.from(menu.querySelectorAll('li'));
-            const toggler = context.container.querySelector('.navbar-toggler');
-            expect(toggler).toBeTruthy();
-            await doClick(toggler);
+            await doClick(context.container.querySelector('.navbar-toggler'));
             expect(isExpanded()).toEqual(true);
 
             const link = items[2].querySelector('a');

@@ -70,10 +70,8 @@ describe('ScoreCardHeading', () => {
     async function assertRevertToFixtureData(home, data) {
         const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
         expect(heading).toBeTruthy();
-        const toggle = heading.querySelector('span');
-        expect(toggle).toBeTruthy();
 
-        await doClick(heading, 'span');
+        await doClick(heading.querySelector('span'));
 
         expect(updatedSubmission).toEqual(null);
         expect(updatedFixtureData).toEqual(data);
@@ -82,10 +80,8 @@ describe('ScoreCardHeading', () => {
     async function assertDisplayOfSubmissionData(home, data) {
         const heading = context.container.querySelector(`thead > tr > td:nth-child(${home ? 1 : 3})`);
         expect(heading).toBeTruthy();
-        const toggle = heading.querySelector('span');
-        expect(toggle).toBeTruthy();
 
-        await doClick(heading, 'span');
+        await doClick(heading.querySelector('span'));
 
         expect(updatedSubmission).toEqual(home ? 'home' : 'away');
         expect(updatedFixtureData).toEqual(home ? data.homeSubmission : data.awaySubmission);

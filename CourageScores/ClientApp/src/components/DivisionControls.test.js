@@ -114,9 +114,7 @@ describe('DivisionControls', () => {
     }
 
     async function toggleDropdown(group) {
-        const toggle = group.querySelector('.dropdown-toggle');
-        expect(toggle).toBeTruthy();
-        await doClick(toggle);
+        await doClick(group.querySelector('.dropdown-toggle'));
     }
 
     function assertDropdownOpen(group, expectOpen) {

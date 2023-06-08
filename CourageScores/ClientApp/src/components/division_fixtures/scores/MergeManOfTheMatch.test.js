@@ -195,9 +195,8 @@ describe('MergeManOfTheMatch', () => {
                 },
             };
             await renderComponent(data, allPlayers);
-            const homeMOM = context.container.querySelector('td:nth-child(1)');
 
-            await doClick(findButton(homeMOM, 'Use MOM'));
+            await doClick(findButton(context.container.querySelector('td:nth-child(1)'), 'Use MOM'));
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();
@@ -220,9 +219,8 @@ describe('MergeManOfTheMatch', () => {
                 },
             };
             await renderComponent(data, allPlayers);
-            const awayMOM = context.container.querySelector('td:nth-child(3)');
 
-            await doClick(findButton(awayMOM, 'Use MOM'));
+            await doClick(findButton(context.container.querySelector('td:nth-child(3)'), 'Use MOM'));
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();

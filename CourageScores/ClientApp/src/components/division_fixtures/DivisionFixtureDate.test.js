@@ -401,10 +401,8 @@ describe('DivisionFixtureDate', () => {
                 renderContext: {},
                 showPlayers: {},
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]');
-            expect(toggle).toBeTruthy();
 
-            await doClick(toggle);
+            await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
             expect(showPlayers).toEqual({
                 '2023-05-06T00:00:00': true
@@ -438,10 +436,8 @@ describe('DivisionFixtureDate', () => {
                     '2023-05-06T00:00:00': true
                 },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, players: [] }, account);
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]');
-            expect(toggle).toBeTruthy();
 
-            await doClick(toggle);
+            await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
             expect(showPlayers).toEqual({});
         });
@@ -615,9 +611,7 @@ describe('DivisionFixtureDate', () => {
                 showPlayers: {},
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]');
-            expect(toggle).toBeTruthy();
-            await doClick(toggle);
+            await doClick(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]'));
 
             expect(newFixtures).toEqual([{
                 date: '2023-05-06T00:00:00',
