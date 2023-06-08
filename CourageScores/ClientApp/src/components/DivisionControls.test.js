@@ -492,7 +492,7 @@ describe('DivisionControls', () => {
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${division5.id}/OVERRIDE/${season6.id}`);
 
-                await doClick(findButton(group, 'Season 5 (7 May - 7 Aug)'));
+                await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
                 expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.id}/OVERRIDE/${season5.id}`);
             });
@@ -512,7 +512,7 @@ describe('DivisionControls', () => {
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${division5.id}/team:TEAM_ID/${season6.id}`);
 
-                await doClick(findButton(group, 'Season 5 (7 May - 7 Aug)'));
+                await doClick(findButton(group, `Season 5 ${seasonDates(season5)}`));
 
                 expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.id}/teams/${season5.id}`);
             });
@@ -532,7 +532,7 @@ describe('DivisionControls', () => {
                 const option = getOption(group, 'Season 6');
                 expect(option.href).toContain(`/division/${division5.id}/player:PLAYER_ID/${season6.id}`);
 
-                await doClick(findButton(group, 'Season 5 (7 May - 7 Aug)'));
+                await doClick(findButton(group, 'Season 5 ' + seasonDates(season5)));
 
                 expect(mockedUsedNavigate).toHaveBeenCalledWith(`/division/${division5.id}/players/${season5.id}`);
             });
@@ -571,7 +571,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
 
-                await doClick(findButton(getSeasonButtonGroup(), 'Season 5 (7 May - 7 Aug)✏'));
+                await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeTruthy();
@@ -601,7 +601,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                await doClick(findButton(getSeasonButtonGroup(), 'Season 5 (7 May - 7 Aug)✏'));
+                await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 await doClick(findButton(context.container, 'Update season'));
 
@@ -620,7 +620,7 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                await doClick(findButton(getSeasonButtonGroup(), 'Season 5 (7 May - 7 Aug)✏'));
+                await doClick(findButton(getSeasonButtonGroup(), `Season 5 ${seasonDates(season5)}✏`));
 
                 await doClick(findButton(context.container, 'Close'));
 
