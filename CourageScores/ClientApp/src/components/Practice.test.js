@@ -56,80 +56,107 @@ describe('Practice', () => {
             '/practice' + hash);
     }
 
-    it('logged out - renders given no saved data', async () => {
-        await renderComponent(null, '');
-
-        expect(reportedError).toBeFalsy();
-        const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toEqual(5);
+    function assertNoDataError() {
         const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).toBeNull();
-    });
+        expect(dataError).toBeFalsy();
+    }
 
-    it('logged out - renders given empty saved data', async () => {
-        await renderComponent(null, '#');
-
-        expect(reportedError).toBeFalsy();
-        const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toEqual(5);
+    function assertDataError(error) {
         const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).toBeNull();
-    });
+        expect(dataError).toBeTruthy();
+        expect(dataError.textContent).toContain(error);
+    }
 
-    it('logged out - renders given not-found data', async () => {
-        const data = '#not-found';
+    function assertInputValue(name, value) {
+        const input = context.container.querySelector(`input[name="${name}"]`);
+        expect(input).toBeTruthy();
+        expect(input.value).toEqual(value);
+    }
 
-        await renderComponent(null, data);
+    function assertScoreInputVisible() {
+        const scoreInput = context.container.querySelector('input[data-score-input="true"]');
+        expect(scoreInput).toBeTruthy();
+    }
 
-        expect(reportedError).toBeFalsy();
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).not.toBeNull();
-        expect(dataError.querySelector('p').innerHTML).toEqual('Data not found');
-    });
+    describe('logged out', () => {
+        const account = null;
 
-    it('logged out - renders given valid incomplete json data', async () => {
-        const jsonData = {
-            startingScore: 123,
-            numberOfLegs: 2,
-            legs: {
-                '0': {}
-            },
-            homeScore: 1,
-            yourName: 'you',
-            opponentName: '',
-            id: createTemporaryId(),
-        };
-        saygData[jsonData.id] = jsonData;
+        it('renders given no saved data', async () => {
+            await renderComponent(account, '');
 
-        await renderComponent(null, '#' + jsonData.id);
+            expect(reportedError).toBeNull();
+            const inputs = context.container.querySelectorAll('input');
+            expect(inputs.length).toEqual(5);
+            assertNoDataError();
+        });
 
-        expect(reportedError).toBeFalsy();
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).toBeNull();
-        const inputs = context.container.querySelectorAll('input');
-        expect(inputs.length).toEqual(5); // the settings + score input
-    });
+        it('renders given empty saved data', async () => {
+            await renderComponent(account, '#');
 
-    it('logged out - renders given valid completed json data', async () => {
-        const jsonData = {
-            startingScore: 123,
-            numberOfLegs: 1,
-            legs: {},
-            homeScore: 1,
-            awayScore: 2,
-            yourName: 'you',
-            opponentName: 'them',
-            id: createTemporaryId(),
-        };
-        saygData[jsonData.id] = jsonData;
+            expect(reportedError).toBeNull();
+            const inputs = context.container.querySelectorAll('input');
+            expect(inputs.length).toEqual(5);
+            assertNoDataError();
+        });
 
-        await renderComponent(null, '#' + jsonData.id);
+        it('renders given not-found data', async () => {
+            const data = '#not-found';
 
-        expect(reportedError).toBeFalsy();
-        const dataError = context.container.querySelector('div[data-name="data-error"]');
-        expect(dataError).toBeNull();
-        const matchStatistics = context.container.querySelector('h4');
-        expect(matchStatistics).not.toBeNull();
-        expect(matchStatistics.innerHTML).toEqual('Match statistics');
+            await renderComponent(account, data);
+
+            expect(reportedError).toBeNull();
+            assertDataError('Data not found');
+        });
+
+        it('renders given valid unfinished json data', async () => {
+            const jsonData = {
+                startingScore: 123,
+                numberOfLegs: 2,
+                legs: {
+                    '0': {}
+                },
+                homeScore: 1,
+                yourName: 'Simon',
+                opponentName: '',
+                id: createTemporaryId(),
+            };
+            saygData[jsonData.id] = jsonData;
+
+            await renderComponent(account, '#' + jsonData.id);
+
+            expect(reportedError).toBeNull();
+            assertNoDataError();
+            assertInputValue('yourName', 'Simon');
+            assertInputValue('startingScore', '123');
+            assertInputValue('numberOfLegs', '2');
+            assertInputValue('opponentName', '');
+            assertScoreInputVisible();
+        });
+
+        it('renders given valid completed json data', async () => {
+            const jsonData = {
+                startingScore: 123,
+                numberOfLegs: 1,
+                legs: {},
+                homeScore: 1,
+                awayScore: 2,
+                yourName: 'you',
+                opponentName: 'them',
+                id: createTemporaryId(),
+            };
+            saygData[jsonData.id] = jsonData;
+
+            await renderComponent(account, '#' + jsonData.id);
+
+            expect(reportedError).toBeNull();
+            assertNoDataError();
+            assertInputValue('yourName', 'you');
+            assertInputValue('startingScore', '123');
+            assertInputValue('numberOfLegs', '1');
+            assertInputValue('opponentName', 'them');
+            const matchStatistics = context.container.querySelector('h4');
+            expect(matchStatistics).toBeTruthy();
+            expect(matchStatistics.textContent).toEqual('Match statistics');
+        });
     });
 });
