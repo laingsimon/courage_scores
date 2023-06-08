@@ -36,7 +36,7 @@ export function Practice() {
                 return;
             }
 
-            if (sayg && sayg.loaded) {
+            if (sayg.loaded) {
                 // data already loaded
                 return;
             }
@@ -80,10 +80,6 @@ export function Practice() {
     }
 
     async function saveDataAndGetId() {
-        if (!sayg) {
-            return '';
-        }
-
         try {
             const response = await saygApi.upsert(sayg);
             if (response.success) {
