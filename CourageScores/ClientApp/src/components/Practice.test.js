@@ -329,6 +329,24 @@ describe('Practice', () => {
                 }],
             });
         });
+
+        it('can complete a leg', async () => {
+            await renderComponent(account, '');
+            expect(reportedError).toBeNull();
+            assertNoDataError();
+            doChange(context.container, 'input[name="startingScore"]', '501');
+            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doClick(findButton(context.container, '📌📌📌')); // 321 left
+            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doClick(findButton(context.container, '📌📌📌')); // 141 left
+            doChange(context.container, 'input[data-score-input="true"]', '141');
+            await doClick(findButton(context.container, '📌📌📌')); // checkout
+
+            await doClick(findButton(context.container, '🔗'));
+            const id = Object.keys(saygData)[0];
+            expect(saygData[id].homeScore).toEqual(1);
+            expect(saygData[id].awayScore).toEqual(0);
+        });
     });
 
     describe('logged in', () => {
