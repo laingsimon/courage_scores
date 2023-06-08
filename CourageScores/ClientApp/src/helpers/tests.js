@@ -78,3 +78,24 @@ export function findButton(container, text) {
     }
     throw new Error(`Multiple buttons (${matching.length}) exist with text = ${text}`);
 }
+
+export async function doSelectOption(container, text) {
+    if (!container) {
+        throw new Error('Container not supplied');
+    }
+
+    if (!container.className || container.className.indexOf('dropdown-menu') === -1) {
+        throw new Error('Container must be a dropdown menu');
+    }
+
+    const items = Array.from(container.querySelectorAll('.dropdown-item'));
+    const matchingItems = items.filter(i => i.textContent === text);
+    if (matchingItems.length === 0) {
+        throw new Error(`Could not find item with text: ${text}`);
+    }
+    if (matchingItems.length > 1) {
+        throw new Error(`${matchingItems.length} items match given text: ${text}`);
+    }
+
+    await doClick(matchingItems[0]);
+}
