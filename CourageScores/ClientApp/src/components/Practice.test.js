@@ -307,6 +307,28 @@ describe('Practice', () => {
             expect(saygData[jsonData.id].awayScore).toEqual(0);
             expect(Object.keys(saygData[jsonData.id].legs)).toEqual(['0']);
         });
+
+        it('can record scores as they are entered', async () => {
+            await renderComponent(account, '');
+            expect(reportedError).toBeNull();
+            assertNoDataError();
+
+            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doClick(findButton(context.container, '📌📌📌'));
+
+            await doClick(findButton(context.container, '🔗'));
+            const id = Object.keys(saygData)[0];
+            expect(saygData[id].legs['0'].home).toEqual({
+                noOfDarts: 3,
+                score: 180,
+                bust: false,
+                throws: [{
+                    bust: false,
+                    noOfDarts: 3,
+                    score: 180,
+                }],
+            });
+        });
     });
 
     describe('logged in', () => {
