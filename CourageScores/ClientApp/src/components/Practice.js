@@ -31,22 +31,18 @@ export function Practice() {
     const hasHash = location.hash && location.hash !== '#';
 
     useEffect(() => {
-        try {
-            if (!hasHash || dataError || loading) {
-                return;
-            }
-
-            if (sayg.loaded) {
-                // data already loaded
-                return;
-            }
-
-            setLoading(true);
-            // noinspection JSIgnoredPromiseFromCall
-            loadData(location.hash.substring(1));
-        } catch (e) {
-            onError(e);
+        if (!hasHash || dataError || loading) {
+            return;
         }
+
+        if (sayg.loaded) {
+            // data already loaded
+            return;
+        }
+
+        setLoading(true);
+        // noinspection JSIgnoredPromiseFromCall
+        loadData(location.hash.substring(1));
     },
     // eslint-disable-next-line
     [ location, loading, onError ]);
