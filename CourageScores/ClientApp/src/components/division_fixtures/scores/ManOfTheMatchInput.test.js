@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 
@@ -333,11 +333,8 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 await renderComponent(false, account, fixtureData, 'admin');
                 const homeMOM = context.container.querySelectorAll('td')[0];
-                const awayPlayerMenuItem = homeMOM.querySelector('div.btn-group button[role="menuitem"]:nth-child(2)');
-                expect(awayPlayerMenuItem).toBeTruthy();
-                expect(awayPlayerMenuItem.textContent).toEqual('AWAY player');
 
-                await doClick(awayPlayerMenuItem);
+                await doSelectOption(homeMOM.querySelector('.dropdown-menu'), 'AWAY player')
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.home.manOfTheMatch).toEqual(awayPlayer.id);
@@ -370,7 +367,7 @@ describe('ManOfTheMatchInput', () => {
                 await renderComponent(false, account, fixtureData, 'admin');
                 const homeMOM = context.container.querySelectorAll('td')[0];
 
-                await doClick(homeMOM, 'div.btn-group button[role="menuitem"]:nth-child(1)'); // < unselected, AWAY player, HOME player >
+                await doSelectOption(homeMOM.querySelector('.dropdown-menu'), ' ');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.home.manOfTheMatch).toBeUndefined();
@@ -401,11 +398,8 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 await renderComponent(false, account, fixtureData, 'admin');
                 const awayMOM = context.container.querySelectorAll('td')[2];
-                const homePlayerMenuItem = awayMOM.querySelector('div.btn-group button[role="menuitem"]:nth-child(3)');
-                expect(homePlayerMenuItem).toBeTruthy();
-                expect(homePlayerMenuItem.textContent).toEqual('HOME player');
 
-                await doClick(homePlayerMenuItem);
+                await doSelectOption(awayMOM.querySelector('.dropdown-menu'), 'HOME player');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.away.manOfTheMatch).toEqual(homePlayer.id);
@@ -438,7 +432,7 @@ describe('ManOfTheMatchInput', () => {
                 await renderComponent(false, account, fixtureData, 'admin');
                 const awayMOM = context.container.querySelectorAll('td')[2];
 
-                await doClick(awayMOM, 'div.btn-group button[role="menuitem"]:nth-child(1)'); // < unselected, AWAY player, HOME player >
+                await doSelectOption(awayMOM.querySelector('.dropdown-menu'), ' ');
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.away.manOfTheMatch).toBeUndefined();

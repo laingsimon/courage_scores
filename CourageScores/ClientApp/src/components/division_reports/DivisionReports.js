@@ -28,7 +28,10 @@ export function DivisionReports() {
             const result = await reportApi.getReport(request);
             setReportData(result);
             if (any(result.reports)) {
-                setActiveReport(result.reports[0].name);
+                const selectedReportExists = any(result.reports, r => r.name === activeReport);
+                if (!selectedReportExists) {
+                    setActiveReport(result.reports[0].name);
+                }
             } else {
                 setActiveReport(null);
             }

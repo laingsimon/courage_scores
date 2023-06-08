@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
@@ -92,15 +92,7 @@ describe('MatchPlayerSelection', () => {
     }
 
     async function selectPlayer(cell, playerName) {
-        const options = Array.from(cell.querySelectorAll('button.dropdown-item'));
-        const option = options.filter(o => o.textContent === playerName)[0];
-        if (option) {
-            await doClick(option);
-            return;
-        }
-
-        console.log(options.map(o => o.textContent));
-        expect(option).toBeTruthy();
+        await doSelectOption(cell.querySelector('.dropdown-menu'), playerName);
     }
 
     describe('renders', () => {

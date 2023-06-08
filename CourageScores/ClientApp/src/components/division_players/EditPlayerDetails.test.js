@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails} from "./EditPlayerDetails";
@@ -208,10 +208,8 @@ describe('EditPlayerDetails', () => {
             }, [ team, otherTeam ], [ division, otherDivision ]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            const otherTeamItem = findNewTeamDropdown().querySelector('.dropdown-item:nth-child(2)');
-            expect(otherTeamItem.textContent).toEqual('OTHER TEAM');
 
-            await doClick(otherTeamItem);
+            await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('teamId');
@@ -235,10 +233,8 @@ describe('EditPlayerDetails', () => {
             }, [ team, otherTeam ], [ division, otherDivision ]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            const otherTeamItem = findNewTeamDropdown().querySelector('.dropdown-item:not(.active)');
-            expect(otherTeamItem.textContent).toEqual('OTHER TEAM');
 
-            await doClick(otherTeamItem);
+            await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('newTeamId');
@@ -285,10 +281,8 @@ describe('EditPlayerDetails', () => {
                 newDivisionId: null,
             }, [ team, otherTeam ], [ division, otherDivision ]);
             expect(reportedError).toBeNull();
-            const otherDivisionItem = findNewDivisionDropdown().querySelector('.dropdown-item:not(.active)');
-            expect(otherDivisionItem.textContent).toEqual('OTHER DIVISION');
 
-            await doClick(otherDivisionItem);
+            await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('newDivisionId');

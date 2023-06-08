@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, renderApp, doChange, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
 import {createTemporaryId} from "../../../helpers/projection";
 
@@ -346,12 +346,8 @@ describe('HiCheckAnd180s', () => {
 
                await renderComponent(false, 'admin', fixtureData);
                const td180s = context.container.querySelectorAll('td')[0];
-               expect(td180s).toBeTruthy();
                const addPlayerContainer = td180s.querySelector('ol li:last-child');
-               expect(addPlayerContainer).toBeTruthy();
-               const options = addPlayerContainer.querySelector('div.btn-group > div');
-               expect(options.querySelector('button:nth-child(2)').textContent).toEqual('AWAY player');
-               await doClick(options, 'button:nth-child(2)'); // < unselected, AWAY player, HOME player >
+               await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu'), 'AWAY player');
                await doClick(findButton(addPlayerContainer, '➕'));
 
                expect(updatedFixtureData).toBeTruthy();
@@ -410,13 +406,9 @@ describe('HiCheckAnd180s', () => {
 
                await renderComponent(false, 'admin', fixtureData);
                const tdHiChecks = context.container.querySelectorAll('td')[2];
-               expect(tdHiChecks).toBeTruthy();
                const addPlayerContainer = tdHiChecks.querySelector('ol li:last-child');
-               expect(addPlayerContainer).toBeTruthy();
                doChange(addPlayerContainer, 'input', '140');
-               const options = addPlayerContainer.querySelector('div.btn-group > div');
-               expect(options.querySelector('button:nth-child(2)').textContent).toEqual('AWAY player');
-               await doClick(options, 'button:nth-child(2)'); // < unselected, AWAY player, HOME player >
+               await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu'), 'AWAY player')
                await doClick(findButton(addPlayerContainer, '➕'));
 
                expect(updatedFixtureData).toBeTruthy();

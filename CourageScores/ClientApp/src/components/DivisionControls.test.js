@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../helpers/tests";
 import React from "react";
 import {DivisionControls} from "./DivisionControls";
 import {createTemporaryId} from "../helpers/projection";
@@ -114,9 +114,7 @@ describe('DivisionControls', () => {
     }
 
     async function toggleDropdown(group) {
-        const toggle = group.querySelector('.dropdown-toggle');
-        expect(toggle).toBeTruthy();
-        await doClick(toggle);
+        await doClick(group.querySelector('.dropdown-toggle'));
     }
 
     function assertDropdownOpen(group, expectOpen) {
@@ -585,9 +583,8 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const addSeasonOption = getOption(getSeasonButtonGroup(), '➕ New season');
 
-                await doClick(addSeasonOption, 'span');
+                await doSelectOption(getSeasonButtonGroup().querySelector('.dropdown-menu'), '➕ New season');
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeTruthy();
@@ -650,9 +647,8 @@ describe('DivisionControls', () => {
                     overrideMode: null,
                 }, account, seasons, divisions);
                 expect(reportedError).toBeNull();
-                const addDivisionOption = getOption(getDivisionButtonGroup(), '➕ New division');
 
-                await doClick(addDivisionOption, 'span');
+                await doSelectOption(getDivisionButtonGroup().querySelector('.dropdown-menu'), '➕ New division');
 
                 const dialog = context.container.querySelector('.btn-group .modal-dialog');
                 expect(dialog).toBeTruthy();

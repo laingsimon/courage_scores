@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange} from "../../helpers/tests";
+import {cleanUp, renderApp, findButton, doClick, doChange, doSelectOption} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionFixtures} from "./DivisionFixtures";
@@ -391,7 +391,7 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
             const filterContainer = context.container.querySelector('.light-background > div:first-child');
 
-            await doClick(filterContainer, '.dropdown-menu .dropdown-item:not(.active)');
+            await doSelectOption(filterContainer.querySelector('.dropdown-menu'), 'League fixtures');
 
             expect(reportedError).toBeNull();
         });

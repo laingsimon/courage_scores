@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../helpers/tests";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails} from "./EditTeamDetails";
@@ -226,7 +226,7 @@ describe('EditTeamDetails', () => {
             }, [ division, otherDivision ]);
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
 
-            await doClick(divisionGroup, '.dropdown-item:not(.active)');
+            await doSelectOption(divisionGroup.querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
             expect(change).toBeTruthy();
             expect(change.name).toEqual('newDivisionId');

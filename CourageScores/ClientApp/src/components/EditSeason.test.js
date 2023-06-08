@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
 import {createTemporaryId} from "../helpers/projection";
@@ -210,10 +210,7 @@ describe('EditSeason', () => {
         }, [ otherSeason ], divisions);
         expect(reportedError).toBeNull();
 
-        const otherSeasonMenuItem = context.container.querySelector('div.dropdown-menu button.dropdown-item');
-        expect(otherSeasonMenuItem).toBeTruthy();
-        expect(otherSeasonMenuItem.textContent).toEqual('OTHER SEASON');
-        await doClick(otherSeasonMenuItem);
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
 
         expect(reportedError).toBeNull();
         expect(updatedData.copyTeamsFromSeasonId).toEqual(otherSeason.id);
