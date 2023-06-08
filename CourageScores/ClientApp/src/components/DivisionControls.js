@@ -126,8 +126,8 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
                     {seasons.sort(sortBy('startDate', true)).map(s => (<Link key={s.id} className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}`}>
                         {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
                     </Link>))}
-                    {isSeasonAdmin ? (<DropdownItem>
-                        <span onClick={() => setSeasonData({})} className="btn">➕ New season</span>
+                    {isSeasonAdmin ? (<DropdownItem onClick={() => setSeasonData({})}>
+                        <span className="btn">➕ New season</span>
                     </DropdownItem>) : null}
                 </DropdownMenu>) : null}
             </ButtonDropdown>
@@ -140,8 +140,8 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
                         {divisions.filter(shouldShowDivision).sort(sortBy('name')).map(d => (<Link key={d.id} className={`dropdown-item ${originalDivisionData.id === d.id ? ' active' : ''}${isDivisionSelected(d) ? '' : ' text-warning'}`} to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>))}
-                        {isDivisionAdmin ? (<DropdownItem>
-                            <span className="btn" onClick={() => setDivisionData({})}>➕ New division</span>
+                        {isDivisionAdmin ? (<DropdownItem onClick={() => setDivisionData({})}>
+                            <span className="btn">➕ New division</span>
                         </DropdownItem>) : null}
                     </DropdownMenu>) : null}
                 </ButtonDropdown>) : null}

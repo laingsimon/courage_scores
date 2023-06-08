@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";
@@ -546,7 +546,7 @@ describe('DivisionFixture', () => {
                 toMap([ homeTeam, awayTeam, anotherTeam ]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
-            await doClick(findButton(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM'));
+            await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
@@ -590,7 +590,7 @@ describe('DivisionFixture', () => {
                 toMap([ homeTeam, awayTeam, anotherTeam ]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
-            await doClick(findButton(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM'));
+            await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
@@ -810,9 +810,8 @@ describe('DivisionFixture', () => {
                 account,
                 toMap([ homeTeam, awayTeam, anotherTeam ]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
-            const anotherTeamOption = findButton(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
-            await doClick(anotherTeamOption);
+            await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).toBeNull();

@@ -91,7 +91,7 @@ export async function doSelectOption(container, text) {
     const items = Array.from(container.querySelectorAll('.dropdown-item'));
     const matchingItems = items.filter(i => i.textContent === text);
     if (matchingItems.length === 0) {
-        throw new Error(`Could not find item with text: ${text}`);
+        throw new Error(`Could not find item with text: ${text}, possible options: ${items.map(i => `"${i.textContent}"`).join(', ')}`);
     }
     if (matchingItems.length > 1) {
         throw new Error(`${matchingItems.length} items match given text: ${text}`);

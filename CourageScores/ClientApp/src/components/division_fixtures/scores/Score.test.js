@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton, doChange, doSelectOption} from "../../../helpers/tests";
 import React from "react";
 import {toMap, any} from "../../../helpers/collections";
 import {createTemporaryId} from "../../../helpers/projection";
@@ -536,7 +536,7 @@ describe('Score', () => {
             const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
-            await doClick(findButton(playerSelection, 'Add a player...'));
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
             expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create home player...');
@@ -559,7 +559,7 @@ describe('Score', () => {
             const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
-            await doClick(findButton(playerSelection, 'Add a player...'));
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
 
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
             expect(addPlayerDialog).toBeTruthy();
@@ -575,7 +575,7 @@ describe('Score', () => {
             const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
-            await doClick(findButton(playerSelection, 'Add a player...'));
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
 
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
 

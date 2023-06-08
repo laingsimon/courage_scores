@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import React from "react";
 import {Tournament} from "./Tournament";
 import {toMap, any} from "../../../helpers/collections";
@@ -660,7 +660,7 @@ describe('Tournament', () => {
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
 
                 doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
-                await doClick(addPlayerDialog, '.dropdown-menu .dropdown-item:not(.active)'); //select a team
+                await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
                 await doClick(findButton(addPlayerDialog, 'Add player'));
 
                 expect(reportedError).toBeNull();
@@ -746,10 +746,8 @@ describe('Tournament', () => {
                 const notes = context.container.querySelector('.light-background > div:nth-child(3)');
                 doChange(notes, 'textarea', 'NEW NOTES');
                 const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
-                await doClick(accoladesCountAndDivision, 'input');
-                const divisionOption = accoladesCountAndDivision.querySelector('.dropdown-item:not(.active)');
-                expect(divisionOption.textContent).toEqual('All divisions');
-                await doClick(divisionOption);
+                await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
+                await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');
 
                 await assertDataChange(
                     tournamentData,

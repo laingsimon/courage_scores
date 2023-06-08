@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange} from "../../../helpers/tests";
+import {cleanUp, renderApp, findButton, doClick, doChange, doSelectOption} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap, any} from "../../../helpers/collections";
@@ -950,7 +950,7 @@ describe('TournamentRoundMatch', () => {
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-            await doClick(cells[0], '.dropdown-item:not(.active)');
+            await doSelectOption(cells[0].querySelector('.dropdown-menu'), 'SIDE C');
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
@@ -1012,7 +1012,7 @@ describe('TournamentRoundMatch', () => {
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-            await doClick(cells[4], '.dropdown-item:not(.active)');
+            await doSelectOption(cells[4].querySelector('.dropdown-menu'), 'SIDE C');
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
