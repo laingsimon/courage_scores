@@ -109,8 +109,6 @@ export function Practice() {
         newSayg.homeScore = 0;
         newSayg.awayScore = 0;
         setSayg(newSayg);
-
-        setSayg(newSayg);
     }
 
     function updateSayg(newData) {
