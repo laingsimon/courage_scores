@@ -540,7 +540,7 @@ describe('Score', () => {
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
             expect(addPlayerDialog).toBeTruthy();
             expect(addPlayerDialog.textContent).toContain('Create home player...');
-            doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
+            await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
             expect(reportedError).toBeNull();
@@ -644,7 +644,7 @@ describe('Score', () => {
             await doClick(findButton(playerSelection, '🛠'));
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
-            doChange(dialog, 'input[name="numberOfLegs"]', '30');
+            await doChange(dialog, 'input[name="numberOfLegs"]', '30', context.user);
             await doClick(findButton(dialog, 'Close'));
             await doClick(findButton(context.container, 'Save'));
 

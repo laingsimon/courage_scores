@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, awaitChange, findButton, doSelectOption} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import React from "react";
 import {TournamentRound} from "./TournamentRound";
 import {createTemporaryId} from "../../../helpers/projection";
@@ -452,7 +452,7 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
 
                 await doClick(context.container.querySelector('strong'));
-                doChange(context.container, 'input[name="name"]', 'ROUND NAME');
+                await doChange(context.container, 'input[name="name"]', 'ROUND NAME', context.user);
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
@@ -485,7 +485,7 @@ describe('TournamentRound', () => {
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideAScore = matchRow.querySelector('td:nth-child(2)');
 
-                doChange(sideAScore, 'input', '2');
+                await doChange(sideAScore, 'input', '2', context.user);
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
@@ -523,7 +523,7 @@ describe('TournamentRound', () => {
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 const sideBScore = matchRow.querySelector('td:nth-child(4)');
 
-                doChange(sideBScore, 'input', '2');
+                await doChange(sideBScore, 'input', '2', context.user);
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
@@ -563,7 +563,7 @@ describe('TournamentRound', () => {
                 await doClick(findButton(matchRow, '🛠'));
                 const matchOptionsDialog = context.container.querySelector('.modal-dialog');
                 expect(matchOptionsDialog).toBeTruthy();
-                await awaitChange(matchOptionsDialog, 'input[name="startingScore"]', '123', context.user);
+                await doChange(matchOptionsDialog, 'input[name="startingScore"]', '123', context.user);
                 await doClick(findButton(matchOptionsDialog, 'Close'));
                 expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
                 expect(reportedError).toBeNull();
@@ -931,7 +931,7 @@ describe('TournamentRound', () => {
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
                 const saygDialog = context.container.querySelector('.modal-dialog');
-                doChange(saygDialog, 'input[data-score-input="true"]', '180');
+                await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
                 expect(oneEighty).not.toBeNull();
@@ -985,7 +985,7 @@ describe('TournamentRound', () => {
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
                 const saygDialog = context.container.querySelector('.modal-dialog');
-                doChange(saygDialog, 'input[data-score-input="true"]', '150');
+                await doChange(saygDialog, 'input[data-score-input="true"]', '150', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
                 expect(hiCheck).not.toBeNull();

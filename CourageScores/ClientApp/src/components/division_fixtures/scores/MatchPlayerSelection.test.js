@@ -600,7 +600,7 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[1], 'input', '3');
+            await doChange(cells[1], 'input', '3', context.user);
 
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
@@ -624,7 +624,7 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[3], 'input', '3');
+            await doChange(cells[3], 'input', '3', context.user);
 
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
@@ -648,7 +648,7 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[1], 'input', '6');
+            await doChange(cells[1], 'input', '6', context.user);
 
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
@@ -672,7 +672,7 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[3], 'input', '6');
+            await doChange(cells[3], 'input', '6', context.user);
 
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
@@ -696,7 +696,7 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[1], 'input', '3');
+            await doChange(cells[1], 'input', '3', context.user);
 
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
@@ -720,7 +720,7 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[3], 'input', '3');
+            await doChange(cells[3], 'input', '3', context.user);
 
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
@@ -755,7 +755,7 @@ describe('MatchPlayerSelection', () => {
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
-            doChange(matchOptionsDialog, 'input[name="playerCount"]', '3');
+            await doChange(matchOptionsDialog, 'input[name="playerCount"]', '3', context.user);
 
             expect(updatedMatchOptions).not.toBeNull();
             expect(updatedMatchOptions).toEqual({
@@ -789,7 +789,7 @@ describe('MatchPlayerSelection', () => {
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
-            doChange(matchOptionsDialog, 'input[name="numberOfLegs"]', '3');
+            await doChange(matchOptionsDialog, 'input[name="numberOfLegs"]', '3', context.user);
 
             expect(updatedMatchOptions).not.toBeNull();
             expect(updatedMatchOptions).toEqual({
@@ -823,7 +823,7 @@ describe('MatchPlayerSelection', () => {
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
-            doChange(matchOptionsDialog, 'input[name="startingScore"]', '601');
+            await doChange(matchOptionsDialog, 'input[name="startingScore"]', '601', context.user);
 
             expect(updatedMatchOptions).not.toBeNull();
             expect(updatedMatchOptions).toEqual({
@@ -916,12 +916,12 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
 
-            doChange(cells[1], 'input', '3');
+            await doChange(cells[1], 'input', '3', context.user);
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();
 
-            doChange(cells[3], 'input', '3');
+            await doChange(cells[3], 'input', '3', context.user);
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).toBeNull();

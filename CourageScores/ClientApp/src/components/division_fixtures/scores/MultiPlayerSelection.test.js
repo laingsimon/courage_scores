@@ -318,7 +318,7 @@ describe('MultiPlayerSelection', () => {
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, 'PLAYER'));
-            doChange(context.container, 'ol > li:last-child > input[type="number"]', '100');
+            await doChange(context.container, 'ol > li:last-child > input[type="number"]', '100', context.user);
             await doClick(findButton(context.container, '➕'));
 
             expect(addedPlayer).not.toBeNull();

@@ -407,7 +407,7 @@ describe('HiCheckAnd180s', () => {
                await renderComponent(false, 'admin', fixtureData);
                const tdHiChecks = context.container.querySelectorAll('td')[2];
                const addPlayerContainer = tdHiChecks.querySelector('ol li:last-child');
-               doChange(addPlayerContainer, 'input', '140');
+               await doChange(addPlayerContainer, 'input', '140', context.user);
                await doSelectOption(addPlayerContainer.querySelector('.dropdown-menu'), 'AWAY player')
                await doClick(findButton(addPlayerContainer, '➕'));
 

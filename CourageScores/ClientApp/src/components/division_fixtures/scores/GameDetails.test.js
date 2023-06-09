@@ -280,7 +280,7 @@ describe('GameDetails', () => {
                 };
 
                 await renderComponent(false, 'admin', fixtureData);
-                doChange(context.container, 'input[name="date"]', '2023-05-01');
+                await doChange(context.container, 'input[name="date"]', '2023-05-01', context.user);
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.date).toEqual('2023-05-01');
@@ -302,7 +302,7 @@ describe('GameDetails', () => {
                 };
 
                 await renderComponent(false, 'admin', fixtureData);
-                doChange(context.container, 'input[name="address"]', 'NEW ADDRESS');
+                await doChange(context.container, 'input[name="address"]', 'NEW ADDRESS', context.user);
 
                 expect(updatedFixtureData).toBeTruthy();
                 expect(updatedFixtureData.address).toEqual('NEW ADDRESS');

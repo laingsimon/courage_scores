@@ -18,12 +18,16 @@ export async function doClick(container, selector) {
     });
 }
 
-export function doChange(container, selector, text) {
+export async function doChange(container, selector, text, user) {
     const input = container.querySelector(selector);
     // noinspection JSUnresolvedFunction
     expect(input).toBeTruthy();
 
     fireEvent.change(input, { target: { value: text } });
+    if (!user) {
+        throw new Error('user not available');
+    }
+    await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
 export async function awaitChange(container, selector, text, user) {

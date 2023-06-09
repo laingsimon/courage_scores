@@ -86,7 +86,7 @@ describe('EditDivision', () => {
         });
         expect(reportedError).toBeNull();
 
-        doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME');
+        await doChange(context.container, 'input[name="name"]', 'NEW DIVISION NAME', context.user);
 
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(division.id);

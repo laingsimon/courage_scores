@@ -50,9 +50,9 @@ describe('Errors', () => {
         await doClick(findButton(context.container, 'Refresh'));
     }
 
-    function setDate(since) {
+    async function setDate(since) {
         // since must be a date (otherwise event will fire with an empty string)
-        doChange(context.container, '.light-background .input-group input.form-control', since);
+        await doChange(context.container, '.light-background .input-group input.form-control', since, context.user);
     }
 
     async function clickErrorItem(index) {
@@ -139,7 +139,7 @@ describe('Errors', () => {
 
     it('shows empty results when none found', async () => {
         await renderComponent();
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ ]);
 
         assertResults(0);
@@ -149,7 +149,7 @@ describe('Errors', () => {
     it('shows error dialog on error', async () => {
         await renderComponent();
         errorToThrow = new Error('Some error');
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ ]);
 
         assertResults(0);
@@ -170,7 +170,7 @@ describe('Errors', () => {
             source: 'Ui'
         }
         await renderComponent();
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ apiError, uiError ]);
 
         const results = assertResults(2);
@@ -195,7 +195,7 @@ describe('Errors', () => {
             ]
         }
         await renderComponent();
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
@@ -211,7 +211,7 @@ describe('Errors', () => {
             source: 'Api'
         }
         await renderComponent();
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
@@ -233,7 +233,7 @@ describe('Errors', () => {
             ]
         }
         await renderComponent();
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 
@@ -249,7 +249,7 @@ describe('Errors', () => {
             source: 'Ui'
         }
         await renderComponent();
-        setDate('2001-02-03');
+        await setDate('2001-02-03');
         await clickRefresh('2001-02-03', [ data ]);
         await clickErrorItem(0);
 

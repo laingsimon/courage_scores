@@ -245,7 +245,7 @@ describe('Practice', () => {
             expect(reportedError).toBeNull();
             assertNoDataError();
 
-            doChange(context.container, 'input[name="yourName"]', 'YOU');
+            await doChange(context.container, 'input[name="yourName"]', 'YOU', context.user);
 
             await doClick(findButton(context.container, '🔗'));
             const id = Object.keys(saygData)[0];
@@ -256,12 +256,12 @@ describe('Practice', () => {
             await renderComponent(account, '');
             expect(reportedError).toBeNull();
             assertNoDataError();
-            doChange(context.container, 'input[name="opponentName"]', 'THEM');
+            await doChange(context.container, 'input[name="opponentName"]', 'THEM', context.user);
             await doClick(findButton(context.container, '🔗'));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].opponentName).toEqual('THEM');
 
-            doChange(context.container, 'input[name="opponentName"]', '');
+            await doChange(context.container, 'input[name="opponentName"]', '', context.user);
 
             await doClick(findButton(context.container, '🔗'));
             expect(saygData[id].opponentName).toEqual('');
@@ -313,7 +313,7 @@ describe('Practice', () => {
             expect(reportedError).toBeNull();
             assertNoDataError();
 
-            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
             await doClick(findButton(context.container, '🔗'));
@@ -334,12 +334,12 @@ describe('Practice', () => {
             await renderComponent(account, '');
             expect(reportedError).toBeNull();
             assertNoDataError();
-            doChange(context.container, 'input[name="startingScore"]', '501');
-            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌')); // 321 left
-            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌')); // 141 left
-            doChange(context.container, 'input[data-score-input="true"]', '141');
+            await doChange(context.container, 'input[data-score-input="true"]', '141', context.user);
             await doClick(findButton(context.container, '📌📌📌')); // checkout
 
             await doClick(findButton(context.container, '🔗'));

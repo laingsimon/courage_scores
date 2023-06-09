@@ -169,7 +169,7 @@ describe('DivisionTeam', () => {
             await doClick(findButton(firstCell, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
 
-            doChange(dialog, 'input[name="name"]', 'NEW TEAM');
+            await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
             await doClick(findButton(dialog, 'Save team'));
 
             expect(reportedError).toBeNull();
