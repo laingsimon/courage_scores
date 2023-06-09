@@ -31,8 +31,8 @@ export async function awaitChange(container, selector, text, user) {
     // noinspection JSUnresolvedFunction
     expect(input).toBeTruthy();
 
-    await user.clear(input);
-    await user.type(input, text);
+    fireEvent.change(input, { target: { value: text } });
+    await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
 export async function renderApp(iocProps, appProps, content, route, currentPath, containerTag) {

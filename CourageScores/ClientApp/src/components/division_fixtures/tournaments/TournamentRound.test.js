@@ -569,7 +569,7 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(updatedRound).not.toBeNull();
                 expect(updatedRound.matchOptions).toEqual([ {
-                    startingScore: '5013', // need to do some more work to fix the async callbacks with userEvent
+                    startingScore: '123',
                     numberOfLegs: 5,
                 }]);
             });
