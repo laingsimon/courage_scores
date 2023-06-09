@@ -227,7 +227,7 @@ describe('EditNote', () => {
             }, divisions, seasons);
             const dateGroup = context.container.querySelector('.modal-body > div > div:nth-child(1)');
 
-            doChange(dateGroup, 'input', '2023-06-06');
+            await doChange(dateGroup, 'input', '2023-06-06', context.user);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote.date).toEqual('2023-06-06');
@@ -243,7 +243,7 @@ describe('EditNote', () => {
             }, divisions, seasons);
             const noteGroup = context.container.querySelector('.modal-body > div > div:nth-child(2)');
 
-            doChange(noteGroup, 'textarea', 'Another note');
+            await doChange(noteGroup, 'textarea', 'Another note', context.user);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote.note).toEqual('Another note');
@@ -263,7 +263,7 @@ describe('EditNote', () => {
             }, divisions, [ season, anotherSeason ]);
             const seasonGroup = context.container.querySelector('.modal-body > div > div:nth-child(4)');
 
-            doChange(seasonGroup, 'select', anotherSeason.id);
+            await doChange(seasonGroup, 'select', anotherSeason.id, context.user);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote.seasonId).toEqual(anotherSeason.id);
@@ -283,7 +283,7 @@ describe('EditNote', () => {
             }, [ division, anotherDivision ], seasons);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
 
-            doChange(divisionGroup, 'select', anotherDivision.id);
+            await doChange(divisionGroup, 'select', anotherDivision.id, context.user);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote.divisionId).toEqual(anotherDivision.id);
@@ -299,7 +299,7 @@ describe('EditNote', () => {
             }, divisions, seasons);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
 
-            doChange(divisionGroup, 'select', 'NULL');
+            await doChange(divisionGroup, 'select', 'NULL', context.user);
 
             expect(changedNote).toBeTruthy();
             expect(changedNote.divisionId).toEqual(null);

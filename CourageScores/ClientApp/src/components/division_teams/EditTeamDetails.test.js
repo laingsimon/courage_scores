@@ -174,7 +174,7 @@ describe('EditTeamDetails', () => {
             }, [ division ]);
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
 
-            doChange(nameGroup, 'input', 'NEW');
+            await doChange(nameGroup, 'input', 'NEW', context.user);
 
             expect(change).toBeTruthy();
             expect(change.name).toEqual('name');
@@ -198,7 +198,7 @@ describe('EditTeamDetails', () => {
             }, [ division ]);
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
 
-            doChange(addressGroup, 'input', 'NEW');
+            await doChange(addressGroup, 'input', 'NEW', context.user);
 
             expect(change).toBeTruthy();
             expect(change.name).toEqual('address');

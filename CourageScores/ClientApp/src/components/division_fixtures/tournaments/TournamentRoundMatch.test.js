@@ -599,7 +599,7 @@ describe('TournamentRoundMatch', () => {
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
 
-            doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180');
+            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             expect(reportedError).toBeNull();
@@ -645,7 +645,7 @@ describe('TournamentRoundMatch', () => {
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
 
-            doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180');
+            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             expect(reportedError).toBeNull();
@@ -691,7 +691,7 @@ describe('TournamentRoundMatch', () => {
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
 
-            doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180');
+            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             expect(reportedError).toBeNull();
@@ -737,7 +737,7 @@ describe('TournamentRoundMatch', () => {
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
 
-            doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151');
+            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             expect(reportedError).toBeNull();
@@ -786,7 +786,7 @@ describe('TournamentRoundMatch', () => {
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
 
-            doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151');
+            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             expect(reportedError).toBeNull();
@@ -832,7 +832,7 @@ describe('TournamentRoundMatch', () => {
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
 
-            doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151');
+            await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
 
             expect(reportedError).toBeNull();
@@ -919,7 +919,7 @@ describe('TournamentRoundMatch', () => {
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-            doChange(cells[1], 'input', '5');
+            await doChange(cells[1], 'input', '5', context.user);
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
@@ -981,7 +981,7 @@ describe('TournamentRoundMatch', () => {
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-            doChange(cells[3], 'input', '5');
+            await doChange(cells[3], 'input', '5', context.user);
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({

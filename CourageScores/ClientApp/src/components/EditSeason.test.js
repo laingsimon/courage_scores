@@ -101,7 +101,7 @@ describe('EditSeason', () => {
         }, [ season ], divisions);
         expect(reportedError).toBeNull();
 
-        doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME');
+        await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
 
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
@@ -125,12 +125,12 @@ describe('EditSeason', () => {
         }, [ season ], divisions);
         expect(reportedError).toBeNull();
 
-        doChange(context.container, 'input[name="startDate"]', '2023-06-01');
+        await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.startDate).toEqual('2023-06-01');
 
-        doChange(context.container, 'input[name="endDate"]', '2023-09-01');
+        await doChange(context.container, 'input[name="endDate"]', '2023-09-01', context.user);
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
         expect(updatedData.endDate).toEqual('2023-09-01');

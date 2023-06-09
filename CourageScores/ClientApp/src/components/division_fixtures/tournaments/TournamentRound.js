@@ -127,8 +127,9 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
                 matchIndex={matchIndex}
                 onChange={onChange}
                 matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
-                onMatchOptionsChanged={(newMatchOptions) => onMatchOptionsChanged(newMatchOptions, matchIndex)}
-                on180={on180} onHiCheck={onHiCheck} />);
+                onMatchOptionsChanged={async (newMatchOptions) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
+                on180={on180}
+                onHiCheck={onHiCheck} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>

@@ -187,7 +187,7 @@ describe('ScoreAsYouGo', () => {
             singlePlayer: false,
         });
 
-        doChange(context.container, 'input[data-score-input="true"]', '101');
+        await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, '📌📌📌'));
 
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);
@@ -251,7 +251,7 @@ describe('ScoreAsYouGo', () => {
             singlePlayer: false,
         });
 
-        doChange(context.container, 'input[data-score-input="true"]', '101');
+        await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, '📌📌📌'));
 
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);
@@ -329,7 +329,7 @@ describe('ScoreAsYouGo', () => {
             singlePlayer: true,
         });
 
-        doChange(context.container, 'input[data-score-input="true"]', '101');
+        await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
         await doClick(findButton(context.container, '📌📌📌'));
 
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);

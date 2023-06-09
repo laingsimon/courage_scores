@@ -234,6 +234,7 @@ export function TournamentSide({ seasonId, side, onChange, otherSides, winner, r
         if (side.name !== (side.newName || side.name)) {
             const newSide = Object.assign({}, side);
             newSide.name = side.newName;
+            delete newSide.newName;
             if (onChange) {
                 await onChange(newSide);
             }

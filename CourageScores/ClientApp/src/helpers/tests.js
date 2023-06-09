@@ -1,4 +1,5 @@
 ﻿import {act, fireEvent} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {MemoryRouter, Route, Routes} from "react-router-dom";
 import {IocContainer} from "../IocContainer";
 import {AppContainer} from "../AppContainer";
@@ -17,12 +18,25 @@ export async function doClick(container, selector) {
     });
 }
 
-export function doChange(container, selector, text) {
+export async function doChange(container, selector, text, user) {
     const input = container.querySelector(selector);
     // noinspection JSUnresolvedFunction
     expect(input).toBeTruthy();
 
     fireEvent.change(input, { target: { value: text } });
+    if (!user) {
+        throw new Error('user not available');
+    }
+    await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
+}
+
+export async function awaitChange(container, selector, text, user) {
+    const input = container.querySelector(selector);
+    // noinspection JSUnresolvedFunction
+    expect(input).toBeTruthy();
+
+    fireEvent.change(input, { target: { value: text } });
+    await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
 export async function renderApp(iocProps, appProps, content, route, currentPath, containerTag) {
@@ -35,6 +49,8 @@ export async function renderApp(iocProps, appProps, content, route, currentPath,
     if (!currentPath) {
         currentPath = route;
     }
+
+    const user = userEvent.setup();
 
     await act(async () => {
         const component = (<MemoryRouter initialEntries={[currentPath]}>
@@ -55,7 +71,8 @@ export async function renderApp(iocProps, appProps, content, route, currentPath,
             if (container) {
                 document.body.removeChild(container);
             }
-        }
+        },
+        user,
     };
 }
 
