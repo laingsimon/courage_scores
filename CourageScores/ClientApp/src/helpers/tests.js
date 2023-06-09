@@ -1,4 +1,5 @@
 ﻿import {act, fireEvent} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import {MemoryRouter, Route, Routes} from "react-router-dom";
 import {IocContainer} from "../IocContainer";
 import {AppContainer} from "../AppContainer";
@@ -25,6 +26,15 @@ export function doChange(container, selector, text) {
     fireEvent.change(input, { target: { value: text } });
 }
 
+export async function awaitChange(container, selector, text, user) {
+    const input = container.querySelector(selector);
+    // noinspection JSUnresolvedFunction
+    expect(input).toBeTruthy();
+
+    await user.clear(input);
+    await user.type(input, text);
+}
+
 export async function renderApp(iocProps, appProps, content, route, currentPath, containerTag) {
     const container = document.createElement(containerTag || 'div');
     document.body.appendChild(container);
@@ -35,6 +45,8 @@ export async function renderApp(iocProps, appProps, content, route, currentPath,
     if (!currentPath) {
         currentPath = route;
     }
+
+    const user = userEvent.setup();
 
     await act(async () => {
         const component = (<MemoryRouter initialEntries={[currentPath]}>
@@ -55,7 +67,8 @@ export async function renderApp(iocProps, appProps, content, route, currentPath,
             if (container) {
                 document.body.removeChild(container);
             }
-        }
+        },
+        user,
     };
 }
 
