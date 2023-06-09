@@ -1,6 +1,6 @@
 import React from "react";
 import {ShareButton} from "../../ShareButton";
-import {valueChanged} from "../../../Utilities";
+import {valueChanged} from "../../../helpers/events";
 
 export function GameDetails({ saving, access, fixtureData, setFixtureData }) {
     if (access !== 'admin') {

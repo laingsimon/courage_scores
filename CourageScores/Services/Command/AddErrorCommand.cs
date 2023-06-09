@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Identity;
 
@@ -29,5 +30,6 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
         return CommandResult.SuccessNoMessage;
     }
 
+    [ExcludeFromCodeCoverage]
     public override bool RequiresLogin => false;
 }

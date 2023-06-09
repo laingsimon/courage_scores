@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
 import React from "react";
 import {ShareButton} from "./ShareButton";
 
@@ -41,7 +41,7 @@ describe('ShareButton', () => {
                 getHash: () => '#HASH'
             });
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
             expect(shareData.text).toEqual('TEXT');
@@ -55,7 +55,7 @@ describe('ShareButton', () => {
                 getHash: () => '#HASH'
             });
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
             expect(shareData.text).toEqual('Courage League');
@@ -69,7 +69,7 @@ describe('ShareButton', () => {
                 getHash: () => ''
             });
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
             expect(shareData.text).toEqual('Courage League');
@@ -82,7 +82,7 @@ describe('ShareButton', () => {
                 getHash: () => null
             });
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeNull();
         });
@@ -95,7 +95,7 @@ describe('ShareButton', () => {
                 text: 'TEXT'
             }, '/test/#HASH');
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
             expect(shareData.text).toEqual('TEXT');
@@ -108,7 +108,7 @@ describe('ShareButton', () => {
             await renderComponent({
             }, '/test/#HASH');
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
             expect(shareData.text).toEqual('Courage League');
@@ -122,7 +122,7 @@ describe('ShareButton', () => {
                 getHash: () => ''
             });
 
-            await doClick(context.container, 'button');
+            await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
             expect(shareData.text).toEqual('Courage League');

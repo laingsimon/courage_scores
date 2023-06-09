@@ -23,15 +23,20 @@ public class AddOrUpdateNoteCommandTests
     [Test]
     public async Task ApplyUpdate_GivenUpdateWithDivisionId_SetsPropertiesCorrectly()
     {
-        var update = new FixtureDateNoteDto
+        var update = new EditFixtureDateNoteDto
         {
             Id = Guid.NewGuid(),
             SeasonId = Guid.NewGuid(),
             DivisionId = Guid.NewGuid(),
             Note = "note",
             Date = new DateTime(2001, 02, 03),
+            LastUpdated = new DateTime(2002, 03, 04),
         };
-        var note = new FixtureDateNote();
+        var note = new FixtureDateNote
+        {
+            DivisionId = update.DivisionId,
+            Updated = new DateTime(2002, 03, 04),
+        };
 
         var result = await _command.WithData(update).ApplyUpdate(note, _token);
 
@@ -47,36 +52,69 @@ public class AddOrUpdateNoteCommandTests
     [Test]
     public async Task ApplyUpdate_GivenUpdateWithoutDivisionId_RemovesDivisionId()
     {
-        var update = new FixtureDateNoteDto
+        var update = new EditFixtureDateNoteDto
         {
             Id = Guid.NewGuid(),
             SeasonId = Guid.NewGuid(),
             DivisionId = null,
             Note = "note",
             Date = new DateTime(2001, 02, 03),
+            LastUpdated = new DateTime(2002, 03, 04),
         };
-        var note = new FixtureDateNote();
+        var note = new FixtureDateNote
+        {
+            Updated = new DateTime(2002, 03, 04),
+        };
 
         var result = await _command.WithData(update).ApplyUpdate(note, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(note.DivisionId, Is.Null);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(ScopedCacheManagementFlags.EvictAll));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(update.SeasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenChangingDivisions_EvictsCacheForAllDivisions()
+    {
+        var update = new EditFixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            SeasonId = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Note = "note",
+            Date = new DateTime(2001, 02, 03),
+            LastUpdated = new DateTime(2002, 03, 04),
+        };
+        var note = new FixtureDateNote
+        {
+            DivisionId = Guid.NewGuid(),
+            Updated = new DateTime(2002, 03, 04),
+        };
+
+        var result = await _command.WithData(update).ApplyUpdate(note, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(note.DivisionId, Is.EqualTo(update.DivisionId));
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(ScopedCacheManagementFlags.EvictAll));
     }
 
     [Test]
     public async Task ApplyUpdate_GivenUpdate_TrimsNote()
     {
-        var update = new FixtureDateNoteDto
+        var update = new EditFixtureDateNoteDto
         {
             Id = Guid.NewGuid(),
             SeasonId = Guid.NewGuid(),
             DivisionId = null,
             Note = "note  ",
             Date = new DateTime(2001, 02, 03),
+            LastUpdated = new DateTime(2002, 03, 04),
         };
-        var note = new FixtureDateNote();
+        var note = new FixtureDateNote
+        {
+            Updated = new DateTime(2002, 03, 04),
+        };
 
         var result = await _command.WithData(update).ApplyUpdate(note, _token);
 

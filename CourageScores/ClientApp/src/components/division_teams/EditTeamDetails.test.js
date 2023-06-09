@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails} from "./EditTeamDetails";
 
 describe('EditTeamDetails', () => {
@@ -15,9 +15,9 @@ describe('EditTeamDetails', () => {
     let canceled;
 
     const teamApi = {
-        update: async (team) => {
-            updatedTeam = team;
-            return apiResponse || { success: true };
+        update: async (team, lastUpdated) => {
+            updatedTeam = { team, lastUpdated };
+            return apiResponse || { success: true, result: team };
         }
     };
 
@@ -61,12 +61,14 @@ describe('EditTeamDetails', () => {
                 name: 'DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: null,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: null,
             }, [ division ]);
 
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
@@ -83,12 +85,14 @@ describe('EditTeamDetails', () => {
                 name: 'DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: null,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: null,
             }, [ division ]);
 
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
@@ -105,12 +109,14 @@ describe('EditTeamDetails', () => {
                 name: 'DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: division.id,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: division.id,
             }, [ division ]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
@@ -131,12 +137,14 @@ describe('EditTeamDetails', () => {
                 name: 'OTHER DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: otherDivision.id,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: otherDivision.id,
             }, [ division, otherDivision ]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
@@ -155,12 +163,14 @@ describe('EditTeamDetails', () => {
                 name: 'DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: division.id,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: division.id,
             }, [ division ]);
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
 
@@ -177,12 +187,14 @@ describe('EditTeamDetails', () => {
                 name: 'DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: division.id,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: division.id,
             }, [ division ]);
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
 
@@ -203,16 +215,18 @@ describe('EditTeamDetails', () => {
                 name: 'OTHER DIVISION',
             };
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    id: createTemporaryId(),
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: division.id,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: division.id,
             }, [ division, otherDivision ]);
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
 
-            await doClick(divisionGroup, '.dropdown-item:not(.active)');
+            await doSelectOption(divisionGroup.querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
             expect(change).toBeTruthy();
             expect(change.name).toEqual('newDivisionId');
@@ -230,12 +244,13 @@ describe('EditTeamDetails', () => {
             };
 
             await renderComponent({
-                id: null,
-                name: 'TEAM',
-                address: 'ADDRESS',
+                team: {
+                    name: 'TEAM',
+                    address: 'ADDRESS',
+                    newDivisionId: division.id,
+                },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-                newDivisionId: division.id,
             }, [ division, otherDivision ]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
@@ -258,18 +273,19 @@ describe('EditTeamDetails', () => {
                 seasonId: createTemporaryId(),
             }
             await renderComponent({
-                id: team.id,
-                name: team.name,
-                address: team.address,
+                team: {
+                    id: team.id,
+                    name: team.name,
+                    address: team.address,
+                    newDivisionId: division.id,
+                },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-                newDivisionId: division.id,
             }, [ division ]);
             let alert;
             window.alert = (message) => { alert = message };
 
-            const saveButton = findButton(context.container, 'Save team');
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save team'));
 
             expect(saved).toEqual(false);
             expect(alert).toEqual('You must enter a team name');
@@ -290,27 +306,31 @@ describe('EditTeamDetails', () => {
                 address: 'ADDRESS',
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
+                updated: '2023-07-01T00:00:00',
             }
             await renderComponent({
+                team: {
+                    id: team.id,
+                    name: team.name,
+                    address: team.address,
+                    updated: team.updated,
+                    newDivisionId: otherDivision.id,
+                },
+                divisionId: team.divisionId,
+                seasonId: team.seasonId,
+            }, [ division, otherDivision ]);
+
+            await doClick(findButton(context.container, 'Save team'));
+
+            expect(saved).toEqual(true);
+            expect(updatedTeam.lastUpdated).toEqual('2023-07-01T00:00:00');
+            expect(updatedTeam.team).toEqual({
                 id: team.id,
                 name: team.name,
                 address: team.address,
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
                 newDivisionId: otherDivision.id,
-            }, [ division, otherDivision ]);
-
-            const saveButton = findButton(context.container, 'Save team');
-            await doClick(saveButton);
-
-            expect(saved).toEqual(true);
-            expect(updatedTeam).toEqual({
-                id: team.id,
-                name: team.name,
-                address: team.address,
-                divisionId: team.divisionId,
-                seasonId: team.seasonId,
-                newDivisionId: otherDivision.id
             });
         });
 
@@ -324,25 +344,26 @@ describe('EditTeamDetails', () => {
                 name: 'OTHER DIVISION',
             };
             const team = {
-                id: createTemporaryId(),
                 name: 'TEAM',
                 address: 'ADDRESS',
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }
             await renderComponent({
-                name: team.name,
-                address: team.address,
+                team: {
+                    name: team.name,
+                    address: team.address,
+                    newDivisionId: division.id,
+                },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-                newDivisionId: division.id,
             }, [ division, otherDivision ]);
 
-            const saveButton = findButton(context.container, 'Add team');
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Add team'));
 
             expect(saved).toEqual(true);
-            expect(updatedTeam).toEqual({
+            expect(updatedTeam.lastUpdated).toBeFalsy();
+            expect(updatedTeam.team).toEqual({
                 id: undefined,
                 name: team.name,
                 address: team.address,
@@ -365,15 +386,16 @@ describe('EditTeamDetails', () => {
                 seasonId: createTemporaryId(),
             }
             await renderComponent({
-                name: team.name,
-                address: team.address,
+                team: {
+                    name: team.name,
+                    address: team.address,
+                    newDivisionId: division.id,
+                },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-                newDivisionId: division.id,
             }, [ division ]);
 
-            const cancelButton = findButton(context.container, 'Cancel');
-            await doClick(cancelButton);
+            await doClick(findButton(context.container, 'Cancel'));
 
             expect(canceled).toEqual(true);
         });

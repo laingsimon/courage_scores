@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
 import {Link} from "react-router-dom";
-import {propChanged} from "../../Utilities";
+import {propChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
@@ -25,10 +25,10 @@ export function DivisionTeam({ team }) {
         try {
             return (<Dialog title={`Edit team: ${team.name}`}>
                 <EditTeamDetails
-                    id={teamDetails.id}
                     divisionId={divisionId}
+                    newDivisionId={teamDetails.newDivisionId}
                     seasonId={season.id}
-                    {...teamDetails}
+                    team={teamDetails}
                     onCancel={() => setEditTeam(false)}
                     onChange={propChanged(teamDetails, setTeamDetails)}
                     onSaved={teamDetailSaved}

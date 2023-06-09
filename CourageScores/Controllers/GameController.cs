@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Game;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +16,9 @@ public class GameController : Controller
 {
     private readonly IGameService _gameService;
     private readonly ICommandFactory _commandFactory;
-    private readonly ISaygStorageService _saygStorageService;
+    private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygStorageService;
 
-    public GameController(IGameService gameService, ICommandFactory commandFactory, ISaygStorageService saygStorageService)
+    public GameController(IGameService gameService, ICommandFactory commandFactory, IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> saygStorageService)
     {
         _gameService = gameService;
         _commandFactory = commandFactory;
@@ -56,9 +58,10 @@ public class GameController : Controller
     }
 
     [HttpPost("/api/Game/Sayg")]
-    public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> StoreSaygData([FromBody] RecordedScoreAsYouGoDto data, CancellationToken token)
+    public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> StoreSaygData([FromBody] UpdateRecordedScoreAsYouGoDto data, CancellationToken token)
     {
-        return await _saygStorageService.UpsertData(data, token);
+        var command = _commandFactory.GetCommand<AddOrUpdateSaygCommand>().WithData(data);
+        return await _saygStorageService.Upsert(data.Id, command, token);
     }
 
     [HttpGet("/api/Game/Sayg/{id}")]
@@ -68,7 +71,7 @@ public class GameController : Controller
     }
 
     [HttpDelete("/api/Game/Sayg/{id}")]
-    public async Task<ActionResultDto<RecordedScoreAsYouGoDto?>> DeleteSaygData(Guid id, CancellationToken token)
+    public async Task<ActionResultDto<RecordedScoreAsYouGoDto>> DeleteSaygData(Guid id, CancellationToken token)
     {
         return await _saygStorageService.Delete(id, token);
     }

@@ -78,6 +78,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 .ToList(),
             Season = await _divisionDataSeasonAdapter.Adapt(context.Season, token),
             DataErrors = canShowDataErrors ? divisionData.DataErrors.ToList() : new(),
+            Updated = division?.Updated,
         };
     }
 

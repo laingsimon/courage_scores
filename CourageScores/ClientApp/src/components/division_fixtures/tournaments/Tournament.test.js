@@ -1,12 +1,12 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import React from "react";
 import {Tournament} from "./Tournament";
-import {createTemporaryId, toMap, any} from "../../../Utilities";
+import {toMap, any} from "../../../helpers/collections";
+import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 
 describe('Tournament', () => {
-    const EMPTY_ID = '00000000-0000-0000-0000-000000000000';
     let context;
     let reportedError;
     let teamsReloaded;
@@ -32,8 +32,8 @@ describe('Tournament', () => {
 
             throw new Error('Unexpected request for tournament data: ' + id);
         },
-        update: async (data) => {
-            updatedTournamentData.push(data);
+        update: async (data, lastUpdated) => {
+            updatedTournamentData.push({ data, lastUpdated });
             return {
                 success: true,
             };
@@ -101,9 +101,11 @@ describe('Tournament', () => {
     }
 
     async function assertDataChange(existingData, expectedChange) {
-        await doClick(context.container, '.light-background > button:nth-child(7)');
+        await doClick(findButton(context.container, 'Save'));
         expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
-        expect(updatedTournamentData.shift()).toEqual(
+        const update = updatedTournamentData.shift();
+        expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
+        expect(update.data).toEqual(
             Object.assign({}, existingData, expectedChange));
     }
 
@@ -611,10 +613,7 @@ describe('Tournament', () => {
                     divisions: [ division ],
                 }, false);
 
-                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
-                expect(addPlayerButton).toBeTruthy();
-                expect(addPlayerButton.textContent).toEqual('Add player');
-                await doClick(addPlayerButton);
+                await doClick(findButton(context.container, 'Add player'));
 
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
                 expect(addPlayerDialog).toBeTruthy();
@@ -657,14 +656,11 @@ describe('Tournament', () => {
                     teams: toMap([team]),
                     divisions: [ division ],
                 }, false);
-                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
-                expect(addPlayerButton).toBeTruthy();
-                expect(addPlayerButton.textContent).toEqual('Add player');
-                await doClick(addPlayerButton);
+                await doClick(findButton(context.container, 'Add player'));
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
 
                 doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
-                await doClick(addPlayerDialog, '.dropdown-menu .dropdown-item:not(.active)'); //select a team
+                await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
                 await doClick(findButton(addPlayerDialog, 'Add player'));
 
                 expect(reportedError).toBeNull();
@@ -672,6 +668,9 @@ describe('Tournament', () => {
                 expect(createdPlayer.teamId).toEqual(team.id);
                 expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
                 expect(createdPlayer.playerDetails).toEqual({
+                    captain: false,
+                    newTeamId: undefined,
+                    emailAddress: undefined,
                     name: 'NEW PLAYER',
                 });
             });
@@ -703,10 +702,7 @@ describe('Tournament', () => {
                     teams: [],
                     divisions: [ division ],
                 }, false);
-                const addPlayerButton = context.container.querySelector('.light-background > button:nth-child(8)');
-                expect(addPlayerButton).toBeTruthy();
-                expect(addPlayerButton.textContent).toEqual('Add player');
-                await doClick(addPlayerButton);
+                await doClick(findButton(context.container, 'Add player'));
 
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
                 await doClick(findButton(addPlayerDialog, 'Cancel'));
@@ -728,6 +724,7 @@ describe('Tournament', () => {
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
+                    updated: '2023-07-01T00:00:00',
                 };
                 const divisionData = {
                     fixtures: [],
@@ -749,10 +746,8 @@ describe('Tournament', () => {
                 const notes = context.container.querySelector('.light-background > div:nth-child(3)');
                 doChange(notes, 'textarea', 'NEW NOTES');
                 const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
-                await doClick(accoladesCountAndDivision, 'input');
-                const divisionOption = accoladesCountAndDivision.querySelector('.dropdown-item:not(.active)');
-                expect(divisionOption.textContent).toEqual('All divisions');
-                await doClick(divisionOption);
+                await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
+                await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');
 
                 await assertDataChange(
                     tournamentData,
@@ -793,11 +788,8 @@ describe('Tournament', () => {
                     teams: [],
                     divisions: [ division ],
                 }, false);
-                const saveButton = context.container.querySelector('.light-background > button:nth-child(7)');
-                expect(saveButton).toBeTruthy();
-                expect(saveButton.textContent).toEqual('Save');
 
-                await doClick(saveButton);
+                await doClick(findButton(context.container, 'Save'));
 
                 expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
             });

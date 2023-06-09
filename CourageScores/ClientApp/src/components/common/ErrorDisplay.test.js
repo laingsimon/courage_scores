@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import React from "react";
 import {ErrorDisplay} from "./ErrorDisplay";
 
@@ -60,7 +60,7 @@ describe('ErrorDisplay', () => {
                 Exception: null
             });
 
-            await doClick(context.container, 'div.modal-footer > button');
+            await doClick(findButton(context.container, 'Close'));
 
             expect(closed).toEqual(true);
         });

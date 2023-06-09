@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedReference
 
-import {getMatchOptionDefaults, getMatchOptionsLookup} from "./MatchOptionHelpers";
+import {getMatchOptionDefaults, getMatchOptionsLookup} from "./matchOptions";
 
-describe('MatchOptionHelpers', () => {
+describe('matchOptions', () => {
     describe('getMatchOptionsDefaults', () => {
         it('returns matchOption properties correctly', () => {
             const matchOptions = getMatchOptionsLookup([]);

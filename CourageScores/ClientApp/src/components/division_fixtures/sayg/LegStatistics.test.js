@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
 import React from "react";
 import {LegStatistics} from "./LegStatistics";
 
@@ -218,9 +218,8 @@ describe('LegStatistics', () => {
             oneDartAverage: false,
         });
         const firstCell = context.container.querySelector('tr td:first-child');
-        const toggle = firstCell.querySelector('input[id^="showThrows_"]');
 
-        await doClick(toggle);
+        await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) ol li'));
         expect(homeThrows.map(li => li.textContent)).toEqual([ '100' ]);
@@ -252,9 +251,8 @@ describe('LegStatistics', () => {
             oneDartAverage: false,
         });
         const firstCell = context.container.querySelector('tr td:first-child');
-        const toggle = firstCell.querySelector('input[id^="showThrows_"]');
 
-        await doClick(toggle);
+        await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = context.container.querySelector('tr td:nth-child(2) p');
         expect(homeThrows.textContent).toEqual('No throws');
@@ -283,9 +281,8 @@ describe('LegStatistics', () => {
             oneDartAverage: false,
         });
         const firstCell = context.container.querySelector('tr td:first-child');
-        const toggle = firstCell.querySelector('input[id^="showThrows_"]');
 
-        await doClick(toggle);
+        await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
         const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) ol li'));
         expect(homeThrows.map(li => li.textContent)).toEqual([ '100' ]);

@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../helpers/tests";
 import React from "react";
 import {Heading} from "./Heading";
 
@@ -58,12 +58,10 @@ describe('Heading', () => {
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
             });
-            const version = context.container.querySelector('span.bg-warning');
-            expect(version).toBeTruthy();
             let alert;
             window.alert = (message) => { alert = message };
 
-            await doClick(version);
+            await doClick(context.container.querySelector('span.bg-warning'));
 
             expect(alert).toEqual('Branch: main\nSHA: 01234567');
         });

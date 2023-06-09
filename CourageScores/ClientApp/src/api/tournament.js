@@ -7,8 +7,16 @@ class TournamentApi {
         return this.http.get(`/api/Tournament/${id}`, {});
     }
 
-    update(tournament) {
+    create(tournament) {
         return this.http.put(`/api/Tournament`, tournament);
+    }
+
+    update(tournament, lastUpdated) {
+        if (!lastUpdated) {
+            throw new Error('lastUpdated must be provided when updating a record');
+        }
+
+        return this.http.put(`/api/Tournament`, Object.assign({ lastUpdated }, tournament));
     }
 
     delete(id) {

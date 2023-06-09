@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doChange, doClick} from "../../tests/helpers";
-import {createTemporaryId} from "../../Utilities";
+import {cleanUp, renderApp, doChange, doClick, findButton} from "../../helpers/tests";
+import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {EditNote} from "./EditNote";
 
@@ -9,16 +9,21 @@ describe('EditNote', () => {
     let context;
     let reportedError;
     let savedNote;
+    let createdNote;
     let changedNote;
     let closed;
     let saved;
     let saveResult;
 
     const noteApi = {
-        upsert: async (id, note) => {
-            savedNote = { id, note };
+        create: async (note) => {
+            createdNote = note;
             return saveResult || { success: true };
-        }
+        },
+        upsert: async (id, note, lastUpdated) => {
+            savedNote = { id, note, lastUpdated };
+            return saveResult || { success: true };
+        },
     }
 
     function onNoteChanged(note) {
@@ -39,6 +44,7 @@ describe('EditNote', () => {
         reportedError = null;
         savedNote = null;
         changedNote = null;
+        createdNote = null;
         closed = false;
         saved = false;
         context = await renderApp(
@@ -307,12 +313,9 @@ describe('EditNote', () => {
                 seasonId: season.id,
                 divisionId: null,
             }, divisions, seasons);
-            const saveButton = context.container.querySelector('.modal-body > div:last-child > button:last-child');
-            expect(saveButton).toBeTruthy();
-            expect(saveButton.textContent).toEqual('Save');
             alert = null;
 
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toEqual('You must enter a note');
             expect(savedNote).toBeNull();
@@ -326,34 +329,47 @@ describe('EditNote', () => {
                 seasonId: season.id,
                 divisionId: null,
             }, divisions, seasons);
-            const saveButton = context.container.querySelector('.modal-body > div:last-child > button:last-child');
-            expect(saveButton).toBeTruthy();
-            expect(saveButton.textContent).toEqual('Save');
             alert = null;
 
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toEqual('You must enter a date');
             expect(savedNote).toBeNull();
         });
 
-        it('can save changes', async () => {
+        it('can create note', async () => {
+            await renderComponent({
+                date: '2023-05-01T00:00:00',
+                note: 'Some note',
+                seasonId: season.id,
+                divisionId: null,
+                updated: '2023-07-01T00:00:00',
+            }, divisions, seasons);
+            alert = null;
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toBeNull();
+            expect(createdNote).not.toBeNull();
+            expect(saved).toEqual(true);
+        });
+
+        it('can update note', async () => {
             await renderComponent({
                 id: createTemporaryId(),
                 date: '2023-05-01T00:00:00',
                 note: 'Some note',
                 seasonId: season.id,
                 divisionId: null,
+                updated: '2023-07-01T00:00:00',
             }, divisions, seasons);
-            const saveButton = context.container.querySelector('.modal-body > div:last-child > button:last-child');
-            expect(saveButton).toBeTruthy();
-            expect(saveButton.textContent).toEqual('Save');
             alert = null;
 
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeNull();
             expect(savedNote).not.toBeNull();
+            expect(savedNote.lastUpdated).toEqual('2023-07-01T00:00:00');
             expect(saved).toEqual(true);
         });
 
@@ -365,15 +381,12 @@ describe('EditNote', () => {
                 seasonId: season.id,
                 divisionId: null,
             }, divisions, seasons);
-            const saveButton = context.container.querySelector('.modal-body > div:last-child > button:last-child');
-            expect(saveButton).toBeTruthy();
-            expect(saveButton.textContent).toEqual('Save');
             alert = null;
             saveResult = {
                 success: false,
             }
 
-            await doClick(saveButton);
+            await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toBeNull();
             expect(savedNote).not.toBeNull();
@@ -388,11 +401,8 @@ describe('EditNote', () => {
                 seasonId: season.id,
                 divisionId: null,
             }, divisions, seasons);
-            const closeButton = context.container.querySelector('.modal-body > div:last-child > button:first-child');
-            expect(closeButton).toBeTruthy();
-            expect(closeButton.textContent).toEqual('Close');
 
-            await doClick(closeButton);
+            await doClick(findButton(context.container, 'Close'));
 
             expect(closed).toEqual(true);
         });

@@ -2,11 +2,12 @@ import React, {useState} from 'react';
 import {FilterFixtures} from "./FilterFixtures";
 import {useLocation, useNavigate} from "react-router-dom";
 import {EditNote} from "./EditNote";
-import {any, isEmpty, sortBy, stateChanged} from "../../Utilities";
+import {any, isEmpty, sortBy} from "../../helpers/collections";
+import {stateChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
-import {changeFilter, initFilter} from "./FilterUtilities";
+import {changeFilter, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
@@ -144,7 +145,7 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     function renderNewDateDialog() {
         return (<Dialog title="Add a date to the season" slim={true}>
-            <div>
+            <div className="pb-2">
                 <span className="margin-right">Select date:</span>
                 <input type="date" min={season.startDate.substring(0, 10)} max={season.endDate.substring(0, 10)}
                        className="margin-right" value={newDate} onChange={stateChanged(setNewDate)}/>
@@ -155,9 +156,11 @@ export function DivisionFixtures({ setNewFixtures }) {
                     <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                 </div>
             </div>
-            <div className="mt-3 text-end">
-                <button className="btn btn-primary margin-right" onClick={addNewDate}>Add date</button>
-                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
+            <div className="modal-footer px-0">
+                <div className="left-aligned">
+                    <button className="btn btn-secondary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
+                </div>
+                <button className="btn btn-primary" onClick={addNewDate}>Add date</button>
             </div>
         </Dialog>);
     }

@@ -9,7 +9,8 @@ import {DivisionReports} from "./division_reports/DivisionReports";
 import {TeamOverview} from "./division_teams/TeamOverview";
 import {PlayerOverview} from "./division_players/PlayerOverview";
 import {Loading} from "./common/Loading";
-import {any, propChanged} from "../Utilities";
+import {any} from "../helpers/collections";
+import {propChanged} from "../helpers/events";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
@@ -76,7 +77,7 @@ export function Division() {
         return (<div>
             <DivisionControls
                 originalSeasonData={divisionData.season}
-                originalDivisionData={{name: divisionData.name, id: divisionData.id}}
+                originalDivisionData={{name: divisionData.name, id: divisionData.id, updated: divisionData.updated}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />
             <ul className="nav nav-tabs">
                 <li className="nav-item">

@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Dialog} from "../common/Dialog";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {valueChanged} from "../../Utilities";
+import {valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {FixtureDateNote} from "./FixtureDateNote";
@@ -10,9 +10,10 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
     const [savingNote, setSavingNote] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const { noteApi } = useDependencies();
-    const { divisions, seasons } = useApp();
+    const { divisions, seasons, onError } = useApp();
 
     async function saveNote() {
+        /* istanbul ignore next */
         if (savingNote) {
             /* istanbul ignore next */
             return;
@@ -30,7 +31,9 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
 
         setSavingNote(true);
         try{
-            const response = await noteApi.upsert(note.id, note);
+            const response = note.id
+                ? await noteApi.upsert(note.id, note, note.updated)
+                : await noteApi.create(note);
 
             if (response.success) {
                 if (onSaved) {
@@ -39,8 +42,9 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
             } else {
                 setSaveError(response);
             }
-        }
-        finally {
+        } catch (e) {
+            onError(e);
+        } finally {
             setSavingNote(false);
         }
     }
@@ -87,9 +91,11 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
                     title="Could not save note" />)
                 : null}
         </div>
-        <div className="text-end">
-            <button className="btn btn-primary margin-right" onClick={onClose}>Close</button>
-            <button className="btn btn-primary margin-right" onClick={saveNote}>
+        <div className="modal-footer px-0">
+            <div className="left-aligned">
+                <button className="btn btn-secondary" onClick={onClose}>Close</button>
+            </div>
+            <button className="btn btn-primary" onClick={saveNote}>
                 {savingNote ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Save
             </button>

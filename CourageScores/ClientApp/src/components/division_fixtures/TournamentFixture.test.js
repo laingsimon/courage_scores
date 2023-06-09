@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
-import {createTemporaryId} from "../../Utilities";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TournamentFixture} from "./TournamentFixture";
@@ -14,8 +14,12 @@ describe('TournamentFixture', () => {
     let deletedId;
 
     const tournamentApi = {
-        update: async (data) => {
-            savedTournament = data;
+        create: async (data) => {
+            savedTournament = { data };
+            return { success: true };
+        },
+        update: async (data, lastUpdated) => {
+            savedTournament = { data, lastUpdated };
             return { success: true };
         },
         delete: async (id) => {
@@ -73,19 +77,9 @@ describe('TournamentFixture', () => {
         };
         const account = null;
 
-        function assertPlayerDisplayWithoutSideNameOrTeamLink(playersCell, ordinal, players) {
-            const side = playersCell.querySelector(`div.px-3 > span:nth-child(${ordinal})`);
-            expect(side).toBeTruthy();
-            players.forEach(player => {
-                expect(side.textContent).toContain(player.name);
-            });
-            expect(side.querySelector('a')).toBeFalsy();
-        }
-
-        function assertPlayerDisplayWithSideNameNoTeamLink(playersCell, ordinal, sideName, players) {
+        function assertPlayerDisplayWithPlayerLinks(playersCell, ordinal, players) {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
-            expect(side.querySelector('strong').textContent).toEqual(sideName);
 
             assertPlayersAndLinks(side, players);
         }
@@ -102,7 +96,6 @@ describe('TournamentFixture', () => {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
-            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.id}/player:${player.id}/${season.id}`);
             assertPlayersAndLinks(side, [ player ]);
         }
 
@@ -258,10 +251,10 @@ describe('TournamentFixture', () => {
 
             expect(reportedError).toBeNull();
             const playersCell = context.container.querySelector('td:first-child');
-            assertPlayerDisplayWithoutSideNameOrTeamLink(playersCell, 1, [ player4, player5 ]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 1, [ player4, player5 ]);
             assertSinglePlayerDisplay(playersCell, 2, side1.name, player1);
-            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ player2, player3 ]);
-            assertPlayerDisplayWithSideNameNoTeamLink(playersCell, 4, side4.name, [ player6, player7 ]);
+            assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, [ ]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 4, [ player6, player7 ]);
         });
     });
 
@@ -312,18 +305,18 @@ describe('TournamentFixture', () => {
                 sides: [],
                 winningSide: null,
                 type: 'TYPE',
+                updated: '2023-07-01T00:00:00',
             };
             await renderComponent(
                 { tournament, date: '2023-05-06T00:00:00', expanded: false },
                 { id: division.id, season, players: [ player ] },
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
-            const addButton = findButton(adminCell, '➕');
 
-            await doClick(addButton);
+            await doClick(findButton(adminCell, '➕'));
 
             expect(reportedError).toBeNull();
-            expect(savedTournament).toEqual({
+            expect(savedTournament.data).toEqual({
                 date: '2023-05-06T00:00:00',
                 address: 'ADDRESS',
                 divisionId: division.id,
@@ -346,11 +339,10 @@ describe('TournamentFixture', () => {
                 { id: division.id, season, players: [ player ] },
                 account);
             const adminCell = context.container.querySelector('td:nth-child(2)');
-            const deleteButton = findButton(adminCell, '🗑');
             let confirm;
             window.confirm = (message) => { confirm = message; return true; };
 
-            await doClick(deleteButton);
+            await doClick(findButton(adminCell, '🗑'));
 
             expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
             expect(reportedError).toBeNull();

@@ -4,8 +4,8 @@ import {act} from "@testing-library/react";
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
 import {Errors} from "./Errors";
-import {all} from "../../Utilities";
-import {doClick,doChange,renderApp,cleanUp} from "../../tests/helpers";
+import {all} from "../../helpers/collections";
+import {doClick, doChange, renderApp, cleanUp, findButton} from "../../helpers/tests";
 
 describe('Errors', () => {
     let context;
@@ -47,7 +47,7 @@ describe('Errors', () => {
 
     async function clickRefresh(since, apiResults) {
         recentMap[since] = apiResults;
-        await doClick(context.container, '.light-background .input-group button.btn-primary');
+        await doClick(findButton(context.container, 'Refresh'));
     }
 
     function setDate(since) {

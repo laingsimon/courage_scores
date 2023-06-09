@@ -24,7 +24,8 @@ public class DivisionDataSeasonAdapterTests
             Divisions =
             {
                 division,
-            }
+            },
+            Updated = new DateTime(2003, 04, 05),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -34,5 +35,6 @@ public class DivisionDataSeasonAdapterTests
         Assert.That(result.StartDate, Is.EqualTo(model.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(model.EndDate));
         Assert.That(result.Divisions, Is.EqualTo(new[] { division }));
+        Assert.That(result.Updated, Is.EqualTo(model.Updated));
     }
 }

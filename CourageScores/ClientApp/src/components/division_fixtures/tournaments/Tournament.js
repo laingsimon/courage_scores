@@ -2,7 +2,9 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 import {DivisionControls} from "../../DivisionControls";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
-import {any, propChanged, renderDate, sortBy, valueChanged} from "../../../Utilities";
+import {any, sortBy} from "../../../helpers/collections";
+import {propChanged, valueChanged} from "../../../helpers/events";
+import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../ShareButton";
 import {TournamentSheet} from "./TournamentSheet";
@@ -12,6 +14,7 @@ import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
+import {EMPTY_ID} from "../../../helpers/projection";
 
 export function Tournament() {
     const { tournamentId } = useParams();
@@ -24,12 +27,11 @@ export function Tournament() {
     const [saving, setSaving] = useState(false);
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
-    const [season, setSeason] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [allPlayers, setAllPlayers] = useState([]);
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
     const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
-    const [ newPlayerDetails, setNewPlayerDetails ] = useState(null);
+    const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
 
     useEffect(() => {
@@ -39,15 +41,17 @@ export function Tournament() {
     }, [account]);
 
     useEffect(() => {
-            if (loading !== 'init') {
+            /* istanbul ignore next */
+            if (loading !== 'init' || appLoading) {
+                /* istanbul ignore next */
                 return;
             }
 
-            if (!appLoading && seasons.length) {
+            if (seasons.length) {
                 setLoading('loading');
                 // noinspection JSIgnoredPromiseFromCall
                 loadFixtureData();
-            } else if (!seasons.length) {
+            } else {
                 onError('No seasons found');
             }
         },
@@ -65,15 +69,8 @@ export function Tournament() {
 
             setTournamentData(tournamentData);
 
-            const season = seasons[tournamentData.seasonId];
-            if (!season) {
-                // noinspection ExceptionCaughtLocallyJS
-                throw new Error('Could not find the season for this tournament');
-            }
-
             const allPlayers = getAllPlayers(tournamentData);
-            const anyDivisionId = '00000000-0000-0000-0000-000000000000';
-            const divisionData = await divisionApi.data(anyDivisionId, tournamentData.seasonId);
+            const divisionData = await divisionApi.data(EMPTY_ID, tournamentData.seasonId);
             const fixtureDate = divisionData.fixtures.filter(f => f.date === tournamentData.date)[0];
             const tournamentPlayerIds = fixtureDate ? fixtureDate.tournamentFixtures.filter(f => !f.proposed && f.id !== tournamentData.id).flatMap(f => f.players) : [];
             allPlayers.sort(sortBy('name'));
@@ -82,7 +79,6 @@ export function Tournament() {
             tournamentPlayerIds.forEach(id => tournamentPlayerMap[id] = {});
 
             setAlreadyPlaying(tournamentPlayerMap);
-            setSeason(season);
             setAllPlayers(allPlayers);
         } catch (e) {
             onError(e);
@@ -119,6 +115,7 @@ export function Tournament() {
     }
 
     async function saveTournament() {
+        /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
             return;
@@ -127,20 +124,22 @@ export function Tournament() {
         setSaving(true);
 
         try {
-            const response = await tournamentApi.update(tournamentData);
+            const response = await tournamentApi.update(tournamentData, tournamentData.updated);
             if (!response.success) {
                 setSaveError(response);
+            } else {
+                setTournamentData(response.result);
             }
         } finally {
             setSaving(false);
         }
     }
 
-    function renderCreatePlayerDialog() {
+    function renderCreatePlayerDialog(season) {
         return (<Dialog title={`Add a player...`}>
             <EditPlayerDetails
                 id={null}
-                {...newPlayerDetails}
+                player={newPlayerDetails}
                 seasonId={season.id}
                 divisionId={tournamentData.divisionId}
                 onChange={propChanged(newPlayerDetails, setNewPlayerDetails)}
@@ -153,6 +152,7 @@ export function Tournament() {
     async function reloadPlayers() {
         await reloadTeams();
         setAddPlayerDialogOpen(false);
+        setNewPlayerDetails({ name: '', captain: false });
     }
 
     if (loading !== 'ready') {
@@ -160,21 +160,16 @@ export function Tournament() {
     }
 
     try {
+        const season = tournamentData ? seasons[tournamentData.seasonId] : { id: EMPTY_ID, name: 'Not found' };
+        if (!season) {
+            // noinspection ExceptionCaughtLocallyJS
+            throw new Error('Could not find the season for this tournament');
+        }
+
         return (<div>
             <DivisionControls
-                originalSeasonData={ season ? {
-                    id: season.id,
-                    name: season.name,
-                    startDate: season.startDate.substring(0, 10),
-                    endDate: season.endDate.substring(0, 10),
-                    divisions: season.divisions
-                } : {} }
-                originalDivisionData={division
-                    ? {
-                        id: division.id,
-                        name: division.name
-                    }
-                    : null}
+                originalSeasonData={season}
+                originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="light-background p-3">
                 {canManageGames
@@ -248,7 +243,7 @@ export function Tournament() {
             </div>) : (<div>Tournament not found</div>)}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not save tournament details"/>) : null}
-            {addPlayerDialogOpen ? renderCreatePlayerDialog() : null}
+            {addPlayerDialogOpen ? renderCreatePlayerDialog(season) : null}
         </div>);
     } catch (e) {
         /* istanbul ignore next */

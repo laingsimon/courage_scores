@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, isEmpty, sortBy} from "../../Utilities";
+import {any, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 
 export function TournamentFixture({ tournament, onTournamentChanged, date, expanded }) {
-    const { id: divisionId, season, players: allPlayers } = useDivisionData();
+    const { id: divisionId, season } = useDivisionData();
     const { account } = useApp();
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
@@ -16,6 +16,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
+        /* istanbul ignore next */
         if (creating || deleting) {
             /* istanbul ignore next */
             return;
@@ -24,12 +25,12 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
         try {
             setCreating(true);
 
-            const response = await tournamentApi.update({
+            const response = await tournamentApi.create({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            });
+            }, tournament.updated);
 
             if (response.success) {
                 if (onTournamentChanged) {
@@ -44,6 +45,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     }
 
     async function deleteTournamentGame() {
+        /* istanbul ignore next */
         if (deleting || creating) {
             /* istanbul ignore next */
             return;
@@ -71,11 +73,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     }
 
     function renderLinkToPlayer(player) {
-        if (any(allPlayers, p => p.id === player.id)) {
-            return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.name}</Link>);
-        }
-
-        return (<span key={player.id}>{player.name}</span>);
+        return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.name}</Link>);
     }
 
     function showTournamentSidesPlayers() {
@@ -83,24 +81,15 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
 
         return (<div className="px-3">
             {tournament.sides.map(side => {
-                side.players.sort(sortBy('name'));
-                const sideNameSameAsPlayerNames = side.players.map(p => p.name).join(', ') === side.name;
-                let name = (<strong>{side.name}</strong>);
                 if (side.teamId && side.players.length !== 1) {
-                    name = (<Link to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
-                } else if (side.players.length === 1) {
-                    const singlePlayer = side.players[0];
-                    name = (<Link to={`/division/${divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</Link>);
-                }
-
-                if (sideNameSameAsPlayerNames || isEmpty(side.players)) {
-                    return (<span className="comma-before-except-first no-wrap" key={side.id}>{name}</span>);
+                    return (<div key={side.id}>
+                        <Link to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>
+                    </div>);
                 }
 
                 return (<div key={side.id}>
-                    {name}
-                    {any(side.players) && !sideNameSameAsPlayerNames
-                        ? (<label className="csv-nodes colon-before">{side.players.map(renderLinkToPlayer)}</label>)
+                    {any(side.players)
+                        ? (<label className="csv-nodes">{side.players.sort(sortBy('name')).map(renderLinkToPlayer)}</label>)
                         : null}
                 </div>);
             })}

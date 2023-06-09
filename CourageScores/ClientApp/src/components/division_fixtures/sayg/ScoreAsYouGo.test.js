@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton, doChange} from "../../../helpers/tests";
 import React from "react";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
 
@@ -143,9 +143,8 @@ describe('ScoreAsYouGo', () => {
             homeScore: 0,
             singlePlayer: false,
         });
-        const homePlaysFirst = findButton(context.container, '🎯HOME');
 
-        await doClick(homePlaysFirst);
+        await doClick(findButton(context.container, '🎯HOME'));
 
         expect(changedLegs).toEqual([{ legs: { '0':
             {
@@ -189,8 +188,7 @@ describe('ScoreAsYouGo', () => {
         });
 
         doChange(context.container, 'input[data-score-input="true"]', '101');
-        const threeDartCheckout = findButton(context.container, '📌📌📌');
-        await doClick(threeDartCheckout);
+        await doClick(findButton(context.container, '📌📌📌'));
 
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);
         expect(changedLegs).toEqual([{
@@ -254,8 +252,7 @@ describe('ScoreAsYouGo', () => {
         });
 
         doChange(context.container, 'input[data-score-input="true"]', '101');
-        const threeDartCheckout = findButton(context.container, '📌📌📌');
-        await doClick(threeDartCheckout);
+        await doClick(findButton(context.container, '📌📌📌'));
 
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);
         expect(changedLegs[1]).toEqual({
@@ -333,8 +330,7 @@ describe('ScoreAsYouGo', () => {
         });
 
         doChange(context.container, 'input[data-score-input="true"]', '101');
-        const threeDartCheckout = findButton(context.container, '📌📌📌');
-        await doClick(threeDartCheckout);
+        await doClick(findButton(context.container, '📌📌📌'));
 
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);
         expect(changedLegs).toEqual([{

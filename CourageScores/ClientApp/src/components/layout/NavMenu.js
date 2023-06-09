@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Collapse, Navbar, NavbarBrand, NavbarToggler, NavLink} from 'reactstrap';
 import {Link, useLocation} from 'react-router-dom';
 import './NavMenu.css';
-import {any, isEmpty} from "../../Utilities";
+import {any, isEmpty} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 

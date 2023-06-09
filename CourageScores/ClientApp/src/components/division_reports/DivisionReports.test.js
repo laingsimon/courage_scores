@@ -1,9 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, doClick, renderApp} from "../../tests/helpers";
+import {cleanUp, doClick, renderApp, findButton, doSelectOption} from "../../helpers/tests";
 import React from "react";
-import {act} from "@testing-library/react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
 
@@ -11,7 +10,6 @@ describe('DivisionTeams', () => {
     let context;
     let reportedError;
     let divisionReloaded = false;
-    let account;
     let requestedReports;
     let returnReport;
     const mockReportApi = {
@@ -25,7 +23,7 @@ describe('DivisionTeams', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData) {
+    async function renderComponent(account, divisionData) {
         reportedError = null;
         divisionReloaded = false;
         requestedReports = [];
@@ -67,15 +65,13 @@ describe('DivisionTeams', () => {
     }
 
     describe('when logged in', () => {
-        beforeEach(() => {
-            account = { access: { runReports: true } };
-        });
+        const account = { access: { runReports: true } };
 
         it('renders component', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
 
-            await renderComponent(divisionData);
+            await renderComponent(account, divisionData);
 
             expect(reportedError).toBeNull();
             const input = context.container.querySelectorAll('.light-background input');
@@ -85,7 +81,7 @@ describe('DivisionTeams', () => {
         it('can fetch reports', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            await renderComponent(divisionData);
+            await renderComponent(account, divisionData);
             returnReport = {
                 reports: [ {
                     name: 'A report',
@@ -96,17 +92,77 @@ describe('DivisionTeams', () => {
                 messages: [ ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
+        });
+
+        it('remembers selected report after subsequent fetch', async () => {
+            const report1 = {
+                name: 'report-1',
+                description: 'Report 1',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const report2 = {
+                name: 'report-2',
+                description: 'Report 2',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [ report1, report2 ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active');
+            expect(activeItem.textContent).toEqual('Report 2');
+        });
+
+        it('selects first report if selected report not available on subsequent fetch', async () => {
+            const report1 = {
+                name: 'report-1',
+                description: 'Report 1',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const report2 = {
+                name: 'report-2',
+                description: 'Report 2',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [ report1, report2 ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
+
+            returnReport = {
+                reports: [ report1 ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active');
+            expect(activeItem.textContent).toEqual('Report 1');
         });
 
         it('renders messages', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            await renderComponent(divisionData);
+            await renderComponent(account, divisionData);
             returnReport = {
                 reports: [ {
                     name: 'A report',
@@ -117,9 +173,7 @@ describe('DivisionTeams', () => {
                 messages: [ 'A message' ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const messages = context.container.querySelectorAll('.light-background ul > li');
@@ -129,7 +183,7 @@ describe('DivisionTeams', () => {
         it('renders report options', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            await renderComponent(divisionData);
+            await renderComponent(account, divisionData);
             returnReport = {
                 reports: [ {
                     name: 'A report',
@@ -145,9 +199,7 @@ describe('DivisionTeams', () => {
                 messages: [ ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const reportOptions = context.container.querySelectorAll('.light-background div.btn-group > div[role="menu"] > button');
@@ -157,7 +209,7 @@ describe('DivisionTeams', () => {
         it('renders report rows', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
-            await renderComponent(divisionData);
+            await renderComponent(account, divisionData);
             returnReport = {
                 reports: [ {
                     name: 'A report',
@@ -176,9 +228,7 @@ describe('DivisionTeams', () => {
                 messages: [ ]
             }
 
-            await act(async () => {
-                await doClick(context.container, '.light-background button');
-            })
+            await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
             const reportTable = context.container.querySelector('.light-background table');

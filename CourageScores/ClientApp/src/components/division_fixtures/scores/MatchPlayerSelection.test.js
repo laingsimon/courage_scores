@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
-import {createTemporaryId} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 
@@ -92,15 +92,7 @@ describe('MatchPlayerSelection', () => {
     }
 
     async function selectPlayer(cell, playerName) {
-        const options = Array.from(cell.querySelectorAll('button.dropdown-item'));
-        const option = options.filter(o => o.textContent === playerName)[0];
-        if (option) {
-            await doClick(option);
-            return;
-        }
-
-        console.log(options.map(o => o.textContent));
-        expect(option).toBeTruthy();
+        await doSelectOption(cell.querySelector('.dropdown-menu'), playerName);
     }
 
     describe('renders', () => {
@@ -759,9 +751,7 @@ describe('MatchPlayerSelection', () => {
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[4].querySelector('button[title]');
-            expect(matchOptionsButton.textContent).toEqual('🛠');
-            await doClick(matchOptionsButton);
+            await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
@@ -795,9 +785,7 @@ describe('MatchPlayerSelection', () => {
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[4].querySelector('button[title]');
-            expect(matchOptionsButton.textContent).toEqual('🛠');
-            await doClick(matchOptionsButton);
+            await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
@@ -831,9 +819,7 @@ describe('MatchPlayerSelection', () => {
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[4].querySelector('button[title]');
-            expect(matchOptionsButton.textContent).toEqual('🛠');
-            await doClick(matchOptionsButton);
+            await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
@@ -867,13 +853,11 @@ describe('MatchPlayerSelection', () => {
             await renderComponent(account, props, defaultContainerProps, matchTypeProps);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[4].querySelector('button[title]');
-            expect(matchOptionsButton.textContent).toEqual('🛠');
-            await doClick(matchOptionsButton);
+            await doClick(findButton(cells[4], '🛠'));
             const matchOptionsDialog = cells[4].querySelector('div.modal-dialog');
             expect(matchOptionsDialog).toBeTruthy();
 
-            await doClick(matchOptionsDialog, 'div.modal-footer > button');
+            await doClick(findButton(matchOptionsDialog, 'Close'));
 
             expect(reportedError).toBeFalsy();
             expect(cells[4].querySelector('div.modal-dialog')).toBeFalsy();
@@ -1015,13 +999,11 @@ describe('MatchPlayerSelection', () => {
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[0].querySelector('button.position-absolute');
-            expect(matchOptionsButton.textContent).toEqual('📊');
 
-            await doClick(matchOptionsButton);
+            await doClick(findButton(cells[0], '📊'));
 
-            const matchOptionsDialog = cells[0].querySelector('div.modal-dialog');
-            expect(matchOptionsDialog).toBeTruthy();
+            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            expect(saygDialog).toBeTruthy();
         });
 
         it('can close sayg dialog', async () => {
@@ -1041,13 +1023,11 @@ describe('MatchPlayerSelection', () => {
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            const matchOptionsButton = cells[0].querySelector('button.position-absolute');
-            expect(matchOptionsButton.textContent).toEqual('📊');
-            await doClick(matchOptionsButton);
-            const matchOptionsDialog = cells[0].querySelector('div.modal-dialog');
-            expect(matchOptionsDialog).toBeTruthy();
+            await doClick(findButton(cells[0], '📊'));
+            const saygDialog = cells[0].querySelector('div.modal-dialog');
+            expect(saygDialog).toBeTruthy();
 
-            await doClick(matchOptionsDialog, 'div.modal-footer > button');
+            await doClick(findButton(saygDialog, 'Close'));
 
             expect(reportedError).toBeFalsy();
             expect(cells[0].querySelector('div.modal-dialog')).toBeFalsy();

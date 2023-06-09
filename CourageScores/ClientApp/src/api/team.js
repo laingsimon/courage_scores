@@ -11,8 +11,12 @@ class TeamApi {
         return this.http.get(`/api/Team`, {});
     }
 
-    update(team) {
-        return this.http.put(`/api/Team`, team);
+    update(team, lastUpdated) {
+        if (!lastUpdated) {
+            throw new Error('lastUpdated must be provided when updating a record');
+        }
+
+        return this.http.put(`/api/Team`, Object.assign({ lastUpdated }, team));
     }
 
     delete(id, seasonId) {

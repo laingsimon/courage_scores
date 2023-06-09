@@ -74,6 +74,7 @@ public class AddOrUpdateGameCommandTests
             HomeTeamId = sameId,
             AwayTeamId = sameId,
             SeasonId = Guid.NewGuid(),
+            LastUpdated = _game.Updated,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
@@ -92,6 +93,7 @@ public class AddOrUpdateGameCommandTests
             HomeTeamId = _homeTeam.Id,
             AwayTeamId = _awayTeam.Id,
             SeasonId = Guid.Empty,
+            LastUpdated = _game.Updated,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
@@ -110,6 +112,7 @@ public class AddOrUpdateGameCommandTests
             HomeTeamId = _homeTeam.Id,
             AwayTeamId = _awayTeam.Id,
             SeasonId = Guid.NewGuid(),
+            LastUpdated = _game.Updated,
         };
         _seasonService.Setup(s => s.Get(update.SeasonId, _token)).ReturnsAsync(() => null);
 
@@ -136,6 +139,7 @@ public class AddOrUpdateGameCommandTests
             Id = _game.Id,
             SeasonId = _season.Id,
             AccoladesCount = true,
+            LastUpdated = _game.Updated,
         };
         _homeTeam.Seasons.Add(_teamSeason);
         _awayTeam.Seasons.Add(_teamSeason);
@@ -166,6 +170,7 @@ public class AddOrUpdateGameCommandTests
             AwayTeamId = _awayTeam.Id,
             Id = _game.Id,
             SeasonId = _season.Id,
+            LastUpdated = _game.Updated,
         };
         var success = new ActionResultDto<TeamDto>
         {
@@ -196,6 +201,7 @@ public class AddOrUpdateGameCommandTests
             AwayTeamId = _awayTeam.Id,
             Id = _game.Id,
             SeasonId = _season.Id,
+            LastUpdated = _game.Updated,
         };
         var fail = new ActionResultDto<TeamDto>
         {

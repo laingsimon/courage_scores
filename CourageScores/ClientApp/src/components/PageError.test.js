@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
 import React from "react";
 import {PageError} from "./PageError";
 
@@ -104,7 +104,7 @@ describe('PageError', () => {
         it('clears app error', async () => {
             await renderComponent(error);
 
-            await doClick(context.container, 'div.light-background > button');
+            await doClick(findButton(context.container, 'Clear error'));
 
             expect(appError).toBeNull();
         });
@@ -118,7 +118,7 @@ describe('PageError', () => {
         it('reports client-side exception once', async () => {
             await renderComponent(error);
 
-            await doClick(context.container, 'div.light-background > button');
+            await doClick(findButton(context.container, 'Clear error'));
 
             expect(reportedClientSideException.length).toEqual(1);
         });
@@ -145,7 +145,7 @@ describe('PageError', () => {
         it('clears app error', async () => {
             await renderComponent(error);
 
-            await doClick(context.container, 'div.light-background > button');
+            await doClick(findButton(context.container, 'Clear error'));
 
             expect(appError).toBeNull();
         });

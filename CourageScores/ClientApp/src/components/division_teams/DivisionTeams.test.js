@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionTeams} from "./DivisionTeams";
 
@@ -12,9 +12,10 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let account;
     const teamApi = {
-        update: async () => {
+        update: async (team, lastUpdated) => {
             return {
                 success: true,
+                result: team,
             };
         }
     }
@@ -155,9 +156,8 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision });
-            const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
 
-            await doClick(addTeamButton);
+            await doClick(findButton(context.container, 'Add team'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -170,14 +170,12 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
                 { ...divisionData, onReloadDivision: onReloadDivision });
-            const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
-            await doClick(addTeamButton);
+            await doClick(findButton(context.container, 'Add team'));
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog.textContent).toContain('Create a new team...');
 
             doChange(dialog, 'input[name="name"]', 'NEW TEAM');
-            const saveButton = findButton(dialog, 'Add team');
-            await doClick(saveButton);
+            await doClick(findButton(dialog, 'Add team'));
 
             expect(reportedError).toBeNull();
             expect(divisionReloaded).toEqual(true);

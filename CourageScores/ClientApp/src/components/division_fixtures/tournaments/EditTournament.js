@@ -1,4 +1,5 @@
-import {any, propChanged, sortBy} from "../../../Utilities";
+import {any, sortBy} from "../../../helpers/collections";
+import {propChanged} from "../../../helpers/events";
 import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";

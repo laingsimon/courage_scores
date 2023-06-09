@@ -1,4 +1,4 @@
-import {valueChanged} from "../../Utilities";
+import {valueChanged} from "../../helpers/events";
 import React from "react";
 
 export function EditMatchOptions({ matchOptions, onMatchOptionsChanged, hideNumberOfPlayers }) {

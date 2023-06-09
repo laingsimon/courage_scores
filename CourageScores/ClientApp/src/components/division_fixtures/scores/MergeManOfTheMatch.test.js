@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
-import {createTemporaryId} from "../../../Utilities";
+import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {createTemporaryId} from "../../../helpers/projection";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
 
 describe('MergeManOfTheMatch', () => {
@@ -195,9 +195,8 @@ describe('MergeManOfTheMatch', () => {
                 },
             };
             await renderComponent(data, allPlayers);
-            const homeMOM = context.container.querySelector('td:nth-child(1)');
 
-            await doClick(homeMOM, 'button');
+            await doClick(findButton(context.container.querySelector('td:nth-child(1)'), 'Use MOM'));
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();
@@ -220,9 +219,8 @@ describe('MergeManOfTheMatch', () => {
                 },
             };
             await renderComponent(data, allPlayers);
-            const awayMOM = context.container.querySelector('td:nth-child(3)');
 
-            await doClick(awayMOM, 'button');
+            await doClick(findButton(context.container.querySelector('td:nth-child(3)'), 'Use MOM'));
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();

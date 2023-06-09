@@ -1,6 +1,6 @@
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import React from "react";
-import {any, distinct, sortBy} from "../../../Utilities";
+import {any, distinct, sortBy} from "../../../helpers/collections";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
 

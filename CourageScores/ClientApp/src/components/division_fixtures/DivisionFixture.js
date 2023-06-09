@@ -2,7 +2,8 @@ import React, {useState} from 'react';
 import {Link} from "react-router-dom";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, renderDate, sortBy} from "../../Utilities";
+import {renderDate} from "../../helpers/rendering";
+import {any, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -236,7 +237,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 isKnockout: fixture.isKnockout,
                 seasonId: season.id,
                 accoladesCount: fixture.accoladesCount,
-            });
+            }, fixture.updated);
 
             if (result.success) {
                 await doReloadDivision();

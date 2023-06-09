@@ -1,5 +1,6 @@
 import {useState} from "react";
-import {sortBy, stateChanged} from "../../Utilities";
+import {sortBy} from "../../helpers/collections";
+import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 
@@ -12,6 +13,7 @@ export function Errors() {
     const { onError } = useApp();
 
     async function retrieveErrors() {
+        /* istanbul ignore next */
         if (loading) {
             /* istanbul ignore next */
             return;

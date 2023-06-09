@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Game.Sayg;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Game.Sayg;
 
 /// <summary>
 /// Details of scores in a match
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class ScoreAsYouGoDto
 {
     /// <summary>

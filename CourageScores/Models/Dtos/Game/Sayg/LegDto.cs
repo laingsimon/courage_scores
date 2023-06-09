@@ -1,8 +1,11 @@
-﻿namespace CourageScores.Models.Dtos.Game.Sayg;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CourageScores.Models.Dtos.Game.Sayg;
 
 /// <summary>
 /// The details of a leg
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class LegDto
 {
     /// <summary>

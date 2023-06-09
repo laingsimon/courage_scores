@@ -1,8 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange} from "../../../tests/helpers";
+import {cleanUp, renderApp, findButton, doClick, doChange, doSelectOption} from "../../../helpers/tests";
 import React from "react";
-import {createTemporaryId, toMap, any} from "../../../Utilities";
+import {createTemporaryId} from "../../../helpers/projection";
+import {toMap, any} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 
 describe('TournamentRoundMatch', () => {
@@ -303,9 +304,8 @@ describe('TournamentRoundMatch', () => {
                     matchOptions: {},
                 }, account);
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
-                const saygButton = findButton(cells[0], '📊');
 
-                await doClick(saygButton);
+                await doClick(findButton(cells[0], '📊'));
 
                 expect(reportedError).toBeNull();
                 const dialog = context.container.querySelector('.modal-dialog');
@@ -456,9 +456,8 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            const saygButton = findButton(cells[0], '📊');
 
-            await doClick(saygButton);
+            await doClick(findButton(cells[0], '📊'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -517,9 +516,8 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            const saygButton = findButton(cells[0], '📊');
 
-            await doClick(saygButton);
+            await doClick(findButton(cells[0], '📊'));
 
             expect(reportedError).toBeNull();
             const dialog = context.container.querySelector('.modal-dialog');
@@ -952,7 +950,7 @@ describe('TournamentRoundMatch', () => {
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-            await doClick(cells[0], '.dropdown-item:not(.active)');
+            await doSelectOption(cells[0].querySelector('.dropdown-menu'), 'SIDE C');
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
@@ -1014,7 +1012,7 @@ describe('TournamentRoundMatch', () => {
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
-            await doClick(cells[4], '.dropdown-item:not(.active)');
+            await doSelectOption(cells[4].querySelector('.dropdown-menu'), 'SIDE C');
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({

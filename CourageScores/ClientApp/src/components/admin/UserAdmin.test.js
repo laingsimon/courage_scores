@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
 import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
@@ -76,7 +76,7 @@ describe('UserAdmin', () => {
         };
         await renderComponent( [ account, otherAccount ], account);
 
-        await doClick(context.container, '.dropdown-menu .dropdown-item:not(.active)');
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Test 1');
 
         expect(reportedError).toBeNull();
         expect(context.container.textContent).toContain('Manage access');
@@ -100,7 +100,7 @@ describe('UserAdmin', () => {
         };
         await renderComponent( [ account, otherAccount ], account);
 
-        await doClick(context.container, '.dropdown-menu .dropdown-item:not(.active)');
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
 
         expect(reportedError).toBeNull();
         expect(context.container.textContent).toContain('Manage access');
@@ -124,7 +124,7 @@ describe('UserAdmin', () => {
         };
         await renderComponent( [ account, otherAccount ], account);
 
-        await doClick(context.container, '.dropdown-menu .dropdown-item:not(.active)');
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
         await doClick(getAccess('manageGames'));
         await doClick(findButton(context.container,'Set access'));
 

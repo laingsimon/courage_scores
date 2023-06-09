@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
-import {createTemporaryId} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -25,8 +25,8 @@ describe('EditSeason', () => {
     let apiResponse;
     let deletedId;
     const seasonApi = {
-        update: (data) => {
-            updatedSeason = data;
+        update: (data, lastUpdated) => {
+            updatedSeason = { data, lastUpdated };
             return apiResponse;
         },
         delete: (id) => {
@@ -210,10 +210,7 @@ describe('EditSeason', () => {
         }, [ otherSeason ], divisions);
         expect(reportedError).toBeNull();
 
-        const otherSeasonMenuItem = context.container.querySelector('div.dropdown-menu button.dropdown-item');
-        expect(otherSeasonMenuItem).toBeTruthy();
-        expect(otherSeasonMenuItem.textContent).toEqual('OTHER SEASON');
-        await doClick(otherSeasonMenuItem);
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
 
         expect(reportedError).toBeNull();
         expect(updatedData.copyTeamsFromSeasonId).toEqual(otherSeason.id);
@@ -231,7 +228,7 @@ describe('EditSeason', () => {
             data: season,
         }, [ season ], divisions);
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update season'));
 
         expect(alert).toEqual('Enter a season name');
         expect(saved).toEqual(false);
@@ -250,7 +247,7 @@ describe('EditSeason', () => {
         }, [ season ], divisions);
         expect(reportedError).toBeNull();
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update season'));
 
         expect(reportedError).toBeNull();
         expect(alert).toBeNull();
@@ -274,7 +271,7 @@ describe('EditSeason', () => {
             success: false
         }
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update season'));
 
         expect(reportedError).toBeNull();
         expect(saveError).toEqual(apiResponse);
@@ -293,7 +290,7 @@ describe('EditSeason', () => {
         }, [ season ], divisions);
         expect(reportedError).toBeNull();
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(confirm).toEqual('Are you sure you want to delete the SEASON season?');
         expect(saved).toEqual(false);
@@ -313,7 +310,7 @@ describe('EditSeason', () => {
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(reportedError).toBeNull();
         expect(deletedId).toEqual(season.id);
@@ -336,7 +333,7 @@ describe('EditSeason', () => {
             success: false
         };
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(reportedError).toBeNull();
         expect(deletedId).toEqual(season.id);
@@ -357,7 +354,7 @@ describe('EditSeason', () => {
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete season'));
 
         expect(mockedUsedNavigate).toHaveBeenCalledWith('https://localhost');
     });

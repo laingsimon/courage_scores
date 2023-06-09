@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../helpers/tests";
 import React from "react";
 import {NavMenu} from "./NavMenu";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 
 describe('NavMenu', () => {
     let context;
@@ -146,9 +146,7 @@ describe('NavMenu', () => {
             expect(context.container.textContent).not.toContain('ERROR:');
             const menu = context.container.querySelector('nav');
             const items = Array.from(menu.querySelectorAll('li'));
-            const toggler = context.container.querySelector('.navbar-toggler');
-            expect(toggler).toBeTruthy();
-            await doClick(toggler);
+            await doClick(context.container.querySelector('.navbar-toggler'));
             expect(isExpanded()).toEqual(true);
 
             const link = items[2].querySelector('a');

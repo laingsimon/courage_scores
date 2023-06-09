@@ -1,8 +1,8 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../tests/helpers";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../Utilities";
+import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 
 describe('EditPlayerDetails', () => {
@@ -19,8 +19,8 @@ describe('EditPlayerDetails', () => {
             createdPlayer = { seasonId, teamId, playerDetails };
             return apiResponse || { success: true };
         },
-        update: async (seasonId, teamId, playerId, playerDetails) => {
-            updatedPlayer = { seasonId, teamId, playerId, playerDetails };
+        update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
+            updatedPlayer = { seasonId, teamId, playerId, playerDetails, lastUpdated };
             return apiResponse || { success: true };
         }
     }
@@ -101,11 +101,12 @@ describe('EditPlayerDetails', () => {
 
         it('existing player details', async () => {
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: createTemporaryId(),
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -126,11 +127,12 @@ describe('EditPlayerDetails', () => {
 
         it('new player details', async () => {
             await renderComponent({
-                id: null,
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: null,
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -191,11 +193,12 @@ describe('EditPlayerDetails', () => {
 
         it('can change team for new player', async () => {
             await renderComponent({
-                id: null,
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: null,
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -205,10 +208,8 @@ describe('EditPlayerDetails', () => {
             }, [ team, otherTeam ], [ division, otherDivision ]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            const otherTeamItem = findNewTeamDropdown().querySelector('.dropdown-item:nth-child(2)');
-            expect(otherTeamItem.textContent).toEqual('OTHER TEAM');
 
-            await doClick(otherTeamItem);
+            await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('teamId');
@@ -217,11 +218,12 @@ describe('EditPlayerDetails', () => {
 
         it('can change team for existing player', async () => {
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: createTemporaryId(),
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -231,10 +233,8 @@ describe('EditPlayerDetails', () => {
             }, [ team, otherTeam ], [ division, otherDivision ]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
-            const otherTeamItem = findNewTeamDropdown().querySelector('.dropdown-item:not(.active)');
-            expect(otherTeamItem.textContent).toEqual('OTHER TEAM');
 
-            await doClick(otherTeamItem);
+            await doSelectOption(findNewTeamDropdown().querySelector('.dropdown-menu'), 'OTHER TEAM');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('newTeamId');
@@ -243,11 +243,12 @@ describe('EditPlayerDetails', () => {
 
         it('can change captaincy', async () => {
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: createTemporaryId(),
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -266,11 +267,12 @@ describe('EditPlayerDetails', () => {
 
         it('can change division for existing player', async () => {
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: createTemporaryId(),
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -279,10 +281,8 @@ describe('EditPlayerDetails', () => {
                 newDivisionId: null,
             }, [ team, otherTeam ], [ division, otherDivision ]);
             expect(reportedError).toBeNull();
-            const otherDivisionItem = findNewDivisionDropdown().querySelector('.dropdown-item:not(.active)');
-            expect(otherDivisionItem.textContent).toEqual('OTHER DIVISION');
 
-            await doClick(otherDivisionItem);
+            await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
 
             expect(change).not.toBeNull();
             expect(change.name).toEqual('newDivisionId');
@@ -291,11 +291,12 @@ describe('EditPlayerDetails', () => {
 
         it('requires team to be selected', async () => {
             await renderComponent({
-                id: null,
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: null,
+                player: {
+                    id: null,
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: null,
                 gameId: null,
@@ -312,11 +313,12 @@ describe('EditPlayerDetails', () => {
 
         it('requires name to be entered', async () => {
             await renderComponent({
-                id: null,
-                name: '',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: null,
+                    name: '',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -333,11 +335,12 @@ describe('EditPlayerDetails', () => {
 
         it('creates new player', async () => {
             await renderComponent({
-                id: null,
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: null,
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -361,11 +364,12 @@ describe('EditPlayerDetails', () => {
         it('updates existing player', async () => {
             const playerId = createTemporaryId();
             await renderComponent({
-                id: playerId,
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: playerId,
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -377,6 +381,7 @@ describe('EditPlayerDetails', () => {
 
             await doClick(findButton(context.container, 'Save player'));
 
+            expect(reportedError).toBeNull();
             expect(updatedPlayer).not.toBeNull();
             expect(updatedPlayer.playerId).toEqual(playerId);
             expect(updatedPlayer.seasonId).toEqual(season.id);
@@ -393,11 +398,12 @@ describe('EditPlayerDetails', () => {
             const playerId = createTemporaryId();
             const gameId = createTemporaryId();
             await renderComponent({
-                id: playerId,
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: playerId,
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: gameId,
@@ -409,6 +415,7 @@ describe('EditPlayerDetails', () => {
 
             await doClick(findButton(context.container, 'Save player'));
 
+            expect(reportedError).toBeNull();
             expect(updatedPlayer).not.toBeNull();
             expect(updatedPlayer.playerId).toEqual(playerId);
             expect(updatedPlayer.seasonId).toEqual(season.id);
@@ -423,11 +430,12 @@ describe('EditPlayerDetails', () => {
 
         it('handles errors during save', async () => {
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: createTemporaryId(),
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -445,11 +453,12 @@ describe('EditPlayerDetails', () => {
 
         it('can cancel editing', async () => {
             await renderComponent({
-                id: createTemporaryId(),
-                name: 'NAME',
-                captain: true,
-                emailAddress: 'EMAIL',
-                teamId: team.id,
+                player: {
+                    id: createTemporaryId(),
+                    name: 'NAME',
+                    captain: true,
+                    emailAddress: 'EMAIL',
+                },
                 seasonId: season.id,
                 team: team,
                 gameId: null,

@@ -3,8 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 namespace CourageScores.Models.Dtos.Game;
 
 [ExcludeFromCodeCoverage]
-public class EditGameDto : IEditGameDto
+public class EditGameDto : IEditGameDto, IIntegrityCheckDto
 {
+    public DateTime? LastUpdated { get; set; }
+
     public Guid Id { get; set; }
     public string Address { get; set; } = null!;
     public DateTime Date { get; set; }

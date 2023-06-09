@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {any, isEmpty, stateChanged} from "../../Utilities";
+import {any, isEmpty} from "../../helpers/collections";
+import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {ReportNotFound} from "./ReportNotFound";
@@ -27,7 +28,10 @@ export function DivisionReports() {
             const result = await reportApi.getReport(request);
             setReportData(result);
             if (any(result.reports)) {
-                setActiveReport(result.reports[0].name);
+                const selectedReportExists = any(result.reports, r => r.name === activeReport);
+                if (!selectedReportExists) {
+                    setActiveReport(result.reports[0].name);
+                }
             } else {
                 setActiveReport(null);
             }

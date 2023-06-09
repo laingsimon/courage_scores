@@ -31,6 +31,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             TeamId = playerTuple.Team.Id,
             WinPercentage = score.PlayerWinPercentage,
             Fixtures = fixtures,
+            Updated = playerTuple.Player.Updated,
         };
     }
 
@@ -52,6 +53,7 @@ public class DivisionPlayerAdapter : IDivisionPlayerAdapter
             Team = team.Name,
             Triples = new PlayerPerformanceDto(),
             Rank = -1,
+            Updated = player.Updated,
         });
     }
 }

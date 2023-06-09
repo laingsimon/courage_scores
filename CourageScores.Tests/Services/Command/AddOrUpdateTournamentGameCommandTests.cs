@@ -46,6 +46,7 @@ public class AddOrUpdateTournamentGameCommandTests
         _update = new EditTournamentGameDto
         {
             Date = new DateTime(2001, 02, 03),
+            LastUpdated = _game.Updated,
         };
         _cacheFlags = new ScopedCacheManagementFlags();
 
@@ -106,8 +107,6 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Over100Checkouts.Select(p => p.Id), Is.EqualTo(new[] { over100CheckoutPlayerId }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_update.DivisionId));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -121,8 +120,38 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Round, Is.Null);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenAssignedToADivision_EvictsCacheForDivision()
+    {
+        _update.Round = null;
+        _update.DivisionId = Guid.NewGuid();
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _game.DivisionId = _update.DivisionId;
+
+        var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.Not.Null);
+        Assert.That(result.Result!.Round, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_update.DivisionId));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenChangingDivisions_EvictsCacheForAllDivisions()
+    {
+        _update.Round = null;
+        _update.DivisionId = Guid.NewGuid();
+        _game.DivisionId = Guid.NewGuid();
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+
+        var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.Not.Null);
+        Assert.That(result.Result!.Round, Is.Null);
+        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(ScopedCacheManagementFlags.EvictAll));
     }
 
     [Test]
@@ -151,8 +180,6 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Sides.Count, Is.EqualTo(1));
         Assert.That(result.Result!.Sides[0].Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Sides[0].Players.Count, Is.EqualTo(1));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 
     [Test]
@@ -217,7 +244,5 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Round!.NextRound.Matches.Count, Is.EqualTo(2));
         Assert.That(result.Result!.Round!.NextRound.Matches.Select(m => m.Id), Has.All.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Round!.NextRound.Sides.Select(s => s.Id), Is.EquivalentTo(new[] { side1.Id }));
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
-        Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_game.SeasonId));
     }
 }

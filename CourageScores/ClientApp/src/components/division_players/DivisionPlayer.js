@@ -1,12 +1,13 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
 import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {propChanged} from "../../Utilities";
+import {propChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {EMPTY_ID} from "../../helpers/projection";
 
 export function DivisionPlayer({ player, hideVenue }) {
     const { account, reloadTeams } = useApp();
@@ -22,6 +23,10 @@ export function DivisionPlayer({ player, hideVenue }) {
     };
     const { playerApi } = useDependencies();
 
+    useEffect(() => {
+        setPlayerDetails(Object.assign({}, player));
+    }, [player]);
+
     async function playerDetailSaved() {
         await onReloadDivision();
         await reloadTeams();
@@ -32,7 +37,7 @@ export function DivisionPlayer({ player, hideVenue }) {
         return (<Dialog title={`Edit player: ${player.name}`}>
             <EditPlayerDetails
                 gameId={null}
-                {...playerDetails}
+                player={playerDetails}
                 team={team}
                 seasonId={season.id}
                 divisionId={divisionId}
@@ -44,6 +49,7 @@ export function DivisionPlayer({ player, hideVenue }) {
     }
 
     async function deletePlayer() {
+        /* istanbul ignore next */
         if (deleting) {
             /* istanbul ignore next */
             return;
@@ -82,7 +88,7 @@ export function DivisionPlayer({ player, hideVenue }) {
         {hideVenue
             ? null
             : (<td>
-                {team.id === '00000000-0000-0000-0000-000000000000'
+                {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
                     : (<Link disabled={deleting} to={`/division/${divisionId}/team:${team.id}/${season.id}`} className="margin-right">
                         {deleting ? (<s>{player.team}</s>) : player.team}

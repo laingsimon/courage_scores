@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
 import React from "react";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 
@@ -188,11 +188,10 @@ describe('PreviousPlayerScore', () => {
                 },
             },
         });
-        const opponentStatistics = context.container.querySelector('p:nth-child(2)');
         let confirm;
         window.confirm = (message) => { confirm = message; return true; };
 
-        await doClick(opponentStatistics);
+        await doClick(context.container.querySelector('p:nth-child(2)'));
 
         expect(confirm).toEqual('Are you sure you want to change this score?');
         expect(lastThrowUndone).toEqual(true);
@@ -298,11 +297,10 @@ describe('PreviousPlayerScore', () => {
                 },
             },
         });
-        const opponentLastThrow = context.container.querySelector('p:nth-child(3)');
         let confirm;
         window.confirm = (message) => { confirm = message; return true; };
 
-        await doClick(opponentLastThrow);
+        await doClick(context.container.querySelector('p:nth-child(3)'));
 
         expect(confirm).toEqual('Are you sure you want to change this score?');
         expect(lastThrowUndone).toEqual(true);

@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Dtos.Identity;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game.Sayg;
 
@@ -12,16 +13,19 @@ public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity
     public int HomeScore { get; set; }
     public int? AwayScore { get; set; }
 
+    [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {
         return true;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
         return true;
     }
 
+    [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto? user)
     {
         return true;

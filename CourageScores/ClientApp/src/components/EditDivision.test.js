@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange} from "../tests/helpers";
+import {cleanUp, renderApp, doClick, doChange, findButton} from "../helpers/tests";
 import React from "react";
 import {EditDivision} from "./EditDivision";
-import {createTemporaryId} from "../Utilities";
+import {createTemporaryId} from "../helpers/projection";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -25,8 +25,8 @@ describe('EditDivision', () => {
     let apiResponse;
     let deletedId;
     const divisionApi = {
-        update: (data) => {
-            updatedDivision = data;
+        update: (data, lastUpdated) => {
+            updatedDivision = { data, lastUpdated };
             return apiResponse;
         },
         delete: (id) => {
@@ -102,7 +102,7 @@ describe('EditDivision', () => {
             data: division,
         });
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update division'));
 
         expect(alert).toEqual('Enter a division name');
         expect(saved).toEqual(false);
@@ -118,7 +118,7 @@ describe('EditDivision', () => {
         });
         expect(reportedError).toBeNull();
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update division'));
 
         expect(reportedError).toBeNull();
         expect(alert).toBeNull();
@@ -139,7 +139,7 @@ describe('EditDivision', () => {
             success: false
         }
 
-        await doClick(context.container, 'button.btn-success');
+        await doClick(findButton(context.container, 'Update division'));
 
         expect(reportedError).toBeNull();
         expect(saveError).toEqual(apiResponse);
@@ -155,7 +155,7 @@ describe('EditDivision', () => {
         });
         expect(reportedError).toBeNull();
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete division'));
 
         expect(confirm).toEqual('Are you sure you want to delete the DIVISION division?');
         expect(saved).toEqual(false);
@@ -172,7 +172,7 @@ describe('EditDivision', () => {
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete division'));
 
         expect(reportedError).toBeNull();
         expect(deletedId).toEqual(division.id);
@@ -192,7 +192,7 @@ describe('EditDivision', () => {
             success: false
         };
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete division'));
 
         expect(reportedError).toBeNull();
         expect(deletedId).toEqual(division.id);
@@ -210,7 +210,7 @@ describe('EditDivision', () => {
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
-        await doClick(context.container, 'button.btn-danger');
+        await doClick(findButton(context.container, 'Delete division'));
 
         expect(mockedUsedNavigate).toHaveBeenCalledWith('https://localhost');
     });

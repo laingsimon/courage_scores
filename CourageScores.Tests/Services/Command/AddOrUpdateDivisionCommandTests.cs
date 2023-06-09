@@ -19,11 +19,14 @@ public class AddOrUpdateDivisionCommandTests
     {
         _cacheFlags = new ScopedCacheManagementFlags();
         _command = new AddOrUpdateDivisionCommand(_cacheFlags);
-        _update = new EditDivisionDto();
         _division = new CourageScores.Models.Cosmos.Division
         {
             Name = "name",
             Id = Guid.NewGuid(),
+        };
+        _update = new EditDivisionDto
+        {
+            LastUpdated = _division.Updated,
         };
     }
 

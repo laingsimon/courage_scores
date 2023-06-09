@@ -1,7 +1,8 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../tests/helpers";
-import {createTemporaryId, renderDate} from "../../Utilities";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
+import {createTemporaryId} from "../../helpers/projection";
+import {renderDate} from "../../helpers/rendering";
 import React from "react";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -371,7 +372,7 @@ describe('DivisionFixtureDate', () => {
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
             const row = table.querySelector('tr');
-            expect(row.textContent).toContain('SIDE');
+            expect(row.textContent).not.toContain('SIDE');
             expect(row.textContent).toContain('PLAYER');
         });
 
@@ -400,10 +401,8 @@ describe('DivisionFixtureDate', () => {
                 renderContext: {},
                 showPlayers: {},
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]');
-            expect(toggle).toBeTruthy();
 
-            await doClick(toggle);
+            await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
             expect(showPlayers).toEqual({
                 '2023-05-06T00:00:00': true
@@ -437,10 +436,8 @@ describe('DivisionFixtureDate', () => {
                     '2023-05-06T00:00:00': true
                 },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, players: [] }, account);
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]');
-            expect(toggle).toBeTruthy();
 
-            await doClick(toggle);
+            await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
             expect(showPlayers).toEqual({});
         });
@@ -563,10 +560,7 @@ describe('DivisionFixtureDate', () => {
                 expected.fixtures[0],
                 { awayTeam: expectedAwayTeam, originalAwayTeamId: 'unset' });
 
-            const awayTeamOption = table.querySelector('.dropdown-menu .dropdown-item:nth-child(2)');
-            expect(awayTeamOption).toBeTruthy();
-            expect(awayTeamOption.textContent).toEqual('ANOTHER TEAM');
-            await doClick(awayTeamOption);
+            await doSelectOption(table.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(newFixtures).toEqual([expected]);
@@ -614,9 +608,7 @@ describe('DivisionFixtureDate', () => {
                 showPlayers: {},
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
-            const toggle = context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]');
-            expect(toggle).toBeTruthy();
-            await doClick(toggle);
+            await doClick(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]'));
 
             expect(newFixtures).toEqual([{
                 date: '2023-05-06T00:00:00',
@@ -651,8 +643,7 @@ describe('DivisionFixtureDate', () => {
                 showPlayers: {},
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
-            const addNoteButton = findButton(context.container, '📌 Add note');
-            await doClick(addNoteButton);
+            await doClick(findButton(context.container, '📌 Add note'));
 
             expect(startingToAddNote).toEqual(fixtureDate.date);
         });

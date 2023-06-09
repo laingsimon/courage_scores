@@ -1,6 +1,7 @@
 import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
 import React, {useEffect, useState} from "react";
-import {any, createTemporaryId, valueChanged} from "../Utilities";
+import {any} from "../helpers/collections";
+import {valueChanged} from "../helpers/events";
 import {ShareButton} from "./ShareButton";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
@@ -22,7 +23,6 @@ export function Practice() {
         numberOfLegs: 3,
         startingScore: 501,
         legs: {},
-        id: createTemporaryId(),
         loaded: false,
     });
     const [ dataError, setDataError ] = useState(null);
@@ -31,22 +31,18 @@ export function Practice() {
     const hasHash = location.hash && location.hash !== '#';
 
     useEffect(() => {
-        try {
-            if (!hasHash || dataError || loading) {
-                return;
-            }
-
-            if (sayg && sayg.loaded) {
-                // data already loaded
-                return;
-            }
-
-            setLoading(true);
-            // noinspection JSIgnoredPromiseFromCall
-            loadData(location.hash.substring(1));
-        } catch (e) {
-            onError(e);
+        if (!hasHash || dataError || loading) {
+            return;
         }
+
+        if (sayg.loaded) {
+            // data already loaded
+            return;
+        }
+
+        setLoading(true);
+        // noinspection JSIgnoredPromiseFromCall
+        loadData(location.hash.substring(1));
     },
     // eslint-disable-next-line
     [ location, loading, onError ]);
@@ -70,6 +66,7 @@ export function Practice() {
             }
 
             sayg.loaded = true;
+            sayg.lastUpdated = sayg.updated;
             setSayg(sayg);
         } catch (e) {
             setDataError(e.message);
@@ -79,15 +76,15 @@ export function Practice() {
     }
 
     async function saveDataAndGetId() {
-        if (!sayg) {
-            return '';
-        }
-
         try {
             const response = await saygApi.upsert(sayg);
             if (response.success) {
+                response.result.loaded = true;
+                response.result.lastUpdated = response.result.updated;
                 setSayg(response.result);
-                navigate(`/practice#${response.result.id}`);
+                if (location.hash !== `#${response.result.id}`) {
+                    navigate(`/practice#${response.result.id}`);
+                }
                 return '#' + response.result.id;
             }
             setSaveError(response);
@@ -103,8 +100,6 @@ export function Practice() {
         newSayg.legs = {};
         newSayg.homeScore = 0;
         newSayg.awayScore = 0;
-        setSayg(newSayg);
-
         setSayg(newSayg);
     }
 

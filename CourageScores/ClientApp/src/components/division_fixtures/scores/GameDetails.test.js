@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doChange, renderApp, doClick} from "../../../tests/helpers";
+import {cleanUp, doChange, renderApp, doClick} from "../../../helpers/tests";
 import {GameDetails} from "./GameDetails";
 
 describe('GameDetails', () => {

@@ -71,7 +71,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             {
                 var editGame = GameDtoToEditGameDto(game);
                 editGame.Address = update.Address;
-                editGame.DivisionId = update.DivisionId;
+                editGame.DivisionId = update.NewDivisionId;
                 gamesToUpdate.Add(editGame);
             }
         }

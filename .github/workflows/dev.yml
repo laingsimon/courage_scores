@@ -5,11 +5,13 @@ on:
     inputs:
       deploy_dev:
         description: 'Deploy to dev?'
-        require: false
+        required: false
         type: boolean
         default: true
   pull_request:
     types: [opened,reopened,synchronize]
+    branches:
+      - 'main'
 
 jobs:
   branch-name:
