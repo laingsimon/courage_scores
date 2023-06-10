@@ -6,13 +6,13 @@ namespace CourageScores.Services.Command;
 
 public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentGame>
 {
-    private readonly ISimpleAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter;
-    private readonly ISimpleAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter;
+    private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter;
+    private readonly IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter;
     private PatchTournamentDto? _patch;
 
     public PatchTournamentCommand(
-        ISimpleAdapter<TournamentPlayer, TournamentPlayerDto> oneEightyPlayerAdapter,
-        ISimpleAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> hiCheckPlayerAdapter)
+        IAdapter<TournamentPlayer, TournamentPlayerDto> oneEightyPlayerAdapter,
+        IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> hiCheckPlayerAdapter)
     {
         _oneEightyPlayerAdapter = oneEightyPlayerAdapter;
         _hiCheckPlayerAdapter = hiCheckPlayerAdapter;

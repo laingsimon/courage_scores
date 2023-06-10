@@ -17,10 +17,10 @@ public class PatchTournamentCommandTests
     private PatchTournamentCommand _command = null!;
     private TournamentGame _tournament = null!;
     private PatchTournamentDto _patch = null!;
-    private ISimpleAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter = null!;
+    private IAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter = null!;
     private TournamentPlayerDto _oneEightyPlayerDto = null!;
     private NotableTournamentPlayerDto _hiCheckPlayerDto = null!;
-    private ISimpleAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter = null!;
+    private IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -29,8 +29,8 @@ public class PatchTournamentCommandTests
         _patch = new PatchTournamentDto();
         _oneEightyPlayerDto = new TournamentPlayerDto();
         _hiCheckPlayerDto = new NotableTournamentPlayerDto();
-        _oneEightyPlayerAdapter = new MockSimpleAdapter<TournamentPlayer, TournamentPlayerDto>(_oneEightyPlayer, _oneEightyPlayerDto);
-        _hiCheckPlayerAdapter = new MockSimpleAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(_hiCheckPlayer, _hiCheckPlayerDto);
+        _oneEightyPlayerAdapter = new MockAdapter<TournamentPlayer, TournamentPlayerDto>(_oneEightyPlayer, _oneEightyPlayerDto);
+        _hiCheckPlayerAdapter = new MockAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto>(_hiCheckPlayer, _hiCheckPlayerDto);
         _command = new PatchTournamentCommand(_oneEightyPlayerAdapter, _hiCheckPlayerAdapter);
     }
 
