@@ -33,14 +33,14 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);
-        var canCreateGames = user?.Access?.ManageGames ?? false;
+        var canCreateTournaments = user?.Access?.ManageTournaments ?? false;
 
         return new DivisionFixtureDateDto
         {
             Date = date,
             Fixtures = (await FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), teams, tournamentGamesForDate?.Any() ?? false, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
-            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateGames, (gamesForDate?.Count ?? 0) == 0, token)
+            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateTournaments, (gamesForDate?.Count ?? 0) == 0, token)
                 .OrderByAsync(f => f.Address).ToList(),
             Notes = notesForDate?.ToList() ?? new List<FixtureDateNoteDto>(),
         };
