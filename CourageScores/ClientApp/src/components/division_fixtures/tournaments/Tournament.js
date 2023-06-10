@@ -20,7 +20,7 @@ export function Tournament() {
     const { tournamentId } = useParams();
     const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
-    const canManageGames = account && account.access && account.access.manageGames;
+    const canManageTournaments = account && account.access && account.access.manageTournaments;
     const canManagePlayers = account && account.access && account.access.managePlayers;
     const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
@@ -172,7 +172,7 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="light-background p-3">
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
@@ -187,7 +187,7 @@ export function Tournament() {
                             text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
                     </span>
                     </p>)}
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-print-none">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
@@ -197,7 +197,7 @@ export function Tournament() {
                                onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
                     : null}
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <label htmlFor="note-text" className="input-group-text">Notes</label>
                         <textarea id="note-text" className="form-control" disabled={saving}
@@ -208,7 +208,7 @@ export function Tournament() {
                         ? (<div className="alert alert-warning alert-dismissible fade show"
                                 role="alert">{tournamentData.notes}</div>)
                         : null}
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <div className="form-check form-switch margin-right">
                             <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount"
@@ -234,7 +234,7 @@ export function Tournament() {
                     canSave={canSave}
                     setTournamentData={setTournamentData}/>
                 <TournamentSheet sides={tournamentData.sides}/>
-                {canManageGames ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
+                {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}
                     Save

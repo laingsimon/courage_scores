@@ -105,7 +105,7 @@ public class DivisionFixtureDateAdapterTests
         var teamB = new TeamDto { Id = Guid.NewGuid(), Address = "addressB", Name = "B", };
         var tournamentGameA = new TournamentGame { Address = "addressA", };
         var teams = new[] { teamA, teamB };
-        _user!.Access!.ManageGames = true;
+        _user!.Access!.ManageTournaments = true;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(tournamentGameA, _token))
             .ReturnsAsync(tournamentGameDtoA);
@@ -152,7 +152,7 @@ public class DivisionFixtureDateAdapterTests
             Address = "addressC",
         };
         var teams = new[] { teamA, teamB, teamC };
-        _user!.Access!.ManageGames = true;
+        _user!.Access!.ManageTournaments = true;
         _divisionTournamentFixtureDetailsAdapter
             .Setup(a => a.Adapt(tournamentGameA, _token))
             .ReturnsAsync(tournamentGameDtoA);
@@ -292,7 +292,7 @@ public class DivisionFixtureDateAdapterTests
         var note = new FixtureDateNoteDto();
         var notesForDate = new List<FixtureDateNoteDto> { note };
         var teams = Array.Empty<TeamDto>();
-        _user!.Access!.ManageGames = true;
+        _user!.Access!.ManageTournaments = true;
 
         var result = await _adapter.Adapt(_date, gamesForDate, tournamentGamesForDate, notesForDate, teams, _token);
 

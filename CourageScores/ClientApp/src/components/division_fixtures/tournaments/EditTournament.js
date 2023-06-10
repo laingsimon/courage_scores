@@ -9,7 +9,7 @@ import {useApp} from "../../../AppContainer";
 
 export function EditTournament({ tournamentData, season, alreadyPlaying, disabled, saving, allPlayers, canSave, setTournamentData }) {
     const { account } = useApp();
-    const isAdmin = account && account.access && account.access.manageGames;
+    const isAdmin = account && account.access && account.access.manageTournaments;
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;

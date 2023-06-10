@@ -401,6 +401,7 @@ describe('DivisionFixtures', () => {
         const account = {
             access: {
                 manageGames: true,
+                manageTournaments: true,
                 manageNotes: true,
                 manageScores: true
             },

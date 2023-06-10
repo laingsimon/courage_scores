@@ -66,19 +66,19 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {
-        return user?.Access?.ManageGames == true;
+        return user?.Access?.ManageTournaments == true;
     }
 
     [ExcludeFromCodeCoverage]
     public bool CanEdit(UserDto? user)
     {
-        return user?.Access?.ManageGames == true;
+        return user?.Access?.ManageTournaments == true;
     }
 
     [ExcludeFromCodeCoverage]
     public bool CanDelete(UserDto? user)
     {
-        return user?.Access?.ManageGames == true;
+        return user?.Access?.ManageTournaments == true;
     }
 
     public void Accept(IVisitorScope scope, IGameVisitor visitor)

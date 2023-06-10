@@ -19,4 +19,5 @@ public class Access
     public bool InputResults { get; set; }
     public bool ViewExceptions { get; set; }
     public bool RecordScoresAsYouGo { get; set; }
+    public bool ManageTournaments { get; set; }
 }

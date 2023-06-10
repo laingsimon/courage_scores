@@ -410,7 +410,7 @@ describe('Tournament', () => {
         describe('when logged in', () => {
             const account = {
                 access: {
-                    manageGames: true,
+                    manageTournaments: true,
                     managePlayers: true,
                     manageScores: true,
                 }

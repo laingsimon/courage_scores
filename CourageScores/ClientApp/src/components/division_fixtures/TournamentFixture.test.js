@@ -273,7 +273,7 @@ describe('TournamentFixture', () => {
         };
         const account = {
             access: {
-                manageGames: true,
+                manageTournaments: true,
             }
         };
 

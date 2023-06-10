@@ -327,7 +327,7 @@ describe('EditTournament', () => {
     describe('interactivity', () => {
         const account = {
             access: {
-                manageGames: true,
+                manageTournaments: true,
             }
         };
         const season = {

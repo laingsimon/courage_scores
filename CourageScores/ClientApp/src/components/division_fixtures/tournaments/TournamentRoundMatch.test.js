@@ -317,7 +317,7 @@ describe('TournamentRoundMatch', () => {
         describe('when logged in', () => {
             const account = {
                 access: {
-                    manageGames: true,
+                    manageTournaments: true,
                     recordScoresAsYouGo: true,
                 }
             };
@@ -426,7 +426,7 @@ describe('TournamentRoundMatch', () => {
         };
         const account = {
             access: {
-                manageGames: true,
+                manageTournaments: true,
                 recordScoresAsYouGo: true,
             }
         };
