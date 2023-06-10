@@ -12,6 +12,6 @@ public class PatchTournamentMatchDto
     public Guid SideA { get; set; }
     public Guid SideB { get; set; }
 
-    public int ScoreA { get; set; }
-    public int ScoreB { get; set; }
+    public int? ScoreA { get; set; }
+    public int? ScoreB { get; set; }
 }

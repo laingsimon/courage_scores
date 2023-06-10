@@ -45,4 +45,11 @@ public class TournamentGameController : Controller
     {
         return await _gameService.Delete(id, token);
     }
+
+    [HttpPatch("/api/Tournament/{id}")]
+    public async Task<ActionResultDto<TournamentGameDto>> PatchGame(Guid id, PatchTournamentDto patch, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<PatchTournamentCommand>().WithPatch(patch);
+        return await _gameService.Upsert(id, command, token);
+    }
 }
