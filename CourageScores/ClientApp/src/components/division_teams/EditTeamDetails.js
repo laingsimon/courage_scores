@@ -47,7 +47,7 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
                 setSaveError(response);
             }
         } catch(e) {
-            onerror(e);
+            onError(e);
         } finally {
             setSaving(false);
         }
