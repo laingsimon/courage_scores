@@ -1,8 +1,6 @@
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
-using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services.Identity;
 using Moq;
@@ -18,8 +16,6 @@ public class TournamentMatchAdapterTests
     private static readonly TournamentSide SideB = new TournamentSide();
     private static readonly TournamentSideDto SideBDto = new TournamentSideDto();
     private readonly CancellationToken _token = new CancellationToken();
-    private static readonly ScoreAsYouGo ScoreAsYouGo = new ScoreAsYouGo();
-    private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new ScoreAsYouGoDto();
     private TournamentMatchAdapter _adapter = null!;
     private Mock<IUserService> _userService = null!;
     private UserDto? _user;
@@ -39,7 +35,6 @@ public class TournamentMatchAdapterTests
             new MockAdapter<TournamentSide, TournamentSideDto>(
                 new[] { SideA, SideB },
                 new[] { SideADto, SideBDto }),
-            new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(ScoreAsYouGo, ScoreAsYouGoDto),
             _userService.Object);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
@@ -55,7 +50,7 @@ public class TournamentMatchAdapterTests
             ScoreB = 2,
             SideA = SideA,
             SideB = SideB,
-            Sayg = ScoreAsYouGo,
+            SaygId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -65,7 +60,7 @@ public class TournamentMatchAdapterTests
         Assert.That(result.ScoreB, Is.EqualTo(model.ScoreB));
         Assert.That(result.SideA, Is.EqualTo(SideADto));
         Assert.That(result.SideB, Is.EqualTo(SideBDto));
-        Assert.That(result.Sayg, Is.EqualTo(ScoreAsYouGoDto));
+        Assert.That(result.SaygId, Is.EqualTo(model.SaygId));
     }
 
     [Test]
@@ -73,12 +68,12 @@ public class TournamentMatchAdapterTests
     {
         var model = new TournamentMatch
         {
-            Sayg = null,
+            SaygId = null,
         };
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Sayg, Is.Null);
+        Assert.That(result.SaygId, Is.Null);
     }
 
     [TestCase(false, false, false)]
@@ -101,7 +96,7 @@ public class TournamentMatchAdapterTests
             ScoreB = 2,
             SideA = SideADto,
             SideB = SideBDto,
-            Sayg = ScoreAsYouGoDto,
+            SaygId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -111,7 +106,7 @@ public class TournamentMatchAdapterTests
         Assert.That(result.ScoreB, Is.EqualTo(dto.ScoreB));
         Assert.That(result.SideA, Is.EqualTo(SideA));
         Assert.That(result.SideB, Is.EqualTo(SideB));
-        Assert.That(result.Sayg, Is.EqualTo(saygSet ? ScoreAsYouGo : null));
+        Assert.That(result.SaygId, Is.EqualTo(saygSet ? dto.SaygId : null));
     }
 
     [Test]
@@ -119,11 +114,11 @@ public class TournamentMatchAdapterTests
     {
         var dto = new TournamentMatchDto
         {
-            Sayg = null,
+            SaygId = null,
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Sayg, Is.Null);
+        Assert.That(result.SaygId, Is.Null);
     }
 }

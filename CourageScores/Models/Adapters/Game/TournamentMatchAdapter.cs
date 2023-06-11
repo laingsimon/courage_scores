@@ -1,7 +1,5 @@
 ﻿using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
-using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Models.Adapters.Game;
@@ -9,16 +7,13 @@ namespace CourageScores.Models.Adapters.Game;
 public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchDto>
 {
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
-    private readonly ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter;
     private readonly IUserService _userService;
 
     public TournamentMatchAdapter(
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
-        ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> scoreAsYouGoAdapter,
         IUserService userService)
     {
         _tournamentSideAdapter = tournamentSideAdapter;
-        _scoreAsYouGoAdapter = scoreAsYouGoAdapter;
         _userService = userService;
     }
 
@@ -31,7 +26,7 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
             ScoreB = model.ScoreB,
             SideA = await _tournamentSideAdapter.Adapt(model.SideA, token),
             SideB = await _tournamentSideAdapter.Adapt(model.SideB, token),
-            Sayg = model.Sayg != null ? await _scoreAsYouGoAdapter.Adapt(model.Sayg, token) : null,
+            SaygId = model.SaygId,
         }.AddAuditProperties(model);
     }
 
@@ -47,7 +42,7 @@ public class TournamentMatchAdapter : IAdapter<TournamentMatch, TournamentMatchD
             ScoreB = dto.ScoreB,
             SideA = await _tournamentSideAdapter.Adapt(dto.SideA, token),
             SideB = await _tournamentSideAdapter.Adapt(dto.SideB, token),
-            Sayg = dto.Sayg != null && permitted ? await _scoreAsYouGoAdapter.Adapt(dto.Sayg, token) : null,
+            SaygId = dto.SaygId != null && permitted ? dto.SaygId : null,
         }.AddAuditProperties(dto);
     }
 }

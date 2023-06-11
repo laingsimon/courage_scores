@@ -18,7 +18,7 @@ public class AddOrUpdateSaygCommandTests
     private readonly CancellationToken _token = new CancellationToken();
     private AddOrUpdateSaygCommand _command = null!;
     private ISimpleAdapter<Leg,LegDto> _adapter = null!;
-    private Mock<IUserService> _userService = null;
+    private Mock<IUserService> _userService = null!;
     private UserDto? _user;
 
     [SetUp]
