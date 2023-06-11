@@ -1,6 +1,6 @@
 namespace CourageScores.Services.Command;
 
-public class CommandOutcome<T>
+public class CommandOutcome<T> : ICommandOutcome<T>
 {
     public bool Success { get; }
     public string Message { get; }

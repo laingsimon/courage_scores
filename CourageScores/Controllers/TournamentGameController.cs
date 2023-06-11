@@ -40,16 +40,16 @@ public class TournamentGameController : Controller
         return await _gameService.Upsert(game.Id, command, token);
     }
 
-    [HttpPut("/api/TournamentScores/{id}")]
-    public async Task<ActionResultDto<TournamentGameDto>> AddOrUpdateScore(Guid id, TournamentRoundDto round, CancellationToken token)
-    {
-        var command = _commandFactory.GetCommand<UpdateTournamentRoundsCommand>().WithData(round);
-        return await _gameService.Upsert(id, command, token);
-    }
-
     [HttpDelete("/api/Tournament/{id}")]
     public async Task<ActionResultDto<TournamentGameDto>> DeleteGame(Guid id, CancellationToken token)
     {
         return await _gameService.Delete(id, token);
+    }
+
+    [HttpPatch("/api/Tournament/{id}")]
+    public async Task<ActionResultDto<TournamentGameDto>> PatchGame(Guid id, PatchTournamentDto patch, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<PatchTournamentCommand>().WithPatch(patch);
+        return await _gameService.Upsert(id, command, token);
     }
 }

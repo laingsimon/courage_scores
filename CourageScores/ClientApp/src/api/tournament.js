@@ -18,6 +18,10 @@ class TournamentApi {
     delete(id) {
         return this.http.delete(`/api/Tournament/${id}`, {});
     }
+
+    patch(id, patch) {
+        return this.http.patch(`/api/Tournament/${id}`, patch);
+    }
 }
 
 export { TournamentApi };
