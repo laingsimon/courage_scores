@@ -127,6 +127,7 @@ public class CreateTournamentMatchSaygCommandTests
         {
             Id = _request.MatchId,
         };
+        var newId = Guid.NewGuid();
         _tournament.Round = new TournamentRound
         {
             Matches = { match }
@@ -134,12 +135,16 @@ public class CreateTournamentMatchSaygCommandTests
         _addSaygCommandResult = new ActionResultDto<RecordedScoreAsYouGoDto>
         {
             Success = true,
+            Result = new RecordedScoreAsYouGoDto
+            {
+                Id = newId
+            }
         };
 
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(match.SaygId, Is.Not.Null);
+        Assert.That(match.SaygId, Is.EqualTo(newId));
         Assert.That(result.Message, Is.EqualTo("Sayg added to match"));
         _addSaygCommand
             .Verify(s => s.WithData(

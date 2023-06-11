@@ -45,7 +45,6 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
 
         var saygUpdate = new UpdateRecordedScoreAsYouGoDto
         {
-            Id = Guid.NewGuid(),
             TournamentMatchId = match.Id,
         };
         var saygCommand = _commandFactory.GetCommand<AddOrUpdateSaygCommand>()
@@ -54,7 +53,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         var result = await _saygService.Upsert(saygUpdate.Id, saygCommand, token);
         if (result.Success)
         {
-            match.SaygId = saygUpdate.Id;
+            match.SaygId = result.Result!.Id;
             return new CommandOutcome<TournamentGame>(true, "Sayg added to match", model);
         }
 
