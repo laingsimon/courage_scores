@@ -2,10 +2,10 @@ import React, {useState} from "react";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Dialog} from "../../common/Dialog";
 import {EditMatchOptions} from "../EditMatchOptions";
-import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
 import {useDependencies} from "../../../IocContainer";
 import {useTournament} from "./TournamentContainer";
+import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180 }) {
     const { account, onError } = useApp();
@@ -83,17 +83,6 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         const home = match.sideA.name;
         const away = match.sideB.name;
 
-        const updateMatchScore = async (sideAScore, sideBScore) => {
-            const newRound = Object.assign({}, round);
-            const newMatch = Object.assign({}, newRound.matches[matchIndex]);
-            newMatch.scoreA = sideAScore;
-            newMatch.scoreB = sideBScore;
-            newRound.matches[matchIndex] = newMatch;
-            if (onChange) {
-                await onChange(newRound);
-            }
-        }
-
         async function recordHiCheck(sideName, score) {
             if (readOnly) {
                 return;
@@ -120,29 +109,17 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             }
         }
 
-        async function setMatchProp(prop, newData) {
-            const newRound = Object.assign({}, round);
-            const newMatch = Object.assign({}, newRound.matches[matchIndex]);
-            newMatch[prop] = newData;
-            newRound.matches[matchIndex] = newMatch;
-            if (onChange) {
-                await onChange(newRound);
-            }
-        }
-
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(null)} className="text-start">
-            <ScoreAsYouGo
-                data={match.sayg || { legs: {} }}
-                home={home}
-                away={away}
-                onChange={newData => setMatchProp('sayg', newData)}
-                onLegComplete={updateMatchScore}
-                startingScore={matchOptions.startingScore}
-                numberOfLegs={matchOptions.numberOfLegs}
-                homeScore={match.scoreA}
-                awayScore={match.scoreB}
+            <SaygLoadingContainer
+                id={match.saygId}
                 onHiCheck={recordHiCheck}
-                on180={record180} />
+                on180={record180}
+                autoSave={true}
+                onSaved={(data) => {
+                    console.log(data);
+                    // updateMatchScore() // TODO: update the scores
+                }}>
+            </SaygLoadingContainer>
         </Dialog>)
     }
 
