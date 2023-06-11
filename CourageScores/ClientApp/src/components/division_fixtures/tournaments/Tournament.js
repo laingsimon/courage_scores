@@ -15,6 +15,7 @@ import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
+import {TournamentContainer} from "./TournamentContainer";
 
 export function Tournament() {
     const { tournamentId } = useParams();
@@ -224,15 +225,14 @@ export function Tournament() {
                             disabled={saving} />
                     </div>)
                     : null}
-                <EditTournament
+                <TournamentContainer
                     tournamentData={tournamentData}
-                    disabled={disabled}
-                    saving={saving}
-                    allPlayers={allPlayers}
+                    setTournamentData={setTournamentData}
                     season={season}
                     alreadyPlaying={alreadyPlaying}
-                    canSave={canSave}
-                    setTournamentData={setTournamentData}/>
+                    allPlayers={allPlayers}>
+                    <EditTournament disabled={disabled} canSave={canSave} saving={saving} />
+                </TournamentContainer>
                 <TournamentSheet sides={tournamentData.sides}/>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"

@@ -4,6 +4,7 @@ import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from 
 import React from "react";
 import {TournamentRound} from "./TournamentRound";
 import {createTemporaryId} from "../../../helpers/projection";
+import {TournamentContainer} from "./TournamentContainer";
 
 describe('TournamentRound', () => {
     let context;
@@ -11,6 +12,15 @@ describe('TournamentRound', () => {
     let oneEighty;
     let hiCheck;
     let updatedRound;
+    let updatedTournamentData;
+    const tournamentApi = {
+        addSayg: async () => {
+            return {
+                success: true,
+                result: { /* tournament data */ }
+            };
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -28,13 +38,18 @@ describe('TournamentRound', () => {
         oneEighty = player
     }
 
-    async function renderComponent(props, account) {
+    async function setTournamentData(data) {
+        updatedTournamentData = data;
+    }
+
+    async function renderComponent(containerProps, props, account) {
         reportedError = null;
         oneEighty = null;
+        updatedTournamentData = null;
         hiCheck = null;
         updatedRound = null;
         context = await renderApp(
-            {},
+            { tournamentApi },
             {
                 onError: (err) => {
                     if (err.message) {
@@ -48,7 +63,9 @@ describe('TournamentRound', () => {
                 },
                 account
             },
-            (<TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} />));
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
+                <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} />
+            </TournamentContainer>));
     }
 
     function assertMatch(table, ordinal, expectedText) {
@@ -97,7 +114,7 @@ describe('TournamentRound', () => {
 
         describe('renders', () => {
             it('when no matches', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ ],
                         matchOptions: [ ],
@@ -113,7 +130,7 @@ describe('TournamentRound', () => {
             });
 
             it('unplayed round', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -140,7 +157,7 @@ describe('TournamentRound', () => {
             });
 
             it('played round', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -174,7 +191,7 @@ describe('TournamentRound', () => {
             });
 
             it('next round (when all sides have a score)', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -230,7 +247,7 @@ describe('TournamentRound', () => {
                 sideA: side1,
                 sideB: side2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 round: {
                     matches: [ match ],
                     matchOptions: [ ],
@@ -273,7 +290,7 @@ describe('TournamentRound', () => {
 
         describe('renders', () => {
             it('when no matches', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ ],
                         matchOptions: [ ],
@@ -289,7 +306,7 @@ describe('TournamentRound', () => {
             });
 
             it('unplayed round', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -316,7 +333,7 @@ describe('TournamentRound', () => {
             });
 
             it('played round', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -350,7 +367,7 @@ describe('TournamentRound', () => {
             });
 
             it('next round (when all sides have a score)', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -401,7 +418,7 @@ describe('TournamentRound', () => {
 
         describe('interactivity', () => {
             it('can delete match', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -419,7 +436,7 @@ describe('TournamentRound', () => {
                 });
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
-                window.confirm = (msg) => true;
+                window.confirm = () => true;
 
                 await doClick(findButton(matchRow, '🗑'));
 
@@ -439,7 +456,7 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -471,7 +488,7 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -509,7 +526,7 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -547,7 +564,7 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -587,7 +604,7 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: false,
                     }
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -616,7 +633,7 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -630,6 +647,7 @@ describe('TournamentRound', () => {
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
 
                 await doClick(findButton(matchRow, '📊'));
+                expect(reportedError).toBeNull();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 expect(saygDialog).toBeTruthy();
             });
@@ -642,7 +660,7 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -680,7 +698,7 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -711,7 +729,7 @@ describe('TournamentRound', () => {
             });
 
             it('cannot add match with only sideA', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ ],
                         matchOptions: [ ],
@@ -734,7 +752,7 @@ describe('TournamentRound', () => {
             });
 
             it('cannot add match with only sideB', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ ],
                         matchOptions: [ ],
@@ -757,7 +775,7 @@ describe('TournamentRound', () => {
             });
 
             it('can add match', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ ],
                         matchOptions: [ ],
@@ -782,7 +800,7 @@ describe('TournamentRound', () => {
             });
 
             it('can set sides in sub-round', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -839,7 +857,7 @@ describe('TournamentRound', () => {
             });
 
             it('does not show match selection after final', async () => {
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -917,7 +935,7 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -930,6 +948,7 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
+                expect(reportedError).toBeNull();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
@@ -971,7 +990,7 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     round: {
                         matches: [ match ],
                         matchOptions: [ ],
@@ -984,6 +1003,7 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
+                expect(reportedError).toBeNull();
                 const saygDialog = context.container.querySelector('.modal-dialog');
                 await doChange(saygDialog, 'input[data-score-input="true"]', '150', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));

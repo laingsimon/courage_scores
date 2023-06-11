@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap, any} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
+import {TournamentContainer} from "./TournamentContainer";
 
 describe('TournamentRoundMatch', () => {
     let context;
@@ -13,6 +14,15 @@ describe('TournamentRoundMatch', () => {
     let updatedMatchOptions;
     let hiChecks;
     let oneEighties;
+    let updatedTournamentData;
+    const tournamentApi = {
+        addSayg: async () => {
+            return {
+                success: true,
+                result: { /* tournament data */ }
+            };
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -26,14 +36,19 @@ describe('TournamentRoundMatch', () => {
         oneEighties.push(player);
     }
 
-    async function renderComponent(props, account) {
+    function setTournamentData(data) {
+        updatedTournamentData = data;
+    }
+
+    async function renderComponent(containerProps, props, account) {
         reportedError = null;
         updatedRound = null;
         updatedMatchOptions = null;
+        updatedTournamentData = null;
         hiChecks = [];
         oneEighties = [];
         context = await renderApp(
-            { },
+            { tournamentApi },
             {
                 onError: (err) => {
                     if (err.message) {
@@ -47,12 +62,14 @@ describe('TournamentRoundMatch', () => {
                 },
                 account,
             },
-            (<TournamentRoundMatch
-                {...props}
-                onChange={updated => updatedRound = updated}
-                onMatchOptionsChanged={updated => updatedMatchOptions = updated}
-                onHiCheck={onHiCheck}
-                on180={on180} />),
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
+                <TournamentRoundMatch
+                    {...props}
+                    onChange={updated => updatedRound = updated}
+                    onMatchOptionsChanged={updated => updatedMatchOptions = updated}
+                    onHiCheck={onHiCheck}
+                    on180={on180} />
+            </TournamentContainer>),
             null,
             null,
             'tbody');
@@ -117,7 +134,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -145,7 +162,7 @@ describe('TournamentRoundMatch', () => {
                     sideA: sideA,
                     sideB: sideB,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -175,7 +192,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 3,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -204,7 +221,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 2,
                     scoreB: 3,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -233,7 +250,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -256,14 +273,14 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[4].textContent).toEqual('SIDE B');
             });
 
-            it('cannot open sayg', async () => {
+            it('cannot open sayg if not exists', async () => {
                 const match = {
                     sideA: sideA,
                     sideB: sideB,
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -281,7 +298,7 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[0].textContent).not.toContain('📊');
             });
 
-            it('can open sayg', async () => {
+            it('can open sayg if it exists', async () => {
                 const match = {
                     sideA: sideA,
                     sideB: sideB,
@@ -291,7 +308,7 @@ describe('TournamentRoundMatch', () => {
                         legs: { }
                     },
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -332,7 +349,7 @@ describe('TournamentRoundMatch', () => {
                 returnFromExceptSelected['sideA'] = [ sideC, sideD ];
                 returnFromExceptSelected['sideB'] = [ sideD, sideE ];
 
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -362,7 +379,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -443,7 +460,7 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -472,7 +489,7 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -503,7 +520,7 @@ describe('TournamentRoundMatch', () => {
                     legs: { }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -535,7 +552,7 @@ describe('TournamentRoundMatch', () => {
                     legs: { }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -584,7 +601,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -630,7 +647,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
@@ -676,7 +693,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -722,7 +739,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -771,7 +788,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
@@ -817,7 +834,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -846,7 +863,7 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -875,7 +892,7 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -905,7 +922,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideC, sideD ];
             returnFromExceptSelected['sideB'] = [ sideD, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -936,7 +953,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideB, sideD ];
             returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -967,7 +984,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideC, sideD ];
             returnFromExceptSelected['sideB'] = [ sideD, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -998,7 +1015,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideB, sideD ];
             returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1029,7 +1046,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideB, sideD ];
             returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,

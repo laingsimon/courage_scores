@@ -4,9 +4,13 @@ import {Dialog} from "../../common/Dialog";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
+import {useDependencies} from "../../../IocContainer";
+import {useTournament} from "./TournamentContainer";
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180 }) {
     const { account, onError } = useApp();
+    const { tournamentApi } = useDependencies();
+    const { tournamentData, setTournamentData } = useTournament();
     const scoreA = Number.parseInt(match.scoreA);
     const scoreB = Number.parseInt(match.scoreB);
     const scoreARecorded = hasScore(match.scoreA);
@@ -14,6 +18,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     const hasBothScores = scoreARecorded && scoreBRecorded;
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
+    const [ creatingSayg, setCreatingSayg ] = useState(false);
 
     function sideSelection(side) {
         return {
@@ -147,6 +152,38 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
     }
 
+    async function openSaygDialog() {
+        if (match.saygId) {
+            setSaygOpen(true);
+            return;
+        }
+
+        /* istanbul ignore next */
+        if (creatingSayg) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        // TODO: trigger a save? otherwise unsaved data could be lost
+
+        try {
+            setCreatingSayg(true);
+
+            const response = await tournamentApi.addSayg(tournamentData.id, match.id);
+            if (response.success) {
+                setTournamentData(response.result);
+                setSaygOpen(true); // TODO: navigate to the sayg page? open in a new window?
+            } else {
+                // TODO: show as a HTML error
+                window.alert('Could not create sayg session: ' + JSON.stringify(response));
+            }
+        } catch (e) {
+            onError(e);
+        } finally {
+            setCreatingSayg(false);
+        }
+    }
+
     return (<tr className="bg-light">
         <td className={hasBothScores && scoreA > scoreB ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
@@ -159,7 +196,11 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                      slim={true}
                      className="margin-right" />)}
 
-            {canOpenSayg() ? (<button className="btn btn-sm float-start p-0" onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
+            {canOpenSayg() ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
+                {creatingSayg
+                    ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+                    : '📊'}
+            </button>) : null}
             {saygOpen ? renderSaygDialog(match) : null}
         </td>
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>

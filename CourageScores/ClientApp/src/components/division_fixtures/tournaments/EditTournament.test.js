@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
 import {EditTournament} from "./EditTournament";
+import {TournamentContainer} from "./TournamentContainer";
 
 describe('EditTournament', () => {
     let context;
@@ -19,7 +20,7 @@ describe('EditTournament', () => {
         updatedData = newData;
     }
 
-    async function renderComponent(props, account, teams) {
+    async function renderComponent(containerProps, props, account, teams) {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
@@ -38,7 +39,9 @@ describe('EditTournament', () => {
                 account,
                 teams: toMap(teams || []),
             },
-            (<EditTournament {...props} setTournamentData={setTournamentData} />));
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
+                <EditTournament {...props} />
+            </TournamentContainer>));
     }
 
     describe('renders', () => {
@@ -72,9 +75,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -109,9 +113,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -141,9 +146,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -177,9 +183,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -210,9 +217,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -253,9 +261,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -309,9 +318,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: true,
                 saving: false,
-                allPlayers: [],
                 canSave: false
             }, account);
 
@@ -360,9 +370,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: false,
                 saving: false,
-                allPlayers: [],
                 canSave: true
             }, account, [ team1 ]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -397,9 +408,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: false,
                 saving: false,
-                allPlayers: [],
                 canSave: true
             }, account, [ team1 ]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -440,9 +452,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: false,
                 saving: false,
-                allPlayers: [],
                 canSave: true
             }, account, [ team1 ]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -482,9 +495,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: false,
                 saving: false,
-                allPlayers: [],
                 canSave: true
             }, account, [ team1 ]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -530,9 +544,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: false,
                 saving: false,
-                allPlayers: [],
                 canSave: true
             }, account, [ team1 ]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
@@ -580,9 +595,10 @@ describe('EditTournament', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: [],
+                allPlayers: [],
+            }, {
                 disabled: false,
                 saving: false,
-                allPlayers: [],
                 canSave: true
             }, account, [ team1 ]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');

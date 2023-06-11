@@ -6,9 +6,11 @@ import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import React from "react";
 import {useApp} from "../../../AppContainer";
+import {useTournament} from "./TournamentContainer";
 
-export function EditTournament({ tournamentData, season, alreadyPlaying, disabled, saving, allPlayers, canSave, setTournamentData }) {
+export function EditTournament({ canSave, disabled, saving }) {
     const { account } = useApp();
+    const { tournamentData, setTournamentData, season, alreadyPlaying, allPlayers } = useTournament();
     const isAdmin = account && account.access && account.access.manageTournaments;
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
