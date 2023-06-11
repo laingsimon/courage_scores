@@ -62,8 +62,14 @@ public class AddOrUpdateTournamentGameCommandTests
         _auditingHelper = new Mock<IAuditingHelper>();
         _systemClock = new Mock<ISystemClock>();
 
-        _command = new AddOrUpdateTournamentGameCommand(_seasonService.Object, _sideAdapter, _roundAdapter, _auditingHelper.Object,
-            _systemClock.Object, _userService.Object, _cacheFlags);
+        _command = new AddOrUpdateTournamentGameCommand(
+            _seasonService.Object,
+            _sideAdapter,
+            _roundAdapter,
+            _auditingHelper.Object,
+            _systemClock.Object,
+            _userService.Object,
+            _cacheFlags);
 
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(_user);
     }
