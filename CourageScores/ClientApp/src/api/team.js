@@ -12,7 +12,7 @@ class TeamApi {
     }
 
     update(team, lastUpdated) {
-        if (!lastUpdated) {
+        if (team.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
