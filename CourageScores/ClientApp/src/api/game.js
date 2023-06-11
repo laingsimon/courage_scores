@@ -16,7 +16,7 @@ class GameApi {
     }
 
     update(game, lastUpdated) {
-        if (!lastUpdated) {
+        if (game.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
