@@ -22,6 +22,10 @@ class TournamentApi {
     patch(id, patch) {
         return this.http.patch(`/api/Tournament/${id}`, patch);
     }
+
+    addSayg(id, matchId) {
+        return this.http.post(`/api/Tournament/${id}`, { matchId });
+    }
 }
 
 export { TournamentApi };
