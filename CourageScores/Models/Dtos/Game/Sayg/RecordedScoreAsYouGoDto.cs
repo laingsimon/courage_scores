@@ -39,4 +39,6 @@ public class RecordedScoreAsYouGoDto : AuditedDto
     /// Opponent score, if applicable
     /// </summary>
     public int? AwayScore { get; set; }
+
+    public Guid? TournamentMatchId { get; set; }
 }

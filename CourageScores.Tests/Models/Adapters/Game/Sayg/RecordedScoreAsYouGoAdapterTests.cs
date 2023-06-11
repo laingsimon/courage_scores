@@ -39,6 +39,7 @@ public class RecordedScoreAsYouGoAdapterTests
             StartingScore = 601,
             YourName = "Your name",
             NumberOfLegs = 3,
+            TournamentMatchId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -53,6 +54,7 @@ public class RecordedScoreAsYouGoAdapterTests
         Assert.That(result.YourName, Is.EqualTo(model.YourName));
         Assert.That(result.StartingScore, Is.EqualTo(model.StartingScore));
         Assert.That(result.NumberOfLegs, Is.EqualTo(model.NumberOfLegs));
+        Assert.That(result.TournamentMatchId, Is.EqualTo(model.TournamentMatchId));
     }
 
     [Test]
@@ -72,6 +74,7 @@ public class RecordedScoreAsYouGoAdapterTests
             StartingScore = 601,
             YourName = "Your name",
             NumberOfLegs = 3,
+            TournamentMatchId = Guid.NewGuid(),
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -86,5 +89,6 @@ public class RecordedScoreAsYouGoAdapterTests
         Assert.That(result.YourName, Is.EqualTo(dto.YourName));
         Assert.That(result.StartingScore, Is.EqualTo(dto.StartingScore));
         Assert.That(result.NumberOfLegs, Is.EqualTo(dto.NumberOfLegs));
+        Assert.That(result.TournamentMatchId, Is.EqualTo(dto.TournamentMatchId));
     }
 }
