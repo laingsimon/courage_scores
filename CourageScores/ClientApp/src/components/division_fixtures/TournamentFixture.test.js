@@ -14,10 +14,6 @@ describe('TournamentFixture', () => {
     let deletedId;
 
     const tournamentApi = {
-        create: async (data) => {
-            savedTournament = { data };
-            return { success: true };
-        },
         update: async (data, lastUpdated) => {
             savedTournament = { data, lastUpdated };
             return { success: true };

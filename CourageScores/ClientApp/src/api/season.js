@@ -4,7 +4,7 @@ class SeasonApi {
     }
 
     update(season, lastUpdated) {
-        if (!lastUpdated) {
+        if (season.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 

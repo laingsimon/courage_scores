@@ -25,12 +25,12 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
         try {
             setCreating(true);
 
-            const response = await tournamentApi.create({
+            const response = await tournamentApi.update({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            }, tournament.updated);
+            }, null);
 
             if (response.success) {
                 if (onTournamentChanged) {
