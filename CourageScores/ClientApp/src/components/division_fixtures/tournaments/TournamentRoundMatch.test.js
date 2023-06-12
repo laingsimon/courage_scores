@@ -644,7 +644,6 @@ describe('TournamentRoundMatch', () => {
             await doClick(findButton(dialog, '🎯SIDE A'));
 
             expect(reportedError).toBeNull();
-            // TODO: trigger some event to case a save...
             expect(updatedSaygData.legs[0].playerSequence).toEqual([
                 { text: 'SIDE A', value: 'home' },
                 { text: 'SIDE B', value: 'away' },

@@ -6,6 +6,7 @@ import {useApp} from "../../../AppContainer";
 import {useDependencies} from "../../../IocContainer";
 import {useTournament} from "./TournamentContainer";
 import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
+import {ErrorDisplay} from "../../common/ErrorDisplay";
 
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
     const { account, onError } = useApp();
@@ -19,6 +20,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
     const [ creatingSayg, setCreatingSayg ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     function sideSelection(side) {
         return {
@@ -165,8 +167,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 setTournamentData(response.result);
                 setSaygOpen(true);
             } else {
-                // TODO: show as a HTML error
-                window.alert('Could not create sayg session: ' + JSON.stringify(response));
+                setSaveError(response);
             }
         } catch (e) {
             onError(e);
@@ -187,11 +188,16 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                      slim={true}
                      className="margin-right" />)}
 
-            {canOpenSayg() ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
-                {creatingSayg
-                    ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
-                    : '📊'}
-            </button>) : null}
+            {canOpenSayg()
+                ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
+                    {creatingSayg
+                        ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+                        : '📊'}
+                    </button>)
+                : null}
+            {saveError
+                ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not create sayg session"/>)
+                : null}
             {saygOpen ? renderSaygDialog(match) : null}
         </td>
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>
