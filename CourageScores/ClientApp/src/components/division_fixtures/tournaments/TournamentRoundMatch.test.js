@@ -543,7 +543,7 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
-            const saygData = { legs: {}, id: createTemporaryId(), };
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
             addSaygLookup.push({
                 match: match,
                 success: true,
@@ -567,7 +567,7 @@ describe('TournamentRoundMatch', () => {
         });
 
         it('can open existing sayg', async () => {
-            const saygData = { legs: {}, id: createTemporaryId(), };
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
             const match = {
                 sideA: sideA,
                 sideB: sideB,
@@ -619,7 +619,7 @@ describe('TournamentRoundMatch', () => {
                 matchOptions: {},
             }, account);
             saygApiData[match.saygId] = {
-                legs: { },
+                legs: { 0: { startingScore: 501, home: { throws: [], score: 0 }, away: { throws: [], score: 0 } } },
                 yourName: 'SIDE A',
                 opponentName: 'SIDE B',
             };
