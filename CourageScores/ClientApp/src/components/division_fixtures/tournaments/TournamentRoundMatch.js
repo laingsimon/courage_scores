@@ -146,7 +146,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         try {
             setCreatingSayg(true);
 
-            const response = await tournamentApi.addSayg(tournamentData.id, match.id);
+            const response = await tournamentApi.addSayg(tournamentData.id, match.id, matchOptions);
             if (response.success) {
                 setTournamentData(response.result);
                 setSaygOpen(true);

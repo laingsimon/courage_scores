@@ -16,9 +16,11 @@ describe('TournamentRoundMatch', () => {
     let oneEighties;
     let updatedTournamentData;
     let updatedSaygData;
+    let createdSaygSessions;
     let addSaygLookup;
     const tournamentApi = {
-        addSayg: async (tournamentId, matchId) => {
+        addSayg: async (tournamentId, matchId, matchOptions) => {
+            createdSaygSessions.push({ tournamentId, matchId, matchOptions });
             const responseData = addSaygLookup.filter(l => l.match.id === matchId)[0];
 
             if (!responseData) {
@@ -74,6 +76,7 @@ describe('TournamentRoundMatch', () => {
         saygApiData = {};
         addSaygLookup = [];
         updatedSaygData = null;
+        createdSaygSessions = [];
         context = await renderApp(
             { tournamentApi, saygApi },
             {
@@ -489,6 +492,10 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
             await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
@@ -499,7 +506,7 @@ describe('TournamentRoundMatch', () => {
                 round: {
                     matches: [ match ]
                 },
-                matchOptions: {},
+                matchOptions,
             }, account);
             const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
             addSaygLookup.push({
@@ -522,6 +529,9 @@ describe('TournamentRoundMatch', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
+            expect(createdSaygSessions.length).toEqual(1);
+            expect(createdSaygSessions[0].matchId).toEqual(match.id);
+            expect(createdSaygSessions[0].matchOptions).toEqual(matchOptions);
         });
 
         it('can close sayg', async () => {
