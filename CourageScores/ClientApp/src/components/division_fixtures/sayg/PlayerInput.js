@@ -168,7 +168,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                     Score
                 </span>
                 <input data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
-                {savingInput || true ? (<span className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary" role="status"
+                {savingInput ? (<span className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary" role="status"
                                  aria-hidden="true"></span>) : null}
             </label>
         </h4>

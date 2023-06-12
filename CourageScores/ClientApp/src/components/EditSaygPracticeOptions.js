@@ -1,6 +1,5 @@
 import {valueChanged} from "../helpers/events";
 import {ShareButton} from "./ShareButton";
-import {any} from "../helpers/collections";
 import React from "react";
 import {useSayg} from "./division_fixtures/sayg/SaygLoadingContainer";
 
@@ -26,7 +25,7 @@ export function EditSaygPracticeOptions() {
         </div>
         <input type="number" className="form-control" name="startingScore" value={sayg.startingScore}
                onChange={valueChanged(sayg, setSayg)}/>
-        <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice"/>
+        <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice" buttonText="Save" />
     </div>
     <div className="input-group my-3">
         <div className="input-group-prepend">
@@ -39,7 +38,6 @@ export function EditSaygPracticeOptions() {
         </div>
         <input placeholder="Optional" className="form-control" name="opponentName"
                value={sayg.opponentName || ''} onChange={valueChanged(sayg, setSayg)}/>
-        <button className="btn btn-primary"
-                onClick={restart}>{any(Object.keys(sayg.legs)) ? 'Restart...' : 'Start...'}</button>
+        <button className="btn btn-primary" onClick={restart}>Restart...</button>
     </div></>);
 }
