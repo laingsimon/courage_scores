@@ -7,6 +7,12 @@ namespace CourageScores.Services.Command;
 
 public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, TournamentGame>
 {
+    private static readonly GameMatchOption DefaultMatchOptions = new GameMatchOption
+    {
+        NumberOfLegs = 5,
+        StartingScore = 501,
+    };
+
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private readonly ICommandFactory _commandFactory;
     private CreateTournamentSaygDto? _request;
@@ -46,6 +52,8 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         var saygUpdate = new UpdateRecordedScoreAsYouGoDto
         {
             TournamentMatchId = match.Id,
+            NumberOfLegs = _request.MatchOptions?.NumberOfLegs ?? DefaultMatchOptions.NumberOfLegs ?? 0,
+            StartingScore = _request.MatchOptions?.StartingScore ?? DefaultMatchOptions.StartingScore ?? 0,
         };
         var saygCommand = _commandFactory.GetCommand<AddOrUpdateSaygCommand>()
             .WithData(saygUpdate);

@@ -36,6 +36,11 @@ public class CreateTournamentMatchSaygCommandTests
         _request = new CreateTournamentSaygDto
         {
             MatchId = Guid.NewGuid(),
+            MatchOptions = new GameMatchOption
+            {
+                StartingScore = 601,
+                NumberOfLegs = 7,
+            }
         };
         _tournament = new TournamentGame();
 
@@ -148,6 +153,44 @@ public class CreateTournamentMatchSaygCommandTests
         Assert.That(result.Message, Is.EqualTo("Sayg added to match"));
         _addSaygCommand
             .Verify(s => s.WithData(
-                It.Is<UpdateRecordedScoreAsYouGoDto>(dto => dto.TournamentMatchId == match.Id)));
+                It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
+                    dto.TournamentMatchId == match.Id
+                    && dto.StartingScore == 601
+                    && dto.NumberOfLegs == 7)));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WithNoSaygForMatchAndNoMatchOptions_CreatesSaygRecordWithDefaultMatchOptions()
+    {
+        var match = new TournamentMatch
+        {
+            Id = _request.MatchId,
+        };
+        var newId = Guid.NewGuid();
+        _tournament.Round = new TournamentRound
+        {
+            Matches = { match }
+        };
+        _addSaygCommandResult = new ActionResultDto<RecordedScoreAsYouGoDto>
+        {
+            Success = true,
+            Result = new RecordedScoreAsYouGoDto
+            {
+                Id = newId
+            }
+        };
+        _request.MatchOptions = null;
+
+        var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(match.SaygId, Is.EqualTo(newId));
+        Assert.That(result.Message, Is.EqualTo("Sayg added to match"));
+        _addSaygCommand
+            .Verify(s => s.WithData(
+                It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
+                    dto.TournamentMatchId == match.Id
+                    && dto.StartingScore == 501
+                    && dto.NumberOfLegs == 5)));
     }
 }
