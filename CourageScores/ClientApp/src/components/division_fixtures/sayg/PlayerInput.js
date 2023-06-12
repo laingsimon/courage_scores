@@ -9,6 +9,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const [ focusEventHandle, setFocusEventHandle ] = useState(null);
     const accumulator = leg.currentThrow ? leg[leg.currentThrow] : null;
     const remainingScore = accumulator ? leg.startingScore - accumulator.score : -1;
+    const [ savingInput, setSavingInput ] = useState(false);
 
     const playerLookup = {
         home: home,
@@ -17,7 +18,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     async function keyUp(event) {
         if (event.key === 'Enter') {
-            await addThrow(score, 3, false);
+            await addThrow(score, 3, true);
             return false;
         }
     }
@@ -46,15 +47,12 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
                 setFocusEventHandle(null);
             }
 
-            if (setFocusEvent) {
-                createFocusEvent();
-            }
-
             const score = Number.parseInt(scoreInput);
             if (!Number.isFinite(score) || score < 0 || score > 180) {
                 return;
             }
 
+            setSavingInput(true);
             const accumulatorName = leg.currentThrow;
             const newLeg = Object.assign({}, leg);
             const accumulator = newLeg[accumulatorName];
@@ -108,6 +106,12 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             setScore('');
         } catch (e) {
             onError(e);
+        } finally {
+            setSavingInput(false);
+
+            if (setFocusEvent) {
+                createFocusEvent();
+            }
         }
     }
 
@@ -161,28 +165,28 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         <h4>
             <label>
                 <span className="margin-right">Score</span>
-                <input data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
+                <input disabled={savingInput} data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
             </label>
         </h4>
         <p className="my-3">
-            {checkout && isSingleDartScore(intScore, true)
+            {!savingInput && checkout && isSingleDartScore(intScore, true)
                 ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
                 : null}
-            {checkout && isTwoDartScore(intScore)
+            {!savingInput && checkout && isTwoDartScore(intScore)
                 ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
                 : null}
-            {isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
+            {!savingInput && isThreeDartScore(intScore) && (hasRemainingDouble || checkout)
                 ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 3, true, false)}>📌📌📌</button>)
                 : null}
         </p>
         <p className="my-3">
-            {isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
+            {!savingInput && isSingleDartScore(intScore) && !hasRemainingDouble && canBeBust
                 ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 1, true, true)}>💥</button>)
                 : null}
-            {isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
+            {!savingInput && isTwoDartScore(intScore) && !hasRemainingDouble && canBeBust
                 ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 2, true, true)}>💥💥</button>)
                 : null}
-            {isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
+            {!savingInput && isThreeDartScore(intScore) && !hasRemainingDouble && canBeBust
                 ? (<button className="btn btn-warning margin-right fs-3" onClick={() => addThrow(score, 3, true, true)}>💥💥💥</button>)
                 : null}
         </p>
