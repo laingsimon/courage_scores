@@ -54,7 +54,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<CommandResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_playerId == null)
         {
@@ -73,46 +73,71 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (model.Deleted != null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Cannot edit a team that has been deleted", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Cannot edit a team that has been deleted",
+            };
         }
 
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not logged in", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Player cannot be updated, not logged in",
+            };
         }
 
         if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be updated, not permitted", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Player cannot be updated, not permitted",
+            };
         }
 
         var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Season could not be found",
+            };
         }
 
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Team {model.Name} is not registered to the {season.Name} season", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = $"Team {model.Name} is not registered to the {season.Name} season",
+            };
         }
 
         var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
         if (player == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Team does not have a player with this id for the {season.Name} season", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = $"Team does not have a player with this id for the {season.Name} season",
+            };
         }
 
         if (player.Updated != _player.LastUpdated)
         {
-            return new CommandOutcome<TeamPlayer>(
-                false,
-                _player.LastUpdated == null
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = _player.LastUpdated == null
                     ? $"Unable to update {nameof(TeamPlayer)}, data integrity token is missing"
                     : $"Unable to update {nameof(TeamPlayer)}, {player.Editor} updated it before you at {player.Updated:d MMM yyyy HH:mm:ss}",
-                null);
+            };
         }
 
         var updatedGames = await UpdateGames(token).CountAsync();
@@ -121,7 +146,11 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         {
             if (updatedGames > 0)
             {
-                return new CommandOutcome<TeamPlayer>(false, "Cannot move a player once they've played in some games", null);
+                return new CommandResult<TeamPlayer>
+                {
+                    Success = false,
+                    Message = "Cannot move a player once they've played in some games",
+                };
             }
 
             var command = _commandFactory.GetCommand<AddPlayerToTeamSeasonCommand>()
@@ -133,26 +162,33 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             {
                 // combine the messages into the CommandOutcome
                 var errors = string.Join(", ", addResult.Errors);
-                return new CommandOutcome<TeamPlayer>(false, $"Could not move the player to other team: {errors}", null);
+                return new CommandResult<TeamPlayer>
+                {
+                    Success = false,
+                    Message = $"Could not move the player to other team: {errors}",
+                };
             }
 
             // player has been added to the other team, can remove it from this team now
             await _auditingHelper.SetDeleted(player, token);
 
-            return new CommandOutcome<TeamPlayer>(
-                true,
-                string.Join(", ", addResult.Messages),
-                null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = true,
+                Message = string.Join(", ", addResult.Messages),
+            };
         }
 
         player.Name = _player.Name;
         player.Captain = _player.Captain;
         player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
         await _auditingHelper.SetUpdated(player, token);
-        return new CommandOutcome<TeamPlayer>(
-            true,
-            $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated",
-            player);
+        return new CommandResult<TeamPlayer>
+        {
+            Success = true,
+            Message = $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated",
+            Result = player,
+        };
     }
 
     private async IAsyncEnumerable<Models.Cosmos.Game.Game> UpdateGames([EnumeratorCancellation] CancellationToken token)

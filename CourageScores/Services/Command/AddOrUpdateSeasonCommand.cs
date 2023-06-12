@@ -29,7 +29,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
         _divisionRepository = divisionRepository;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Season season, EditSeasonDto update, CancellationToken token)
+    protected override async Task<CommandResult<Models.Cosmos.Season>> ApplyUpdates(Models.Cosmos.Season season, EditSeasonDto update, CancellationToken token)
     {
         season.Name = update.Name;
         season.EndDate = update.EndDate;
@@ -45,15 +45,15 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
         }
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
-        return CommandResult.SuccessNoMessage;
+        return new CommandResult<Models.Cosmos.Season> { Success = true };
     }
 
-    private async Task<CommandResult> AssignTeamsToNewSeason(Guid seasonId, Guid copyFromSeasonId, CancellationToken token)
+    private async Task<CommandResult<Models.Cosmos.Season>> AssignTeamsToNewSeason(Guid seasonId, Guid copyFromSeasonId, CancellationToken token)
     {
         var otherSeason = await _seasonService.Get(copyFromSeasonId, token);
         if (otherSeason == null)
         {
-            return new CommandResult
+            return new CommandResult<Models.Cosmos.Season>
             {
                 Success = false,
                 Message = "Could not find season to copy teams from",
@@ -77,7 +77,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
             }
         }
 
-        return new CommandResult
+        return new CommandResult<Models.Cosmos.Season>
         {
             Success = true,
             Message = $"Copied {teamsCopied} of {totalTeams} team/s from other season",

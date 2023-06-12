@@ -12,10 +12,10 @@ public class AddOrUpdateDivisionCommand : AddOrUpdateCommand<Models.Cosmos.Divis
         _cacheFlags = cacheFlags;
     }
 
-    protected override Task<CommandResult> ApplyUpdates(Models.Cosmos.Division division, EditDivisionDto update, CancellationToken token)
+    protected override Task<CommandResult<Models.Cosmos.Division>> ApplyUpdates(Models.Cosmos.Division division, EditDivisionDto update, CancellationToken token)
     {
         division.Name = update.Name;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = division.Id;
-        return Task.FromResult(CommandResult.SuccessNoMessage);
+        return Task.FromResult(new CommandResult<Models.Cosmos.Division> { Success = true });
     }
 }

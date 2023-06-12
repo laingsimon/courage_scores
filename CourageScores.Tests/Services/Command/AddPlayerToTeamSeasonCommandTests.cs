@@ -126,7 +126,12 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndAllowed_AddsSeasonToTeam()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "Success", new TeamSeason());
+        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        {
+            Result = new TeamSeason(),
+            Success = true,
+            Message = "Success",
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
@@ -140,7 +145,12 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndNotAllowed_DoesNotAddSeasonToTeam()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "Success", new TeamSeason());
+        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        {
+            Result = new TeamSeason(),
+            Message = "Success",
+            Success = true,
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).AddSeasonToTeamIfMissing(false).ApplyUpdate(_team, _token);
@@ -154,7 +164,11 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndCannotAddSeasonToTeam_ReturnsUnsuccessful()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(false, "FAILURE", new TeamSeason());
+        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        {
+            Message = "FAILURE",
+            Success = false,
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
@@ -168,7 +182,12 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndNoResultFromAddingSeasonToTeam_ReturnsUnsuccessful()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "IMPLIED SUCCESS", null);
+        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        {
+            Result = null,
+            Message = "IMPLIED SUCCESS",
+            Success = true,
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);

@@ -30,7 +30,7 @@ public class AddOrUpdateTeamCommandTests
     private List<GameDto> _games = null!;
     private CourageScores.Models.Cosmos.Team.Team _team = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private CommandOutcome<TeamSeason> _addSeasonToTeamCommandResult = null!;
+    private CommandResult<TeamSeason> _addSeasonToTeamCommandResult = null!;
     private TeamSeason _addedTeamSeason = null!;
 
     [SetUp]
@@ -56,7 +56,12 @@ public class AddOrUpdateTeamCommandTests
         {
             SeasonId = _seasonId,
         };
-        _addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "Success", _addedTeamSeason);
+        _addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        {
+            Message = "Success",
+            Success = true,
+            Result = _addedTeamSeason,
+        };
 
         _gameService = new Mock<IGameService>();
         _teamService = new Mock<ITeamService>();
@@ -155,7 +160,11 @@ public class AddOrUpdateTeamCommandTests
             LastUpdated = _team.Updated,
         };
         _team.Seasons.Clear();
-        _addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(false, "Some error", null);
+        _addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        {
+            Success = false,
+            Message = "Some error",
+        };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 

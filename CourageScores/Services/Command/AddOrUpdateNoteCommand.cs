@@ -13,7 +13,7 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         _cacheFlags = cacheFlags;
     }
 
-    protected override Task<CommandResult> ApplyUpdates(FixtureDateNote model, EditFixtureDateNoteDto update, CancellationToken token)
+    protected override Task<CommandResult<FixtureDateNote>> ApplyUpdates(FixtureDateNote model, EditFixtureDateNoteDto update, CancellationToken token)
     {
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(model, update);
 
@@ -23,7 +23,7 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         model.DivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return Task.FromResult(CommandResult.SuccessNoMessage);
+        return Task.FromResult(new CommandResult<FixtureDateNote> { Success = true });
     }
 
     private static Guid GetDivisionIdToEvictFromCache(FixtureDateNote model, EditFixtureDateNoteDto update)

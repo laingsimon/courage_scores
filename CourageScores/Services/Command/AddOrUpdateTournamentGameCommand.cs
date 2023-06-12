@@ -47,13 +47,13 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         _notableTournamentPlayerAdapter = notableTournamentPlayerAdapter;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
+    protected override async Task<CommandResult<TournamentGame>> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
         var latestSeason = await _seasonService.GetForDate(update.Date, token);
 
         if (latestSeason == null)
         {
-            return new CommandResult
+            return new CommandResult<TournamentGame>
             {
                 Success = false,
                 Message = "Unable to add or update game, no season exists",
@@ -77,14 +77,14 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         foreach (var side in game.Sides)
         {
-            await UpdateSide(side, context, token);
+            await UpdateSide(side, token);
         }
 
         await UpdateRoundRecursively(game.Round, game.Sides, context, token);
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return new CommandResult
+        return new CommandResult<TournamentGame>
         {
             Success = context.Success,
             Message = string.Join("\n", context.Errors.Concat(context.Warnings).Concat(context.Messages)),
@@ -100,7 +100,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         foreach (var side in round.Sides.Where(s => s.Id == default))
         {
-            await UpdateSideAndLinkToRootSide(side, sides, context, token);
+            await UpdateSideAndLinkToRootSide(side, sides, token);
         }
 
         await UpdateRound(round, context, token);
@@ -109,7 +109,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await UpdateRoundRecursively(round.NextRound, sides, context, token);
     }
 
-    private async Task UpdateSide(TournamentSide side, UpdateContext context, CancellationToken token)
+    private async Task UpdateSide(TournamentSide side, CancellationToken token)
     {
         if (side.Id == default)
         {
@@ -117,11 +117,11 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
         await _auditingHelper.SetUpdated(side, token);
 
-        await UpdatePlayers(side.Players, context, token);
+        await UpdatePlayers(side.Players, token);
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-    private async Task UpdateSideAndLinkToRootSide(TournamentSide side, IReadOnlyCollection<TournamentSide> sides, UpdateContext context, CancellationToken token)
+    private async Task UpdateSideAndLinkToRootSide(TournamentSide side, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
     {
         var sideOrderedPlayers = side.Players.OrderBy(p => p.Id).Select(p => p.Id).ToArray();
         var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).Select(p => p.Id).SequenceEqual(sideOrderedPlayers));
@@ -131,7 +131,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
         await _auditingHelper.SetUpdated(side, token);
 
-        await UpdatePlayers(side.Players, context, token);
+        await UpdatePlayers(side.Players, token);
     }
 
     private async Task UpdateRound(TournamentRound round, UpdateContext context, CancellationToken token)
@@ -186,7 +186,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-    private async Task UpdatePlayers(IReadOnlyCollection<TournamentPlayer> players, UpdateContext context, CancellationToken token)
+    private async Task UpdatePlayers(IReadOnlyCollection<TournamentPlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {

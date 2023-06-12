@@ -91,7 +91,11 @@ public class GenericDataServiceTests
         {
             Name = Model.CreatePermitted
         };
-        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        var commandResult = new CommandResult<object>
+        {
+            Success = true,
+            Message = "some message",
+        };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
         command.Setup(c => c.ApplyUpdate(It.IsAny<Model>(), _token)).ReturnsAsync(() => commandResult);
@@ -146,7 +150,11 @@ public class GenericDataServiceTests
         var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object);
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<AnonymousModel, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        var commandResult = new CommandResult<object>
+        {
+            Success = true,
+            Message = "some message"
+        };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
         command.Setup(c => c.ApplyUpdate(It.IsAny<AnonymousModel>(), _token)).ReturnsAsync(() => commandResult);
@@ -185,7 +193,11 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(false, "some message", null);
+        var commandResult = new CommandResult<object>
+        {
+            Success = false,
+            Message = "some message",
+        };
         var user = new UserDto
         {
             Name = Model.EditPermitted,
@@ -214,7 +226,11 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        var commandResult = new CommandResult<object>
+        {
+            Success = true,
+            Message = "some message",
+        };
         var user = new UserDto
         {
             Name = Model.EditPermitted,
@@ -318,9 +334,11 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null)
+        var commandResult = new CommandResult<object>
         {
+            Message = "some message",
             Delete = true,
+            Success = true,
         };
         var user = new UserDto
         {
@@ -352,8 +370,10 @@ public class GenericDataServiceTests
         var model = new Model();
         var deletedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null)
+        var commandResult = new CommandResult<object>
         {
+            Success = true,
+            Message = "some message",
             Delete = true,
         };
         var user = new UserDto

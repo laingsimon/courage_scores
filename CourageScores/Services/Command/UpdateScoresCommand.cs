@@ -53,7 +53,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return this;
     }
 
-    public async Task<CommandOutcome<GameDto>> ApplyUpdate(Models.Cosmos.Game.Game game, CancellationToken token)
+    public async Task<CommandResult<GameDto>> ApplyUpdate(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         if (_scores == null)
         {
@@ -62,18 +62,30 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (game.Deleted != null)
         {
-            return new CommandOutcome<GameDto>(false, "Cannot edit a game that has been deleted", null);
+            return new CommandResult<GameDto>
+            {
+                Success = false,
+                Message = "Cannot edit a game that has been deleted",
+            };
         }
 
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandOutcome<GameDto>(false, "Game cannot be updated, not logged in", null);
+            return new CommandResult<GameDto>
+            {
+                Success = false,
+                Message = "Game cannot be updated, not logged in",
+            };
         }
 
         if (!(user.Access?.ManageScores == true || (user.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id))))
         {
-            return new CommandOutcome<GameDto>(false, "Game cannot be updated, not permitted", null);
+            return new CommandResult<GameDto>
+            {
+                Success = false,
+                Message = "Game cannot be updated, not permitted",
+            };
         }
 
         if (user.Access?.ManageScores == true)
@@ -109,10 +121,15 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
 
-        return new CommandOutcome<GameDto>(true, "Scores updated", await _gameAdapter.Adapt(game, token));
+        return new CommandResult<GameDto>
+        {
+            Success = true,
+            Message = "Scores updated",
+            Result = await _gameAdapter.Adapt(game, token),
+        };
     }
 
-    private async Task<CommandOutcome<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<CommandResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed;
@@ -141,22 +158,32 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                 var success = homeResult.Success && awayResult.Success;
                 if (!success)
                 {
-                    return new CommandOutcome<GameDto>(
-                        false,
-                        $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
-                        await _gameAdapter.Adapt(game, token));
+                    return new CommandResult<GameDto>
+                    {
+                        Success = false,
+                        Message = $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
+                        Result = await _gameAdapter.Adapt(game, token),
+                    };
                 }
             }
         }
 
-        return new CommandOutcome<GameDto>(true, "Game details updated", null);
+        return new CommandResult<GameDto>
+        {
+            Success = true,
+            Message = "Game details updated",
+        };
     }
 
-    private async Task<CommandOutcome<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
+    private async Task<CommandResult<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
     {
         if (game.Matches.Any())
         {
-            return new CommandOutcome<GameDto>(false, "Submissions cannot be accepted, scores have been published", null);
+            return new CommandResult<GameDto>
+            {
+                Success = false,
+                Message = "Submissions cannot be accepted, scores have been published",
+            };
         }
 
         if (user.TeamId == game.Home.Id)
@@ -186,7 +213,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         // TODO: #123: If both home/away submissions are the same then record the details in the main game
 
-        return new CommandOutcome<GameDto>(true, "Submission updated", null);
+        return new CommandResult<GameDto>
+        {
+            Success = true,
+            Message = "Submission updated",
+        };
     }
 
     private static Models.Cosmos.Game.Game NewSubmission(Models.Cosmos.Game.Game game)
@@ -213,16 +244,17 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return submission;
     }
 
-    private async Task<CommandOutcome<GameDto>> UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<CommandResult<GameDto>> UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         if (game.Updated != _scores!.LastUpdated)
         {
-            return new CommandOutcome<GameDto>(
-                false,
-                _scores.LastUpdated == null
+            return new CommandResult<GameDto>
+            {
+                Success = false,
+                Message = _scores.LastUpdated == null
                     ? $"Unable to update {nameof(Game)}, data integrity token is missing"
                     : $"Unable to update {nameof(Game)}, {game.Editor} updated it before you at {game.Updated:d MMM yyyy HH:mm:ss}",
-                null);
+            };
         }
 
         for (var index = 0; index < Math.Max(_scores.Matches.Count, game.Matches.Count); index++)
@@ -250,7 +282,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             game.Version = Models.Cosmos.Game.Game.CurrentVersion;
         }
 
-        return new CommandOutcome<GameDto>(true, "Game updated", null);
+        return new CommandResult<GameDto>
+        {
+            Success = true,
+            Message = "Game updated",
+        };
     }
 
     private static string FormatActionResult(ActionResultDto<TeamDto> actionResultDto)

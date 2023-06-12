@@ -49,7 +49,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         return this;
     }
 
-    public virtual async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public virtual async Task<CommandResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_player == null)
         {
@@ -63,24 +63,40 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
 
         if (model.Deleted != null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Cannot edit a team that has been deleted", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Cannot edit a team that has been deleted",
+            };
         }
 
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be added, not logged in", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Message = "Player cannot be added, not logged in",
+                Success = false,
+            };
         }
 
         if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be added, not permitted", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Player cannot be added, not permitted",
+            };
         }
 
         var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Season could not be found",
+            };
         }
 
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
@@ -88,14 +104,22 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         {
             if (!_addSeasonToTeamIfMissing)
             {
-                return new CommandOutcome<TeamPlayer>(false, $"{season.Name} season is not attributed to team {model.Name}", null);
+                return new CommandResult<TeamPlayer>
+                {
+                    Success = false,
+                    Message = $"{season.Name} season is not attributed to team {model.Name}",
+                };
             }
 
             var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {
-                return new CommandOutcome<TeamPlayer>(false, $"Could not add the {season.Name} season to team {model.Name} - {result.Message}", null);
+                return new CommandResult<TeamPlayer>
+                {
+                    Success = false,
+                    Message = $"Could not add the {season.Name} season to team {model.Name} - {result.Message}",
+                };
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
@@ -109,14 +133,24 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         {
             if (existingPlayer.Deleted == null)
             {
-                return new CommandOutcome<TeamPlayer>(true, "Player already exists with this name, player not added", existingPlayer);
+                return new CommandResult<TeamPlayer>
+                {
+                    Success = true,
+                    Message = "Player already exists with this name, player not added",
+                    Result = existingPlayer,
+                };
             }
 
             await _auditingHelper.SetUpdated(existingPlayer, token);
             existingPlayer.Captain = _player.Captain;
             existingPlayer.EmailAddress = _player.EmailAddress ?? existingPlayer.EmailAddress;
             _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
-            return new CommandOutcome<TeamPlayer>(true, "Player undeleted from team", existingPlayer);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = true,
+                Message = "Player undeleted from team",
+                Result = existingPlayer,
+            };
         }
 
         var newPlayer = new TeamPlayer
@@ -130,6 +164,11 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         players.Add(newPlayer);
         _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
 
-        return new CommandOutcome<TeamPlayer>(true, $"Player added to the {model.Name} team for the {season.Name} season", newPlayer);
+        return new CommandResult<TeamPlayer>
+        {
+            Success = true,
+            Message = $"Player added to the {model.Name} team for the {season.Name} season",
+            Result = newPlayer,
+        };
     }
 }

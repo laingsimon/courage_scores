@@ -34,7 +34,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<CommandOutcome<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<CommandResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_playerId == null)
         {
@@ -48,40 +48,69 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (model.Deleted != null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Cannot edit a team that has been deleted", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Cannot edit a team that has been deleted",
+            };
         }
 
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not logged in", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Player cannot be removed, not logged in",
+            };
         }
 
         if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
         {
-            return new CommandOutcome<TeamPlayer>(false, "Player cannot be removed, not permitted", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Player cannot be removed, not permitted",
+            };
         }
 
         var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, "Season could not be found", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = "Season could not be found",
+            };
         }
 
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Team is not registered to the {season.Name} season", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = $"Team is not registered to the {season.Name} season",
+            };
         }
 
         var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
         if (player == null)
         {
-            return new CommandOutcome<TeamPlayer>(false, $"Player does not have a player with this id for the {season.Name} season", null);
+            return new CommandResult<TeamPlayer>
+            {
+                Success = false,
+                Message = $"Player does not have a player with this id for the {season.Name} season",
+            };
         }
 
 
         await _auditingHelper.SetDeleted(player, token);
-        return new CommandOutcome<TeamPlayer>(true, $"Player {player.Name} removed from the {season.Name} season", player);
+        return new CommandResult<TeamPlayer>
+        {
+            Success = true,
+            Message = $"Player {player.Name} removed from the {season.Name} season",
+            Result = player,
+        };
     }
 }
