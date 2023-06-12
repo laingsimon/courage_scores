@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap, any} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
+import {TournamentContainer} from "./TournamentContainer";
 
 describe('TournamentRoundMatch', () => {
     let context;
@@ -13,6 +14,42 @@ describe('TournamentRoundMatch', () => {
     let updatedMatchOptions;
     let hiChecks;
     let oneEighties;
+    let updatedTournamentData;
+    let updatedSaygData;
+    let createdSaygSessions;
+    let addSaygLookup;
+    let updatedPatch;
+    const tournamentApi = {
+        addSayg: async (tournamentId, matchId, matchOptions) => {
+            createdSaygSessions.push({ tournamentId, matchId, matchOptions });
+            const responseData = addSaygLookup.filter(l => l.match.id === matchId)[0];
+
+            if (!responseData) {
+                throw new Error('Did not expect match to have sayg session created');
+            }
+
+            // NOTE: intentionally mutates the source data so the tests work with updated state.
+            responseData.match.saygId = responseData.saygId;
+
+            return {
+                success: responseData.success,
+                result: responseData.result
+            };
+        }
+    };
+    let saygApiData;
+    const saygApi = {
+        get: async (id) => {
+            return saygApiData[id];
+        },
+        upsert: async(data) => {
+            updatedSaygData = data;
+            return {
+                success: true,
+                result: data,
+            };
+        },
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -26,14 +63,24 @@ describe('TournamentRoundMatch', () => {
         oneEighties.push(player);
     }
 
-    async function renderComponent(props, account) {
+    function setTournamentData(data) {
+        updatedTournamentData = data;
+    }
+
+    async function renderComponent(containerProps, props, account) {
         reportedError = null;
         updatedRound = null;
         updatedMatchOptions = null;
+        updatedTournamentData = null;
         hiChecks = [];
         oneEighties = [];
+        saygApiData = {};
+        addSaygLookup = [];
+        updatedSaygData = null;
+        updatedPatch = null;
+        createdSaygSessions = [];
         context = await renderApp(
-            { },
+            { tournamentApi, saygApi },
             {
                 onError: (err) => {
                     if (err.message) {
@@ -47,12 +94,15 @@ describe('TournamentRoundMatch', () => {
                 },
                 account,
             },
-            (<TournamentRoundMatch
-                {...props}
-                onChange={updated => updatedRound = updated}
-                onMatchOptionsChanged={updated => updatedMatchOptions = updated}
-                onHiCheck={onHiCheck}
-                on180={on180} />),
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}}>
+                <TournamentRoundMatch
+                    {...props}
+                    onChange={updated => updatedRound = updated}
+                    onMatchOptionsChanged={updated => updatedMatchOptions = updated}
+                    onHiCheck={onHiCheck}
+                    on180={on180}
+                    patchData={(patch) => updatedPatch = patch} />
+            </TournamentContainer>),
             null,
             null,
             'tbody');
@@ -117,7 +167,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -145,7 +195,7 @@ describe('TournamentRoundMatch', () => {
                     sideA: sideA,
                     sideB: sideB,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -175,7 +225,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 3,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -204,7 +254,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 2,
                     scoreB: 3,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
@@ -233,7 +283,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -256,14 +306,14 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[4].textContent).toEqual('SIDE B');
             });
 
-            it('cannot open sayg', async () => {
+            it('cannot open sayg if not exists', async () => {
                 const match = {
                     sideA: sideA,
                     sideB: sideB,
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -281,17 +331,19 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[0].textContent).not.toContain('📊');
             });
 
-            it('can open sayg', async () => {
+            it('can open sayg if it exists', async () => {
+                const saygData = {
+                    id: createTemporaryId(),
+                    legs: { }
+                };
                 const match = {
                     sideA: sideA,
                     sideB: sideB,
                     scoreA: 1,
                     scoreB: 2,
-                    sayg: {
-                        legs: { }
-                    },
+                    saygId: saygData.id,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
@@ -332,7 +384,7 @@ describe('TournamentRoundMatch', () => {
                 returnFromExceptSelected['sideA'] = [ sideC, sideD ];
                 returnFromExceptSelected['sideB'] = [ sideD, sideE ];
 
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -362,7 +414,7 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
@@ -438,12 +490,17 @@ describe('TournamentRoundMatch', () => {
 
         it('can open sayg', async () => {
             const match = {
+                id: createTemporaryId(),
                 sideA: sideA,
                 sideB: sideB,
-                scoreA: 1,
-                scoreB: 2,
+                scoreA: 0,
+                scoreB: 0,
             };
-            await renderComponent({
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -453,8 +510,21 @@ describe('TournamentRoundMatch', () => {
                 round: {
                     matches: [ match ]
                 },
-                matchOptions: {},
+                matchOptions,
             }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doClick(findButton(cells[0], '📊'));
@@ -463,16 +533,115 @@ describe('TournamentRoundMatch', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('SIDE A vs SIDE B');
+            expect(createdSaygSessions.length).toEqual(1);
+            expect(createdSaygSessions[0].matchId).toEqual(match.id);
+            expect(createdSaygSessions[0].matchOptions).toEqual(matchOptions);
         });
 
-        it('can close sayg', async () => {
+        it('does not open sayg for tentative match', async () => {
             const match = {
                 sideA: sideA,
                 sideB: sideB,
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([ sideA, sideB ]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: {
+                    matches: [ match ]
+                },
+                matchOptions,
+            }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let message;
+            window.alert = (msg) => message = msg;
+
+            await doClick(findButton(cells[0], '📊'));
+
+            expect(reportedError).toBeNull();
+            expect(createdSaygSessions.length).toEqual(0);
+            expect(message).toEqual('Save the tournament first');
+        });
+
+        it('does not open sayg for matches with score', async () => {
+            const match = {
+                id: createTemporaryId(),
+                sideA: sideA,
+                sideB: sideB,
+                scoreA: 1,
+                scoreB: 2,
+            };
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([ sideA, sideB ]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: {
+                    matches: [ match ]
+                },
+                matchOptions,
+            }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let message;
+            window.alert = (msg) => message = msg;
+
+            await doClick(findButton(cells[0], '📊'));
+
+            expect(reportedError).toBeNull();
+            expect(createdSaygSessions.length).toEqual(0);
+            expect(message).toEqual('Game has already been played; cannot score as you go');
+        });
+
+        it('can close sayg', async () => {
+            const match = {
+                id: createTemporaryId(),
+                sideA: sideA,
+                sideB: sideB,
+                scoreA: 0,
+                scoreB: 0,
+            };
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -484,26 +653,39 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
             expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
 
+            expect(reportedError).toBeNull();
             await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'));
 
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
         it('can open existing sayg', async () => {
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
             const match = {
                 sideA: sideA,
                 sideB: sideB,
                 scoreA: 1,
                 scoreB: 2,
-                sayg: {
-                    legs: { }
-                },
+                saygId: saygData.id,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -515,6 +697,7 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
 
             await doClick(findButton(cells[0], '📊'));
@@ -531,11 +714,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideB,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: { }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -547,14 +728,20 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: { 0: { startingScore: 501, home: { throws: [], score: 0 }, away: { throws: [], score: 0 } } },
+                yourName: 'SIDE A',
+                opponentName: 'SIDE B',
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
+
             const dialog = context.container.querySelector('.modal-dialog');
             await doClick(findButton(dialog, '🎯SIDE A'));
 
             expect(reportedError).toBeNull();
-            const saygData = updatedRound.matches[0].sayg;
-            expect(saygData.legs[0].playerSequence).toEqual([
+            expect(updatedSaygData.legs[0].playerSequence).toEqual([
                 { text: 'SIDE A', value: 'home' },
                 { text: 'SIDE B', value: 'away' },
             ]);
@@ -566,25 +753,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideB,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: {
-                        0: {
-                            playerSequence: [
-                                { text: 'SIDE A', value: 'home' },
-                                { text: 'SIDE B', value: 'away' },
-                            ],
-                            currentThrow: 'home',
-                            home: { throws: [], score: 0, startingScore: 501, },
-                            away: { throws: [], score: 0, startingScore: 501, },
-                            homeScore: 0,
-                            awayScore: 0,
-                            startingScore: 501,
-                            numberOfLegs: 3,
-                        }
-                    }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -596,8 +767,26 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: {
+                    0: {
+                        playerSequence: [
+                            { text: 'SIDE A', value: 'home' },
+                            { text: 'SIDE B', value: 'away' },
+                        ],
+                        currentThrow: 'home',
+                        home: { throws: [], score: 0, startingScore: 501, },
+                        away: { throws: [], score: 0, startingScore: 501, },
+                        homeScore: 0,
+                        awayScore: 0,
+                        startingScore: 501,
+                        numberOfLegs: 3,
+                    }
+                }
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
@@ -612,25 +801,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideB,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: {
-                        0: {
-                            playerSequence: [
-                                { text: 'SIDE A', value: 'home' },
-                                { text: 'SIDE B', value: 'away' },
-                            ],
-                            currentThrow: 'home',
-                            home: { throws: [], score: 0, startingScore: 501, },
-                            away: { throws: [], score: 0, startingScore: 501, },
-                            homeScore: 0,
-                            awayScore: 0,
-                            startingScore: 501,
-                            numberOfLegs: 3,
-                        }
-                    }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
@@ -642,8 +815,26 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: {
+                    0: {
+                        playerSequence: [
+                            { text: 'SIDE A', value: 'home' },
+                            { text: 'SIDE B', value: 'away' },
+                        ],
+                        currentThrow: 'home',
+                        home: { throws: [], score: 0, startingScore: 501, },
+                        away: { throws: [], score: 0, startingScore: 501, },
+                        homeScore: 0,
+                        awayScore: 0,
+                        startingScore: 501,
+                        numberOfLegs: 3,
+                    }
+                }
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
@@ -658,25 +849,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideD,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: {
-                        0: {
-                            playerSequence: [
-                                { text: 'SIDE C', value: 'home' },
-                                { text: 'SIDE D', value: 'away' },
-                            ],
-                            currentThrow: 'home',
-                            home: { throws: [], score: 0, startingScore: 501, },
-                            away: { throws: [], score: 0, startingScore: 501, },
-                            homeScore: 0,
-                            awayScore: 0,
-                            startingScore: 501,
-                            numberOfLegs: 3,
-                        }
-                    }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -688,8 +863,26 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: {
+                    0: {
+                        playerSequence: [
+                            { text: 'SIDE C', value: 'home' },
+                            { text: 'SIDE D', value: 'away' },
+                        ],
+                        currentThrow: 'home',
+                        home: { throws: [], score: 0, startingScore: 501, },
+                        away: { throws: [], score: 0, startingScore: 501, },
+                        homeScore: 0,
+                        awayScore: 0,
+                        startingScore: 501,
+                        numberOfLegs: 3,
+                    }
+                }
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
@@ -704,25 +897,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideB,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: {
-                        0: {
-                            playerSequence: [
-                                { text: 'SIDE B', value: 'away' },
-                                { text: 'SIDE A', value: 'home' },
-                            ],
-                            currentThrow: 'away',
-                            home: { throws: [ {} ], score: 200, startingScore: 501, },
-                            away: { throws: [ {} ], score: 350, startingScore: 501, },
-                            homeScore: 200,
-                            awayScore: 350,
-                            startingScore: 501,
-                            numberOfLegs: 3,
-                        }
-                    }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -734,8 +911,26 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: {
+                    0: {
+                        playerSequence: [
+                            { text: 'SIDE B', value: 'away' },
+                            { text: 'SIDE A', value: 'home' },
+                        ],
+                        currentThrow: 'away',
+                        home: { throws: [ {} ], score: 200, startingScore: 501, },
+                        away: { throws: [ {} ], score: 350, startingScore: 501, },
+                        homeScore: 200,
+                        awayScore: 350,
+                        startingScore: 501,
+                        numberOfLegs: 3,
+                    }
+                }
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
@@ -753,25 +948,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideB,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: {
-                        0: {
-                            playerSequence: [
-                                { text: 'SIDE B', value: 'away' },
-                                { text: 'SIDE A', value: 'home' },
-                            ],
-                            currentThrow: 'away',
-                            home: { throws: [ {} ], score: 200, startingScore: 501, },
-                            away: { throws: [ {} ], score: 350, startingScore: 501, },
-                            homeScore: 200,
-                            awayScore: 350,
-                            startingScore: 501,
-                            numberOfLegs: 3,
-                        }
-                    }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
@@ -783,8 +962,26 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: {
+                    0: {
+                        playerSequence: [
+                            { text: 'SIDE B', value: 'away' },
+                            { text: 'SIDE A', value: 'home' },
+                        ],
+                        currentThrow: 'away',
+                        home: { throws: [ {} ], score: 200, startingScore: 501, },
+                        away: { throws: [ {} ], score: 350, startingScore: 501, },
+                        homeScore: 200,
+                        awayScore: 350,
+                        startingScore: 501,
+                        numberOfLegs: 3,
+                    }
+                }
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
@@ -799,25 +996,9 @@ describe('TournamentRoundMatch', () => {
                 sideB: sideD,
                 scoreA: 0,
                 scoreB: 0,
-                sayg: {
-                    legs: {
-                        0: {
-                            playerSequence: [
-                                { text: 'SIDE C', value: 'away' },
-                                { text: 'SIDE D', value: 'home' },
-                            ],
-                            currentThrow: 'away',
-                            home: { throws: [ {} ], score: 200, startingScore: 501, },
-                            away: { throws: [ {} ], score: 350, startingScore: 501, },
-                            homeScore: 200,
-                            awayScore: 350,
-                            startingScore: 501,
-                            numberOfLegs: 3,
-                        }
-                    }
-                },
+                saygId: createTemporaryId(),
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -829,8 +1010,26 @@ describe('TournamentRoundMatch', () => {
                 },
                 matchOptions: {},
             }, account);
+            saygApiData[match.saygId] = {
+                legs: {
+                    0: {
+                        playerSequence: [
+                            { text: 'SIDE C', value: 'away' },
+                            { text: 'SIDE D', value: 'home' },
+                        ],
+                        currentThrow: 'away',
+                        home: { throws: [ {} ], score: 200, startingScore: 501, },
+                        away: { throws: [ {} ], score: 350, startingScore: 501, },
+                        homeScore: 200,
+                        awayScore: 350,
+                        startingScore: 501,
+                        numberOfLegs: 3,
+                    }
+                }
+            };
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             await doClick(findButton(cells[0], '📊'));
+            expect(reportedError).toBeNull();
 
             await doChange(context.container.querySelector('.modal-dialog'), 'input[data-score-input="true"]', '151', context.user);
             await doClick(findButton(context.container.querySelector('.modal-dialog'), '📌📌📌'));
@@ -846,7 +1045,7 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -875,7 +1074,7 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -905,7 +1104,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideC, sideD ];
             returnFromExceptSelected['sideB'] = [ sideD, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -936,7 +1135,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideB, sideD ];
             returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -967,7 +1166,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideC, sideD ];
             returnFromExceptSelected['sideB'] = [ sideD, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -998,7 +1197,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideB, sideD ];
             returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
@@ -1029,7 +1228,7 @@ describe('TournamentRoundMatch', () => {
             };
             returnFromExceptSelected['sideA'] = [ sideB, sideD ];
             returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,

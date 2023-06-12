@@ -1,16 +1,18 @@
 using CourageScores.Filters;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
+using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Cosmos.Game;
+using CourageScores.Models.Cosmos.Game.Sayg;
+using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Game;
-using CourageScores.Models.Dtos.Identity;
+using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services;
 using CourageScores.Services.Command;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 using CourageScores.Tests.Models.Adapters;
-using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
@@ -23,21 +25,27 @@ public class AddOrUpdateTournamentGameCommandTests
     private IAdapter<TournamentSide,TournamentSideDto> _sideAdapter = null!;
     private IAdapter<TournamentRound,TournamentRoundDto> _roundAdapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<ISystemClock> _systemClock = null!;
-    private Mock<IUserService> _userService = null!;
     private AddOrUpdateTournamentGameCommand _command = null!;
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly UserDto _user = new UserDto();
     private readonly SeasonDto _season = new SeasonDto { Id = Guid.NewGuid() };
     private TournamentGame _game = null!;
     private EditTournamentGameDto _update = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
+    private MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionAdapter = null!;
     private MockAdapter<TournamentMatch,TournamentMatchDto> _matchAdapter = null!;
+    private Mock<IGenericDataService<RecordedScoreAsYouGo,RecordedScoreAsYouGoDto>> _saygService = null!;
+    private Mock<ICommandFactory> _commandFactory = null!;
+    private Mock<ITournamentPlayerAdapter> _tournamentPlayerAdapter = null!;
+    private Mock<INotableTournamentPlayerAdapter> _notableTournamentPlayerAdapter = null!;
+    private Mock<IUpdateRecordedScoreAsYouGoDtoAdapter> _updateRecordedScoreAsYouGoDtoAdapter = null!;
+    private GameMatchOption _matchOptions = null!;
+    private GameMatchOptionDto _matchOptionsDto = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
+        _matchOptions = new GameMatchOption();
+        _matchOptionsDto = new GameMatchOptionDto();
         _game = new TournamentGame
         {
             Id = Guid.NewGuid(),
@@ -51,21 +59,35 @@ public class AddOrUpdateTournamentGameCommandTests
         _cacheFlags = new ScopedCacheManagementFlags();
 
         _seasonService = new Mock<ISeasonService>();
-        _sideAdapter = new TournamentSideAdapter(new TournamentPlayerAdapter());
-        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(null, null);
-        _userService = new Mock<IUserService>();
+        _tournamentPlayerAdapter = new Mock<ITournamentPlayerAdapter>();
+        _sideAdapter = new TournamentSideAdapter(_tournamentPlayerAdapter.Object);
+        _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto);
         _matchAdapter = new MockAdapter<TournamentMatch, TournamentMatchDto>();
         _roundAdapter = new TournamentRoundAdapter(
             _matchAdapter,
             _sideAdapter,
             _matchOptionAdapter);
         _auditingHelper = new Mock<IAuditingHelper>();
-        _systemClock = new Mock<ISystemClock>();
+        _saygService = new Mock<IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto>>();
+        _commandFactory = new Mock<ICommandFactory>();
+        _updateRecordedScoreAsYouGoDtoAdapter = new Mock<IUpdateRecordedScoreAsYouGoDtoAdapter>(MockBehavior.Strict);
+        _notableTournamentPlayerAdapter = new Mock<INotableTournamentPlayerAdapter>();
 
-        _command = new AddOrUpdateTournamentGameCommand(_seasonService.Object, _sideAdapter, _roundAdapter, _auditingHelper.Object,
-            _systemClock.Object, _userService.Object, _cacheFlags);
+        _command = new AddOrUpdateTournamentGameCommand(
+            _seasonService.Object,
+            _sideAdapter,
+            _roundAdapter,
+            _auditingHelper.Object,
+            _cacheFlags,
+            _saygService.Object,
+            _commandFactory.Object,
+            _updateRecordedScoreAsYouGoDtoAdapter.Object,
+            _tournamentPlayerAdapter.Object,
+            _notableTournamentPlayerAdapter.Object);
 
-        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(_user);
+        _tournamentPlayerAdapter
+            .Setup(a => a.Adapt(It.IsAny<TournamentPlayerDto>(), _token))
+            .ReturnsAsync((TournamentPlayerDto player, CancellationToken _) => new TournamentPlayer { Id = player.Id, Name = player.Name });
     }
 
     [Test]
@@ -84,17 +106,20 @@ public class AddOrUpdateTournamentGameCommandTests
     [Test]
     public async Task ApplyUpdates_WhenLatestSeason_UpdatesSimpleProperties()
     {
-        var oneEightyPlayerId = Guid.NewGuid();
-        var over100CheckoutPlayerId = Guid.NewGuid();
-
+        var oneEightyPlayerDto = new EditTournamentGameDto.RecordTournamentScoresPlayerDto { Id = Guid.NewGuid(), Name = "player" };
+        var over100CheckoutPlayerDto = new EditTournamentGameDto.TournamentOver100CheckoutDto { Id = Guid.NewGuid(), Name = "player", Notes = "120" };
+        var oneEightyPlayer = new TournamentPlayer { Id = oneEightyPlayerDto.Id };
+        var over100CheckoutPlayer = new NotableTournamentPlayer { Id = over100CheckoutPlayerDto.Id };
         _update.Address = "new address";
         _update.Date = new DateTime(2001, 02, 03);
         _update.Notes = "notes";
         _update.AccoladesCount = true;
-        _update.OneEighties.Add(new EditTournamentGameDto.RecordTournamentScoresPlayerDto { Id = oneEightyPlayerId, Name = "player" });
-        _update.Over100Checkouts.Add(new EditTournamentGameDto.TournamentOver100CheckoutDto { Id = over100CheckoutPlayerId, Name = "player", Notes = "120" });
+        _update.OneEighties.Add(oneEightyPlayerDto);
+        _update.Over100Checkouts.Add(over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
         _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _tournamentPlayerAdapter.Setup(a => a.Adapt(oneEightyPlayerDto, _token)).ReturnsAsync(oneEightyPlayer);
+        _notableTournamentPlayerAdapter.Setup(a => a.Adapt(over100CheckoutPlayerDto, _token)).ReturnsAsync(over100CheckoutPlayer);
 
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
@@ -103,8 +128,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Address, Is.EqualTo(_update.Address));
         Assert.That(result.Result!.Notes, Is.EqualTo(_update.Notes));
         Assert.That(result.Result!.Date, Is.EqualTo(new DateTime(2001, 02, 03)));
-        Assert.That(result.Result!.OneEighties.Select(p => p.Id), Is.EqualTo(new[] { oneEightyPlayerId }));
-        Assert.That(result.Result!.Over100Checkouts.Select(p => p.Id), Is.EqualTo(new[] { over100CheckoutPlayerId }));
+        Assert.That(result.Result!.OneEighties, Is.EquivalentTo(new[] { oneEightyPlayer }));
+        Assert.That(result.Result!.Over100Checkouts, Is.EquivalentTo(new[] { over100CheckoutPlayer }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
     }
@@ -244,5 +269,153 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Round!.NextRound.Matches.Count, Is.EqualTo(2));
         Assert.That(result.Result!.Round!.NextRound.Matches.Select(m => m.Id), Has.All.Not.EqualTo(Guid.Empty));
         Assert.That(result.Result!.Round!.NextRound.Sides.Select(s => s.Id), Is.EquivalentTo(new[] { side1.Id }));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenSaygNotFoundForMatch_RemovesIdAndWarns()
+    {
+        var side1Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 1" };
+        var side2Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 1" };
+        var side1 = new TournamentSideDto { Id = Guid.NewGuid(), Name = "Side 1", Players = { side1Player1 } };
+        var side2 = new TournamentSideDto { Id = Guid.NewGuid(), Name = "Side 2", Players = { side2Player1 } };
+        var saygId = Guid.NewGuid();
+        var rootRound = new TournamentRoundDto
+        {
+            Sides =
+            {
+                new TournamentSideDto { Players = { side1Player1 } },
+                new TournamentSideDto { Players = { side2Player1 } },
+            },
+            Matches =
+            {
+                new TournamentMatchDto { SideA = side1, SideB = side2, SaygId = saygId },
+            }
+        };
+        _update.Round = rootRound;
+        _update.Sides = new List<TournamentSideDto>(new[] { side1, side2 });
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(new TournamentMatch
+        {
+            SideA = new TournamentSide { Name = side1.Name },
+            SideB = new TournamentSide { Name = side2.Name },
+            SaygId = matchDto.SaygId,
+        }, matchDto));
+        _saygService.Setup(s => s.Get(saygId, _token)).ReturnsAsync(() => null);
+
+        var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Round!.Matches[0].SaygId, Is.Null);
+        Assert.That(result.Message, Is.EqualTo($"Could not find sayg session for match: Side 1 vs Side 2, session has been removed and will need to be re-created (was {saygId})"));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenSaygExistsFoundForMatch_UpdatesSaygSession()
+    {
+        var side1Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 1" };
+        var side2Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 1" };
+        var side1 = new TournamentSideDto { Id = Guid.NewGuid(), Name = "Side 1", Players = { side1Player1 } };
+        var side2 = new TournamentSideDto { Id = Guid.NewGuid(), Name = "Side 2", Players = { side2Player1 } };
+        var command = new Mock<AddOrUpdateSaygCommand>(MockBehavior.Strict, new Mock<ISimpleAdapter<Leg, LegDto>>().Object, new Mock<IUserService>().Object);
+        var saygUpdate = new UpdateRecordedScoreAsYouGoDto();
+        var sayg = new RecordedScoreAsYouGoDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var rootRound = new TournamentRoundDto
+        {
+            Sides =
+            {
+                new TournamentSideDto { Players = { side1Player1 } },
+                new TournamentSideDto { Players = { side2Player1 } },
+            },
+            Matches =
+            {
+                new TournamentMatchDto { SideA = side1, SideB = side2, SaygId = sayg.Id },
+            }
+        };
+        var newMatch = new TournamentMatch
+        {
+            SideA = new TournamentSide { Name = side1.Name },
+            SideB = new TournamentSide { Name = side2.Name },
+            SaygId = sayg.Id,
+        };
+        _update.Round = rootRound;
+        _update.Sides = new List<TournamentSideDto>(new[] { side1, side2 });
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
+        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
+        _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
+        _updateRecordedScoreAsYouGoDtoAdapter
+            .Setup(a => a.Adapt(It.IsAny<RecordedScoreAsYouGoDto>(), newMatch, null, _token))
+            .ReturnsAsync(saygUpdate);
+        command.Setup(c => c.WithData(saygUpdate)).Returns(command.Object);
+        _saygService
+            .Setup(s => s.Upsert(sayg.Id, command.Object, _token))
+            .ReturnsAsync(() => new ActionResultDto<RecordedScoreAsYouGoDto>());
+
+        var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Round!.Matches[0].SaygId, Is.EqualTo(sayg.Id));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenSaygExistsFoundForMatchWithMatchOptions_UpdatesSaygSession()
+    {
+        var side1Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side1, Player 1" };
+        var side2Player1 = new TournamentPlayerDto { Id = Guid.NewGuid(), Name = "Side2, Player 1" };
+        var side1 = new TournamentSideDto { Id = Guid.NewGuid(), Name = "Side 1", Players = { side1Player1 } };
+        var side2 = new TournamentSideDto { Id = Guid.NewGuid(), Name = "Side 2", Players = { side2Player1 } };
+        var command = new Mock<AddOrUpdateSaygCommand>(MockBehavior.Strict, new Mock<ISimpleAdapter<Leg, LegDto>>().Object, new Mock<IUserService>().Object);
+        var saygUpdate = new UpdateRecordedScoreAsYouGoDto();
+        var sayg = new RecordedScoreAsYouGoDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var rootRound = new TournamentRoundDto
+        {
+            Sides =
+            {
+                new TournamentSideDto { Players = { side1Player1 } },
+                new TournamentSideDto { Players = { side2Player1 } },
+            },
+            Matches =
+            {
+                new TournamentMatchDto { SideA = side1, SideB = side2, SaygId = sayg.Id },
+            },
+            MatchOptions =
+            {
+                _matchOptionsDto,
+            }
+        };
+        var newMatch = new TournamentMatch
+        {
+            SideA = new TournamentSide { Name = side1.Name },
+            SideB = new TournamentSide { Name = side2.Name },
+            SaygId = sayg.Id,
+        };
+        _update.Round = rootRound;
+        _update.Sides = new List<TournamentSideDto>(new[] { side1, side2 });
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        rootRound.Matches.ForEach(matchDto => _matchAdapter.AddMapping(newMatch, matchDto));
+        _saygService.Setup(s => s.Get(sayg.Id, _token)).ReturnsAsync(() => sayg);
+        _commandFactory.Setup(f => f.GetCommand<AddOrUpdateSaygCommand>()).Returns(command.Object);
+        _updateRecordedScoreAsYouGoDtoAdapter
+            .Setup(a => a.Adapt(It.IsAny<RecordedScoreAsYouGoDto>(), newMatch, _matchOptions, _token))
+            .ReturnsAsync(saygUpdate);
+        command.Setup(c => c.WithData(saygUpdate)).Returns(command.Object);
+        _saygService
+            .Setup(s => s.Upsert(sayg.Id, command.Object, _token))
+            .ReturnsAsync(() => new ActionResultDto<RecordedScoreAsYouGoDto>());
+        _game.Round = new TournamentRound
+        {
+            MatchOptions = { _matchOptions },
+        };
+
+        var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_game.Round!.Matches[0].SaygId, Is.EqualTo(sayg.Id));
     }
 }

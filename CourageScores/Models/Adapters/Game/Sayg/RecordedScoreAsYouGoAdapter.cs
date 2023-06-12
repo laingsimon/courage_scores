@@ -26,6 +26,7 @@ public class RecordedScoreAsYouGoAdapter : IAdapter<RecordedScoreAsYouGo, Record
             OpponentName = model.OpponentName,
             NumberOfLegs = model.NumberOfLegs,
             StartingScore = model.StartingScore,
+            TournamentMatchId = model.TournamentMatchId,
         }.AddAuditProperties(model);
     }
 
@@ -42,6 +43,7 @@ public class RecordedScoreAsYouGoAdapter : IAdapter<RecordedScoreAsYouGo, Record
             OpponentName = dto.OpponentName,
             NumberOfLegs = dto.NumberOfLegs,
             StartingScore = dto.StartingScore,
+            TournamentMatchId = dto.TournamentMatchId,
         }.AddAuditProperties(dto);
     }
 }

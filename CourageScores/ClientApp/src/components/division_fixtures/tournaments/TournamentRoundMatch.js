@@ -2,11 +2,16 @@ import React, {useState} from "react";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {Dialog} from "../../common/Dialog";
 import {EditMatchOptions} from "../EditMatchOptions";
-import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
+import {useDependencies} from "../../../IocContainer";
+import {useTournament} from "./TournamentContainer";
+import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
+import {ErrorDisplay} from "../../common/ErrorDisplay";
 
-export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180 }) {
+export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
     const { account, onError } = useApp();
+    const { tournamentApi } = useDependencies();
+    const { tournamentData, setTournamentData, saveTournament } = useTournament();
     const scoreA = Number.parseInt(match.scoreA);
     const scoreB = Number.parseInt(match.scoreB);
     const scoreARecorded = hasScore(match.scoreA);
@@ -14,6 +19,8 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     const hasBothScores = scoreARecorded && scoreBRecorded;
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
+    const [ creatingSayg, setCreatingSayg ] = useState(false);
+    const [ saveError, setSaveError ] = useState(null);
 
     function sideSelection(side) {
         return {
@@ -78,17 +85,6 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         const home = match.sideA.name;
         const away = match.sideB.name;
 
-        const updateMatchScore = async (sideAScore, sideBScore) => {
-            const newRound = Object.assign({}, round);
-            const newMatch = Object.assign({}, newRound.matches[matchIndex]);
-            newMatch.scoreA = sideAScore;
-            newMatch.scoreB = sideBScore;
-            newRound.matches[matchIndex] = newMatch;
-            if (onChange) {
-                await onChange(newRound);
-            }
-        }
-
         async function recordHiCheck(sideName, score) {
             if (readOnly) {
                 return;
@@ -99,6 +95,10 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 if (onHiCheck) {
                     await onHiCheck(side.players[0], score);
                 }
+
+                await patchData({
+                    additionalOver100Checkout: Object.assign({}, side.players[0], { notes: score.toString() }),
+                });
             }
         }
 
@@ -112,39 +112,80 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 if (on180) {
                     await on180(side.players[0]);
                 }
-            }
-        }
 
-        async function setMatchProp(prop, newData) {
-            const newRound = Object.assign({}, round);
-            const newMatch = Object.assign({}, newRound.matches[matchIndex]);
-            newMatch[prop] = newData;
-            newRound.matches[matchIndex] = newMatch;
-            if (onChange) {
-                await onChange(newRound);
+                await patchData({
+                    additional180: side.players[0],
+                });
             }
         }
 
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(null)} className="text-start">
-            <ScoreAsYouGo
-                data={match.sayg || { legs: {} }}
-                home={home}
-                away={away}
-                onChange={newData => setMatchProp('sayg', newData)}
-                onLegComplete={updateMatchScore}
-                startingScore={matchOptions.startingScore}
-                numberOfLegs={matchOptions.numberOfLegs}
-                homeScore={match.scoreA}
-                awayScore={match.scoreB}
+            <SaygLoadingContainer
+                id={match.saygId}
                 onHiCheck={recordHiCheck}
-                on180={record180} />
+                on180={record180}
+                autoSave={true}
+                onSaved={async (data) => {
+                    await patchData({
+                        match: {
+                            sideA: match.sideA.id,
+                            sideB: match.sideB.id,
+                            scoreA: data.homeScore,
+                            scoreB: data.awayScore,
+                        }
+                    }, true);
+                }}>
+            </SaygLoadingContainer>
         </Dialog>)
     }
 
     function canOpenSayg() {
         return match.sideA !== null
             && match.sideB !== null
-            && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
+            && (match.saygId || (account || { access: {} }).access.recordScoresAsYouGo);
+    }
+
+    async function openSaygDialog() {
+        if (match.saygId) {
+            setSaygOpen(true);
+            return;
+        }
+
+        if (!match.id) {
+            alert('Save the tournament first');
+            return;
+        }
+
+        if (match.scoreA || match.scoreB) {
+            // scores already recorded
+            alert('Game has already been played; cannot score as you go');
+            return;
+        }
+
+        /* istanbul ignore next */
+        if (creatingSayg) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        // save any existing data, to ensure any pending changes aren't lost.
+        await saveTournament();
+
+        try {
+            setCreatingSayg(true);
+
+            const response = await tournamentApi.addSayg(tournamentData.id, match.id, matchOptions);
+            if (response.success) {
+                setTournamentData(response.result);
+                setSaygOpen(true);
+            } else {
+                setSaveError(response);
+            }
+        } catch (e) {
+            onError(e);
+        } finally {
+            setCreatingSayg(false);
+        }
     }
 
     return (<tr className="bg-light">
@@ -159,7 +200,16 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                      slim={true}
                      className="margin-right" />)}
 
-            {canOpenSayg() ? (<button className="btn btn-sm float-start p-0" onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
+            {canOpenSayg()
+                ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
+                    {creatingSayg
+                        ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+                        : '📊'}
+                    </button>)
+                : null}
+            {saveError
+                ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not create sayg session"/>)
+                : null}
             {saygOpen ? renderSaygDialog(match) : null}
         </td>
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>

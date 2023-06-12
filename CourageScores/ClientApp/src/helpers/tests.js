@@ -20,8 +20,9 @@ export async function doClick(container, selector) {
 
 export async function doChange(container, selector, text, user) {
     const input = container.querySelector(selector);
-    // noinspection JSUnresolvedFunction
-    expect(input).toBeTruthy();
+    if (!input) {
+        throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
+    }
 
     fireEvent.change(input, { target: { value: text } });
     if (!user) {

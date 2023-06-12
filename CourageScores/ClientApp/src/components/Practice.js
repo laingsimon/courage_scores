@@ -1,22 +1,23 @@
-import {ScoreAsYouGo} from "./division_fixtures/sayg/ScoreAsYouGo";
-import React, {useEffect, useState} from "react";
-import {any} from "../helpers/collections";
-import {valueChanged} from "../helpers/events";
-import {ShareButton} from "./ShareButton";
+import React, {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
-import {useDependencies} from "../IocContainer";
-import {ErrorDisplay} from "./common/ErrorDisplay";
+import {SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";
+import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
 import {Loading} from "./common/Loading";
 
 export function Practice() {
-    const initialYourName = 'you';
-    const { onError, account } = useApp();
-    const { saygApi } = useDependencies();
+    const { onError, account, appLoading } = useApp();
+    const [ dataError, setDataError ] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
-    const [ sayg, setSayg ] = useState({
-        yourName: initialYourName,
+    const hasHash = location.hash && location.hash !== '#';
+
+    if (appLoading) {
+        return (<Loading />);
+    }
+
+    const defaultSaygData = {
+        yourName: account ? account.givenName : 'you',
         opponentName: null,
         homeScore: 0,
         awayScore: 0,
@@ -24,150 +25,37 @@ export function Practice() {
         startingScore: 501,
         legs: {},
         loaded: false,
-    });
-    const [ dataError, setDataError ] = useState(null);
-    const [ saveError, setSaveError ] = useState(null);
-    const [ loading, setLoading ] = useState(false);
-    const hasHash = location.hash && location.hash !== '#';
+    };
 
-    useEffect(() => {
-        if (!hasHash || dataError || loading) {
-            return;
-        }
-
-        if (sayg.loaded) {
-            // data already loaded
-            return;
-        }
-
-        setLoading(true);
-        // noinspection JSIgnoredPromiseFromCall
-        loadData(location.hash.substring(1));
-    },
-    // eslint-disable-next-line
-    [ location, loading, onError ]);
-
-    useEffect(() => {
-        if (account && sayg.yourName === initialYourName && account.givenName && !sayg.loaded) {
-            const newSayg = Object.assign({}, sayg);
-            newSayg.yourName = account.givenName;
-            setSayg(newSayg);
-        }
-    }, [ account, sayg ]);
-
-    async function loadData(id) {
-        try {
-            const sayg = await saygApi.get(id);
-
-            if (!sayg || !sayg.legs) {
-                navigate('/practice');
-                setDataError('Data not found');
-                return;
-            }
-
-            sayg.loaded = true;
-            sayg.lastUpdated = sayg.updated;
-            setSayg(sayg);
-        } catch (e) {
-            setDataError(e.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    async function saveDataAndGetId() {
-        try {
-            const response = await saygApi.upsert(sayg);
-            if (response.success) {
-                response.result.loaded = true;
-                response.result.lastUpdated = response.result.updated;
-                setSayg(response.result);
-                if (location.hash !== `#${response.result.id}`) {
-                    navigate(`/practice#${response.result.id}`);
-                }
-                return '#' + response.result.id;
-            }
-            setSaveError(response);
-        } catch (e) {
-            onError(e);
-        }
-
-        return null;
-    }
-
-    function restart() {
-        const newSayg = Object.assign({}, sayg);
-        newSayg.legs = {};
-        newSayg.homeScore = 0;
-        newSayg.awayScore = 0;
-        setSayg(newSayg);
-    }
-
-    function updateSayg(newData) {
-        const newSayg = Object.assign({}, sayg, newData);
-        setSayg(newSayg);
-    }
-
-    const canShow = sayg.loaded || !hasHash || dataError;
-
-    if (!canShow) {
-        return (<Loading />);
+    async function clearError() {
+        navigate('/practice');
+        setDataError(null);
     }
 
     try {
-        return (<div className="p-3 light-background">
-            <div className="input-group my-3">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Number of legs</span>
-                </div>
-                <input type="number" className="form-control" name="numberOfLegs" value={sayg.numberOfLegs}
-                       onChange={valueChanged(sayg, setSayg)}/>
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Starting score</span>
-                </div>
-                <input type="number" className="form-control" name="startingScore" value={sayg.startingScore}
-                       onChange={valueChanged(sayg, setSayg)}/>
-                <ShareButton text="Practice" getHash={saveDataAndGetId} title="Practice"/>
-            </div>
-            <div className="input-group my-3">
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Your name</span>
-                </div>
-                <input className="form-control" value={sayg.yourName} name="yourName"
-                       onChange={valueChanged(sayg, setSayg)}/>
-                <div className="input-group-prepend">
-                    <span className="input-group-text">Opponent</span>
-                </div>
-                <input placeholder="Optional" className="form-control" name="opponentName"
-                       value={sayg.opponentName || ''} onChange={valueChanged(sayg, setSayg)}/>
-                <button className="btn btn-primary"
-                        onClick={restart}>{any(Object.keys(sayg.legs)) ? 'Restart...' : 'Start...'}</button>
-            </div>
-            {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
+        if (dataError) {
+            return (<div className="p-3 border-danger border-1 border" data-name="data-error">
                 <h3>⚠ Error with shared data</h3>
                 <p>{dataError}</p>
-                <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
-            </div>) : null}
-            {saveError ? (
-                <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
-            {dataError == null ? (<ScoreAsYouGo
-                startingScore={Number.parseInt(sayg.startingScore)}
-                numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
-                onHiCheck={() => {
-                }}
-                on180={() => {
-                }}
-                onChange={updateSayg}
-                homeScore={sayg.homeScore}
-                awayScore={sayg.awayScore}
-                away={sayg.opponentName}
-                home={sayg.yourName}
-                data={sayg}
-                singlePlayer={!sayg.opponentName}
-                onLegComplete={(homeScore, awayScore) => {
-                    updateSayg({homeScore, awayScore});
-                }}/>) : null}
-        </div>);
+                <button className="btn btn-primary" onClick={clearError}>Clear</button>
+            </div>);
+        }
+
+        return (<SaygLoadingContainer
+            id={hasHash ?  location.hash.substring(1) : null}
+            on180={() => {}}
+            onHiCheck={() => {}}
+            defaultData={defaultSaygData}
+            autoSave={false}
+            onScoreChange={() => {}}
+            onSaved={(data) => {
+                if (location.hash !== `#${data.id}`) {
+                    navigate(`/practice#${data.id}`);
+                }
+            }}
+            onLoadError={setDataError}>
+                <EditSaygPracticeOptions />
+        </SaygLoadingContainer>);
     } catch (e) {
         /* istanbul ignore next */
         onError(e);

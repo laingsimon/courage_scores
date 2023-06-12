@@ -257,7 +257,7 @@ describe('ScoreAsYouGo', () => {
         expect(completedLegs).toEqual([{ homeScore: 1, awayScore: 0 }]);
         expect(changedLegs[1]).toEqual({
             legs: { '0': {
-                    currentThrow: 'away',
+                    currentThrow: 'home',
                     playerSequence: [
                         { text: 'HOME', value: 'home' },
                         { text: 'AWAY', value: 'away' },
@@ -277,7 +277,6 @@ describe('ScoreAsYouGo', () => {
                         score: 100,
                     },
                     startingScore: 501,
-                    winner: 'home',
                     isLastLeg: false,
                 },
                 '1': {

@@ -5,7 +5,7 @@ import {all, any, elementAt, isEmpty, toMap} from "../../../helpers/collections"
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180 }) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData }) {
     const [ newMatch, setNewMatch ] = useState({});
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
@@ -94,6 +94,14 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         }));
     }
 
+    async function thisRoundPatch(patch, nestInRound) {
+        await patchData(patch, nestInRound);
+    }
+
+    async function nestedRoundPatch(patch, nestInRound) {
+        await patchData(nestInRound ? { nextRound: patch } : patch, nestInRound);
+    }
+
     async function onMatchOptionsChanged(newMatchOptions, matchIndex) {
         const newRound = Object.assign({}, round);
         newRound.matchOptions[matchIndex] = newMatchOptions;
@@ -129,7 +137,8 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
                 matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
                 onMatchOptionsChanged={async (newMatchOptions) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
                 on180={on180}
-                onHiCheck={onHiCheck} />);
+                onHiCheck={onHiCheck}
+                patchData={thisRoundPatch} />);
         })}
         {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
             <td>
@@ -154,7 +163,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         </tbody></table>
         {hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1)
             ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
-                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} />)
+                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} patchData={nestedRoundPatch} />)
             : null}
     </div>);
 }
