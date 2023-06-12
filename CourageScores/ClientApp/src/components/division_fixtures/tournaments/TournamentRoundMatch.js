@@ -11,7 +11,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
     const { account, onError } = useApp();
     const { tournamentApi } = useDependencies();
-    const { tournamentData, setTournamentData } = useTournament();
+    const { tournamentData, setTournamentData, saveTournament } = useTournament();
     const scoreA = Number.parseInt(match.scoreA);
     const scoreB = Number.parseInt(match.scoreB);
     const scoreARecorded = hasScore(match.scoreA);
@@ -151,13 +151,19 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             return;
         }
 
+        if (!match.id) {
+            alert('Save the tournament first');
+            return;
+        }
+
         /* istanbul ignore next */
         if (creatingSayg) {
             /* istanbul ignore next */
             return;
         }
 
-        // TODO: trigger a save? otherwise unsaved data could be lost
+        // save any existing data, to ensure any pending changes aren't lost.
+        await saveTournament();
 
         try {
             setCreatingSayg(true);

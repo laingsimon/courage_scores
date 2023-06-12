@@ -131,6 +131,7 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 setTournamentData(response.result);
+                return response.result;
             }
         } finally {
             setSaving(false);
@@ -252,7 +253,8 @@ export function Tournament() {
                     setTournamentData={setTournamentData}
                     season={season}
                     alreadyPlaying={alreadyPlaying}
-                    allPlayers={allPlayers}>
+                    allPlayers={allPlayers}
+                    saveTournament={saveTournament}>
                     <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
                 </TournamentContainer>
                 <TournamentSheet sides={tournamentData.sides}/>
