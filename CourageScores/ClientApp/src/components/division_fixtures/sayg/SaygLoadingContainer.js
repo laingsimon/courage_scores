@@ -69,7 +69,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     await onSaved(response.result);
                 }
 
-                return response.result.id;
+                return '#' + response.result.id;
             } else {
                 setSaveError(response);
             }
