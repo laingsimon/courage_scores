@@ -493,8 +493,8 @@ describe('TournamentRoundMatch', () => {
                 id: createTemporaryId(),
                 sideA: sideA,
                 sideB: sideB,
-                scoreA: 1,
-                scoreB: 2,
+                scoreA: 0,
+                scoreB: 0,
             };
             const matchOptions = {
                 startingScore: 501,
@@ -585,13 +585,61 @@ describe('TournamentRoundMatch', () => {
             expect(message).toEqual('Save the tournament first');
         });
 
-        it('can close sayg', async () => {
+        it('does not open sayg for matches with score', async () => {
             const match = {
                 id: createTemporaryId(),
                 sideA: sideA,
                 sideB: sideB,
                 scoreA: 1,
                 scoreB: 2,
+            };
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([ sideA, sideB ]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: {
+                    matches: [ match ]
+                },
+                matchOptions,
+            }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let message;
+            window.alert = (msg) => message = msg;
+
+            await doClick(findButton(cells[0], '📊'));
+
+            expect(reportedError).toBeNull();
+            expect(createdSaygSessions.length).toEqual(0);
+            expect(message).toEqual('Game has already been played; cannot score as you go');
+        });
+
+        it('can close sayg', async () => {
+            const match = {
+                id: createTemporaryId(),
+                sideA: sideA,
+                sideB: sideB,
+                scoreA: 0,
+                scoreB: 0,
             };
             await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 readOnly: false,

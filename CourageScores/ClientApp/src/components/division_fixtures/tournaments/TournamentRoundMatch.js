@@ -156,6 +156,12 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             return;
         }
 
+        if (match.scoreA || match.scoreB) {
+            // scores already recorded
+            alert('Game has already been played; cannot score as you go');
+            return;
+        }
+
         /* istanbul ignore next */
         if (creatingSayg) {
             /* istanbul ignore next */
