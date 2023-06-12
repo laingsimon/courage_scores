@@ -26,6 +26,7 @@ export function Tournament() {
     const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [patching, setPatching] = useState(false);
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
     const [saveError, setSaveError] = useState(null);
@@ -117,7 +118,7 @@ export function Tournament() {
 
     async function saveTournament() {
         /* istanbul ignore next */
-        if (saving) {
+        if (saving || patching) {
             /* istanbul ignore next */
             return;
         }
@@ -133,6 +134,27 @@ export function Tournament() {
             }
         } finally {
             setSaving(false);
+        }
+    }
+
+    async function applyPatch(patch, nestInRound) {
+        /* istanbul ignore next */
+        if (saving || patching) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        setPatching(true);
+
+        try {
+            const response = await tournamentApi.patch(tournamentId, nestInRound ? { round: patch } : patch);
+            if (!response.success) {
+                setSaveError(response);
+            } else {
+                setTournamentData(response.result);
+            }
+        } finally {
+            setPatching(false);
         }
     }
 
@@ -231,7 +253,7 @@ export function Tournament() {
                     season={season}
                     alreadyPlaying={alreadyPlaying}
                     allPlayers={allPlayers}>
-                    <EditTournament disabled={disabled} canSave={canSave} saving={saving} />
+                    <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
                 </TournamentContainer>
                 <TournamentSheet sides={tournamentData.sides}/>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>

@@ -8,7 +8,7 @@ import React from "react";
 import {useApp} from "../../../AppContainer";
 import {useTournament} from "./TournamentContainer";
 
-export function EditTournament({ canSave, disabled, saving }) {
+export function EditTournament({ canSave, disabled, saving, applyPatch }) {
     const { account } = useApp();
     const { tournamentData, setTournamentData, season, alreadyPlaying, allPlayers } = useTournament();
     const isAdmin = account && account.access && account.access.manageTournaments;
@@ -94,7 +94,15 @@ export function EditTournament({ canSave, disabled, saving }) {
                     otherSides={getOtherSides(sideIndex)} />); })}
             {readOnly || hasStarted ? null : (<TournamentSide divisionId={tournamentData.divisionId} seasonId={season.id} side={null} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
         </div>
-        {tournamentData.sides.length >= 2 ? (<TournamentRound round={tournamentData.round || {}} sides={tournamentData.sides} onChange={propChanged(tournamentData, setTournamentData, 'round')} readOnly={readOnly} depth={1} onHiCheck={add180(tournamentData, setTournamentData)} on180={add180(tournamentData, setTournamentData)} />) : null}
+        {tournamentData.sides.length >= 2 ? (<TournamentRound
+            round={tournamentData.round || {}}
+            sides={tournamentData.sides}
+            onChange={propChanged(tournamentData, setTournamentData, 'round')}
+            readOnly={readOnly}
+            depth={1}
+            onHiCheck={add180(tournamentData, setTournamentData)}
+            on180={add180(tournamentData, setTournamentData)}
+            patchData={applyPatch} />) : null}
         {tournamentData.sides.length >= 2 ? (<table className="table">
             <tbody>
             <tr>

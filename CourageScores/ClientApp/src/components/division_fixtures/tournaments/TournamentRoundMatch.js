@@ -7,7 +7,7 @@ import {useDependencies} from "../../../IocContainer";
 import {useTournament} from "./TournamentContainer";
 import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 
-export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180 }) {
+export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
     const { account, onError } = useApp();
     const { tournamentApi } = useDependencies();
     const { tournamentData, setTournamentData } = useTournament();
@@ -93,6 +93,10 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 if (onHiCheck) {
                     await onHiCheck(side.players[0], score);
                 }
+
+                await patchData({
+                    additionalOver100Checkout: Object.assign({}, side.players[0], { notes: score.toString() }),
+                });
             }
         }
 
@@ -106,6 +110,10 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 if (on180) {
                     await on180(side.players[0]);
                 }
+
+                await patchData({
+                    additional180: side.players[0],
+                });
             }
         }
 
@@ -115,9 +123,15 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 onHiCheck={recordHiCheck}
                 on180={record180}
                 autoSave={true}
-                onSaved={(data) => {
-                    console.log(data);
-                    // updateMatchScore() // TODO: update the scores
+                onSaved={async (data) => {
+                    await patchData({
+                        match: {
+                            sideA: match.sideA.id,
+                            sideB: match.sideB.id,
+                            scoreA: data.homeScore,
+                            scoreB: data.awayScore,
+                        }
+                    }, true);
                 }}>
             </SaygLoadingContainer>
         </Dialog>)
