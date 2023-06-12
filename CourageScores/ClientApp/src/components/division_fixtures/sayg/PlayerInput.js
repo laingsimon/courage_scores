@@ -1,6 +1,6 @@
 import {round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
-import {useState} from "react";
+import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
 
 export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck, onChange, onLegComplete, leg, singlePlayer }) {
@@ -164,13 +164,17 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
         </p>) : null}
         <h4>
             <label>
-                <span className="margin-right">Score</span>
-                <input disabled={savingInput} data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
+                <span className="margin-right">
+                    Score
+                </span>
+                <input data-score-input="true" autoFocus type="number" min="0" max="180" className="no-spinner margin-right width-75 fs-1" value={score} onChange={stateChanged(setScore)} onKeyUp={keyUp} />
+                {savingInput || true ? (<span className="position-absolute spinner-border spinner-border-sm mt-3 top-50 opacity-50 margin-left text-secondary" role="status"
+                                 aria-hidden="true"></span>) : null}
             </label>
         </h4>
         <p className="my-3">
             {!savingInput && checkout && isSingleDartScore(intScore, true)
-                ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
+                ? (<button className="btn btn-primary margin-right fs-3 border-1" onClick={() => addThrow(score, 1, true, false)}>📌</button>)
                 : null}
             {!savingInput && checkout && isTwoDartScore(intScore)
                 ? (<button className="btn btn-primary margin-right fs-3" onClick={() => addThrow(score, 2, true, false)}>📌📌</button>)
