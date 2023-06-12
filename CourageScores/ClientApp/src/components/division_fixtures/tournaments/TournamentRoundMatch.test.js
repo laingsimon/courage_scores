@@ -18,6 +18,7 @@ describe('TournamentRoundMatch', () => {
     let updatedSaygData;
     let createdSaygSessions;
     let addSaygLookup;
+    let updatedPatch;
     const tournamentApi = {
         addSayg: async (tournamentId, matchId, matchOptions) => {
             createdSaygSessions.push({ tournamentId, matchId, matchOptions });
@@ -76,6 +77,7 @@ describe('TournamentRoundMatch', () => {
         saygApiData = {};
         addSaygLookup = [];
         updatedSaygData = null;
+        updatedPatch = null;
         createdSaygSessions = [];
         context = await renderApp(
             { tournamentApi, saygApi },
@@ -98,7 +100,8 @@ describe('TournamentRoundMatch', () => {
                     onChange={updated => updatedRound = updated}
                     onMatchOptionsChanged={updated => updatedMatchOptions = updated}
                     onHiCheck={onHiCheck}
-                    on180={on180} />
+                    on180={on180}
+                    patchData={(patch) => updatedPatch = patch} />
             </TournamentContainer>),
             null,
             null,
