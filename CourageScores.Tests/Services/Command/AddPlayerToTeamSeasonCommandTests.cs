@@ -168,6 +168,7 @@ public class AddPlayerToTeamSeasonCommandTests
         {
             Message = "FAILURE",
             Success = false,
+            Result = new TeamSeason(),
         };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
