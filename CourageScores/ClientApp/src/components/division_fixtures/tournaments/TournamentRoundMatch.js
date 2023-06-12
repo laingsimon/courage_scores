@@ -126,7 +126,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     function canOpenSayg() {
         return match.sideA !== null
             && match.sideB !== null
-            && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
+            && (match.saygId || (account || { access: {} }).access.recordScoresAsYouGo);
     }
 
     async function openSaygDialog() {
@@ -149,7 +149,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             const response = await tournamentApi.addSayg(tournamentData.id, match.id);
             if (response.success) {
                 setTournamentData(response.result);
-                setSaygOpen(true); // TODO: navigate to the sayg page? open in a new window?
+                setSaygOpen(true);
             } else {
                 // TODO: show as a HTML error
                 window.alert('Could not create sayg session: ' + JSON.stringify(response));

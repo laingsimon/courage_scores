@@ -6,6 +6,7 @@ import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
 
 import { createContext, useContext } from "react";
+import {isEmpty} from "../../../helpers/collections";
 const SaygContext = createContext({});
 
 export function useSayg() {
@@ -35,7 +36,6 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     async function loadData() {
         try {
             if (!id) {
-                defaultData.loaded = true;
                 setSayg(defaultData);
                 return;
             }
@@ -43,25 +43,24 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             const sayg = await saygApi.get(id);
 
             if (!sayg || !sayg.legs) {
+                // TODO: fire an event for this error to be displayed in surrounding component
                 setDataError('Data not found');
                 return;
             }
 
-            sayg.loaded = true;
             sayg.lastUpdated = sayg.updated;
             setSayg(sayg);
         } catch (e) {
-            setDataError(e.message);
+            onError(e);
         } finally {
             setLoading(false);
         }
     }
 
-    async function saveDataAndGetId() {
+    async function saveDataAndGetId(useData) {
         try {
-            const response = await saygApi.upsert(sayg);
+            const response = await saygApi.upsert(useData || sayg);
             if (response.success) {
-                response.result.loaded = true;
                 response.result.lastUpdated = response.result.updated;
                 setSayg(response.result);
 
@@ -80,9 +79,26 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         return null;
     }
 
+    async function onChange(newData) {
+        const newSayg = updateSayg(newData);
+
+        if (!autoSave) {
+            return;
+        }
+
+        if (!newData.legs['0']) {
+            return;
+        }
+
+        if (!sayg.legs['0'] || isEmpty(sayg.legs['0'].playerSequence || [])) {
+            await saveDataAndGetId(newSayg);
+        }
+    }
+
     function updateSayg(newData) {
         const newSayg = Object.assign({}, sayg, newData);
         setSayg(newSayg);
+        return newSayg;
     }
 
     if (loading) {
@@ -111,7 +127,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     numberOfLegs={Number.parseInt(sayg.numberOfLegs)}
                     onHiCheck={onHiCheck}
                     on180={on180}
-                    onChange={updateSayg}
+                    onChange={onChange}
                     homeScore={sayg.homeScore}
                     awayScore={sayg.awayScore}
                     away={sayg.opponentName}
@@ -119,9 +135,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                     data={sayg}
                     singlePlayer={!sayg.opponentName}
                     onLegComplete={async (homeScore, awayScore) => {
-                        updateSayg({homeScore, awayScore});
+                        const sayg = updateSayg({homeScore, awayScore});
                         if (autoSave) {
-                            await saveDataAndGetId();
+                            await saveDataAndGetId(sayg);
                         }
                         if (onScoreChange) {
                             await onScoreChange(homeScore, awayScore);
