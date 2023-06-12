@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApp} from "../AppContainer";
 import {SaygLoadingContainer} from "./division_fixtures/sayg/SaygLoadingContainer";
@@ -7,6 +7,7 @@ import {Loading} from "./common/Loading";
 
 export function Practice() {
     const { onError, account, appLoading } = useApp();
+    const [ dataError, setDataError ] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
     const hasHash = location.hash && location.hash !== '#';
@@ -26,7 +27,20 @@ export function Practice() {
         loaded: false,
     };
 
+    async function clearError() {
+        navigate('/practice');
+        setDataError(null);
+    }
+
     try {
+        if (dataError) {
+            return (<div className="p-3 border-danger border-1 border" data-name="data-error">
+                <h3>⚠ Error with shared data</h3>
+                <p>{dataError}</p>
+                <button className="btn btn-primary" onClick={clearError}>Clear</button>
+            </div>);
+        }
+
         return (<SaygLoadingContainer
             id={hasHash ?  location.hash.substring(1) : null}
             on180={() => {}}
@@ -38,8 +52,9 @@ export function Practice() {
                 if (location.hash !== `#${data.id}`) {
                     navigate(`/practice#${data.id}`);
                 }
-            }}>
-            <EditSaygPracticeOptions />
+            }}
+            onLoadError={setDataError}>
+                <EditSaygPracticeOptions />
         </SaygLoadingContainer>);
     } catch (e) {
         /* istanbul ignore next */

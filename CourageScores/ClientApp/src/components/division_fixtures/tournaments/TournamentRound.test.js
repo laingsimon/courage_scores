@@ -70,7 +70,7 @@ describe('TournamentRound', () => {
                 },
                 account
             },
-            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}}>
                 <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} />
             </TournamentContainer>));
     }

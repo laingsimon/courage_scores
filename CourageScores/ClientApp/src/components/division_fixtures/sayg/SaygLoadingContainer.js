@@ -13,16 +13,15 @@ export function useSayg() {
     return useContext(SaygContext);
 }
 
-export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved }) {
+export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved, onLoadError }) {
     const [ sayg, setSayg ] = useState(defaultData);
-    const [ dataError, setDataError ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const { saygApi } = useDependencies();
     const { onError } = useApp();
 
     useEffect(() => {
-        if (dataError || loading) {
+        if (loading) {
             return;
         }
 
@@ -43,8 +42,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             const sayg = await saygApi.get(id);
 
             if (!sayg || !sayg.legs) {
-                // TODO: fire an event for this error to be displayed in surrounding component
-                setDataError('Data not found');
+                if (onLoadError) {
+                    await onLoadError('Data not found');
+                }
                 return;
             }
 
@@ -113,14 +113,9 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
 
     try {
         return (<SaygContext.Provider value={saygProps}>
-            {dataError ? (<div className="p-3 border-danger border-1 border" data-name="data-error">
-                <h3>⚠ Error with shared data</h3>
-                <p>{dataError}</p>
-                <button className="btn btn-primary" onClick={() => setDataError(null)}>Clear</button>
-            </div>) : null}
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
-            {dataError == null && sayg ? (<div className="p-3 light-background">
+            {sayg ? (<div className="p-3 light-background">
                 {children}
                 <ScoreAsYouGo
                     startingScore={Number.parseInt(sayg.startingScore)}
