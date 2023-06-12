@@ -21,6 +21,12 @@ describe('TournamentRound', () => {
             };
         }
     };
+    let saygApiData;
+    const saygApi = {
+        get: async (id) => {
+            return saygApiData[id];
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -47,9 +53,10 @@ describe('TournamentRound', () => {
         oneEighty = null;
         updatedTournamentData = null;
         hiCheck = null;
+        saygApiData = {};
         updatedRound = null;
         context = await renderApp(
-            { tournamentApi },
+            { tournamentApi, saygApi },
             {
                 onError: (err) => {
                     if (err.message) {
@@ -908,25 +915,26 @@ describe('TournamentRound', () => {
                     scoreB: null,
                     sideA: side1,
                     sideB: side2,
-                    sayg: {
-                        legs: {
-                            '0': {
-                                playerSequence: [
-                                    { value: 'home', text: 'SIDE 1' },
-                                    { value: 'away', text: 'SIDE 2' }
-                                ],
-                                home: {
-                                    throws: [ { score: 0 } ],
-                                    score: 0,
-                                },
-                                away: {
-                                    throws: [ { score: 0 } ],
-                                    score: 0,
-                                },
-                                isLastLeg: false,
-                                startingScore: 501,
-                                currentThrow: 'home',
-                            }
+                    saygId: createTemporaryId(),
+                };
+                const saygData = {
+                    legs: {
+                        '0': {
+                            playerSequence: [
+                                { value: 'home', text: 'SIDE 1' },
+                                { value: 'away', text: 'SIDE 2' }
+                            ],
+                            home: {
+                                throws: [ { score: 0 } ],
+                                score: 0,
+                            },
+                            away: {
+                                throws: [ { score: 0 } ],
+                                score: 0,
+                            },
+                            isLastLeg: false,
+                            startingScore: 501,
+                            currentThrow: 'home',
                         }
                     }
                 };
@@ -945,11 +953,13 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
+                saygApiData[match.saygId] = saygData;
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
                 expect(reportedError).toBeNull();
                 const saygDialog = context.container.querySelector('.modal-dialog');
+                expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
                 await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
@@ -963,25 +973,26 @@ describe('TournamentRound', () => {
                     scoreB: null,
                     sideA: side1,
                     sideB: side2,
-                    sayg: {
-                        legs: {
-                            '0': {
-                                playerSequence: [
-                                    { value: 'home', text: 'SIDE 1' },
-                                    { value: 'away', text: 'SIDE 2' }
-                                ],
-                                home: {
-                                    throws: [ { score: 0 } ],
-                                    score: 351,
-                                },
-                                away: {
-                                    throws: [ { score: 0 } ],
-                                    score: 301,
-                                },
-                                isLastLeg: false,
-                                startingScore: 501,
-                                currentThrow: 'home',
-                            }
+                    saygId: createTemporaryId(),
+                };
+                const saygData = {
+                    legs: {
+                        '0': {
+                            playerSequence: [
+                                { value: 'home', text: 'SIDE 1' },
+                                { value: 'away', text: 'SIDE 2' }
+                            ],
+                            home: {
+                                throws: [ { score: 0 } ],
+                                score: 351,
+                            },
+                            away: {
+                                throws: [ { score: 0 } ],
+                                score: 301,
+                            },
+                            isLastLeg: false,
+                            startingScore: 501,
+                            currentThrow: 'home',
                         }
                     }
                 };
@@ -1000,11 +1011,13 @@ describe('TournamentRound', () => {
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
+                saygApiData[match.saygId] = saygData;
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
                 expect(reportedError).toBeNull();
                 const saygDialog = context.container.querySelector('.modal-dialog');
+                expect(saygDialog.querySelector('[data-name="data-error"]')).toBeFalsy();
                 await doChange(saygDialog, 'input[data-score-input="true"]', '150', context.user);
                 await doClick(findButton(saygDialog, '📌📌📌'));
 
