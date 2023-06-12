@@ -54,6 +54,8 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             TournamentMatchId = match.Id,
             NumberOfLegs = _request.MatchOptions?.NumberOfLegs ?? DefaultMatchOptions.NumberOfLegs ?? 0,
             StartingScore = _request.MatchOptions?.StartingScore ?? DefaultMatchOptions.StartingScore ?? 0,
+            YourName = match.SideA.Name!,
+            OpponentName = match.SideB.Name,
         };
         var saygCommand = _commandFactory.GetCommand<AddOrUpdateSaygCommand>()
             .WithData(saygUpdate);

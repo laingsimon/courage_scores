@@ -104,6 +104,8 @@ public class CreateTournamentMatchSaygCommandTests
         var match = new TournamentMatch
         {
             Id = _request.MatchId,
+            SideA = new TournamentSide { Name = "YOU" },
+            SideB = new TournamentSide { Name = "THEM" },
         };
         _tournament.Round = new TournamentRound
         {
@@ -131,6 +133,8 @@ public class CreateTournamentMatchSaygCommandTests
         var match = new TournamentMatch
         {
             Id = _request.MatchId,
+            SideA = new TournamentSide { Name = "YOU" },
+            SideB = new TournamentSide { Name = "THEM" },
         };
         var newId = Guid.NewGuid();
         _tournament.Round = new TournamentRound
@@ -156,7 +160,9 @@ public class CreateTournamentMatchSaygCommandTests
                 It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
                     dto.TournamentMatchId == match.Id
                     && dto.StartingScore == 601
-                    && dto.NumberOfLegs == 7)));
+                    && dto.NumberOfLegs == 7
+                    && dto.YourName == "YOU"
+                    && dto.OpponentName == "THEM")));
     }
 
     [Test]
@@ -165,6 +171,8 @@ public class CreateTournamentMatchSaygCommandTests
         var match = new TournamentMatch
         {
             Id = _request.MatchId,
+            SideA = new TournamentSide { Name = "YOU" },
+            SideB = new TournamentSide { Name = "THEM" },
         };
         var newId = Guid.NewGuid();
         _tournament.Round = new TournamentRound
@@ -191,6 +199,8 @@ public class CreateTournamentMatchSaygCommandTests
                 It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
                     dto.TournamentMatchId == match.Id
                     && dto.StartingScore == 501
-                    && dto.NumberOfLegs == 5)));
+                    && dto.NumberOfLegs == 5
+                    && dto.YourName == "YOU"
+                    && dto.OpponentName == "THEM")));
     }
 }
