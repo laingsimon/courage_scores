@@ -31,12 +31,16 @@ export async function doChange(container, selector, text, user) {
     await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
-export async function awaitChange(container, selector, text, user) {
+export async function setFile(container, selector, file, user) {
     const input = container.querySelector(selector);
-    // noinspection JSUnresolvedFunction
-    expect(input).toBeTruthy();
+    if (!input) {
+        throw new Error(`Could not find element with selector ${selector} in ${container.innerHTML}`);
+    }
 
-    fireEvent.change(input, { target: { value: text } });
+    fireEvent.change(input, { target: { files: [ file ] } });
+    if (!user) {
+        throw new Error('user not available');
+    }
     await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 

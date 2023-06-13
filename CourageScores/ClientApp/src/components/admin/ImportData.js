@@ -46,7 +46,7 @@ export function ImportData() {
         }
 
         if (!any(importRequest.tables)) {
-            window.alert(`Select at least one table`);
+            window.alert(`Select some tables to import`);
             return;
         }
 
