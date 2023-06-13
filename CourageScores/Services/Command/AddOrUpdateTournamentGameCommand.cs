@@ -62,7 +62,10 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
 
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(game, update);
-        var context = new ActionResult<TournamentGame>();
+        var context = new ActionResult<TournamentGame>
+        {
+            Success = true,
+        };
 
         game.Address = update.Address;
         game.Date = update.Date;
