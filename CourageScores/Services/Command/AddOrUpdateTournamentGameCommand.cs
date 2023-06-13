@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
@@ -47,21 +48,24 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         _notableTournamentPlayerAdapter = notableTournamentPlayerAdapter;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
+    protected override async Task<ActionResult<TournamentGame>> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
         var latestSeason = await _seasonService.GetForDate(update.Date, token);
 
         if (latestSeason == null)
         {
-            return new CommandResult
+            return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Message = "Unable to add or update game, no season exists",
+                Warnings = { "Unable to add or update game, no season exists" },
             };
         }
 
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(game, update);
-        var context = new UpdateContext();
+        var context = new ActionResult<TournamentGame>
+        {
+            Success = true,
+        };
 
         game.Address = update.Address;
         game.Date = update.Date;
@@ -77,21 +81,23 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         foreach (var side in game.Sides)
         {
-            await UpdateSide(side, context, token);
+            await UpdateSide(side, token);
         }
 
         await UpdateRoundRecursively(game.Round, game.Sides, context, token);
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return new CommandResult
+        return new ActionResult<TournamentGame>
         {
             Success = context.Success,
-            Message = string.Join("\n", context.Errors.Concat(context.Warnings).Concat(context.Messages)),
+            Errors = context.Errors,
+            Warnings = context.Warnings,
+            Messages = context.Messages,
         };
     }
 
-    private async Task UpdateRoundRecursively(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, UpdateContext context, CancellationToken token)
+    private async Task UpdateRoundRecursively(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, IActionResult<TournamentGame> context, CancellationToken token)
     {
         if (round == null)
         {
@@ -100,7 +106,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         foreach (var side in round.Sides.Where(s => s.Id == default))
         {
-            await UpdateSideAndLinkToRootSide(side, sides, context, token);
+            await UpdateSideAndLinkToRootSide(side, sides, token);
         }
 
         await UpdateRound(round, context, token);
@@ -109,7 +115,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await UpdateRoundRecursively(round.NextRound, sides, context, token);
     }
 
-    private async Task UpdateSide(TournamentSide side, UpdateContext context, CancellationToken token)
+    private async Task UpdateSide(TournamentSide side, CancellationToken token)
     {
         if (side.Id == default)
         {
@@ -117,11 +123,11 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
         await _auditingHelper.SetUpdated(side, token);
 
-        await UpdatePlayers(side.Players, context, token);
+        await UpdatePlayers(side.Players, token);
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-    private async Task UpdateSideAndLinkToRootSide(TournamentSide side, IReadOnlyCollection<TournamentSide> sides, UpdateContext context, CancellationToken token)
+    private async Task UpdateSideAndLinkToRootSide(TournamentSide side, IReadOnlyCollection<TournamentSide> sides, CancellationToken token)
     {
         var sideOrderedPlayers = side.Players.OrderBy(p => p.Id).Select(p => p.Id).ToArray();
         var equivalentSide = sides.SingleOrDefault(s => s.Players.OrderBy(p => p.Id).Select(p => p.Id).SequenceEqual(sideOrderedPlayers));
@@ -131,10 +137,10 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
         await _auditingHelper.SetUpdated(side, token);
 
-        await UpdatePlayers(side.Players, context, token);
+        await UpdatePlayers(side.Players, token);
     }
 
-    private async Task UpdateRound(TournamentRound round, UpdateContext context, CancellationToken token)
+    private async Task UpdateRound(TournamentRound round, IActionResult<TournamentGame> context, CancellationToken token)
     {
         if (round.Id == default)
         {
@@ -151,7 +157,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
     }
 
-    private async Task UpdateMatch(TournamentMatch match, GameMatchOption? matchOptions, UpdateContext context, CancellationToken token)
+    private async Task UpdateMatch(TournamentMatch match, GameMatchOption? matchOptions, IActionResult<TournamentGame> context, CancellationToken token)
     {
         if (match.Id == default)
         {
@@ -166,7 +172,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await _auditingHelper.SetUpdated(match, token);
     }
 
-    private async Task UpdateMatchSayg(Guid saygId, TournamentMatch match, GameMatchOption? matchOptions, UpdateContext context, CancellationToken token)
+    private async Task UpdateMatchSayg(Guid saygId, TournamentMatch match, GameMatchOption? matchOptions, IActionResult<TournamentGame> context, CancellationToken token)
     {
         var sayg = await _saygService.Get(saygId, token);
         if (sayg == null)
@@ -186,7 +192,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     }
 
     // ReSharper disable once ParameterTypeCanBeEnumerable.Local
-    private async Task UpdatePlayers(IReadOnlyCollection<TournamentPlayer> players, UpdateContext context, CancellationToken token)
+    private async Task UpdatePlayers(IReadOnlyCollection<TournamentPlayer> players, CancellationToken token)
     {
         foreach (var player in players)
         {
@@ -202,13 +208,5 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
 
         return ScopedCacheManagementFlags.EvictAll;
-    }
-
-    private class UpdateContext
-    {
-        public bool Success { get; set; } = true;
-        public List<string> Errors { get; set; } = new();
-        public List<string> Warnings { get; set; } = new();
-        public List<string> Messages { get; set; } = new();
     }
 }

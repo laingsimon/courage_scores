@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -17,15 +18,15 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         _userService = userService;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(RecordedScoreAsYouGo model, UpdateRecordedScoreAsYouGoDto update, CancellationToken token)
+    protected override async Task<ActionResult<RecordedScoreAsYouGo>> ApplyUpdates(RecordedScoreAsYouGo model, UpdateRecordedScoreAsYouGoDto update, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
         if ((model.TournamentMatchId ?? update.TournamentMatchId) != null && user?.Access?.RecordScoresAsYouGo != true)
         {
-            return new CommandResult
+            return new ActionResult<RecordedScoreAsYouGo>
             {
                 Success = false,
-                Message = "Not permitted to modify tournament sayg sessions",
+                Errors = { "Not permitted to modify tournament sayg sessions" },
             };
         }
 
@@ -37,12 +38,12 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         else if (model.TournamentMatchId != null && model.TournamentMatchId != update.TournamentMatchId)
         {
             // cannot change/remove TournamentMatchId
-            return new CommandResult
+            return new ActionResult<RecordedScoreAsYouGo>
             {
                 Success = false,
-                Message = update.TournamentMatchId != null
+                Warnings = { update.TournamentMatchId != null
                     ? "Sayg session ids cannot be changed"
-                    : "Sayg session ids cannot be removed",
+                    : "Sayg session ids cannot be removed" },
             };
         }
 
@@ -54,7 +55,11 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         model.StartingScore = update.StartingScore;
         model.NumberOfLegs = update.NumberOfLegs;
 
-        return CommandResult.SuccessNoMessage;
+        return new ActionResult<RecordedScoreAsYouGo>
+        {
+            Success = true,
+            Messages = { "Sayg data updated" },
+        };
     }
 
     [ExcludeFromCodeCoverage]

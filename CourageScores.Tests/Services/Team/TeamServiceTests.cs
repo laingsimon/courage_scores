@@ -38,7 +38,8 @@ public class TeamServiceTests
             _repository.Object,
             _adapter.Object,
             _userService.Object,
-            _auditingHelper.Object);
+            _auditingHelper.Object,
+            new ActionResultAdapter());
 
         _repository.Setup(r => r.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _repository.Setup(r => r.GetSome(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someTeams.ToArray()));

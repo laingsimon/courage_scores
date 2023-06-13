@@ -15,8 +15,9 @@ public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>
         IAdapter<Models.Cosmos.Season, SeasonDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper,
-        ISystemClock clock)
-        : base(repository, adapter, userService, auditingHelper)
+        ISystemClock clock,
+        IActionResultAdapter actionResultAdapter)
+        : base(repository, adapter, userService, auditingHelper, actionResultAdapter)
     {
         _clock = clock;
     }

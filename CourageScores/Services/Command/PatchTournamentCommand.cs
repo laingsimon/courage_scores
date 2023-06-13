@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Adapters;
+﻿using CourageScores.Models;
+using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 
@@ -24,17 +25,17 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return this;
     }
 
-    public async Task<CommandOutcome<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
+    public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
         if (_patch == null)
         {
             throw new InvalidOperationException("WithPatch must be called first");
         }
 
-        var updates = new List<ICommandOutcome<object>>();
+        var updates = new List<IActionResult<object>>();
         if (_patch.Round != null)
         {
-            updates.Add(await PatchRound(model.Round, _patch.Round, token));
+            updates.Add(await PatchRound(model.Round, _patch.Round));
         }
 
         if (_patch.Additional180 != null)
@@ -49,41 +50,61 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
 
         if (updates.Any())
         {
-            return new CommandOutcome<TournamentGame>(
-                updates.All(u => u.Success),
-                string.Join(", ", updates.Select(u => u.Message)),
-                model);
+            return new ActionResult<TournamentGame>
+            {
+                Success = updates.All(u => u.Success),
+                Errors = updates.SelectMany(u => u.Errors).ToList(),
+                Warnings = updates.SelectMany(u => u.Warnings).ToList(),
+                Messages = updates.SelectMany(u => u.Messages).ToList(),
+                Result = model,
+            };
         }
 
-        return new CommandOutcome<TournamentGame>(
-            false,
-            "No tournament data to update",
-            model);
+        return new ActionResult<TournamentGame>
+        {
+            Success = false,
+            Warnings = { "No tournament data to update" },
+            Result = model,
+        };
     }
 
-    private async Task<ICommandOutcome<TournamentGame>> Patch180(TournamentGame model, TournamentPlayerDto oneEighty, CancellationToken token)
+    private async Task<ActionResult<TournamentGame>> Patch180(TournamentGame model, TournamentPlayerDto oneEighty, CancellationToken token)
     {
         model.OneEighties.Add(await _oneEightyPlayerAdapter.Adapt(oneEighty, token));
-        return new CommandOutcome<TournamentGame>(true, "180 added", model);
+        return new ActionResult<TournamentGame>
+        {
+            Success = true,
+            Messages = { "180 added" },
+            Result = model,
+        };
     }
 
-    private async Task<ICommandOutcome<TournamentGame>> PatchHiCheck(TournamentGame model, NotableTournamentPlayerDto hiCheck, CancellationToken token)
+    private async Task<ActionResult<TournamentGame>> PatchHiCheck(TournamentGame model, NotableTournamentPlayerDto hiCheck, CancellationToken token)
     {
         model.Over100Checkouts.Add(await _hiCheckPlayerAdapter.Adapt(hiCheck, token));
-        return new CommandOutcome<TournamentGame>(true, "hi-check added", model);
+        return new ActionResult<TournamentGame>
+        {
+            Success = true,
+            Messages = { "hi-check added" },
+            Result = model,
+        };
     }
 
-    private async Task<CommandOutcome<TournamentRound>> PatchRound(TournamentRound? currentRound, PatchTournamentRoundDto patchRound, CancellationToken token)
+    private static async Task<ActionResult<TournamentRound>> PatchRound(TournamentRound? currentRound, PatchTournamentRoundDto patchRound)
     {
         if (currentRound == null)
         {
-            return new CommandOutcome<TournamentRound>(false, "Round doesn't exist", null);
+            return new ActionResult<TournamentRound>
+            {
+                Success = false,
+                Errors = { "Round doesn't exist" },
+            };
         }
 
-        var updates = new List<ICommandOutcome<object>>();
+        var updates = new List<IActionResult<object>>();
         if (patchRound.NextRound != null)
         {
-            updates.Add(await PatchRound(currentRound.NextRound, patchRound.NextRound, token));
+            updates.Add(await PatchRound(currentRound.NextRound, patchRound.NextRound));
         }
 
         if (patchRound.Match != null)
@@ -93,35 +114,54 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
 
         if (updates.Any())
         {
-            return new CommandOutcome<TournamentRound>(
-                updates.All(u => u.Success),
-                string.Join(", ", updates.Select(u => u.Message)),
-                currentRound);
+            return new ActionResult<TournamentRound>
+            {
+                Success = updates.All(u => u.Success),
+                Errors = updates.SelectMany(u => u.Errors).ToList(),
+                Warnings = updates.SelectMany(u => u.Warnings).ToList(),
+                Messages = updates.SelectMany(u => u.Messages).ToList(),
+                Result = currentRound,
+            };
         }
 
-        return new CommandOutcome<TournamentRound>(
-            false,
-            "No round details to update",
-            currentRound);
+        return new ActionResult<TournamentRound>
+        {
+            Success = false,
+            Warnings = { "No round details to update" },
+            Result = currentRound,
+        };
     }
 
-    private static ICommandOutcome<TournamentMatch> PatchMatch(IReadOnlyCollection<TournamentMatch> matches, PatchTournamentMatchDto patchMatch)
+    private static ActionResult<TournamentMatch> PatchMatch(IReadOnlyCollection<TournamentMatch> matches, PatchTournamentMatchDto patchMatch)
     {
         var match = matches
             .SingleOrDefault(m => m.SideA.Id == patchMatch.SideA && m.SideB.Id == patchMatch.SideB);
 
         if (match == null)
         {
-            return new CommandOutcome<TournamentMatch>(false, "Match not found", null);
+            return new ActionResult<TournamentMatch>
+            {
+                Success = false,
+                Errors = { "Match not found" },
+            };
         }
 
         if (patchMatch.ScoreA == null && patchMatch.ScoreB == null)
         {
-            return new CommandOutcome<TournamentMatch>(false, "No match details to update", null);
+            return new ActionResult<TournamentMatch>
+            {
+                Success = false,
+                Warnings = { "No match details to update" },
+            };
         }
 
         match.ScoreA = patchMatch.ScoreA ?? match.ScoreA;
         match.ScoreB = patchMatch.ScoreB ?? match.ScoreB;
-        return new CommandOutcome<TournamentMatch>(true, "Match updated", match);
+        return new ActionResult<TournamentMatch>
+        {
+            Success = true,
+            Messages = { "Match updated" },
+            Result = match,
+        };
     }
 }

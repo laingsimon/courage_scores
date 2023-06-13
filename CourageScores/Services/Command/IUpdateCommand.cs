@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models;
 
 namespace CourageScores.Services.Command;
 
@@ -13,7 +14,7 @@ public interface IUpdateCommand<in TIn> : IUpdateCommand
 
 public interface IUpdateCommand<in TIn, TOut> : IUpdateCommand<TIn>
 {
-    Task<CommandOutcome<TOut>> ApplyUpdate(TIn model, CancellationToken token);
+    Task<ActionResult<TOut>> ApplyUpdate(TIn model, CancellationToken token);
 
     [ExcludeFromCodeCoverage]
     bool RequiresLogin => true;

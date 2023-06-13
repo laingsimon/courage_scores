@@ -1,3 +1,4 @@
+using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 
@@ -9,7 +10,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 {
     private TDto? _update;
 
-    public async Task<CommandOutcome<TModel>> ApplyUpdate(TModel model, CancellationToken token)
+    public async Task<ActionResult<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
         var create = false;
         if (_update == null)
@@ -19,7 +20,11 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         if (model.Deleted != null)
         {
-            return new CommandOutcome<TModel>(false, $"Cannot update a {typeof(TModel).Name} that has already been deleted", null);
+            return new ActionResult<TModel>
+            {
+                Success = false,
+                Errors = { $"Cannot update a {typeof(TModel).Name} that has already been deleted" },
+            };
         }
 
         if (model.Id == default)
@@ -29,23 +34,30 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         }
         else if (model.Updated != _update!.LastUpdated)
         {
-            return new CommandOutcome<TModel>(
-                false,
-                _update.LastUpdated == null
+            return new ActionResult<TModel>
+            {
+                Success = false,
+                Warnings = { _update.LastUpdated == null
                     ? $"Unable to update {typeof(TModel).Name}, data integrity token is missing"
-                    : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}",
-                null);
+                    : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}" }
+            };
         }
 
         var result = await ApplyUpdates(model, _update!, token);
 
-        return new CommandOutcome<TModel>(
-            result.Success,
-            result.Message ?? $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
-            model);
+        return new ActionResult<TModel>
+        {
+            Success = result.Success,
+            Errors = result.Errors,
+            Warnings = result.Warnings,
+            Messages = result.Messages.Any()
+                ? result.Messages
+                : new List<string> { $"{typeof(TModel).Name} {(create ? "created" : "updated")}" },
+            Result = model,
+        };
     }
 
-    protected abstract Task<CommandResult> ApplyUpdates(TModel model, TDto update, CancellationToken token);
+    protected abstract Task<ActionResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);
 
     public virtual AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {
@@ -54,12 +66,4 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
     }
 
     public virtual bool RequiresLogin => true;
-
-    public class CommandResult
-    {
-        public static readonly CommandResult SuccessNoMessage = new() { Success = true };
-
-        public bool Success { get; set; }
-        public string? Message { get; set; }
-    }
 }

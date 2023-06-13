@@ -4,6 +4,7 @@ import {TableSelection} from "./TableSelection";
 import {propChanged, valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
+import {any} from "../../helpers/collections";
 
 export function ExportData() {
     const { dataApi } = useDependencies();
@@ -32,6 +33,11 @@ export function ExportData() {
         /* istanbul ignore next */
         if (exporting) {
             /* istanbul ignore next */
+            return;
+        }
+
+        if (!any(exportRequest.tables)) {
+            alert('Select some tables to export');
             return;
         }
 
@@ -74,7 +80,7 @@ export function ExportData() {
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                 Export data
             </button>
-            {zipContent && !exporting && !saveError ? (<a download="export.zip"  href={'data:application/zip;base64,' + zipContent} className="btn btn-success">
+            {zipContent && !exporting && !saveError ? (<a download="export.zip" href={'data:application/zip;base64,' + zipContent} className="btn btn-success">
                 Download zip file
             </a>) : null}
         </div>

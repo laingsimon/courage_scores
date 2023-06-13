@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -31,7 +32,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         return this;
     }
 
-    public async Task<CommandOutcome<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
+    public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
         if (_request == null)
         {
@@ -41,12 +42,22 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         var match = FindMatch(model, _request.MatchId);
         if (match == null)
         {
-            return new CommandOutcome<TournamentGame>(false, "Match not found", model);
+            return new ActionResult<TournamentGame>
+            {
+                Success = false,
+                Errors = { "Match not found" },
+                Result = model,
+            };
         }
 
         if (match.SaygId != null)
         {
-            return new CommandOutcome<TournamentGame>(true, "Match already has a sayg id", model);
+            return new ActionResult<TournamentGame>
+            {
+                Success = true,
+                Warnings = { "Match already has a sayg id" },
+                Result = model,
+            };
         }
 
         var saygUpdate = new UpdateRecordedScoreAsYouGoDto
@@ -64,13 +75,24 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         if (result.Success)
         {
             match.SaygId = result.Result!.Id;
-            return new CommandOutcome<TournamentGame>(true, "Sayg added to match", model);
+            return new ActionResult<TournamentGame>
+            {
+                Success = true,
+                Messages = result.Messages.Concat(new[] {  "Sayg added to match" }).ToList(),
+                Warnings = result.Warnings,
+                Errors = result.Errors,
+                Result = model,
+            };
         }
 
-        return new CommandOutcome<TournamentGame>(
-            false,
-            string.Join(", ", result.Errors.Concat(result.Warnings).Concat(result.Messages)),
-            model);
+        return new ActionResult<TournamentGame>
+        {
+            Success = false,
+            Errors = result.Errors,
+            Warnings = result.Warnings,
+            Messages = result.Messages,
+            Result = model,
+        };
     }
 
     private static TournamentMatch? FindMatch(TournamentGame model, Guid matchId)

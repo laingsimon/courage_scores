@@ -98,7 +98,7 @@ public class AddOrUpdateTournamentGameCommandTests
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Unable to add or update game, no season exists"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to add or update game, no season exists" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -306,7 +306,7 @@ public class AddOrUpdateTournamentGameCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(_game.Round!.Matches[0].SaygId, Is.Null);
-        Assert.That(result.Message, Is.EqualTo($"Could not find sayg session for match: Side 1 vs Side 2, session has been removed and will need to be re-created (was {saygId})"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { $"Could not find sayg session for match: Side 1 vs Side 2, session has been removed and will need to be re-created (was {saygId})" }));
     }
 
     [Test]

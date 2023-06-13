@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -33,7 +34,12 @@ public class GenericDataServiceTests
         _userService = new Mock<IUserService>();
         _auditingHelper = new Mock<IAuditingHelper>();
 
-        _service = new GenericDataService<Model, Dto>(_repository.Object, _adapter.Object, _userService.Object, _auditingHelper.Object);
+        _service = new GenericDataService<Model, Dto>(
+            _repository.Object,
+            _adapter.Object,
+            _userService.Object,
+            _auditingHelper.Object,
+            new ActionResultAdapter());
     }
 
     [Test]
@@ -91,7 +97,11 @@ public class GenericDataServiceTests
         {
             Name = Model.CreatePermitted
         };
-        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        var commandResult = new ActionResult<object>
+        {
+            Success = true,
+            Messages = { "some message" },
+        };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
         command.Setup(c => c.ApplyUpdate(It.IsAny<Model>(), _token)).ReturnsAsync(() => commandResult);
@@ -143,10 +153,14 @@ public class GenericDataServiceTests
     {
         var repository = new Mock<IGenericRepository<AnonymousModel>>();
         var adapter = new Mock<IAdapter<AnonymousModel, Dto>>();
-        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object);
+        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object, new ActionResultAdapter());
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<AnonymousModel, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        var commandResult = new ActionResult<object>
+        {
+            Success = true,
+            Messages = { "some message" }
+        };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
         command.Setup(c => c.ApplyUpdate(It.IsAny<AnonymousModel>(), _token)).ReturnsAsync(() => commandResult);
@@ -185,7 +199,11 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(false, "some message", null);
+        var commandResult = new ActionResult<object>
+        {
+            Success = false,
+            Errors = { "some message" },
+        };
         var user = new UserDto
         {
             Name = Model.EditPermitted,
@@ -214,7 +232,11 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null);
+        var commandResult = new ActionResult<object>
+        {
+            Success = true,
+            Messages = { "some message" },
+        };
         var user = new UserDto
         {
             Name = Model.EditPermitted,
@@ -318,9 +340,11 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null)
+        var commandResult = new ActionResult<object>
         {
+            Messages = { "some message" },
             Delete = true,
+            Success = true,
         };
         var user = new UserDto
         {
@@ -352,8 +376,10 @@ public class GenericDataServiceTests
         var model = new Model();
         var deletedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandOutcome<object>(true, "some message", null)
+        var commandResult = new ActionResult<object>
         {
+            Success = true,
+            Messages = { "some message" },
             Delete = true,
         };
         var user = new UserDto

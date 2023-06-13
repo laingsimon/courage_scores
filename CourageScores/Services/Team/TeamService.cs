@@ -11,8 +11,9 @@ public class TeamService : GenericDataService<Models.Cosmos.Team.Team, TeamDto>,
         IGenericRepository<Models.Cosmos.Team.Team> repository,
         IAdapter<Models.Cosmos.Team.Team, TeamDto> adapter,
         IUserService userService,
-        IAuditingHelper auditingHelper)
-        : base(repository, adapter, userService, auditingHelper)
+        IAuditingHelper auditingHelper,
+        IActionResultAdapter actionResultAdapter)
+        : base(repository, adapter, userService, auditingHelper, actionResultAdapter)
     { }
 
     public IAsyncEnumerable<TeamDto> GetTeamsForSeason(Guid seasonId, CancellationToken token)
