@@ -10,28 +10,6 @@ public class ActionResultAdapterTests
     private readonly ActionResultAdapter _adapter = new ActionResultAdapter();
 
     [Test]
-    public async Task Adapt_GivenResult_SetsPropertiesCorrectly()
-    {
-        var result = new ActionResult<object>
-        {
-            Delete = true,
-            Errors = { "error" },
-            Warnings = { "warning" },
-            Messages = { "message" },
-            Result = new object(),
-            Success = true,
-        };
-
-        var dto = await _adapter.Adapt(result);
-
-        Assert.That(dto.Errors, Is.EqualTo(new[] { "error" }));
-        Assert.That(dto.Warnings, Is.EqualTo(new[] { "warning" }));
-        Assert.That(dto.Messages, Is.EqualTo(new[] { "message" }));
-        Assert.That(dto.Result, Is.SameAs(result.Result));
-        Assert.That(dto.Success, Is.True);
-    }
-
-    [Test]
     public async Task Adapt_GivenDifferentResult_SetsPropertiesCorrectly()
     {
         var otherResult = "OTHER RESULT";
@@ -74,18 +52,6 @@ public class ActionResultAdapterTests
         Assert.That(dto.Messages, Is.EqualTo(new[] { "message" }));
         Assert.That(dto.Result, Is.Null);
         Assert.That(dto.Success, Is.True);
-    }
-
-    [Test]
-    public async Task Error_ReturnsUnsuccessfulResultWithError()
-    {
-        var dto = await _adapter.Error<string>("error");
-
-        Assert.That(dto.Errors, Is.EqualTo(new[] { "error" }));
-        Assert.That(dto.Warnings, Is.Empty);
-        Assert.That(dto.Messages, Is.Empty);
-        Assert.That(dto.Result, Is.Null);
-        Assert.That(dto.Success, Is.False);
     }
 
     [Test]

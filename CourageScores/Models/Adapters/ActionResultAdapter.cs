@@ -4,20 +4,7 @@ namespace CourageScores.Models.Adapters;
 
 public class ActionResultAdapter : IActionResultAdapter
 {
-    public Task<ActionResultDto<T>> Adapt<T>(IActionResult<T> actionResult)
-    {
-        return Task.FromResult(new ActionResultDto<T>
-        {
-            Success = actionResult.Success,
-            Result = actionResult.Result,
-
-            Errors = actionResult.Errors,
-            Warnings = actionResult.Warnings,
-            Messages = actionResult.Messages,
-        });
-    }
-
-    public Task<ActionResultDto<TResult>> Adapt<T, TResult>(IActionResult<T> actionResult, TResult? result)
+    public Task<ActionResultDto<TResult>> Adapt<T, TResult>(IActionResult<T> actionResult, TResult? result = default)
     {
         return Task.FromResult(new ActionResultDto<TResult>
         {
@@ -27,15 +14,6 @@ public class ActionResultAdapter : IActionResultAdapter
             Errors = actionResult.Errors,
             Warnings = actionResult.Warnings,
             Messages = actionResult.Messages,
-        });
-    }
-
-    public Task<ActionResultDto<T>> Error<T>(string error)
-    {
-        return Task.FromResult(new ActionResultDto<T>
-        {
-            Success = false,
-            Errors = { error },
         });
     }
 
