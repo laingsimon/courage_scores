@@ -42,7 +42,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "No tournament data to update" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "No tournament data to update" }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -56,7 +56,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Round doesn't exist" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Round doesn't exist" }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -74,7 +74,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Round doesn't exist" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Round doesn't exist" }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -89,7 +89,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "No round details to update" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "No round details to update" }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -153,7 +153,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "No match details to update" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "No match details to update" }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 
@@ -185,7 +185,7 @@ public class PatchTournamentCommandTests
             .ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Match not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Match not found" }));
         Assert.That(result.Result, Is.EqualTo(_tournament));
     }
 

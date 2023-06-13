@@ -66,7 +66,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Messages = { "Cannot edit a game that has been deleted" },
+                Errors = { "Cannot edit a game that has been deleted" },
             };
         }
 
@@ -76,7 +76,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Messages = { "Game cannot be updated, not logged in" },
+                Errors = { "Game cannot be updated, not logged in" },
             };
         }
 
@@ -85,7 +85,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Messages = { "Game cannot be updated, not permitted" },
+                Errors = { "Game cannot be updated, not permitted" },
             };
         }
 
@@ -162,7 +162,10 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                     return new ActionResult<GameDto>
                     {
                         Success = false,
-                        Messages = { $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}" },
+                        Errors = homeResult.Errors.Concat(awayResult.Errors).ToList(),
+                        Warnings = homeResult.Warnings.Concat(awayResult.Warnings).ToList(),
+                        Messages = homeResult.Messages.Concat(awayResult.Messages)
+                            .Concat(new[] { "Could not add season to home and/or away teams" }).ToList(),
                         Result = await _gameAdapter.Adapt(game, token),
                     };
                 }
@@ -183,7 +186,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Messages = { "Submissions cannot be accepted, scores have been published" },
+                Errors = { "Submissions cannot be accepted, scores have been published" },
             };
         }
 
@@ -252,7 +255,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Messages = { _scores.LastUpdated == null
+                Warnings = { _scores.LastUpdated == null
                     ? $"Unable to update {nameof(Game)}, data integrity token is missing"
                     : $"Unable to update {nameof(Game)}, {game.Editor} updated it before you at {game.Updated:d MMM yyyy HH:mm:ss}" },
             };
@@ -288,11 +291,6 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             Success = true,
             Messages = { "Game updated" },
         };
-    }
-
-    private static string FormatActionResult(ActionResultDto<TeamDto> actionResultDto)
-    {
-        return $"Success: {actionResultDto.Success}, Errors: {string.Join(", ", actionResultDto.Errors)}, Warnings: {string.Join(", ", actionResultDto.Warnings)}, Messages: {string.Join(", ", actionResultDto.Messages)}";
     }
 
     private async Task<ActionResultDto<TeamDto>> AddSeasonToTeam(Guid teamId, AddSeasonToTeamCommand command, CancellationToken token)

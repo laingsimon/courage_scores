@@ -46,7 +46,7 @@ public class AddSeasonToTeamCommandTests
         var result = await _command.ForSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -59,7 +59,7 @@ public class AddSeasonToTeamCommandTests
         var result = await _command.ForSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Season not found" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }

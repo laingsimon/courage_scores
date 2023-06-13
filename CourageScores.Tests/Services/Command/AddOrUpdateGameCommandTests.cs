@@ -80,7 +80,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update a game where the home team and away team are the same" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update a game where the home team and away team are the same" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -99,7 +99,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "SeasonId must be provided" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "SeasonId must be provided" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -119,7 +119,7 @@ public class AddOrUpdateGameCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to add or update game, season not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Unable to add or update game, season not found" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }

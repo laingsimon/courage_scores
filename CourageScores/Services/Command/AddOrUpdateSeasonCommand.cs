@@ -57,7 +57,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
             return new ActionResult<Models.Cosmos.Season>
             {
                 Success = false,
-                Messages = { "Could not find season to copy teams from" },
+                Warnings = { "Could not find season to copy teams from" },
             };
         }
 

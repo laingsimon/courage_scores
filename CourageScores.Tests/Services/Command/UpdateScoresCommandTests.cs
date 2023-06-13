@@ -111,7 +111,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot edit a game that has been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a game that has been deleted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -124,7 +124,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Game cannot be updated, not logged in" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Game cannot be updated, not logged in" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -145,7 +145,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Game cannot be updated, not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Game cannot be updated, not permitted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -208,7 +208,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Game, EDITOR updated it before you at 3 Feb 2001 00:00:00" }));
         Assert.That(result.Success, Is.False);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -223,7 +223,7 @@ public class UpdateScoresCommandTests
 
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update Game, data integrity token is missing" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Game, data integrity token is missing" }));
         Assert.That(result.Success, Is.False);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
@@ -307,7 +307,7 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Submissions cannot be accepted, scores have been published" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Submissions cannot be accepted, scores have been published" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -474,6 +474,8 @@ public class UpdateScoresCommandTests
         var result = await _command.WithData(_scores).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Could not add season to home and/or away teams: Home: Success: False, Errors: error, Warnings: warning, Messages: message, Away: Success: False, Errors: error, Warnings: warning, Messages: message" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "warning", "warning" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "error", "error" }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "message", "message", "Could not add season to home and/or away teams" }));
     }
 }

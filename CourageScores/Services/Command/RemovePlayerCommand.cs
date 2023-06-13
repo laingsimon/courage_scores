@@ -52,7 +52,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Cannot edit a team that has been deleted" },
+                Errors = { "Cannot edit a team that has been deleted" },
             };
         }
 
@@ -62,7 +62,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Player cannot be removed, not logged in" },
+                Errors = { "Player cannot be removed, not logged in" },
             };
         }
 
@@ -71,7 +71,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Player cannot be removed, not permitted" },
+                Errors = { "Player cannot be removed, not permitted" },
             };
         }
 
@@ -81,7 +81,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Season could not be found" },
+                Errors = { "Season could not be found" },
             };
         }
 
@@ -91,7 +91,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { $"Team is not registered to the {season.Name} season" },
+                Warnings = { $"Team is not registered to the {season.Name} season" },
             };
         }
 
@@ -101,7 +101,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { $"Player does not have a player with this id for the {season.Name} season" },
+                Warnings = { $"Player does not have a player with this id for the {season.Name} season" },
             };
         }
 

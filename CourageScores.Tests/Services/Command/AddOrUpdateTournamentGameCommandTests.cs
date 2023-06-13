@@ -98,7 +98,7 @@ public class AddOrUpdateTournamentGameCommandTests
         var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to add or update game, no season exists" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to add or update game, no season exists" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }

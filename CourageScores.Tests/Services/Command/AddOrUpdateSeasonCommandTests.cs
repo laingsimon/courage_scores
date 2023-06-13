@@ -144,7 +144,7 @@ public class AddOrUpdateSeasonCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Could not find season to copy teams from" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Could not find season to copy teams from" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }

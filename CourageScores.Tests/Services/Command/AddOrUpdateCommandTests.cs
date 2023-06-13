@@ -50,7 +50,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot update a Model that has already been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot update a Model that has already been deleted" }));
     }
 
     [Test]
@@ -110,7 +110,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01" }));
     }
 
     [Test]
@@ -128,7 +128,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update Model, data integrity token is missing" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Model, data integrity token is missing" }));
     }
 
     private class MockCommand : AddOrUpdateCommand<Model, ModelDto>

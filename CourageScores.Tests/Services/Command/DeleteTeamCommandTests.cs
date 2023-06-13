@@ -50,7 +50,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team has already been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Team has already been deleted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -63,7 +63,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -79,7 +79,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -92,7 +92,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -150,7 +150,7 @@ public class DeleteTeamCommandTests
         var result = await _command.FromSeason(_seasonId).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team allocated to other season/s" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team allocated to other season/s" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }

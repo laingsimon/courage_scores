@@ -43,7 +43,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = true,
-                Messages = { "Team has already been deleted" },
+                Errors = { "Team has already been deleted" },
                 Result = model,
             };
         }
@@ -55,7 +55,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Messages = { "Not permitted" },
+                Errors = { "Not permitted" },
                 Result = model,
             };
         }
@@ -73,7 +73,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
                 return new ActionResult<Models.Cosmos.Team.Team>
                 {
                     Success = false,
-                    Messages = { "Team allocated to other season/s" },
+                    Warnings = { "Team allocated to other season/s" },
                     Result = model,
                 };
             }

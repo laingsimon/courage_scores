@@ -54,7 +54,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = false,
-                Messages = { "Cannot edit a team that has been deleted" },
+                Errors = { "Cannot edit a team that has been deleted" },
             };
         }
 
@@ -63,7 +63,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = false,
-                Messages = { "Season not found" },
+                Errors = { "Season not found" },
             };
         }
 

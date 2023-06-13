@@ -63,7 +63,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = false,
-            Messages = { "No tournament data to update" },
+            Warnings = { "No tournament data to update" },
             Result = model,
         };
     }
@@ -90,14 +90,14 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         };
     }
 
-    private async Task<ActionResult<TournamentRound>> PatchRound(TournamentRound? currentRound, PatchTournamentRoundDto patchRound)
+    private static async Task<ActionResult<TournamentRound>> PatchRound(TournamentRound? currentRound, PatchTournamentRoundDto patchRound)
     {
         if (currentRound == null)
         {
             return new ActionResult<TournamentRound>
             {
                 Success = false,
-                Messages = { "Round doesn't exist" },
+                Errors = { "Round doesn't exist" },
             };
         }
 
@@ -127,7 +127,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentRound>
         {
             Success = false,
-            Messages = { "No round details to update" },
+            Warnings = { "No round details to update" },
             Result = currentRound,
         };
     }
@@ -142,7 +142,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Messages = { "Match not found" },
+                Errors = { "Match not found" },
             };
         }
 
@@ -151,7 +151,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Messages = { "No match details to update" },
+                Warnings = { "No match details to update" },
             };
         }
 

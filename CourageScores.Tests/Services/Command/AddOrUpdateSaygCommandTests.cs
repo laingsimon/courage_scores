@@ -120,7 +120,7 @@ public class AddOrUpdateSaygCommandTests
         }
         else
         {
-            Assert.That(result.Messages, Is.EqualTo(new[] { "Not permitted to modify tournament sayg sessions" }));
+            Assert.That(result.Errors, Is.EqualTo(new[] { "Not permitted to modify tournament sayg sessions" }));
         }
     }
 
@@ -146,7 +146,7 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Sayg session ids cannot be removed" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Sayg session ids cannot be removed" }));
     }
 
     [Test]
@@ -171,6 +171,6 @@ public class AddOrUpdateSaygCommandTests
         var result = await _command.WithData(updateDto).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Sayg session ids cannot be changed" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Sayg session ids cannot be changed" }));
     }
 }

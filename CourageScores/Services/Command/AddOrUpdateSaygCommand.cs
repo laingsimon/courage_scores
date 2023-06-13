@@ -26,7 +26,7 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
             return new ActionResult<RecordedScoreAsYouGo>
             {
                 Success = false,
-                Messages = { "Not permitted to modify tournament sayg sessions" },
+                Errors = { "Not permitted to modify tournament sayg sessions" },
             };
         }
 
@@ -41,7 +41,7 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
             return new ActionResult<RecordedScoreAsYouGo>
             {
                 Success = false,
-                Messages = { update.TournamentMatchId != null
+                Warnings = { update.TournamentMatchId != null
                     ? "Sayg session ids cannot be changed"
                     : "Sayg session ids cannot be removed" },
             };

@@ -58,7 +58,7 @@ public class CreateTournamentMatchSaygCommandTests
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Match not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Match not found" }));
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class CreateTournamentMatchSaygCommandTests
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Match not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Match not found" }));
     }
 
     [Test]
@@ -95,7 +95,7 @@ public class CreateTournamentMatchSaygCommandTests
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Match already has a sayg id" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Match already has a sayg id" }));
     }
 
     [Test]

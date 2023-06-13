@@ -57,7 +57,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Messages = { "Unable to add or update game, no season exists" },
+                Warnings = { "Unable to add or update game, no season exists" },
             };
         }
 

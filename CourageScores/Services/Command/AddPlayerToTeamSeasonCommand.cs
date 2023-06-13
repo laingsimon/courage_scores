@@ -67,7 +67,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Cannot edit a team that has been deleted" },
+                Errors = { "Cannot edit a team that has been deleted" },
             };
         }
 
@@ -76,7 +76,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         {
             return new ActionResult<TeamPlayer>
             {
-                Messages = { "Player cannot be added, not logged in" },
+                Errors = { "Player cannot be added, not logged in" },
                 Success = false,
             };
         }
@@ -86,7 +86,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Player cannot be added, not permitted" },
+                Errors = { "Player cannot be added, not permitted" },
             };
         }
 
@@ -96,7 +96,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = { "Season could not be found" },
+                Errors = { "Season could not be found" },
             };
         }
 
@@ -108,7 +108,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
-                    Messages = { $"{season.Name} season is not attributed to team {model.Name}" },
+                    Warnings = { $"{season.Name} season is not attributed to team {model.Name}" },
                 };
             }
 
@@ -119,8 +119,9 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
-                    Warnings = { $"Could not add the {season.Name} season to team {model.Name}" },
+                    Warnings = result.Warnings.Concat(new[] { $"Could not add the {season.Name} season to team {model.Name}" }).ToList(),
                     Messages = result.Messages,
+                    Errors = result.Errors,
                 };
             }
 

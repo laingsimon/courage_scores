@@ -127,7 +127,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
     }
 
     [Test]
@@ -140,7 +140,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Player cannot be updated, not logged in" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be updated, not logged in" }));
     }
 
     [TestCase(false, false, null)]
@@ -158,7 +158,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Player cannot be updated, not permitted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be updated, not permitted" }));
     }
 
     [Test]
@@ -169,7 +169,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season could not be found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Season could not be found" }));
     }
 
     [Test]
@@ -182,7 +182,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team TEAM is not registered to the SEASON season" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team TEAM is not registered to the SEASON season" }));
     }
 
     [Test]
@@ -193,7 +193,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team does not have a player with this id for the SEASON season" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Team does not have a player with this id for the SEASON season" }));
     }
 
     [Test]
@@ -209,7 +209,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update TeamPlayer, data integrity token is missing" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update TeamPlayer, data integrity token is missing" }));
     }
 
     [Test]
@@ -225,7 +225,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00" }));
     }
 
     [Test]
@@ -270,7 +270,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Could not move the player to other team: Some error" }));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Some error", "Could not move the player to other team" }));
     }
 
     [Test]
@@ -342,7 +342,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot move a player once they've played in some games" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Cannot move a player once they've played in some games" }));
     }
 
     [Test]
