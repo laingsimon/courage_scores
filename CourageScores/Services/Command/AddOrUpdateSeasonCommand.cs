@@ -46,7 +46,11 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
         }
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = season.Id;
-        return new ActionResult<Models.Cosmos.Season> { Success = true };
+        return new ActionResult<Models.Cosmos.Season>
+        {
+            Success = true,
+            Messages = { "Season updated" },
+        };
     }
 
     private async Task<ActionResult<Models.Cosmos.Season>> AssignTeamsToNewSeason(Guid seasonId, Guid copyFromSeasonId, CancellationToken token)

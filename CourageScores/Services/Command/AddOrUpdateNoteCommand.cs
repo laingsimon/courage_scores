@@ -24,7 +24,11 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         model.DivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return Task.FromResult(new ActionResult<FixtureDateNote> { Success = true });
+        return Task.FromResult(new ActionResult<FixtureDateNote>
+        {
+            Success = true,
+            Messages = { "Note updated" },
+        });
     }
 
     private static Guid GetDivisionIdToEvictFromCache(FixtureDateNote model, EditFixtureDateNoteDto update)

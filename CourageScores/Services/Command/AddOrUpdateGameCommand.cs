@@ -83,6 +83,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         return new ActionResult<Models.Cosmos.Game.Game>
         {
             Success = true,
+            Messages = { "Game updated" },
         };
     }
 

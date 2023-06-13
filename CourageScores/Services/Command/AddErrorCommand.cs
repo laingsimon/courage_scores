@@ -30,6 +30,7 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
 
         return new ActionResult<ErrorDetail>
         {
+            Messages = { "Error added" },
             Success = true,
         };
     }

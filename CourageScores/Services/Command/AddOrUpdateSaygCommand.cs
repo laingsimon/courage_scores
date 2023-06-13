@@ -55,7 +55,11 @@ public class AddOrUpdateSaygCommand : AddOrUpdateCommand<RecordedScoreAsYouGo, U
         model.StartingScore = update.StartingScore;
         model.NumberOfLegs = update.NumberOfLegs;
 
-        return new ActionResult<RecordedScoreAsYouGo> { Success = true };
+        return new ActionResult<RecordedScoreAsYouGo>
+        {
+            Success = true,
+            Messages = { "Sayg data updated" },
+        };
     }
 
     [ExcludeFromCodeCoverage]

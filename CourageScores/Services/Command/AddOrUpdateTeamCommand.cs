@@ -133,7 +133,11 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         teamSeason.DivisionId = update.NewDivisionId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
-        return new ActionResult<Models.Cosmos.Team.Team> { Success = true };
+        return new ActionResult<Models.Cosmos.Team.Team>
+        {
+            Success = true,
+            Messages = { "Team updated" },
+        };
     }
 
     private EditGameDto GameDtoToEditGameDto(GameDto game)

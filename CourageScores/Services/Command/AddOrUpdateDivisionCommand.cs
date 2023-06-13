@@ -17,6 +17,10 @@ public class AddOrUpdateDivisionCommand : AddOrUpdateCommand<Models.Cosmos.Divis
     {
         division.Name = update.Name;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = division.Id;
-        return Task.FromResult(new ActionResult<Models.Cosmos.Division> { Success = true });
+        return Task.FromResult(new ActionResult<Models.Cosmos.Division>
+        {
+            Success = true,
+            Messages = { "Division updated" },
+        });
     }
 }

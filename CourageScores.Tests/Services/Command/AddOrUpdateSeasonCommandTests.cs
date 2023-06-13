@@ -118,7 +118,7 @@ public class AddOrUpdateSeasonCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season created" }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Season updated" }));
         Assert.That(_season.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
