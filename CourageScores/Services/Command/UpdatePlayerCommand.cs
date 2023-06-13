@@ -161,7 +161,6 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             var addResult = await _teamService.Upsert(_player.NewTeamId.Value, command, token);
             if (!addResult.Success)
             {
-                // combine the messages into the CommandOutcome
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
