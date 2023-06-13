@@ -34,7 +34,12 @@ public class GenericDataServiceTests
         _userService = new Mock<IUserService>();
         _auditingHelper = new Mock<IAuditingHelper>();
 
-        _service = new GenericDataService<Model, Dto>(_repository.Object, _adapter.Object, _userService.Object, _auditingHelper.Object);
+        _service = new GenericDataService<Model, Dto>(
+            _repository.Object,
+            _adapter.Object,
+            _userService.Object,
+            _auditingHelper.Object,
+            new ActionResultAdapter());
     }
 
     [Test]
@@ -148,7 +153,7 @@ public class GenericDataServiceTests
     {
         var repository = new Mock<IGenericRepository<AnonymousModel>>();
         var adapter = new Mock<IAdapter<AnonymousModel, Dto>>();
-        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object);
+        var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object, new ActionResultAdapter());
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<AnonymousModel, object>>();
         var commandResult = new ActionResult<object>

@@ -59,7 +59,8 @@ public class SeasonServiceTests
             _adapter,
             _userService.Object,
             _auditingHelper.Object,
-            _clock.Object);
+            _clock.Object,
+            new ActionResultAdapter());
 
         _repository.Setup(r => r.Get(_season.Id, _token)).ReturnsAsync(_season);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);

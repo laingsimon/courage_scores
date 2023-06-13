@@ -109,6 +109,7 @@ public static class DependencyInjectionExtensions
 
     private static void AddAdapters(IServiceCollection services)
     {
+        services.AddSingleton<IActionResultAdapter, ActionResultAdapter>();
         services.AddSingleton<ISimpleAdapter<User, UserDto>, UserAdapter>();
         services.AddSingleton<ISimpleAdapter<Access, AccessDto>, AccessAdapter>();
 
