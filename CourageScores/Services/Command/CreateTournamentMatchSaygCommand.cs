@@ -45,7 +45,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Message = "Match not found",
+                Messages = "Match not found",
                 Result = model,
             };
         }
@@ -55,7 +55,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             return new ActionResult<TournamentGame>
             {
                 Success = true,
-                Message = "Match already has a sayg id",
+                Messages = "Match already has a sayg id",
                 Result = model,
             };
         }
@@ -78,7 +78,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             return new ActionResult<TournamentGame>
             {
                 Success = true,
-                Message = "Sayg added to match",
+                Messages = "Sayg added to match",
                 Result = model,
             };
         }
@@ -86,7 +86,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         return new ActionResult<TournamentGame>
         {
             Success = false,
-            Message = string.Join(", ", result.Errors.Concat(result.Warnings).Concat(result.Messages)),
+            Messages = string.Join(", ", result.Errors.Concat(result.Warnings).Concat(result.Messages)),
             Result = model,
         };
     }

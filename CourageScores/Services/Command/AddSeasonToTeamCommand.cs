@@ -54,7 +54,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = false,
-                Message = "Cannot edit a team that has been deleted",
+                Messages = "Cannot edit a team that has been deleted",
             };
         }
 
@@ -63,7 +63,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = false,
-                Message = "Season not found",
+                Messages = "Season not found",
             };
         }
 
@@ -78,7 +78,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
                 return new ActionResult<TeamSeason>
                 {
                     Success = true,
-                    Message = $"Season already exists, {teamSeason.Players.Count} players copied",
+                    Messages = $"Season already exists, {teamSeason.Players.Count} players copied",
                     Result = teamSeason,
                 };
             }
@@ -87,7 +87,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             return new ActionResult<TeamSeason>
             {
                 Success = true,
-                Message = "Season already exists",
+                Messages = "Season already exists",
                 Result = teamSeason,
             };
         }
@@ -108,7 +108,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         return new ActionResult<TeamSeason>
         {
             Success = true,
-            Message = _copyPlayersFromOtherSeasonId.HasValue
+            Messages = _copyPlayersFromOtherSeasonId.HasValue
                 ? $"Season added to the {model.Name} team, {teamSeason.Players.Count} players copied"
                 : $"Season added to the {model.Name} team",
             Result = teamSeason,

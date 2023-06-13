@@ -35,7 +35,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Message = "SeasonId must be provided",
+                Messages = "SeasonId must be provided",
             };
         }
 
@@ -44,7 +44,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Message = "Unable to update a game where the home team and away team are the same",
+                Messages = "Unable to update a game where the home team and away team are the same",
             };
         }
 
@@ -54,7 +54,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Message = "Unable to add or update game, season not found",
+                Messages = "Unable to add or update game, season not found",
             };
         }
 

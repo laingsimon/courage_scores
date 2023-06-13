@@ -81,7 +81,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         var outcome = await updateCommand.ApplyUpdate(item, token);
         if (!outcome.Success)
         {
-            return Error(outcome.Message);
+            return Error(outcome.Messages);
         }
 
         await _auditingHelper.SetUpdated(item, token);
@@ -99,7 +99,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         var updatedItem = await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(updatedItem, token), outcome.Message);
+        return Success(await _adapter.Adapt(updatedItem, token), outcome.Messages);
     }
 
     public async Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)

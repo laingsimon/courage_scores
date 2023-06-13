@@ -52,7 +52,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Message = "Cannot edit a team that has been deleted",
+                Messages = "Cannot edit a team that has been deleted",
             };
         }
 
@@ -62,7 +62,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Message = "Player cannot be removed, not logged in",
+                Messages = "Player cannot be removed, not logged in",
             };
         }
 
@@ -71,7 +71,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Message = "Player cannot be removed, not permitted",
+                Messages = "Player cannot be removed, not permitted",
             };
         }
 
@@ -81,7 +81,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Message = "Season could not be found",
+                Messages = "Season could not be found",
             };
         }
 
@@ -91,7 +91,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Message = $"Team is not registered to the {season.Name} season",
+                Messages = $"Team is not registered to the {season.Name} season",
             };
         }
 
@@ -101,7 +101,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Message = $"Player does not have a player with this id for the {season.Name} season",
+                Messages = $"Player does not have a player with this id for the {season.Name} season",
             };
         }
 
@@ -110,7 +110,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return new ActionResult<TeamPlayer>
         {
             Success = true,
-            Message = $"Player {player.Name} removed from the {season.Name} season",
+            Messages = $"Player {player.Name} removed from the {season.Name} season",
             Result = player,
         };
     }

@@ -66,7 +66,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Message = "Cannot edit a game that has been deleted",
+                Messages = "Cannot edit a game that has been deleted",
             };
         }
 
@@ -76,7 +76,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Message = "Game cannot be updated, not logged in",
+                Messages = "Game cannot be updated, not logged in",
             };
         }
 
@@ -85,7 +85,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Message = "Game cannot be updated, not permitted",
+                Messages = "Game cannot be updated, not permitted",
             };
         }
 
@@ -125,7 +125,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return new ActionResult<GameDto>
         {
             Success = true,
-            Message = "Scores updated",
+            Messages = "Scores updated",
             Result = await _gameAdapter.Adapt(game, token),
         };
     }
@@ -162,7 +162,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                     return new ActionResult<GameDto>
                     {
                         Success = false,
-                        Message = $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
+                        Messages = $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
                         Result = await _gameAdapter.Adapt(game, token),
                     };
                 }
@@ -172,7 +172,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return new ActionResult<GameDto>
         {
             Success = true,
-            Message = "Game details updated",
+            Messages = "Game details updated",
         };
     }
 
@@ -183,7 +183,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Message = "Submissions cannot be accepted, scores have been published",
+                Messages = "Submissions cannot be accepted, scores have been published",
             };
         }
 
@@ -217,7 +217,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return new ActionResult<GameDto>
         {
             Success = true,
-            Message = "Submission updated",
+            Messages = "Submission updated",
         };
     }
 
@@ -252,7 +252,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             return new ActionResult<GameDto>
             {
                 Success = false,
-                Message = _scores.LastUpdated == null
+                Messages = _scores.LastUpdated == null
                     ? $"Unable to update {nameof(Game)}, data integrity token is missing"
                     : $"Unable to update {nameof(Game)}, {game.Editor} updated it before you at {game.Updated:d MMM yyyy HH:mm:ss}",
             };
@@ -286,7 +286,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return new ActionResult<GameDto>
         {
             Success = true,
-            Message = "Game updated",
+            Messages = "Game updated",
         };
     }
 

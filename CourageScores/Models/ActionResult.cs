@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Services.Command;
 
 namespace CourageScores.Models;
 
@@ -10,7 +9,7 @@ public class ActionResult<T> : IActionResult<T>
     public T? Result { get; init; }
     public bool Delete { get; init; }
 
-    public string? Error { get; init; }
-    public string? Warning { get; init; }
-    public string? Message { get; init; }
+    public string? Errors { get; init; }
+    public string? Warnings { get; init; }
+    public string? Messages { get; init; }
 }

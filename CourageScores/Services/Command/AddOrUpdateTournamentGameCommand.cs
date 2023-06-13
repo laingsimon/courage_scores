@@ -57,7 +57,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Message = "Unable to add or update game, no season exists",
+                Messages = "Unable to add or update game, no season exists",
             };
         }
 
@@ -88,7 +88,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         return new ActionResult<TournamentGame>
         {
             Success = context.Success,
-            Message = string.Join("\n", context.Errors.Concat(context.Warnings).Concat(context.Messages)),
+            Messages = string.Join("\n", context.Errors.Concat(context.Warnings).Concat(context.Messages)),
         };
     }
 

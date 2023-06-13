@@ -53,7 +53,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentGame>
             {
                 Success = updates.All(u => u.Success),
-                Message = string.Join(", ", updates.Select(u => u.Message)),
+                Messages = string.Join(", ", updates.Select(u => u.Messages)),
                 Result = model,
             };
         }
@@ -61,7 +61,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = false,
-            Message = "No tournament data to update",
+            Messages = "No tournament data to update",
             Result = model,
         };
     }
@@ -72,7 +72,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = true,
-            Message = "180 added",
+            Messages = "180 added",
             Result = model,
         };
     }
@@ -83,7 +83,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = true,
-            Message = "hi-check added",
+            Messages = "hi-check added",
             Result = model,
         };
     }
@@ -95,7 +95,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentRound>
             {
                 Success = false,
-                Message = "Round doesn't exist",
+                Messages = "Round doesn't exist",
             };
         }
 
@@ -115,7 +115,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentRound>
             {
                 Success = updates.All(u => u.Success),
-                Message = string.Join(", ", updates.Select(u => u.Message)),
+                Messages = string.Join(", ", updates.Select(u => u.Messages)),
                 Result = currentRound,
             };
         }
@@ -123,7 +123,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentRound>
         {
             Success = false,
-            Message = "No round details to update",
+            Messages = "No round details to update",
             Result = currentRound,
         };
     }
@@ -138,7 +138,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Message = "Match not found",
+                Messages = "Match not found",
             };
         }
 
@@ -147,7 +147,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Message = "No match details to update",
+                Messages = "No match details to update",
             };
         }
 
@@ -156,7 +156,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentMatch>
         {
             Success = true,
-            Message = "Match updated",
+            Messages = "Match updated",
             Result = match,
         };
     }

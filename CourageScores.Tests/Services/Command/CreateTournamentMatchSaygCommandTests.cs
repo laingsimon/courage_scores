@@ -58,7 +58,7 @@ public class CreateTournamentMatchSaygCommandTests
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Match not found"));
+        Assert.That(result.Messages, Is.EqualTo("Match not found"));
     }
 
     [Test]
@@ -76,7 +76,7 @@ public class CreateTournamentMatchSaygCommandTests
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Match not found"));
+        Assert.That(result.Messages, Is.EqualTo("Match not found"));
     }
 
     [Test]
@@ -95,7 +95,7 @@ public class CreateTournamentMatchSaygCommandTests
         var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Match already has a sayg id"));
+        Assert.That(result.Messages, Is.EqualTo("Match already has a sayg id"));
     }
 
     [Test]
@@ -121,7 +121,7 @@ public class CreateTournamentMatchSaygCommandTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(match.SaygId, Is.Null);
-        Assert.That(result.Message, Is.EqualTo("Some error adding sayg"));
+        Assert.That(result.Messages, Is.EqualTo("Some error adding sayg"));
         _addSaygCommand
             .Verify(s => s.WithData(
                 It.Is<UpdateRecordedScoreAsYouGoDto>(dto => dto.TournamentMatchId == match.Id)));
@@ -154,7 +154,7 @@ public class CreateTournamentMatchSaygCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(match.SaygId, Is.EqualTo(newId));
-        Assert.That(result.Message, Is.EqualTo("Sayg added to match"));
+        Assert.That(result.Messages, Is.EqualTo("Sayg added to match"));
         _addSaygCommand
             .Verify(s => s.WithData(
                 It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
@@ -193,7 +193,7 @@ public class CreateTournamentMatchSaygCommandTests
 
         Assert.That(result.Success, Is.True);
         Assert.That(match.SaygId, Is.EqualTo(newId));
-        Assert.That(result.Message, Is.EqualTo("Sayg added to match"));
+        Assert.That(result.Messages, Is.EqualTo("Sayg added to match"));
         _addSaygCommand
             .Verify(s => s.WithData(
                 It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
