@@ -57,7 +57,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
             return new ActionResult<Models.Cosmos.Season>
             {
                 Success = false,
-                Messages = "Could not find season to copy teams from",
+                Messages = { "Could not find season to copy teams from" },
             };
         }
 
@@ -81,7 +81,7 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season,
         return new ActionResult<Models.Cosmos.Season>
         {
             Success = true,
-            Messages = $"Copied {teamsCopied} of {totalTeams} team/s from other season",
+            Messages = { $"Copied {teamsCopied} of {totalTeams} team/s from other season" },
         };
     }
 }

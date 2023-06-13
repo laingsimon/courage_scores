@@ -57,12 +57,12 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Messages = "Unable to add or update game, no season exists",
+                Messages = { "Unable to add or update game, no season exists" },
             };
         }
 
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(game, update);
-        var context = new UpdateContext();
+        var context = new ActionResult<TournamentGame>();
 
         game.Address = update.Address;
         game.Date = update.Date;
@@ -88,11 +88,13 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         return new ActionResult<TournamentGame>
         {
             Success = context.Success,
-            Messages = string.Join("\n", context.Errors.Concat(context.Warnings).Concat(context.Messages)),
+            Errors = context.Errors,
+            Warnings = context.Warnings,
+            Messages = context.Messages,
         };
     }
 
-    private async Task UpdateRoundRecursively(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, UpdateContext context, CancellationToken token)
+    private async Task UpdateRoundRecursively(TournamentRound? round, IReadOnlyCollection<TournamentSide> sides, IActionResult<TournamentGame> context, CancellationToken token)
     {
         if (round == null)
         {
@@ -135,7 +137,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await UpdatePlayers(side.Players, token);
     }
 
-    private async Task UpdateRound(TournamentRound round, UpdateContext context, CancellationToken token)
+    private async Task UpdateRound(TournamentRound round, IActionResult<TournamentGame> context, CancellationToken token)
     {
         if (round.Id == default)
         {
@@ -152,7 +154,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
     }
 
-    private async Task UpdateMatch(TournamentMatch match, GameMatchOption? matchOptions, UpdateContext context, CancellationToken token)
+    private async Task UpdateMatch(TournamentMatch match, GameMatchOption? matchOptions, IActionResult<TournamentGame> context, CancellationToken token)
     {
         if (match.Id == default)
         {
@@ -167,7 +169,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         await _auditingHelper.SetUpdated(match, token);
     }
 
-    private async Task UpdateMatchSayg(Guid saygId, TournamentMatch match, GameMatchOption? matchOptions, UpdateContext context, CancellationToken token)
+    private async Task UpdateMatchSayg(Guid saygId, TournamentMatch match, GameMatchOption? matchOptions, IActionResult<TournamentGame> context, CancellationToken token)
     {
         var sayg = await _saygService.Get(saygId, token);
         if (sayg == null)
@@ -203,13 +205,5 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         }
 
         return ScopedCacheManagementFlags.EvictAll;
-    }
-
-    private class UpdateContext
-    {
-        public bool Success { get; set; } = true;
-        public List<string> Errors { get; set; } = new();
-        public List<string> Warnings { get; set; } = new();
-        public List<string> Messages { get; set; } = new();
     }
 }

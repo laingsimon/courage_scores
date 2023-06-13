@@ -59,8 +59,8 @@ public class AddOrUpdateTeamCommandTests
         };
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
-            Messages = "Success",
             Success = true,
+            Messages = { "Success" },
             Result = _addedTeamSeason,
         };
 
@@ -164,13 +164,13 @@ public class AddOrUpdateTeamCommandTests
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
             Success = false,
-            Messages = "Some error",
+            Messages = { "Some error" },
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Some error"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Some error" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -303,7 +303,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo($"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -349,7 +349,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo($"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -382,7 +382,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Unable to change division when games exist, delete these 1 game/s first"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to change division when games exist, delete these 1 game/s first" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -419,7 +419,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Team updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Team updated" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
@@ -457,7 +457,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Team updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Team updated" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
@@ -489,7 +489,7 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Team updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Team updated" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }

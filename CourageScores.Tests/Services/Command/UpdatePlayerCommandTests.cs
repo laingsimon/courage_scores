@@ -127,7 +127,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Cannot edit a team that has been deleted"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
     }
 
     [Test]
@@ -140,7 +140,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Player cannot be updated, not logged in"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player cannot be updated, not logged in" }));
     }
 
     [TestCase(false, false, null)]
@@ -158,7 +158,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Player cannot be updated, not permitted"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player cannot be updated, not permitted" }));
     }
 
     [Test]
@@ -169,7 +169,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Season could not be found"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Season could not be found" }));
     }
 
     [Test]
@@ -182,7 +182,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Team TEAM is not registered to the SEASON season"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Team TEAM is not registered to the SEASON season" }));
     }
 
     [Test]
@@ -193,7 +193,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Team does not have a player with this id for the SEASON season"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Team does not have a player with this id for the SEASON season" }));
     }
 
     [Test]
@@ -209,7 +209,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Unable to update TeamPlayer, data integrity token is missing"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update TeamPlayer, data integrity token is missing" }));
     }
 
     [Test]
@@ -225,7 +225,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Unable to update TeamPlayer, EDITOR updated it before you at 4 Mar 2002 00:00:00" }));
     }
 
     [Test]
@@ -239,7 +239,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Player PLAYER (new) updated in the SEASON season, 0 game/s updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 0 game/s updated" }));
         Assert.That(_teamPlayer.Name, Is.EqualTo("PLAYER (new)"));
         Assert.That(_teamPlayer.EmailAddress, Is.EqualTo("email@address.com"));
         Assert.That(_teamPlayer.Captain, Is.True);
@@ -270,7 +270,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Could not move the player to other team: Some error"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Could not move the player to other team: Some error" }));
     }
 
     [Test]
@@ -297,8 +297,9 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Player added to the OTHER TEAM team for the SEASON season"));
-        _auditingHelper.Verify(h => h.SetDeleted(_teamPlayer, _token));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player added to the OTHER TEAM team for the SEASON season" }));
+
+    _auditingHelper.Verify(h => h.SetDeleted(_teamPlayer, _token));
     }
 
     [Test]
@@ -313,7 +314,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Player PLAYER (new) updated in the SEASON season, 0 game/s updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 0 game/s updated" }));
         _auditingHelper.Verify(h => h.SetUpdated(_teamPlayer, _token));
     }
 
@@ -341,7 +342,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo("Cannot move a player once they've played in some games"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Cannot move a player once they've played in some games" }));
     }
 
     [Test]
@@ -368,7 +369,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Player PLAYER (new) updated in the SEASON season, 1 game/s updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 1 game/s updated" }));
         Assert.That(game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         Assert.That(game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         _gameRepository.Verify(r => r.GetSome($"t.id = '{game.Id}' and t.seasonId = '{_season.Id}'", _token));
@@ -398,7 +399,7 @@ public class UpdatePlayerCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo("Player PLAYER (new) updated in the SEASON season, 1 game/s updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 1 game/s updated" }));
         Assert.That(game.Matches[0].AwayPlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         Assert.That(game.Matches[0].HomePlayers[0].Name, Is.EqualTo("PLAYER (new)"));
         _gameRepository.Verify(r => r.GetSome($"t.seasonId = '{_season.Id}'", _token));
@@ -430,6 +431,6 @@ public class UpdatePlayerCommandTests
 
         Assert.That(result.Success, Is.True);
         _gameRepository.Verify(r => r.Upsert(game, _token), Times.Never);
-        Assert.That(result.Messages, Is.EqualTo("Player PLAYER (new) updated in the SEASON season, 0 game/s updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player PLAYER (new) updated in the SEASON season, 0 game/s updated" }));
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -81,7 +82,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         var outcome = await updateCommand.ApplyUpdate(item, token);
         if (!outcome.Success)
         {
-            return Error(outcome.Messages);
+            return Adapt(outcome);
         }
 
         await _auditingHelper.SetUpdated(item, token);
@@ -99,7 +100,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         var updatedItem = await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(updatedItem, token), outcome.Messages);
+        return Adapt(outcome, await _adapter.Adapt(updatedItem, token));
     }
 
     public async Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
@@ -126,67 +127,57 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         await _auditingHelper.SetDeleted(item, token);
         await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(item, token), $"{typeof(TModel).Name} deleted");
-    }
-
-    private static ActionResultDto<TDto> Error(string error)
-    {
-        return new ActionResultDto<TDto>
+        var result = new ActionResult<TModel>
         {
-            Success = false,
-            Errors =
-            {
-                error
-            }
+            Success = true,
+            Messages = { $"{typeof(TModel).Name} deleted" },
         };
+        return Adapt(result, await _adapter.Adapt(item, token));
     }
 
     private static ActionResultDto<TDto> NotFound()
     {
-        return new ActionResultDto<TDto>
+        return Adapt(new ActionResult<TDto>
         {
-            Success = false,
             Warnings =
             {
                 $"{typeof(TModel).Name} not found"
             }
-        };
+        });
     }
 
     private static ActionResultDto<TDto> NotPermitted()
     {
-        return new ActionResultDto<TDto>
+        return Adapt(new ActionResult<TDto>
         {
-            Success = false,
             Warnings =
             {
                 "Not permitted"
             }
-        };
+        });
     }
 
     private static ActionResultDto<TDto> NotLoggedIn()
     {
-        return new ActionResultDto<TDto>
+        return Adapt(new ActionResult<TDto>
         {
             Success = false,
             Warnings =
             {
                 "Not logged in"
             }
-        };
+        });
     }
 
-    private static ActionResultDto<TDto> Success(TDto? result, string message)
+    private static ActionResultDto<TDto> Adapt<TOut>(ActionResult<TOut> actionResult, TDto? result = null)
     {
         return new ActionResultDto<TDto>
         {
-            Success = true,
+            Success = actionResult.Success,
             Result = result,
-            Messages =
-            {
-                message
-            },
+            Errors = actionResult.Errors,
+            Warnings = actionResult.Warnings,
+            Messages = actionResult.Messages,
         };
     }
 }

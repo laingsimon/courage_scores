@@ -88,7 +88,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Messages = $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}",
+                Messages = { $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}" },
             };
         }
 
@@ -98,7 +98,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Messages = $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first",
+                Messages = { $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first" },
             };
         }
 

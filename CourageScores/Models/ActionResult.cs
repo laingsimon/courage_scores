@@ -9,7 +9,7 @@ public class ActionResult<T> : IActionResult<T>
     public T? Result { get; init; }
     public bool Delete { get; init; }
 
-    public string? Errors { get; init; }
-    public string? Warnings { get; init; }
-    public string? Messages { get; init; }
+    public List<string> Errors { get; init; } = new List<string>();
+    public List<string> Warnings { get; init; } = new List<string>();
+    public List<string> Messages { get; init; } = new List<string>();
 }

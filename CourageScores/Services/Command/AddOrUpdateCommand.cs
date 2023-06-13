@@ -23,7 +23,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             return new ActionResult<TModel>
             {
                 Success = false,
-                Messages = $"Cannot update a {typeof(TModel).Name} that has already been deleted",
+                Messages = { $"Cannot update a {typeof(TModel).Name} that has already been deleted" },
             };
         }
 
@@ -37,9 +37,9 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             return new ActionResult<TModel>
             {
                 Success = false,
-                Messages =_update.LastUpdated == null
+                Messages = { _update.LastUpdated == null
                     ? $"Unable to update {typeof(TModel).Name}, data integrity token is missing"
-                    : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}"
+                    : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}" }
             };
         }
 
@@ -48,7 +48,11 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         return new ActionResult<TModel>
         {
             Success = result.Success,
-            Messages = result.Messages ?? $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
+            Errors = result.Errors,
+            Warnings = result.Warnings,
+            Messages = result.Messages.Any()
+                ? result.Messages
+                : new List<string> { $"{typeof(TModel).Name} {(create ? "created" : "updated")}" },
             Result = model,
         };
     }

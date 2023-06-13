@@ -95,7 +95,7 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = "some message",
+            Messages = { "some message" },
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
@@ -154,7 +154,7 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = "some message"
+            Messages = { "some message" }
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
@@ -197,7 +197,7 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = false,
-            Messages = "some message",
+            Errors = { "some message" },
         };
         var user = new UserDto
         {
@@ -230,7 +230,7 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = "some message",
+            Messages = { "some message" },
         };
         var user = new UserDto
         {
@@ -337,7 +337,7 @@ public class GenericDataServiceTests
         var command = new Mock<IUpdateCommand<Model, object>>();
         var commandResult = new ActionResult<object>
         {
-            Messages = "some message",
+            Messages = { "some message" },
             Delete = true,
             Success = true,
         };
@@ -374,7 +374,7 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = "some message",
+            Messages = { "some message" },
             Delete = true,
         };
         var user = new UserDto

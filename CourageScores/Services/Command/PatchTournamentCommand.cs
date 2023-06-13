@@ -35,7 +35,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         var updates = new List<IActionResult<object>>();
         if (_patch.Round != null)
         {
-            updates.Add(await PatchRound(model.Round, _patch.Round, token));
+            updates.Add(await PatchRound(model.Round, _patch.Round));
         }
 
         if (_patch.Additional180 != null)
@@ -53,7 +53,9 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentGame>
             {
                 Success = updates.All(u => u.Success),
-                Messages = string.Join(", ", updates.Select(u => u.Messages)),
+                Errors = updates.SelectMany(u => u.Errors).ToList(),
+                Warnings = updates.SelectMany(u => u.Warnings).ToList(),
+                Messages = updates.SelectMany(u => u.Messages).ToList(),
                 Result = model,
             };
         }
@@ -61,7 +63,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = false,
-            Messages = "No tournament data to update",
+            Messages = { "No tournament data to update" },
             Result = model,
         };
     }
@@ -72,7 +74,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = true,
-            Messages = "180 added",
+            Messages = { "180 added" },
             Result = model,
         };
     }
@@ -83,26 +85,26 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = true,
-            Messages = "hi-check added",
+            Messages = { "hi-check added" },
             Result = model,
         };
     }
 
-    private async Task<ActionResult<TournamentRound>> PatchRound(TournamentRound? currentRound, PatchTournamentRoundDto patchRound, CancellationToken token)
+    private async Task<ActionResult<TournamentRound>> PatchRound(TournamentRound? currentRound, PatchTournamentRoundDto patchRound)
     {
         if (currentRound == null)
         {
             return new ActionResult<TournamentRound>
             {
                 Success = false,
-                Messages = "Round doesn't exist",
+                Messages = { "Round doesn't exist" },
             };
         }
 
         var updates = new List<IActionResult<object>>();
         if (patchRound.NextRound != null)
         {
-            updates.Add(await PatchRound(currentRound.NextRound, patchRound.NextRound, token));
+            updates.Add(await PatchRound(currentRound.NextRound, patchRound.NextRound));
         }
 
         if (patchRound.Match != null)
@@ -115,7 +117,9 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentRound>
             {
                 Success = updates.All(u => u.Success),
-                Messages = string.Join(", ", updates.Select(u => u.Messages)),
+                Errors = updates.SelectMany(u => u.Errors).ToList(),
+                Warnings = updates.SelectMany(u => u.Warnings).ToList(),
+                Messages = updates.SelectMany(u => u.Messages).ToList(),
                 Result = currentRound,
             };
         }
@@ -123,7 +127,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentRound>
         {
             Success = false,
-            Messages = "No round details to update",
+            Messages = { "No round details to update" },
             Result = currentRound,
         };
     }
@@ -138,7 +142,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Messages = "Match not found",
+                Messages = { "Match not found" },
             };
         }
 
@@ -147,7 +151,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Messages = "No match details to update",
+                Messages = { "No match details to update" },
             };
         }
 
@@ -156,7 +160,7 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentMatch>
         {
             Success = true,
-            Messages = "Match updated",
+            Messages = { "Match updated" },
             Result = match,
         };
     }

@@ -43,7 +43,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = true,
-                Messages = "Team has already been deleted",
+                Messages = { "Team has already been deleted" },
                 Result = model,
             };
         }
@@ -55,7 +55,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Messages = "Not permitted",
+                Messages = { "Not permitted" },
                 Result = model,
             };
         }
@@ -73,7 +73,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
                 return new ActionResult<Models.Cosmos.Team.Team>
                 {
                     Success = false,
-                    Messages = "Team allocated to other season/s",
+                    Messages = { "Team allocated to other season/s" },
                     Result = model,
                 };
             }
@@ -82,7 +82,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = true,
-                Messages = $"Removed team from {matchingSeasons.Count} season/s",
+                Messages = { $"Removed team from {matchingSeasons.Count} season/s" },
                 Result = model,
             };
         }
@@ -95,7 +95,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
                 return new ActionResult<Models.Cosmos.Team.Team>
                 {
                     Success = true,
-                    Messages = "Team deleted",
+                    Messages = { "Team deleted" },
                     Result = model,
                     Delete = true
                 };
@@ -105,7 +105,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = true,
-                Messages = $"Removed team from {matchingSeasons.Count} season/s, and team deleted",
+                Messages = { $"Removed team from {matchingSeasons.Count} season/s, and team deleted" },
                 Result = model,
                 Delete = true
             };
@@ -116,9 +116,9 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         return new ActionResult<Models.Cosmos.Team.Team>
         {
             Success = !_deleteIfNoSeasonsAssigned || matchingSeasons.Any(),
-            Messages = _deleteIfNoSeasonsAssigned
+            Messages = { _deleteIfNoSeasonsAssigned
                 ? $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely"
-                : $"Removed team from {matchingSeasons.Count} season/s",
+                : $"Removed team from {matchingSeasons.Count} season/s" },
             Result = model,
         };
     }

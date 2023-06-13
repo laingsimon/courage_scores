@@ -67,7 +67,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = "Cannot edit a team that has been deleted",
+                Messages = { "Cannot edit a team that has been deleted" },
             };
         }
 
@@ -76,7 +76,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         {
             return new ActionResult<TeamPlayer>
             {
-                Messages = "Player cannot be added, not logged in",
+                Messages = { "Player cannot be added, not logged in" },
                 Success = false,
             };
         }
@@ -86,7 +86,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = "Player cannot be added, not permitted",
+                Messages = { "Player cannot be added, not permitted" },
             };
         }
 
@@ -96,7 +96,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Messages = "Season could not be found",
+                Messages = { "Season could not be found" },
             };
         }
 
@@ -108,7 +108,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
-                    Messages = $"{season.Name} season is not attributed to team {model.Name}",
+                    Messages = { $"{season.Name} season is not attributed to team {model.Name}" },
                 };
             }
 
@@ -119,7 +119,8 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
-                    Messages = $"Could not add the {season.Name} season to team {model.Name} - {result.Messages}",
+                    Warnings = { $"Could not add the {season.Name} season to team {model.Name}" },
+                    Messages = result.Messages,
                 };
             }
 
@@ -137,7 +138,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 return new ActionResult<TeamPlayer>
                 {
                     Success = true,
-                    Messages = "Player already exists with this name, player not added",
+                    Messages = { "Player already exists with this name, player not added" },
                     Result = existingPlayer,
                 };
             }
@@ -149,7 +150,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
             return new ActionResult<TeamPlayer>
             {
                 Success = true,
-                Messages = "Player undeleted from team",
+                Messages = { "Player undeleted from team" },
                 Result = existingPlayer,
             };
         }
@@ -168,7 +169,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         return new ActionResult<TeamPlayer>
         {
             Success = true,
-            Messages = $"Player added to the {model.Name} team for the {season.Name} season",
+            Messages = { $"Player added to the {model.Name} team for the {season.Name} season" },
             Result = newPlayer,
         };
     }
