@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 
@@ -13,7 +14,7 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         _cacheFlags = cacheFlags;
     }
 
-    protected override Task<CommandResult<FixtureDateNote>> ApplyUpdates(FixtureDateNote model, EditFixtureDateNoteDto update, CancellationToken token)
+    protected override Task<ActionResult<FixtureDateNote>> ApplyUpdates(FixtureDateNote model, EditFixtureDateNoteDto update, CancellationToken token)
     {
         var divisionIdToEvictFromCache = GetDivisionIdToEvictFromCache(model, update);
 
@@ -23,7 +24,7 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         model.DivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return Task.FromResult(new CommandResult<FixtureDateNote> { Success = true });
+        return Task.FromResult(new ActionResult<FixtureDateNote> { Success = true });
     }
 
     private static Guid GetDivisionIdToEvictFromCache(FixtureDateNote model, EditFixtureDateNoteDto update)

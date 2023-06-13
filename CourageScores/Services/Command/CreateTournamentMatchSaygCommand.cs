@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using CourageScores.Models;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
@@ -31,7 +32,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         return this;
     }
 
-    public async Task<CommandResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
+    public async Task<ActionResult<TournamentGame>> ApplyUpdate(TournamentGame model, CancellationToken token)
     {
         if (_request == null)
         {
@@ -41,7 +42,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         var match = FindMatch(model, _request.MatchId);
         if (match == null)
         {
-            return new CommandResult<TournamentGame>
+            return new ActionResult<TournamentGame>
             {
                 Success = false,
                 Message = "Match not found",
@@ -51,7 +52,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
 
         if (match.SaygId != null)
         {
-            return new CommandResult<TournamentGame>
+            return new ActionResult<TournamentGame>
             {
                 Success = true,
                 Message = "Match already has a sayg id",
@@ -74,7 +75,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         if (result.Success)
         {
             match.SaygId = result.Result!.Id;
-            return new CommandResult<TournamentGame>
+            return new ActionResult<TournamentGame>
             {
                 Success = true,
                 Message = "Sayg added to match",
@@ -82,7 +83,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
             };
         }
 
-        return new CommandResult<TournamentGame>
+        return new ActionResult<TournamentGame>
         {
             Success = false,
             Message = string.Join(", ", result.Errors.Concat(result.Warnings).Concat(result.Messages)),

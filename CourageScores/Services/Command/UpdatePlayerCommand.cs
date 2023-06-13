@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
@@ -54,7 +55,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<CommandResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<ActionResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_playerId == null)
         {
@@ -73,7 +74,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (model.Deleted != null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Cannot edit a team that has been deleted",
@@ -83,7 +84,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Player cannot be updated, not logged in",
@@ -92,7 +93,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Player cannot be updated, not permitted",
@@ -102,7 +103,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Season could not be found",
@@ -112,7 +113,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = $"Team {model.Name} is not registered to the {season.Name} season",
@@ -122,7 +123,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
         if (player == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = $"Team does not have a player with this id for the {season.Name} season",
@@ -131,7 +132,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (player.Updated != _player.LastUpdated)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = _player.LastUpdated == null
@@ -146,7 +147,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         {
             if (updatedGames > 0)
             {
-                return new CommandResult<TeamPlayer>
+                return new ActionResult<TeamPlayer>
                 {
                     Success = false,
                     Message = "Cannot move a player once they've played in some games",
@@ -162,7 +163,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             {
                 // combine the messages into the CommandOutcome
                 var errors = string.Join(", ", addResult.Errors);
-                return new CommandResult<TeamPlayer>
+                return new ActionResult<TeamPlayer>
                 {
                     Success = false,
                     Message = $"Could not move the player to other team: {errors}",
@@ -172,7 +173,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             // player has been added to the other team, can remove it from this team now
             await _auditingHelper.SetDeleted(player, token);
 
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = true,
                 Message = string.Join(", ", addResult.Messages),
@@ -183,7 +184,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         player.Captain = _player.Captain;
         player.EmailAddress = _player.EmailAddress ?? player.EmailAddress;
         await _auditingHelper.SetUpdated(player, token);
-        return new CommandResult<TeamPlayer>
+        return new ActionResult<TeamPlayer>
         {
             Success = true,
             Message = $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated",

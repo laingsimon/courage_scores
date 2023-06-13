@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Services.Season;
 
@@ -41,7 +42,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         return this;
     }
 
-    public virtual async Task<CommandResult<TeamSeason>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public virtual async Task<ActionResult<TeamSeason>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_seasonId == null)
         {
@@ -50,7 +51,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
 
         if (model.Deleted != null)
         {
-            return new CommandResult<TeamSeason>
+            return new ActionResult<TeamSeason>
             {
                 Success = false,
                 Message = "Cannot edit a team that has been deleted",
@@ -59,7 +60,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
 
         if (_skipSeasonExistenceCheck == false && await _seasonService.Get(_seasonId.Value, token) == null)
         {
-            return new CommandResult<TeamSeason>
+            return new ActionResult<TeamSeason>
             {
                 Success = false,
                 Message = "Season not found",
@@ -74,7 +75,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
                 teamSeason.Players = GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value);
                 _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
                 await _auditingHelper.SetUpdated(teamSeason, token);
-                return new CommandResult<TeamSeason>
+                return new ActionResult<TeamSeason>
                 {
                     Success = true,
                     Message = $"Season already exists, {teamSeason.Players.Count} players copied",
@@ -83,7 +84,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             }
 
             await _auditingHelper.SetUpdated(teamSeason, token); // undelete the season
-            return new CommandResult<TeamSeason>
+            return new ActionResult<TeamSeason>
             {
                 Success = true,
                 Message = "Season already exists",
@@ -104,7 +105,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         model.Seasons.Add(teamSeason);
         _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
 
-        return new CommandResult<TeamSeason>
+        return new ActionResult<TeamSeason>
         {
             Success = true,
             Message = _copyPlayersFromOtherSeasonId.HasValue

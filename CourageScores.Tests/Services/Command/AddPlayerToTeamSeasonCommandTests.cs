@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
@@ -126,7 +127,7 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndAllowed_AddsSeasonToTeam()
     {
-        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
         {
             Result = new TeamSeason(),
             Success = true,
@@ -145,7 +146,7 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndNotAllowed_DoesNotAddSeasonToTeam()
     {
-        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
         {
             Result = new TeamSeason(),
             Message = "Success",
@@ -164,7 +165,7 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndCannotAddSeasonToTeam_ReturnsUnsuccessful()
     {
-        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
         {
             Message = "FAILURE",
             Success = false,
@@ -183,7 +184,7 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndNoResultFromAddingSeasonToTeam_ReturnsUnsuccessful()
     {
-        var addSeasonToTeamCommandResult = new CommandResult<TeamSeason>
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
         {
             Result = null,
             Message = "IMPLIED SUCCESS",

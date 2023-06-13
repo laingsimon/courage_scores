@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Identity;
@@ -14,7 +15,7 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
         _userService = userService;
     }
 
-    protected override async Task<CommandResult<ErrorDetail>> ApplyUpdates(ErrorDetail model, ErrorDetailDto update, CancellationToken token)
+    protected override async Task<ActionResult<ErrorDetail>> ApplyUpdates(ErrorDetail model, ErrorDetailDto update, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
@@ -27,7 +28,7 @@ public class AddErrorCommand : AddOrUpdateCommand<ErrorDetail, ErrorDetailDto>
         model.Message = update.Message;
         model.Url = update.Url;
 
-        return new CommandResult<ErrorDetail>
+        return new ActionResult<ErrorDetail>
         {
             Success = true,
         };

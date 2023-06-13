@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Services.Command;
 
-namespace CourageScores.Services.Command;
+namespace CourageScores.Models;
 
 [ExcludeFromCodeCoverage]
-public class CommandResult<T> : ICommandResult<T>
+public class ActionResult<T> : IActionResult<T>
 {
     public bool Success { get; init; }
     public T? Result { get; init; }

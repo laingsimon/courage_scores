@@ -1,4 +1,5 @@
 ﻿using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
@@ -53,7 +54,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return this;
     }
 
-    public async Task<CommandResult<GameDto>> ApplyUpdate(Models.Cosmos.Game.Game game, CancellationToken token)
+    public async Task<ActionResult<GameDto>> ApplyUpdate(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         if (_scores == null)
         {
@@ -62,7 +63,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (game.Deleted != null)
         {
-            return new CommandResult<GameDto>
+            return new ActionResult<GameDto>
             {
                 Success = false,
                 Message = "Cannot edit a game that has been deleted",
@@ -72,7 +73,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandResult<GameDto>
+            return new ActionResult<GameDto>
             {
                 Success = false,
                 Message = "Game cannot be updated, not logged in",
@@ -81,7 +82,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         if (!(user.Access?.ManageScores == true || (user.Access?.InputResults == true && (user.TeamId == game.Home.Id || user.TeamId == game.Away.Id))))
         {
-            return new CommandResult<GameDto>
+            return new ActionResult<GameDto>
             {
                 Success = false,
                 Message = "Game cannot be updated, not permitted",
@@ -121,7 +122,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         }
 
-        return new CommandResult<GameDto>
+        return new ActionResult<GameDto>
         {
             Success = true,
             Message = "Scores updated",
@@ -129,7 +130,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         };
     }
 
-    private async Task<CommandResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed;
@@ -158,7 +159,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
                 var success = homeResult.Success && awayResult.Success;
                 if (!success)
                 {
-                    return new CommandResult<GameDto>
+                    return new ActionResult<GameDto>
                     {
                         Success = false,
                         Message = $"Could not add season to home and/or away teams: Home: {FormatActionResult(homeResult)}, Away: {FormatActionResult(awayResult)}",
@@ -168,18 +169,18 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             }
         }
 
-        return new CommandResult<GameDto>
+        return new ActionResult<GameDto>
         {
             Success = true,
             Message = "Game details updated",
         };
     }
 
-    private async Task<CommandResult<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateSubmission(Models.Cosmos.Game.Game game, UserDto user, CancellationToken token)
     {
         if (game.Matches.Any())
         {
-            return new CommandResult<GameDto>
+            return new ActionResult<GameDto>
             {
                 Success = false,
                 Message = "Submissions cannot be accepted, scores have been published",
@@ -213,7 +214,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
         // TODO: #123: If both home/away submissions are the same then record the details in the main game
 
-        return new CommandResult<GameDto>
+        return new ActionResult<GameDto>
         {
             Success = true,
             Message = "Submission updated",
@@ -244,11 +245,11 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         return submission;
     }
 
-    private async Task<CommandResult<GameDto>> UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
+    private async Task<ActionResult<GameDto>> UpdateResults(Models.Cosmos.Game.Game game, CancellationToken token)
     {
         if (game.Updated != _scores!.LastUpdated)
         {
-            return new CommandResult<GameDto>
+            return new ActionResult<GameDto>
             {
                 Success = false,
                 Message = _scores.LastUpdated == null
@@ -282,7 +283,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             game.Version = Models.Cosmos.Game.Game.CurrentVersion;
         }
 
-        return new CommandResult<GameDto>
+        return new ActionResult<GameDto>
         {
             Success = true,
             Message = "Game updated",

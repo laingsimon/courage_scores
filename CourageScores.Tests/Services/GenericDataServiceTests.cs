@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -91,7 +92,7 @@ public class GenericDataServiceTests
         {
             Name = Model.CreatePermitted
         };
-        var commandResult = new CommandResult<object>
+        var commandResult = new ActionResult<object>
         {
             Success = true,
             Message = "some message",
@@ -150,7 +151,7 @@ public class GenericDataServiceTests
         var service = new GenericDataService<AnonymousModel, Dto>(repository.Object, adapter.Object, _userService.Object, _auditingHelper.Object);
         var id = Guid.NewGuid();
         var command = new Mock<IUpdateCommand<AnonymousModel, object>>();
-        var commandResult = new CommandResult<object>
+        var commandResult = new ActionResult<object>
         {
             Success = true,
             Message = "some message"
@@ -193,7 +194,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandResult<object>
+        var commandResult = new ActionResult<object>
         {
             Success = false,
             Message = "some message",
@@ -226,7 +227,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandResult<object>
+        var commandResult = new ActionResult<object>
         {
             Success = true,
             Message = "some message",
@@ -334,7 +335,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var updatedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandResult<object>
+        var commandResult = new ActionResult<object>
         {
             Message = "some message",
             Delete = true,
@@ -370,7 +371,7 @@ public class GenericDataServiceTests
         var model = new Model();
         var deletedModel = new Model();
         var command = new Mock<IUpdateCommand<Model, object>>();
-        var commandResult = new CommandResult<object>
+        var commandResult = new ActionResult<object>
         {
             Success = true,
             Message = "some message",

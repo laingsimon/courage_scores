@@ -1,6 +1,6 @@
-﻿namespace CourageScores.Services.Command;
+﻿namespace CourageScores.Models;
 
-public interface ICommandResult<out T>
+public interface IActionResult<out T>
 {
     public bool Success { get; }
     public string Message { get; }

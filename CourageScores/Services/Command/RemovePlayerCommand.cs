@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos.Team;
+﻿using CourageScores.Models;
+using CourageScores.Models.Cosmos.Team;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season;
 
@@ -34,7 +35,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return this;
     }
 
-    public async Task<CommandResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<ActionResult<TeamPlayer>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_playerId == null)
         {
@@ -48,7 +49,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (model.Deleted != null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Cannot edit a team that has been deleted",
@@ -58,7 +59,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var user = await _userService.GetUser(token);
         if (user == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Player cannot be removed, not logged in",
@@ -67,7 +68,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
         if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Player cannot be removed, not permitted",
@@ -77,7 +78,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var season = await _seasonService.Get(_seasonId.Value, token);
         if (season == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = "Season could not be found",
@@ -87,7 +88,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var teamSeason = model.Seasons.SingleOrDefault(s => s.SeasonId == season.Id);
         if (teamSeason == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = $"Team is not registered to the {season.Name} season",
@@ -97,7 +98,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         var player = teamSeason.Players.SingleOrDefault(p => p.Id == _playerId);
         if (player == null)
         {
-            return new CommandResult<TeamPlayer>
+            return new ActionResult<TeamPlayer>
             {
                 Success = false,
                 Message = $"Player does not have a player with this id for the {season.Name} season",
@@ -106,7 +107,7 @@ public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
 
         await _auditingHelper.SetDeleted(player, token);
-        return new CommandResult<TeamPlayer>
+        return new ActionResult<TeamPlayer>
         {
             Success = true,
             Message = $"Player {player.Name} removed from the {season.Name} season",

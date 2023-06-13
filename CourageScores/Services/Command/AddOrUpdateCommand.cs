@@ -1,3 +1,4 @@
+using CourageScores.Models;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 
@@ -9,7 +10,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 {
     private TDto? _update;
 
-    public async Task<CommandResult<TModel>> ApplyUpdate(TModel model, CancellationToken token)
+    public async Task<ActionResult<TModel>> ApplyUpdate(TModel model, CancellationToken token)
     {
         var create = false;
         if (_update == null)
@@ -19,7 +20,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         if (model.Deleted != null)
         {
-            return new CommandResult<TModel>
+            return new ActionResult<TModel>
             {
                 Success = false,
                 Message = $"Cannot update a {typeof(TModel).Name} that has already been deleted",
@@ -33,7 +34,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         }
         else if (model.Updated != _update!.LastUpdated)
         {
-            return new CommandResult<TModel>
+            return new ActionResult<TModel>
             {
                 Success = false,
                 Message =_update.LastUpdated == null
@@ -44,7 +45,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
 
         var result = await ApplyUpdates(model, _update!, token);
 
-        return new CommandResult<TModel>
+        return new ActionResult<TModel>
         {
             Success = result.Success,
             Message = result.Message ?? $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
@@ -52,7 +53,7 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         };
     }
 
-    protected abstract Task<CommandResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);
+    protected abstract Task<ActionResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);
 
     public virtual AddOrUpdateCommand<TModel, TDto> WithData(TDto update)
     {

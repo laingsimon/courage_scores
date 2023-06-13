@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos;
+﻿using CourageScores.Models;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Command;
 using NUnit.Framework;
@@ -132,16 +133,16 @@ public class AddOrUpdateCommandTests
 
     private class MockCommand : AddOrUpdateCommand<Model, ModelDto>
     {
-        public MockCommand(CommandResult<Model>? result = null)
+        public MockCommand(ActionResult<Model>? result = null)
         {
-            ApplyResult = result ?? new CommandResult<Model> { Success = true };
+            ApplyResult = result ?? new ActionResult<Model> { Success = true };
         }
 
-        public CommandResult<Model> ApplyResult { get; }
+        public ActionResult<Model> ApplyResult { get; }
         public ModelDto? ApplyUpdatesUpdate { get; private set; }
         public Model? ApplyUpdatesModel { get; private set; }
 
-        protected override Task<CommandResult<Model>> ApplyUpdates(Model model, ModelDto update, CancellationToken token)
+        protected override Task<ActionResult<Model>> ApplyUpdates(Model model, ModelDto update, CancellationToken token)
         {
             ApplyUpdatesModel = model;
             ApplyUpdatesUpdate = update;

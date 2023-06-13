@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
@@ -47,13 +48,13 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         _notableTournamentPlayerAdapter = notableTournamentPlayerAdapter;
     }
 
-    protected override async Task<CommandResult<TournamentGame>> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
+    protected override async Task<ActionResult<TournamentGame>> ApplyUpdates(TournamentGame game, EditTournamentGameDto update, CancellationToken token)
     {
         var latestSeason = await _seasonService.GetForDate(update.Date, token);
 
         if (latestSeason == null)
         {
-            return new CommandResult<TournamentGame>
+            return new ActionResult<TournamentGame>
             {
                 Success = false,
                 Message = "Unable to add or update game, no season exists",
@@ -84,7 +85,7 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = game.SeasonId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = divisionIdToEvictFromCache;
-        return new CommandResult<TournamentGame>
+        return new ActionResult<TournamentGame>
         {
             Success = context.Success,
             Message = string.Join("\n", context.Errors.Concat(context.Warnings).Concat(context.Messages)),
