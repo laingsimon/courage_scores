@@ -394,6 +394,87 @@ describe('EditTournament', () => {
             }]);
         });
 
+        it('can close add a side dialog', async () => {
+            const tournamentData = {
+                round: null,
+                divisionId: null,
+                seasonId: season.id,
+                sides: [{
+                    id: createTemporaryId(),
+                    name: 'SIDE 1',
+                    players: [],
+                    teamId: null,
+                }],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: [],
+                allPlayers: [],
+            }, {
+                disabled: false,
+                saving: false,
+                canSave: true
+            }, account, [ team1 ]);
+            const playing = context.container.querySelector('div > div > div:nth-child(1)');
+            expect(playing.textContent).toEqual('Playing:');
+            const sides = context.container.querySelector('div > div > div:nth-child(2)');
+
+            await doClick(findButton(sides, '➕'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(reportedError).toBeNull();
+            expect(sides.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can close edit side dialog', async () => {
+            const side = {
+                id: createTemporaryId(),
+                name: 'SIDE 1',
+                players: [],
+                teamId: team1.id,
+            };
+            const tournamentData = {
+                round: null,
+                divisionId: null,
+                seasonId: season.id,
+                sides: [side],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: [],
+                allPlayers: [],
+            }, {
+                disabled: false,
+                saving: false,
+                canSave: true
+            }, account, [ team1 ]);
+            const playing = context.container.querySelector('div > div > div:nth-child(1)');
+            expect(playing.textContent).toEqual('Playing:');
+            const sides = context.container.querySelector('div > div > div:nth-child(2)');
+            const sideElement = sides.querySelector('div');
+            let message;
+            window.confirm = (msg) => {
+                message = msg;
+                return true;
+            }
+
+            await doClick(findButton(sideElement, '✏️'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Close'));
+
+            expect(reportedError).toBeNull();
+            expect(sides.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
         it('can remove a side', async () => {
             const side = {
                 id: createTemporaryId(),
