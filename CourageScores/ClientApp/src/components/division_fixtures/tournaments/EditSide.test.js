@@ -170,6 +170,67 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group')).toBeNull();
         });
 
+        it('excludes players from another division when for a division', async () => {
+            const side = {
+                name: 'SIDE NAME',
+            };
+            const otherDivisionTeam = {
+                id: createTemporaryId(),
+                name: 'OTHER DIVISION TEAM',
+                seasons: [ {
+                    seasonId: season.id,
+                    players: [ {
+                        id: createTemporaryId(),
+                        name: 'OTHER DIVISION PLAYER',
+                    } ],
+                    divisionId: createTemporaryId(),
+                } ]
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, side, [ otherDivisionTeam, team ]);
+
+            expect(reportedError).toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            expect(playerItems.map(li => li.textContent)).not.toContain( 'OTHER DIVISION PLAYER');
+        });
+
+        it('includes players from another division when cross-divisional', async () => {
+            const side = {
+                name: 'SIDE NAME',
+            };
+            const otherDivisionTeam = {
+                id: createTemporaryId(),
+                name: 'OTHER DIVISION TEAM',
+                seasons: [ {
+                    seasonId: season.id,
+                    players: [ {
+                        id: createTemporaryId(),
+                        name: 'OTHER DIVISION PLAYER',
+                    } ],
+                    divisionId: createTemporaryId(),
+                } ]
+            };
+            const crossDivisionalTournamentData = {
+                id: createTemporaryId(),
+                divisionId: null,
+                sides: []
+            };
+
+            await renderComponent({
+                tournamentData: crossDivisionalTournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, side, [ otherDivisionTeam, team ]);
+
+            expect(reportedError).toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toContain( 'OTHER DIVISION PLAYER');
+        });
+
         it('unselectable players when selected in another tournament', async () => {
             const side = {
                 name: 'SIDE NAME',
