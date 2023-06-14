@@ -183,8 +183,8 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                     </ol>
                 </div>
             </div>)}
-            <div className="modal-footer px-0">
-                <div className="left-aligned">
+            <div className="modal-footer px-0 pb-0">
+                <div className="left-aligned mx-0">
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>
                 {side.id ? (<button className="btn btn-danger margin-right" onClick={onRemoveSide}>
