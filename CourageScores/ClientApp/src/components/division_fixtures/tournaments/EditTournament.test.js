@@ -380,27 +380,31 @@ describe('EditTournament', () => {
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
 
-            await doSelectOption(sides.querySelector('.bg-yellow .dropdown-menu'), 'TEAM 1');
+            await doClick(findButton(sides, '➕'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doSelectOption(dialog.querySelector('.dropdown-menu'), 'TEAM 1');
+            await doClick(findButton(dialog, 'Save'));
 
             expect(reportedError).toBeNull();
             expect(updatedData.sides).toEqual([tournamentData.sides[0], {
+                id: expect.any(String),
                 name: 'TEAM 1',
                 teamId: team1.id,
             }]);
         });
 
-        it('can start updating a side name', async () => {
-            const side = {
-                id: createTemporaryId(),
-                name: 'SIDE 1',
-                players: [],
-                teamId: team1.id,
-            };
+        it('can close add a side dialog', async () => {
             const tournamentData = {
                 round: null,
                 divisionId: null,
                 seasonId: season.id,
-                sides: [side],
+                sides: [{
+                    id: createTemporaryId(),
+                    name: 'SIDE 1',
+                    players: [],
+                    teamId: null,
+                }],
                 oneEighties: [],
                 over100Checkouts: [],
             };
@@ -417,25 +421,19 @@ describe('EditTournament', () => {
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
-            const sideElement = sides.querySelector('div');
 
-            await doClick(findButton(sideElement, '✏️'));
-            await doChange(sideElement, 'input[name="newName"]', 'NEW SIDE 1', context.user);
+            await doClick(findButton(sides, '➕'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Close'));
 
             expect(reportedError).toBeNull();
-            expect(updatedData.sides).toEqual([{
-                id: side.id,
-                newName: 'NEW SIDE 1',
-                name: 'SIDE 1',
-                players: [],
-                teamId: team1.id,
-            }]);
+            expect(sides.querySelector('.modal-dialog')).toBeFalsy();
         });
 
-        it('can complete updating a side name', async () => {
+        it('can close edit side dialog', async () => {
             const side = {
                 id: createTemporaryId(),
-                newName: 'NEW SIDE 1',
                 name: 'SIDE 1',
                 players: [],
                 teamId: team1.id,
@@ -462,18 +460,19 @@ describe('EditTournament', () => {
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
             const sideElement = sides.querySelector('div');
+            let message;
+            window.confirm = (msg) => {
+                message = msg;
+                return true;
+            }
 
             await doClick(findButton(sideElement, '✏️'));
-            await doChange(sideElement, 'input[name="newName"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(sideElement, '✅'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Close'));
 
             expect(reportedError).toBeNull();
-            expect(updatedData.sides).toEqual([{
-                id: side.id,
-                name: 'NEW SIDE 1',
-                players: [],
-                teamId: team1.id,
-            }]);
+            expect(sides.querySelector('.modal-dialog')).toBeFalsy();
         });
 
         it('can remove a side', async () => {
@@ -511,7 +510,10 @@ describe('EditTournament', () => {
                 return true;
             }
 
-            await doClick(findButton(sideElement, '🗑'));
+            await doClick(findButton(sideElement, '✏️'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doClick(findButton(dialog, 'Delete side'));
 
             expect(reportedError).toBeNull();
             expect(updatedData.sides).toEqual([]);
@@ -520,7 +522,6 @@ describe('EditTournament', () => {
         it('updates side A data in rounds', async () => {
             const side = {
                 id: createTemporaryId(),
-                newName: 'NEW SIDE 1',
                 name: 'SIDE 1',
                 teamId: team1.id,
                 players: [],
@@ -556,8 +557,10 @@ describe('EditTournament', () => {
             const sideElement = sides.querySelector('div');
 
             await doClick(findButton(sideElement, '✏️'));
-            await doChange(sideElement, 'input[name="newName"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(sideElement, '✅'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
+            await doClick(findButton(dialog, 'Save'));
 
             expect(reportedError).toBeNull();
             expect(updatedData.round.matches[0]).toEqual({
@@ -571,7 +574,6 @@ describe('EditTournament', () => {
         it('updates side B data in rounds', async () => {
             const side = {
                 id: createTemporaryId(),
-                newName: 'NEW SIDE 1',
                 name: 'SIDE 1',
                 teamId: team1.id,
                 players: [],
@@ -607,8 +609,10 @@ describe('EditTournament', () => {
             const sideElement = sides.querySelector('div');
 
             await doClick(findButton(sideElement, '✏️'));
-            await doChange(sideElement, 'input[name="newName"]', 'NEW SIDE 1', context.user);
-            await doClick(findButton(sideElement, '✅'));
+            const dialog = sides.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            await doChange(sideElement, 'input[name="name"]', 'NEW SIDE 1', context.user);
+            await doClick(findButton(dialog, 'Save'));
 
             expect(reportedError).toBeNull();
             expect(updatedData.round.matches[0]).toEqual({
