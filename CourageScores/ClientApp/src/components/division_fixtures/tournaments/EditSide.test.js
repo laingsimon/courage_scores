@@ -170,6 +170,34 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group')).toBeNull();
         });
 
+        it('when team is not registered to season', async () => {
+            const teamNotInSeason = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                seasons: [ {
+                    seasonId: createTemporaryId(),
+                    players: [ {
+                        id: createTemporaryId(), name: 'NOT IN SEASON PLAYER'
+                    } ],
+                    divisionId: tournamentData.divisionId,
+                } ]
+            }
+            const side = {
+                name: 'SIDE NAME',
+                teamId: teamNotInSeason.id,
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ teamNotInSeason ]);
+
+            expect(reportedError).toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            expect(playerItems.map(li => li.textContent)).not.toContain( 'NOT IN SEASON PLAYER');
+        });
+
         it('excludes players from another division when for a division', async () => {
             const side = {
                 name: 'SIDE NAME',
@@ -261,6 +289,18 @@ describe('EditSide', () => {
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER (🚫 Selected in another side)');
+        });
+
+        it('selectable players when selected in this side', async () => {
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, tournamentData.sides[0], [ team ]);
+
+            expect(reportedError).toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toContain('ANOTHER PLAYER');
         });
 
         it('delete button when side exists', async () => {
@@ -361,6 +401,26 @@ describe('EditSide', () => {
             expect(updatedData).toEqual({
                 name: 'TEAM',
                 teamId: team.id,
+            });
+        });
+
+        it('can unset team id', async () => {
+            const side = {
+                name: 'TEAM',
+                teamId: team.id
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                name: 'TEAM',
+                teamId: undefined,
             });
         });
 
@@ -518,6 +578,29 @@ describe('EditSide', () => {
             expect(reportedError).toBeNull();
             expect(confirm).toEqual('Are you sure you want to remove SIDE NAME?');
             expect(deleted).toEqual(true);
+        });
+
+        it('does not delete side when rejected', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                id: createTemporaryId(),
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+            let confirm;
+            window.confirm = (msg) => {
+                confirm = msg;
+                return false;
+            }
+
+            await doClick(findButton(context.container, 'Delete side'));
+
+            expect(reportedError).toBeNull();
+            expect(confirm).toEqual('Are you sure you want to remove SIDE NAME?');
+            expect(deleted).toEqual(false);
         });
 
         it('cannot save side if no name', async () => {

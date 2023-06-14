@@ -198,6 +198,7 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
             </div>
         </Dialog>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
