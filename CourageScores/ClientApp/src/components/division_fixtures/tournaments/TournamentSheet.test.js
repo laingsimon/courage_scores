@@ -114,7 +114,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final']);
-            assertSideNames([ 'SIDE 1', 'SIDE 2' ]);
+            assertSideNames([ 'PLAYER 1, PLAYER 2', 'PLAYER 1, PLAYER 2' ]);
             assertMatches(2);
             assertByes([ false ]);
         });
@@ -130,7 +130,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
-            assertSideNames(['SIDE 1', 'SIDE 2', 'SIDE 3']);
+            assertSideNames(['PLAYER 1, PLAYER 2, PLAYER 3', 'PLAYER 1, PLAYER 2, PLAYER 3', 'PLAYER 1, PLAYER 2, PLAYER 3']);
             assertMatches(3);
             assertByes([ true, false ]);
         });
@@ -147,7 +147,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
-            assertSideNames([ 'SIDE 1', 'SIDE 2', 'SIDE 3', 'SIDE 4' ]);
+            assertSideNames([ 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4' ]);
             assertMatches(4);
             assertByes([ false, false ]);
         });
@@ -165,7 +165,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Quarter-Final', 'Semi-Final', 'Final']);
-            assertSideNames([ 'SIDE 1', 'SIDE 2', 'SIDE 3', 'SIDE 4', 'SIDE 5' ]);
+            assertSideNames([ 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5' ]);
             assertMatches(5);
             assertByes([ true, true, false ]);
         });
@@ -187,7 +187,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Round: 1', 'Quarter-Final', 'Semi-Final', 'Final'], true);
-            assertSideNames([ 'SIDE 1', 'SIDE 2', 'SIDE 3', 'SIDE 4', 'SIDE 5', 'SIDE 6', 'SIDE 7', 'SIDE 8', 'SIDE 9' ]);
+            assertSideNames([ 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1' ]);
             assertMatches(1);
             assertByes([ true, true, true, false ]);
         });
