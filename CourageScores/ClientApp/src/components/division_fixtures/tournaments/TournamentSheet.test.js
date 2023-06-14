@@ -56,8 +56,8 @@ describe('TournamentSheet', () => {
     }
 
     function assertSideNames(sideNames) {
-        const sideNames = Array.from(context.container.querySelectorAll('ul.float-end.list-group li'));
-        expect(sideNames.map(e => e.textContent)).toEqual(sideNames.map((sideName, index) => `${index + 1} - ${sideName}`));
+        const sides = Array.from(context.container.querySelectorAll('ul.float-end.list-group li'));
+        expect(sides.map(e => e.textContent)).toEqual(sideNames.map((sideName, index) => `${index + 1} - ${sideName}`));
     }
 
     function assertMatches(matchSize) {
