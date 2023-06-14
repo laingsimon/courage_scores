@@ -130,7 +130,25 @@ describe('EditSide', () => {
             expect(context.container.querySelector('input[name="name"]').value).toEqual('SIDE NAME');
             expect(context.container.querySelector('.dropdown-menu')).toBeNull();
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
-            expect(context.container.querySelector('ol.list-group').querySelector('ol.list-group li.list-group-item.active').textContent).toEqual('PLAYER');
+            expect(context.container.querySelector('ol.list-group li.list-group-item.active').textContent).toEqual('PLAYER');
+        });
+
+        it('filtered players', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                players: [player]
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team ]);
+
+            await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER', context.user);
+
+            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toEqual([ 'ANOTHER PLAYER (🚫 Selected in another side)' ]);
         });
 
         it('side with teamId', async () => {

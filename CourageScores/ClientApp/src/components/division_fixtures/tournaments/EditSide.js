@@ -1,5 +1,5 @@
-import {valueChanged} from "../../../helpers/events";
-import React from "react";
+import {stateChanged, valueChanged} from "../../../helpers/events";
+import React, {useState} from "react";
 import {Dialog} from "../../common/Dialog";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {useApp} from "../../../AppContainer";
@@ -9,6 +9,7 @@ import {useTournament} from "./TournamentContainer";
 export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
     const { teams: teamMap, onError } = useApp();
     const { tournamentData, season, alreadyPlaying } = useTournament();
+    const [ playerFilter, setPlayerFilter ] = useState('');
     const divisionId = tournamentData.divisionId;
     const selectATeam = { value: '', text: 'Select team', className: 'text-warning' };
     const teamOptions = [selectATeam].concat(teamMap.filter(teamSeasonForSameDivision).map(t => { return { value: t.id, text: t.name }; }).sort(sortBy('text')));
@@ -135,7 +136,17 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
         await onApply();
     }
 
+    function matchesPlayerFilter(player) {
+        if (!playerFilter) {
+            return true;
+        }
+
+        return player.name.toLowerCase().indexOf(playerFilter.toLowerCase()) !== -1;
+    }
+
     try {
+        const filteredPlayers = allPossiblePlayers.filter(matchesPlayerFilter);
+
         return (<Dialog title={side.id ? 'Edit side' : 'Add side'} slim={true}>
             <div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">
@@ -151,10 +162,17 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                 <BootstrapDropdown options={teamOptions} value={side.teamId} onChange={updateTeamId} />
             </div>)}
             {side.teamId ? null : (<div>
-                <p>Who's playing</p>
-                <div className="max-scroll-height overflow-auto">
+                <div className="d-flex justify-content-between align-items-center p-2 pt-0">
+                    <div>Who's playing</div>
+                    <div>
+                        <span className="margin-right">Filter</span>
+                        <input name="playerFilter" onChange={stateChanged(setPlayerFilter)} value={playerFilter} />
+                        {playerFilter ? (<span className="margin-left">{filteredPlayers.length} of {allPossiblePlayers.length} player/s</span>) : null}
+                    </div>
+                </div>
+                <div className="max-scroll-height overflow-auto height-250">
                     <ol className="list-group mb-3">
-                        {allPossiblePlayers.sort(sortBy('name')).map(player => {
+                        {filteredPlayers.sort(sortBy('name')).map(player => {
                             const selected = side.players && any(side.players, p => p.id === player.id);
                             const playingInAnotherTournament = alreadyPlaying[player.id];
                             const selectedInAnotherSide = getOtherSidePlayerSelectedIn(player);
