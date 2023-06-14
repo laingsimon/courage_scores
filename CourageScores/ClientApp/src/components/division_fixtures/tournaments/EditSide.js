@@ -162,8 +162,8 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                                         className={`list-group-item${selected ? ' active' : ''}${playingInAnotherTournament || selectedInAnotherSide ? ' disabled' : ''}`}
                                         onClick={() => togglePlayer(player)}>
                                 {player.name}
-                                {playingInAnotherTournament ? ' (🚫 Already playing in another tournament)' : null}
-                                {selectedInAnotherSide ? ` (🚫 Already selected in this tournament)` : null}
+                                {playingInAnotherTournament ? ' (🚫 Playing in another tournament)' : null}
+                                {selectedInAnotherSide ? ` (🚫 Selected in another side)` : null}
                             </li>);
                         })}
                     </ol>
