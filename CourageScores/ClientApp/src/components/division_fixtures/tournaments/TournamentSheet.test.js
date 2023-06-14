@@ -55,9 +55,9 @@ describe('TournamentSheet', () => {
         expect(roundNames.map(e => e.textContent)).toEqual(expectedRoundNames.concat(extraRoundNames));
     }
 
-    function assertSideNames(sides) {
+    function assertSideNames(sideNames) {
         const sideNames = Array.from(context.container.querySelectorAll('ul.float-end.list-group li'));
-        expect(sideNames.map(e => e.textContent)).toEqual(sides.map((side, index) => `${index + 1} - ${side.name}`));
+        expect(sideNames.map(e => e.textContent)).toEqual(sideNames.map((sideName, index) => `${index + 1} - ${sideName}`));
     }
 
     function assertMatches(matchSize) {
@@ -99,7 +99,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final'], true);
-            assertSideNames(sides);
+            assertSideNames([ 'SIDE 1', 'SIDE 2' ]);
             assertMatches(1);
             assertByes([ false ]);
         });
@@ -114,7 +114,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final']);
-            assertSideNames(sides);
+            assertSideNames([ 'SIDE 1', 'SIDE 2' ]);
             assertMatches(2);
             assertByes([ false ]);
         });
@@ -130,7 +130,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
-            assertSideNames(sides);
+            assertSideNames(['SIDE 1', 'SIDE 2', 'SIDE 3']);
             assertMatches(3);
             assertByes([ true, false ]);
         });
@@ -147,7 +147,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
-            assertSideNames(sides);
+            assertSideNames([ 'SIDE 1', 'SIDE 2', 'SIDE 3', 'SIDE 4' ]);
             assertMatches(4);
             assertByes([ false, false ]);
         });
@@ -165,7 +165,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Quarter-Final', 'Semi-Final', 'Final']);
-            assertSideNames(sides);
+            assertSideNames([ 'SIDE 1', 'SIDE 2', 'SIDE 3', 'SIDE 4', 'SIDE 5' ]);
             assertMatches(5);
             assertByes([ true, true, false ]);
         });
@@ -187,7 +187,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Round: 1', 'Quarter-Final', 'Semi-Final', 'Final'], true);
-            assertSideNames(sides);
+            assertSideNames([ 'SIDE 1', 'SIDE 2', 'SIDE 3', 'SIDE 4', 'SIDE 5', 'SIDE 6', 'SIDE 7', 'SIDE 8', 'SIDE 9' ]);
             assertMatches(1);
             assertByes([ true, true, true, false ]);
         });
