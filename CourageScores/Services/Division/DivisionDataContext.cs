@@ -15,10 +15,10 @@ public class DivisionDataContext
     public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
 
     public DivisionDataContext(
-        IReadOnlyCollection<Models.Cosmos.Game.Game> games,
+        IEnumerable<Models.Cosmos.Game.Game> games,
         IReadOnlyCollection<TeamDto> teamsInSeasonAndDivision,
         IReadOnlyCollection<TournamentGame> tournamentGames,
-        IReadOnlyCollection<FixtureDateNoteDto> notes,
+        IEnumerable<FixtureDateNoteDto> notes,
         SeasonDto season)
     {
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
@@ -38,7 +38,7 @@ public class DivisionDataContext
     public IEnumerable<TournamentGame> AllTournamentGames(Guid? divisionId)
     {
         return _tournamentGames
-            .Where(tournament => tournament.DivisionId == null || tournament.DivisionId == divisionId);
+            .Where(tournament => divisionId == null || tournament.DivisionId == null || tournament.DivisionId == divisionId);
     }
 
     [ExcludeFromCodeCoverage]

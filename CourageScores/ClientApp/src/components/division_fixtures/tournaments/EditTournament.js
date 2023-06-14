@@ -4,23 +4,20 @@ import {TournamentSide} from "./TournamentSide";
 import {TournamentRound} from "./TournamentRound";
 import {MultiPlayerSelection} from "../scores/MultiPlayerSelection";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
-import React from "react";
+import React, {useState} from "react";
 import {useApp} from "../../../AppContainer";
 import {useTournament} from "./TournamentContainer";
+import {EditSide} from "./EditSide";
+import {createTemporaryId} from "../../../helpers/projection";
 
 export function EditTournament({ canSave, disabled, saving, applyPatch }) {
     const { account } = useApp();
-    const { tournamentData, setTournamentData, season, alreadyPlaying, allPlayers } = useTournament();
+    const { tournamentData, setTournamentData, allPlayers } = useTournament();
     const isAdmin = account && account.access && account.access.manageTournaments;
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
-
-    function getOtherSides(sideIndex) {
-        return tournamentData.sides.filter((side, index) => {
-            return index !== sideIndex;
-        });
-    }
+    const [ newSide, setNewSide ] = useState(null);
 
     function getWinningSide(round) {
         if (round && round.nextRound) {
@@ -59,6 +56,12 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
         setTournamentData(newTournamentData);
     }
 
+    async function removeSide(side) {
+        const newTournamentData = Object.assign({}, tournamentData);
+        newTournamentData.sides = tournamentData.sides.filter(s => s.id !== side.id);
+        setTournamentData(newTournamentData);
+    }
+
     function updateSideDataInRound(round, side) {
         if (!round) {
             return;
@@ -78,21 +81,33 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
         updateSideDataInRound(round.nextRound, side);
     }
 
+    function renderEditNewSide() {
+        return (<EditSide
+            side={newSide}
+            onChange={(side) => setNewSide(side)}
+            onClose={() => setNewSide(null)}
+            onApply={async () => {
+                const newTournamentData = Object.assign({}, tournamentData);
+                newSide.id = newSide.id || createTemporaryId();
+                newTournamentData.sides.push(newSide);
+                setTournamentData(newTournamentData);
+                setNewSide(null);
+            }} />);
+    }
+
     return (<div className="d-print-none">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
             {tournamentData.sides.sort(sortBy('name')).map((side, sideIndex) => {
                 return (<TournamentSide
                     key={sideIndex}
-                    divisionId={tournamentData.divisionId}
                     winner={winningSideId === side.id}
                     readOnly={readOnly}
-                    seasonId={season.id}
                     side={side}
-                    exceptPlayerIds={alreadyPlaying}
                     onChange={(newSide) => sideChanged(newSide, sideIndex)}
-                    otherSides={getOtherSides(sideIndex)} />); })}
-            {readOnly || hasStarted ? null : (<TournamentSide divisionId={tournamentData.divisionId} seasonId={season.id} side={null} exceptPlayerIds={alreadyPlaying} onChange={sideChanged} otherSides={tournamentData.sides} />)}
+                    onRemove={() => removeSide(side)} />); })}
+            {!readOnly && !hasStarted ? (<button className="btn-primary" onClick={() => setNewSide({})}>➕</button>) : null}
+            {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>
         {tournamentData.sides.length >= 2 ? (<TournamentRound
             round={tournamentData.round || {}}
