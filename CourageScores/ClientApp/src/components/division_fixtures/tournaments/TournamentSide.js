@@ -65,13 +65,6 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
             onDelete={onRemove} />);
     }
 
-    if (!side && !readOnly) {
-        return (<div className="bg-yellow p-1 m-1">
-            <button className="btn btn-primary" onClick={() => setEditSide({ id: null })}>➕</button>
-            {editSide ? renderEditSide() : null}
-        </div>);
-    }
-
     return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
         {renderSideName()}
         {renderTeamName()}
