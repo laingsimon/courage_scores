@@ -79,12 +79,20 @@ export function TournamentSheet({ sides }) {
         return rounds;
     }
 
+    function getSideName(side) {
+        if (any(side.players)) {
+           return side.players.sort(sortBy('namr')).map(p => p.name).join(', ');
+        }
+    
+        return side.name;
+    }
+
     return (<div className="d-screen-none">
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
             {renderPrintModeRound(sides.length)}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
-                .map((s, index) => (<li className="list-group-item outline-dark" key={s.id}>{index + 1} - {s.name}</li>))}</ul>
+                .map((s, index) => (<li className="list-group-item outline-dark" key={s.id}>{index + 1} - {getSideName(s)}</li>))}</ul>
         </div>
     </div>);
 }
