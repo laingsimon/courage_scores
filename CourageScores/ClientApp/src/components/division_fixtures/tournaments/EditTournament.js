@@ -106,7 +106,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
                     side={side}
                     onChange={(newSide) => sideChanged(newSide, sideIndex)}
                     onRemove={() => removeSide(side)} />); })}
-            {!readOnly && !hasStarted ? (<button className="btn-primary" onClick={() => setNewSide({})}>➕</button>) : null}
+            {!readOnly && !hasStarted ? (<button className="btn btn-primary" onClick={() => setNewSide({})}>➕</button>) : null}
             {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>
         {tournamentData.sides.length >= 2 ? (<TournamentRound
