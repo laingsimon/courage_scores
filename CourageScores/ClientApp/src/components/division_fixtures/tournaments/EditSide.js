@@ -16,10 +16,6 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
     const allPossiblePlayers = teamMap
         .filter(a => a) // turn the map back into an array
         .flatMap(t => {
-            if (side && side.teamId && t.id !== side.teamId) {
-                return [];
-            }
-
             const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
                 return teamSeason.players || [];
