@@ -57,9 +57,9 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
         const newSide = Object.assign({}, side);
         newSide.players = (newSide.players || []).filter(p => p.id !== playerId);
 
-        const oldSidePlayerName = side.players.map(p => p.name).join(', ');
+        const oldSidePlayerName = side.players.sort(sortBy('name')).map(p => p.name).join(', ');
         if (side.name === oldSidePlayerName) {
-            newSide.name = newSide.players.map(p => p.name).join(', ');
+            newSide.name = newSide.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
 
         if (onChange) {
@@ -75,9 +75,9 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
             divisionId: player.divisionId
         });
 
-        const oldSidePlayerName = side.players.map(p => p.name).join(', ');
+        const oldSidePlayerName = (side.players || []).sort(sortBy('name')).map(p => p.name).join(', ');
         if (side.name === oldSidePlayerName) {
-            newSide.name = newSide.players.map(p => p.name).join(', ');
+            newSide.name = newSide.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
 
         if (onChange) {
