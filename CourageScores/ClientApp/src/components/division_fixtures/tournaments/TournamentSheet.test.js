@@ -99,7 +99,7 @@ describe('TournamentSheet', () => {
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final'], true);
-            assertSideNames([ 'SIDE 1', 'SIDE 2' ]);
+            assertSideNames([ 'PLAYER 1', 'PLAYER 1' ]);
             assertMatches(1);
             assertByes([ false ]);
         });
