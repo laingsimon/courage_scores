@@ -42,17 +42,8 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
 
     async function sideChanged(newSide, sideIndex) {
         const newTournamentData = Object.assign({}, tournamentData);
-        if (sideIndex === undefined) {
-            newTournamentData.sides.push(newSide);
-        } else {
-            if (any(newSide.players) || newSide.teamId) {
-                newTournamentData.sides[sideIndex] = newSide;
-                updateSideDataInRound(newTournamentData.round, newSide);
-            } else {
-                // delete the side
-                newTournamentData.sides.splice(sideIndex, 1);
-            }
-        }
+        newTournamentData.sides[sideIndex] = newSide;
+        updateSideDataInRound(newTournamentData.round, newSide);
         setTournamentData(newTournamentData);
     }
 
