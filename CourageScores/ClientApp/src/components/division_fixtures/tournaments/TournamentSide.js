@@ -16,7 +16,7 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
             return null;
         }
 
-        return (<div><Link to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</Link></div>);
+        return (<div data-name="team-name"><Link to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</Link></div>);
     }
 
     function renderPlayers () {
@@ -44,8 +44,8 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
         if (singlePlayer && singlePlayer.divisionId && singlePlayer.divisionId !== EMPTY_ID) {
             name = (<Link to={`/division/${singlePlayer.divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</Link>);
         } else if (side.teamId && teamMap[side.teamId]) {
-            const team = side.teamId ? teamMap[side.teamId] : null;
-            name = (<Link to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{side.name}</Link>);
+            const team = teamMap[side.teamId];
+            name = (<Link to={`/division/${team.divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
         }
 
         return (<strong>{name}</strong>);
