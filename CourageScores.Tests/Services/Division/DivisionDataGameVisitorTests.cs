@@ -391,6 +391,18 @@ public class DivisionDataGameVisitorTests
     }
 
     [Test]
+    public void VisitTeam_GivenPlayedKnockoutGame_IgnoresTeam()
+    {
+        var divisionData = new DivisionData();
+        var visitor = new DivisionDataGameVisitor(divisionData);
+        var team = new GameTeam { Id = Home.Id, Name = Home.Name };
+
+        visitor.VisitTeam(KnockoutVisitorScope, team, GameState.Played);
+
+        Assert.That(divisionData.Teams.Keys, Is.Empty);
+    }
+
+    [Test]
     public void VisitTeam_GivenUnPlayedGame_IgnoresTeam()
     {
         var divisionData = new DivisionData();
