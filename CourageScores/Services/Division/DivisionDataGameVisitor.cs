@@ -145,6 +145,12 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     public void VisitTeam(IVisitorScope scope, GameTeam team, GameState gameState)
     {
+        if (scope.Game?.IsKnockout == true)
+        {
+            // don't include knockout plays in teams table
+            return;
+        }
+
         if (gameState != GameState.Played)
         {
             return;
