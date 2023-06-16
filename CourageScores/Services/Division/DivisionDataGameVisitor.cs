@@ -62,6 +62,7 @@ public class DivisionDataGameVisitor : IGameVisitor
                 _divisionData.Players.Add(player.Id, playerScore);
             }
 
+            playerScore.Games.Add(scope.Game);
             var scoreForLegSize = playerScore.GetScores(players.Count);
             scoreForLegSize.MatchesWon++;
             scoreForLegSize.MatchesPlayed++;
@@ -98,6 +99,7 @@ public class DivisionDataGameVisitor : IGameVisitor
                 _divisionData.Players.Add(player.Id, playerScore);
             }
 
+            playerScore.Games.Add(scope.Game);
             var scoreForLegSize = playerScore.GetScores(players.Count);
             scoreForLegSize.MatchesLost++;
             scoreForLegSize.MatchesPlayed++;
@@ -121,6 +123,8 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Players.Add(player.Id, score);
         }
 
+        score.Games.Add(scope.Game);
+        score.FromKnockout = score.FromKnockout || scope.Game?.IsKnockout == true;
         score.OneEighties++;
     }
 
@@ -137,6 +141,8 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Players.Add(player.Id, score);
         }
 
+        score.FromKnockout = score.FromKnockout || scope.Game?.IsKnockout == true;
+        score.Games.Add(scope.Game);
         if (hiCheck > score.HiCheckout)
         {
             score.HiCheckout = hiCheck;
