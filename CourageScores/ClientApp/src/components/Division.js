@@ -42,26 +42,23 @@ export function Division() {
         }
 
         try {
-            if (divisionData) {
-                if (divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
-                    return;
-                }
-
-                if (divisionData.status) {
-                    console.log(divisionData);
-                    const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
-                    onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
-                    return;
-                }
-
-                if (divisionData.id === divisionId && any(divisionData.dataErrors || [])) {
-                    onError(divisionData.dataErrors.join(', '));
-                    return;
-                }
+            if (!divisionData || ((divisionData.id !== divisionId || ((divisionData.season || {}).id !== seasonId && seasonId)) && !divisionData.status)) {
+                setLoading(true);
+                // noinspection JSIgnoredPromiseFromCall
+                reloadDivisionData();
+                return;
             }
-            setLoading(true);
-            // noinspection JSIgnoredPromiseFromCall
-            reloadDivisionData();
+
+            if (divisionData.status) {
+                console.log(divisionData);
+                const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
+                onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
+                return;
+            }
+
+            if (any(divisionData.dataErrors || [])) {
+                onError(divisionData.dataErrors.join(', '));
+            }
         } catch (e) {
             onError(e);
         }

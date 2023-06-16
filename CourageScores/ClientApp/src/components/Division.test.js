@@ -407,6 +407,7 @@ describe('Division', () => {
         it('renders data errors from api', async () => {
             const divisionId = createTemporaryId();
             const errorDivisionData = {
+                id: divisionId,
                 dataErrors: ['some data error', 'another data error']
             };
             setupMockDivisionData(divisionId, undefined, errorDivisionData);
