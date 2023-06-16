@@ -15,7 +15,7 @@ import {About} from "./components/About";
 import {mapForLogging, mapError} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 
-export function App({ shouldExcludeSurround }) {
+export function App({ shouldExcludeSurround, testRoute }) {
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
@@ -42,7 +42,7 @@ export function App({ shouldExcludeSurround }) {
         setError(null);
     }
 
-    function invalidCacheAndTryAgain() {
+    function invalidateCacheAndTryAgain() {
         settings.invalidateCacheOnNextRequest = true;
         clearError();
     }
@@ -102,7 +102,7 @@ export function App({ shouldExcludeSurround }) {
         reloadSeasons,
         onError,
         clearError,
-        invalidCacheAndTryAgain,
+        invalidateCacheAndTryAgain,
         build: getBuild(),
         reportClientSideException,
     };
@@ -121,6 +121,7 @@ export function App({ shouldExcludeSurround }) {
                     <Route path='/tournament/:tournamentId' element={<Tournament />} />
                     <Route path='/practice' element={<Practice />} />
                     <Route path='/about' element={<About />} />
+                    {testRoute}
                 </Routes>
             </Layout>
         </AppContainer>);

@@ -68,11 +68,6 @@ export function UserAdmin() {
             return;
         }
 
-        if (!emailAddress) {
-            window.alert('You must enter an email address');
-            return;
-        }
-
         setSaving(true);
         try {
             const update = {
