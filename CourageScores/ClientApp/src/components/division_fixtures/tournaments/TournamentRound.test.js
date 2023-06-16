@@ -657,6 +657,34 @@ describe('TournamentRound', () => {
                 });
             });
 
+            it('defaults match options to bestOf', async () => {
+                const match = {
+                    id: createTemporaryId(),
+                    scoreA: null,
+                    scoreB: null,
+                    sideA: side1,
+                    sideB: side2,
+                };
+                await renderComponent({ tournamentData: { id: createTemporaryId(), bestOf: 9 } }, {
+                    round: {
+                        matches: [ match ],
+                        matchOptions: [ ],
+                        nextRound: null,
+                    },
+                    sides: [ side1, side2, side3, side4 ],
+                    readOnly,
+                    depth: 1,
+                });
+                expect(reportedError).toBeNull();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+
+                await doClick(findButton(matchRow, '🛠'));
+
+                const matchOptionsDialog = context.container.querySelector('.modal-dialog');
+                expect(matchOptionsDialog).toBeTruthy();
+                expect(matchOptionsDialog.querySelector('input[name="numberOfLegs"]').value).toEqual('9');
+            });
+
             it('can change match options', async () => {
                 const match = {
                     id: createTemporaryId(),
