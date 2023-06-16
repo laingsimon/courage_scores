@@ -1,4 +1,4 @@
-import {ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle} from "reactstrap";
+import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import React, {useState} from "react";
 import {ErrorDisplay} from "./common/ErrorDisplay";
@@ -110,6 +110,24 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         navigate(`/division/${originalDivisionData.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`);
     }
 
+    function renderSeasonOption(s) {
+        return (<Link
+            key={s.id}
+            className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`}
+            to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}`}>
+            {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
+        </Link>);
+    }
+
+    function renderDivisionOption(d) {
+        return (<Link
+            key={d.id}
+            className={`dropdown-item ${originalDivisionData.id === d.id ? ' active' : ''}${isDivisionSelected(d) ? '' : ' text-warning'}`}
+            to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>
+            {d.name}
+        </Link>);
+    }
+
     try {
         return (<div className="btn-group py-2 d-print-none">
             {divisionData ? renderEditDivisionDialog() : null}
@@ -123,12 +141,10 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
                 </button>
                 {seasons.length ? (<DropdownToggle caret color={isSeasonAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                 {seasons.length ? (<DropdownMenu>
-                    {seasons.sort(sortBy('startDate', true)).map(s => (<Link key={s.id} className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`} to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}`}>
-                        {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
-                    </Link>))}
-                    {isSeasonAdmin ? (<DropdownItem onClick={() => setSeasonData({})}>
-                        <span className="btn">➕ New season</span>
-                    </DropdownItem>) : null}
+                    {seasons.sort(sortBy('startDate', true)).map(renderSeasonOption)}
+                    {isSeasonAdmin ? (<button className="dropdown-item" onClick={() => setSeasonData({})}>
+                        ➕ New season
+                    </button>) : null}
                 </DropdownMenu>) : null}
             </ButtonDropdown>
             {originalDivisionData && divisions && originalSeasonData ? (
@@ -139,10 +155,10 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
                     </button>
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownToggle caret color={isDivisionAdmin ? 'info' : 'light'}></DropdownToggle>) : null}
                     {divisions.filter(shouldShowDivision).length > 1 || isDivisionAdmin ? (<DropdownMenu>
-                        {divisions.filter(shouldShowDivision).sort(sortBy('name')).map(d => (<Link key={d.id} className={`dropdown-item ${originalDivisionData.id === d.id ? ' active' : ''}${isDivisionSelected(d) ? '' : ' text-warning'}`} to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>{d.name}</Link>))}
-                        {isDivisionAdmin ? (<DropdownItem onClick={() => setDivisionData({})}>
-                            <span className="btn">➕ New division</span>
-                        </DropdownItem>) : null}
+                        {divisions.filter(shouldShowDivision).sort(sortBy('name')).map(renderDivisionOption)}
+                        {isDivisionAdmin ? (<button className="dropdown-item" onClick={() => setDivisionData({})}>
+                            ➕ New division
+                        </button>) : null}
                     </DropdownMenu>) : null}
                 </ButtonDropdown>) : null}
             {(!originalDivisionData || !divisions || !originalSeasonData) ? (<div className="btn-group"><button className={`btn ${isDivisionAdmin ? 'btn-info' : 'btn-light'} text-nowrap`}>All divisions</button></div>) : null}
