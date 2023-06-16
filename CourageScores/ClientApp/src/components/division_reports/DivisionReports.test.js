@@ -159,6 +159,39 @@ describe('DivisionTeams', () => {
             expect(activeItem.textContent).toEqual('Report 1');
         });
 
+        it('selects no report if no reports returned on subsequent fetch', async () => {
+            const report1 = {
+                name: 'report-1',
+                description: 'Report 1',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const report2 = {
+                name: 'report-2',
+                description: 'Report 2',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [ report1, report2 ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
+
+            returnReport = {
+                reports: [ ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active');
+            expect(activeItem).toBeNull();
+        });
+
         it('renders messages', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);

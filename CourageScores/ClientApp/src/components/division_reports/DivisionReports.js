@@ -61,10 +61,6 @@ export function DivisionReports() {
         }
 
         const report = reportData.reports.filter(r => r.name === activeReport)[0];
-        if (!report) {
-            return (<ReportNotFound />);
-        }
-
         return (<Report rows={report.rows} valueHeading={report.valueHeading} />);
     }
 
