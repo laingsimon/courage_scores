@@ -42,7 +42,7 @@ export function App({ shouldExcludeSurround }) {
         setError(null);
     }
 
-    function invalidCacheAndTryAgain() {
+    function invalidateCacheAndTryAgain() {
         settings.invalidateCacheOnNextRequest = true;
         clearError();
     }
@@ -102,7 +102,7 @@ export function App({ shouldExcludeSurround }) {
         reloadSeasons,
         onError,
         clearError,
-        invalidCacheAndTryAgain,
+        invalidateCacheAndTryAgain,
         build: getBuild(),
         reportClientSideException,
     };
