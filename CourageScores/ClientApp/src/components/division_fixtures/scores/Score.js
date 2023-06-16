@@ -69,13 +69,6 @@ export function Score() {
 
                 const newPlayer = newPlayers[0];
                 const match = fixtureData.matches[createPlayerFor.matchIndex];
-                if (!match) {
-                    /* istanbul ignore next */
-                    console.log(createPlayerFor);
-                    onError(`Unable to find match at index ${createPlayerFor.matchIndex}`);
-                    return;
-                }
-
                 const newMatch = Object.assign({}, match);
                 newMatch[createPlayerFor.side + 'Players'][createPlayerFor.index] = {
                     id: newPlayer.id,

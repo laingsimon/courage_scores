@@ -3,7 +3,7 @@
 import {cleanUp, renderApp, doClick, findButton, doChange, doSelectOption} from "../../../helpers/tests";
 import React from "react";
 import {toMap, any} from "../../../helpers/collections";
-import {createTemporaryId} from "../../../helpers/projection";
+import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";
 
 describe('Score', () => {
@@ -530,7 +530,7 @@ describe('Score', () => {
                     success: true,
                     result: existingTeam,
                 };
-            }
+            };
 
             expect(reportedError).toBeNull();
             const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
@@ -544,6 +544,72 @@ describe('Score', () => {
             await doClick(findButton(addPlayerDialog, 'Add player'));
 
             expect(reportedError).toBeNull();
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can handle missing team season during add new player', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            newPlayerApiResult = (createdPlayer) => {
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                existingTeam.seasons = existingTeam.seasons.filter(_ => false); // return no team seasons
+
+                return {
+                    success: true,
+                    result: existingTeam,
+                };
+            };
+
+            expect(reportedError).toBeNull();
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeTruthy();
+            expect(addPlayerDialog.textContent).toContain('Create home player...');
+            await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
+            await doClick(findButton(addPlayerDialog, 'Add player'));
+
+            expect(reportedError).toEqual('Could not find updated teamSeason');
+            expect(teamsReloaded).toEqual(true);
+            expect(createdPlayer).not.toBeNull();
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can handle new player not found after creating new player', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
+            await renderComponent(fixtureId, appData, account);
+            newPlayerApiResult = (createdPlayer) => {
+                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                existingTeam.seasons = existingTeam.seasons.map(ts => {
+                    return Object.assign({}, ts);
+                });
+
+                return {
+                    success: true,
+                    result: existingTeam,
+                };
+            };
+
+            expect(reportedError).toBeNull();
+            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            expect(firstSinglesRow).toBeTruthy();
+            const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
+            await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeTruthy();
+            expect(addPlayerDialog.textContent).toContain('Create home player...');
+            await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
+            await doClick(findButton(addPlayerDialog, 'Add player'));
+
+            expect(reportedError).toEqual('Could not find new player in updated season, looking for player with name: "NEW PLAYER"');
             expect(teamsReloaded).toEqual(true);
             expect(createdPlayer).not.toBeNull();
             expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
@@ -651,6 +717,93 @@ describe('Score', () => {
             expect(reportedError).toBeNull();
             expect(updatedFixtures[fixtureId]).not.toBeNull();
             expect(updatedFixtures[fixtureId].matchOptions[0].numberOfLegs).toEqual('30');
+        });
+
+        it('can unpublish unselected submission', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.resultsPublished = true;
+            fixtureData.homeSubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.awaySubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureDataMap[fixtureId] = fixtureData;
+            await renderComponent(fixtureId, appData, account);
+            expect(reportedError).toBeNull();
+            let alert;
+            window.alert = (msg) => alert = msg;
+
+            await doClick(findButton(context.container, 'Unpublish'));
+
+            expect(reportedError).toBeNull();
+            expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+            const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
+            const allScores = matches.flatMap(match => {
+                const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+            });
+            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '')); // 16 = 8 matches * 2 sides
+        });
+
+        it('can unpublish home submission', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.resultsPublished = true;
+            fixtureData.homeSubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.awaySubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.homeSubmission.matches.forEach(match => {
+                match.homeScore = 1;
+                match.awayScore = 1;
+            });
+            fixtureDataMap[fixtureId] = fixtureData;
+            await renderComponent(fixtureId, appData, account);
+            expect(reportedError).toBeNull();
+            let alert;
+            window.alert = (msg) => alert = msg;
+            await doClick(context.container, 'span[title="See home submission"]');
+            expect(reportedError).toBeNull();
+
+            await doClick(findButton(context.container, 'Unpublish'));
+
+            expect(reportedError).toBeNull();
+            expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+            const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
+            const allScores = matches.flatMap(match => {
+                const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+            });
+            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '1')); // 16 = 8 matches * 2 sides
+        });
+
+        it('can unpublish away submission', async () => {
+            const fixtureId = createTemporaryId();
+            const appData = getDefaultAppData();
+            const fixtureData = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.resultsPublished = true;
+            fixtureData.homeSubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.awaySubmission = getPlayedFixtureData(fixtureId, appData);
+            fixtureData.awaySubmission.matches.forEach(match => {
+                match.homeScore = 2;
+                match.awayScore = 2;
+            });
+            fixtureDataMap[fixtureId] = fixtureData;
+            await renderComponent(fixtureId, appData, account);
+            expect(reportedError).toBeNull();
+            let alert;
+            window.alert = (msg) => alert = msg;
+            await doClick(context.container, 'span[title="See away submission"]');
+            expect(reportedError).toBeNull();
+
+            await doClick(findButton(context.container, 'Unpublish'));
+
+            expect(reportedError).toBeNull();
+            expect(alert).toEqual('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
+            const matches = Array.from(context.container.querySelectorAll('table tbody tr'));
+            const allScores = matches.flatMap(match => {
+                const tds = Array.from(match.querySelectorAll('td')).filter(td => td.colSpan !== 2);
+                return Array.from(tds.flatMap(td => Array.from(td.querySelectorAll('input'))));
+            });
+            expect(allScores.map(input => input.value)).toEqual(repeat(16, _ => '2')); // 16 = 8 matches * 2 sides
         });
     });
 });
