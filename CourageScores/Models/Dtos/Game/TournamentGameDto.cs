@@ -62,4 +62,14 @@ public class TournamentGameDto : AuditedDto
     /// Whether any player accolades (180s, hi-checks) should be included in the player table
     /// </summary>
     public bool AccoladesCount { get; set; }
+
+    /// <summary>
+    /// The number of legs for each match
+    /// </summary>
+    public int? BestOf { get; set; }
+
+    /// <summary>
+    /// Whether only one round should be played - e.g. for super league matches
+    /// </summary>
+    public bool SingleRound { get; set; }
 }

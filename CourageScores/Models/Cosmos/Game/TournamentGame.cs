@@ -63,6 +63,16 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
     /// </summary>
     public bool AccoladesCount { get; set; }
 
+    /// <summary>
+    /// The number of legs for each match
+    /// </summary>
+    public int? BestOf { get; set; }
+
+    /// <summary>
+    /// Whether only one round should be played - e.g. for super league matches
+    /// </summary>
+    public bool SingleRound { get; set; }
+
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)
     {
