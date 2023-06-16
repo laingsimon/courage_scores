@@ -109,6 +109,7 @@ public static class DependencyInjectionExtensions
 
     private static void AddAdapters(IServiceCollection services)
     {
+        services.AddSingleton<IActionResultAdapter, ActionResultAdapter>();
         services.AddSingleton<ISimpleAdapter<User, UserDto>, UserAdapter>();
         services.AddSingleton<ISimpleAdapter<Access, AccessDto>, AccessAdapter>();
 
@@ -151,6 +152,10 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<LegPlayerSequence, LegPlayerSequenceDto>, LegPlayerSequenceAdapter>();
         services.AddScoped<ISimpleAdapter<LegThrow, LegThrowDto>, LegThrowAdapter>();
         services.AddScoped<ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>, ScoreAsYouGoAdapter>();
+
+        services.AddScoped<IUpdateRecordedScoreAsYouGoDtoAdapter, UpdateRecordedScoreAsYouGoDtoAdapter>();
+        services.AddScoped<ITournamentPlayerAdapter, TournamentPlayerAdapter>();
+        services.AddScoped<INotableTournamentPlayerAdapter, NotableTournamentPlayerAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

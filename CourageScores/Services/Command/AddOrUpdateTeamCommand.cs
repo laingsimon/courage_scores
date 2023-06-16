@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Game;
@@ -28,7 +29,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         _serializer = serializer;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
+    protected override async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdates(Models.Cosmos.Team.Team team, EditTeamDto update, CancellationToken token)
     {
         var games = _gameService
             .GetWhere($"t.DivisionId = '{update.DivisionId}' and t.SeasonId = '{update.SeasonId}'", token);
@@ -84,20 +85,20 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
                 return $"{pair.Key:dd MMM yyyy}: {string.Join(", ", pair.Value.Select(g => $"{g.Home.Name} vs {g.Away.Name}"))}";
             });
 
-            return new CommandResult
+            return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Message = $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}",
+                Warnings = { $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}" },
             };
         }
 
         if (gamesToUpdate.Count > 0 && update.DivisionId != update.NewDivisionId)
         {
             // some games assigned to this team in the current division, not possible to change team division as it would require the game division to change too
-            return new CommandResult
+            return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Message = $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first",
+                Warnings = { $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first" },
             };
         }
 
@@ -117,10 +118,12 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
 
             if (!result.Success || result.Result == null)
             {
-                return new CommandResult
+                return new ActionResult<Models.Cosmos.Team.Team>
                 {
                     Success = false,
-                    Message = result.Message,
+                    Messages = result.Messages,
+                    Warnings = result.Warnings,
+                    Errors = result.Errors,
                 };
             }
 
@@ -130,7 +133,11 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         teamSeason.DivisionId = update.NewDivisionId;
         _cacheFlags.EvictDivisionDataCacheForDivisionId = update.DivisionId;
         _cacheFlags.EvictDivisionDataCacheForSeasonId = update.SeasonId;
-        return CommandResult.SuccessNoMessage;
+        return new ActionResult<Models.Cosmos.Team.Team>
+        {
+            Success = true,
+            Messages = { "Team updated" },
+        };
     }
 
     private EditGameDto GameDtoToEditGameDto(GameDto game)

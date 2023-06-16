@@ -174,7 +174,7 @@ describe('DivisionTeams', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog.textContent).toContain('Create a new team...');
 
-            doChange(dialog, 'input[name="name"]', 'NEW TEAM');
+            await doChange(dialog, 'input[name="name"]', 'NEW TEAM', context.user);
             await doClick(findButton(dialog, 'Add team'));
 
             expect(reportedError).toBeNull();

@@ -12,44 +12,51 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class TournamentGameController : Controller
 {
-    private readonly IGenericDataService<TournamentGame, TournamentGameDto> _gameService;
+    private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
     private readonly ICommandFactory _commandFactory;
 
-    public TournamentGameController(IGenericDataService<TournamentGame, TournamentGameDto> gameService, ICommandFactory commandFactory)
+    public TournamentGameController(IGenericDataService<TournamentGame, TournamentGameDto> tournamentService, ICommandFactory commandFactory)
     {
-        _gameService = gameService;
+        _tournamentService = tournamentService;
         _commandFactory = commandFactory;
     }
 
     [HttpGet("/api/Tournament/{id}")]
     public async Task<TournamentGameDto?> GetGame(Guid id, CancellationToken token)
     {
-        return await _gameService.Get(id, token);
+        return await _tournamentService.Get(id, token);
     }
 
     [HttpGet("/api/Tournament/")]
     public IAsyncEnumerable<TournamentGameDto> GetGames(CancellationToken token)
     {
-        return _gameService.GetAll(token);
+        return _tournamentService.GetAll(token);
     }
 
     [HttpPut("/api/Tournament/")]
     public async Task<ActionResultDto<TournamentGameDto>> AddOrUpdateGame(EditTournamentGameDto game, CancellationToken token)
     {
         var command = _commandFactory.GetCommand<AddOrUpdateTournamentGameCommand>().WithData(game);
-        return await _gameService.Upsert(game.Id, command, token);
-    }
-
-    [HttpPut("/api/TournamentScores/{id}")]
-    public async Task<ActionResultDto<TournamentGameDto>> AddOrUpdateScore(Guid id, TournamentRoundDto round, CancellationToken token)
-    {
-        var command = _commandFactory.GetCommand<UpdateTournamentRoundsCommand>().WithData(round);
-        return await _gameService.Upsert(id, command, token);
+        return await _tournamentService.Upsert(game.Id, command, token);
     }
 
     [HttpDelete("/api/Tournament/{id}")]
     public async Task<ActionResultDto<TournamentGameDto>> DeleteGame(Guid id, CancellationToken token)
     {
-        return await _gameService.Delete(id, token);
+        return await _tournamentService.Delete(id, token);
+    }
+
+    [HttpPatch("/api/Tournament/{id}")]
+    public async Task<ActionResultDto<TournamentGameDto>> PatchGame(Guid id, PatchTournamentDto patch, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<PatchTournamentCommand>().WithPatch(patch);
+        return await _tournamentService.Upsert(id, command, token);
+    }
+
+    [HttpPost("/api/Tournament/{id}")]
+    public async Task<ActionResultDto<TournamentGameDto>> CreateSayg(Guid id, CreateTournamentSaygDto saygRequest, CancellationToken token)
+    {
+        var command = _commandFactory.GetCommand<CreateTournamentMatchSaygCommand>().WithRequest(saygRequest);
+        return await _tournamentService.Upsert(id, command, token);
     }
 }

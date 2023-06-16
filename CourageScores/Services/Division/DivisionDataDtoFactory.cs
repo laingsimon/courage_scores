@@ -209,6 +209,12 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         {
             if (!playerToTeamLookup.TryGetValue(id, out var playerTuple))
             {
+                if (score.FromKnockout)
+                {
+                    // player will be represented on their own league table; should be excluded from this division
+                    continue;
+                }
+
                 playerTuple = new DivisionData.TeamPlayerTuple(
                     new TeamPlayerDto
                     {

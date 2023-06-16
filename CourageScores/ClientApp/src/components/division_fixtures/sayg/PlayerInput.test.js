@@ -49,8 +49,8 @@ describe('PlayerInput', () => {
                 onLegComplete={onLegComplete} />);
     }
 
-    function setScoreInput(score) {
-        doChange(context.container, 'input[data-score-input="true"]', score);
+    async function setScoreInput(score) {
+        await doChange(context.container, 'input[data-score-input="true"]', score, context.user);
     }
 
     async function runScoreTest(homeScore, inputScore) {
@@ -70,7 +70,7 @@ describe('PlayerInput', () => {
             singlePlayer: true
         });
 
-        setScoreInput(inputScore);
+        await setScoreInput(inputScore);
 
         const buttons = context.container.querySelectorAll('div button');
         return Array.from(buttons).map(button => button.textContent);

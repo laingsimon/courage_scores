@@ -15,16 +15,18 @@ import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
+import {TournamentContainer} from "./TournamentContainer";
 
 export function Tournament() {
     const { tournamentId } = useParams();
     const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
-    const canManageGames = account && account.access && account.access.manageGames;
+    const canManageTournaments = account && account.access && account.access.manageTournaments;
     const canManagePlayers = account && account.access && account.access.managePlayers;
     const [loading, setLoading] = useState('init');
     const [disabled, setDisabled] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [patching, setPatching] = useState(false);
     const [canSave, setCanSave] = useState(true);
     const [tournamentData, setTournamentData] = useState(null);
     const [saveError, setSaveError] = useState(null);
@@ -116,7 +118,7 @@ export function Tournament() {
 
     async function saveTournament() {
         /* istanbul ignore next */
-        if (saving) {
+        if (saving || patching) {
             /* istanbul ignore next */
             return;
         }
@@ -129,9 +131,31 @@ export function Tournament() {
                 setSaveError(response);
             } else {
                 setTournamentData(response.result);
+                return response.result;
             }
         } finally {
             setSaving(false);
+        }
+    }
+
+    async function applyPatch(patch, nestInRound) {
+        /* istanbul ignore next */
+        if (saving || patching) {
+            /* istanbul ignore next */
+            return;
+        }
+
+        setPatching(true);
+
+        try {
+            const response = await tournamentApi.patch(tournamentId, nestInRound ? { round: patch } : patch);
+            if (!response.success) {
+                setSaveError(response);
+            } else {
+                setTournamentData(response.result);
+            }
+        } finally {
+            setPatching(false);
         }
     }
 
@@ -172,7 +196,7 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="light-background p-3">
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="input-group mb-3">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
@@ -187,7 +211,7 @@ export function Tournament() {
                             text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
                     </span>
                     </p>)}
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-print-none">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
@@ -197,7 +221,7 @@ export function Tournament() {
                                onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
                     : null}
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <label htmlFor="note-text" className="input-group-text">Notes</label>
                         <textarea id="note-text" className="form-control" disabled={saving}
@@ -208,7 +232,7 @@ export function Tournament() {
                         ? (<div className="alert alert-warning alert-dismissible fade show"
                                 role="alert">{tournamentData.notes}</div>)
                         : null}
-                {canManageGames
+                {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-flex">
                         <div className="form-check form-switch margin-right">
                             <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount"
@@ -224,17 +248,17 @@ export function Tournament() {
                             disabled={saving} />
                     </div>)
                     : null}
-                <EditTournament
+                <TournamentContainer
                     tournamentData={tournamentData}
-                    disabled={disabled}
-                    saving={saving}
-                    allPlayers={allPlayers}
+                    setTournamentData={setTournamentData}
                     season={season}
                     alreadyPlaying={alreadyPlaying}
-                    canSave={canSave}
-                    setTournamentData={setTournamentData}/>
+                    allPlayers={allPlayers}
+                    saveTournament={saveTournament}>
+                    <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
+                </TournamentContainer>
                 <TournamentSheet sides={tournamentData.sides}/>
-                {canManageGames ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
+                {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}
                     Save

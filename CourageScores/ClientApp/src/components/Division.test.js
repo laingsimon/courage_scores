@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
 import {Division} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
@@ -404,9 +404,10 @@ describe('Division', () => {
             expect(reportedError).toEqual('Error accessing division: Code: 400 -- key: some error');
         });
 
-        it('renders data errors from api', async () => {
+        it('does not render data errors from api', async () => {
             const divisionId = createTemporaryId();
             const errorDivisionData = {
+                id: divisionId,
                 dataErrors: ['some data error', 'another data error']
             };
             setupMockDivisionData(divisionId, undefined, errorDivisionData);
@@ -414,7 +415,8 @@ describe('Division', () => {
             console.log = () => {};
             await renderComponent(null, divisionId);
 
-            expect(reportedError).toEqual('some data error, another data error');
+            expect(context.container.textContent).not.toContain('some data error');
+            expect(context.container.textContent).not.toContain('another data error');
         });
     });
 
@@ -475,6 +477,37 @@ describe('Division', () => {
             expect(divisionControl).not.toBeNull();
             expect(seasonControl.querySelector('button span').innerHTML).toEqual('Select a season');
             expect(divisionControl.querySelector('button').innerHTML).toEqual('All divisions');
+        });
+
+        it('renders data errors from api', async () => {
+            const divisionId = createTemporaryId();
+            const errorDivisionData = {
+                id: divisionId,
+                dataErrors: ['some data error', 'another data error']
+            };
+            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+
+            console.log = () => {};
+            await renderComponent({ access: {} }, divisionId);
+
+            expect(context.container.textContent).toContain('some data error');
+            expect(context.container.textContent).toContain('another data error');
+        });
+
+        it('can hide data errors from api', async () => {
+            const divisionId = createTemporaryId();
+            const errorDivisionData = {
+                id: divisionId,
+                dataErrors: ['some data error', 'another data error']
+            };
+            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+            console.log = () => {};
+            await renderComponent({ access: {} }, divisionId);
+
+            await doClick(findButton(context.container, 'Hide errors'));
+
+            expect(context.container.textContent).not.toContain('some data error');
+            expect(context.container.textContent).not.toContain('another data error');
         });
     });
 });

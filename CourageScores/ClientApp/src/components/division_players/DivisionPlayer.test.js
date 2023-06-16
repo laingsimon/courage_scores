@@ -336,7 +336,7 @@ describe('DivisionPlayer', () => {
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
                 const dialog = nameCell.querySelector('.modal-dialog');
-                doChange(dialog, 'input[name="name"]', 'NEW NAME');
+                await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
 
                 await doClick(findButton(dialog, 'Save player'));
 
@@ -357,7 +357,7 @@ describe('DivisionPlayer', () => {
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
                 const dialog = nameCell.querySelector('.modal-dialog');
-                doChange(dialog, 'input[name="name"]', 'NEW NAME');
+                await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
                 apiResponse = { success: false };
 
                 await doClick(findButton(dialog, 'Save player'));

@@ -30,6 +30,7 @@ public class AccessAdapterTests
             RunReports = true,
             RecordScoresAsYouGo = true,
             ViewExceptions = true,
+            ManageTournaments = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -48,6 +49,7 @@ public class AccessAdapterTests
         Assert.That(result.RunReports, Is.EqualTo(model.RunReports));
         Assert.That(result.ViewExceptions, Is.EqualTo(model.ViewExceptions));
         Assert.That(result.RecordScoresAsYouGo, Is.EqualTo(model.RecordScoresAsYouGo));
+        Assert.That(result.ManageTournaments, Is.EqualTo(model.ManageTournaments));
     }
 
     [Test]
@@ -69,6 +71,7 @@ public class AccessAdapterTests
             RunReports = true,
             ViewExceptions = true,
             RecordScoresAsYouGo = true,
+            ManageTournaments = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -86,5 +89,6 @@ public class AccessAdapterTests
         Assert.That(result.RunReports, Is.EqualTo(dto.RunReports));
         Assert.That(result.ViewExceptions, Is.EqualTo(dto.ViewExceptions));
         Assert.That(result.RecordScoresAsYouGo, Is.EqualTo(dto.RecordScoresAsYouGo));
+        Assert.That(result.ManageTournaments, Is.EqualTo(dto.ManageTournaments));
     }
 }

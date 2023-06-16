@@ -262,6 +262,10 @@ table td.middle-vertical-line {
   max-height: 250px;
 }
 
+.height-250 {
+  height: 250px;
+}
+
 .csv-nodes > *:before {
     content: ", "
 }
@@ -378,4 +382,5 @@ input.no-spinner {
   flex-shrink: 1;
   flex-basis: auto;
   margin: 0;
+  margin-left: 0.75rem;
 }

@@ -203,7 +203,7 @@ describe('Practice', () => {
             assertNoDataError();
 
             delete saygData[jsonData.id];
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
 
             expect(Object.keys(saygData)).toContain(jsonData.id);
             expect(shareData).toEqual({
@@ -230,7 +230,7 @@ describe('Practice', () => {
             assertNoDataError();
 
             delete saygData[jsonData.id];
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
 
             expect(Object.keys(saygData)).toContain(jsonData.id);
             expect(shareData).toEqual({
@@ -245,9 +245,9 @@ describe('Practice', () => {
             expect(reportedError).toBeNull();
             assertNoDataError();
 
-            doChange(context.container, 'input[name="yourName"]', 'YOU');
+            await doChange(context.container, 'input[name="yourName"]', 'YOU', context.user);
 
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].yourName).toEqual('YOU');
         });
@@ -256,14 +256,14 @@ describe('Practice', () => {
             await renderComponent(account, '');
             expect(reportedError).toBeNull();
             assertNoDataError();
-            doChange(context.container, 'input[name="opponentName"]', 'THEM');
-            await doClick(findButton(context.container, '🔗'));
+            await doChange(context.container, 'input[name="opponentName"]', 'THEM', context.user);
+            await doClick(findButton(context.container, 'Save'));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].opponentName).toEqual('THEM');
 
-            doChange(context.container, 'input[name="opponentName"]', '');
+            await doChange(context.container, 'input[name="opponentName"]', '', context.user);
 
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
             expect(saygData[id].opponentName).toEqual('');
         });
 
@@ -275,7 +275,7 @@ describe('Practice', () => {
                 throw new Error('some error');
             };
 
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).not.toBeNull();
         });
@@ -296,9 +296,9 @@ describe('Practice', () => {
             expect(reportedError).toBeNull();
             assertNoDataError();
 
-            await doClick(findButton(context.container, 'Start...'));
+            await doClick(findButton(context.container, 'Restart...'));
 
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
             expect(saygData[jsonData.id].startingScore).toEqual(jsonData.startingScore);
             expect(saygData[jsonData.id].numberOfLegs).toEqual(jsonData.numberOfLegs);
             expect(saygData[jsonData.id].yourName).toEqual(jsonData.yourName);
@@ -313,10 +313,10 @@ describe('Practice', () => {
             expect(reportedError).toBeNull();
             assertNoDataError();
 
-            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));
 
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].legs['0'].home).toEqual({
                 noOfDarts: 3,
@@ -334,15 +334,15 @@ describe('Practice', () => {
             await renderComponent(account, '');
             expect(reportedError).toBeNull();
             assertNoDataError();
-            doChange(context.container, 'input[name="startingScore"]', '501');
-            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doChange(context.container, 'input[name="startingScore"]', '501', context.user);
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌')); // 321 left
-            doChange(context.container, 'input[data-score-input="true"]', '180');
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌')); // 141 left
-            doChange(context.container, 'input[data-score-input="true"]', '141');
+            await doChange(context.container, 'input[data-score-input="true"]', '141', context.user);
             await doClick(findButton(context.container, '📌📌📌')); // checkout
 
-            await doClick(findButton(context.container, '🔗'));
+            await doClick(findButton(context.container, 'Save'));
             const id = Object.keys(saygData)[0];
             expect(saygData[id].homeScore).toEqual(1);
             expect(saygData[id].awayScore).toEqual(0);

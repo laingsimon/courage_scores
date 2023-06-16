@@ -20,7 +20,7 @@ class DivisionApi {
     }
 
     update(details, lastUpdated) {
-        if (!lastUpdated) {
+        if (details.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 

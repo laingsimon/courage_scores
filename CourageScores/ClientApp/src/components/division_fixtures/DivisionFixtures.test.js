@@ -401,6 +401,7 @@ describe('DivisionFixtures', () => {
         const account = {
             access: {
                 manageGames: true,
+                manageTournaments: true,
                 manageNotes: true,
                 manageScores: true
             },
@@ -714,7 +715,7 @@ describe('DivisionFixtures', () => {
             await doClick(findButton(fixtureDateElement.querySelector('.alert'), 'Edit'));
 
             const dialog = context.container.querySelector('.modal-dialog');
-            doChange(dialog, 'textarea[name="note"]', 'New note');
+            await doChange(dialog, 'textarea[name="note"]', 'New note', context.user);
             await doClick(findButton(dialog, 'Save'));
 
             expect(reportedError).toBeNull();
@@ -786,7 +787,7 @@ describe('DivisionFixtures', () => {
             await doClick(findButton(context.container, '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
-            doChange(dialog, 'input[type="date"]', '2022-10-13');
+            await doChange(dialog, 'input[type="date"]', '2022-10-13', context.user);
             await doClick(findButton(dialog, 'Add date'));
 
             expect(reportedError).toBeNull();
@@ -800,7 +801,7 @@ describe('DivisionFixtures', () => {
             await doClick(findButton(context.container, '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
-            doChange(dialog, 'input[type="date"]', '2023-05-06');
+            await doChange(dialog, 'input[type="date"]', '2023-05-06', context.user);
             await doClick(dialog, 'input[name="isKnockout"]');
             await doClick(findButton(dialog, 'Add date'));
 

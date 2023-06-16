@@ -7,12 +7,8 @@ class TournamentApi {
         return this.http.get(`/api/Tournament/${id}`, {});
     }
 
-    create(tournament) {
-        return this.http.put(`/api/Tournament`, tournament);
-    }
-
     update(tournament, lastUpdated) {
-        if (!lastUpdated) {
+        if (tournament.id && !lastUpdated) {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
@@ -21,6 +17,14 @@ class TournamentApi {
 
     delete(id) {
         return this.http.delete(`/api/Tournament/${id}`, {});
+    }
+
+    patch(id, patch) {
+        return this.http.patch(`/api/Tournament/${id}`, patch);
+    }
+
+    addSayg(id, matchId, matchOptions) {
+        return this.http.post(`/api/Tournament/${id}`, { matchId, matchOptions });
     }
 }
 

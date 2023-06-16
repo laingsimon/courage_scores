@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
@@ -16,17 +17,20 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     private readonly IAdapter<TModel, TDto> _adapter;
     private readonly IUserService _userService;
     private readonly IAuditingHelper _auditingHelper;
+    private readonly IActionResultAdapter _actionResultAdapter;
 
     public GenericDataService(
         IGenericRepository<TModel> repository,
         IAdapter<TModel, TDto> adapter,
         IUserService userService,
-        IAuditingHelper auditingHelper)
+        IAuditingHelper auditingHelper,
+        IActionResultAdapter actionResultAdapter)
     {
         _repository = repository;
         _adapter = adapter;
         _userService = userService;
         _auditingHelper = auditingHelper;
+        _actionResultAdapter = actionResultAdapter;
     }
 
     public async Task<TDto?> Get(Guid id, CancellationToken token)
@@ -59,7 +63,7 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         if (user == null && updateCommand.RequiresLogin)
         {
-            return NotLoggedIn();
+            return await _actionResultAdapter.Warning<TDto>("Not logged in");
         }
 
         var item = await _repository.Get(id, token);
@@ -70,18 +74,18 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
             if (!item.CanCreate(user))
             {
-                return NotPermitted();
+                return await _actionResultAdapter.Warning<TDto>("Not permitted");
             }
         }
         else if (!item.CanEdit(user))
         {
-            return NotPermitted();
+            return await _actionResultAdapter.Warning<TDto>("Not permitted");
         }
 
         var outcome = await updateCommand.ApplyUpdate(item, token);
         if (!outcome.Success)
         {
-            return Error(outcome.Message);
+            return await _actionResultAdapter.Adapt(outcome, default(TDto));
         }
 
         await _auditingHelper.SetUpdated(item, token);
@@ -93,13 +97,13 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
             }
             else
             {
-                return NotPermitted();
+                return await _actionResultAdapter.Warning<TDto>("Not permitted");
             }
         }
 
         var updatedItem = await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(updatedItem, token), outcome.Message);
+        return await _actionResultAdapter.Adapt(outcome, await _adapter.Adapt(updatedItem, token));
     }
 
     public async Task<ActionResultDto<TDto>> Delete(Guid id, CancellationToken token)
@@ -108,85 +112,30 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         if (user == null)
         {
-            return NotLoggedIn();
+            return await _actionResultAdapter.Warning<TDto>("Not logged in");
         }
 
         var item = await _repository.Get(id, token);
 
         if (item == null)
         {
-            return NotFound();
+            return await _actionResultAdapter.Warning<TDto>($"{typeof(TModel).Name} not found");
         }
 
         if (!item.CanDelete(user))
         {
-            return NotPermitted();
+            return await _actionResultAdapter.Warning<TDto>("Not permitted");
         }
 
         await _auditingHelper.SetDeleted(item, token);
         await _repository.Upsert(item, token);
 
-        return Success(await _adapter.Adapt(item, token), $"{typeof(TModel).Name} deleted");
-    }
-
-    private static ActionResultDto<TDto> Error(string error)
-    {
-        return new ActionResultDto<TDto>
-        {
-            Success = false,
-            Errors =
-            {
-                error
-            }
-        };
-    }
-
-    private static ActionResultDto<TDto> NotFound()
-    {
-        return new ActionResultDto<TDto>
-        {
-            Success = false,
-            Warnings =
-            {
-                $"{typeof(TModel).Name} not found"
-            }
-        };
-    }
-
-    private static ActionResultDto<TDto> NotPermitted()
-    {
-        return new ActionResultDto<TDto>
-        {
-            Success = false,
-            Warnings =
-            {
-                "Not permitted"
-            }
-        };
-    }
-
-    private static ActionResultDto<TDto> NotLoggedIn()
-    {
-        return new ActionResultDto<TDto>
-        {
-            Success = false,
-            Warnings =
-            {
-                "Not logged in"
-            }
-        };
-    }
-
-    private static ActionResultDto<TDto> Success(TDto? result, string message)
-    {
-        return new ActionResultDto<TDto>
+        var result = new ActionResult<TModel>
         {
             Success = true,
-            Result = result,
-            Messages =
-            {
-                message
-            },
+            Messages = { $"{typeof(TModel).Name} deleted" },
         };
+
+        return await _actionResultAdapter.Adapt(result, await _adapter.Adapt(item, token));
     }
 }

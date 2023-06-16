@@ -1,4 +1,5 @@
-﻿using CourageScores.Models.Cosmos;
+﻿using CourageScores.Models;
+using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Services.Command;
 using NUnit.Framework;
@@ -49,7 +50,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Cannot update a Model that has already been deleted"));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot update a Model that has already been deleted" }));
     }
 
     [Test]
@@ -62,7 +63,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Model created"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Model created" }));
         Assert.That(result.Result, Is.SameAs(model));
         Assert.That(model.Id, Is.Not.Null);
         Assert.That(command.ApplyUpdatesModel, Is.SameAs(model));
@@ -85,7 +86,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Model updated"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Model updated" }));
         Assert.That(result.Result, Is.SameAs(model));
         Assert.That(command.ApplyUpdatesModel, Is.SameAs(model));
         Assert.That(command.ApplyUpdatesUpdate, Is.SameAs(update));
@@ -109,7 +110,7 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Model, EDITOR updated it before you at 1 Jan 2021 01:01:01" }));
     }
 
     [Test]
@@ -127,21 +128,21 @@ public class AddOrUpdateCommandTests
         var result = await command.WithData(update).ApplyUpdate(model, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Unable to update Model, data integrity token is missing"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to update Model, data integrity token is missing" }));
     }
 
     private class MockCommand : AddOrUpdateCommand<Model, ModelDto>
     {
-        public MockCommand(CommandResult? result = null)
+        public MockCommand(ActionResult<Model>? result = null)
         {
-            ApplyResult = result ?? new CommandResult { Success = true };
+            ApplyResult = result ?? new ActionResult<Model> { Success = true };
         }
 
-        public CommandResult ApplyResult { get; }
+        public ActionResult<Model> ApplyResult { get; }
         public ModelDto? ApplyUpdatesUpdate { get; private set; }
         public Model? ApplyUpdatesModel { get; private set; }
 
-        protected override Task<CommandResult> ApplyUpdates(Model model, ModelDto update, CancellationToken token)
+        protected override Task<ActionResult<Model>> ApplyUpdates(Model model, ModelDto update, CancellationToken token)
         {
             ApplyUpdatesModel = model;
             ApplyUpdatesUpdate = update;

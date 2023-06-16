@@ -30,6 +30,9 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
 
     async function legChanged(newLeg, legIndex) {
         const newData = Object.assign({}, data);
+        if (data.legs) {
+            newData.legs = Object.assign({}, data.legs);
+        }
         newData.legs[legIndex] = newLeg;
         await onChange(newData);
     }

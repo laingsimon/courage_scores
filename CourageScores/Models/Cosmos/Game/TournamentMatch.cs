@@ -27,7 +27,10 @@ public class TournamentMatch : AuditedEntity, IGameVisitable
     /// </summary>
     public int? ScoreB { get; set; }
 
-    public ScoreAsYouGo? Sayg { get; set; }
+    /// <summary>
+    /// Id of the recorded sayg data, if created
+    /// </summary>
+    public Guid? SaygId { get; set; }
 
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {

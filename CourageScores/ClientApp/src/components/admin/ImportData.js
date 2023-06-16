@@ -46,7 +46,7 @@ export function ImportData() {
         }
 
         if (!any(importRequest.tables)) {
-            window.alert(`Select at least one table`);
+            window.alert(`Select some tables to import`);
             return;
         }
 
@@ -69,6 +69,7 @@ export function ImportData() {
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             console.error(e);
             setSaveError(e.toString());
         } finally {

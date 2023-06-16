@@ -410,7 +410,7 @@ describe('Tournament', () => {
         describe('when logged in', () => {
             const account = {
                 access: {
-                    manageGames: true,
+                    manageTournaments: true,
                     managePlayers: true,
                     manageScores: true,
                 }
@@ -659,7 +659,7 @@ describe('Tournament', () => {
                 await doClick(findButton(context.container, 'Add player'));
                 const addPlayerDialog = context.container.querySelector('.modal-dialog');
 
-                doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER');
+                await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
                 await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
                 await doClick(findButton(addPlayerDialog, 'Add player'));
 
@@ -740,11 +740,11 @@ describe('Tournament', () => {
                 }, false);
 
                 const address = context.container.querySelector('.light-background > div:nth-child(1)');
-                doChange(address, 'input', 'NEW ADDRESS');
+                await doChange(address, 'input', 'NEW ADDRESS', context.user);
                 const type = context.container.querySelector('.light-background > div:nth-child(2)');
-                doChange(type, 'input', 'NEW TYPE');
+                await doChange(type, 'input', 'NEW TYPE', context.user);
                 const notes = context.container.querySelector('.light-background > div:nth-child(3)');
-                doChange(notes, 'textarea', 'NEW NOTES');
+                await doChange(notes, 'textarea', 'NEW NOTES', context.user);
                 const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
                 await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
                 await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');

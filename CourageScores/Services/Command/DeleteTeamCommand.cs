@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Services.Identity;
 
 namespace CourageScores.Services.Command;
@@ -30,7 +31,7 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         return this;
     }
 
-    public async Task<CommandOutcome<Models.Cosmos.Team.Team>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
+    public async Task<ActionResult<Models.Cosmos.Team.Team>> ApplyUpdate(Models.Cosmos.Team.Team model, CancellationToken token)
     {
         if (_seasonId == null)
         {
@@ -39,14 +40,24 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
 
         if (model.Deleted != null)
         {
-            return new CommandOutcome<Models.Cosmos.Team.Team>(true, "Team has already been deleted", model);
+            return new ActionResult<Models.Cosmos.Team.Team>
+            {
+                Success = true,
+                Errors = { "Team has already been deleted" },
+                Result = model,
+            };
         }
 
         var user = await _userService.GetUser(token);
 
         if (user?.Access?.ManageTeams != true)
         {
-            return new CommandOutcome<Models.Cosmos.Team.Team>(false, "Not permitted", model);
+            return new ActionResult<Models.Cosmos.Team.Team>
+            {
+                Success = false,
+                Errors = { "Not permitted" },
+                Result = model,
+            };
         }
 
         var matchingSeasons = model.Seasons.Where(s => s.SeasonId == _seasonId.Value && s.Deleted == null).ToList();
@@ -59,11 +70,21 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
         {
             if (!matchingSeasons.Any())
             {
-                return new CommandOutcome<Models.Cosmos.Team.Team>(false, "Team allocated to other season/s", model);
+                return new ActionResult<Models.Cosmos.Team.Team>
+                {
+                    Success = false,
+                    Warnings = { "Team allocated to other season/s" },
+                    Result = model,
+                };
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
-            return new CommandOutcome<Models.Cosmos.Team.Team>(true, $"Removed team from {matchingSeasons.Count} season/s", model);
+            return new ActionResult<Models.Cosmos.Team.Team>
+            {
+                Success = true,
+                Messages = { $"Removed team from {matchingSeasons.Count} season/s" },
+                Result = model,
+            };
         }
 
         if (model.CanDelete(user) && _deleteIfNoSeasonsAssigned)
@@ -71,26 +92,34 @@ public class DeleteTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Models.
             if (!matchingSeasons.Any())
             {
                 _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
-                return new CommandOutcome<Models.Cosmos.Team.Team>(true, "Team deleted", model)
+                return new ActionResult<Models.Cosmos.Team.Team>
                 {
+                    Success = true,
+                    Messages = { "Team deleted" },
+                    Result = model,
                     Delete = true
                 };
             }
 
             _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
-            return new CommandOutcome<Models.Cosmos.Team.Team>(true, $"Removed team from {matchingSeasons.Count} season/s, and team deleted", model)
+            return new ActionResult<Models.Cosmos.Team.Team>
             {
+                Success = true,
+                Messages = { $"Removed team from {matchingSeasons.Count} season/s, and team deleted" },
+                Result = model,
                 Delete = true
             };
         }
 
         _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId.Value;
 
-        return new CommandOutcome<Models.Cosmos.Team.Team>(
-            !_deleteIfNoSeasonsAssigned || matchingSeasons.Any(),
-            _deleteIfNoSeasonsAssigned
+        return new ActionResult<Models.Cosmos.Team.Team>
+        {
+            Success = !_deleteIfNoSeasonsAssigned || matchingSeasons.Any(),
+            Messages = { _deleteIfNoSeasonsAssigned
                 ? $"Removed team from {matchingSeasons.Count} season/s, not permitted to delete the team entirely"
-                : $"Removed team from {matchingSeasons.Count} season/s",
-            model);
+                : $"Removed team from {matchingSeasons.Count} season/s" },
+            Result = model,
+        };
     }
 }

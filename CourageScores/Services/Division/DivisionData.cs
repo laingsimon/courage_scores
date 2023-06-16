@@ -54,6 +54,14 @@ public class DivisionData
 
         public Dictionary<int, PlayerPlayScore> PlayerPlayCount { get; } = new();
 
+        // ReSharper disable once CollectionNeverQueried.Global
+        public HashSet<Models.Cosmos.Game.Game?> Games { get; } = new();
+
+        /// <summary>
+        /// Have any of the hi-checks or one-eighties come from a knockout fixture?
+        /// </summary>
+        public bool FromKnockout { get; set; }
+
         public PlayerPlayScore GetScores(int playerCount)
         {
             if (!PlayerPlayCount.TryGetValue(playerCount, out var score))

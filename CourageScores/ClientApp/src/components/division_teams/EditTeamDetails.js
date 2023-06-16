@@ -6,7 +6,7 @@ import {useApp} from "../../AppContainer";
 import {handleChange} from "../../helpers/events";
 
 export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seasonId, team }) {
-    const { divisions } = useApp();
+    const { divisions, onError } = useApp();
     const { teamApi } = useDependencies();
     const [ saving, setSaving ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
@@ -46,6 +46,8 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
             } else {
                 setSaveError(response);
             }
+        } catch(e) {
+            onError(e);
         } finally {
             setSaving(false);
         }

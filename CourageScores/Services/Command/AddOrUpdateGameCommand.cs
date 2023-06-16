@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Season;
@@ -27,33 +28,33 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         _cacheFlags = cacheFlags;
     }
 
-    protected override async Task<CommandResult> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
+    protected override async Task<ActionResult<Models.Cosmos.Game.Game>> ApplyUpdates(Models.Cosmos.Game.Game game, EditGameDto update, CancellationToken token)
     {
         if (update.SeasonId == Guid.Empty)
         {
-            return new CommandResult
+            return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Message = "SeasonId must be provided",
+                Errors = { "SeasonId must be provided" },
             };
         }
 
         if (update.HomeTeamId == update.AwayTeamId)
         {
-            return new CommandResult
+            return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Message = "Unable to update a game where the home team and away team are the same",
+                Warnings = { "Unable to update a game where the home team and away team are the same" },
             };
         }
 
         var season = await _seasonService.Get(update.SeasonId, token);
         if (season == null)
         {
-            return new CommandResult
+            return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Message = "Unable to add or update game, season not found",
+                Errors = { "Unable to add or update game, season not found" },
             };
         }
 
@@ -79,7 +80,11 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             game.Away = await UpdateTeam(update.AwayTeamId, season, token);
         }
 
-        return CommandResult.SuccessNoMessage;
+        return new ActionResult<Models.Cosmos.Game.Game>
+        {
+            Success = true,
+            Messages = { "Game updated" },
+        };
     }
 
     private async Task<GameTeam> UpdateTeam(Guid teamId, SeasonDto season, CancellationToken token)

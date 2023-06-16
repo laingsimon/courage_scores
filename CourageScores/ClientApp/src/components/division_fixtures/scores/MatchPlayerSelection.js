@@ -150,8 +150,8 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
     }
 
     function canOpenSayg() {
-        return any(match.homePlayers)
-            && any(match.awayPlayers)
+        return any(match.homePlayers || [])
+            && any(match.awayPlayers || [])
             && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
     }
 

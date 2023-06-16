@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Dtos.Game.Sayg;
 
 namespace CourageScores.Models.Dtos.Game;
 
@@ -29,5 +28,5 @@ public class TournamentMatchDto : AuditedDto
     /// </summary>
     public int? ScoreB { get; set; }
 
-    public ScoreAsYouGoDto? Sayg { get; set; }
+    public Guid? SaygId { get; set; }
 }

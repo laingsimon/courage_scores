@@ -12,6 +12,7 @@ public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity
     public int StartingScore { get; set; }
     public int HomeScore { get; set; }
     public int? AwayScore { get; set; }
+    public Guid? TournamentMatchId { get; set; }
 
     [ExcludeFromCodeCoverage]
     public bool CanCreate(UserDto? user)

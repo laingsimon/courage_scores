@@ -53,6 +53,7 @@ export function Score() {
             try {
                 const updatedTeamSeason = updatedTeamDetails.seasons.filter(ts => ts.seasonId === fixtureData.seasonId)[0];
                 if (!updatedTeamSeason) {
+                    /* istanbul ignore next */
                     console.log(updatedTeamDetails);
                     onError('Could not find updated teamSeason');
                     return;
@@ -60,6 +61,7 @@ export function Score() {
 
                 const newPlayers = updatedTeamSeason.players.filter(p => p.name === newPlayerDetails.name);
                 if (!any(newPlayers)) {
+                    /* istanbul ignore next */
                     console.log(updatedTeamSeason);
                     onError(`Could not find new player in updated season, looking for player with name: "${newPlayerDetails.name}"`);
                     return;
@@ -67,12 +69,6 @@ export function Score() {
 
                 const newPlayer = newPlayers[0];
                 const match = fixtureData.matches[createPlayerFor.matchIndex];
-                if (!match) {
-                    console.log(createPlayerFor);
-                    onError(`Unable to find match at index ${createPlayerFor.matchIndex}`);
-                    return;
-                }
-
                 const newMatch = Object.assign({}, match);
                 newMatch[createPlayerFor.side + 'Players'][createPlayerFor.index] = {
                     id: newPlayer.id,
@@ -126,28 +122,33 @@ export function Score() {
             }
 
             if (appLoading) {
+                /* istanbul ignore next */
                 console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
                 return;
             }
 
             if (!seasons || !seasons.length) {
+                /* istanbul ignore next */
                 console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
                 onError('App has finished loading, no seasons are available');
                 return;
             }
 
             if (!teams || !teams.length) {
+                /* istanbul ignore next */
                 console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
                 onError('App has finished loading, no teams are available');
                 return;
             }
 
             if (!divisions || !divisions.length) {
+                /* istanbul ignore next */
                 console.log(`appLoading=${appLoading}, seasons.length=${seasons ? seasons.length : '<null>'}, teams.length=${teams ? teams.length : '<null>'}, divisions=${divisions ? divisions.length : '<null>'}`);
                 onError('App has finished loading, no divisions are available');
                 return;
             }
 
+            /* istanbul ignore next */
             console.log(`Loading fixture data (loading=${loading})...`);
             setLoading('loading');
             // noinspection JSIgnoredPromiseFromCall
@@ -230,6 +231,7 @@ export function Score() {
             }
 
             if (gameData.status) {
+                /* istanbul ignore next */
                 console.log(gameData);
                 const suffix = gameData.errors ? ' -- ' + Object.keys(gameData.errors).map(key => `${key}: ${gameData.errors[key]}`).join(', ') : '';
                 onError(`Error accessing fixture: Code: ${gameData.status}${suffix}`);

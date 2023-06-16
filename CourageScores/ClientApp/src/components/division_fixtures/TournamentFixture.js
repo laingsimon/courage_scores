@@ -12,7 +12,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     const [ creating, setCreating ] = useState(false);
     const [ deleting, setDeleting ] = useState(false);
     const [ saveError, setSaveError ] = useState(null);
-    const isAdmin = account && account.access && account.access.manageGames;
+    const isAdmin = account && account.access && account.access.manageTournaments;
     const { tournamentApi } = useDependencies();
 
     async function createTournamentGame() {
@@ -25,12 +25,12 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
         try {
             setCreating(true);
 
-            const response = await tournamentApi.create({
+            const response = await tournamentApi.update({
                 date: date,
                 address: tournament.address,
                 divisionId: divisionId,
                 seasonId: season.id
-            }, tournament.updated);
+            }, null);
 
             if (response.success) {
                 if (onTournamentChanged) {

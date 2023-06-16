@@ -1,4 +1,5 @@
 using CourageScores.Filters;
+using CourageScores.Models;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
@@ -77,7 +78,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Cannot edit a team that has been deleted"));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -90,7 +91,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Player cannot be added, not logged in"));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be added, not logged in" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -107,7 +108,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Player cannot be added, not permitted"));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Player cannot be added, not permitted" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -118,7 +119,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(Guid.NewGuid()).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Season could not be found"));
+        Assert.That(result.Errors, Is.EqualTo(new[] { "Season could not be found" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -126,7 +127,12 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndAllowed_AddsSeasonToTeam()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "Success", new TeamSeason());
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
+        {
+            Success = true,
+            Messages = { "Success" },
+            Result = new TeamSeason(),
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
@@ -140,13 +146,18 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndNotAllowed_DoesNotAddSeasonToTeam()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "Success", new TeamSeason());
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
+        {
+            Result = new TeamSeason(),
+            Messages = { "Success" },
+            Success = true,
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).AddSeasonToTeamIfMissing(false).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("SEASON season is not attributed to team TEAM"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "SEASON season is not attributed to team TEAM" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -154,13 +165,19 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndCannotAddSeasonToTeam_ReturnsUnsuccessful()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(false, "FAILURE", new TeamSeason());
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
+        {
+            Success = false,
+            Messages = { "FAILURE" },
+            Result = new TeamSeason(),
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Could not add the SEASON season to team TEAM - FAILURE"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Could not add the SEASON season to team TEAM" }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "FAILURE" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -168,13 +185,19 @@ public class AddPlayerToTeamSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenTeamSeasonIsNotFoundAndNoResultFromAddingSeasonToTeam_ReturnsUnsuccessful()
     {
-        var addSeasonToTeamCommandResult = new CommandOutcome<TeamSeason>(true, "IMPLIED SUCCESS", null);
+        var addSeasonToTeamCommandResult = new ActionResult<TeamSeason>
+        {
+            Success = true,
+            Messages = { "IMPLIED SUCCESS" },
+            Result = null,
+        };
         _addSeasonToTeamCommand.Setup(c => c.ApplyUpdate(_team, _token)).ReturnsAsync(addSeasonToTeamCommandResult);
 
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Message, Is.EqualTo("Could not add the SEASON season to team TEAM - IMPLIED SUCCESS"));
+        Assert.That(result.Warnings, Is.EqualTo(new[] { "Could not add the SEASON season to team TEAM" }));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "IMPLIED SUCCESS" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -200,7 +223,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Player already exists with this name, player not added"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player already exists with this name, player not added" }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -231,7 +254,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Player undeleted from team"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player undeleted from team" }));
         var teamSeason = _team.Seasons.Single(ts => ts.SeasonId == _season.Id);
         var teamPlayer = teamSeason.Players.Single();
         Assert.That(teamPlayer.Captain, Is.True);
@@ -256,7 +279,7 @@ public class AddPlayerToTeamSeasonCommandTests
         var result = await _command.ForPlayer(_player).ToSeason(_season.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Message, Is.EqualTo("Player added to the TEAM team for the SEASON season"));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Player added to the TEAM team for the SEASON season" }));
         var teamSeason = _team.Seasons.Single(ts => ts.SeasonId == _season.Id);
         var teamPlayer = teamSeason.Players.Single();
         Assert.That(teamPlayer.Id, Is.Not.EqualTo(Guid.Empty));
