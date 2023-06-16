@@ -63,7 +63,7 @@ public class CreateTournamentMatchSaygCommand : IUpdateCommand<TournamentGame, T
         var saygUpdate = new UpdateRecordedScoreAsYouGoDto
         {
             TournamentMatchId = match.Id,
-            NumberOfLegs = _request.MatchOptions?.NumberOfLegs ?? DefaultMatchOptions.NumberOfLegs ?? 0,
+            NumberOfLegs = _request.MatchOptions?.NumberOfLegs ?? model.BestOf ?? DefaultMatchOptions.NumberOfLegs ?? 0,
             StartingScore = _request.MatchOptions?.StartingScore ?? DefaultMatchOptions.StartingScore ?? 0,
             YourName = match.SideA.Name!,
             OpponentName = match.SideB.Name,

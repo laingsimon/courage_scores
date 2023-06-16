@@ -166,6 +166,46 @@ public class CreateTournamentMatchSaygCommandTests
     }
 
     [Test]
+    public async Task ApplyUpdate_WithNoSaygForMatchAndNoMatchOptions_CreatesSaygRecordWithBestOfMatchOptions()
+    {
+        var match = new TournamentMatch
+        {
+            Id = _request.MatchId,
+            SideA = new TournamentSide { Name = "YOU" },
+            SideB = new TournamentSide { Name = "THEM" },
+        };
+        var newId = Guid.NewGuid();
+        _tournament.Round = new TournamentRound
+        {
+            Matches = { match },
+        };
+        _addSaygCommandResult = new ActionResultDto<RecordedScoreAsYouGoDto>
+        {
+            Success = true,
+            Result = new RecordedScoreAsYouGoDto
+            {
+                Id = newId
+            }
+        };
+        _request.MatchOptions = null;
+        _tournament.BestOf = 7;
+
+        var result = await _command.WithRequest(_request).ApplyUpdate(_tournament, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(match.SaygId, Is.EqualTo(newId));
+        Assert.That(result.Messages, Is.EqualTo(new[] { "Sayg added to match" }));
+        _addSaygCommand
+            .Verify(s => s.WithData(
+                It.Is<UpdateRecordedScoreAsYouGoDto>(dto =>
+                    dto.TournamentMatchId == match.Id
+                    && dto.StartingScore == 501
+                    && dto.NumberOfLegs == 7
+                    && dto.YourName == "YOU"
+                    && dto.OpponentName == "THEM")));
+    }
+
+    [Test]
     public async Task ApplyUpdate_WithNoSaygForMatchAndNoMatchOptions_CreatesSaygRecordWithDefaultMatchOptions()
     {
         var match = new TournamentMatch
@@ -177,7 +217,7 @@ public class CreateTournamentMatchSaygCommandTests
         var newId = Guid.NewGuid();
         _tournament.Round = new TournamentRound
         {
-            Matches = { match }
+            Matches = { match },
         };
         _addSaygCommandResult = new ActionResultDto<RecordedScoreAsYouGoDto>
         {
