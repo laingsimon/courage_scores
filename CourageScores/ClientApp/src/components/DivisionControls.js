@@ -1,5 +1,5 @@
 import {ButtonDropdown, DropdownMenu, DropdownToggle} from "reactstrap";
-import {Link, useNavigate, useParams} from "react-router-dom";
+import {Link, useLocation, useNavigate, useParams} from "react-router-dom";
 import React, {useState} from "react";
 import {ErrorDisplay} from "./common/ErrorDisplay";
 import {Dialog} from "./common/Dialog";
@@ -21,6 +21,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
     const [ openDropdown, setOpenDropdown ] = useState(null);
     const [ divisionData, setDivisionData ] = useState(null);
     const navigate = useNavigate();
+    const location = useLocation();
 
     function toggleDropdown(name) {
         if (openDropdown === null || openDropdown !== name) {
@@ -114,7 +115,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         return (<Link
             key={s.id}
             className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`}
-            to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}`}>
+            to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}${location.search}`}>
             {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
         </Link>);
     }
@@ -123,7 +124,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         return (<Link
             key={d.id}
             className={`dropdown-item ${originalDivisionData.id === d.id ? ' active' : ''}${isDivisionSelected(d) ? '' : ' text-warning'}`}
-            to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`}>
+            to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}${location.search}`}>
             {d.name}
         </Link>);
     }
