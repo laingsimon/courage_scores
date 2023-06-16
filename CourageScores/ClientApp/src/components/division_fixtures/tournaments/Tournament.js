@@ -197,14 +197,14 @@ export function Tournament() {
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="light-background p-3">
                 {canManageTournaments
-                    ? (<div className="input-group mb-3">
+                    ? (<div className="input-group mb-3 d-print-none">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
                         <input className="form-control" disabled={saving} type="text" value={tournamentData.address}
                                name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
-                    : (<p>
+                    : (<p className="d-print-none">
                         {tournamentData.type || ''} At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                         <span className="margin-left">
                         <ShareButton
@@ -222,14 +222,14 @@ export function Tournament() {
                     </div>)
                     : null}
                 {canManageTournaments
-                    ? (<div className="form-group input-group mb-3 d-flex">
+                    ? (<div className="form-group input-group mb-3 d-flex d-print-none">
                         <label htmlFor="note-text" className="input-group-text">Notes</label>
                         <textarea id="note-text" className="form-control" disabled={saving}
                                   value={tournamentData.notes || ''} name="notes"
                                   onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
                     </div>)
                     : tournamentData.notes
-                        ? (<div className="alert alert-warning alert-dismissible fade show"
+                        ? (<div className="alert alert-warning alert-dismissible fade show d-print-none"
                                 role="alert">{tournamentData.notes}</div>)
                         : null}
                 {canManageTournaments
@@ -257,7 +257,7 @@ export function Tournament() {
                     saveTournament={saveTournament}>
                     <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
                 </TournamentContainer>
-                <TournamentSheet sides={tournamentData.sides}/>
+                <TournamentSheet tournamentData={tournamentData}/>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}
