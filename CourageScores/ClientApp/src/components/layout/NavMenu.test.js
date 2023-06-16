@@ -156,6 +156,17 @@ describe('NavMenu', () => {
             expect(isExpanded()).toEqual(false);
         });
 
+        it('collapses and expands with brand', async () => {
+            await renderComponent(settings, account, divisions, seasons, false);
+            expect(context.container.textContent).not.toContain('ERROR:');
+            await doClick(context.container.querySelector('.navbar-brand'));
+            expect(isExpanded()).toEqual(true);
+
+            await doClick(context.container.querySelector('.navbar-brand'));
+
+            expect(isExpanded()).toEqual(false);
+        });
+
         it('highlight division', async () => {
             await renderComponent(
                 settings,
