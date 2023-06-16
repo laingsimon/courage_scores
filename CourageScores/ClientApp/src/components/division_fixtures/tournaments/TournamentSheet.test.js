@@ -3,6 +3,7 @@
 import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
+import {renderDate} from "../../../helpers/rendering";
 import {TournamentSheet} from "./TournamentSheet";
 
 describe('TournamentSheet', () => {
@@ -89,6 +90,22 @@ describe('TournamentSheet', () => {
     }
 
     describe('renders', () => {
+        it('date, address and notes', async () => {
+            await renderComponent({
+                tournamentData: {
+                    sides: [ createSide(1, 'SIDE 1') ],
+                    date: '2023-06-01',
+                    address: 'ADDRESS',
+                    type: 'TYPE',
+                    notes: 'NOTES',
+                }
+            });
+
+            expect(reportedError).toBeNull();
+            const heading = context.container.querySelector('div.border-1');
+            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES`);
+        });
+
         it('given 2 sides with single players', async () => {
             const sides = [
                 createSide(1, 'SIDE 1'),
