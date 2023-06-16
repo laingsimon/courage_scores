@@ -22,6 +22,7 @@ export function Division() {
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
+    const [ dataErrors, setDataErrors ] = useState(null);
 
     async function reloadDivisionData() {
         try {
@@ -42,26 +43,23 @@ export function Division() {
         }
 
         try {
-            if (divisionData) {
-                if (divisionData.id === divisionId && ((divisionData.season || {}).id === seasonId || !seasonId)) {
-                    return;
-                }
-
-                if (divisionData.status) {
-                    console.log(divisionData);
-                    const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
-                    onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
-                    return;
-                }
-
-                if (divisionData.dataErrors && any(divisionData.dataErrors)) {
-                    onError(divisionData.dataErrors.join(', '));
-                    return;
-                }
+            if (!divisionData || ((divisionData.id !== divisionId || ((divisionData.season || {}).id !== seasonId && seasonId)) && !divisionData.status)) {
+                setLoading(true);
+                // noinspection JSIgnoredPromiseFromCall
+                reloadDivisionData();
+                return;
             }
-            setLoading(true);
-            // noinspection JSIgnoredPromiseFromCall
-            reloadDivisionData();
+
+            if (divisionData.status) {
+                console.log(divisionData);
+                const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
+                onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
+                return;
+            }
+
+            if (any(divisionData.dataErrors || [])) {
+                setDataErrors(divisionData.dataErrors);
+            }
         } catch (e) {
             onError(e);
         }
@@ -112,7 +110,15 @@ export function Division() {
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
                 </li>) : null}
             </ul>
-            <DivisionDataContainer {...divisionData} onReloadDivision={reloadDivisionData}>
+            {dataErrors && account ? (<div className="light-background p-3">
+                <h3>⚠ Errors in division data</h3>
+                <ol>
+                    {dataErrors.map((error, index) => {
+                        return (<li key={index}>{error}></li>);
+                    })}
+                </ol>
+                <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
+            </div>) : (<DivisionDataContainer {...divisionData} onReloadDivision={reloadDivisionData}>
                 {effectiveTab === 'teams' && divisionData.season
                     ? (<DivisionTeams/>)
                     : null}
@@ -132,7 +138,7 @@ export function Division() {
                 {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
                     ? (<PlayerOverview playerId={effectiveTab.substring('player:'.length)}/>)
                     : null}
-            </DivisionDataContainer>
+            </DivisionDataContainer>)}
         </div>);
     } catch (e) {
         /* istanbul ignore next */
