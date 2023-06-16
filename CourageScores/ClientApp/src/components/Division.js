@@ -54,7 +54,7 @@ export function Division() {
                     return;
                 }
 
-                if (divisionData.dataErrors && any(divisionData.dataErrors)) {
+                if (divisionData.id === divisionId && any(divisionData.dataErrors || [])) {
                     onError(divisionData.dataErrors.join(', '));
                     return;
                 }
