@@ -1,13 +1,15 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp} from "./helpers/tests";
+import {cleanUp, doClick, findButton} from "./helpers/tests";
 import React from "react";
 import {App} from "./App";
 import {createTemporaryId} from "./helpers/projection";
 import {act} from "@testing-library/react";
-import {MemoryRouter} from "react-router-dom";
+import {MemoryRouter, Route} from "react-router-dom";
 import {IocContainer} from "./IocContainer";
 import ReactDOM from "react-dom/client";
+import {About} from "./components/About";
+import {useApp} from "./AppContainer";
 
 describe('App', () => {
     let context;
@@ -15,8 +17,10 @@ describe('App', () => {
     let account = null;
     let allSeasons = [];
     let allTeams = [];
+    let reportedError;
+    let settings;
 
-    let divisionApi = {
+    const divisionApi = {
         getAll: async () => {
             if (allDivisions.length || allDivisions.length === 0) {
                 return allDivisions;
@@ -26,43 +30,51 @@ describe('App', () => {
             return await allDivisions;
         }
     };
-    let accountApi = {
+    const accountApi = {
         account: async () => account
     };
-    let seasonApi = {
+    const seasonApi = {
         getAll: async () => allSeasons
     };
-    let teamApi = {
+    const teamApi = {
         getAll: async () => allTeams
     };
-    let errorApi = {};
+    const errorApi = {
+        add: async (error) => {
+            reportedError = error;
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(build, excludeSurround) {
+    async function renderComponent(build, excludeSurround, testRoute) {
         if (build) {
             createBuildElements(build);
         }
 
+        reportedError = null;
+        settings = {};
         context = await renderApp(
             {
                 divisionApi,
                 accountApi,
                 seasonApi,
                 teamApi,
-                errorApi
+                errorApi,
+                settings
             },
-            <App shouldExcludeSurround={excludeSurround} />);
+            (<App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />),
+            testRoute ? '/test' : null);
     }
 
-    async function renderApp(iocProps, content) {
+    async function renderApp(iocProps, content, currentPath) {
         const container = document.createElement('div');
         document.body.appendChild(container);
 
         await act(async () => {
-            const component = (<MemoryRouter>
+            const component = (<MemoryRouter initialEntries={[currentPath]}>
                 <IocContainer {...iocProps}>{content}</IocContainer>
             </MemoryRouter>);
             ReactDOM.createRoot(container).render(component);
@@ -129,6 +141,18 @@ describe('App', () => {
 
         const expectedMenuItems = expectedMenuItemsBeforeDivisions.concat(divisionMenuItems).concat(expectedMenuItemsAfterDivisions);
         expect(menuItemText).toEqual(expectedMenuItems);
+    }
+
+    function TestElement() {
+        const { onError, clearError, invalidateCacheAndTryAgain, reportClientSideException } = useApp();
+        const error = { message: 'ERROR' };
+
+        return (<div>
+            <button onClick={() => onError(error)}>onError</button>
+            <button onClick={clearError}>clearError</button>
+            <button onClick={invalidateCacheAndTryAgain}>invalidateCacheAndTryAgain</button>
+            <button onClick={() => reportClientSideException(error)}>reportClientSideException</button>
+        </div>);
     }
 
     describe('renders', () => {
@@ -202,6 +226,63 @@ describe('App', () => {
             assertSocialLinks();
             assertHeading();
             assertMenu(true);
+        });
+    });
+
+    describe('functionality', () => {
+        it('can report client side exception via onError', async () => {
+            await renderComponent(
+                null,
+                false,
+                (<Route path='/test' element={<TestElement />} />));
+            console.error = () => {};
+
+            await doClick(findButton(context.container, 'onError'));
+
+            expect(reportedError).not.toEqual({
+                message: 'ERROR',
+                source: 'UI',
+            });
+            expect(context.container.textContent).toContain('An error occurred');
+        });
+
+        it('can report client side exception directly', async () => {
+            await renderComponent(
+                null,
+                false,
+                (<Route path='/test' element={<TestElement />} />));
+
+            await doClick(findButton(context.container, 'reportClientSideException'));
+
+            expect(reportedError).not.toEqual({
+                message: 'ERROR',
+                source: 'UI',
+            });
+            expect(context.container.textContent).not.toContain('An error occurred');
+        });
+
+        it('can invalidate caches', async () => {
+            await renderComponent(
+                null,
+                false,
+                (<Route path='/test' element={<TestElement />} />));
+
+            await doClick(findButton(context.container, 'invalidateCacheAndTryAgain'));
+
+            expect(settings.invalidateCacheOnNextRequest).toEqual(true);
+            expect(context.container.textContent).not.toContain('An error occurred');
+        });
+
+        it('can clear error', async () => {
+            await renderComponent(
+                null,
+                false,
+                (<Route path='/test' element={<TestElement />} />));
+            await doClick(findButton(context.container, 'onError'));
+
+            await doClick(findButton(context.container, 'Clear error'));
+
+            expect(context.container.textContent).not.toContain('An error occurred');
         });
     });
 });
