@@ -40,6 +40,8 @@ public class TournamentGameAdapterTests
             Over100Checkouts = { HiCheckPlayer },
             Notes = "notes",
             AccoladesCount = true,
+            BestOf = 7,
+            SingleRound = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -55,6 +57,8 @@ public class TournamentGameAdapterTests
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
         Assert.That(result.Notes, Is.EqualTo(model.Notes));
         Assert.That(result.AccoladesCount, Is.True);
+        Assert.That(result.BestOf, Is.EqualTo(model.BestOf));
+        Assert.That(result.SingleRound, Is.True);
     }
 
     [Test]
@@ -83,6 +87,8 @@ public class TournamentGameAdapterTests
             Over100Checkouts = { HiCheckPlayerDto },
             Notes = "notes",
             AccoladesCount = true,
+            BestOf = 7,
+            SingleRound = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -98,6 +104,8 @@ public class TournamentGameAdapterTests
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
         Assert.That(result.Notes, Is.EqualTo(dto.Notes));
         Assert.That(result.AccoladesCount, Is.True);
+        Assert.That(result.BestOf, Is.EqualTo(dto.BestOf));
+        Assert.That(result.SingleRound, Is.True);
     }
 
     [Test]

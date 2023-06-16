@@ -72,6 +72,8 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
         game.SeasonId = latestSeason.Id;
         game.Notes = update.Notes;
         game.Type = update.Type;
+        game.BestOf = update.BestOf;
+        game.SingleRound = update.SingleRound;
         game.AccoladesCount = update.AccoladesCount;
         game.DivisionId = update.DivisionId;
         game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, token)).ToList();

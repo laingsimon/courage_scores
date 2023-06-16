@@ -108,7 +108,8 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             depth={1}
             onHiCheck={add180(tournamentData, setTournamentData)}
             on180={add180(tournamentData, setTournamentData)}
-            patchData={applyPatch} />) : null}
+            patchData={applyPatch}
+            allowNextRound={!tournamentData.singleRound} />) : null}
         {tournamentData.sides.length >= 2 ? (<table className="table">
             <tbody>
             <tr>
