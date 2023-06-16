@@ -35,7 +35,8 @@ describe('ImportData', () => {
                         message: err.message,
                         stack: err.stack
                     };
-                }
+                },
+                reportClientSideException: () => {},
             },
             (<AdminContainer {...adminProps}>
                 <ImportData />
@@ -269,6 +270,88 @@ describe('ImportData', () => {
         }
         await setFileToImport();
         apiResponse = { success: false };
+
+        await doClick(findButton(context.container, 'Import data'));
+
+        expect(reportedError).toBeNull();
+        expect(importRequest).not.toBeNull();
+        expect(context.container.textContent).toContain('Could not import data');
+    });
+
+    it('can handle http 500 error during import', async () => {
+        await renderComponent({
+            tables: [
+                { name: 'Table 1', canImport: true },
+                { name: 'Table 2', canImport: false }
+            ]
+        });
+        expect(reportedError).toBeNull();
+        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        if (table1.className.indexOf('active') === -1) {
+            await doClick(table1);
+        }
+        await setFileToImport();
+        apiResponse = {
+            status: 500,
+            body: {},
+            text: async () => 'some text error',
+        };
+
+        await doClick(findButton(context.container, 'Import data'));
+
+        expect(reportedError).toBeNull();
+        expect(importRequest).not.toBeNull();
+        expect(context.container.textContent).toContain('Could not import data');
+    });
+
+    it('can handle http 400 error during import', async () => {
+        await renderComponent({
+            tables: [
+                { name: 'Table 1', canImport: true },
+                { name: 'Table 2', canImport: false }
+            ]
+        });
+        expect(reportedError).toBeNull();
+        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        if (table1.className.indexOf('active') === -1) {
+            await doClick(table1);
+        }
+        await setFileToImport();
+        apiResponse = {
+            status: 400,
+            body: {},
+            json: async () => { return { errors: [ 'some error' ] }; },
+        };
+
+        await doClick(findButton(context.container, 'Import data'));
+
+        expect(reportedError).toBeNull();
+        expect(importRequest).not.toBeNull();
+        expect(context.container.textContent).toContain('Could not import data');
+    });
+
+    it('can handle unexpected error during import', async () => {
+        await renderComponent({
+            tables: [
+                { name: 'Table 1', canImport: true },
+                { name: 'Table 2', canImport: false }
+            ]
+        });
+        expect(reportedError).toBeNull();
+        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        if (table1.className.indexOf('active') === -1) {
+            await doClick(table1);
+        }
+        await setFileToImport();
+        apiResponse = {
+            status: 400,
+            body: {},
+            json: async () => { throw new Error('some error'); },
+        };
+        console.error = () => {};
 
         await doClick(findButton(context.container, 'Import data'));
 

@@ -69,6 +69,7 @@ export function ImportData() {
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             console.error(e);
             setSaveError(e.toString());
         } finally {
