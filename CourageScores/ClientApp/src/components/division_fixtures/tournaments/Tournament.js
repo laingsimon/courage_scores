@@ -197,7 +197,7 @@ export function Tournament() {
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="light-background p-3">
                 {canManageTournaments
-                    ? (<div className="input-group mb-3 d-print-none">
+                    ? (<div className="input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Address</span>
                         </div>
@@ -212,7 +212,7 @@ export function Tournament() {
                     </span>
                     </p>)}
                 {canManageTournaments
-                    ? (<div className="form-group input-group mb-3 d-print-none">
+                    ? (<div className="form-group input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
                             <span className="input-group-text">Type (optional)</span>
                         </div>
@@ -222,7 +222,7 @@ export function Tournament() {
                     </div>)
                     : null}
                 {canManageTournaments
-                    ? (<div className="form-group input-group mb-3 d-flex d-print-none">
+                    ? (<div className="form-group input-group mb-1 d-print-none">
                         <label htmlFor="note-text" className="input-group-text">Notes</label>
                         <textarea id="note-text" className="form-control" disabled={saving}
                                   value={tournamentData.notes || ''} name="notes"
@@ -233,19 +233,36 @@ export function Tournament() {
                                 role="alert">{tournamentData.notes}</div>)
                         : null}
                 {canManageTournaments
-                    ? (<div className="form-group input-group mb-3 d-flex">
-                        <div className="form-check form-switch margin-right">
-                            <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount"
-                                   checked={tournamentData.accoladesCount} onChange={valueChanged(tournamentData, setTournamentData)} />
-                            <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks in players table?</label>
-                        </div>
+                    ? (<div className="form-group input-group mb-3 d-print-none">
+                        <label htmlFor="note-text" className="input-group-text">Options</label>
+                        <div className="form-control">
+                            <div className="form-check form-switch margin-right my-1">
+                                <input disabled={saving} type="checkbox" className="form-check-input" name="accoladesCount" id="accoladesCount"
+                                       checked={tournamentData.accoladesCount} onChange={valueChanged(tournamentData, setTournamentData)} />
+                                <label className="form-check-label" htmlFor="accoladesCount">Include 180s and Hi-checks in players table?</label>
+                            </div>
 
-                        <span className="margin-right">Division:</span>
-                        <BootstrapDropdown
-                            value={tournamentData.divisionId}
-                            onChange={propChanged(tournamentData, setTournamentData, 'divisionId')}
-                            options={[ { value: null, text: 'All divisions' } ].concat(divisions.map(d => { return { value: d.id, text: d.name } }))}
-                            disabled={saving} />
+                            <div className="my-1">
+                                <span className="margin-right">Division:</span>
+                                <BootstrapDropdown
+                                    value={tournamentData.divisionId}
+                                    onChange={propChanged(tournamentData, setTournamentData, 'divisionId')}
+                                    options={[ { value: null, text: 'All divisions' } ].concat(divisions.map(d => { return { value: d.id, text: d.name } }))}
+                                    disabled={saving} />
+                            </div>
+
+                            <div className="my-1">
+                                <span className="margin-right">Best of:</span>
+                                <input disabled={saving} className="form-control no-spinner width-50 d-inline" type="number" min="3" value={tournamentData.bestOf || ''} name="bestOf" onChange={valueChanged(tournamentData, setTournamentData, '')} />
+                                <span> (Number of legs)</span>
+                            </div>
+
+                            <div className="form-check form-switch my-1">
+                                <input disabled={saving} type="checkbox" className="form-check-input" name="singleRound" id="singleRound"
+                                       checked={tournamentData.singleRound} onChange={valueChanged(tournamentData, setTournamentData)} />
+                                <label className="form-check-label" htmlFor="singleRound">Single round?</label>
+                            </div>
+                        </div>
                     </div>)
                     : null}
                 <TournamentContainer
