@@ -8,7 +8,6 @@ import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router-dom";
 import {IocContainer} from "./IocContainer";
 import ReactDOM from "react-dom/client";
-import {About} from "./components/About";
 import {useApp} from "./AppContainer";
 
 describe('App', () => {
