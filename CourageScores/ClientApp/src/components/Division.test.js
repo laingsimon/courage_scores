@@ -9,8 +9,8 @@ import {createTemporaryId} from "../helpers/projection";
 describe('Division', () => {
     let context;
     let reportedError;
-    const divisionDataMap = {};
-    const mockDivisionApi = {
+    const divisionDataMap = { };
+    const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}:${seasonId}`;
 
@@ -54,7 +54,7 @@ describe('Division', () => {
             endDate: '2022-08-25T00:00:00',
             divisions: [] } ];
         context = await renderApp(
-            { divisionApi: mockDivisionApi },
+            { divisionApi },
             {
                 account: account,
                 onError: (err) => {
@@ -187,7 +187,7 @@ describe('Division', () => {
                 name: 'A player',
                 oneEighties: 1,
                 over100Checkouts: 2,
-                pairs: {},
+                pairs: { },
                 points: 3,
                 rank: 4,
                 singles: {
@@ -198,7 +198,7 @@ describe('Division', () => {
                 },
                 team: 'A team',
                 teamId: createTemporaryId(),
-                triples: {},
+                triples: { },
                 winPercentage: 0.5
             });
             setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
@@ -398,7 +398,7 @@ describe('Division', () => {
             };
             setupMockDivisionData(divisionId, undefined, errorDivisionData);
 
-            console.log = () => {};
+            console.log = () => { };
             await renderComponent(null, divisionId);
 
             expect(reportedError).toEqual('Error accessing division: Code: 400 -- key: some error');
@@ -412,7 +412,7 @@ describe('Division', () => {
             };
             setupMockDivisionData(divisionId, undefined, errorDivisionData);
 
-            console.log = () => {};
+            console.log = () => { };
             await renderComponent(null, divisionId);
 
             expect(context.container.textContent).not.toContain('some data error');
@@ -449,7 +449,7 @@ describe('Division', () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
             setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
-            await renderComponent({ access: {} }, divisionId);
+            await renderComponent({ access: { } }, divisionId);
 
             expect(reportedError).toBeNull();
             const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
@@ -466,7 +466,7 @@ describe('Division', () => {
             const divisionId = createTemporaryId();
             const outOfSeasonDivisionData = getOutOfSeasonDivisionData(divisionId);
             setupMockDivisionData(divisionId, undefined, outOfSeasonDivisionData);
-            await renderComponent({ access: {} }, divisionId);
+            await renderComponent({ access: { } }, divisionId);
 
             expect(reportedError).toBeNull();
             const divisionControls = context.container.querySelectorAll('div.btn-group div.btn-group');
@@ -487,8 +487,8 @@ describe('Division', () => {
             };
             setupMockDivisionData(divisionId, undefined, errorDivisionData);
 
-            console.log = () => {};
-            await renderComponent({ access: {} }, divisionId);
+            console.log = () => { };
+            await renderComponent({ access: { } }, divisionId);
 
             expect(context.container.textContent).toContain('some data error');
             expect(context.container.textContent).toContain('another data error');
@@ -501,8 +501,8 @@ describe('Division', () => {
                 dataErrors: ['some data error', 'another data error']
             };
             setupMockDivisionData(divisionId, undefined, errorDivisionData);
-            console.log = () => {};
-            await renderComponent({ access: {} }, divisionId);
+            console.log = () => { };
+            await renderComponent({ access: { } }, divisionId);
 
             await doClick(findButton(context.container, 'Hide errors'));
 

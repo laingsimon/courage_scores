@@ -55,7 +55,7 @@ describe('App', () => {
         }
 
         reportedError = null;
-        settings = {};
+        settings = { };
         context = await renderApp(
             {
                 divisionApi,
@@ -235,7 +235,7 @@ describe('App', () => {
                 null,
                 false,
                 (<Route path='/test' element={<TestElement />} />));
-            console.error = () => {};
+            console.error = () => { };
 
             await doClick(findButton(context.container, 'onError'));
 

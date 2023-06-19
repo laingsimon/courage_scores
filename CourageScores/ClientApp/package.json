@@ -54,8 +54,7 @@
   },
   "jest": {
     "coverageReporters": [
-      "lcov",
-      "json-summary"
+      "lcov"
     ],
     "moduleNameMapper": {
       "next/router": ",<rootDir>/__mocks__/next/router.js",

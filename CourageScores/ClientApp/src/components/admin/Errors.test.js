@@ -11,8 +11,8 @@ describe('Errors', () => {
     let context;
     let reportedError;
     let errorToThrow = null;
-    const recentMap = {};
-    const mockErrorApi = {
+    const recentMap = { };
+    const errorApi = {
         getRecent: (since) => {
             if (errorToThrow) {
                 throw errorToThrow;
@@ -29,9 +29,9 @@ describe('Errors', () => {
         reportedError = null;
         errorToThrow = null;
         context = await renderApp(
-            { errorApi: mockErrorApi },
+            { errorApi },
             {
-                account: {},
+                account: { },
                 appLoading: false,
                 onError: (err) => {
                     reportedError = {

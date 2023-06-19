@@ -20,7 +20,7 @@ describe('TeamOverview', () => {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            {},
+            { },
             {
                 account: account,
                 teams: teams,

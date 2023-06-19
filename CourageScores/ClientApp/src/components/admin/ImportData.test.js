@@ -28,7 +28,7 @@ describe('ImportData', () => {
         context = await renderApp(
             { dataApi },
             {
-                account: {},
+                account: { },
                 appLoading: false,
                 onError: (err) => {
                     reportedError = {
@@ -36,7 +36,7 @@ describe('ImportData', () => {
                         stack: err.stack
                     };
                 },
-                reportClientSideException: () => {},
+                reportClientSideException: () => { },
             },
             (<AdminContainer {...adminProps}>
                 <ImportData />
@@ -294,7 +294,7 @@ describe('ImportData', () => {
         await setFileToImport();
         apiResponse = {
             status: 500,
-            body: {},
+            body: { },
             text: async () => 'some text error',
         };
 
@@ -321,7 +321,7 @@ describe('ImportData', () => {
         await setFileToImport();
         apiResponse = {
             status: 400,
-            body: {},
+            body: { },
             json: async () => { return { errors: [ 'some error' ] }; },
         };
 
@@ -348,10 +348,10 @@ describe('ImportData', () => {
         await setFileToImport();
         apiResponse = {
             status: 400,
-            body: {},
+            body: { },
             json: async () => { throw new Error('some error'); },
         };
-        console.error = () => {};
+        console.error = () => { };
 
         await doClick(findButton(context.container, 'Import data'));
 

@@ -61,7 +61,7 @@ describe('PlayerOverview', () => {
             winPercentage: 6,
             oneEighties: 7,
             over100Checkouts: 8,
-            fixtures: {}
+            fixtures: { }
         };
 
         it('player and team details', async () => {
@@ -83,6 +83,21 @@ describe('PlayerOverview', () => {
             const linkToTeam = heading.querySelector('a');
             expect(linkToTeam).toBeTruthy();
             expect(linkToTeam.href).toEqual(`http://localhost/division/${division.id}/team:${team.id}/${season.id}`);
+        });
+
+        it('when player not found', async () => {
+            await renderComponent(
+                createTemporaryId(),
+                {
+                    teams: [ team ],
+                    players: [ player ],
+                    fixtures: [ ],
+                    id: division.id,
+                    season
+                });
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).toContain('⚠ Player could not be found');
         });
 
         it('table headings', async () => {
@@ -120,7 +135,7 @@ describe('PlayerOverview', () => {
                 fixtures: [ fixture ],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({}, player);
+            const playerWithLeagueFixture = Object.assign({ }, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
@@ -173,7 +188,7 @@ describe('PlayerOverview', () => {
                 fixtures: [ fixture ],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({}, player);
+            const playerWithLeagueFixture = Object.assign({ }, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
@@ -227,7 +242,7 @@ describe('PlayerOverview', () => {
                 fixtures: [ fixture ],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({}, player);
+            const playerWithLeagueFixture = Object.assign({ }, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,

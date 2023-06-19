@@ -21,7 +21,7 @@ describe('HiCheckAnd180s', () => {
         reportedError = null;
         updatedFixtureData = null;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     reportedError = {

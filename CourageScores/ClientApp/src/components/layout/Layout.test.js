@@ -26,7 +26,7 @@ describe('Layout', () => {
                 error,
                 excludeSurround,
                 divisions: [],
-                reportClientSideException: () => {}
+                reportClientSideException: () => { }
             },
             (<Layout />));
     }

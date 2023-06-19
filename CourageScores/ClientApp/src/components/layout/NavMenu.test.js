@@ -294,7 +294,7 @@ describe('NavMenu', () => {
 
         it('should not show admin link', async () => {
             const nonAdminAccount = {
-                access: {},
+                access: { },
                 givenName: 'Not an admin',
             }
             await renderComponent(settings, nonAdminAccount, divisions, seasons, false);

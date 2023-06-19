@@ -113,7 +113,7 @@ describe('DivisionPlayer', () => {
             });
 
             it('captaincy marker', async () => {
-                const captain = Object.assign({}, player);
+                const captain = Object.assign({ }, player);
                 captain.captain = true;
                 await renderComponent({
                         player: captain,
@@ -199,7 +199,7 @@ describe('DivisionPlayer', () => {
             });
 
             it('team name only if no team id', async () => {
-                const noTeamPlayer = Object.assign({}, player);
+                const noTeamPlayer = Object.assign({ }, player);
                 noTeamPlayer.teamId = EMPTY_ID;
                 await renderComponent({
                         player: noTeamPlayer,

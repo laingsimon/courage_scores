@@ -36,7 +36,7 @@ describe('Practice', () => {
     });
 
     beforeEach(() => {
-        saygData = {};
+        saygData = { };
     });
 
     async function renderComponent(account, hash, appLoading) {
