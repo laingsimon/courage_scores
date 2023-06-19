@@ -85,6 +85,21 @@ describe('PlayerOverview', () => {
             expect(linkToTeam.href).toEqual(`http://localhost/division/${division.id}/team:${team.id}/${season.id}`);
         });
 
+        it('when player not found', async () => {
+            await renderComponent(
+                createTemporaryId(),
+                {
+                    teams: [ team ],
+                    players: [ player ],
+                    fixtures: [ ],
+                    id: division.id,
+                    season
+                });
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).toContain('⚠ Player could not be found');
+        });
+
         it('table headings', async () => {
             await renderComponent(
                 player.id,
