@@ -8,25 +8,16 @@ import {renderApp,cleanUp} from "../../helpers/tests";
 describe('AdminHome', () => {
     let container;
     let context;
-    let dataApi;
-    let accountApi;
-
-    beforeEach(() => {
-        dataApi = {
-            tables: async () => {
-                return [];
-            }
-        };
-
-        accountApi = {
-            getAll: async () => {
-                return [];
-            }
+    const dataApi = {
+        tables: async () => {
+            return [];
         }
-
-        container = document.createElement('div');
-        document.body.appendChild(container);
-    });
+    };
+    const accountApi = {
+        getAll: async () => {
+            return [];
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
