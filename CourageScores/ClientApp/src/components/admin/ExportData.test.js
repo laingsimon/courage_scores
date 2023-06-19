@@ -28,7 +28,7 @@ describe('ExportData', () => {
         context = await renderApp(
             { dataApi },
             {
-                account: {},
+                account: { },
                 appLoading: false,
                 onError: (err) => {
                     reportedError = {

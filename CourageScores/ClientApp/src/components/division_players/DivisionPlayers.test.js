@@ -11,7 +11,7 @@ describe('DivisionPlayers', () => {
     let reportedError;
     let divisionReloaded = false;
     let account;
-    const mockPlayerApi = {
+    const playerApi = {
 
     };
 
@@ -23,7 +23,7 @@ describe('DivisionPlayers', () => {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            { playerApi: mockPlayerApi },
+            { playerApi },
             {
                 account: account,
                 onError: (err) => {

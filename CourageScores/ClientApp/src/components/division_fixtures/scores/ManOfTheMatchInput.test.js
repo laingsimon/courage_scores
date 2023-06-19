@@ -21,7 +21,7 @@ describe('ManOfTheMatchInput', () => {
         reportedError = null;
         updatedFixtureData = null;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     reportedError = {
@@ -63,8 +63,8 @@ describe('ManOfTheMatchInput', () => {
         it('when no matches', async () => {
             const fixtureData = {
                 matches: [],
-                home: {},
-                away: {},
+                home: { },
+                away: { },
             };
 
             await renderComponent(false, null, fixtureData, '');
@@ -78,8 +78,8 @@ describe('ManOfTheMatchInput', () => {
                     homePlayers: [],
                     awayPlayers: []
                 } ],
-                home: {},
-                away: {},
+                home: { },
+                away: { },
             };
 
             await renderComponent(false, null, fixtureData, '');
@@ -176,14 +176,14 @@ describe('ManOfTheMatchInput', () => {
     });
 
     describe('when logged in', () => {
-        let account = {};
+        let account = { };
 
         describe('renders', () => {
             it('when no matches', async () => {
                 const fixtureData = {
                     matches: [],
-                    home: {},
-                    away: {},
+                    home: { },
+                    away: { },
                 };
 
                 await renderComponent(false, account, fixtureData, 'admin');
@@ -201,8 +201,8 @@ describe('ManOfTheMatchInput', () => {
                         homePlayers: [],
                         awayPlayers: []
                     } ],
-                    home: {},
-                    away: {},
+                    home: { },
+                    away: { },
                 };
 
                 await renderComponent(false, account, fixtureData, 'admin');

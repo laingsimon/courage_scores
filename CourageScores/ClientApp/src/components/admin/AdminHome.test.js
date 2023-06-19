@@ -8,17 +8,17 @@ import {renderApp,cleanUp} from "../../helpers/tests";
 describe('AdminHome', () => {
     let container;
     let context;
-    let mockDataApi;
-    let mockAccountApi;
+    let dataApi;
+    let accountApi;
 
     beforeEach(() => {
-        mockDataApi = {
+        dataApi = {
             tables: async () => {
                 return [];
             }
         };
 
-        mockAccountApi = {
+        accountApi = {
             getAll: async () => {
                 return [];
             }
@@ -38,8 +38,8 @@ describe('AdminHome', () => {
         };
 
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
-            { account: account, appLoading: false},
+            { dataApi, accountApi },
+            { account, appLoading: false},
             (<AdminContainer>
                 <AdminHome />
             </AdminContainer>));
@@ -57,7 +57,7 @@ describe('AdminHome', () => {
             access: access
         };
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
+            { dataApi: dataApi, accountApi: accountApi },
             { appLoading: false, account: account },
             (<AdminContainer>
                 <AdminHome />
@@ -72,7 +72,7 @@ describe('AdminHome', () => {
 
     it('shows loading when appLoading', async () => {
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
+            { dataApi: dataApi, accountApi: accountApi },
             { appLoading: true },
             (<AdminContainer>
                 <AdminHome />
@@ -84,7 +84,7 @@ describe('AdminHome', () => {
 
     it('shows not permitted when finished loading', async () => {
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
+            { dataApi: dataApi, accountApi: accountApi },
             { account: null, appLoading: false},
             (<AdminContainer>
                 <AdminHome />

@@ -101,9 +101,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -135,9 +135,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -166,9 +166,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -200,9 +200,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -230,9 +230,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -259,9 +259,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -283,9 +283,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -307,9 +307,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -328,9 +328,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -360,8 +360,8 @@ describe('DivisionFixtureDate', () => {
             await renderComponent(
                 {
                     date: fixtureDate,
-                    filter: {},
-                    renderContext: {},
+                    filter: { },
+                    renderContext: { },
                     showPlayers: { '2023-05-06T00:00:00': true },
                 },
                 { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, players: [] },
@@ -397,9 +397,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
@@ -430,8 +430,8 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
+                filter: { },
+                renderContext: { },
                 showPlayers: {
                     '2023-05-06T00:00:00': true
                 },
@@ -439,7 +439,7 @@ describe('DivisionFixtureDate', () => {
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
-            expect(showPlayers).toEqual({});
+            expect(showPlayers).toEqual({ });
         });
     });
 
@@ -487,9 +487,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();
@@ -519,9 +519,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                filter: {},
-                renderContext: {},
-                showPlayers: {},
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
             }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
 
             expect(reportedError).toBeNull();

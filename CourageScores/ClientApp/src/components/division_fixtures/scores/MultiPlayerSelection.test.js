@@ -26,7 +26,7 @@ describe('MultiPlayerSelection', () => {
         addedPlayer = null;
         removedPlayer = null;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     reportedError = {

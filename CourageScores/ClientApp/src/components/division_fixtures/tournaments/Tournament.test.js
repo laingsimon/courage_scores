@@ -50,7 +50,7 @@ describe('Tournament', () => {
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
         if (!divisionDataLookup) {
-            divisionDataLookup = {};
+            divisionDataLookup = { };
         }
 
         const key = `${divisionId}_${seasonId}`;
@@ -58,8 +58,8 @@ describe('Tournament', () => {
     }
 
     afterEach(() => {
-        divisionDataLookup = {};
-        tournamentDataLookup = {};
+        divisionDataLookup = { };
+        tournamentDataLookup = { };
         cleanUp(context);
     });
 
@@ -106,7 +106,7 @@ describe('Tournament', () => {
         const update = updatedTournamentData.shift();
         expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
         expect(update.data).toEqual(
-            Object.assign({}, existingData, expectedChange));
+            Object.assign({ }, existingData, expectedChange));
     }
 
     const division = {
@@ -143,7 +143,7 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = {};
+                tournamentDataLookup = { };
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
@@ -175,7 +175,7 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = {};
+                tournamentDataLookup = { };
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
@@ -194,7 +194,7 @@ describe('Tournament', () => {
 
             it('when tournament not found', async () => {
                 const id = createTemporaryId();
-                tournamentDataLookup = {};
+                tournamentDataLookup = { };
                 tournamentDataLookup[id] = null;
 
                 await renderComponent(id, {
@@ -226,7 +226,7 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = {};
+                tournamentDataLookup = { };
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
@@ -272,7 +272,7 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = {};
+                tournamentDataLookup = { };
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
@@ -327,7 +327,7 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = {};
+                tournamentDataLookup = { };
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 

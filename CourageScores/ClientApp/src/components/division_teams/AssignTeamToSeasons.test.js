@@ -46,9 +46,7 @@ describe('AssignTeamToSeasons', () => {
         apiAdded = [];
         apiDeleted = [];
         context = await renderApp(
-            {
-                teamApi
-            },
+            { teamApi },
             {
                 onError: (err) => {
                     reportedError = err;

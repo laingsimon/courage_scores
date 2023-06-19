@@ -12,7 +12,7 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let requestedReports;
     let returnReport;
-    const mockReportApi = {
+    const reportApi = {
         getReport: async (req) => {
             requestedReports.push(req);
             return returnReport;
@@ -28,7 +28,7 @@ describe('DivisionTeams', () => {
         divisionReloaded = false;
         requestedReports = [];
         context = await renderApp(
-            { reportApi: mockReportApi },
+            { reportApi },
             {
                 account: account,
                 onError: (err) => {

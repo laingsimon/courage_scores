@@ -33,9 +33,7 @@ describe('DivisionTeam', () => {
         divisionReloaded = false;
         updatedTeam = null;
         context = await renderApp(
-            {
-                teamApi
-            },
+            { teamApi },
             {
                 account,
                 onError: (err) => {

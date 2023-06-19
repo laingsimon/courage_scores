@@ -42,9 +42,7 @@ describe('EditTeamDetails', () => {
         change = null;
         canceled = false;
         context = await renderApp(
-            {
-                teamApi
-            },
+            { teamApi },
             {
                 divisions,
                 onError: (err) => {

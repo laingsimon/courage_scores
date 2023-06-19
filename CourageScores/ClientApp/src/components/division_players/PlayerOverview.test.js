@@ -61,7 +61,7 @@ describe('PlayerOverview', () => {
             winPercentage: 6,
             oneEighties: 7,
             over100Checkouts: 8,
-            fixtures: {}
+            fixtures: { }
         };
 
         it('player and team details', async () => {
@@ -135,7 +135,7 @@ describe('PlayerOverview', () => {
                 fixtures: [ fixture ],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({}, player);
+            const playerWithLeagueFixture = Object.assign({ }, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
@@ -188,7 +188,7 @@ describe('PlayerOverview', () => {
                 fixtures: [ fixture ],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({}, player);
+            const playerWithLeagueFixture = Object.assign({ }, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
@@ -242,7 +242,7 @@ describe('PlayerOverview', () => {
                 fixtures: [ fixture ],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({}, player);
+            const playerWithLeagueFixture = Object.assign({ }, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
