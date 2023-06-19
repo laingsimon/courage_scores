@@ -99,12 +99,12 @@ export function PlayerOverview({ playerId }) {
     }
 
     if (!player.id) {
-        return (<div className="light-background p-3">
+        return (<div className="content-background p-3">
             <h5 className="text-danger">⚠ Player could not be found</h5>
         </div>)
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>
             {player.name}
             <span className="h6 margin-left">

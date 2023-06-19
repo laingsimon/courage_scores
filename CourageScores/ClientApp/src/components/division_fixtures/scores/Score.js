@@ -484,7 +484,7 @@ export function Score() {
                 </li>
             </ul>
             <LeagueFixtureContainer {...leagueFixtureData}>
-                <div className="light-background p-3 overflow-auto">
+                <div className="content-background p-3 overflow-auto">
                     {fixtureData.address || access === 'admin'
                         ? (<GameDetails saving={saving} setFixtureData={setFixtureData} access={access}
                                         fixtureData={fixtureData}/>)

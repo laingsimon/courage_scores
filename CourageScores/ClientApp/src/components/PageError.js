@@ -23,7 +23,7 @@ export function PageError({ error }){
         await reportClientSideException(error);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3 className="text-danger">An error occurred</h3>
         <p>
             <span className="fw-bold">{error.message || error}</span>

@@ -56,7 +56,7 @@ describe('AdminHome', () => {
             '/admin/:mode',
             address
         );
-        const content = context.container.querySelector(`div.light-background`);
+        const content = context.container.querySelector(`div.content-background`);
         expect(content).not.toBeNull();
         expect(content.innerHTML).toContain(expectContent);
     }

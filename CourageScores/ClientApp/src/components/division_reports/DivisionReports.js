@@ -63,7 +63,7 @@ export function DivisionReports() {
         return (<Report rows={report.rows} valueHeading={report.valueHeading} />);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <div className="input-group d-print-none">
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>

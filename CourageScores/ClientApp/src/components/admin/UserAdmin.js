@@ -122,7 +122,7 @@ export function UserAdmin() {
         return { value: acc.emailAddress, text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`, className: className };
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>Manage access</h3>
         <div className="input-group mb-3 d-flex">
             <div className="input-group-prepend">

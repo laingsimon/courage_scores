@@ -41,7 +41,7 @@ export function DivisionTeams() {
         </Dialog>);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <div className="overflow-x-auto">
             <table className="table">
                 <thead>
