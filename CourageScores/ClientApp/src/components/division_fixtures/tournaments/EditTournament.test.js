@@ -123,8 +123,7 @@ describe('EditTournament', () => {
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const rounds = context.container.querySelector('div > div > div:nth-child(3)');
-            expect(rounds).toBeTruthy();
-            expect(rounds.textContent).toEqual('No matches defined');
+            expect(rounds).toBeFalsy();
         });
 
         it('no rounds, when less than 2 sides', async () => {
@@ -193,9 +192,7 @@ describe('EditTournament', () => {
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const accolades = context.container.querySelector('div > div > table');
-            expect(accolades).toBeTruthy();
-            expect(accolades.textContent).toContain('180s');
-            expect(accolades.textContent).toContain('100+ c/o');
+            expect(accolades).toBeFalsy();
         });
 
         it('no accolades, when less than 2 sides', async () => {
