@@ -114,6 +114,8 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Date = new DateTime(2001, 02, 03);
         _update.Notes = "notes";
         _update.AccoladesCount = true;
+        _update.BestOf = 7;
+        _update.SingleRound = true;
         _update.OneEighties.Add(oneEightyPlayerDto);
         _update.Over100Checkouts.Add(over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
@@ -132,6 +134,8 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Over100Checkouts, Is.EquivalentTo(new[] { over100CheckoutPlayer }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
+        Assert.That(result.Result!.BestOf, Is.EqualTo(7));
+        Assert.That(result.Result!.SingleRound, Is.True);
     }
 
     [Test]

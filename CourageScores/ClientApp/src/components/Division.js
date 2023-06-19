@@ -27,6 +27,7 @@ export function Division() {
     async function reloadDivisionData() {
         try {
             const divisionData = await divisionApi.data(divisionId, seasonId);
+            setDataErrors(null);
             setDivisionData(divisionData);
             return divisionData;
         } catch (e) {

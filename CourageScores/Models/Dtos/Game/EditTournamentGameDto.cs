@@ -12,6 +12,8 @@ public class EditTournamentGameDto : IIntegrityCheckDto
     public DateTime Date { get; set; }
     public string? Notes { get; set; }
     public string? Type { get; set; }
+    public int? BestOf { get; set; }
+    public bool SingleRound { get; set; }
     public List<TournamentSideDto> Sides { get; set; } = new();
     public TournamentRoundDto? Round { get; set; }
     public bool AccoladesCount { get; set; }

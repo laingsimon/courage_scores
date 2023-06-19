@@ -39,6 +39,8 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Type = model.Type,
             AccoladesCount = model.AccoladesCount,
             DivisionId = model.DivisionId,
+            BestOf = model.BestOf,
+            SingleRound = model.SingleRound,
         }.AddAuditProperties(model);
     }
 
@@ -58,6 +60,8 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             Type = dto.Type?.Trim(),
             AccoladesCount = dto.AccoladesCount,
             DivisionId = dto.DivisionId,
+            BestOf = dto.BestOf,
+            SingleRound = dto.SingleRound,
         }.AddAuditProperties(dto);
     }
 }

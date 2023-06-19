@@ -2,8 +2,10 @@ import {max, sortBy, any} from "../../../helpers/collections";
 import {repeat} from "../../../helpers/projection";
 import React from "react";
 import {getRoundNameFromMatches} from "../../../helpers/tournaments";
+import {renderDate} from "../../../helpers/rendering";
 
-export function TournamentSheet({ sides }) {
+export function TournamentSheet({ tournamentData }) {
+    const sides = tournamentData.sides;
     const maxSideSize = max(sides, current => current.players ? current.players.length : 0);
 
     function renderWinner() {
@@ -88,6 +90,9 @@ export function TournamentSheet({ sides }) {
     }
 
     return (<div className="d-screen-none">
+        <div className="border-1 border-solid border-secondary p-3 text-center">
+            {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong> - <strong>{tournamentData.notes}</strong>
+        </div>
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
             {renderPrintModeRound(sides.length)}
             <ul className="float-end list-group">{sides
