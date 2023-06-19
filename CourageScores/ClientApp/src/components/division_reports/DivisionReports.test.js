@@ -74,7 +74,7 @@ describe('DivisionTeams', () => {
             await renderComponent(account, divisionData);
 
             expect(reportedError).toBeNull();
-            const input = context.container.querySelectorAll('.light-background input');
+            const input = context.container.querySelectorAll('.content-background input');
             expect(input).toBeTruthy();
         });
 
@@ -209,7 +209,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
-            const messages = context.container.querySelectorAll('.light-background ul > li');
+            const messages = context.container.querySelectorAll('.content-background ul > li');
             expect(Array.from(messages).map(li => li.textContent)).toEqual([ 'A message' ]);
         });
 
@@ -235,7 +235,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
-            const reportOptions = context.container.querySelectorAll('.light-background div.btn-group > div[role="menu"] > button');
+            const reportOptions = context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button');
             expect(Array.from(reportOptions).map(li => li.textContent)).toEqual([ 'A report description', 'Another report description' ]);
         });
 
@@ -264,7 +264,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
-            const reportTable = context.container.querySelector('.light-background table');
+            const reportTable = context.container.querySelector('.content-background table');
             expect(reportTable).toBeTruthy();
             const reportHeadings = reportTable.querySelectorAll('thead tr th');
             expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual([ '', 'Player', 'Team', 'A value heading' ]);

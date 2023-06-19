@@ -52,11 +52,11 @@ describe('Errors', () => {
 
     async function setDate(since) {
         // since must be a date (otherwise event will fire with an empty string)
-        await doChange(context.container, '.light-background .input-group input.form-control', since, context.user);
+        await doChange(context.container, '.content-background .input-group input.form-control', since, context.user);
     }
 
     async function clickErrorItem(index) {
-        const listItems = context.container.querySelectorAll(`.light-background .list-group li.list-group-item`);
+        const listItems = context.container.querySelectorAll(`.content-background .list-group li.list-group-item`);
         const clickEvent = new MouseEvent('click', { bubbles: true });
         await act(async () => {
             listItems[index].dispatchEvent(clickEvent);
@@ -71,7 +71,7 @@ describe('Errors', () => {
     }
 
     function getDetailsContainer() {
-        const detailsContainer = context.container.querySelector(`.light-background div.overflow-auto`);
+        const detailsContainer = context.container.querySelector(`.content-background div.overflow-auto`);
         expect(detailsContainer).toBeTruthy();
         return detailsContainer;
     }
@@ -116,7 +116,7 @@ describe('Errors', () => {
     }
 
     function assertResults(count) {
-        const resultsContainer = context.container.querySelector(`.light-background .list-group`);
+        const resultsContainer = context.container.querySelector(`.content-background .list-group`);
         expect(resultsContainer).not.toBeNull();
         const results = Array.from(resultsContainer.querySelectorAll(`li`));
         expect(results.length).toEqual(count);

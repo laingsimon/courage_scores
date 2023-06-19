@@ -265,7 +265,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -282,7 +282,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -347,7 +347,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -377,7 +377,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -495,7 +495,7 @@ describe('Score', () => {
 
             await renderComponent(fixtureId, appData, account);
 
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             expect(playerSelection.querySelector('.dropdown-toggle').textContent).toEqual('New name (nee Old name)');
@@ -530,7 +530,7 @@ describe('Score', () => {
             };
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -562,7 +562,7 @@ describe('Score', () => {
             };
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -596,7 +596,7 @@ describe('Score', () => {
             };
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -619,7 +619,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -635,7 +635,7 @@ describe('Score', () => {
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -683,7 +683,7 @@ describe('Score', () => {
             homeTeam.seasons[0].players.push(anotherHomePlayer);
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
 
@@ -700,7 +700,7 @@ describe('Score', () => {
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
 

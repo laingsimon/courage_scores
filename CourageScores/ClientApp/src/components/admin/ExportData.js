@@ -58,7 +58,7 @@ export function ExportData() {
         }
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>Export data</h3>
         <div className="input-group mb-3">
             <div className="input-group-prepend">

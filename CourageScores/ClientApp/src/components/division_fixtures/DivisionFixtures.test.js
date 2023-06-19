@@ -115,7 +115,7 @@ describe('DivisionFixtures', () => {
     }
 
     function getFixtureDateElement(index, account) {
-        const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+        const fixtureElements = context.container.querySelectorAll('div.content-background > div');
         expect(fixtureElements.length).toEqual(2 + (account ? 1 : 0));
         const fixtureDatesContainer = fixtureElements[1];
         const fixtureDates = fixtureDatesContainer.children;
@@ -389,7 +389,7 @@ describe('DivisionFixtures', () => {
                 }]
             });
             await renderComponent(divisionData, account);
-            const filterContainer = context.container.querySelector('.light-background > div:first-child');
+            const filterContainer = context.container.querySelector('.content-background > div:first-child');
 
             await doSelectOption(filterContainer.querySelector('.dropdown-menu'), 'League fixtures');
 

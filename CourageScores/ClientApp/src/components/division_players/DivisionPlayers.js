@@ -10,7 +10,7 @@ export function DivisionPlayers({ hideVenue, hideHeading, players }) {
     const { players: divisionDataPlayers } = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
 
-    return (<div className="light-background p-3 overflow-x-auto">
+    return (<div className="content-background p-3 overflow-x-auto">
         <div>
             {hideHeading ? null : (<p className="d-print-none">Only players that have played a singles match will appear here</p>)}
             <table className="table">

@@ -115,7 +115,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         return (<SaygContext.Provider value={saygProps}>
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
-            {sayg ? (<div className="p-3 light-background">
+            {sayg ? (<div className="p-3 content-background">
                 {children}
                 <ScoreAsYouGo
                     startingScore={Number.parseInt(sayg.startingScore)}

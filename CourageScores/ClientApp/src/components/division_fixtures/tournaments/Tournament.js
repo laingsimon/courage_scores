@@ -195,7 +195,7 @@ export function Tournament() {
                 originalSeasonData={season}
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
-            {tournamentData ? (<div className="light-background p-3">
+            {tournamentData ? (<div className="content-background p-3">
                 {canManageTournaments
                     ? (<div className="input-group mb-1 d-print-none">
                         <div className="input-group-prepend">

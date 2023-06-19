@@ -166,7 +166,7 @@ describe('Division', () => {
             await renderComponent(null, divisionId, 'teams');
 
             expect(reportedError).toBeNull();
-            const table = context.container.querySelector('.light-background table');
+            const table = context.container.querySelector('.content-background table');
             expect(table).toBeTruthy();
             const headings = table.querySelectorAll('thead tr th');
             expect(headings.length).toEqual(7);
@@ -205,7 +205,7 @@ describe('Division', () => {
             await renderComponent(null, divisionId, 'players');
 
             expect(reportedError).toBeNull();
-            const table = context.container.querySelector('.light-background table');
+            const table = context.container.querySelector('.content-background table');
             expect(table).toBeTruthy();
             const headings = table.querySelectorAll('thead tr th');
             expect(headings.length).toEqual(10);
@@ -234,7 +234,7 @@ describe('Division', () => {
             await renderComponent(null, divisionId, 'fixtures');
 
             expect(reportedError).toBeNull();
-            const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+            const fixtureElements = context.container.querySelectorAll('div.content-background > div');
             expect(fixtureElements.length).toEqual(2);
             const fixtureDatesContainer = fixtureElements[1];
             const fixtureDates = fixtureDatesContainer.children;
@@ -289,7 +289,7 @@ describe('Division', () => {
             await renderComponent(null, divisionId, 'fixtures');
 
             expect(reportedError).toBeNull();
-            const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+            const fixtureElements = context.container.querySelectorAll('div.content-background > div');
             expect(fixtureElements.length).toEqual(2);
             const fixtureDatesContainer = fixtureElements[1];
             const fixtureDates = fixtureDatesContainer.children;
@@ -345,7 +345,7 @@ describe('Division', () => {
             await renderComponent(null, divisionId, 'fixtures');
 
             expect(reportedError).toBeNull();
-            const fixtureElements = context.container.querySelectorAll('div.light-background > div');
+            const fixtureElements = context.container.querySelectorAll('div.content-background > div');
             expect(fixtureElements.length).toEqual(2);
             const fixtureDatesContainer = fixtureElements[1];
             const fixtureDates = fixtureDatesContainer.children;

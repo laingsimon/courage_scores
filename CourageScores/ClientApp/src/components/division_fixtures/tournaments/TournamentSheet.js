@@ -27,13 +27,13 @@ export function TournamentSheet({ tournamentData }) {
 
     function renderVersus(playerIndex) {
         return (<div key={playerIndex} className="my-5 border-dark border-1 border-solid border-bottom-0 opacity-100 text-center position-relative">
-            <span className="position-absolute light-background left-10 px-1 top-negative-15 text-secondary">vs</span>
+            <span className="position-absolute content-background left-10 px-1 top-negative-15 text-secondary">vs</span>
         </div>);
     }
 
     function renderPlayerSplit(playerIndex, excludeScore) {
         return (<div key={playerIndex} className={`my-5 border-1 border-dashed border-secondary border-bottom-0 opacity-100 text-center position-relative${excludeScore ? '' : ' margin-right-50'}`}>
-            <span className="position-absolute light-background left-10 px-1 top-negative-15 text-secondary">and</span>
+            <span className="position-absolute content-background left-10 px-1 top-negative-15 text-secondary">and</span>
         </div>);
     }
 

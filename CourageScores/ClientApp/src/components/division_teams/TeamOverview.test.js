@@ -145,8 +145,8 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, teams, teamId);
 
             expect(reportedError).toBeNull();
-            const heading = context.container.querySelector('.light-background > h3');
-            const address = context.container.querySelector('.light-background > p');
+            const heading = context.container.querySelector('.content-background > h3');
+            const address = context.container.querySelector('.content-background > p');
             expect(heading).toBeTruthy();
             expect(address).toBeTruthy();
             expect(heading.textContent).toEqual('A team 🔗');
@@ -174,7 +174,7 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, [ team ], team.id);
 
             expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
@@ -193,7 +193,7 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, [ team ], team.id);
 
             expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
@@ -214,7 +214,7 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, [ team ], team.id);
 
             expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
@@ -234,7 +234,7 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, [ team ], team.id);
 
             expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const playersSection = tableSections[1];
             const playerRows = playersSection.querySelectorAll('table tbody tr');
@@ -253,8 +253,8 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, teams, teamId);
 
             expect(reportedError).toBeNull();
-            const heading = context.container.querySelector('.light-background > h3');
-            const address = context.container.querySelector('.light-background > p');
+            const heading = context.container.querySelector('.content-background > h3');
+            const address = context.container.querySelector('.content-background > p');
             expect(heading).toBeTruthy();
             expect(address).toBeTruthy();
             expect(heading.textContent).toEqual('A team 🔗');
@@ -269,7 +269,7 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, [ team ], team.id);
 
             expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const fixturesSection = tableSections[0];
             const fixtureRows = fixturesSection.querySelectorAll('table tbody tr');
@@ -284,7 +284,7 @@ describe('TeamOverview', () => {
             await renderComponent(divisionData, [ team ], team.id);
 
             expect(reportedError).toBeNull();
-            const tableSections = context.container.querySelectorAll('.light-background > div.overflow-x-auto');
+            const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
             expect(tableSections.length).toEqual(2);
             const playersSection = tableSections[1];
             const playerRows = playersSection.querySelectorAll('table tbody tr');

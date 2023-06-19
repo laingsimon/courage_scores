@@ -168,7 +168,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const renderContext = {};
     try {
         const resultsToRender = fixtures.map(renderFixtureDate);
-        return (<div className="light-background p-3">
+        return (<div className="content-background p-3">
             <FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
             <div>

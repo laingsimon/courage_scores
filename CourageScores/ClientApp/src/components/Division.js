@@ -111,7 +111,7 @@ export function Division() {
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
                 </li>) : null}
             </ul>
-            {dataErrors && account ? (<div className="light-background p-3">
+            {dataErrors && account ? (<div className="content-background p-3">
                 <h3>⚠ Errors in division data</h3>
                 <ol>
                     {dataErrors.map((error, index) => {

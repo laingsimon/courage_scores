@@ -187,7 +187,7 @@ describe('Tournament', () => {
                 }, true);
 
                 expect(reportedError).toBeNull();
-                const container = context.container.querySelector('.light-background');
+                const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
                 expect(container.className).toContain('loading-background');
             });
@@ -284,10 +284,10 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.light-background > p');
+                const heading = context.container.querySelector('.content-background > p');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE At ADDRESS on 2 Jan');
-                const notes = context.container.querySelector('.light-background > div.alert');
+                const notes = context.container.querySelector('.content-background > div.alert');
                 expect(notes).toBeTruthy();
                 expect(notes.textContent).toContain('NOTES');
             });
@@ -339,10 +339,10 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.light-background > p');
+                const heading = context.container.querySelector('.content-background > p');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE At ADDRESS on 2 Jan');
-                const notes = context.container.querySelector('.light-background > div.alert');
+                const notes = context.container.querySelector('.content-background > div.alert');
                 expect(notes).toBeTruthy();
                 expect(notes.textContent).toContain('NOTES');
             });
@@ -399,7 +399,7 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const editTournamentComponent = context.container.querySelector('.light-background > div:nth-child(3)');
+                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(3)');
                 expect(editTournamentComponent).toBeTruthy();
                 expect(editTournamentComponent.textContent).toContain('Playing:');
                 const sides = editTournamentComponent.querySelector('div:nth-child(2)');
@@ -478,7 +478,7 @@ describe('Tournament', () => {
                 }, true);
 
                 expect(reportedError).toBeNull();
-                const container = context.container.querySelector('.light-background');
+                const container = context.container.querySelector('.content-background');
                 expect(container).toBeTruthy();
                 expect(container.className).toContain('loading-background');
             });
@@ -514,22 +514,22 @@ describe('Tournament', () => {
 
                 expect(reportedError).toBeNull();
                 // address
-                const address = context.container.querySelector('.light-background > div:nth-child(1)');
+                const address = context.container.querySelector('.content-background > div:nth-child(1)');
                 expect(address).toBeTruthy();
                 expect(address.textContent).toContain('Address');
                 expect(address.querySelector('input').value).toEqual('ADDRESS');
                 // type
-                const type = context.container.querySelector('.light-background > div:nth-child(2)');
+                const type = context.container.querySelector('.content-background > div:nth-child(2)');
                 expect(type).toBeTruthy();
                 expect(type.textContent).toContain('Type');
                 expect(type.querySelector('input').value).toEqual('TYPE');
                 // notes
-                const notes = context.container.querySelector('.light-background > div:nth-child(3)');
+                const notes = context.container.querySelector('.content-background > div:nth-child(3)');
                 expect(notes).toBeTruthy();
                 expect(notes.textContent).toContain('Notes');
                 expect(notes.querySelector('textarea').value).toEqual('NOTES');
                 // accolades qualify
-                const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
+                const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(4)');
                 expect(accoladesCountAndDivision).toBeTruthy();
                 expect(accoladesCountAndDivision.textContent).toContain('Include 180s and Hi-checks in players table?');
                 expect(accoladesCountAndDivision.querySelector('input').checked).toEqual(true);
@@ -577,7 +577,7 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const editTournamentComponent = context.container.querySelector('.light-background > div:nth-child(5)');
+                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(5)');
                 expect(editTournamentComponent).toBeTruthy();
                 expect(editTournamentComponent.textContent).toContain('Playing:');
                 const sides = editTournamentComponent.querySelector('div:nth-child(2)');
@@ -739,13 +739,13 @@ describe('Tournament', () => {
                     divisions: [ division ],
                 }, false);
 
-                const address = context.container.querySelector('.light-background > div:nth-child(1)');
+                const address = context.container.querySelector('.content-background > div:nth-child(1)');
                 await doChange(address, 'input', 'NEW ADDRESS', context.user);
-                const type = context.container.querySelector('.light-background > div:nth-child(2)');
+                const type = context.container.querySelector('.content-background > div:nth-child(2)');
                 await doChange(type, 'input', 'NEW TYPE', context.user);
-                const notes = context.container.querySelector('.light-background > div:nth-child(3)');
+                const notes = context.container.querySelector('.content-background > div:nth-child(3)');
                 await doChange(notes, 'textarea', 'NEW NOTES', context.user);
-                const accoladesCountAndDivision = context.container.querySelector('.light-background > div:nth-child(4)');
+                const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(4)');
                 await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
                 await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');
 
