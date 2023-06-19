@@ -62,6 +62,19 @@ describe('UserAdmin', () => {
         expect(getAccess('manageAccess').checked).toEqual(false);
     });
 
+    it('renders user email addresses', async () => {
+        const account = {
+            emailAddress: 'a@b.com',
+            name: 'Test 1',
+        };
+
+        await renderComponent( [ account ], account);
+        await doClick(context.container, 'input[id="showEmailAddress"]');
+
+        expect(reportedError).toBeNull();
+        expect(context.container.textContent).toContain('You a@b.com');
+    });
+
     it('renders user with no access', async () => {
         const account = {
             emailAddress: 'a@b.com',
@@ -83,7 +96,7 @@ describe('UserAdmin', () => {
         expect(getAccess('manageAccess').checked).toEqual(false);
     });
 
-    it('renders user with no access', async () => {
+    it('renders user with access', async () => {
         const account = {
             emailAddress: 'a@b.com',
             name: 'Admin',
