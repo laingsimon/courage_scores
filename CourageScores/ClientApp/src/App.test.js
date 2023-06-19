@@ -63,7 +63,7 @@ describe('App', () => {
                 seasonApi,
                 teamApi,
                 errorApi,
-                settings
+                settings,
             },
             (<App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />),
             testRoute ? '/test' : null);

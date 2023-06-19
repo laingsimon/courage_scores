@@ -85,7 +85,7 @@ export function TournamentSheet({ tournamentData }) {
         if (any(side.players)) {
            return side.players.sort(sortBy('namr')).map(p => p.name).join(', ');
         }
-    
+
         return side.name;
     }
 
