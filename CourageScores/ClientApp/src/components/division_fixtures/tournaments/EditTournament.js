@@ -51,6 +51,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
         const newTournamentData = Object.assign({}, tournamentData);
         newTournamentData.sides = tournamentData.sides.filter(s => s.id !== side.id);
         setTournamentData(newTournamentData);
+        setNewSide(null);
     }
 
     function updateSideDataInRound(round, side) {
