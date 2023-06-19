@@ -30,7 +30,7 @@ describe('TournamentSide', () => {
         updatedData = null;
         removed = false;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     if (err.message) {

@@ -24,7 +24,7 @@ describe('EditTournament', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     if (err.message) {

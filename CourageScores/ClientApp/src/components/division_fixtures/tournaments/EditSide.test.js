@@ -42,7 +42,7 @@ describe('EditSide', () => {
         applied = false;
         deleted = false;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     if (err.message) {
