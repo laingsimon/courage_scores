@@ -1,4 +1,3 @@
-import './custom.css';
 import {useDependencies} from "./IocContainer";
 import React, {useEffect, useState} from "react";
 import {toMap} from "./helpers/collections";
