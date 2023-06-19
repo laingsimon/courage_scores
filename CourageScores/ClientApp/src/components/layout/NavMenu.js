@@ -24,7 +24,7 @@ export function NavMenu() {
     }
 
     function getClassName(to) {
-        return isActive(to) ? 'text-light nav-item-active' : 'text-light';
+        return isActive(to) ? 'nav-item-active' : '';
     }
 
     function navigate(event) {
@@ -69,11 +69,11 @@ export function NavMenu() {
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
                         <li className="nav-item">
-                            <NavLink className="nav-link text-light"
+                            <NavLink className="nav-link"
                                      href="http://thecourageleague.co.uk/">Home</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link text-light"
+                            <NavLink className="nav-link"
                                      href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
                         </li>
                         <li className="nav-item">
@@ -90,10 +90,10 @@ export function NavMenu() {
                                 </NavLink>
                             </li>))}
                         <li className="nav-item">
-                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?page_id=249">Rules</NavLink>
+                            <NavLink className="nav-link" href="http://thecourageleague.co.uk/?page_id=249">Rules</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link text-light" href="http://thecourageleague.co.uk/?page_id=261">Downloads</NavLink>
+                            <NavLink className="nav-link" href="http://thecourageleague.co.uk/?page_id=261">Downloads</NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink tag={Link} className={getClassName('/about')} onClick={navigate} to={`/about`}>
@@ -112,10 +112,10 @@ export function NavMenu() {
                             : null}
                         {!appLoading ? (<li className="nav-item">
                             {!appLoading && account ?
-                                <a className="nav-link text-light" href={`${getAccountUrl('Logout')}`}>Logout
+                                <a className="nav-link" href={`${getAccountUrl('Logout')}`}>Logout
                                     ({account.givenName})</a> : null}
                             {!appLoading && !account ?
-                                <a className="nav-link text-light" href={`${getAccountUrl('Login')}`}>Login</a> : null}
+                                <a className="nav-link" href={`${getAccountUrl('Login')}`}>Login</a> : null}
                         </li>) : null}
                     </ul>
                 </Collapse>

@@ -81,30 +81,30 @@ export function Division() {
             <ul className="nav nav-tabs">
                 <li className="nav-item">
                     <NavLink tag={Link}
-                             className={effectiveTab === 'teams' ? ' text-dark active' : 'text-light'}
+                             className={effectiveTab === 'teams' ? 'active' : ''}
                              to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Teams</NavLink>
                 </li>
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
                     <NavLink tag={Link}
-                             className="text-dark active"
+                             className="active"
                              to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Team Details</NavLink>
                 </li>) : null }
                 <li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'fixtures' ? ' text-dark active' : 'text-light'}
+                    <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
                              to={`/division/${divisionId}/fixtures${seasonId ? '/' + seasonId : ''}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
-                             className={effectiveTab === 'players' ? ' text-dark active' : 'text-light'}
+                             className={effectiveTab === 'players' ? 'active' : ''}
                              to={`/division/${divisionId}/players${seasonId ? '/' + seasonId : ''}`}>Players</NavLink>
                 </li>
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
-                             className="text-dark active"
+                             className="active"
                              to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Player Details</NavLink>
                 </li>) : null }
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'reports' ? ' text-dark active' : 'text-light'}
+                    <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${divisionId}/reports${seasonId ? '/' + seasonId : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
