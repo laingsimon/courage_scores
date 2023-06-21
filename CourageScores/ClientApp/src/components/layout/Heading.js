@@ -13,7 +13,7 @@ export function Heading() {
     }
 
     return (<div className="d-print-none">
-            <div className="d-flex p-2 justify-content-between mid-grey-background">
+            <div className="d-flex p-2 justify-content-between social-header">
                 <div className="">
                     <a href={`mailto:${email}`} className="white-link no-underline">✉️ {email}</a>
                 </div>

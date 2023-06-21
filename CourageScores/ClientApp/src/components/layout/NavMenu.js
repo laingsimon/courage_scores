@@ -89,8 +89,7 @@ export function NavMenu() {
 
     try {
         return (<header className="d-print-none" data-state={collapsed ? 'collapsed' : 'expanded'}>
-            <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container
-                    dark>
+            <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container>
                 <NavbarBrand onClick={() => setCollapsed(!collapsed)} className="me-auto">Menu</NavbarBrand>
                 <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>

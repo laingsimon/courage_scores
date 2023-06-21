@@ -106,7 +106,7 @@ describe('App', () => {
     }
 
     function assertSocialLinks() {
-        const socialLinks = Array.from(context.container.querySelectorAll('div.mid-grey-background a[href]'));
+        const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
         expect(socialLinks.length).toEqual(3);
         const email = socialLinks.filter(a => a.getAttribute('href').indexOf('mailto:') !== -1)[0];
         const facebook = socialLinks.filter(a => a.getAttribute('href').indexOf('facebook.com') !== -1)[0];
@@ -180,7 +180,7 @@ describe('App', () => {
         it('without surround', async () => {
             await renderComponent(null, true);
 
-            const socialLinks = Array.from(context.container.querySelectorAll('div.mid-grey-background a[href]'));
+            const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
             expect(socialLinks.length).toEqual(0);
             const heading = context.container.querySelector('h1.heading');
             expect(heading).toBeFalsy();

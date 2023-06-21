@@ -3,17 +3,14 @@ code {
 }
 
 nav {
-  background-color: #cccccc;
+  background-color: #F8E5CD;
+  color: #000000;
 }
 
 .btn-primary {
   color: #fff;
   background-color: #1b6ec2;
   border-color: #1861ac;
-}
-
-.nav .nav-link {
-  color: #ffffff;
 }
 
 .darts-background {
@@ -35,12 +32,17 @@ nav {
   }
 }
 
-.content-background {
-  background-color: #cccccc;
+h1 {
+  color: #F3472F;
 }
 
-.mid-grey-background {
-  background: #bbbbbb;
+.content-background {
+  background-color: #ffffff;
+  box-shadow: #aaaaaa 0px 0px 20px;
+}
+
+.social-header {
+  background: #2AEA70;
 }
 
 .social-icon {
