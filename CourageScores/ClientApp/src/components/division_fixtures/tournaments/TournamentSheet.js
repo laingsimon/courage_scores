@@ -61,8 +61,8 @@ export function TournamentSheet({ tournamentData }) {
         </div>);
     }
 
-    function renderPrintModeRound(sideCount) {
-        let matches = sideCount;
+    function renderPrintModeRound(sides) {
+        let matches = sides.length;
         const rounds = [];
 
         for (let depth = 0; depth < 10; depth++) {
@@ -94,7 +94,7 @@ export function TournamentSheet({ tournamentData }) {
             {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong> - <strong>{tournamentData.notes}</strong>
         </div>
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
-            {renderPrintModeRound(sides.filter(s => !s.noShow).length)}
+            {renderPrintModeRound(sides.filter(s => !s.noShow))}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
                 .map((s, index) => (<li className={`list-group-item outline-dark${s.noShow ? ' text-decoration-line-through' : ''}`} key={s.id}>{index + 1} - {getSideName(s)}</li>))}</ul>
