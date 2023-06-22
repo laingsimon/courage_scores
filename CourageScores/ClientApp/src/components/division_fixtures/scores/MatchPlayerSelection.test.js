@@ -1127,6 +1127,9 @@ describe('MatchPlayerSelection', () => {
                 },
                 score: '101',
             });
+            expect(updatedMatch).toBeTruthy();
+            expect(updatedMatch.homeScore).toEqual(1);
+            expect(updatedMatch.awayScore).toEqual(0);
         });
 
         it('can record home sayg hi-check', async () => {
@@ -1170,6 +1173,9 @@ describe('MatchPlayerSelection', () => {
                 },
                 score: '101',
             });
+            expect(updatedMatch).toBeTruthy();
+            expect(updatedMatch.homeScore).toEqual(0);
+            expect(updatedMatch.awayScore).toEqual(1);
         });
 
         it('can close sayg dialog', async () => {
