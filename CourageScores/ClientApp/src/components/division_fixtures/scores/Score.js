@@ -79,6 +79,7 @@ export function Score() {
                 fixtureData.matches[createPlayerFor.matchIndex] = newMatch;
                 setFixtureData(newFixtureData);
             } catch (e) {
+                /* istanbul ignore next */
                 onError(e);
             } finally {
                 setCreatePlayerFor(null);
@@ -267,6 +268,7 @@ export function Score() {
             setFixtureData(gameData);
             setData(gameData);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading('ready');
@@ -291,6 +293,7 @@ export function Score() {
                 setFixtureData(response.result);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSaving(false);
@@ -319,6 +322,7 @@ export function Score() {
 
             alert('Results have been unpublished, but NOT saved. Re-merge the changes then click save for them to be saved');
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSaving(false);

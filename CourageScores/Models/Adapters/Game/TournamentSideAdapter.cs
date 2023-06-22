@@ -21,6 +21,7 @@ public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
             Name = model.Name,
             TeamId = model.TeamId,
             Players = await model.Players.SelectAsync(p => _playerAdapter.Adapt(p, token)).ToList(),
+            NoShow = model.NoShow,
         }.AddAuditProperties(model);
     }
 
@@ -32,6 +33,7 @@ public class TournamentSideAdapter : IAdapter<TournamentSide, TournamentSideDto>
             Name = dto.Name?.Trim(),
             TeamId = dto.TeamId,
             Players = await dto.Players.SelectAsync(p => _playerAdapter.Adapt(p, token)).ToList(),
+            NoShow = dto.NoShow,
         }.AddAuditProperties(dto);
     }
 }

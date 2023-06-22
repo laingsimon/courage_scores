@@ -43,6 +43,7 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSavingNote(false);

@@ -37,7 +37,7 @@ export function About() {
                 <th>Version</th>
                 <td>
                     {build.version
-                        ? (<a href={`https://github.com/laingsimon/courage_scores/commit/${build.version}`}>{build.version ? build.version.substring(0, 8) : build.version}</a>)
+                        ? (<a href={`https://github.com/laingsimon/courage_scores/commit/${build.version}`}>{build.version.substring(0, 8)}</a>)
                         : <span>Unknown</span>}
                 </td>
             </tr>

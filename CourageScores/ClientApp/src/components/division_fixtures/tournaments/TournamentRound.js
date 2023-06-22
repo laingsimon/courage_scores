@@ -30,7 +30,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         if (matchIndex === undefined) {
             allowedSideId = newMatch[property] ? newMatch[property].id : null;
         }
-        else if (round.matches) {
+        else if (round.matches && round.matches[matchIndex] && round.matches[matchIndex][property]) {
             allowedSideId = round.matches[matchIndex][property].id;
         }
 

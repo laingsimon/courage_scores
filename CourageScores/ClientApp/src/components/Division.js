@@ -31,6 +31,7 @@ export function Division() {
             setDivisionData(divisionData);
             return divisionData;
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
         finally {
@@ -62,6 +63,7 @@ export function Division() {
                 setDataErrors(divisionData.dataErrors);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     },

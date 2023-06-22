@@ -87,6 +87,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             }} />);
     }
 
+    const canShowResults = any((tournamentData.round || {}).matches || [], match => match.scoreA || match.scoreB) || !readOnly;
     return (<div className="d-print-none">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
@@ -101,7 +102,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             {!readOnly && !hasStarted ? (<button className="btn btn-primary" onClick={() => setNewSide({})}>➕</button>) : null}
             {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>
-        {tournamentData.sides.length >= 2 ? (<TournamentRound
+        {canShowResults ? (<TournamentRound
             round={tournamentData.round || {}}
             sides={tournamentData.sides}
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
@@ -111,7 +112,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             on180={add180(tournamentData, setTournamentData)}
             patchData={applyPatch}
             allowNextRound={!tournamentData.singleRound} />) : null}
-        {tournamentData.sides.length >= 2 ? (<table className="table">
+        {canShowResults ? (<table className="table">
             <tbody>
             <tr>
                 <td colSpan="2">

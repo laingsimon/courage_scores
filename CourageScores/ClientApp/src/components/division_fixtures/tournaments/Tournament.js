@@ -83,6 +83,7 @@ export function Tournament() {
             setAlreadyPlaying(tournamentPlayerMap);
             setAllPlayers(allPlayers);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading('ready');

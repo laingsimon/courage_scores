@@ -51,6 +51,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             sayg.lastUpdated = sayg.updated;
             setSayg(sayg);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading(false);
@@ -73,6 +74,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
 

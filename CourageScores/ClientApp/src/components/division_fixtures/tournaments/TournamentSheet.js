@@ -27,13 +27,13 @@ export function TournamentSheet({ tournamentData }) {
 
     function renderVersus(playerIndex) {
         return (<div key={playerIndex} className="my-5 border-dark border-1 border-solid border-bottom-0 opacity-100 text-center position-relative">
-            <span className="position-absolute content-background left-10 px-1 top-negative-15 text-secondary">vs</span>
+            <span className="position-absolute bg-white left-10 px-1 top-negative-15 text-secondary">vs</span>
         </div>);
     }
 
     function renderPlayerSplit(playerIndex, excludeScore) {
         return (<div key={playerIndex} className={`my-5 border-1 border-dashed border-secondary border-bottom-0 opacity-100 text-center position-relative${excludeScore ? '' : ' margin-right-50'}`}>
-            <span className="position-absolute content-background left-10 px-1 top-negative-15 text-secondary">and</span>
+            <span className="position-absolute bg-white left-10 px-1 top-negative-15 text-secondary">and</span>
         </div>);
     }
 
@@ -61,8 +61,8 @@ export function TournamentSheet({ tournamentData }) {
         </div>);
     }
 
-    function renderPrintModeRound(sideCount) {
-        let matches = sideCount;
+    function renderPrintModeRound(sides) {
+        let matches = sides.length;
         const rounds = [];
 
         for (let depth = 0; depth < 10; depth++) {
@@ -83,7 +83,7 @@ export function TournamentSheet({ tournamentData }) {
 
     function getSideName(side) {
         if (any(side.players)) {
-           return side.players.sort(sortBy('namr')).map(p => p.name).join(', ');
+           return side.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
 
         return side.name;
@@ -94,10 +94,10 @@ export function TournamentSheet({ tournamentData }) {
             {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong> - <strong>{tournamentData.notes}</strong>
         </div>
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
-            {renderPrintModeRound(sides.length)}
+            {renderPrintModeRound(sides.filter(s => !s.noShow))}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
-                .map((s, index) => (<li className="list-group-item outline-dark" key={s.id}>{index + 1} - {getSideName(s)}</li>))}</ul>
+                .map((s, index) => (<li className={`list-group-item outline-dark${s.noShow ? ' text-decoration-line-through' : ''}`} key={s.id}>{index + 1} - {getSideName(s)}</li>))}</ul>
         </div>
     </div>);
 }

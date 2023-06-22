@@ -23,6 +23,7 @@ public class TournamentSideAdapterTests
             Name = "name",
             Players = { Player },
             TeamId = Guid.NewGuid(),
+            NoShow = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -31,6 +32,7 @@ public class TournamentSideAdapterTests
         Assert.That(result.Name, Is.EqualTo(model.Name));
         Assert.That(result.Players, Is.EqualTo(new[] { PlayerDto }));
         Assert.That(result.TeamId, Is.EqualTo(model.TeamId));
+        Assert.That(result.NoShow, Is.True);
     }
 
     [Test]
@@ -42,6 +44,7 @@ public class TournamentSideAdapterTests
             Name = "name",
             Players = { PlayerDto },
             TeamId = Guid.NewGuid(),
+            NoShow = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -50,6 +53,7 @@ public class TournamentSideAdapterTests
         Assert.That(result.Name, Is.EqualTo(dto.Name));
         Assert.That(result.Players, Is.EqualTo(new[] { Player }));
         Assert.That(result.TeamId, Is.EqualTo(dto.TeamId));
+        Assert.That(result.NoShow, Is.True);
     }
 
     [Test]

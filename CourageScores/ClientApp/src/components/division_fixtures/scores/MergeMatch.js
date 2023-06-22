@@ -20,6 +20,7 @@ export function MergeMatch({ readOnly, matches, matchIndex, homeSubmission, away
 
             setFixtureData(newFixtureData);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

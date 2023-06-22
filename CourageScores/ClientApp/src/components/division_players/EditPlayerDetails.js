@@ -54,6 +54,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSaving(false);

@@ -148,8 +148,13 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                 <div className="input-group-prepend">
                     <span className="input-group-text">Name</span>
                 </div>
-                <input id="type-text" className="form-control" value={side.name || ''} name="name"
+                <input className="form-control" value={side.name || ''} name="name"
                        onChange={valueChanged(side, onChange)}/>
+            </div>
+            <div className="form-check form-switch margin-right my-1">
+                <input type="checkbox" className="form-check-input" checked={side.noShow || false} name="noShow" id="noShow"
+                       onChange={valueChanged(side, onChange)}/>
+                <label className="form-check-label" htmlFor="noShow">No show on the night?</label>
             </div>
             {any(side.players || []) ? null : (<div className="form-group input-group mb-3 d-print-none">
                 <div className="input-group-prepend">

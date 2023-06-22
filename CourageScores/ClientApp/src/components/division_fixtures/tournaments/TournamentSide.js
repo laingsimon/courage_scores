@@ -16,7 +16,7 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
             return null;
         }
 
-        return (<div data-name="team-name"><Link to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</Link></div>);
+        return (<div data-name="team-name" className={side.noShow ? 'text-decoration-line-through' : ''}><Link to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</Link></div>);
     }
 
     function renderPlayers () {
@@ -29,7 +29,7 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
         }
 
         return (<ol className="no-list-indent">
-            {side.players.map(p => (<li key={p.id}>
+            {side.players.map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
                 {p.divisionId && p.divisionId !== EMPTY_ID ? (<Link to={`/division/${p.divisionId}/player:${p.id}/${season.id}`}>{p.name}</Link>) : p.name}
             </li>))}
         </ol>);
@@ -48,7 +48,7 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
             name = (<Link to={`/division/${team.divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
         }
 
-        return (<strong>{name}</strong>);
+        return (<strong className={side.noShow ? 'text-decoration-line-through' : ''}>{name}</strong>);
     }
 
     function renderEditSide() {

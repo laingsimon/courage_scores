@@ -27,6 +27,7 @@ export function Errors() {
             const result = await errorApi.getRecent(since);
             setErrors(result);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading(false);

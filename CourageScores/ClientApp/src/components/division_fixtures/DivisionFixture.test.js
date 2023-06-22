@@ -495,6 +495,25 @@ describe('DivisionFixture', () => {
             expect(awayCell.textContent).toContain('🚫 AWAY (Already playing against HOME)');
         });
 
+        it('renders selectable home team when no other fixtures for date', async () => {
+            const date = '2023-05-06T00:00:00';
+            const fixture = {
+                id: createTemporaryId(),
+                date: date,
+                homeTeam: homeTeam,
+                isKnockout: true,
+            };
+            await renderComponent(
+                { fixture, date, readOnly: false },
+                { id: division.id, fixtures: [ ], season, teams: [ homeTeam, awayTeam ] },
+                account,
+                toMap([ homeTeam, awayTeam ]));
+
+            expect(reportedError).toBeNull();
+            const awayCell = context.container.querySelector('td:nth-child(5)');
+            expect(awayCell.textContent).not.toContain('🚫');
+        });
+
         it('renders unselectable away team played fixture previously (qualifier)', async () => {
             const fixture = {
                 id: createTemporaryId(),

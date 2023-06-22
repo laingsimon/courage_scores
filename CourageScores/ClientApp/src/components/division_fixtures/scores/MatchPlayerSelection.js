@@ -58,6 +58,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
                 await onMatchChanged(newMatch);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -84,6 +85,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
                 await onMatchChanged(newMatch);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

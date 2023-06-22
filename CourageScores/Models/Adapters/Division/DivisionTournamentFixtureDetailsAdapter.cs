@@ -50,7 +50,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
         });
     }
 
-    private string GetTournamentType(TournamentGame tournamentGame)
+    private static string GetTournamentType(TournamentGame tournamentGame)
     {
         if (!string.IsNullOrEmpty(tournamentGame.Type))
         {
@@ -72,7 +72,7 @@ public class DivisionTournamentFixtureDetailsAdapter : IDivisionTournamentFixtur
         return "Tournament";
     }
 
-    private TournamentSide? GetWinner(TournamentGame tournamentGame)
+    private static TournamentSide? GetWinner(TournamentGame tournamentGame)
     {
         var round = tournamentGame.Round;
         while (round != null)
