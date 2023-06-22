@@ -170,6 +170,39 @@ describe('EditSide', () => {
             expect(context.container.querySelector('ol.list-group')).toBeNull();
         });
 
+        it('side which did not show', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                teamId: team.id,
+                noShow: true,
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team ]);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('input[name="noShow"]').checked).toEqual(true);
+        });
+
+        it('side which did show', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                teamId: team.id,
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team ]);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('input[name="noShow"]').checked).toEqual(false);
+        });
+
         it('when team is not registered to season', async () => {
             const teamNotInSeason = {
                 id: createTemporaryId(),
@@ -383,6 +416,25 @@ describe('EditSide', () => {
             expect(reportedError).toBeNull();
             expect(updatedData).toEqual({
                 name: 'NEW NAME',
+            });
+        });
+
+        it('can change noShow', async () => {
+            const side = {
+                name: 'SIDE NAME'
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+
+            await doClick(context.container, 'input[name="noShow"]');
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                name: 'SIDE NAME',
+                noShow: true,
             });
         });
 
