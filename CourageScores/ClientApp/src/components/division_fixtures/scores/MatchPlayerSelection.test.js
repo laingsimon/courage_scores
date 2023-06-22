@@ -1006,6 +1006,86 @@ describe('MatchPlayerSelection', () => {
             expect(saygDialog).toBeTruthy();
         });
 
+        it('can record home sayg 180', async () => {
+            const props = {
+                match: {
+                    homeScore: 0,
+                    awayScore: 0,
+                    homePlayers: [ homePlayer ],
+                    awayPlayers: [ awayPlayer ],
+                    sayg: {
+                        legs: {
+                            0: {
+                                playerSequence: [ { value: 'home', text: 'HOME' }, { value: 'away', text: 'AWAY' }],
+                                home: { throws: [], score: 0 },
+                                away: { throws: [], score: 0 },
+                                currentThrow: 'home',
+                                startingScore: 501,
+                            }
+                        },
+                    }
+                },
+            };
+            const account = {
+                access: {
+                    recordScoresAsYouGo: true
+                }
+            };
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            await doClick(findButton(cells[0], '📊'));
+            const saygDialog = cells[0].querySelector('div.modal-dialog');
+
+            await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
+            await doClick(findButton(saygDialog, '📌📌📌'));
+
+            expect(additional180).toEqual({
+                name: 'HOME',
+                id: homePlayer.id,
+            });
+        });
+
+        it('can record away sayg 180', async () => {
+            const props = {
+                match: {
+                    homeScore: 0,
+                    awayScore: 0,
+                    homePlayers: [ homePlayer ],
+                    awayPlayers: [ awayPlayer ],
+                    sayg: {
+                        legs: {
+                            0: {
+                                playerSequence: [ { value: 'home', text: 'HOME' }, { value: 'away', text: 'AWAY' }],
+                                home: { throws: [], score: 0 },
+                                away: { throws: [], score: 0 },
+                                currentThrow: 'away',
+                                startingScore: 501,
+                            }
+                        },
+                    }
+                },
+            };
+            const account = {
+                access: {
+                    recordScoresAsYouGo: true
+                }
+            };
+            await renderComponent(account, props, defaultContainerProps, defaultMatchType);
+            expect(reportedError).toBeFalsy();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            await doClick(findButton(cells[0], '📊'));
+            const saygDialog = cells[0].querySelector('div.modal-dialog');
+
+            await doChange(saygDialog, 'input[data-score-input="true"]', '180', context.user);
+            await doClick(findButton(saygDialog, '📌📌📌'));
+
+            expect(additional180).toEqual({
+                name: 'AWAY',
+                id: awayPlayer.id,
+            });
+        });
+
         it('can close sayg dialog', async () => {
             const props = {
                 match: {
