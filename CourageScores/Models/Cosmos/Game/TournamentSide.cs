@@ -17,6 +17,11 @@ public class TournamentSide : AuditedEntity, IGameVisitable
     /// </summary>
     public List<TournamentPlayer> Players { get; set; } = new();
 
+    /// <summary>
+    /// Did this team show on the night
+    /// </summary>
+    public bool NoShow { get; set; }
+
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
         visitor.VisitSide(scope, this);
