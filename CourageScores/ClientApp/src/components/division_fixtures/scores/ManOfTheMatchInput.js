@@ -12,6 +12,7 @@ export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData
 
             setFixtureData(newFixtureData);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

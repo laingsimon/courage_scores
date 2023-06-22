@@ -43,6 +43,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 await onChange(newRound);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -57,6 +58,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 await onChange(newRound);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -182,6 +184,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setCreatingSayg(false);

@@ -271,6 +271,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 setDeleting(false);
             }
         } catch (exc) {
+            /* istanbul ignore next */
             onError(exc);
         }
     }

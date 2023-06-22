@@ -64,6 +64,7 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
 
             await onLegComplete(newHomeScore, newAwayScore);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

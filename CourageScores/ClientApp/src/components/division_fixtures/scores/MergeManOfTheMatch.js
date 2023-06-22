@@ -11,6 +11,7 @@ export function MergeManOfTheMatch({ data, setData, allPlayers }) {
 
             setData(newData);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

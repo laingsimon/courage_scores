@@ -33,6 +33,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
                 setSaveError(result);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSaving(false);

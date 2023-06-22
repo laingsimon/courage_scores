@@ -27,6 +27,7 @@ export function UserAdmin() {
             }
         }
         catch (exc) {
+            /* istanbul ignore next */
             onError(exc);
         } finally {
             setLoading(false);

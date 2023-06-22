@@ -33,6 +33,7 @@ export function FixtureDateNote({ note, setEditNote, preventDelete }) {
                 alert('Could not delete note');
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setDeletingNote(false);

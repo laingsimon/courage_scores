@@ -29,6 +29,7 @@ export function AdminHome() {
             const accounts = await accountApi.getAll();
             setAccounts(accounts);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setAdminLoading(false);
