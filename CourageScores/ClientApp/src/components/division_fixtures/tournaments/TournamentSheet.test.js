@@ -33,7 +33,7 @@ describe('TournamentSheet', () => {
             (<TournamentSheet {...props} />));
     }
 
-    function createSide(noOfPlayers, name) {
+    function createSide(noOfPlayers, name, noShow) {
         return {
             id: createTemporaryId(),
             players: repeat(noOfPlayers).map(index => {
@@ -43,6 +43,7 @@ describe('TournamentSheet', () => {
                 };
             }),
             name,
+            noShow
         };
     }
 
@@ -150,6 +151,22 @@ describe('TournamentSheet', () => {
             assertSideNames(repeat(3, _ => 'PLAYER 1, PLAYER 2, PLAYER 3'));
             assertMatches(3);
             assertByes([ true, false ]);
+        });
+
+        it('given 3 sides and 1 no-show', async () => {
+            const sides = [
+                createSide(3, 'SIDE 1'),
+                createSide(3, 'SIDE 2'),
+                createSide(3, 'SIDE 3', true),
+            ];
+
+            await renderComponent({ tournamentData: { sides } });
+
+            expect(reportedError).toBeNull();
+            assertRoundNames(['Final']);
+            assertSideNames(repeat(3, _ => 'PLAYER 1, PLAYER 2, PLAYER 3'));
+            assertMatches(3);
+            assertByes([ false ]);
         });
 
         it('given 4 sides', async () => {

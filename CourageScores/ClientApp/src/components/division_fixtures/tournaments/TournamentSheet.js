@@ -94,10 +94,10 @@ export function TournamentSheet({ tournamentData }) {
             {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong> - <strong>{tournamentData.notes}</strong>
         </div>
         <div className="d-flex flex-row m-2 align-items-center justify-content-stretch">
-            {renderPrintModeRound(sides.length)}
+            {renderPrintModeRound(sides.filter(s => !s.noShow).length)}
             <ul className="float-end list-group">{sides
                 .sort(sortBy('name'))
-                .map((s, index) => (<li className="list-group-item outline-dark" key={s.id}>{index + 1} - {getSideName(s)}</li>))}</ul>
+                .map((s, index) => (<li className={`list-group-item outline-dark${s.noShow ? ' text-decoration-line-through' : ''}`} key={s.id}>{index + 1} - {getSideName(s)}</li>))}</ul>
         </div>
     </div>);
 }
