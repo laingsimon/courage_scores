@@ -17,7 +17,7 @@ export function MatchLogTable({ team, player, noOfThrows, saygData, accumulatorN
             <th>100+</th>
             <th>140+</th>
             <th>180</th>
-            <th title="Unknown">T</th>
+            <th title="Tons">T</th>
             <th>Player</th>
             <th>Team</th>
             <th title="Game dart">GD</th>
