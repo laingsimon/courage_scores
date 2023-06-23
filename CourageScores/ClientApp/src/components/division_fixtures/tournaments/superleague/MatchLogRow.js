@@ -12,6 +12,10 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, team, noOfThr
         return count(accumulator.throws, thr => thr.score >= lowerInclusive && thr.score < upperExclusive);
     }
 
+    function sumOverThrows(prop) {
+        return sum(accumulator.throws, thr => thr[prop]);
+    }
+
     return (<tr className={winner ? 'bg-winner' : ''}>
         <td>{player}</td>
         <td>{legNo}</td>
@@ -22,8 +26,8 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, team, noOfThr
         <td>{countThrowsBetween(180, 180)}</td>
         <td>{countThrowsBetween(180, 181)}</td>
         <td>{countThrowsBetween(100, 140) + countThrowsBetween(140, 180) + (countThrowsBetween(180, 181) * 2)}</td>
-        <td>{player}</td>
-        <td>{team}</td>
+        <td>{sumOverThrows('score') / sumOverThrows('noOfDarts')}</td>
+        <td calssName="text-danger">team average??</td>
         <td>{lastThrow.noOfDarts}</td>
         {repeat(noOfThrows, i => {
             const playerThrow = accumulator.throws[i];
