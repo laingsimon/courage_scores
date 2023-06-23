@@ -38,7 +38,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         var divisionData = new DivisionData();
         var gameVisitor = new DivisionDataGameVisitor(divisionData);
         var visitorScope = new VisitorScope();
-        foreach (var game in context.AllGames())
+        foreach (var game in context.AllGames(division?.Id))
         {
             game.Accept(visitorScope, gameVisitor);
         }

@@ -320,7 +320,7 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.DivisionId = '{division.Id}' or t.IsKnockout = true", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
     }
 
     [Test]
@@ -344,7 +344,7 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), null, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
     }
 
     [Test]
@@ -397,7 +397,7 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
     }
 
     [Test]
@@ -429,6 +429,6 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
     }
 }

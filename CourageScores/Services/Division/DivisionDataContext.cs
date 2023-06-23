@@ -28,20 +28,17 @@ public class DivisionDataContext
         _tournamentGames = tournamentGames;
     }
 
-    [ExcludeFromCodeCoverage]
-    public IEnumerable<Models.Cosmos.Game.Game> AllGames()
+    public IEnumerable<Models.Cosmos.Game.Game> AllGames(Guid? divisionId)
     {
-        return GamesForDate.SelectMany(pair => pair.Value);
+        return GamesForDate.SelectMany(pair => pair.Value).Where(g => divisionId == null || g.IsKnockout || g.DivisionId == divisionId);
     }
 
-    [ExcludeFromCodeCoverage]
     public IEnumerable<TournamentGame> AllTournamentGames(Guid? divisionId)
     {
         return _tournamentGames
             .Where(tournament => divisionId == null || tournament.DivisionId == null || tournament.DivisionId == divisionId);
     }
 
-    [ExcludeFromCodeCoverage]
     public IEnumerable<DateTime> GetDates(Guid? divisionId)
     {
         return GamesForDate.Keys.Union(AllTournamentGames(divisionId).Select(g => g.Date)).Union(Notes.Keys).OrderBy(d => d);
