@@ -218,6 +218,74 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
+    public async Task CreateDivisionDataDto_GivenCrossDivisionalTeam_AddsDataError()
+    {
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division 1",
+        };
+        var thisDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 1 - Playing",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                }
+            },
+        };
+        var otherDivisionTeam = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team 2 - Playing",
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = Guid.NewGuid(),
+                }
+            },
+        };
+        var game = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            SeasonId = season.Id,
+            Home = new GameTeam { Id = thisDivisionTeam.Id },
+            Away = new GameTeam { Id = otherDivisionTeam.Id },
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { game },
+            new List<TeamDto> { thisDivisionTeam },
+            Array.Empty<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            season);
+        _user = new UserDto { Access = new AccessDto { ImportData = true } };
+
+        var result = await _factory.CreateDivisionDataDto(context, division, _token);
+
+        Assert.That(result.DataErrors, Has.Member($"Potential cross-division team found: {otherDivisionTeam.Id}"));
+    }
+
+    [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsFixturesCorrectly()
     {
         var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
@@ -255,6 +323,30 @@ public class DivisionDataDtoFactoryTests
         var result = await _factory.CreateDivisionDataDto(context, null, _token);
 
         Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { game.Date }));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenTournamentFixturesForDateOnly_SetsFixturesCorrectly()
+    {
+        var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
+        var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
+        var tournamentGame = new TournamentGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            AccoladesCount = true,
+        };
+        var context = new DivisionDataContext(
+            Array.Empty<CosmosGame>(),
+            new List<TeamDto> { team1, team2 },
+            new[] { tournamentGame },
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto());
+
+        var result = await _factory.CreateDivisionDataDto(context, null, _token);
+
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { tournamentGame.Date }));
+        Assert.That(result.Fixtures.SelectMany(fd => fd.Fixtures), Is.Empty);
     }
 
     [Test]
