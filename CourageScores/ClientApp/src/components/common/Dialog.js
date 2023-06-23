@@ -11,7 +11,7 @@ export function Dialog({ children, onClose, title, slim, className }) {
                     <div className="modal-body">
                         {children}
                     </div>
-                    {onClose ? (<div className="modal-footer px-0">
+                    {onClose ? (<div className="modal-footer">
                         <div className="left-aligned">
                             <button className="btn btn-secondary" onClick={onClose}>Close</button>
                         </div>
