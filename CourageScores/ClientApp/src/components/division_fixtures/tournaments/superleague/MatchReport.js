@@ -1,3 +1,3 @@
 export function MatchReport({ tournamentData }) {
-    return (<div>MATCH REPORT</div>);
+    return (<div className="page-break-after">MATCH REPORT</div>);
 }

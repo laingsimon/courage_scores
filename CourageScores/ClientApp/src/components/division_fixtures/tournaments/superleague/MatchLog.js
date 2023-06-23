@@ -5,7 +5,7 @@ export function MatchLog({ tournamentData, homeTeam, awayTeam, saygDataMap }) {
     const round = tournamentData.round || {};
     const matches = round.matches || [];
 
-    return (<div>
+    return (<div className="page-break-after">
         <h2>Match log</h2>
         {matches.map(match => {
             const saygData = saygDataMap[match.saygId];

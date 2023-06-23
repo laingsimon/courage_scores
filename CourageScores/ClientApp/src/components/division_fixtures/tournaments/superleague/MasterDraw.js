@@ -2,7 +2,7 @@ export function MasterDraw({ tournamentData, homeTeam, awayTeam }) {
     const round = tournamentData.round || {};
     const matches = round.matches || [];
 
-    return (<div>
+    return (<div className="page-break-after">
         <h3>Master draw</h3>
         <table className="table">
             <thead>

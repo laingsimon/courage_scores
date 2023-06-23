@@ -1,3 +1,3 @@
 export function Summary({ tournamentData }) {
-    return (<div>SUMMARY</div>);
+    return (<div className="page-break-after">SUMMARY</div>);
 }

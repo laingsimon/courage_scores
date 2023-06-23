@@ -389,3 +389,7 @@ body .width-50 {
   margin: 0;
   margin-left: 0.75rem;
 }
+
+.page-break-after {
+  break-after: page;
+}
