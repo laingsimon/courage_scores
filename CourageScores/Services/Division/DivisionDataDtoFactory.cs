@@ -232,6 +232,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             });
     }
 
+    [ExcludeFromCodeCoverage]
     private static DivisionDataDto DataError(string message)
     {
         return new DivisionDataDto
