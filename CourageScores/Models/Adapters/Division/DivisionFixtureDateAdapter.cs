@@ -26,9 +26,9 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
 
     public async Task<DivisionFixtureDateDto> Adapt(
         DateTime date,
-        IReadOnlyCollection<Cosmos.Game.Game>? gamesForDate,
-        IReadOnlyCollection<TournamentGame>? tournamentGamesForDate,
-        IReadOnlyCollection<FixtureDateNoteDto>? notesForDate,
+        IReadOnlyCollection<Cosmos.Game.Game> gamesForDate,
+        IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
+        IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
         IReadOnlyCollection<TeamDto> teams,
         CancellationToken token)
     {
@@ -38,11 +38,11 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         return new DivisionFixtureDateDto
         {
             Date = date,
-            Fixtures = (await FixturesPerDate(gamesForDate ?? Array.Empty<Models.Cosmos.Game.Game>(), teams, tournamentGamesForDate?.Any() ?? false, token).ToList())
+            Fixtures = (await FixturesPerDate(gamesForDate, teams, tournamentGamesForDate.Any(), token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
-            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate ?? Array.Empty<TournamentGame>(), teams, canCreateTournaments, (gamesForDate?.Count ?? 0) == 0, token)
+            TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments, gamesForDate.Count == 0, token)
                 .OrderByAsync(f => f.Address).ToList(),
-            Notes = notesForDate?.ToList() ?? new List<FixtureDateNoteDto>(),
+            Notes = notesForDate.ToList(),
         };
     }
 

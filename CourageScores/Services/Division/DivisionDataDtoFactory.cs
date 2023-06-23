@@ -186,7 +186,10 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         foreach (var date in context.GetDates(divisionId))
         {
-            context.GamesForDate.TryGetValue(date, out var gamesForDate);
+            if (!context.GamesForDate.TryGetValue(date, out var gamesForDate))
+            {
+                gamesForDate = Array.Empty<Models.Cosmos.Game.Game>();
+            }
             var tournamentGamesForDate = context.AllTournamentGames(divisionId).Where(g => g.Date == date).ToArray();
             context.Notes.TryGetValue(date, out var notesForDate);
 
@@ -194,7 +197,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                 date,
                 gamesForDate,
                 tournamentGamesForDate,
-                notesForDate,
+                notesForDate ?? Array.Empty<FixtureDateNoteDto>(),
                 context.TeamsInSeasonAndDivision,
                 token);
         }

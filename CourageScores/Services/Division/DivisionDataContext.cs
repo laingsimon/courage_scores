@@ -11,7 +11,7 @@ public class DivisionDataContext
     private readonly IReadOnlyCollection<TournamentGame> _tournamentGames;
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
     public SeasonDto Season { get; }
-    public Dictionary<DateTime, List<FixtureDateNoteDto>> Notes { get; }
+    public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
     public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
 
     public DivisionDataContext(
@@ -24,7 +24,7 @@ public class DivisionDataContext
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         TeamsInSeasonAndDivision = teamsInSeasonAndDivision;
         Season = season;
-        Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToList());
+        Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToArray());
         _tournamentGames = tournamentGames;
     }
 

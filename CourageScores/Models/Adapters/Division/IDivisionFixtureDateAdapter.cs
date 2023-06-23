@@ -9,9 +9,9 @@ public interface IDivisionFixtureDateAdapter
 {
     Task<DivisionFixtureDateDto> Adapt(
         DateTime date,
-        IReadOnlyCollection<Cosmos.Game.Game>? gamesForDate,
-        IReadOnlyCollection<TournamentGame>? tournamentGamesForDate,
-        IReadOnlyCollection<FixtureDateNoteDto>? notesForDate,
+        IReadOnlyCollection<Cosmos.Game.Game> gamesForDate,
+        IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
+        IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
         IReadOnlyCollection<TeamDto> teams,
         CancellationToken token);
 }
