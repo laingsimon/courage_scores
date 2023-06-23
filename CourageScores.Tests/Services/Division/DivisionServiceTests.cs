@@ -2,11 +2,13 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Division;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
@@ -31,7 +33,9 @@ public class DivisionServiceTests
     private Mock<IGenericDataService<FixtureDateNote,FixtureDateNoteDto>> _noteService = null!;
     private Mock<ISystemClock> _clock = null!;
     private Mock<IDivisionDataDtoFactory> _divisionDataDtoFactory = null!;
+    private Mock<IUserService> _userService = null!;
     private DivisionDataContext? _divisionDataContext;
+    private UserDto? _userDto;
 
     [SetUp]
     public void SetupEachTest()
@@ -42,6 +46,7 @@ public class DivisionServiceTests
         _gameRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>>();
         _tournamentGameRepository = new Mock<IGenericRepository<TournamentGame>>();
         _noteService = new Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>>();
+        _userService = new Mock<IUserService>();
         _clock = new Mock<ISystemClock>();
         _divisionDataDtoFactory = new Mock<IDivisionDataDtoFactory>();
         _someGames.Clear();
@@ -57,7 +62,8 @@ public class DivisionServiceTests
             _tournamentGameRepository.Object,
             _noteService.Object,
             _clock.Object,
-            _divisionDataDtoFactory.Object);
+            _divisionDataDtoFactory.Object,
+            _userService.Object);
 
         _teamService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_allTeams.ToArray()));
         _noteService.Setup(s => s.GetWhere(It.IsAny<string>(), _token)).Returns(() => TestUtilities.AsyncEnumerable(_someNotes.ToArray()));
@@ -69,6 +75,7 @@ public class DivisionServiceTests
             {
                 _divisionDataContext = context;
             });
+        _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _userDto);
     }
 
     [Test]
@@ -357,9 +364,71 @@ public class DivisionServiceTests
 
         await _service.GetDivisionData(filter, _token);
 
-        _tournamentGameRepository.Setup(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
+        _tournamentGameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
         Assert.That(_divisionDataContext!.AllTournamentGames(division.Id), Is.EquivalentTo(new[] { inSeasonTournament }));
+    }
+
+    [Test]
+    public async Task GetDivisionData_WhenLoggedInAndCannotManageGames_GetsFixturesForFilterDivisionOnly()
+    {
+        var data = new DivisionDataDto();
+        var division = new DivisionDto { Id = Guid.NewGuid() };
+        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
+        var filter = new DivisionDataFilter { SeasonId = season.Id, DivisionId = division.Id };
+        var givenDivisionGameInSeason = new CourageScores.Models.Cosmos.Game.Game { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 02, 01) };
+        var givenDivisionGameOutOfSeason = new CourageScores.Models.Cosmos.Game.Game { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 06, 01) };
+        _someGames.AddRange(new[] { givenDivisionGameInSeason, givenDivisionGameOutOfSeason });
+        _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
+        _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
+        _genericService.Setup(s => s.Get(division.Id, _token)).ReturnsAsync(division);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
+        _userDto = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageGames = false,
+            }
+        };
+
+        await _service.GetDivisionData(filter, _token);
+
+        _gameRepository.Verify(s => s.GetSome($"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true", _token));
+        _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
+        Assert.That(_divisionDataContext, Is.Not.Null);
+        Assert.That(_divisionDataContext!.AllGames(), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
+    }
+
+    [Test]
+    public async Task GetDivisionData_WhenLoggedInAndCanManageGames_GetsFixturesForAllDivisions()
+    {
+        var data = new DivisionDataDto();
+        var division = new DivisionDto { Id = Guid.NewGuid() };
+        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
+        var filter = new DivisionDataFilter { SeasonId = season.Id, DivisionId = division.Id };
+        var givenDivisionGameInSeason = new CourageScores.Models.Cosmos.Game.Game { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 02, 01) };
+        var givenDivisionGameOutOfSeason = new CourageScores.Models.Cosmos.Game.Game { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 06, 01) };
+        var otherDivisionGameInSeason = new CourageScores.Models.Cosmos.Game.Game { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid(), Date = new DateTime(2001, 02, 01) };
+        var otherDivisionGameOutOfSeason = new CourageScores.Models.Cosmos.Game.Game { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid(), Date = new DateTime(2001, 06, 01) };
+        _someGames.AddRange(new[] { givenDivisionGameInSeason, givenDivisionGameOutOfSeason, otherDivisionGameInSeason, otherDivisionGameOutOfSeason });
+        _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
+        _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
+        _genericService.Setup(s => s.Get(division.Id, _token)).ReturnsAsync(division);
+        _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
+        _userDto = new UserDto
+        {
+            Access = new AccessDto
+            {
+                ManageGames = true,
+            }
+        };
+
+        await _service.GetDivisionData(filter, _token);
+
+        _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
+        _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
+        Assert.That(_divisionDataContext, Is.Not.Null);
+        Assert.That(_divisionDataContext!.AllGames(), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
     }
 }

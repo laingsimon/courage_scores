@@ -7,6 +7,7 @@ using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
+using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Microsoft.AspNetCore.Authentication;
 
@@ -22,6 +23,7 @@ public class DivisionService : IDivisionService
     private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly ISystemClock _clock;
     private readonly IDivisionDataDtoFactory _divisionDataDtoFactory;
+    private readonly IUserService _userService;
 
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
@@ -31,7 +33,8 @@ public class DivisionService : IDivisionService
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,
         ISystemClock clock,
-        IDivisionDataDtoFactory divisionDataDtoFactory)
+        IDivisionDataDtoFactory divisionDataDtoFactory,
+        IUserService userService)
     {
         _genericDivisionService = genericDivisionService;
         _genericTeamService = genericTeamService;
@@ -41,6 +44,7 @@ public class DivisionService : IDivisionService
         _noteService = noteService;
         _clock = clock;
         _divisionDataDtoFactory = divisionDataDtoFactory;
+        _userService = userService;
     }
 
     public async Task<DivisionDataDto> GetDivisionData(DivisionDataFilter filter, CancellationToken token)
@@ -89,17 +93,33 @@ public class DivisionService : IDivisionService
         var notes = await _noteService.GetWhere($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(n => filter.DivisionId == null || (n.DivisionId == null || n.DivisionId == filter.DivisionId))
             .ToList();
-        var games = await _gameRepository
-            .GetSome(filter.DivisionId != null ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true" : $"t.SeasonId = '{season.Id}'",
-                token)
-            .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
-            .ToList();
+        var games = await GetGames(filter, season, token);
         var tournamentGames = await _tournamentGameRepository
             .GetSome($"t.SeasonId = '{season.Id}'", token)
             .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeTournament(g))
             .ToList();
 
         return new DivisionDataContext(games, teamsInSeasonAndDivision, tournamentGames, notes, season);
+    }
+
+    private async Task<List<Models.Cosmos.Game.Game>> GetGames(DivisionDataFilter filter, SeasonDto season, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user?.Access?.ManageGames == true)
+        {
+            // return games from all divisions so that they fixtures in other divisions, for the same address can prevent
+            // new games being created at the same address
+            return await _gameRepository
+                .GetSome($"t.SeasonId = '{season.Id}'", token)
+                .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
+                .ToList();
+        }
+
+        return await _gameRepository
+            .GetSome(filter.DivisionId != null ? $"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true" : $"t.SeasonId = '{season.Id}'",
+                token)
+            .WhereAsync(g => g.Date >= season.StartDate && g.Date <= season.EndDate && filter.IncludeGame(g))
+            .ToList();
     }
 
     #region delegating members
