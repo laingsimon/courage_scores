@@ -128,6 +128,14 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                : 'Bye');
         }
 
+        if (any(fixture.fixturesUsingAddress)) {
+            return (<div>
+                {fixture.fixturesUsingAddress.map((otherFixture, index) => {
+                    return (<div key={index}>🚫 <Link to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</Link></div>)
+                })}
+            </div>);
+        }
+
         if (fixture.isKnockout) {
             const options = allTeams
                 .filter(t => t.id !== fixture.homeTeam.id)

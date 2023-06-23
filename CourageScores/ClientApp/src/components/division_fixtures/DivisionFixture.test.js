@@ -250,6 +250,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -272,7 +273,8 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                postponed: true
+                postponed: true,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -295,7 +297,8 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                isKnockout: true
+                isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -317,6 +320,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -344,6 +348,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -362,6 +367,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -385,6 +391,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: '2023-05-06T00:00:00',
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -415,6 +422,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: '2023-05-06T00:00:00',
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -447,6 +455,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             const anotherTeamAtHomeAddress = {
                 id: createTemporaryId(),
@@ -476,6 +485,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -502,6 +512,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -514,12 +525,48 @@ describe('DivisionFixture', () => {
             expect(awayCell.textContent).not.toContain('🚫');
         });
 
+        it('renders no away selection when home address is in use', async () => {
+            const date = '2023-05-06T00:00:00';
+            const otherFixture = {
+                id: createTemporaryId(),
+                divisionId: createTemporaryId(),
+                home: {
+                    id: createTemporaryId(),
+                    name: 'HOME - SAME ADDRESS',
+                },
+                away: {
+                    id: createTemporaryId(),
+                    name: 'AWAY',
+                }
+            };
+            const fixture = {
+                id: createTemporaryId(),
+                date: date,
+                homeTeam: homeTeam,
+                isKnockout: true,
+                fixturesUsingAddress: [ otherFixture ]
+            };
+            await renderComponent(
+                { fixture, date, readOnly: false },
+                { id: division.id, fixtures: [ ], season, teams: [ homeTeam, awayTeam ] },
+                account,
+                toMap([ homeTeam, awayTeam ]));
+
+            expect(reportedError).toBeNull();
+            const awayCell = context.container.querySelector('td:nth-child(5)');
+            expect(awayCell.querySelector('.dropdown-menu')).toBeFalsy();
+            expect(awayCell.textContent).toContain('🚫 HOME - SAME ADDRESS vs AWAY using this venue');
+            const linkToOtherFixture = awayCell.querySelector('a');
+            expect(linkToOtherFixture.href).toEqual(`http://localhost/score/${otherFixture.id}`);
+        });
+
         it('renders unselectable away team played fixture previously (qualifier)', async () => {
             const fixture = {
                 id: createTemporaryId(),
                 date: '2023-05-06T00:00:00',
                 homeTeam: homeTeam,
                 isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -557,6 +604,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -580,6 +628,7 @@ describe('DivisionFixture', () => {
                         name: anotherTeam.name,
                     },
                     originalAwayTeamId: 'unset',
+                    fixturesUsingAddress: [ ],
                 } ]
             }]);
         });
@@ -596,6 +645,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -624,6 +674,7 @@ describe('DivisionFixture', () => {
                     },
                     id: fixture.id,
                     originalAwayTeamId: 'unset',
+                    fixturesUsingAddress: [ ],
                 } ],
                 isKnockout: true,
             }]);
@@ -643,6 +694,7 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 originalAwayTeamId: 'unset',
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -675,6 +727,7 @@ describe('DivisionFixture', () => {
                 awayTeam: awayTeam,
                 originalAwayTeamId: 'unset',
                 isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -705,6 +758,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -739,6 +793,7 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 isKnockout: true,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
@@ -772,7 +827,8 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                originalAwayTeamId: 'unset'
+                originalAwayTeamId: 'unset',
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: true },
@@ -798,6 +854,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: true },
@@ -822,6 +879,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
+                fixturesUsingAddress: [ ],
             };
             await renderComponent(
                 { fixture, date, readOnly: true },
