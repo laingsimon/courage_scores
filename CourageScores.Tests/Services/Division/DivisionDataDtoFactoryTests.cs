@@ -50,10 +50,11 @@ public class DivisionDataDtoFactoryTests
                 It.IsAny<IReadOnlyCollection<TournamentGame>>(),
                 It.IsAny<IReadOnlyCollection<FixtureDateNoteDto>>(),
                 It.IsAny<IReadOnlyCollection<TeamDto>>(),
+                It.IsAny<IReadOnlyCollection<CosmosGame>>(),
                 _token))
             .ReturnsAsync(
                 (DateTime date, IReadOnlyCollection<CosmosGame> _, IReadOnlyCollection<TournamentGame> _,
-                    IReadOnlyCollection<FixtureDateNoteDto> _, IReadOnlyCollection<TeamDto> _, CancellationToken _) => new DivisionFixtureDateDto
+                    IReadOnlyCollection<FixtureDateNoteDto> _, IReadOnlyCollection<TeamDto> _, IReadOnlyCollection<CosmosGame> _, CancellationToken _) => new DivisionFixtureDateDto
                 {
                     Date = date,
                 });
@@ -318,6 +319,7 @@ public class DivisionDataDtoFactoryTests
             It.IsAny<TournamentGame[]>(),
             It.IsAny<FixtureDateNoteDto[]>(),
             It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[] { outOfDivisionGame })),
             _token));
     }
 
@@ -383,6 +385,7 @@ public class DivisionDataDtoFactoryTests
             It.IsAny<TournamentGame[]>(),
             It.IsAny<FixtureDateNoteDto[]>(),
             It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            It.Is<CosmosGame[]>(games => games.Length == 0),
             _token));
     }
 

@@ -30,6 +30,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
         IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
         IReadOnlyCollection<TeamDto> teams,
+        IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
         CancellationToken token)
     {
         var user = await _userService.GetUser(token);

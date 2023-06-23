@@ -13,5 +13,6 @@ public interface IDivisionFixtureDateAdapter
         IReadOnlyCollection<TournamentGame> tournamentGamesForDate,
         IReadOnlyCollection<FixtureDateNoteDto> notesForDate,
         IReadOnlyCollection<TeamDto> teams,
+        IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
         CancellationToken token);
 }
