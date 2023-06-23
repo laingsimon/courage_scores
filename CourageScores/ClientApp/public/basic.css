@@ -310,7 +310,7 @@ input.no-spinner {
 }
 
 @media print {
-  .full-screen-print-mode {
+  body .full-screen-print-mode {
     width: 100%;
     max-width: initial;
   }
