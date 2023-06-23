@@ -40,6 +40,7 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                         legNo={Number.parseInt(legIndex) + 1}/>)}
                     </tbody>
                 </table>
+                <hr />
             </div>);
         })}
     </div>);
