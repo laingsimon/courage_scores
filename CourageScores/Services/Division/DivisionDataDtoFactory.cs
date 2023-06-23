@@ -97,34 +97,16 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         if (deleted != null)
         {
-            return new DivisionDataDto
-            {
-                DataErrors =
-                {
-                    $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})",
-                }
-            };
+            return DataError($"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})");
         }
 
-        return new DivisionDataDto
-        {
-            DataErrors =
-            {
-                $"Requested division ({divisionId}) was not found"
-            }
-        };
+        return DataError($"Requested division ({divisionId}) was not found");
     }
 
     [ExcludeFromCodeCoverage]
     public DivisionDataDto DivisionIdAndSeasonIdNotSupplied()
     {
-        return new DivisionDataDto
-        {
-            DataErrors =
-            {
-                "SeasonId and/or DivisionId must be supplied",
-            }
-        };
+        return DataError("SeasonId and/or DivisionId must be supplied");
     }
 
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
@@ -132,9 +114,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         DivisionDataContext context,
         CancellationToken token)
     {
-        var managePlayers = userDto?.Access?.ManagePlayers == true;
-
-        if (!managePlayers)
+        if (userDto?.Access?.ManagePlayers != true)
         {
             return players;
         }
@@ -143,12 +123,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             .SelectManyAsync<TeamDto, DivisionPlayerDto>(async t =>
             {
                 var teamSeason = t.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id);
-                if (teamSeason == null)
-                {
-                    return new List<DivisionPlayerDto>();
-                }
-
-                return await teamSeason.Players
+                return await (teamSeason?.Players ?? new List<TeamPlayerDto>())
                     .SelectAsync(async tp => await _divisionPlayerAdapter.Adapt(t, tp, token))
                     .ToList();
             })
@@ -172,7 +147,6 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
             }
 
             var playersInTeam = playerResults.Where(p => p.Team == teamInSeasonAndDivision.Name).ToList();
-
             yield return await _divisionTeamAdapter.Adapt(teamInSeasonAndDivision, score, playersInTeam, token);
         }
 
@@ -221,21 +195,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     continue;
                 }
 
-                playerTuple = new DivisionData.TeamPlayerTuple(
-                    new TeamPlayerDto
-                    {
-                        Id = id,
-                        Name = score.Player != null
-                            ? $"Invalid player {score.Player.Name} ({id})"
-                            : "Player not found - " + id,
-                    },
-                    new TeamDto
-                    {
-                        Id = score.Team?.Id ?? Guid.Empty,
-                        Name = score.Team != null
-                            ? $"Invalid team {score.Team.Name} ({score.Team.Id})"
-                            : "Team not found",
-                    });
+                playerTuple = MissingTeamPlayerTuple(id, score);
             }
 
             if (context.TeamsInSeasonAndDivision.All(t => t.Id != playerTuple.Team.Id))
@@ -253,24 +213,39 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
+    private static DivisionData.TeamPlayerTuple MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score)
+    {
+        return new DivisionData.TeamPlayerTuple(
+            new TeamPlayerDto
+            {
+                Id = id,
+                Name = score.Player != null
+                    ? $"Invalid player {score.Player.Name} ({id})"
+                    : "Player not found - " + id,
+            },
+            new TeamDto
+            {
+                Id = score.Team?.Id ?? Guid.Empty,
+                Name = score.Team != null
+                    ? $"Invalid team {score.Team.Name} ({score.Team.Id})"
+                    : "Team not found",
+            });
+    }
+
+    private static DivisionDataDto DataError(string message)
+    {
+        return new DivisionDataDto
+        {
+            DataErrors = { message }
+        };
+    }
+
     private static Dictionary<Guid, DivisionData.TeamPlayerTuple> CreatePlayerIdToTeamLookup(DivisionDataContext context)
     {
-        var lookup = new Dictionary<Guid, DivisionData.TeamPlayerTuple>();
-
-        foreach (var team in context.TeamsInSeasonAndDivision)
-        {
-            var teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id);
-            if (teamSeason == null)
-            {
-                continue;
-            }
-
-            foreach (var player in teamSeason.Players)
-            {
-                lookup.Add(player.Id, new DivisionData.TeamPlayerTuple(player, team));
-            }
-        }
-
-        return lookup;
+        return (from team in context.TeamsInSeasonAndDivision
+            let teamSeason = team.Seasons.SingleOrDefault(ts => ts.SeasonId == context.Season.Id)
+            where teamSeason != null
+            from player in teamSeason.Players
+            select new DivisionData.TeamPlayerTuple(player, team)).ToDictionary(t => t.Player.Id);
     }
 }
