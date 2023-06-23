@@ -218,13 +218,13 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreA || ''
-                : (<input type="number" value={scoreARecorded ? scoreA || '' : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')} />)}
+                : (<input type="number" value={scoreARecorded ? match.scoreA || '' : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')} />)}
         </td>
         <td className="narrow-column">vs</td>
         <td className={hasBothScores && scoreB > scoreA ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreB || ''
-                : (<input type="number" value={scoreBRecorded ? scoreB || '' : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')} />)}
+                : (<input type="number" value={scoreBRecorded ? match.scoreB || '' : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')} />)}
         </td>
         <td className={hasBothScores && scoreB > scoreA ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
