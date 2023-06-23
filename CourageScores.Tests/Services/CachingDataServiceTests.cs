@@ -9,6 +9,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Tests.Services;
 
@@ -19,8 +20,8 @@ public class CachingDataServiceTests
     private TeamDto? _dto = new TeamDto();
     private readonly List<TeamDto> _someDtos = new() { new TeamDto() };
     private readonly List<TeamDto> _allDtos = new() { new TeamDto(), new TeamDto() };
-    private CachingDataService<CourageScores.Models.Cosmos.Team.Team, TeamDto> _service = null!;
-    private Mock<IGenericDataService<CourageScores.Models.Cosmos.Team.Team, TeamDto>> _underlyingService = null!;
+    private CachingDataService<CosmosTeam, TeamDto> _service = null!;
+    private Mock<IGenericDataService<CosmosTeam, TeamDto>> _underlyingService = null!;
     private IMemoryCache _cache = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
@@ -31,13 +32,13 @@ public class CachingDataServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _underlyingService = new Mock<IGenericDataService<CourageScores.Models.Cosmos.Team.Team, TeamDto>>();
+        _underlyingService = new Mock<IGenericDataService<CosmosTeam, TeamDto>>();
         _cache = new MemoryCache(new MemoryCacheOptions());
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _context = new DefaultHttpContext();
         _user = null;
 
-        _service = new CachingDataService<CourageScores.Models.Cosmos.Team.Team, TeamDto>(
+        _service = new CachingDataService<CosmosTeam, TeamDto>(
             _underlyingService.Object,
             _cache,
             _userService.Object,
@@ -58,7 +59,7 @@ public class CachingDataServiceTests
             .Setup(s => s.Delete(It.IsAny<Guid>(), _token))
             .ReturnsAsync(() => new ActionResultDto<TeamDto>());
         _underlyingService
-            .Setup(s => s.Upsert(It.IsAny<Guid>(), It.IsAny<IUpdateCommand<CourageScores.Models.Cosmos.Team.Team, int>>(), _token))
+            .Setup(s => s.Upsert(It.IsAny<Guid>(), It.IsAny<IUpdateCommand<CosmosTeam, int>>(), _token))
             .ReturnsAsync(() => new ActionResultDto<TeamDto>());
     }
 
@@ -213,7 +214,7 @@ public class CachingDataServiceTests
     public async Task Upsert_WhenCalled_InvalidatesCache()
     {
         var id = Guid.NewGuid();
-        var command = new Mock<IUpdateCommand<CourageScores.Models.Cosmos.Team.Team, int>>().Object;
+        var command = new Mock<IUpdateCommand<CosmosTeam, int>>().Object;
         // set in the cache
         await _service.Get(id, _token);
         _dto = new TeamDto();
