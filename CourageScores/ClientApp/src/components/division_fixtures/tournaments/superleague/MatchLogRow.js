@@ -21,7 +21,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, team, noOfThr
         <td>{countThrowsBetween(100, 140)}</td>
         <td>{countThrowsBetween(180, 180)}</td>
         <td>{countThrowsBetween(180, 181)}</td>
-        <td className="text-danger">T??</td>
+        <td>{countThrowsBetween(100, 140) + countThrowsBetween(140, 180) + (countThrowsBetween(180, 181) * 2)}</td>
         <td>{player}</td>
         <td>{team}</td>
         <td>{lastThrow.noOfDarts}</td>
