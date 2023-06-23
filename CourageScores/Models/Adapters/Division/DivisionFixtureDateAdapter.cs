@@ -39,7 +39,7 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         return new DivisionFixtureDateDto
         {
             Date = date,
-            Fixtures = (await FixturesPerDate(gamesForDate, teams, tournamentGamesForDate.Any(), token).ToList())
+            Fixtures = (await FixturesPerDate(gamesForDate, teams, tournamentGamesForDate.Any(), otherFixturesForDate, token).ToList())
                 .OrderBy(f => f.HomeTeam.Name).ToList(),
             TournamentFixtures = await TournamentFixturesPerDate(tournamentGamesForDate, teams, canCreateTournaments, gamesForDate.Count == 0, token)
                 .OrderByAsync(f => f.Address).ToList(),
@@ -48,9 +48,10 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
     }
 
     private async IAsyncEnumerable<DivisionFixtureDto> FixturesPerDate(
-        IEnumerable<Models.Cosmos.Game.Game> games,
+        IEnumerable<Cosmos.Game.Game> games,
         IReadOnlyCollection<TeamDto> teams,
         bool anyTournamentGamesForDate,
+        IReadOnlyCollection<Cosmos.Game.Game> otherFixturesForDate,
         [EnumeratorCancellation] CancellationToken token)
     {
         var remainingTeams = teams.ToDictionary(t => t.Id);
@@ -73,7 +74,8 @@ public class DivisionFixtureDateAdapter : IDivisionFixtureDateAdapter
         {
             foreach (var remainingTeam in remainingTeams.Values)
             {
-                yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, token);
+                var addressInUse = otherFixturesForDate.Where(f => f.Address == remainingTeam.Address).ToArray();
+                yield return await _divisionFixtureAdapter.ForUnselectedTeam(remainingTeam, hasKnockout, addressInUse, token);
             }
         }
     }

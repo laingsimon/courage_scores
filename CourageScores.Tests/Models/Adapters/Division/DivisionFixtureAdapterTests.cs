@@ -325,7 +325,7 @@ public class DivisionFixtureAdapterTests
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
 
-        var result = await _adapter.ForUnselectedTeam(team, isKnockout, _token);
+        var result = await _adapter.ForUnselectedTeam(team, isKnockout, Array.Empty<CourageScores.Models.Cosmos.Game.Game>(), _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Postponed, Is.False);
@@ -336,5 +336,38 @@ public class DivisionFixtureAdapterTests
         Assert.That(result.HomeTeam, Is.EqualTo(_homeTeamDto));
         Assert.That(result.IsKnockout, Is.EqualTo(expectedIsKnockout));
         Assert.That(result.AccoladesCount, Is.True);
+    }
+
+    [Test]
+    public async Task ForUnselectedTeam_GivenFixturesUsingAddress_SetsPropertyCorrectly()
+    {
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Address = "address",
+            Name = "team",
+        };
+        var game = new CourageScores.Models.Cosmos.Game.Game
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Home = new GameTeam { Id = Guid.NewGuid(), Name = "HOME", },
+            Away = new GameTeam { Id = Guid.NewGuid(), Name = "AWAY", },
+        };
+        _divisionFixtureTeamAdapter
+            .Setup(a => a.Adapt(team, _token))
+            .ReturnsAsync(_homeTeamDto);
+
+        var result = await _adapter.ForUnselectedTeam(team, false, new[] { game }, _token);
+
+        Assert.That(result.Id, Is.EqualTo(team.Id));
+        Assert.That(result.FixturesUsingAddress.Count, Is.EqualTo(1));
+        var otherDivisionFixtureDto = result.FixturesUsingAddress[0];
+        Assert.That(otherDivisionFixtureDto.Id, Is.EqualTo(game.Id));
+        Assert.That(otherDivisionFixtureDto.DivisionId, Is.EqualTo(game.DivisionId));
+        Assert.That(otherDivisionFixtureDto.Home.Id, Is.EqualTo(game.Home.Id));
+        Assert.That(otherDivisionFixtureDto.Home.Name, Is.EqualTo(game.Home.Name));
+        Assert.That(otherDivisionFixtureDto.Away.Id, Is.EqualTo(game.Away.Id));
+        Assert.That(otherDivisionFixtureDto.Away.Name, Is.EqualTo(game.Away.Name));
     }
 }

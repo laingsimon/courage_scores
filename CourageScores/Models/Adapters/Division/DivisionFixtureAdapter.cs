@@ -1,4 +1,5 @@
 using CourageScores.Models.Dtos.Division;
+using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Models.Adapters.Division;
@@ -33,7 +34,7 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
         };
     }
 
-    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, CancellationToken token)
+    public async Task<DivisionFixtureDto> ForUnselectedTeam(TeamDto team, bool isKnockout, IReadOnlyCollection<Cosmos.Game.Game> fixturesUsingAddress, CancellationToken token)
     {
         return new DivisionFixtureDto
         {
@@ -46,6 +47,26 @@ public class DivisionFixtureAdapter : IDivisionFixtureAdapter
             Postponed = false,
             Proposal = false,
             AccoladesCount = true,
+            FixturesUsingAddress = fixturesUsingAddress.Select(OtherDivisionFixtureDto).ToList(),
+        };
+    }
+
+    private static OtherDivisionFixtureDto OtherDivisionFixtureDto(Cosmos.Game.Game game)
+    {
+        return new OtherDivisionFixtureDto
+        {
+            Id = game.Id,
+            DivisionId = game.DivisionId,
+            Home = new GameTeamDto
+            {
+                Id = game.Home.Id,
+                Name = game.Home.Name,
+            },
+            Away = new GameTeamDto
+            {
+                Id = game.Away.Id,
+                Name = game.Away.Name,
+            },
         };
     }
 }
