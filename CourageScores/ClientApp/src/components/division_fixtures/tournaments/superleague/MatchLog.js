@@ -1,4 +1,5 @@
-import {MatchLogTable} from "./MatchLogTable";
+import {MatchLogRow} from "./MatchLogRow";
+import {MatchLogTableHeading} from "./MatchLogTableHeading";
 
 export function MatchLog({ tournamentData, homeTeam, awayTeam, saygDataMap }) {
     const noOfThrows = 50;
@@ -17,19 +18,28 @@ export function MatchLog({ tournamentData, homeTeam, awayTeam, saygDataMap }) {
             }
 
             return (<div key={match.id}>
-                <MatchLogTable
-                    saygData={saygData}
-                    team={homeTeam}
-                    noOfThrows={noOfThrows}
-                    player={match.sideA.name}
-                    accumulatorName="home"/>
-
-                <MatchLogTable
-                    saygData={saygData}
-                    team={awayTeam}
-                    noOfThrows={noOfThrows}
-                    player={match.sideB.name}
-                    accumulatorName="away"/>
+                <table className="table">
+                    <tbody>
+                    <MatchLogTableHeading team={homeTeam} noOfThrows={noOfThrows} />
+                    {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
+                        key={legIndex}
+                        team={homeTeam}
+                        accumulatorName="home"
+                        leg={saygData.legs[legIndex]}
+                        noOfThrows={noOfThrows}
+                        player={match.sideA.name}
+                        legNo={Number.parseInt(legIndex) + 1}/>)}
+                    <MatchLogTableHeading team={awayTeam} noOfThrows={noOfThrows} />
+                    {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
+                        key={legIndex}
+                        team={awayTeam}
+                        accumulatorName="away"
+                        leg={saygData.legs[legIndex]}
+                        noOfThrows={noOfThrows}
+                        player={match.sideB.name}
+                        legNo={Number.parseInt(legIndex) + 1}/>)}
+                    </tbody>
+                </table>
             </div>);
         })}
     </div>);
