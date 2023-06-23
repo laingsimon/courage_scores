@@ -1,4 +1,4 @@
-﻿import {repeat} from "../../../../helpers/projection";
+import {repeat} from "../../../../helpers/projection";
 
 export function MatchLogTableHeading({ team, noOfThrows }) {
     return (<>
