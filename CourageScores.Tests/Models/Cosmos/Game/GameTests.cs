@@ -1,13 +1,14 @@
 using CourageScores.Models.Cosmos.Game;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Models.Cosmos.Game;
 
 [TestFixture]
 public class GameTests
 {
-    private CourageScores.Models.Cosmos.Game.Game _game = null!;
+    private CosmosGame _game = null!;
     private Mock<IVisitorScope> _visitorScope = null!;
 
     [SetUp]
@@ -15,7 +16,7 @@ public class GameTests
     {
         _visitorScope = new Mock<IVisitorScope>();
         _visitorScope.Setup(s => s.With(It.IsAny<IVisitorScope>())).Returns(_visitorScope.Object);
-        _game = new CourageScores.Models.Cosmos.Game.Game
+        _game = new CosmosGame
         {
             Home = new GameTeam
             {
@@ -25,8 +26,8 @@ public class GameTests
             {
                 Id = Guid.NewGuid(),
             },
-            AwaySubmission = new CourageScores.Models.Cosmos.Game.Game(),
-            HomeSubmission = new CourageScores.Models.Cosmos.Game.Game(),
+            AwaySubmission = new CosmosGame(),
+            HomeSubmission = new CosmosGame(),
         };
     }
 

@@ -9,6 +9,7 @@ using CourageScores.Services.Season;
 using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Command;
 
@@ -22,7 +23,7 @@ public class AddOrUpdateGameCommandTests
     private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
-    private readonly CourageScores.Models.Cosmos.Game.Game _game;
+    private readonly CosmosGame _game;
     private readonly SeasonDto _season;
     private readonly TeamDto _homeTeam;
     private readonly TeamDto _awayTeam;
@@ -30,7 +31,7 @@ public class AddOrUpdateGameCommandTests
 
     public AddOrUpdateGameCommandTests()
     {
-        _game = new CourageScores.Models.Cosmos.Game.Game
+        _game = new CosmosGame
         {
             Id = Guid.NewGuid(),
         };

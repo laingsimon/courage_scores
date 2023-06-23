@@ -11,7 +11,7 @@ public class DivisionDataContext
     private readonly IReadOnlyCollection<TournamentGame> _tournamentGames;
     public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
     public SeasonDto Season { get; }
-    public Dictionary<DateTime, List<FixtureDateNoteDto>> Notes { get; }
+    public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
     public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
 
     public DivisionDataContext(
@@ -24,24 +24,21 @@ public class DivisionDataContext
         GamesForDate = games.GroupBy(g => g.Date).ToDictionary(g => g.Key, g => g.ToArray());
         TeamsInSeasonAndDivision = teamsInSeasonAndDivision;
         Season = season;
-        Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToList());
+        Notes = notes.GroupBy(n => n.Date).ToDictionary(g => g.Key, g => g.ToArray());
         _tournamentGames = tournamentGames;
     }
 
-    [ExcludeFromCodeCoverage]
-    public IEnumerable<Models.Cosmos.Game.Game> AllGames()
+    public IEnumerable<Models.Cosmos.Game.Game> AllGames(Guid? divisionId)
     {
-        return GamesForDate.SelectMany(pair => pair.Value);
+        return GamesForDate.SelectMany(pair => pair.Value).Where(g => divisionId == null || g.IsKnockout || g.DivisionId == divisionId);
     }
 
-    [ExcludeFromCodeCoverage]
     public IEnumerable<TournamentGame> AllTournamentGames(Guid? divisionId)
     {
         return _tournamentGames
             .Where(tournament => divisionId == null || tournament.DivisionId == null || tournament.DivisionId == divisionId);
     }
 
-    [ExcludeFromCodeCoverage]
     public IEnumerable<DateTime> GetDates(Guid? divisionId)
     {
         return GamesForDate.Keys.Union(AllTournamentGames(divisionId).Select(g => g.Date)).Union(Notes.Keys).OrderBy(d => d);

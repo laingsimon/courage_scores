@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Tests.Services.Identity;
 
@@ -25,22 +26,22 @@ public class UserServiceTests
     private Mock<IUserRepository> _userRepository = null!;
     private ISimpleAdapter<User,UserDto> _userAdapter = null!;
     private ISimpleAdapter<Access,AccessDto> _accessAdapter = null!;
-    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Team.Team>> _teamRepository = null!;
+    private Mock<IGenericRepository<CosmosTeam>> _teamRepository = null!;
     private UserService _service = null!;
     private DefaultHttpContext? _httpContext;
     private Mock<IServiceProvider> _httpContextServices = null!;
     private Mock<IAuthenticationService> _authenticationService = null!;
-    private List<CourageScores.Models.Cosmos.Team.Team> _allTeams = null!;
+    private List<CosmosTeam> _allTeams = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _allTeams = new List<CourageScores.Models.Cosmos.Team.Team>();
+        _allTeams = new List<CosmosTeam>();
         _httpContextAccessor = new Mock<IHttpContextAccessor>();
         _userRepository = new Mock<IUserRepository>();
         _accessAdapter = new AccessAdapter();
         _userAdapter = new UserAdapter(_accessAdapter);
-        _teamRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Team.Team>>();
+        _teamRepository = new Mock<IGenericRepository<CosmosTeam>>();
         _httpContextServices = new Mock<IServiceProvider>();
         _authenticationService = new Mock<IAuthenticationService>();
         _httpContext = new DefaultHttpContext
@@ -124,7 +125,7 @@ public class UserServiceTests
             Id = Guid.NewGuid(),
             EmailAddress = "simon@email.com"
         };
-        var team = new CourageScores.Models.Cosmos.Team.Team
+        var team = new CosmosTeam
         {
             Id = Guid.NewGuid(),
             Seasons =
@@ -164,7 +165,7 @@ public class UserServiceTests
         {
             TeamId = null,
         };
-        var team = new CourageScores.Models.Cosmos.Team.Team
+        var team = new CosmosTeam
         {
             Id = Guid.NewGuid(),
         };

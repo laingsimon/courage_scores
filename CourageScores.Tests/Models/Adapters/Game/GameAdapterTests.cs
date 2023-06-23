@@ -2,6 +2,7 @@ using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Game;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Models.Adapters.Game;
 
@@ -33,7 +34,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenUnpublishedModel_SetPropertiesCorrectly()
     {
-        var model = new CourageScores.Models.Cosmos.Game.Game
+        var model = new CosmosGame
         {
             Address = "address",
             Away = AwayTeam,
@@ -44,8 +45,8 @@ public class GameAdapterTests
             SeasonId = Guid.NewGuid(),
             Postponed = true,
             IsKnockout = true,
-            HomeSubmission = new CourageScores.Models.Cosmos.Game.Game(),
-            AwaySubmission = new CourageScores.Models.Cosmos.Game.Game(),
+            HomeSubmission = new CosmosGame(),
+            AwaySubmission = new CosmosGame(),
             OneEighties = { OneEightyPlayer },
             Over100Checkouts = { HiCheckPlayer },
             AccoladesCount = true,
@@ -72,7 +73,7 @@ public class GameAdapterTests
     [Test]
     public async Task Adapt_GivenPublishedModel_SetPropertiesCorrectly()
     {
-        var model = new CourageScores.Models.Cosmos.Game.Game
+        var model = new CosmosGame
         {
             Matches = { GameMatch },
         };

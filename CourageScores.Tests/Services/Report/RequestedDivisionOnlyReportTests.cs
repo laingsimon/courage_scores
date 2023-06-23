@@ -3,6 +3,7 @@ using CourageScores.Models.Dtos.Report;
 using CourageScores.Services.Report;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Report;
 
@@ -33,7 +34,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGame_WhenGivenLeagueFixtureForRequestedDivision_VisitsGame()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -48,7 +49,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGame_WhenGivenLeagueFixtureForDifferentDivision_DoesNotVisitGame()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -63,17 +64,17 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGame_WhenGivenLeagueFixtureForSameThenDifferentDivision_DoesNotVisitGame()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitGame(new CourageScores.Models.Cosmos.Game.Game { DivisionId = Guid.NewGuid() });
+        report.VisitGame(new CosmosGame { DivisionId = Guid.NewGuid() });
         report.VisitMatch(VisitorScope, new GameMatch());
 
-        underlying.Verify(r => r.VisitGame(It.IsAny<CourageScores.Models.Cosmos.Game.Game>()), Times.Once);
+        underlying.Verify(r => r.VisitGame(It.IsAny<CosmosGame>()), Times.Once);
         underlying.Verify(r => r.VisitMatch(It.IsAny<IVisitorScope>(), It.IsAny<GameMatch>()), Times.Never);
     }
 
@@ -81,7 +82,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitMatch_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -98,7 +99,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitMatch_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -115,7 +116,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitMatchWin_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -131,7 +132,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitMatchWin_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -147,7 +148,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitMatchLost_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -163,7 +164,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitMatchLost_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -179,7 +180,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitOneEighty_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -195,7 +196,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitOneEighty_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -211,7 +212,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitHiCheckout_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -227,7 +228,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitHiCheckout_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -243,7 +244,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitTeam_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -259,7 +260,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitTeam_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -275,7 +276,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitManOfTheMatch_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -291,7 +292,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitManOfTheMatch_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -307,7 +308,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitPlayer_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -323,7 +324,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitPlayer_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -339,7 +340,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGameDraw_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -355,7 +356,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGameDraw_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -371,7 +372,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGameWinner_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -387,7 +388,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGameWinner_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };
@@ -403,7 +404,7 @@ public class RequestedDivisionOnlyReportTests
     public void VisitGameLoser_AfterVisitGameForFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             DivisionId = Guid.NewGuid(),
         };

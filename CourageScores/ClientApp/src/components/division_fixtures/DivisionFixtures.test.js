@@ -500,6 +500,7 @@ describe('DivisionFixtures', () => {
                     awayTeam: { id: divisionData.teams[0].id, name: 'away3', address: 'away3' },
                     isKnockout: false,
                     postponed: true,
+                    fixturesUsingAddress: [ ],
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -528,6 +529,7 @@ describe('DivisionFixtures', () => {
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
+                    fixturesUsingAddress: [ ],
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
@@ -658,6 +660,7 @@ describe('DivisionFixtures', () => {
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
+                    fixturesUsingAddress: [ ],
                 } ],
                 notes: [ ],
                 tournamentFixtures: []
