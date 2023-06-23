@@ -257,6 +257,136 @@ public class DivisionDataDtoFactoryTests
     }
 
     [Test]
+    public async Task CreateDivisionDataDto_GivenDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWithInDivisionGamesOnly()
+    {
+        var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
+        var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division",
+        };
+        var inDivisionGame = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam { Id = team1.Id },
+            Away = new GameTeam { Id = team2.Id },
+            DivisionId = division.Id,
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                    AwayPlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                },
+            },
+        };
+        var outOfDivisionGame = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam { Id = team1.Id },
+            Away = new GameTeam { Id = team2.Id },
+            DivisionId = Guid.NewGuid(),
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                    AwayPlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { inDivisionGame, outOfDivisionGame },
+            new List<TeamDto> { team1, team2 },
+            new List<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto());
+
+        var result = await _factory.CreateDivisionDataDto(context, division, _token);
+
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { inDivisionGame.Date }));
+        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
+            new DateTime(2001, 02, 03),
+            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[] { inDivisionGame })),
+            It.IsAny<TournamentGame[]>(),
+            It.IsAny<FixtureDateNoteDto[]>(),
+            It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            _token));
+    }
+
+    [Test]
+    public async Task CreateDivisionDataDto_GivenNoDivisionIdAndCrossDivisionalFixtures_CreatesFixtureDateWithAllGames()
+    {
+        var team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1 - Playing" };
+        var team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2 - Playing" };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Division",
+        };
+        var inDivisionGame = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam { Id = team1.Id },
+            Away = new GameTeam { Id = team2.Id },
+            DivisionId = division.Id,
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                    AwayPlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                },
+            },
+        };
+        var outOfDivisionGame = new CosmosGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            Home = new GameTeam { Id = team1.Id },
+            Away = new GameTeam { Id = team2.Id },
+            DivisionId = Guid.NewGuid(),
+            Matches =
+            {
+                new GameMatch
+                {
+                    HomeScore = 2,
+                    AwayScore = 3,
+                    HomePlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                    AwayPlayers = { new GamePlayer { Id = Guid.NewGuid() } },
+                },
+            },
+        };
+        var context = new DivisionDataContext(
+            new[] { inDivisionGame, outOfDivisionGame },
+            new List<TeamDto> { team1, team2 },
+            new List<TournamentGame>(),
+            Array.Empty<FixtureDateNoteDto>(),
+            new SeasonDto());
+
+        var result = await _factory.CreateDivisionDataDto(context, null, _token);
+
+        Assert.That(result.Fixtures.Select(f => f.Date), Is.EquivalentTo(new[] { inDivisionGame.Date }));
+        _divisionFixtureDateAdapter.Verify(a => a.Adapt(
+            new DateTime(2001, 02, 03),
+            It.Is<CosmosGame[]>(games => games.SequenceEqual(new[] { inDivisionGame, outOfDivisionGame })),
+            It.IsAny<TournamentGame[]>(),
+            It.IsAny<FixtureDateNoteDto[]>(),
+            It.IsAny<IReadOnlyCollection<TeamDto>>(),
+            _token));
+    }
+
+    [Test]
     public async Task CreateDivisionDataDto_GivenFixtures_SetsPlayersCorrectly()
     {
         var season = new SeasonDto

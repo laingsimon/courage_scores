@@ -195,7 +195,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
 
             yield return await _divisionFixtureDateAdapter.Adapt(
                 date,
-                gamesForDate,
+                gamesForDate.Where(g => divisionId == null || g.DivisionId == divisionId).ToArray(),
                 tournamentGamesForDate,
                 notesForDate ?? Array.Empty<FixtureDateNoteDto>(),
                 context.TeamsInSeasonAndDivision,
