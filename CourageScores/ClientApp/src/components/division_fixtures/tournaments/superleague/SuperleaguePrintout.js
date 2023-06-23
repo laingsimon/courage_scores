@@ -47,7 +47,7 @@ export function SuperLeaguePrintout({ tournamentData }) {
         return (<div>Loading: {unloadedIds}</div>);
     }
 
-    return (<div>
+    return (<div className="d-screen-none">
         <MasterDraw tournamentData={tournamentData} homeTeam={homeTeam} awayTeam={awayTeam} />
         <MatchLog tournamentData={tournamentData} saygDataMap={saygDataMap} homeTeam={homeTeam} awayTeam={awayTeam} />
         <Summary tournamentData={tournamentData} saygDataMap={saygDataMap} homeTeam={homeTeam} awayTeam={awayTeam} />
