@@ -1,4 +1,4 @@
-export function MasterDraw({ tournamentData, homeTeam, awayTeam }) {
+export function MasterDraw({ tournamentData, fixture }) {
     const round = tournamentData.round || {};
     const matches = round.matches || [];
 
@@ -8,9 +8,9 @@ export function MasterDraw({ tournamentData, homeTeam, awayTeam }) {
             <thead>
                 <tr>
                     <th>#</th>
-                    <th>{homeTeam}</th>
+                    <th>{fixture.home}</th>
                     <th>v</th>
-                    <th>{awayTeam}</th>
+                    <th>{fixture.away}</th>
                 </tr>
             </thead>
             <tbody>

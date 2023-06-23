@@ -8,8 +8,10 @@ import {useDependencies} from "../../../../IocContainer";
 
 export function SuperLeaguePrintout({ tournamentData }) {
     // TODO: drive these from data
-    const homeTeam = "courage league";
-    const awayTeam = "marcs men";
+    const fixture = {
+        home: 'courage league',
+        away: 'marcs men',
+    }
 
     const { saygApi } = useDependencies();
     const [ saygDataMap, setSaygDataMap ] = useState({});
@@ -48,9 +50,9 @@ export function SuperLeaguePrintout({ tournamentData }) {
     }
 
     return (<div className="d-screen-none">
-        <MasterDraw tournamentData={tournamentData} homeTeam={homeTeam} awayTeam={awayTeam} />
-        <MatchLog tournamentData={tournamentData} saygDataMap={saygDataMap} homeTeam={homeTeam} awayTeam={awayTeam} />
-        <Summary tournamentData={tournamentData} saygDataMap={saygDataMap} homeTeam={homeTeam} awayTeam={awayTeam} />
-        <MatchReport tournamentData={tournamentData} saygDataMap={saygDataMap} homeTeam={homeTeam} awayTeam={awayTeam} />
+        <MasterDraw tournamentData={tournamentData} fixture={fixture} />
+        <MatchLog tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture} />
+        <Summary tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture} />
+        <MatchReport tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture} />
     </div>);
 }

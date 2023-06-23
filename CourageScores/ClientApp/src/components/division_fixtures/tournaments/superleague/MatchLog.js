@@ -1,7 +1,7 @@
 import {MatchLogRow} from "./MatchLogRow";
 import {MatchLogTableHeading} from "./MatchLogTableHeading";
 
-export function MatchLog({ tournamentData, homeTeam, awayTeam, saygDataMap }) {
+export function MatchLog({ tournamentData, fixture, saygDataMap }) {
     const noOfThrows = 50;
     const round = tournamentData.round || {};
     const matches = round.matches || [];
@@ -20,19 +20,19 @@ export function MatchLog({ tournamentData, homeTeam, awayTeam, saygDataMap }) {
             return (<div key={match.id}>
                 <table className="table">
                     <tbody>
-                    <MatchLogTableHeading team={homeTeam} noOfThrows={noOfThrows} />
+                    <MatchLogTableHeading team={fixture.home} noOfThrows={noOfThrows} />
                     {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                         key={legIndex}
-                        team={homeTeam}
+                        team={fixture.home}
                         accumulatorName="home"
                         leg={saygData.legs[legIndex]}
                         noOfThrows={noOfThrows}
                         player={match.sideA.name}
                         legNo={Number.parseInt(legIndex) + 1}/>)}
-                    <MatchLogTableHeading team={awayTeam} noOfThrows={noOfThrows} />
+                    <MatchLogTableHeading team={fixture.away} noOfThrows={noOfThrows} />
                     {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                         key={legIndex}
-                        team={awayTeam}
+                        team={fixture.away}
                         accumulatorName="away"
                         leg={saygData.legs[legIndex]}
                         noOfThrows={noOfThrows}
