@@ -11,6 +11,7 @@ using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Report;
 
@@ -21,14 +22,14 @@ public class ReportServiceTests
     private Mock<IUserService> _userService = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IDivisionService> _divisionService = null!;
-    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>> _gameRepository = null!;
+    private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ISystemClock> _clock = null!;
     private ReportService _service = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
     private DivisionDto _division = null!;
-    private CourageScores.Models.Cosmos.Game.Game _game1 = null!;
-    private CourageScores.Models.Cosmos.Game.Game _game2 = null!;
+    private CosmosGame _game1 = null!;
+    private CosmosGame _game2 = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -36,7 +37,7 @@ public class ReportServiceTests
         _userService = new Mock<IUserService>();
         _seasonService = new Mock<ISeasonService>();
         _divisionService = new Mock<IDivisionService>();
-        _gameRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>>();
+        _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _clock = new Mock<ISystemClock>();
         _service = new ReportService(
             _userService.Object,
@@ -60,12 +61,12 @@ public class ReportServiceTests
         {
             Id = Guid.NewGuid(),
         };
-        _game1 = new CourageScores.Models.Cosmos.Game.Game
+        _game1 = new CosmosGame
         {
             Home = new GameTeam(),
             Away = new GameTeam(),
         };
-        _game2 = new CourageScores.Models.Cosmos.Game.Game
+        _game2 = new CosmosGame
         {
             Home = new GameTeam(),
             Away = new GameTeam(),

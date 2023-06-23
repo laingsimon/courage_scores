@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Team;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Models.Adapters.Division;
 
@@ -47,7 +48,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithHomeAndAwayTeamsAndHomeWin_SetsPropertiesCorrectly()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = true,
@@ -92,7 +93,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithHomeAndAwayTeamsAndAwayWin_SetsPropertiesCorrectly()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = true,
@@ -137,7 +138,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithDeletedMatches_IgnoresDeletedMatches()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = true,
@@ -182,7 +183,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithoutAwayTeam_SetsPropertiesCorrectly()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = true,
@@ -210,7 +211,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithoutEitherTeam_SetsPropertiesCorrectly()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = true,
@@ -240,7 +241,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInAnyMatch_ReturnsNoScoresForFixture()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = false,
@@ -277,7 +278,7 @@ public class DivisionFixtureAdapterTests
     [Test]
     public async Task Adapt_WithNoPlayersInAnyKnockoutMatch_ReturnsScoresForFixture()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             IsKnockout = true,
@@ -325,7 +326,7 @@ public class DivisionFixtureAdapterTests
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
 
-        var result = await _adapter.ForUnselectedTeam(team, isKnockout, Array.Empty<CourageScores.Models.Cosmos.Game.Game>(), _token);
+        var result = await _adapter.ForUnselectedTeam(team, isKnockout, Array.Empty<CosmosGame>(), _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.Postponed, Is.False);
@@ -347,7 +348,7 @@ public class DivisionFixtureAdapterTests
             Address = "address",
             Name = "team",
         };
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             DivisionId = Guid.NewGuid(),
