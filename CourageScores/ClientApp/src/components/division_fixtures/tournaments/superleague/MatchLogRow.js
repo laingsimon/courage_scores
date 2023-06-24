@@ -29,7 +29,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
         <td>{countThrowsBetween(100, 140) + countThrowsBetween(140, 180) + (countThrowsBetween(180, 181) * 2)}</td>
         {playerOverallAverage === null || playerOverallAverage === undefined ? (<td>{round2dp(sumOverThrows('score') / sumOverThrows('noOfDarts'))}</td>) : null}
         {playerOverallAverage === null || playerOverallAverage === undefined || legNo > 1 ? null : (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">{round2dp(playerOverallAverage)}</td>)}
-        {legNo === 1 ? (<td className="text-danger">team average??</td>) : null}
+        {legNo === 1 ? (<td rowSpan={noOfLegs} className="align-middle bg-white text-danger">team average??</td>) : null}
         <td>{lastThrow.noOfDarts}</td>
         {repeat(noOfThrows, i => {
             const playerThrow = accumulator.throws[i];
