@@ -45,7 +45,6 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                     <MatchLogTableHeading team={fixture.home} noOfThrows={noOfThrows} />
                     {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                         key={legIndex}
-                        team={fixture.home}
                         accumulatorName="home"
                         leg={saygData.legs[legIndex]}
                         noOfThrows={noOfThrows}
