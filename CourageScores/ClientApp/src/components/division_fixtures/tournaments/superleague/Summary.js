@@ -1,10 +1,14 @@
 import {SummaryDataRow} from "./SummaryDataRow";
 import {useApp} from "../../../../AppContainer";
+import {sum} from "../../../../helpers/collections";
+import {count100, count140, count180, countTons, getPlayerOverallAverage} from "../../../../helpers/superleague";
+import {round2dp} from "../../../../helpers/rendering";
 
 export function Summary({ tournamentData, fixture, saygDataMap }) {
     const { onError } = useApp();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
+    const saygMatches = matches.map(match => saygDataMap[match.saygId]);
 
     try {
         return (<div className="page-break-after">
@@ -48,19 +52,19 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>
-                    <td>E(legsWon)</td>
-                    <td>E(totalTons)</td>
-                    <td>E(100+)</td>
-                    <td>E(140+)</td>
-                    <td>E(180)</td>
-                    <td>E(average)</td>
+                    <td>{sum(matches, match => match.scoreA)}</td>
+                    <td>{sum(saygMatches, saygData => countTons(saygData, 'home'))}</td>
+                    <td>{sum(saygMatches, saygData => count100(saygData, 'home'))}</td>
+                    <td>{sum(saygMatches, saygData => count140(saygData, 'home'))}</td>
+                    <td>{sum(saygMatches, saygData => count180(saygData, 'home'))}</td>
+                    <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'home')))}</td>
                     <td>Total</td>
-                    <td>E(legsWon)</td>
-                    <td>E(totalTons)</td>
-                    <td>E(100+)</td>
-                    <td>E(140+)</td>
-                    <td>E(180)</td>
-                    <td>E(average)</td>
+                    <td>{sum(matches, match => match.scoreB)}</td>
+                    <td>{sum(saygMatches, saygData => countTons(saygData, 'away'))}</td>
+                    <td>{sum(saygMatches, saygData => count100(saygData, 'away'))}</td>
+                    <td>{sum(saygMatches, saygData => count140(saygData, 'away'))}</td>
+                    <td>{sum(saygMatches, saygData => count180(saygData, 'away'))}</td>
+                    <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'away')))}</td>
                 </tr>
                 <tr>
                     <td colSpan="2"></td>
