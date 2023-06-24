@@ -1,6 +1,8 @@
 import {count, sum} from "../../../../helpers/collections";
+import {useApp} from "../../../../AppContainer";
 
 export function SummaryDataRow({ matchNo, match, saygData }) {
+    const { onError } = useApp();
     function countThrowsBetween(accumulatorName, lowerInclusive, upperExclusive) {
         if (!saygData || !saygData.legs) {
             return null;
@@ -30,21 +32,25 @@ export function SummaryDataRow({ matchNo, match, saygData }) {
         return count100(accumulatorName) + count140(accumulatorName) + (count180(accumulatorName) * 2);
     }
 
-    return (<tr>
-        <td>{matchNo}</td>
-        <td>{match.sideA.name}</td>
-        <td>{match.scoreA}</td>
-        <td>{countTons('home')}</td>
-        <td>{count100('home')}</td>
-        <td>{count140('home')}</td>
-        <td>{count180('home')}</td>
-        <td></td>
-        <td>{match.sideB.name}</td>
-        <td>{match.scoreB}</td>
-        <td>{countTons('away')}</td>
-        <td>{count100('away')}</td>
-        <td>{count140('away')}</td>
-        <td>{count180('away')}</td>
-        <td></td>
-    </tr>);
+    try {
+        return (<tr>
+            <td>{matchNo}</td>
+            <td>{match.sideA.name}</td>
+            <td>{match.scoreA}</td>
+            <td>{countTons('home')}</td>
+            <td>{count100('home')}</td>
+            <td>{count140('home')}</td>
+            <td>{count180('home')}</td>
+            <td></td>
+            <td>{match.sideB.name}</td>
+            <td>{match.scoreB}</td>
+            <td>{countTons('away')}</td>
+            <td>{count100('away')}</td>
+            <td>{count140('away')}</td>
+            <td>{count180('away')}</td>
+            <td></td>
+        </tr>);
+    } catch (e) {
+        onError(e);
+    }
 }
