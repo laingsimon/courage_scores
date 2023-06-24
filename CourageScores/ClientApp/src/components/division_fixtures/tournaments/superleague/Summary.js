@@ -35,8 +35,6 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                     saygData={saygDataMap[m.saygId]}
                     match={m}
                     matchNo={index + 1}/>))}
-                </tbody>
-                <tfoot>
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
@@ -44,6 +42,25 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
                     <td></td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr className="fw-bold">
+                    <td></td>
+                    <td>Total</td>
+                    <td>E(legsWon)</td>
+                    <td>E(totalTons)</td>
+                    <td>E(100+)</td>
+                    <td>E(140+)</td>
+                    <td>E(180)</td>
+                    <td>E(average)</td>
+                    <td>Total</td>
+                    <td>E(legsWon)</td>
+                    <td>E(totalTons)</td>
+                    <td>E(100+)</td>
+                    <td>E(140+)</td>
+                    <td>E(180)</td>
+                    <td>E(average)</td>
                 </tr>
                 <tr>
                     <td colSpan="2"></td>
