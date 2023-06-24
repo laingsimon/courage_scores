@@ -1,5 +1,6 @@
 import {MatchLogRow} from "./MatchLogRow";
 import {MatchLogTableHeading} from "./MatchLogTableHeading";
+import {sum} from "../../../../helpers/collections";
 
 export function MatchLog({ tournamentData, fixture, saygDataMap }) {
     const round = tournamentData.round || {};
@@ -28,6 +29,20 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
         return throws;
     }
 
+    function getPlayerOverallAverage(saygData, sideName) {
+        const metrics = Object.keys(saygData.legs).map(legIndex => {
+            const leg = saygData.legs[legIndex];
+            const side = leg[sideName];
+
+            return {
+                score: sum(side.throws, thr => thr.score),
+                noOfDarts: sum(side.throws, thr => thr.noOfDarts),
+            };
+        });
+
+        return sum(metrics, m => m.score) / sum(metrics, m => m.noOfDarts);
+    }
+
     return (<div className="page-break-after">
         <h2>Match log</h2>
         {matches.map(match => {
@@ -49,6 +64,8 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                         leg={saygData.legs[legIndex]}
                         noOfThrows={noOfThrows}
                         player={match.sideA.name}
+                        playerOverallAverage={getPlayerOverallAverage(saygData, 'home')}
+                        noOfLegs={Object.keys(saygData.legs).length}
                         legNo={Number.parseInt(legIndex) + 1}/>)}
                     <MatchLogTableHeading team={fixture.away} noOfThrows={noOfThrows} />
                     {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
@@ -58,6 +75,8 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                         leg={saygData.legs[legIndex]}
                         noOfThrows={noOfThrows}
                         player={match.sideB.name}
+                        playerOverallAverage={getPlayerOverallAverage(saygData, 'away')}
+                        noOfLegs={Object.keys(saygData.legs).length}
                         legNo={Number.parseInt(legIndex) + 1}/>)}
                     </tbody>
                 </table>
