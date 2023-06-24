@@ -1,5 +1,7 @@
 import {count, sum} from "../../../../helpers/collections";
 import {useApp} from "../../../../AppContainer";
+import {round2dp} from "../../../../helpers/rendering";
+import {getPlayerOverallAverage} from "../../../../helpers/superleague";
 
 export function SummaryDataRow({ matchNo, match, saygData }) {
     const { onError } = useApp();
@@ -41,14 +43,14 @@ export function SummaryDataRow({ matchNo, match, saygData }) {
             <td>{count100('home')}</td>
             <td>{count140('home')}</td>
             <td>{count180('home')}</td>
-            <td></td>
+            <td>{round2dp(getPlayerOverallAverage(saygData, 'home'))}</td>
             <td>{match.sideB.name}</td>
             <td>{match.scoreB}</td>
             <td>{countTons('away')}</td>
             <td>{count100('away')}</td>
             <td>{count140('away')}</td>
             <td>{count180('away')}</td>
-            <td></td>
+            <td>{round2dp(getPlayerOverallAverage(saygData, 'away'))}</td>
         </tr>);
     } catch (e) {
         onError(e);
