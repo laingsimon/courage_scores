@@ -24,8 +24,8 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             {legNo === 1 ? (<td rowSpan={noOfLegs} className="align-middle bg-white">{player}</td>) : null}
             <td>{legNo}</td>
             <td>{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
-            <td>{winner && lastThrow ? lastThrow.score : 0}</td>
-            <td>{winner || !lastThrow ? 0 : lastThrow.score}</td>
+            <td>{winner && lastThrow ? lastThrow.score : null}</td>
+            <td>{winner || !lastThrow ? null : lastThrow.score}</td>
             <td>{countThrowsBetween(100, 140)}</td>
             <td>{countThrowsBetween(140, 180)}</td>
             <td>{countThrowsBetween(180, 181)}</td>
