@@ -46,7 +46,7 @@ export function SuperLeaguePrintout({ tournamentData }) {
     }
 
     if (any(unloadedIds) || loading) {
-        return (<div>Loading: {unloadedIds}</div>);
+        return (<div className="d-screen-none">Loading...</div>);
     }
 
     return (<div className="d-screen-none">
