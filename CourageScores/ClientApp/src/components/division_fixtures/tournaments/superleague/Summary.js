@@ -1,7 +1,14 @@
 import {SummaryDataRow} from "./SummaryDataRow";
 import {useApp} from "../../../../AppContainer";
 import {sum} from "../../../../helpers/collections";
-import {count100, count140, count180, countTons, getPlayerOverallAverage} from "../../../../helpers/superleague";
+import {
+    count100,
+    count140,
+    count180,
+    countTons,
+    getPlayerOverallAverage, sumOfAllCheckouts,
+    sumOfAllScores
+} from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
 
 export function Summary({ tournamentData, fixture, saygDataMap }) {
@@ -69,10 +76,14 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Darts for windows average</td>
-                    <td></td>
+                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllCheckouts(s, 'home')))}>
+                        {round2dp(sum(saygMatches, s => sumOfAllScores(s, 'home')) / sum(saygMatches, s => sumOfAllCheckouts(s, 'home')))}
+                    </td>
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Darts for windows average</td>
-                    <td></td>
+                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllCheckouts(s, 'away')))}>
+                        {round2dp(sum(saygMatches, s => sumOfAllScores(s, 'away')) / sum(saygMatches, s => sumOfAllCheckouts(s, 'away')))}
+                    </td>
                 </tr>
                 </tfoot>
             </table>

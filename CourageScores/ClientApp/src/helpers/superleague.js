@@ -54,3 +54,25 @@ export function getNoOfLegs(saygData) {
         .length;
 }
 
+export function sumOfAllScores(saygData, accumulatorName) {
+    return sum(Object.keys(saygData.legs)
+        .map(legKey => saygData.legs[legKey])
+        .flatMap(leg => leg[accumulatorName].throws)
+        .map(thr => thr.bust ? 0 : thr.score));
+}
+
+export function sumOfAllCheckouts(saygData, accumulatorName) {
+    return sum(Object.keys(saygData.legs)
+        .map(legKey => saygData.legs[legKey])
+        .map(leg => {
+            const throws = leg[accumulatorName].throws;
+            const lastThrow = throws[throws.length - 1];
+            const startingScore = leg.startingScore;
+            const winnerByScore = sum(throws, thr => thr.score) === startingScore;
+            const winner = leg.winner === accumulatorName || winnerByScore;
+
+            return lastThrow && winner
+                ? lastThrow.score
+                : 0;
+        }));
+}
