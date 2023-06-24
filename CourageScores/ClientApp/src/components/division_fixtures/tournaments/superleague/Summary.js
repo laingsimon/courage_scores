@@ -31,6 +31,7 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                 </thead>
                 <tbody>
                 {matches.map((m, index) => (<SummaryDataRow
+                    key={index}
                     saygData={saygDataMap[m.saygId]}
                     match={m}
                     matchNo={index + 1}/>))}
