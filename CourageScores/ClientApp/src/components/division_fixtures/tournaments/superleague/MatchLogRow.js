@@ -38,7 +38,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
                 <td>{round2dp(sumOverThrows('score') / sumOverThrows('noOfDarts'))}</td>) : null}
             {playerOverallAverage === null || playerOverallAverage === undefined || legNo > 1 ? null : (
                 <td rowSpan={noOfLegs}
-                    className="align-middle bg-white fw-bold text-danger">{round2dp(playerOverallAverage)}</td>)}
+                    className="align-middle bg-white fw-bold">{round2dp(playerOverallAverage)}</td>)}
             {legNo === 1 ? (
                 <td rowSpan={noOfLegs} className="align-middle bg-white text-danger">team average??</td>) : null}
             <td>{lastThrow ? lastThrow.noOfDarts : null}</td>
