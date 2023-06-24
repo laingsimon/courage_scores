@@ -1,7 +1,7 @@
 import {MatchLogRow} from "./MatchLogRow";
 import {MatchLogTableHeading} from "./MatchLogTableHeading";
 import {useApp} from "../../../../AppContainer";
-import {getPlayerOverallAverage} from "../../../../helpers/superleague";
+import {getNoOfLegs, getPlayerOverallAverage} from "../../../../helpers/superleague";
 
 export function MatchLog({ tournamentData, fixture, saygDataMap }) {
     const { onError } = useApp();
@@ -43,7 +43,7 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                     </p>);
                 }
 
-                return (<div key={match.id}>
+                return (<div key={match.id} className="page-break-after">
                     <table className="table">
                         <tbody>
                         <MatchLogTableHeading team={fixture.home} noOfThrows={noOfThrows}/>
@@ -54,7 +54,7 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                             noOfThrows={noOfThrows}
                             player={match.sideA.name}
                             playerOverallAverage={getPlayerOverallAverage(saygData, 'home')}
-                            noOfLegs={Object.keys(saygData.legs).length}
+                            noOfLegs={getNoOfLegs(saygData)}
                             legNo={Number.parseInt(legIndex) + 1}/>)}
                         <MatchLogTableHeading team={fixture.away} noOfThrows={noOfThrows}/>
                         {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
@@ -65,11 +65,10 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                             noOfThrows={noOfThrows}
                             player={match.sideB.name}
                             playerOverallAverage={getPlayerOverallAverage(saygData, 'away')}
-                            noOfLegs={Object.keys(saygData.legs).length}
+                            noOfLegs={getNoOfLegs(saygData)}
                             legNo={Number.parseInt(legIndex) + 1}/>)}
                         </tbody>
                     </table>
-                    <hr/>
                 </div>);
             })}
         </div>);

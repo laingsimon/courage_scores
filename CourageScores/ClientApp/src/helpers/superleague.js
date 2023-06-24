@@ -45,3 +45,12 @@ export function countTons(saygData, accumulatorName) {
     return count100(saygData, accumulatorName) + count140(saygData, accumulatorName) + (count180(saygData, accumulatorName) * 2);
 }
 
+export function getNoOfLegs(saygData) {
+    return Object.keys(saygData.legs)
+        .map(legKey => saygData.legs[legKey])
+        .filter(leg => {
+            return leg.home.noOfDarts || leg.away.noOfDarts;
+        })
+        .length;
+}
+

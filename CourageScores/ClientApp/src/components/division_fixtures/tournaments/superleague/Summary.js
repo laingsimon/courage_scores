@@ -39,16 +39,6 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                     saygData={saygDataMap[m.saygId]}
                     match={m}
                     matchNo={index + 1}/>))}
-                <tr>
-                    <td colSpan="2"></td>
-                    <td colSpan="5" className="text-end">Rounded average</td>
-                    <td></td>
-                    <td colSpan="1"></td>
-                    <td colSpan="5" className="text-end">Rounded average</td>
-                    <td></td>
-                </tr>
-                </tbody>
-                <tfoot>
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>
@@ -65,6 +55,16 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                     <td>{sum(saygMatches, saygData => count140(saygData, 'away'))}</td>
                     <td>{sum(saygMatches, saygData => count180(saygData, 'away'))}</td>
                     <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'away')))}</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <td colSpan="2"></td>
+                    <td colSpan="5" className="text-end">Rounded average</td>
+                    <td></td>
+                    <td colSpan="1"></td>
+                    <td colSpan="5" className="text-end">Rounded average</td>
+                    <td></td>
                 </tr>
                 <tr>
                     <td colSpan="2"></td>
