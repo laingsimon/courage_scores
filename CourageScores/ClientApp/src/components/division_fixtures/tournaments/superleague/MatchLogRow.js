@@ -27,7 +27,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             <td>{winner && lastThrow ? lastThrow.score : 0}</td>
             <td>{winner || !lastThrow ? 0 : lastThrow.score}</td>
             <td>{countThrowsBetween(100, 140)}</td>
-            <td>{countThrowsBetween(180, 180)}</td>
+            <td>{countThrowsBetween(140, 180)}</td>
             <td>{countThrowsBetween(180, 181)}</td>
             <td>{countThrowsBetween(100, 140) + countThrowsBetween(140, 180) + (countThrowsBetween(180, 181) * 2)}</td>
             {playerOverallAverage === null || playerOverallAverage === undefined ? (
