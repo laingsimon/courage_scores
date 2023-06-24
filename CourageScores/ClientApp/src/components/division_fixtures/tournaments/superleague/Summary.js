@@ -61,10 +61,10 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
-                    <td></td>
+                    <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'home')) / matches.length)}</td>
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
-                    <td></td>
+                    <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'away')) / matches.length)}</td>
                 </tr>
                 <tr>
                     <td colSpan="2"></td>
