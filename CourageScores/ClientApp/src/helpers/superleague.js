@@ -1,7 +1,11 @@
 import {count, sum} from "./collections";
 
 export function getPlayerOverallAverage(saygData, sideName) {
-    const metrics = Object.keys(saygData.legs).map(legIndex => {
+    if (!saygData) {
+        return null;
+    }
+
+    const metrics = Object.keys(saygData.legs || {}).map(legIndex => {
         const leg = saygData.legs[legIndex];
         const side = leg[sideName];
 
@@ -46,7 +50,11 @@ export function countTons(saygData, accumulatorName) {
 }
 
 export function getNoOfLegs(saygData) {
-    return Object.keys(saygData.legs)
+    if (!saygData) {
+        return null;
+    }
+
+    return Object.keys(saygData.legs || {})
         .map(legKey => saygData.legs[legKey])
         .filter(leg => {
             return leg.home.noOfDarts || leg.away.noOfDarts;
@@ -55,14 +63,22 @@ export function getNoOfLegs(saygData) {
 }
 
 export function sumOfAllScores(saygData, accumulatorName) {
-    return sum(Object.keys(saygData.legs)
+    if (!saygData) {
+        return null;
+    }
+
+    return sum(Object.keys(saygData.legs || {})
         .map(legKey => saygData.legs[legKey])
         .flatMap(leg => leg[accumulatorName].throws)
         .map(thr => thr.bust ? 0 : thr.score));
 }
 
 export function sumOfAllCheckouts(saygData, accumulatorName) {
-    return sum(Object.keys(saygData.legs)
+    if (!saygData) {
+        return null;
+    }
+
+    return sum(Object.keys(saygData.legs || {})
         .map(legKey => saygData.legs[legKey])
         .map(leg => {
             const throws = leg[accumulatorName].throws;
