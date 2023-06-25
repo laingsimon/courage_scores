@@ -1,6 +1,6 @@
 import {useApp} from "../../../../AppContainer";
 import {repeat} from "../../../../helpers/projection";
-import {count} from "../../../../helpers/collections";
+import {count, sum} from "../../../../helpers/collections";
 
 export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLegs }) {
     const { onError } = useApp();
@@ -19,6 +19,15 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                     return count(accumulator.throws, thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
                 }
 
+                function actualDarts(side) {
+                    const accumulator = leg[side];
+                    if (!accumulator || !accumulator.throws) {
+                        return 0;
+                    }
+
+                    return sum(accumulator.throws, thr => thr.noOfDarts);
+                }
+
                 return (<tr key={`${match.id}_${legIndex}`}>
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>M{matchIndex + 1}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>ave</td>) : null}
@@ -29,7 +38,7 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                         const score = thr.bust ? 0 : thr.score;
                         return (<td className={score >= 100 ? 'text-danger' : ''} key={`${match.id}_${legIndex}_sideA_${throwIndex}`}>{score}</td>);
                     })}
-                    <td>AD</td>
+                    <td>{actualDarts('home')}</td>
                     <td>GS</td>
                     <td>SL</td>
                     <td>{countThrowsBetween('home', 100, 140) + countThrowsBetween('home', 140, 180) + (countThrowsBetween('home', 180) * 2)}</td>
@@ -41,7 +50,7 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                         const score = thr.bust ? 0 : thr.score;
                         return (<td className={score >= 100 ? 'text-danger' : ''} key={`${match.id}_${legIndex}_sideB_${throwIndex}`}>{score}</td>);
                     })}
-                    <td>AD</td>
+                    <td>{actualDarts('away')}</td>
                     <td>GS</td>
                     <td>SL</td>
                     <td>{countThrowsBetween('away', 100, 140) + countThrowsBetween('away', 140, 180) + (countThrowsBetween('away', 180) * 2)}</td>
