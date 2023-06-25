@@ -84,7 +84,7 @@ export function getNoOfThrows(matches, saygDataMap) {
         const match = matches[index];
         const saygData = saygDataMap[match.saygId];
 
-        if (!saygData) {
+        if (!saygData || !saygData.legs) {
             continue;
         }
 

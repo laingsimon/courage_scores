@@ -25,7 +25,7 @@ export function MatchReport({ tournamentData, fixture, saygDataMap, division }) 
     function legsWon(side) {
         return sum(matches, match => {
             const saygData = saygDataMap[match.saygId];
-            if (!saygData) {
+            if (!saygData || !saygData.legs) {
                 return 0;
             }
 

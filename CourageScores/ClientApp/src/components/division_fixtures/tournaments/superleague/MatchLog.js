@@ -15,7 +15,7 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
             {matches.map(match => {
                 const saygData = saygDataMap[match.saygId];
 
-                if (!saygData) {
+                if (!saygData || !saygData.legs) {
                     return (<p key={match.id} className="text-warning">
                         ⚠ No data available for the match between {match.sideA.name} and {match.sideB.name}
                     </p>);
