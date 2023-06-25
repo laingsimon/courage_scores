@@ -51,9 +51,8 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
 
                     const winnerByScore = sum(accumulator.throws, thr => thr.score) === leg.startingScore;
                     const winner = leg.winner === side || winnerByScore;
-                    const lastThrow = accumulator.throws[accumulator.throws.length - 1];
 
-                    return winner || !lastThrow ? null : leg.startingScore - lastThrow.score;
+                    return winner ? null : leg.startingScore - sum(accumulator.throws, thr => thr.score);
                 }
 
                 return (<tr key={`${match.id}_${legIndex}`}>
