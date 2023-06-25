@@ -28,6 +28,32 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                     return sum(accumulator.throws, thr => thr.noOfDarts);
                 }
 
+                function gameShot(side) {
+                    const accumulator = leg[side];
+                    if (!accumulator || !accumulator.throws) {
+                        return null;
+                    }
+
+                    const winnerByScore = sum(accumulator.throws, thr => thr.score) === leg.startingScore;
+                    const winner = leg.winner === side || winnerByScore;
+                    const lastThrow = accumulator.throws[accumulator.throws.length - 1];
+
+                    return winner && lastThrow ? lastThrow.score : null;
+                }
+
+                function scoreLeft(side) {
+                    const accumulator = leg[side];
+                    if (!accumulator || !accumulator.throws) {
+                        return null;
+                    }
+
+                    const winnerByScore = sum(accumulator.throws, thr => thr.score) === leg.startingScore;
+                    const winner = leg.winner === side || winnerByScore;
+                    const lastThrow = accumulator.throws[accumulator.throws.length - 1];
+
+                    return winner || !lastThrow ? null : leg.startingScore - lastThrow.score;
+                }
+
                 return (<tr key={`${match.id}_${legIndex}`}>
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>M{matchIndex + 1}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>ave</td>) : null}
@@ -39,8 +65,8 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                         return (<td className={score >= 100 ? 'text-danger' : ''} key={`${match.id}_${legIndex}_sideA_${throwIndex}`}>{score}</td>);
                     })}
                     <td>{actualDarts('home')}</td>
-                    <td>GS</td>
-                    <td>SL</td>
+                    <td>{gameShot('home')}</td>
+                    <td>{scoreLeft('home')}</td>
                     <td>{countThrowsBetween('home', 100, 140) + countThrowsBetween('home', 140, 180) + (countThrowsBetween('home', 180) * 2)}</td>
 
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>ave</td>) : null}
@@ -51,8 +77,8 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                         return (<td className={score >= 100 ? 'text-danger' : ''} key={`${match.id}_${legIndex}_sideB_${throwIndex}`}>{score}</td>);
                     })}
                     <td>{actualDarts('away')}</td>
-                    <td>GS</td>
-                    <td>SL</td>
+                    <td>{gameShot('away')}</td>
+                    <td>{scoreLeft('away')}</td>
                     <td>{countThrowsBetween('away', 100, 140) + countThrowsBetween('away', 140, 180) + (countThrowsBetween('away', 180) * 2)}</td>
                 </tr>);
             })}
