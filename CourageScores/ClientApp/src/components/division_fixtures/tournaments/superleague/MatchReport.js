@@ -2,6 +2,7 @@ import {useApp} from "../../../../AppContainer";
 import {getNoOfLegs, getNoOfThrows} from "../../../../helpers/superleague";
 import {repeat} from "../../../../helpers/projection";
 import {MatchReportRow} from "./MatchReportRow";
+import {sum} from "../../../../helpers/collections";
 
 export function MatchReport({ tournamentData, fixture, saygDataMap, division }) {
     const { onError } = useApp();
@@ -19,6 +20,28 @@ export function MatchReport({ tournamentData, fixture, saygDataMap, division }) 
         }
 
         return max;
+    }
+
+    function legsWon(side) {
+        return sum(matches, match => {
+            const saygData = saygDataMap[match.saygId];
+            if (!saygData) {
+                return 0;
+            }
+
+            // no of legs won in this match
+            let won = 0;
+            for (let legIndex in saygData.legs) {
+                const leg = saygData.legs[legIndex];
+                const accumulator = leg[side];
+                const winnerByScore = sum(accumulator.throws, thr => thr.score) === leg.startingScore;
+
+                if (leg.winner === side || winnerByScore) {
+                    won++;
+                }
+            }
+            return won;
+        })
     }
 
     try {
@@ -70,8 +93,8 @@ export function MatchReport({ tournamentData, fixture, saygDataMap, division }) 
                 <tfoot>
                 <tr>
                     <td></td>
-                    <td colSpan={7+noOfThrows} className="text-center">Legs won: ??</td>
-                    <td colSpan={6+noOfThrows} className="text-center">Legs won: ??</td>
+                    <td colSpan={7+noOfThrows} className="text-center">Legs won: {legsWon('home')}</td>
+                    <td colSpan={6+noOfThrows} className="text-center">Legs won: {legsWon('away')}</td>
                 </tr>
                 </tfoot>
             </table>
