@@ -7,7 +7,7 @@ import {any} from "../../../../helpers/collections";
 import {useDependencies} from "../../../../IocContainer";
 import {useApp} from "../../../../AppContainer";
 
-export function SuperLeaguePrintout({ tournamentData }) {
+export function SuperLeaguePrintout({ tournamentData, division }) {
     const { onError } = useApp();
 
     // TODO: drive these from data
@@ -57,7 +57,7 @@ export function SuperLeaguePrintout({ tournamentData }) {
             <MasterDraw tournamentData={tournamentData} fixture={fixture}/>
             <MatchLog tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture}/>
             <Summary tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture}/>
-            <MatchReport tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture}/>
+            <MatchReport tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture} division={division} />
         </div>);
     } catch (e) {
         onError(e);
