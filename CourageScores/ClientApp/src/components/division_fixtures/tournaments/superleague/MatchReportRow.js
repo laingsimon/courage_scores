@@ -10,6 +10,10 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
     try {
         return (<>
             {repeat(noOfLegs, legIndex => {
+                if (!saygData || !saygData.legs) {
+                    return null;
+                }
+
                 const leg = saygData.legs[legIndex + ''] || { home: {}, away: {} };
 
                 function countThrowsBetween(side, lowerInclusive, upperExclusive) {
