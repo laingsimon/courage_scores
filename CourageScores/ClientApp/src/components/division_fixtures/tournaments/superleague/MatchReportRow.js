@@ -1,6 +1,8 @@
 import {useApp} from "../../../../AppContainer";
 import {repeat} from "../../../../helpers/projection";
 import {count, sum} from "../../../../helpers/collections";
+import {getPlayerOverallAverage} from "../../../../helpers/superleague";
+import {round2dp} from "../../../../helpers/rendering";
 
 export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLegs }) {
     const { onError } = useApp();
@@ -56,7 +58,7 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
 
                 return (<tr key={`${match.id}_${legIndex}`}>
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle">M{matchIndex + 1}</td>) : null}
-                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold">ave</td>) : null}
+                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold">{round2dp(getPlayerOverallAverage(saygData, 'home'))}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle">{match.sideA.name}</td>) : null}
                     <td>{legIndex + 1}</td>
                     {repeat(noOfThrows, throwIndex => {
@@ -69,7 +71,7 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                     <td>{scoreLeft('home')}</td>
                     <td>{countThrowsBetween('home', 100, 140) + countThrowsBetween('home', 140, 180) + (countThrowsBetween('home', 180) * 2)}</td>
 
-                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold">ave</td>) : null}
+                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold">{round2dp(getPlayerOverallAverage(saygData, 'away'))}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle">{match.sideB.name}</td>) : null}
                     {repeat(noOfThrows, throwIndex => {
                         const thr = (leg.away.throws ? leg.away.throws[throwIndex] : null) || {};
