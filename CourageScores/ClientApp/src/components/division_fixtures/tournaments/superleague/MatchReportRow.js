@@ -1,5 +1,6 @@
-﻿import {useApp} from "../../../../AppContainer";
+import {useApp} from "../../../../AppContainer";
 import {repeat} from "../../../../helpers/projection";
+import {count} from "../../../../helpers/collections";
 
 export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLegs }) {
     const { onError } = useApp();
@@ -8,6 +9,15 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
         return (<>
             {repeat(noOfLegs, legIndex => {
                 const leg = saygData.legs[legIndex + ''] || { home: {}, away: {} };
+
+                function countThrowsBetween(side, lowerInclusive, upperExclusive) {
+                    const accumulator = leg[side];
+                    if (!accumulator || !accumulator.throws) {
+                        return 0;
+                    }
+
+                    return count(accumulator.throws, thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+                }
 
                 return (<tr key={`${match.id}_${legIndex}`}>
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>M{matchIndex + 1}</td>) : null}
@@ -22,7 +32,7 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                     <td>AD</td>
                     <td>GS</td>
                     <td>SL</td>
-                    <td>Tons</td>
+                    <td>{countThrowsBetween('home', 100, 140) + countThrowsBetween('home', 140, 180) + (countThrowsBetween('home', 180) * 2)}</td>
 
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>ave</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs}>{match.sideB.name}</td>) : null}
@@ -34,7 +44,7 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                     <td>AD</td>
                     <td>GS</td>
                     <td>SL</td>
-                    <td>Tons</td>
+                    <td>{countThrowsBetween('away', 100, 140) + countThrowsBetween('away', 140, 180) + (countThrowsBetween('away', 180) * 2)}</td>
                 </tr>);
             })}
         </>);

@@ -12,7 +12,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
     const winner = leg.winner === accumulatorName || winnerByScore;
 
     function countThrowsBetween(lowerInclusive, upperExclusive) {
-        return count(accumulator.throws, thr => thr.score >= lowerInclusive && thr.score < upperExclusive);
+        return count(accumulator.throws, thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
     }
 
     function sumOverThrows(prop) {
@@ -33,7 +33,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             <td>{countThrowsBetween(100, 140)}</td>
             <td>{countThrowsBetween(140, 180)}</td>
             <td>{countThrowsBetween(180, 181)}</td>
-            <td>{countThrowsBetween(100, 140) + countThrowsBetween(140, 180) + (countThrowsBetween(180, 181) * 2)}</td>
+            <td>{countThrowsBetween(100, 140) + countThrowsBetween(140, 180) + (countThrowsBetween(180) * 2)}</td>
             {playerOverallAverage === null || playerOverallAverage === undefined ? (
                 <td>{round2dp(sumOverThrows('score') / sumOverThrows('noOfDarts'))}</td>) : null}
             {playerOverallAverage === null || playerOverallAverage === undefined || legNo > 1 ? null : (
