@@ -29,7 +29,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             <td>{legNo}</td>
             <td>{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
             <td>{winner && lastThrow ? lastThrow.score : null}</td>
-            <td>{winner || !lastThrow ? null : startingScore - sum(accumulator.throws, thr => thr.score)}</td>
+            <td>{winner || !lastThrow ? null : startingScore - sum(accumulator.throws, thr => thr.bust ? 0 : thr.score)}</td>
             <td>{countThrowsBetween(100, 140)}</td>
             <td>{countThrowsBetween(140, 180)}</td>
             <td>{countThrowsBetween(180, 181)}</td>
