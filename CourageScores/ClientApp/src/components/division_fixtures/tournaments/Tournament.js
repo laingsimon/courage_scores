@@ -35,6 +35,7 @@ export function Tournament() {
     const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
+    const genderOptions = [ { text: 'Undefined', value: '' }, { text: 'Men', value: 'men' }, { text: 'Women', value: 'women' } ];
 
     useEffect(() => {
         const isAdmin = (account && account.access && account.access.manageScores);
@@ -263,6 +264,35 @@ export function Tournament() {
                                 <input disabled={saving} type="checkbox" className="form-check-input" name="singleRound" id="singleRound"
                                        checked={tournamentData.singleRound} onChange={valueChanged(tournamentData, setTournamentData)} />
                                 <label className="form-check-label" htmlFor="singleRound">Single round?</label>
+                            </div>
+                        </div>
+                    </div>)
+                    : null}
+                {canManageTournaments && tournamentData.singleRound
+                    ? (<div className="form-group input-group mb-3 d-print-none" data-options-for="superleague">
+                        <label htmlFor="note-text" className="input-group-text">Super league options</label>
+                        <div className="form-control">
+                            <div className="form-group input-group mb-1">
+                                <label htmlFor="host" className="input-group-text">Host</label>
+                                <input id="host" className="form-control" disabled={saving}
+                                          value={tournamentData.host || ''} name="host"
+                                          onChange={valueChanged(tournamentData, setTournamentData)}></input>
+                            </div>
+
+                            <div className="form-group input-group mb-1">
+                                <label htmlFor="opponent" className="input-group-text">Opponent</label>
+                                <input id="opponent" className="form-control" disabled={saving}
+                                          value={tournamentData.opponent || ''} name="opponent"
+                                          onChange={valueChanged(tournamentData, setTournamentData)}></input>
+                            </div>
+
+                            <div className="form-group input-group mb-1">
+                                <label htmlFor="gender" className="input-group-text">Gender</label>
+                                <BootstrapDropdown
+                                    value={tournamentData.gender}
+                                    onChange={propChanged(tournamentData, setTournamentData, 'gender')}
+                                    options={genderOptions}
+                                    disabled={saving} />
                             </div>
                         </div>
                     </div>)
