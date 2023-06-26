@@ -7,20 +7,20 @@ import {
     getPlayerOverallAverage
 } from "../../../../helpers/superleague";
 
-export function SummaryDataRow({ matchNo, match, saygData }) {
+export function SummaryDataRow({ matchNo, match, saygData, showWinner }) {
     const { onError } = useApp();
 
     try {
         return (<tr>
             <td>{matchNo}</td>
-            <td>{match.sideA.name}</td>
+            <td className={match.scoreA > match.scoreB && showWinner ? 'bg-winner' : ''}>{match.sideA.name}</td>
             <td>{match.scoreA}</td>
             <td>{countTons(saygData, 'home')}</td>
             <td>{count100(saygData, 'home')}</td>
             <td>{count140(saygData, 'home')}</td>
             <td>{count180(saygData, 'home')}</td>
             <td>{round2dp(getPlayerOverallAverage(saygData, 'home'))}</td>
-            <td>{match.sideB.name}</td>
+            <td className={match.scoreB > match.scoreA && showWinner ? 'bg-winner' : ''}>{match.sideB.name}</td>
             <td>{match.scoreB}</td>
             <td>{countTons(saygData, 'away')}</td>
             <td>{count100(saygData, 'away')}</td>

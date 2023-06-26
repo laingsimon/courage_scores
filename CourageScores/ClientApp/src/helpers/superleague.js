@@ -114,3 +114,29 @@ export function getNoOfThrows(matches, saygDataMap) {
 
     return throws;
 }
+
+export function getSaygWinner(saygData) {
+    let homeScore = 0;
+    let awayScore = 0;
+
+    for (let legIndex in saygData.legs) {
+        const leg = saygData.legs[legIndex];
+        const startingScore = leg.startingScore;
+        const homeWinner = sum(leg.home.throws, thr => thr.score) === startingScore;
+        const awayWinner = sum(leg.away.throws, thr => thr.score) === startingScore;
+        if (homeWinner) {
+            homeScore++;
+        } else if (awayWinner) {
+            awayScore++;
+        }
+    }
+
+    if (homeScore > awayScore) {
+        return 'home';
+    }
+    if (awayScore > homeScore) {
+        return 'away';
+    }
+
+    return '';
+}

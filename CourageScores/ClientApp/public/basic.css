@@ -169,8 +169,8 @@ input[type="date"] {
    overflow-x: auto;
 }
 
-.bg-winner,
-td.bg-winner {
+body .bg-winner,
+body td.bg-winner {
   background-color: #bbffbb;
 }
 

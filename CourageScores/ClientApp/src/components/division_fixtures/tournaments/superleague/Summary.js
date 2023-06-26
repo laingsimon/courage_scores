@@ -12,7 +12,7 @@ import {
 import {round2dp} from "../../../../helpers/rendering";
 import {useTournament} from "../TournamentContainer";
 
-export function Summary({ saygDataMap }) {
+export function Summary({ saygDataMap, showWinner }) {
     const { onError } = useApp();
     const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
@@ -55,7 +55,8 @@ export function Summary({ saygDataMap }) {
                     key={index}
                     saygData={saygDataMap[m.saygId]}
                     match={m}
-                    matchNo={index + 1}/>))}
+                    matchNo={index + 1}
+                    showWinner={showWinner} />))}
                 <tr className="fw-bold">
                     <td></td>
                     <td>Total</td>

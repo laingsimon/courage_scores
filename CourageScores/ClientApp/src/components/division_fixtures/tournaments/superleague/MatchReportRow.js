@@ -1,11 +1,12 @@
 import {useApp} from "../../../../AppContainer";
 import {repeat} from "../../../../helpers/projection";
 import {count, sum} from "../../../../helpers/collections";
-import {getPlayerOverallAverage} from "../../../../helpers/superleague";
+import {getPlayerOverallAverage, getSaygWinner} from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
 
-export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLegs }) {
+export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLegs, showWinner }) {
     const { onError } = useApp();
+    const winner = getSaygWinner(saygData);
 
     try {
         return (<>
@@ -59,32 +60,38 @@ export function MatchReportRow({ match, matchIndex, saygData, noOfThrows, noOfLe
                     return winner ? null : leg.startingScore - sum(accumulator.throws, thr => thr.bust ? 0 : thr.score);
                 }
 
+                function countTons(side) {
+                    return countThrowsBetween(side, 100, 140)
+                        + countThrowsBetween(side, 140, 180)
+                        + (countThrowsBetween(side, 180) * 2)
+                }
+
                 return (<tr key={`${match.id}_${legIndex}`}>
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle">M{matchIndex + 1}</td>) : null}
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold vertical-text text-danger">{round2dp(getPlayerOverallAverage(saygData, 'home'))}</td>) : null}
-                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className={`align-middle ${matchIndex % 2 === 0 ? '' : 'bg-light'}`}>{match.sideA.name}</td>) : null}
+                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className={`align-middle ${winner === 'home' && showWinner ? ' bg-winner' : (matchIndex % 2 === 0 ? '' : 'bg-light')}`}>{match.sideA.name}</td>) : null}
                     <td>{legIndex + 1}</td>
                     {repeat(noOfThrows, throwIndex => {
                         const thr = (leg.home.throws ? leg.home.throws[throwIndex] : null) || {};
                         const score = thr.bust ? 0 : thr.score;
-                        return (<td className={score >= 100 ? 'text-danger' : ''} key={`${match.id}_${legIndex}_sideA_${throwIndex}`}>{score}</td>);
+                        return (<td className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')} key={`${match.id}_${legIndex}_sideA_${throwIndex}`}>{score}</td>);
                     })}
                     <td>{actualDarts('home')}</td>
                     <td>{gameShot('home')}</td>
                     <td>{scoreLeft('home')}</td>
-                    <td>{countThrowsBetween('home', 100, 140) + countThrowsBetween('home', 140, 180) + (countThrowsBetween('home', 180) * 2)}</td>
+                    <td>{countTons('home')}</td>
 
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold vertical-text text-danger">{round2dp(getPlayerOverallAverage(saygData, 'away'))}</td>) : null}
-                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className={`align-middle ${matchIndex % 2 === 0 ? 'bg-light' : ''}`}>{match.sideB.name}</td>) : null}
+                    {legIndex === 0 ? (<td rowSpan={noOfLegs} className={`align-middle ${winner === 'away' && showWinner ? ' bg-winner' : (matchIndex % 2 === 0 ? 'bg-light' : '')}`}>{match.sideB.name}</td>) : null}
                     {repeat(noOfThrows, throwIndex => {
                         const thr = (leg.away.throws ? leg.away.throws[throwIndex] : null) || {};
                         const score = thr.bust ? 0 : thr.score;
-                        return (<td className={score >= 100 ? 'text-danger' : ''} key={`${match.id}_${legIndex}_sideB_${throwIndex}`}>{score}</td>);
+                        return (<td className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')} key={`${match.id}_${legIndex}_sideB_${throwIndex}`}>{score}</td>);
                     })}
                     <td>{actualDarts('away')}</td>
                     <td>{gameShot('away')}</td>
                     <td>{scoreLeft('away')}</td>
-                    <td>{countThrowsBetween('away', 100, 140) + countThrowsBetween('away', 140, 180) + (countThrowsBetween('away', 180) * 2)}</td>
+                    <td>{countTons('away')}</td>
                 </tr>);
             })}
         </>);

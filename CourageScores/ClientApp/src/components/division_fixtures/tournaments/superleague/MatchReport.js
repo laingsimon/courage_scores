@@ -5,7 +5,7 @@ import {MatchReportRow} from "./MatchReportRow";
 import {sum} from "../../../../helpers/collections";
 import {useTournament} from "../TournamentContainer";
 
-export function MatchReport({ saygDataMap, division }) {
+export function MatchReport({ saygDataMap, division, showWinner }) {
     const { onError } = useApp();
     const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
@@ -63,7 +63,7 @@ export function MatchReport({ saygDataMap, division }) {
                     <th colSpan="4"></th>
                     <th colSpan={noOfThrows}>Scores</th>
                     <th colSpan="4"></th>
-                    <th colSpan="3"></th>
+                    <th colSpan="2"></th>
                     <th colSpan={noOfThrows}>Scores</th>
                     <th colSpan="4"></th>
                 </tr>
@@ -89,7 +89,7 @@ export function MatchReport({ saygDataMap, division }) {
                 <tbody>
                 {matches.map((match, matchIndex) => {
                     const saygData = saygDataMap[match.saygId];
-                    return (<MatchReportRow key={matchIndex} matchIndex={matchIndex} noOfLegs={noOfLegs} match={match} saygData={saygData} noOfThrows={noOfThrows} />);
+                    return (<MatchReportRow showWinner={showWinner} key={matchIndex} matchIndex={matchIndex} noOfLegs={noOfLegs} match={match} saygData={saygData} noOfThrows={noOfThrows} />);
                 })}
                 </tbody>
             </table>

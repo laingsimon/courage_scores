@@ -4,7 +4,7 @@ import {useApp} from "../../../../AppContainer";
 import {getNoOfLegs, getNoOfThrows, getPlayerOverallAverage} from "../../../../helpers/superleague";
 import {useTournament} from "../TournamentContainer";
 
-export function MatchLog({ saygDataMap }) {
+export function MatchLog({ saygDataMap, showWinner }) {
     const { onError } = useApp();
     const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
@@ -35,7 +35,8 @@ export function MatchLog({ saygDataMap }) {
                             player={match.sideA.name}
                             playerOverallAverage={getPlayerOverallAverage(saygData, 'home')}
                             noOfLegs={getNoOfLegs(saygData)}
-                            legNo={Number.parseInt(legIndex) + 1}/>)}
+                            legNo={Number.parseInt(legIndex) + 1}
+                            showWinner={showWinner} />)}
                         <MatchLogTableHeading team={tournamentData.opponent} noOfThrows={noOfThrows}/>
                         {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
@@ -46,7 +47,8 @@ export function MatchLog({ saygDataMap }) {
                             player={match.sideB.name}
                             playerOverallAverage={getPlayerOverallAverage(saygData, 'away')}
                             noOfLegs={getNoOfLegs(saygData)}
-                            legNo={Number.parseInt(legIndex) + 1}/>)}
+                            legNo={Number.parseInt(legIndex) + 1}
+                            showWinner={showWinner} />)}
                         </tbody>
                     </table>
                 </div>);
