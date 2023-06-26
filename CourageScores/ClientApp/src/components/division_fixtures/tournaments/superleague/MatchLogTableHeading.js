@@ -3,7 +3,7 @@ import {repeat} from "../../../../helpers/projection";
 export function MatchLogTableHeading({ team, noOfThrows }) {
     return (<>
         <tr>
-            <th colSpan={9}>{team}</th>
+            <th colSpan="9">{team}</th>
             <th colSpan={3 + noOfThrows}>Dart average</th>
         </tr>
         <tr>
