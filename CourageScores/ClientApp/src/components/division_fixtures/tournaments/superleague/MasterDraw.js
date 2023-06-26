@@ -1,6 +1,8 @@
 import {useApp} from "../../../../AppContainer";
+import {useTournament} from "../TournamentContainer";
 
-export function MasterDraw({ tournamentData, fixture }) {
+export function MasterDraw() {
+    const { tournamentData } = useTournament();
     const { onError } = useApp();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
@@ -12,9 +14,9 @@ export function MasterDraw({ tournamentData, fixture }) {
                 <thead>
                 <tr>
                     <th>#</th>
-                    <th>{fixture.home}</th>
+                    <th>{tournamentData.host}</th>
                     <th>v</th>
-                    <th>{fixture.away}</th>
+                    <th>{tournamentData.opponent}</th>
                 </tr>
                 </thead>
                 <tbody>

@@ -2,9 +2,11 @@ import {MatchLogRow} from "./MatchLogRow";
 import {MatchLogTableHeading} from "./MatchLogTableHeading";
 import {useApp} from "../../../../AppContainer";
 import {getNoOfLegs, getNoOfThrows, getPlayerOverallAverage} from "../../../../helpers/superleague";
+import {useTournament} from "../TournamentContainer";
 
-export function MatchLog({ tournamentData, fixture, saygDataMap }) {
+export function MatchLog({ saygDataMap }) {
     const { onError } = useApp();
+    const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
     const noOfThrows = getNoOfThrows(matches, saygDataMap) + 1;
@@ -24,7 +26,7 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                 return (<div key={match.id} className="page-break-after">
                     <table className="table">
                         <tbody>
-                        <MatchLogTableHeading team={fixture.home} noOfThrows={noOfThrows}/>
+                        <MatchLogTableHeading team={tournamentData.host} noOfThrows={noOfThrows}/>
                         {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
                             accumulatorName="home"
@@ -34,10 +36,10 @@ export function MatchLog({ tournamentData, fixture, saygDataMap }) {
                             playerOverallAverage={getPlayerOverallAverage(saygData, 'home')}
                             noOfLegs={getNoOfLegs(saygData)}
                             legNo={Number.parseInt(legIndex) + 1}/>)}
-                        <MatchLogTableHeading team={fixture.away} noOfThrows={noOfThrows}/>
+                        <MatchLogTableHeading team={tournamentData.opponent} noOfThrows={noOfThrows}/>
                         {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
-                            team={fixture.away}
+                            team={tournamentData.opponent}
                             accumulatorName="away"
                             leg={saygData.legs[legIndex]}
                             noOfThrows={noOfThrows}

@@ -3,9 +3,11 @@ import {getNoOfLegs, getNoOfThrows} from "../../../../helpers/superleague";
 import {repeat} from "../../../../helpers/projection";
 import {MatchReportRow} from "./MatchReportRow";
 import {sum} from "../../../../helpers/collections";
+import {useTournament} from "../TournamentContainer";
 
-export function MatchReport({ tournamentData, fixture, saygDataMap, division }) {
+export function MatchReport({ saygDataMap, division }) {
     const { onError } = useApp();
+    const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
     const noOfThrows = getNoOfThrows(matches, saygDataMap) + 1;
@@ -52,9 +54,9 @@ export function MatchReport({ tournamentData, fixture, saygDataMap, division }) 
                 <thead>
                 <tr>
                     <th colSpan={15+(noOfThrows * 2)} className="text-center">
-                        <span className="pe-5 fs-5">{fixture.home}</span>
+                        <span className="pe-5 fs-5">{tournamentData.host}</span>
                         <span className="mx-5 fs-5">v</span>
-                        <span className="ps-5 fs-5">{fixture.away}</span>
+                        <span className="ps-5 fs-5">{tournamentData.opponent}</span>
                     </th>
                 </tr>
                 <tr>

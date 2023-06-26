@@ -6,16 +6,11 @@ import {useEffect, useState} from "react";
 import {any} from "../../../../helpers/collections";
 import {useDependencies} from "../../../../IocContainer";
 import {useApp} from "../../../../AppContainer";
+import {useTournament} from "../TournamentContainer";
 
-export function SuperLeaguePrintout({ tournamentData, division }) {
+export function SuperLeaguePrintout({ division }) {
     const { onError } = useApp();
-
-    // TODO: drive these from data
-    const fixture = {
-        home: 'courage league',
-        away: 'marcs men',
-    }
-
+    const { tournamentData } = useTournament();
     const { saygApi } = useDependencies();
     const [ saygDataMap, setSaygDataMap ] = useState({});
     const [loading, setLoading] = useState(false);
@@ -54,10 +49,10 @@ export function SuperLeaguePrintout({ tournamentData, division }) {
 
     try {
         return (<div className="d-screen-none">
-            <MasterDraw tournamentData={tournamentData} fixture={fixture}/>
-            <MatchLog tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture}/>
-            <Summary tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture}/>
-            <MatchReport tournamentData={tournamentData} saygDataMap={saygDataMap} fixture={fixture} division={division} />
+            <MasterDraw />
+            <MatchLog saygDataMap={saygDataMap} />
+            <Summary saygDataMap={saygDataMap} />
+            <MatchReport saygDataMap={saygDataMap} division={division} />
         </div>);
     } catch (e) {
         onError(e);

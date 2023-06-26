@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {renderDate} from "../../../helpers/rendering";
 import {TournamentSheet} from "./TournamentSheet";
+import {TournamentContainer} from "./TournamentContainer";
 
 describe('TournamentSheet', () => {
     let context;
@@ -14,7 +15,7 @@ describe('TournamentSheet', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(tournamentData) {
         reportedError = null;
         context = await renderApp(
             { },
@@ -30,7 +31,9 @@ describe('TournamentSheet', () => {
                     }
                 },
             },
-            (<TournamentSheet {...props} />));
+            (<TournamentContainer tournamentData={tournamentData}>
+                <TournamentSheet />
+            </TournamentContainer>));
     }
 
     function createSide(noOfPlayers, name, noShow) {
@@ -93,13 +96,11 @@ describe('TournamentSheet', () => {
     describe('renders', () => {
         it('date, address and notes', async () => {
             await renderComponent({
-                tournamentData: {
-                    sides: [ createSide(1, 'SIDE 1') ],
-                    date: '2023-06-01',
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                }
+                sides: [ createSide(1, 'SIDE 1') ],
+                date: '2023-06-01',
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
             });
 
             expect(reportedError).toBeNull();
@@ -113,7 +114,7 @@ describe('TournamentSheet', () => {
                 createSide(1, 'SIDE 2'),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent( { sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final'], true);
@@ -128,7 +129,7 @@ describe('TournamentSheet', () => {
                 createSide(2, 'SIDE 2'),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final']);
@@ -144,7 +145,7 @@ describe('TournamentSheet', () => {
                 createSide(3, 'SIDE 3'),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
@@ -160,7 +161,7 @@ describe('TournamentSheet', () => {
                 createSide(3, 'SIDE 3', true),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final']);
@@ -177,7 +178,7 @@ describe('TournamentSheet', () => {
                 createSide(4, 'SIDE 4'),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
@@ -195,7 +196,7 @@ describe('TournamentSheet', () => {
                 createSide(5, 'SIDE 5'),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Quarter-Final', 'Semi-Final', 'Final']);
@@ -217,7 +218,7 @@ describe('TournamentSheet', () => {
                 createSide(1, 'SIDE 9'),
             ];
 
-            await renderComponent({ tournamentData: { sides } });
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Round: 1', 'Quarter-Final', 'Semi-Final', 'Final'], true);

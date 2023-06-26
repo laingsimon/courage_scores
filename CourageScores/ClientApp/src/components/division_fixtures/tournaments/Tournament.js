@@ -306,8 +306,8 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}>
                     <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
+                    {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<TournamentSheet />)}
                 </TournamentContainer>
-                {tournamentData.singleRound ? (<SuperLeaguePrintout tournamentData={tournamentData} division={division} />) : (<TournamentSheet tournamentData={tournamentData}/>)}
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}

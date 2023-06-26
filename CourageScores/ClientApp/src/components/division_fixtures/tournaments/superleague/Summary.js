@@ -10,9 +10,11 @@ import {
     sumOfAllScores
 } from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
+import {useTournament} from "../TournamentContainer";
 
-export function Summary({ tournamentData, fixture, saygDataMap }) {
+export function Summary({ saygDataMap }) {
     const { onError } = useApp();
+    const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
     const saygMatches = matches.map(match => saygDataMap[match.saygId]);
@@ -24,14 +26,14 @@ export function Summary({ tournamentData, fixture, saygDataMap }) {
                 <thead>
                 <tr>
                     <th>Match no</th>
-                    <th>{fixture.home}<br/>Player</th>
+                    <th>{tournamentData.host}<br/>Player</th>
                     <th>Legs won</th>
                     <th>Total tons</th>
                     <th>100+</th>
                     <th>140+</th>
                     <th>180</th>
                     <th>Player average</th>
-                    <th>{fixture.away}<br/>Player</th>
+                    <th>{tournamentData.opponent}<br/>Player</th>
                     <th>Legs won</th>
                     <th>Total tons</th>
                     <th>100+</th>
