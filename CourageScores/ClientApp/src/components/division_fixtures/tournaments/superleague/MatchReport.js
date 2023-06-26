@@ -92,14 +92,11 @@ export function MatchReport({ saygDataMap, division }) {
                     return (<MatchReportRow key={matchIndex} matchIndex={matchIndex} noOfLegs={noOfLegs} match={match} saygData={saygData} noOfThrows={noOfThrows} />);
                 })}
                 </tbody>
-                <tfoot>
-                <tr>
-                    <td></td>
-                    <td colSpan={7+noOfThrows} className="text-center">Legs won: {legsWon('home')}</td>
-                    <td colSpan={6+noOfThrows} className="text-center">Legs won: {legsWon('away')}</td>
-                </tr>
-                </tfoot>
             </table>
+            <div className="d-flex flex-row justify-content-around">
+                <div className="p-5 text-center">Legs won: {legsWon('home')}</div>
+                <div className="p-5 text-center">Legs won: {legsWon('away')}</div>
+            </div>
         </div>);
     } catch (e) {
         onError(e);
