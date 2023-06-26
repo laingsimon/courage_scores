@@ -41,6 +41,9 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             DivisionId = model.DivisionId,
             BestOf = model.BestOf,
             SingleRound = model.SingleRound,
+            Host = model.Host,
+            Opponent = model.Opponent,
+            Gender = model.Gender,
         }.AddAuditProperties(model);
     }
 
@@ -62,6 +65,9 @@ public class TournamentGameAdapter : IAdapter<TournamentGame, TournamentGameDto>
             DivisionId = dto.DivisionId,
             BestOf = dto.BestOf,
             SingleRound = dto.SingleRound,
+            Host = dto.Host?.Trim(),
+            Opponent = dto.Opponent?.Trim(),
+            Gender = dto.Gender?.Trim(),
         }.AddAuditProperties(dto);
     }
 }
