@@ -10,27 +10,12 @@ export function playerOverallAverage(saygData, sideName) {
         const side = leg[sideName];
 
         return {
-            score: sum(side.throws, thr => thr.score),
+            score: sum(side.throws, thr => thr.bust ? 0 : thr.score),
             noOfDarts: sum(side.throws, thr => thr.noOfDarts),
         };
     });
 
     return sum(metrics, m => m.score) / sum(metrics, m => m.noOfDarts);
-}
-
-export function countMatchThrowsBetween(saygData, accumulatorName, lowerInclusive, upperExclusive) {
-    if (!saygData || !saygData.legs) {
-        return null;
-    }
-
-    return sum(Object.keys(saygData.legs).map(legIndex => {
-        const leg = saygData.legs[legIndex];
-        const accumulator = leg[accumulatorName];
-
-        return count(
-            accumulator.throws,
-            thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
-    }));
 }
 
 export function countMatch100(saygData, accumulatorName) {
@@ -141,11 +126,11 @@ export function getMatchWinner(saygData) {
 
 export function isLegWinner(leg, accumulatorName) {
     const accumulator = leg[accumulatorName];
-    const winnerByScore = sum(accumulator.throws, thr => thr.score) === leg.startingScore;
+    const winnerByScore = sum(accumulator.throws, thr => thr.bust ? 0 : thr.score) === leg.startingScore;
     return leg.winner === accumulatorName || winnerByScore;
 }
 
-export function legsWon(saygMatches, side) {
+export function legsWon(saygMatches, accumulatorName) {
     return sum(saygMatches, map => {
         const saygData = map.saygData;
         if (!saygData || !saygData.legs) {
@@ -153,23 +138,16 @@ export function legsWon(saygMatches, side) {
         }
 
         // no of legs won in this match
-        let won = 0;
-        for (let legIndex in saygData.legs) {
-            const leg = saygData.legs[legIndex];
-            const winner = isLegWinner(leg, side);
-
-            if (leg.winner === side || winner) {
-                won++;
-            }
-        }
-        return won;
+        return count(
+            Object.keys(saygData.legs).map(legKey => saygData.legs[legKey]),
+            leg => isLegWinner(leg, accumulatorName));
     })
 }
 
 export function countLegThrowsBetween(leg, accumulatorName, lowerInclusive, upperExclusive) {
     const accumulator = leg[accumulatorName] || { };
     const throws = accumulator.throws || [];
-    return count(throws, thr => thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+    return count(throws, thr => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
 }
 
 export function legTons(leg, accumulatorName) {
@@ -197,7 +175,7 @@ export function legGameShot(leg, accumulatorName) {
     return isLegWinner(leg, accumulatorName) && lastThrow ? lastThrow.score : null;
 }
 
-export function legScoreLeg(leg, accumulatorName) {
+export function legScoreLeft(leg, accumulatorName) {
     const accumulator = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
         return null;
@@ -206,4 +184,19 @@ export function legScoreLeg(leg, accumulatorName) {
     return isLegWinner(leg, accumulatorName)
         ? null
         : leg.startingScore - sum(accumulator.throws, thr => thr.bust ? 0 : thr.score);
+}
+
+function countMatchThrowsBetween(saygData, accumulatorName, lowerInclusive, upperExclusive) {
+    if (!saygData || !saygData.legs) {
+        return null;
+    }
+
+    return sum(Object.keys(saygData.legs).map(legIndex => {
+        const leg = saygData.legs[legIndex];
+        const accumulator = leg[accumulatorName];
+
+        return count(
+            accumulator.throws,
+            thr => !thr.bust && thr.score >= lowerInclusive && (!upperExclusive || thr.score < upperExclusive));
+    }));
 }

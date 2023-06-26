@@ -5,7 +5,7 @@ import {
     legTons,
     getMatchWinner,
     playerOverallAverage,
-    legScoreLeg
+    legScoreLeft
 } from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
 
@@ -36,7 +36,7 @@ export function MatchReportRow({ matchIndex, saygData, noOfThrows, noOfLegs, sho
                     })}
                     <td>{legActualDarts(leg, 'home')}</td>
                     <td>{legGameShot(leg, 'home')}</td>
-                    <td>{legScoreLeg(leg, 'home')}</td>
+                    <td>{legScoreLeft(leg, 'home')}</td>
                     <td>{legTons(leg, 'home')}</td>
 
                     {legIndex === 0 ? (<td rowSpan={noOfLegs} className="align-middle fw-bold vertical-text text-danger">{round2dp(playerOverallAverage(saygData, 'away'))}</td>) : null}
@@ -50,7 +50,7 @@ export function MatchReportRow({ matchIndex, saygData, noOfThrows, noOfLegs, sho
                     })}
                     <td>{legActualDarts(leg, 'away')}</td>
                     <td>{legGameShot(leg, 'away')}</td>
-                    <td>{legScoreLeg(leg, 'away')}</td>
+                    <td>{legScoreLeft(leg, 'away')}</td>
                     <td>{legTons(leg, 'away')}</td>
                 </tr>);
             })}
