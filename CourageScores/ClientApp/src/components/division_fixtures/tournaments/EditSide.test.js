@@ -499,6 +499,29 @@ describe('EditSide', () => {
             });
         });
 
+        it('sets side name to player name when player added to new side', async () => {
+            const side = {
+                name: undefined,
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+
+            await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                name: 'PLAYER',
+                players: [{
+                    id: player.id,
+                    name: player.name,
+                }],
+            });
+        });
+
         it('can add player and team name does not change', async () => {
             const side = {
                 name: 'OTHER NAME',

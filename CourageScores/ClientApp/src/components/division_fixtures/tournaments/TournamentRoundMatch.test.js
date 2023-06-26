@@ -247,6 +247,33 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[4].className).not.toContain('bg-winner');
             });
 
+            it('sideA outright winner shows 0 value score for sideB', async () => {
+                const match = {
+                    sideA: sideA,
+                    sideB: sideB,
+                    scoreA: 3,
+                    scoreB: 0,
+                };
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    readOnly: true,
+                    match: match,
+                    hasNextRound: false,
+                    sideMap: toMap([ sideA, sideB ]),
+                    exceptSelected: exceptSelected,
+                    matchIndex: 0,
+                    round: {
+                        matches: [ match ]
+                    },
+                    matchOptions: {},
+                }, account);
+
+                expect(reportedError).toBeNull();
+                const cells = Array.from(context.container.querySelectorAll('tr td'));
+                expect(cells.length).toEqual(5);
+                expect(cells[1].textContent).toEqual('3');
+                expect(cells[3].textContent).toEqual('0');
+            });
+
             it('sideB winner', async () => {
                 const match = {
                     sideA: sideA,
@@ -274,6 +301,33 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[1].className).not.toContain('bg-winner');
                 expect(cells[3].className).toContain('bg-winner');
                 expect(cells[4].className).toContain('bg-winner');
+            });
+
+            it('sideB outright winner shows 0 value score for sideA', async () => {
+                const match = {
+                    sideA: sideA,
+                    sideB: sideB,
+                    scoreA: 0,
+                    scoreB: 3,
+                };
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    readOnly: true,
+                    match: match,
+                    hasNextRound: false,
+                    sideMap: toMap([ sideA, sideB ]),
+                    exceptSelected: exceptSelected,
+                    matchIndex: 0,
+                    round: {
+                        matches: [ match ]
+                    },
+                    matchOptions: {},
+                }, account);
+
+                expect(reportedError).toBeNull();
+                const cells = Array.from(context.container.querySelectorAll('tr td'));
+                expect(cells.length).toEqual(5);
+                expect(cells[1].textContent).toEqual('0');
+                expect(cells[3].textContent).toEqual('3');
             });
 
             it('when no next round', async () => {
@@ -432,6 +486,59 @@ describe('TournamentRoundMatch', () => {
                 expect(cells[5].textContent).toContain('🛠');
             });
 
+            it('sideA outright winner shows 0 value score for sideB', async () => {
+                const match = {
+                    sideA: sideA,
+                    sideB: sideB,
+                    scoreA: 3,
+                    scoreB: 0,
+                };
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    readOnly: false,
+                    match: match,
+                    hasNextRound: false,
+                    sideMap: toMap([ sideA, sideB ]),
+                    exceptSelected: exceptSelected,
+                    matchIndex: 0,
+                    round: {
+                        matches: [ match ]
+                    },
+                    matchOptions: {},
+                }, account);
+
+                expect(reportedError).toBeNull();
+                const cells = Array.from(context.container.querySelectorAll('tr td'));
+                expect(cells.length).toEqual(6);
+                assertScore(cells[1], '3');
+                assertScore(cells[3], '0');
+            });
+
+            it('sideB outright winner shows 0 value score for sideA', async () => {
+                const match = {
+                    sideA: sideA,
+                    sideB: sideB,
+                    scoreA: 0,
+                    scoreB: 3,
+                };
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    readOnly: false,
+                    match: match,
+                    hasNextRound: false,
+                    sideMap: toMap([ sideA, sideB ]),
+                    exceptSelected: exceptSelected,
+                    matchIndex: 0,
+                    round: {
+                        matches: [ match ]
+                    },
+                    matchOptions: {},
+                }, account);
+
+                expect(reportedError).toBeNull();
+                const cells = Array.from(context.container.querySelectorAll('tr td'));
+                expect(cells.length).toEqual(6);
+                assertScore(cells[1], '0');
+                assertScore(cells[3], '3');
+            });
         });
     });
 

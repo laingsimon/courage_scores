@@ -210,6 +210,7 @@ export function Tournament() {
                         <span className="margin-left">
                         <ShareButton
                             text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
+                        <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
                     </span>
                     </p>)}
                 {canManageTournaments

@@ -42,6 +42,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
 
     async function sideChanged(newSide, sideIndex) {
         const newTournamentData = Object.assign({}, tournamentData);
+        newSide.name = (newSide.name || '').trim();
         newTournamentData.sides[sideIndex] = newSide;
         updateSideDataInRound(newTournamentData.round, newSide);
         setTournamentData(newTournamentData);
@@ -81,6 +82,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             onApply={async () => {
                 const newTournamentData = Object.assign({}, tournamentData);
                 newSide.id = newSide.id || createTemporaryId();
+                newSide.name = (newSide.name || '').trim();
                 newTournamentData.sides.push(newSide);
                 setTournamentData(newTournamentData);
                 setNewSide(null);
