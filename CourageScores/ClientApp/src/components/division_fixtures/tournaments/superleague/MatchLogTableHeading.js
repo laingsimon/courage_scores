@@ -19,7 +19,7 @@ export function MatchLogTableHeading({ team, noOfThrows }) {
             <th>Player</th>
             <th>Team</th>
             <th title="Game dart">GD</th>
-            {repeat(noOfThrows, i => <th key={i}>{i + 1}</th>)}
+            {repeat(noOfThrows + 1, i => <th key={i}>{i + 1}</th>)}
         </tr>
     </>);
 }

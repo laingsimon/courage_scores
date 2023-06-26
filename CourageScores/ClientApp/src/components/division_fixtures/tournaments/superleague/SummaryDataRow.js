@@ -1,32 +1,32 @@
 import {useApp} from "../../../../AppContainer";
 import {round2dp} from "../../../../helpers/rendering";
 import {
-    count100,
-    count140, count180,
-    countTons,
-    getPlayerOverallAverage
+    countMatch100,
+    countMatch140, countMatch180,
+    matchTons,
+    playerOverallAverage
 } from "../../../../helpers/superleague";
 
-export function SummaryDataRow({ matchNo, match, saygData, showWinner }) {
+export function SummaryDataRow({ matchNo, saygData, showWinner, hostScore, opponentScore, hostPlayerName, opponentPlayerName }) {
     const { onError } = useApp();
 
     try {
         return (<tr>
             <td>{matchNo}</td>
-            <td className={match.scoreA > match.scoreB && showWinner ? 'bg-winner' : ''}>{match.sideA.name}</td>
-            <td>{match.scoreA}</td>
-            <td>{countTons(saygData, 'home')}</td>
-            <td>{count100(saygData, 'home')}</td>
-            <td>{count140(saygData, 'home')}</td>
-            <td>{count180(saygData, 'home')}</td>
-            <td>{round2dp(getPlayerOverallAverage(saygData, 'home'))}</td>
-            <td className={match.scoreB > match.scoreA && showWinner ? 'bg-winner' : ''}>{match.sideB.name}</td>
-            <td>{match.scoreB}</td>
-            <td>{countTons(saygData, 'away')}</td>
-            <td>{count100(saygData, 'away')}</td>
-            <td>{count140(saygData, 'away')}</td>
-            <td>{count180(saygData, 'away')}</td>
-            <td>{round2dp(getPlayerOverallAverage(saygData, 'away'))}</td>
+            <td className={hostScore > opponentScore && showWinner ? 'bg-winner' : ''}>{hostPlayerName}</td>
+            <td>{hostScore}</td>
+            <td>{matchTons(saygData, 'home')}</td>
+            <td>{countMatch100(saygData, 'home')}</td>
+            <td>{countMatch140(saygData, 'home')}</td>
+            <td>{countMatch180(saygData, 'home')}</td>
+            <td>{round2dp(playerOverallAverage(saygData, 'home'))}</td>
+            <td className={opponentScore > hostScore && showWinner ? 'bg-winner' : ''}>{opponentPlayerName}</td>
+            <td>{opponentScore}</td>
+            <td>{matchTons(saygData, 'away')}</td>
+            <td>{countMatch100(saygData, 'away')}</td>
+            <td>{countMatch140(saygData, 'away')}</td>
+            <td>{countMatch180(saygData, 'away')}</td>
+            <td>{round2dp(playerOverallAverage(saygData, 'away'))}</td>
         </tr>);
     } catch (e) {
         onError(e);

@@ -1,60 +1,53 @@
 import {MatchLogRow} from "./MatchLogRow";
 import {MatchLogTableHeading} from "./MatchLogTableHeading";
 import {useApp} from "../../../../AppContainer";
-import {getNoOfLegs, getNoOfThrows, getPlayerOverallAverage} from "../../../../helpers/superleague";
-import {useTournament} from "../TournamentContainer";
+import {getNoOfLegs, playerOverallAverage} from "../../../../helpers/superleague";
 
-export function MatchLog({ saygDataMap, showWinner }) {
+export function MatchLog({ showWinner, noOfThrows, host, opponent, saygMatches }) {
     const { onError } = useApp();
-    const { tournamentData } = useTournament();
-    const round = tournamentData.round || {};
-    const matches = round.matches || [];
-    const noOfThrows = getNoOfThrows(matches, saygDataMap) + 1;
     let homeTeamAverage = 0;
     let awayTeamAverage = 0;
 
     try {
         return (<div className="page-break-after">
             <h2>Match log</h2>
-            {matches.map(match => {
-                const saygData = saygDataMap[match.saygId];
-
-                if (!saygData || !saygData.legs) {
-                    return (<p key={match.id} className="text-warning">
-                        ⚠ No data available for the match between {match.sideA.name} and {match.sideB.name}
+            {saygMatches.map(matchDataMap => {
+                if (!matchDataMap.saygData || !matchDataMap.saygData.legs) {
+                    return (<p key={matchDataMap.match.id} className="text-warning">
+                        ⚠ No data available for the match between {matchDataMap.match.sideA.name} and {matchDataMap.match.sideB.name}
                     </p>);
                 }
 
-                const homePlayerAverage = getPlayerOverallAverage(saygData, 'home');
-                const awayPlayerAverage = getPlayerOverallAverage(saygData, 'away');
+                const homePlayerAverage = playerOverallAverage(matchDataMap.saygData, 'home');
+                const awayPlayerAverage = playerOverallAverage(matchDataMap.saygData, 'away');
                 homeTeamAverage += homePlayerAverage;
                 awayTeamAverage += awayPlayerAverage;
 
-                return (<div key={match.id} className="page-break-after">
+                return (<div key={matchDataMap.match.id} className="page-break-after">
                     <table className="table">
                         <tbody>
-                        <MatchLogTableHeading team={tournamentData.host} noOfThrows={noOfThrows}/>
-                        {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
+                        <MatchLogTableHeading team={host} noOfThrows={noOfThrows}/>
+                        {Object.keys(matchDataMap.saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
                             accumulatorName="home"
-                            leg={saygData.legs[legIndex]}
+                            leg={matchDataMap.saygData.legs[legIndex]}
                             noOfThrows={noOfThrows}
-                            player={match.sideA.name}
+                            player={matchDataMap.match.sideA.name}
                             playerOverallAverage={homePlayerAverage}
-                            noOfLegs={getNoOfLegs(saygData)}
+                            noOfLegs={getNoOfLegs(matchDataMap.saygData)}
                             legNo={Number.parseInt(legIndex) + 1}
                             showWinner={showWinner}
                             teamAverage={homeTeamAverage} />)}
-                        <MatchLogTableHeading team={tournamentData.opponent} noOfThrows={noOfThrows}/>
-                        {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
+                        <MatchLogTableHeading team={opponent} noOfThrows={noOfThrows}/>
+                        {Object.keys(matchDataMap.saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
-                            team={tournamentData.opponent}
+                            team={opponent}
                             accumulatorName="away"
-                            leg={saygData.legs[legIndex]}
+                            leg={matchDataMap.saygData.legs[legIndex]}
                             noOfThrows={noOfThrows}
-                            player={match.sideB.name}
+                            player={matchDataMap.match.sideB.name}
                             playerOverallAverage={awayPlayerAverage}
-                            noOfLegs={getNoOfLegs(saygData)}
+                            noOfLegs={getNoOfLegs(matchDataMap.saygData)}
                             legNo={Number.parseInt(legIndex) + 1}
                             showWinner={showWinner}
                             teamAverage={awayTeamAverage} />)}

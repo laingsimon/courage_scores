@@ -3,11 +3,12 @@ import {MatchLog} from "./MatchLog";
 import {Summary} from "./Summary";
 import {MatchReport} from "./MatchReport";
 import {useEffect, useState} from "react";
-import {any} from "../../../../helpers/collections";
+import {any, max} from "../../../../helpers/collections";
 import {useDependencies} from "../../../../IocContainer";
 import {useApp} from "../../../../AppContainer";
 import {useTournament} from "../TournamentContainer";
 import {useLocation} from "react-router-dom";
+import {getNoOfLegs, maxNoOfThrowsAllMatches} from "../../../../helpers/superleague";
 
 export function SuperLeaguePrintout({ division }) {
     const { onError } = useApp();
@@ -50,12 +51,46 @@ export function SuperLeaguePrintout({ division }) {
         return (<div className="d-screen-none">Loading...</div>);
     }
 
+    const saygMatches = matches.map(m => {
+        return {
+            match: m,
+            saygData: saygDataMap[m.saygId],
+        };
+    });
+    const noOfThrows = maxNoOfThrowsAllMatches(saygMatches);
+    const noOfLegs = tournamentData.bestOf || max(saygMatches, map => getNoOfLegs(map.saygData));
+
     try {
         return (<div className="d-screen-none">
-            <MasterDraw />
-            <MatchLog saygDataMap={saygDataMap} showWinner={showWinner} />
-            <Summary saygDataMap={saygDataMap} showWinner={showWinner} />
-            <MatchReport saygDataMap={saygDataMap} division={division} showWinner={showWinner} />
+            <MasterDraw
+                matches={matches}
+                host={tournamentData.host}
+                opponent={tournamentData.opponent}
+                date={tournamentData.date}
+                gender={tournamentData.gender}
+                notes={tournamentData.notes} />
+            <MatchLog
+                host={tournamentData.host}
+                opponent={tournamentData.opponent}
+                showWinner={showWinner}
+                noOfThrows={noOfThrows}
+                noOfLegs={noOfLegs}
+                saygMatches={saygMatches} />
+            <Summary
+                showWinner={showWinner}
+                noOfLegs={noOfLegs}
+                saygMatches={saygMatches}
+                host={tournamentData.host}
+                opponent={tournamentData.opponent} />
+            <MatchReport
+                gender={tournamentData.gender}
+                host={tournamentData.host}
+                opponent={tournamentData.opponent}
+                saygMatches={saygMatches}
+                division={division}
+                showWinner={showWinner}
+                noOfThrows={noOfThrows}
+                noOfLegs={noOfLegs} />
         </div>);
     } catch (e) {
         onError(e);
