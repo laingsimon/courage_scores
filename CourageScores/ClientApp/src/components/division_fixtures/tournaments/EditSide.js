@@ -73,7 +73,7 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
         });
 
         const oldSidePlayerName = (side.players || []).sort(sortBy('name')).map(p => p.name).join(', ');
-        if (side.name === oldSidePlayerName) {
+        if ((side.name || '') === oldSidePlayerName) {
             newSide.name = newSide.players.sort(sortBy('name')).map(p => p.name).join(', ');
         }
 
