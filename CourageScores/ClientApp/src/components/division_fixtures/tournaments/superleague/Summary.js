@@ -1,11 +1,11 @@
 import {SummaryDataRow} from "./SummaryDataRow";
 import {useApp} from "../../../../AppContainer";
-import {any, sum} from "../../../../helpers/collections";
+import {any, max, sum} from "../../../../helpers/collections";
 import {
     count100,
     count140,
     count180,
-    countTons,
+    countTons, getNoOfLegs,
     getPlayerOverallAverage, sumOfAllCheckouts,
     sumOfAllScores
 } from "../../../../helpers/superleague";
@@ -17,6 +17,14 @@ export function Summary({ saygDataMap, showWinner }) {
     const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
+    const maxNumberOfLegs = max(matches, m => {
+        const saygData = saygDataMap[m.saygId];
+        if (!saygData) {
+            return 0;
+        }
+
+        return getNoOfLegs(saygData);
+    });
 
     if (!any(matches)) {
         return (<div className="page-break-after">
@@ -79,10 +87,14 @@ export function Summary({ saygDataMap, showWinner }) {
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
-                    <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'home')) / matches.length)}</td>
+                    <td title={round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'home'))) + ' / ' + maxNumberOfLegs}>
+                        {round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'home')) / maxNumberOfLegs)}
+                    </td>
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
-                    <td>{round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'away')) / matches.length)}</td>
+                    <td title={round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'away'))) + ' / ' + maxNumberOfLegs}>
+                        {round2dp(sum(saygMatches, saygData => getPlayerOverallAverage(saygData, 'away')) / maxNumberOfLegs)}
+                    </td>
                 </tr>
                 <tr>
                     <td colSpan="2"></td>
