@@ -10,6 +10,8 @@ export function MatchLog({ saygDataMap, showWinner }) {
     const round = tournamentData.round || {};
     const matches = round.matches || [];
     const noOfThrows = getNoOfThrows(matches, saygDataMap) + 1;
+    let homeTeamAverage = 0;
+    let awayTeamAverage = 0;
 
     try {
         return (<div className="page-break-after">
@@ -23,6 +25,11 @@ export function MatchLog({ saygDataMap, showWinner }) {
                     </p>);
                 }
 
+                const homePlayerAverage = getPlayerOverallAverage(saygData, 'home');
+                const awayPlayerAverage = getPlayerOverallAverage(saygData, 'away');
+                homeTeamAverage += homePlayerAverage;
+                awayTeamAverage += awayPlayerAverage;
+
                 return (<div key={match.id} className="page-break-after">
                     <table className="table">
                         <tbody>
@@ -33,10 +40,11 @@ export function MatchLog({ saygDataMap, showWinner }) {
                             leg={saygData.legs[legIndex]}
                             noOfThrows={noOfThrows}
                             player={match.sideA.name}
-                            playerOverallAverage={getPlayerOverallAverage(saygData, 'home')}
+                            playerOverallAverage={homePlayerAverage}
                             noOfLegs={getNoOfLegs(saygData)}
                             legNo={Number.parseInt(legIndex) + 1}
-                            showWinner={showWinner} />)}
+                            showWinner={showWinner}
+                            teamAverage={homeTeamAverage} />)}
                         <MatchLogTableHeading team={tournamentData.opponent} noOfThrows={noOfThrows}/>
                         {Object.keys(saygData.legs).map(legIndex => <MatchLogRow
                             key={legIndex}
@@ -45,10 +53,11 @@ export function MatchLog({ saygDataMap, showWinner }) {
                             leg={saygData.legs[legIndex]}
                             noOfThrows={noOfThrows}
                             player={match.sideB.name}
-                            playerOverallAverage={getPlayerOverallAverage(saygData, 'away')}
+                            playerOverallAverage={awayPlayerAverage}
                             noOfLegs={getNoOfLegs(saygData)}
                             legNo={Number.parseInt(legIndex) + 1}
-                            showWinner={showWinner} />)}
+                            showWinner={showWinner}
+                            teamAverage={awayTeamAverage} />)}
                         </tbody>
                     </table>
                 </div>);

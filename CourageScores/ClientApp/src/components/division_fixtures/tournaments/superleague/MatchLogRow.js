@@ -3,7 +3,7 @@ import {count, sum} from "../../../../helpers/collections";
 import {round2dp} from "../../../../helpers/rendering";
 import {useApp} from "../../../../AppContainer";
 
-export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, playerOverallAverage, noOfLegs, showWinner }) {
+export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, playerOverallAverage, noOfLegs, showWinner, teamAverage }) {
     const { onError } = useApp();
     const accumulator = leg[accumulatorName];
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
@@ -46,7 +46,9 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
                 <td rowSpan={noOfLegs}
                     className="align-middle bg-white fw-bold text-danger">{round2dp(playerOverallAverage)}</td>)}
             {legNo === 1 ? (
-                <td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">team<br />average<br />??</td>) : null}
+                <td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">
+                    {round2dp(teamAverage)}
+                </td>) : null}
             <td>{lastThrow ? lastThrow.noOfDarts : null}</td>
             {repeat(noOfThrows, i => {
                 const playerThrow = accumulator.throws[i] || {};
