@@ -47,6 +47,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             })}
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

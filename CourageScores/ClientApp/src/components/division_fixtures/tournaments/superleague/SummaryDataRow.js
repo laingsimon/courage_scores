@@ -29,6 +29,7 @@ export function SummaryDataRow({ matchNo, saygData, showWinner, hostScore, oppon
             <td>{round2dp(playerOverallAverage(saygData, 'away'))}</td>
         </tr>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

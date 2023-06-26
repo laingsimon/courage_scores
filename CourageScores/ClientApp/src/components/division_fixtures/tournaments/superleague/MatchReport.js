@@ -66,6 +66,7 @@ export function MatchReport({ division, showWinner, noOfThrows, noOfLegs, gender
             </div>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

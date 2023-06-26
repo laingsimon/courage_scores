@@ -57,6 +57,7 @@ export function MatchLog({ showWinner, noOfThrows, host, opponent, saygMatches }
             })}
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

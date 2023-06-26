@@ -38,6 +38,7 @@ export function MasterDraw({ matches, host, opponent, gender, date, notes }) {
             </div>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

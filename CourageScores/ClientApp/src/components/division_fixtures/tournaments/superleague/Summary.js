@@ -101,6 +101,7 @@ export function Summary({ showWinner, saygMatches, noOfLegs, host, opponent }) {
             </table>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

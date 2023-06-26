@@ -93,6 +93,7 @@ export function SuperLeaguePrintout({ division }) {
                 noOfLegs={noOfLegs} />
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }

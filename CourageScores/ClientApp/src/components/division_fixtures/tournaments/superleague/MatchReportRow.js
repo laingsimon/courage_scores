@@ -56,6 +56,7 @@ export function MatchReportRow({ matchIndex, saygData, noOfThrows, noOfLegs, sho
             })}
         </>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
