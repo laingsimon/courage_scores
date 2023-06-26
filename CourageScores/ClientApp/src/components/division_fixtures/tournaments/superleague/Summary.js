@@ -1,6 +1,6 @@
 import {SummaryDataRow} from "./SummaryDataRow";
 import {useApp} from "../../../../AppContainer";
-import {sum} from "../../../../helpers/collections";
+import {any, sum} from "../../../../helpers/collections";
 import {
     count100,
     count140,
@@ -17,6 +17,14 @@ export function Summary({ saygDataMap }) {
     const { tournamentData } = useTournament();
     const round = tournamentData.round || {};
     const matches = round.matches || [];
+
+    if (!any(matches)) {
+        return (<div className="page-break-after">
+            <h2>Summary</h2>
+            <p>No matches</p>
+        </div>)
+    }
+
     const saygMatches = matches.map(match => saygDataMap[match.saygId]);
 
     try {
