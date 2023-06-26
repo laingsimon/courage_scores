@@ -49,7 +49,7 @@ export function MatchReport({ saygDataMap, division }) {
     try {
         return (<div className="page-break-after">
             <h2 className="text-center">SOMERSET DARTS ORGANISATION</h2>
-            <h3 className="text-center">{division.name}</h3>
+            <h3 className="text-center">{division.name} ({tournamentData.gender})</h3>
             <table className="table">
                 <thead>
                 <tr>
