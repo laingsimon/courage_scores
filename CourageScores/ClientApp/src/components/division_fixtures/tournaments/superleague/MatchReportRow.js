@@ -11,15 +11,15 @@ import {round2dp} from "../../../../helpers/rendering";
 
 export function MatchReportRow({ matchIndex, saygData, noOfThrows, noOfLegs, showWinner, hostPlayerName, opponentPlayerName }) {
     const { onError } = useApp();
-    const winner = getMatchWinner(saygData);
 
     try {
+        if (!saygData || !saygData.legs) {
+            return null;
+        }
+
+        const winner = getMatchWinner(saygData);
         return (<>
             {repeat(noOfLegs, legIndex => {
-                if (!saygData || !saygData.legs) {
-                    return null;
-                }
-
                 const leg = saygData.legs[legIndex.toString()] || { home: { }, away: { } };
 
                 return (<tr key={matchIndex + '_' + legIndex}>
