@@ -584,13 +584,13 @@ describe('Tournament', () => {
                 expect(sides.textContent).toContain('SIDE 1');
             });
 
-            it('can open add player dialog', async () => {
+            it('super league options when single round', async () => {
                 const tournamentData = {
                     id: createTemporaryId(),
                     seasonId: season.id,
                     divisionId: division.id,
                     date: '2023-01-02T00:00:00',
-                    sides: [],
+                    sides: [ ],
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
@@ -598,6 +598,10 @@ describe('Tournament', () => {
                     round: null,
                     oneEighties: null,
                     over100Checkouts: null,
+                    host: 'HOST',
+                    opponent: 'OPPONENT',
+                    gender: 'men',
+                    singleRound: true,
                 };
                 const divisionData = {
                     fixtures: [],
@@ -612,187 +616,282 @@ describe('Tournament', () => {
                     teams: [],
                     divisions: [ division ],
                 }, false);
-
-                await doClick(findButton(context.container, 'Add player'));
-
-                const addPlayerDialog = context.container.querySelector('.modal-dialog');
-                expect(addPlayerDialog).toBeTruthy();
-                expect(addPlayerDialog.textContent).toContain('Add player');
-            });
-
-            it('can add players', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-                const team = {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    seasons: [{
-                        seasonId: tournamentData.seasonId,
-                        divisionId: divisionData.id,
-                        players: [],
-                    }],
-                };
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([ season ]),
-                    teams: toMap([team]),
-                    divisions: [ division ],
-                }, false);
-                await doClick(findButton(context.container, 'Add player'));
-                const addPlayerDialog = context.container.querySelector('.modal-dialog');
-
-                await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
-                await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
-                await doClick(findButton(addPlayerDialog, 'Add player'));
 
                 expect(reportedError).toBeNull();
-                expect(createdPlayer).not.toBeNull();
-                expect(createdPlayer.teamId).toEqual(team.id);
-                expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
-                expect(createdPlayer.playerDetails).toEqual({
-                    captain: false,
-                    newTeamId: undefined,
-                    emailAddress: undefined,
-                    name: 'NEW PLAYER',
+                const superLeagueOptions = context.container.querySelector('div[data-options-for="superleague"]');
+                expect(superLeagueOptions).toBeTruthy();
+                expect(superLeagueOptions.querySelector(' input[name="host"]')).toBeTruthy();
+                expect(superLeagueOptions.querySelector(' input[name="host"]').value).toEqual('HOST');
+                expect(superLeagueOptions.querySelector(' input[name="opponent"]')).toBeTruthy();
+                expect(superLeagueOptions.querySelector(' input[name="opponent"]').value).toEqual('OPPONENT');
+                expect(superLeagueOptions.querySelector(' .dropdown-menu .active').textContent).toEqual('Men');
+            });
+
+            it('no super league options when not single round', async () => {
+                const tournamentData = {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    date: '2023-01-02T00:00:00',
+                    sides: [ ],
+                    address: 'ADDRESS',
+                    type: 'TYPE',
+                    notes: 'NOTES',
+                    accoladesCount: true,
+                    round: null,
+                    oneEighties: null,
+                    over100Checkouts: null,
+                    host: 'HOST',
+                    opponent: 'OPPONENT',
+                    gender: 'men',
+                    singleRound: false,
+                };
+                const divisionData = {
+                    fixtures: [],
+                };
+                tournamentDataLookup = {};
+                tournamentDataLookup[tournamentData.id] = tournamentData;
+                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+
+                await renderComponent(tournamentData.id, {
+                    account,
+                    seasons: toMap([ season ]),
+                    teams: [],
+                    divisions: [ division ],
+                }, false);
+
+                expect(reportedError).toBeNull();
+                expect(context.container.querySelector('div[data-options-for="superleague"]')).toBeFalsy();
+            });
+        });
+    });
+
+    describe('interactivity', () => {
+        const account = {
+            access: {
+                manageTournaments: true,
+                managePlayers: true,
+                manageScores: true,
+            }
+        };
+
+        it('can open add player dialog', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+
+            await doClick(findButton(context.container, 'Add player'));
+
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            expect(addPlayerDialog).toBeTruthy();
+            expect(addPlayerDialog.textContent).toContain('Add player');
+        });
+
+        it('can add players', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: tournamentData.seasonId,
+                    divisionId: divisionData.id,
+                    players: [],
+                }],
+            };
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: toMap([team]),
+                divisions: [ division ],
+            }, false);
+            await doClick(findButton(context.container, 'Add player'));
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+
+            await doChange(addPlayerDialog, 'input[name="name"]', 'NEW PLAYER', context.user);
+            await doSelectOption(addPlayerDialog.querySelector('.dropdown-menu'), 'TEAM');
+            await doClick(findButton(addPlayerDialog, 'Add player'));
+
+            expect(reportedError).toBeNull();
+            expect(createdPlayer).not.toBeNull();
+            expect(createdPlayer.teamId).toEqual(team.id);
+            expect(createdPlayer.seasonId).toEqual(tournamentData.seasonId);
+            expect(createdPlayer.playerDetails).toEqual({
+                captain: false,
+                newTeamId: undefined,
+                emailAddress: undefined,
+                name: 'NEW PLAYER',
+            });
+        });
+
+        it('can cancel add player dialog', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            await doClick(findButton(context.container, 'Add player'));
+
+            const addPlayerDialog = context.container.querySelector('.modal-dialog');
+            await doClick(findButton(addPlayerDialog, 'Cancel'));
+
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
+        });
+
+        it('can update details', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+                updated: '2023-07-01T00:00:00',
+                singleRound: true,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+
+            const address = context.container.querySelector('.content-background > div:nth-child(1)');
+            await doChange(address, 'input', 'NEW ADDRESS', context.user);
+            const type = context.container.querySelector('.content-background > div:nth-child(2)');
+            await doChange(type, 'input', 'NEW TYPE', context.user);
+            const notes = context.container.querySelector('.content-background > div:nth-child(3)');
+            await doChange(notes, 'textarea', 'NEW NOTES', context.user);
+            const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(4)');
+            const superLeagueOptions = context.container.querySelector('div[data-options-for="superleague"]');
+            await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
+            await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');
+            await doSelectOption(superLeagueOptions.querySelector('.dropdown-menu'), 'Women');
+            await doChange(superLeagueOptions, 'input[name="host"]', 'HOST', context.user);
+            await doChange(superLeagueOptions, 'input[name="opponent"]', 'OPPONENT', context.user);
+
+            await assertDataChange(
+                tournamentData,
+                {
+                    address: 'NEW ADDRESS',
+                    type: 'NEW TYPE',
+                    notes: 'NEW NOTES',
+                    accoladesCount: false,
+                    divisionId: null,
+                    singleRound: true,
+                    host: 'HOST',
+                    opponent: 'OPPONENT',
+                    gender: 'women',
                 });
-            });
+        });
 
-            it('can cancel add player dialog', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([ season ]),
-                    teams: [],
-                    divisions: [ division ],
-                }, false);
-                await doClick(findButton(context.container, 'Add player'));
+        it('can save changes', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
-                const addPlayerDialog = context.container.querySelector('.modal-dialog');
-                await doClick(findButton(addPlayerDialog, 'Cancel'));
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
 
-                expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
-            });
+            await doClick(findButton(context.container, 'Save'));
 
-            it('can update details', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                    updated: '2023-07-01T00:00:00',
-                };
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([ season ]),
-                    teams: [],
-                    divisions: [ division ],
-                }, false);
-
-                const address = context.container.querySelector('.content-background > div:nth-child(1)');
-                await doChange(address, 'input', 'NEW ADDRESS', context.user);
-                const type = context.container.querySelector('.content-background > div:nth-child(2)');
-                await doChange(type, 'input', 'NEW TYPE', context.user);
-                const notes = context.container.querySelector('.content-background > div:nth-child(3)');
-                await doChange(notes, 'textarea', 'NEW NOTES', context.user);
-                const accoladesCountAndDivision = context.container.querySelector('.content-background > div:nth-child(4)');
-                await doClick(accoladesCountAndDivision, 'input[type="checkbox"]');
-                await doSelectOption(accoladesCountAndDivision.querySelector('.dropdown-menu'), 'All divisions');
-
-                await assertDataChange(
-                    tournamentData,
-                    {
-                        address: 'NEW ADDRESS',
-                        type: 'NEW TYPE',
-                        notes: 'NEW NOTES',
-                        accoladesCount: false,
-                        divisionId: null,
-                    });
-            });
-
-            it('can save changes', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
-                expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-
-                await renderComponent(tournamentData.id, {
-                    account,
-                    seasons: toMap([ season ]),
-                    teams: [],
-                    divisions: [ division ],
-                }, false);
-
-                await doClick(findButton(context.container, 'Save'));
-
-                expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
-            });
+            expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
     });
 });
