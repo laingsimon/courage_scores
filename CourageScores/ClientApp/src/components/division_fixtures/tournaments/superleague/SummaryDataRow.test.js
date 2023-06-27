@@ -91,5 +91,55 @@ describe('SummaryDataRow', () => {
                 'OPPONENT', '3', '0', '0', '0', '0', '30',
             ]);
         });
+
+        it('host winner', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(true, false),
+                    '1': createLeg(true, false),
+                }
+            };
+
+            await renderComponent({
+                matchNo: 1,
+                saygData,
+                showWinner: true,
+                hostScore: 3,
+                opponentScore: 2,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const row = context.container.querySelector('tr');
+            const cells = Array.from(row.querySelectorAll('td'));
+            expect(cells[1].className).toEqual('bg-winner');
+            expect(cells[8].className).toEqual('');
+        });
+
+        it('opponent winner', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(false, true),
+                    '1': createLeg(false, true),
+                }
+            };
+
+            await renderComponent({
+                matchNo: 1,
+                saygData,
+                showWinner: true,
+                hostScore: 2,
+                opponentScore: 3,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const row = context.container.querySelector('tr');
+            const cells = Array.from(row.querySelectorAll('td'));
+            expect(cells[1].className).toEqual('');
+            expect(cells[8].className).toEqual('bg-winner');
+        });
     });
 });
