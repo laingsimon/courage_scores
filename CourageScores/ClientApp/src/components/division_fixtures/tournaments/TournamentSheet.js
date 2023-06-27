@@ -3,8 +3,10 @@ import {repeat} from "../../../helpers/projection";
 import React from "react";
 import {getRoundNameFromMatches} from "../../../helpers/tournaments";
 import {renderDate} from "../../../helpers/rendering";
+import {useTournament} from "./TournamentContainer";
 
-export function TournamentSheet({ tournamentData }) {
+export function TournamentSheet() {
+    const { tournamentData } = useTournament();
     const sides = tournamentData.sides;
     const maxSideSize = max(sides, current => current.players ? current.players.length : 0);
 

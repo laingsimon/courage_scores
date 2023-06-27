@@ -16,6 +16,7 @@ import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
+import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 
 export function Tournament() {
     const { tournamentId } = useParams();
@@ -263,7 +264,7 @@ export function Tournament() {
                             <div className="form-check form-switch my-1">
                                 <input disabled={saving} type="checkbox" className="form-check-input" name="singleRound" id="singleRound"
                                        checked={tournamentData.singleRound} onChange={valueChanged(tournamentData, setTournamentData)} />
-                                <label className="form-check-label" htmlFor="singleRound">Single round?</label>
+                                <label className="form-check-label" htmlFor="singleRound">Single round? (aka Super league match?)</label>
                             </div>
                         </div>
                     </div>)
@@ -305,8 +306,8 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}>
                     <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
+                    {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<TournamentSheet />)}
                 </TournamentContainer>
-                <TournamentSheet tournamentData={tournamentData}/>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
                                      aria-hidden="true"></span>) : null}
