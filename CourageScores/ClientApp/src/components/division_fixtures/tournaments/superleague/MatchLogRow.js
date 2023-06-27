@@ -10,10 +10,6 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
     const winner = isLegWinner(leg, accumulatorName);
 
-    function sumOverThrows(prop) {
-        return sum(accumulator.throws, thr => thr[prop]);
-    }
-
     if (accumulator.noOfDarts === 0) {
         return null;
     }
@@ -29,10 +25,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             <td>{countLegThrowsBetween(leg, accumulatorName, 140, 180)}</td>
             <td>{countLegThrowsBetween(leg, accumulatorName, 180)}</td>
             <td>{legTons(leg, accumulatorName)}</td>
-            {playerOverallAverage === null || playerOverallAverage === undefined
-                ? (<td>{round2dp(sumOverThrows('score') / sumOverThrows('noOfDarts'))}</td>)
-                : null}
-            {playerOverallAverage === null || playerOverallAverage === undefined || legNo > 1
+            {legNo > 1
                 ? null
                 : (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">{round2dp(playerOverallAverage)}</td>)}
             {legNo === 1
