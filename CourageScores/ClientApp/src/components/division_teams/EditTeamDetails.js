@@ -47,6 +47,7 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
                 setSaveError(response);
             }
         } catch(e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSaving(false);

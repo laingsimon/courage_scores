@@ -4,15 +4,17 @@ import {valueChanged} from "../../../helpers/events";
 import {all, any, elementAt, isEmpty, toMap} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
+import {useTournament} from "./TournamentContainer";
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData }) {
+export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }) {
     const [ newMatch, setNewMatch ] = useState({});
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
+    const { tournamentData, setWarnBeforeSave } = useTournament();
     const matchOptionDefaults = {
         startingScore: 501,
-        numberOfLegs: 5,
+        numberOfLegs: tournamentData.bestOf || 5,
     };
     const [changeRoundName, setChangeRoundName] = useState(false);
 
@@ -20,6 +22,9 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         const newNewMatch = Object.assign({}, newMatch);
         newNewMatch[property] = sideMap[sideId];
         setNewMatch(newNewMatch);
+        setWarnBeforeSave(`Add the (new) match before saving, otherwise it would be lost.
+
+${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
     }
 
     function exceptSelected(side, matchIndex, property) {
@@ -28,7 +33,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         if (matchIndex === undefined) {
             allowedSideId = newMatch[property] ? newMatch[property].id : null;
         }
-        else if (round.matches) {
+        else if (round.matches && round.matches[matchIndex] && round.matches[matchIndex][property]) {
             allowedSideId = round.matches[matchIndex][property].id;
         }
 
@@ -59,6 +64,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         newRound.matches = round.matches || [];
         newRound.matches.push(newMatch);
         setNewMatch({});
+        setWarnBeforeSave(null);
 
         if (onChange) {
             await onChange(newRound);
@@ -161,7 +167,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
             </td>
         </tr>)}
         </tbody></table>
-        {hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1)
+        {allowNextRound && (hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1))
             ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
                                 depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} patchData={nestedRoundPatch} />)
             : null}

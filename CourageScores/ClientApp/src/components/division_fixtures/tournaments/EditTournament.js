@@ -42,6 +42,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
 
     async function sideChanged(newSide, sideIndex) {
         const newTournamentData = Object.assign({}, tournamentData);
+        newSide.name = (newSide.name || '').trim();
         newTournamentData.sides[sideIndex] = newSide;
         updateSideDataInRound(newTournamentData.round, newSide);
         setTournamentData(newTournamentData);
@@ -51,6 +52,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
         const newTournamentData = Object.assign({}, tournamentData);
         newTournamentData.sides = tournamentData.sides.filter(s => s.id !== side.id);
         setTournamentData(newTournamentData);
+        setNewSide(null);
     }
 
     function updateSideDataInRound(round, side) {
@@ -80,12 +82,14 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             onApply={async () => {
                 const newTournamentData = Object.assign({}, tournamentData);
                 newSide.id = newSide.id || createTemporaryId();
+                newSide.name = (newSide.name || '').trim();
                 newTournamentData.sides.push(newSide);
                 setTournamentData(newTournamentData);
                 setNewSide(null);
             }} />);
     }
 
+    const canShowResults = any((tournamentData.round || {}).matches || [], match => match.scoreA || match.scoreB) || !readOnly;
     return (<div className="d-print-none">
         <div>Playing:</div>
         <div className="my-1 d-flex flex-wrap">
@@ -100,7 +104,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             {!readOnly && !hasStarted ? (<button className="btn btn-primary" onClick={() => setNewSide({})}>➕</button>) : null}
             {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>
-        {tournamentData.sides.length >= 2 ? (<TournamentRound
+        {canShowResults ? (<TournamentRound
             round={tournamentData.round || {}}
             sides={tournamentData.sides}
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
@@ -108,8 +112,9 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             depth={1}
             onHiCheck={add180(tournamentData, setTournamentData)}
             on180={add180(tournamentData, setTournamentData)}
-            patchData={applyPatch} />) : null}
-        {tournamentData.sides.length >= 2 ? (<table className="table">
+            patchData={applyPatch}
+            allowNextRound={!tournamentData.singleRound} />) : null}
+        {canShowResults ? (<table className="table">
             <tbody>
             <tr>
                 <td colSpan="2">

@@ -144,7 +144,7 @@ describe('MatchStatistics', () => {
                 noOfDarts: 3,
                 bust: false,
             },
-            away: {},
+            away: { },
             winner: 'home',
         };
         await renderComponent({

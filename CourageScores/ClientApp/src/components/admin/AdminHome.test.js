@@ -8,25 +8,16 @@ import {renderApp,cleanUp} from "../../helpers/tests";
 describe('AdminHome', () => {
     let container;
     let context;
-    let mockDataApi;
-    let mockAccountApi;
-
-    beforeEach(() => {
-        mockDataApi = {
-            tables: async () => {
-                return [];
-            }
-        };
-
-        mockAccountApi = {
-            getAll: async () => {
-                return [];
-            }
+    const dataApi = {
+        tables: async () => {
+            return [];
         }
-
-        container = document.createElement('div');
-        document.body.appendChild(container);
-    });
+    };
+    const accountApi = {
+        getAll: async () => {
+            return [];
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -38,8 +29,8 @@ describe('AdminHome', () => {
         };
 
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
-            { account: account, appLoading: false},
+            { dataApi, accountApi },
+            { account, appLoading: false},
             (<AdminContainer>
                 <AdminHome />
             </AdminContainer>));
@@ -57,7 +48,7 @@ describe('AdminHome', () => {
             access: access
         };
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
+            { dataApi: dataApi, accountApi: accountApi },
             { appLoading: false, account: account },
             (<AdminContainer>
                 <AdminHome />
@@ -65,14 +56,14 @@ describe('AdminHome', () => {
             '/admin/:mode',
             address
         );
-        const content = context.container.querySelector(`div.light-background`);
+        const content = context.container.querySelector(`div.content-background`);
         expect(content).not.toBeNull();
         expect(content.innerHTML).toContain(expectContent);
     }
 
     it('shows loading when appLoading', async () => {
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
+            { dataApi: dataApi, accountApi: accountApi },
             { appLoading: true },
             (<AdminContainer>
                 <AdminHome />
@@ -84,7 +75,7 @@ describe('AdminHome', () => {
 
     it('shows not permitted when finished loading', async () => {
         context = await renderApp(
-            { dataApi: mockDataApi, accountApi: mockAccountApi },
+            { dataApi: dataApi, accountApi: accountApi },
             { account: null, appLoading: false},
             (<AdminContainer>
                 <AdminHome />

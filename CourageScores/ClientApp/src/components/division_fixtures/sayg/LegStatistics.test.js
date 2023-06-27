@@ -146,7 +146,7 @@ describe('LegStatistics', () => {
                         score: 100
                     }],
                 },
-                away: {},
+                away: { },
                 startingScore: 501,
                 winner: 'home',
             },
@@ -174,7 +174,7 @@ describe('LegStatistics', () => {
                         score: 100
                     }],
                 },
-                away: {},
+                away: { },
                 startingScore: 501,
             },
             home: 'HOME',
@@ -270,7 +270,7 @@ describe('LegStatistics', () => {
                         score: 100
                     }],
                 },
-                away: {},
+                away: { },
                 startingScore: 501,
                 winner: 'away',
             },

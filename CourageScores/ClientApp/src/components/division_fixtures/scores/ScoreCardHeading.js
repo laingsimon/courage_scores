@@ -16,6 +16,7 @@ export function ScoreCardHeading({ data, access, winner, submission, setSubmissi
             setSubmission(submissionToShow);
             setFixtureData(data[submissionToShow + 'Submission']);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

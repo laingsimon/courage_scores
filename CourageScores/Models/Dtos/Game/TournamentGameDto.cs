@@ -62,4 +62,29 @@ public class TournamentGameDto : AuditedDto
     /// Whether any player accolades (180s, hi-checks) should be included in the player table
     /// </summary>
     public bool AccoladesCount { get; set; }
+
+    /// <summary>
+    /// The number of legs for each match
+    /// </summary>
+    public int? BestOf { get; set; }
+
+    /// <summary>
+    /// Whether only one round should be played - e.g. for super league matches
+    /// </summary>
+    public bool SingleRound { get; set; }
+
+    /// <summary>
+    /// The host for the tournament (not necessarily the same as the address) - e.g. the home super league team
+    /// </summary>
+    public string? Host { get; set; }
+
+    /// <summary>
+    /// The invited opponent for the tournament, e.g. the away super league team
+    /// </summary>
+    public string? Opponent { get; set; }
+
+    /// <summary>
+    /// The gender of the players playing
+    /// </summary>
+    public string? Gender { get; set; }
 }

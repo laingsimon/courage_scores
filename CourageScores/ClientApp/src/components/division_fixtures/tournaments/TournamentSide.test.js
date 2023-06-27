@@ -30,7 +30,7 @@ describe('TournamentSide', () => {
         updatedData = null;
         removed = false;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     if (err.message) {
@@ -154,6 +154,42 @@ describe('TournamentSide', () => {
             expect(players.map(p => p.textContent)).toEqual([ player1.name, player2.name ]);
         });
 
+        it('no-show multi player side', async () => {
+            const player1 = {
+                id: createTemporaryId(),
+                name: 'PLAYER 1',
+                divisionId: team.divisionId,
+            };
+            const player2 = {
+                id: createTemporaryId(),
+                name: 'PLAYER 2',
+                divisionId: team.divisionId,
+            };
+            const side = {
+                id: createTemporaryId(),
+                players: [
+                    player1, player2
+                ],
+                name: 'SIDE NAME',
+                noShow: true,
+            };
+
+            await renderComponent({ season }, {
+                side: side,
+                winner: null,
+                readOnly: false,
+            }, [ team ]);
+
+            expect(reportedError).toBeNull();
+            const sideName = context.container.querySelector('strong');
+            expect(sideName.textContent).toEqual('SIDE NAME');
+            const teamName = context.container.querySelector('div[data-name="team-name"]');
+            expect(teamName).toBeFalsy();
+            const players = Array.from(context.container.querySelectorAll('ol li'));
+            expect(players.map(p => p.textContent)).toEqual([ player1.name, player2.name ]);
+            expect(players.map(p => p.className)).toEqual([ 'text-decoration-line-through', 'text-decoration-line-through' ]);
+        });
+
         it('team (with different side name) side', async () => {
             const side = {
                 id: createTemporaryId(),
@@ -180,6 +216,35 @@ describe('TournamentSide', () => {
             expect(players).toBeFalsy();
         });
 
+        it('no-show team (with different side name) side', async () => {
+            const side = {
+                id: createTemporaryId(),
+                teamId: team.id,
+                name: 'SIDE NAME',
+                noShow: true,
+            };
+
+            await renderComponent({ season }, {
+                side: side,
+                winner: null,
+                readOnly: false,
+            }, [ team ]);
+
+            expect(reportedError).toBeNull();
+            const sideName = context.container.querySelector('strong');
+            const sideLink = sideName.querySelector('a');
+            expect(sideLink.href).toEqual(`http://localhost/division/${team.divisionId}/team:${team.id}/${season.id}`);
+            expect(sideLink.textContent).toEqual('SIDE NAME');
+            expect(sideLink.parentElement.className).toContain('text-decoration-line-through');
+            const teamName = context.container.querySelector('div[data-name="team-name"]');
+            expect(teamName.className).toContain('text-decoration-line-through');
+            const teamLink = teamName.querySelector('a');
+            expect(teamLink.href).toEqual(`http://localhost/division/${team.divisionId}/team:${team.id}/${season.id}`);
+            expect(teamLink.textContent).toEqual(team.name);
+            const players = context.container.querySelector('ol');
+            expect(players).toBeFalsy();
+        });
+
         it('team (with same side name) side', async () => {
             const side = {
                 id: createTemporaryId(),
@@ -198,6 +263,32 @@ describe('TournamentSide', () => {
             const sideLink = sideName.querySelector('a');
             expect(sideLink.href).toEqual(`http://localhost/division/${team.divisionId}/team:${team.id}/${season.id}`);
             expect(sideLink.textContent).toEqual(team.name);
+            const teamName = context.container.querySelector('div[data-name="team-name"]');
+            expect(teamName).toBeFalsy();
+            const players = context.container.querySelector('ol');
+            expect(players).toBeFalsy();
+        });
+
+        it('no-show team (with same side name) side', async () => {
+            const side = {
+                id: createTemporaryId(),
+                teamId: team.id,
+                name: team.name,
+                noShow: true,
+            };
+
+            await renderComponent({ season }, {
+                side: side,
+                winner: null,
+                readOnly: false,
+            }, [ team ]);
+
+            expect(reportedError).toBeNull();
+            const sideName = context.container.querySelector('strong');
+            const sideLink = sideName.querySelector('a');
+            expect(sideLink.href).toEqual(`http://localhost/division/${team.divisionId}/team:${team.id}/${season.id}`);
+            expect(sideLink.textContent).toEqual(team.name);
+            expect(sideLink.parentElement.className).toContain('text-decoration-line-through');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');

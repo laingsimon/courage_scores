@@ -3,7 +3,9 @@
 import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
+import {renderDate} from "../../../helpers/rendering";
 import {TournamentSheet} from "./TournamentSheet";
+import {TournamentContainer} from "./TournamentContainer";
 
 describe('TournamentSheet', () => {
     let context;
@@ -13,7 +15,7 @@ describe('TournamentSheet', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(sides) {
+    async function renderComponent(tournamentData) {
         reportedError = null;
         context = await renderApp(
             { },
@@ -29,10 +31,12 @@ describe('TournamentSheet', () => {
                     }
                 },
             },
-            (<TournamentSheet sides={sides} />));
+            (<TournamentContainer tournamentData={tournamentData}>
+                <TournamentSheet />
+            </TournamentContainer>));
     }
 
-    function createSide(noOfPlayers, name) {
+    function createSide(noOfPlayers, name, noShow) {
         return {
             id: createTemporaryId(),
             players: repeat(noOfPlayers).map(index => {
@@ -42,6 +46,7 @@ describe('TournamentSheet', () => {
                 };
             }),
             name,
+            noShow
         };
     }
 
@@ -89,17 +94,31 @@ describe('TournamentSheet', () => {
     }
 
     describe('renders', () => {
+        it('date, address and notes', async () => {
+            await renderComponent({
+                sides: [ createSide(1, 'SIDE 1') ],
+                date: '2023-06-01',
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+            });
+
+            expect(reportedError).toBeNull();
+            const heading = context.container.querySelector('div.border-1');
+            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES`);
+        });
+
         it('given 2 sides with single players', async () => {
             const sides = [
                 createSide(1, 'SIDE 1'),
                 createSide(1, 'SIDE 2'),
             ];
 
-            await renderComponent(sides);
+            await renderComponent( { sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final'], true);
-            assertSideNames([ 'PLAYER 1', 'PLAYER 1' ]);
+            assertSideNames(repeat(2, _ => 'PLAYER 1'));
             assertMatches(1);
             assertByes([ false ]);
         });
@@ -110,11 +129,11 @@ describe('TournamentSheet', () => {
                 createSide(2, 'SIDE 2'),
             ];
 
-            await renderComponent(sides);
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Final']);
-            assertSideNames([ 'PLAYER 1, PLAYER 2', 'PLAYER 1, PLAYER 2' ]);
+            assertSideNames(repeat(2, _ => 'PLAYER 1, PLAYER 2'));
             assertMatches(2);
             assertByes([ false ]);
         });
@@ -126,13 +145,29 @@ describe('TournamentSheet', () => {
                 createSide(3, 'SIDE 3'),
             ];
 
-            await renderComponent(sides);
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
-            assertSideNames(['PLAYER 1, PLAYER 2, PLAYER 3', 'PLAYER 1, PLAYER 2, PLAYER 3', 'PLAYER 1, PLAYER 2, PLAYER 3']);
+            assertSideNames(repeat(3, _ => 'PLAYER 1, PLAYER 2, PLAYER 3'));
             assertMatches(3);
             assertByes([ true, false ]);
+        });
+
+        it('given 3 sides and 1 no-show', async () => {
+            const sides = [
+                createSide(3, 'SIDE 1'),
+                createSide(3, 'SIDE 2'),
+                createSide(3, 'SIDE 3', true),
+            ];
+
+            await renderComponent({ sides });
+
+            expect(reportedError).toBeNull();
+            assertRoundNames(['Final']);
+            assertSideNames(repeat(3, _ => 'PLAYER 1, PLAYER 2, PLAYER 3'));
+            assertMatches(3);
+            assertByes([ false ]);
         });
 
         it('given 4 sides', async () => {
@@ -143,11 +178,11 @@ describe('TournamentSheet', () => {
                 createSide(4, 'SIDE 4'),
             ];
 
-            await renderComponent(sides);
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Semi-Final', 'Final']);
-            assertSideNames([ 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4' ]);
+            assertSideNames(repeat(4, _ => 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4'));
             assertMatches(4);
             assertByes([ false, false ]);
         });
@@ -161,11 +196,11 @@ describe('TournamentSheet', () => {
                 createSide(5, 'SIDE 5'),
             ];
 
-            await renderComponent(sides);
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Quarter-Final', 'Semi-Final', 'Final']);
-            assertSideNames([ 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5', 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5' ]);
+            assertSideNames(repeat(5, _=> 'PLAYER 1, PLAYER 2, PLAYER 3, PLAYER 4, PLAYER 5'));
             assertMatches(5);
             assertByes([ true, true, false ]);
         });
@@ -183,11 +218,11 @@ describe('TournamentSheet', () => {
                 createSide(1, 'SIDE 9'),
             ];
 
-            await renderComponent(sides);
+            await renderComponent({ sides });
 
             expect(reportedError).toBeNull();
             assertRoundNames(['Round: 1', 'Quarter-Final', 'Semi-Final', 'Final'], true);
-            assertSideNames([ 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1', 'PLAYER 1' ]);
+            assertSideNames(repeat(9, _ => 'PLAYER 1'));
             assertMatches(1);
             assertByes([ true, true, true, false ]);
         });

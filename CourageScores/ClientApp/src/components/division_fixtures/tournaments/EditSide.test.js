@@ -42,7 +42,7 @@ describe('EditSide', () => {
         applied = false;
         deleted = false;
         context = await renderApp(
-            {},
+            { },
             {
                 onError: (err) => {
                     if (err.message) {
@@ -168,6 +168,39 @@ describe('EditSide', () => {
             expect(context.container.querySelector('.dropdown-menu .active')).not.toBeNull();
             expect(context.container.querySelector('.dropdown-menu .active').textContent).toEqual('TEAM');
             expect(context.container.querySelector('ol.list-group')).toBeNull();
+        });
+
+        it('side which did not show', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                teamId: team.id,
+                noShow: true,
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team ]);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('input[name="noShow"]').checked).toEqual(true);
+        });
+
+        it('side which did show', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                teamId: team.id,
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team ]);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('input[name="noShow"]').checked).toEqual(false);
         });
 
         it('when team is not registered to season', async () => {
@@ -386,6 +419,25 @@ describe('EditSide', () => {
             });
         });
 
+        it('can change noShow', async () => {
+            const side = {
+                name: 'SIDE NAME'
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+
+            await doClick(context.container, 'input[name="noShow"]');
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                name: 'SIDE NAME',
+                noShow: true,
+            });
+        });
+
         it('can change team id', async () => {
             const side = {
             };
@@ -427,6 +479,29 @@ describe('EditSide', () => {
         it('can add player', async () => {
             const side = {
                 name: '',
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+            const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+
+            await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                name: 'PLAYER',
+                players: [{
+                    id: player.id,
+                    name: player.name,
+                }],
+            });
+        });
+
+        it('sets side name to player name when player added to new side', async () => {
+            const side = {
+                name: undefined,
             };
             await renderComponent({
                 tournamentData,

@@ -4,7 +4,7 @@ import {useApp} from "../AppContainer";
 export function PageError({ error }){
     const [ showStack, setShowStack ] = useState(false);
     const [ errorReported, setErrorReported ] = useState(false);
-    const { clearError, reportClientSideException, invalidCacheAndTryAgain } = useApp();
+    const { clearError, reportClientSideException, invalidateCacheAndTryAgain } = useApp();
 
     useEffect(() => {
         // noinspection JSIgnoredPromiseFromCall
@@ -23,7 +23,7 @@ export function PageError({ error }){
         await reportClientSideException(error);
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3 className="text-danger">An error occurred</h3>
         <p>
             <span className="fw-bold">{error.message || error}</span>
@@ -34,6 +34,6 @@ export function PageError({ error }){
         </p>
         {showStack && error.stack ? (<pre>{error.stack}</pre>) : null}
         <button className="btn btn-warning margin-right" onClick={clearError}>Clear error</button>
-        <button className="btn btn-danger margin-right" onClick={invalidCacheAndTryAgain}>Refresh data</button>
+        <button className="btn btn-danger margin-right" onClick={invalidateCacheAndTryAgain}>Refresh data</button>
     </div>);
 }

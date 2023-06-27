@@ -43,6 +43,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 await onChange(newRound);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -57,6 +58,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 await onChange(newRound);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
@@ -81,44 +83,9 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         </Dialog>);
     }
 
-    function renderSaygDialog(match) {
+    function renderSaygDialog() {
         const home = match.sideA.name;
         const away = match.sideB.name;
-
-        async function recordHiCheck(sideName, score) {
-            if (readOnly) {
-                return;
-            }
-
-            const side = sideName === 'home' ? match.sideA : match.sideB;
-            if (side.players.length === 1) {
-                if (onHiCheck) {
-                    await onHiCheck(side.players[0], score);
-                }
-
-                await patchData({
-                    additionalOver100Checkout: Object.assign({}, side.players[0], { notes: score.toString() }),
-                });
-            }
-        }
-
-        async function record180(sideName) {
-            if (readOnly) {
-                return;
-            }
-
-            const side = sideName === 'home' ? match.sideA : match.sideB;
-            if (side.players.length === 1) {
-                if (on180) {
-                    await on180(side.players[0]);
-                }
-
-                await patchData({
-                    additional180: side.players[0],
-                });
-            }
-        }
-
         return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(null)} className="text-start">
             <SaygLoadingContainer
                 id={match.saygId}
@@ -145,6 +112,40 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             && (match.saygId || (account || { access: {} }).access.recordScoresAsYouGo);
     }
 
+    async function recordHiCheck(sideName, score) {
+        if (readOnly) {
+            return;
+        }
+
+        const side = sideName === 'home' ? match.sideA : match.sideB;
+        if (side.players.length === 1) {
+            if (onHiCheck) {
+                await onHiCheck(side.players[0], score);
+            }
+
+            await patchData({
+                additionalOver100Checkout: Object.assign({}, side.players[0], { notes: score.toString() }),
+            });
+        }
+    }
+
+    async function record180(sideName) {
+        if (readOnly) {
+            return;
+        }
+
+        const side = sideName === 'home' ? match.sideA : match.sideB;
+        if (side.players.length === 1) {
+            if (on180) {
+                await on180(side.players[0]);
+            }
+
+            await patchData({
+                additional180: side.players[0],
+            });
+        }
+    }
+
     async function openSaygDialog() {
         if (match.saygId) {
             setSaygOpen(true);
@@ -169,7 +170,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
 
         // save any existing data, to ensure any pending changes aren't lost.
-        await saveTournament();
+        await saveTournament(true); // prevent a loading display; which will corrupt the state of this component instance
 
         try {
             setCreatingSayg(true);
@@ -182,6 +183,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setCreatingSayg(false);
@@ -210,18 +212,18 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             {saveError
                 ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not create sayg session"/>)
                 : null}
-            {saygOpen ? renderSaygDialog(match) : null}
+            {saygOpen ? renderSaygDialog() : null}
         </td>
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
-                ? scoreA || ''
-                : (<input type="number" value={scoreARecorded ? scoreA || '' : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')} />)}
+                ? scoreA || (scoreARecorded ? '0' : '')
+                : (<input type="number" value={scoreARecorded ? (match.scoreA || '0') : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')} />)}
         </td>
         <td className="narrow-column">vs</td>
         <td className={hasBothScores && scoreB > scoreA ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
-                ? scoreB || ''
-                : (<input type="number" value={scoreBRecorded ? scoreB || '' : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')} />)}
+                ? scoreB || (scoreBRecorded ? '0' : '')
+                : (<input type="number" value={scoreBRecorded ? (match.scoreB || '0') : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')} />)}
         </td>
         <td className={hasBothScores && scoreB > scoreA ? 'bg-winner' : ''}>
             {readOnly || hasNextRound

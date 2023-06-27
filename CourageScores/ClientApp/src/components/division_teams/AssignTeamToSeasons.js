@@ -49,6 +49,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
             errors.forEach(res => console.error(res));
             window.alert(`There were ${errors.length} error/s when applying these changes; some changes may not have been saved`);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSaving(false);

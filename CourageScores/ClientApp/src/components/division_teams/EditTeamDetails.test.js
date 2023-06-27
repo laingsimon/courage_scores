@@ -42,9 +42,7 @@ describe('EditTeamDetails', () => {
         change = null;
         canceled = false;
         context = await renderApp(
-            {
-                teamApi
-            },
+            { teamApi },
             {
                 divisions,
                 onError: (err) => {
@@ -371,6 +369,40 @@ describe('EditTeamDetails', () => {
                 seasonId: team.seasonId,
                 newDivisionId: division.id
             });
+        });
+
+        it('shows an error if unable to save', async () => {
+            const division = {
+                id: createTemporaryId(),
+                name: 'DIVISION',
+            };
+            const otherDivision = {
+                id: createTemporaryId(),
+                name: 'OTHER DIVISION',
+            };
+            const team = {
+                name: 'TEAM',
+                address: 'ADDRESS',
+                divisionId: division.id,
+                seasonId: createTemporaryId(),
+            }
+            await renderComponent({
+                team: {
+                    name: team.name,
+                    address: team.address,
+                    newDivisionId: division.id,
+                },
+                divisionId: team.divisionId,
+                seasonId: team.seasonId,
+            }, [ division, otherDivision ]);
+            apiResponse = { success: false };
+
+            await doClick(findButton(context.container, 'Add team'));
+
+            expect(saved).toEqual(false);
+            expect(updatedTeam).not.toBeNull();
+            expect(change).toEqual(null);
+            expect(context.container.textContent).toContain('Could not save team details');
         });
 
         it('can cancel', async () => {

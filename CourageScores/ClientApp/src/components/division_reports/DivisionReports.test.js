@@ -12,7 +12,7 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let requestedReports;
     let returnReport;
-    const mockReportApi = {
+    const reportApi = {
         getReport: async (req) => {
             requestedReports.push(req);
             return returnReport;
@@ -28,7 +28,7 @@ describe('DivisionTeams', () => {
         divisionReloaded = false;
         requestedReports = [];
         context = await renderApp(
-            { reportApi: mockReportApi },
+            { reportApi },
             {
                 account: account,
                 onError: (err) => {
@@ -74,7 +74,7 @@ describe('DivisionTeams', () => {
             await renderComponent(account, divisionData);
 
             expect(reportedError).toBeNull();
-            const input = context.container.querySelectorAll('.light-background input');
+            const input = context.container.querySelectorAll('.content-background input');
             expect(input).toBeTruthy();
         });
 
@@ -159,6 +159,39 @@ describe('DivisionTeams', () => {
             expect(activeItem.textContent).toEqual('Report 1');
         });
 
+        it('selects no report if no reports returned on subsequent fetch', async () => {
+            const report1 = {
+                name: 'report-1',
+                description: 'Report 1',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const report2 = {
+                name: 'report-2',
+                description: 'Report 2',
+                valueHeading: 'Value',
+                rows: []
+            };
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [ report1, report2 ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+            await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Report 2');
+
+            returnReport = {
+                reports: [ ],
+                messages: [ ]
+            }
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            const activeItem = context.container.querySelector('.dropdown-menu .dropdown-item.active');
+            expect(activeItem).toBeNull();
+        });
+
         it('renders messages', async () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
@@ -176,7 +209,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
-            const messages = context.container.querySelectorAll('.light-background ul > li');
+            const messages = context.container.querySelectorAll('.content-background ul > li');
             expect(Array.from(messages).map(li => li.textContent)).toEqual([ 'A message' ]);
         });
 
@@ -202,7 +235,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
-            const reportOptions = context.container.querySelectorAll('.light-background div.btn-group > div[role="menu"] > button');
+            const reportOptions = context.container.querySelectorAll('.content-background div.btn-group > div[role="menu"] > button');
             expect(Array.from(reportOptions).map(li => li.textContent)).toEqual([ 'A report description', 'Another report description' ]);
         });
 
@@ -231,7 +264,7 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
-            const reportTable = context.container.querySelector('.light-background table');
+            const reportTable = context.container.querySelector('.content-background table');
             expect(reportTable).toBeTruthy();
             const reportHeadings = reportTable.querySelectorAll('thead tr th');
             expect(Array.from(reportHeadings).map(li => li.textContent)).toEqual([ '', 'Player', 'Team', 'A value heading' ]);

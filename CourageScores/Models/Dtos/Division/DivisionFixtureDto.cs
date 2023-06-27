@@ -14,4 +14,5 @@ public class DivisionFixtureDto
     public bool Postponed { get; set; }
     public bool IsKnockout { get; set; }
     public bool AccoladesCount { get; set; }
+    public List<OtherDivisionFixtureDto> FixturesUsingAddress { get; set; } = new();
 }

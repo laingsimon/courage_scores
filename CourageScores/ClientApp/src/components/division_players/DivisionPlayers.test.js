@@ -11,7 +11,7 @@ describe('DivisionPlayers', () => {
     let reportedError;
     let divisionReloaded = false;
     let account;
-    const mockPlayerApi = {
+    const playerApi = {
 
     };
 
@@ -23,7 +23,7 @@ describe('DivisionPlayers', () => {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            { playerApi: mockPlayerApi },
+            { playerApi },
             {
                 account: account,
                 onError: (err) => {
@@ -108,11 +108,11 @@ describe('DivisionPlayers', () => {
                 { hideVenue: undefined, hideHeading: undefined });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
-            const heading = context.container.querySelector('.light-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
         });
@@ -130,7 +130,7 @@ describe('DivisionPlayers', () => {
                 { hideVenue: undefined, hideHeading: undefined });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(1);
             assertPlayer(playersRows[0], [ '11', 'A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
         });
@@ -144,9 +144,9 @@ describe('DivisionPlayers', () => {
                 { hideVenue: undefined, hideHeading: true });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            const heading = context.container.querySelector('.light-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeFalsy();
         });
 
@@ -159,11 +159,11 @@ describe('DivisionPlayers', () => {
                 { hideVenue: true, hideHeading: undefined });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '🤴 A captain', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', 'A player', '16', '17', '18', '12', '13', '14', '15' ]);
-            const heading = context.container.querySelector('.light-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
         });
     });
@@ -182,11 +182,11 @@ describe('DivisionPlayers', () => {
                 { hideVenue: undefined, hideHeading: undefined });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', 'A team', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
-            const heading = context.container.querySelector('.light-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toEqual('Only players that have played a singles match will appear here');
         });
@@ -204,7 +204,7 @@ describe('DivisionPlayers', () => {
                 { hideVenue: undefined, hideHeading: undefined });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', 'A team', '0', '0', '0', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', 'A team', '16', '17', '18', '12', '13', '14', '15' ]);
@@ -219,9 +219,9 @@ describe('DivisionPlayers', () => {
                 { hideVenue: undefined, hideHeading: true });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
-            const heading = context.container.querySelector('.light-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeFalsy();
         });
 
@@ -234,11 +234,11 @@ describe('DivisionPlayers', () => {
                 { hideVenue: true, hideHeading: undefined });
 
             expect(reportedError).toBeNull();
-            const playersRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const playersRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(playersRows.length).toEqual(2);
             assertPlayer(playersRows[0], [ '1', '✏️🗑️🤴 A captain', '6', '7', '8', '2', '3', '4', '5' ]);
             assertPlayer(playersRows[1], [ '11', '✏️🗑️A player', '16', '17', '18', '12', '13', '14', '15' ]);
-            const heading = context.container.querySelector('.light-background > div > p');
+            const heading = context.container.querySelector('.content-background > div > p');
             expect(heading).toBeTruthy();
         });
     });

@@ -27,6 +27,7 @@ export function UserAdmin() {
             }
         }
         catch (exc) {
+            /* istanbul ignore next */
             onError(exc);
         } finally {
             setLoading(false);
@@ -65,11 +66,6 @@ export function UserAdmin() {
         /* istanbul ignore next */
         if (saving) {
             /* istanbul ignore next */
-            return;
-        }
-
-        if (!emailAddress) {
-            window.alert('You must enter an email address');
             return;
         }
 
@@ -127,7 +123,7 @@ export function UserAdmin() {
         return { value: acc.emailAddress, text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`, className: className };
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>Manage access</h3>
         <div className="input-group mb-3 d-flex">
             <div className="input-group-prepend">

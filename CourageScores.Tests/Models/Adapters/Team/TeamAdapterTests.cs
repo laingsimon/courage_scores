@@ -2,6 +2,7 @@
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos.Team;
 using NUnit.Framework;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Tests.Models.Adapters.Team;
 
@@ -17,7 +18,7 @@ public class TeamAdapterTests
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesSuccessfully()
     {
-        var model = new CourageScores.Models.Cosmos.Team.Team
+        var model = new CosmosTeam
         {
             Address = "address",
             Id = Guid.NewGuid(),

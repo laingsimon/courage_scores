@@ -57,23 +57,6 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         return any(matching) ? matching[0].date : null;
     }
 
-    function getLegsOnOtherDates(t) {
-        return fixtures.flatMap(fixtureDate => {
-            if (fixtureDate.date === date) {
-                return [];
-            }
-
-            const equivalentFixtures = fixtureDate.fixtures
-                .filter(f => !f.isKnockout)
-                .filter(f => (f.homeTeam.id === t.id && f.awayTeam && f.awayTeam.id === fixture.homeTeam.id)
-                    || (f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id));
-
-            return any(equivalentFixtures)
-                ? [fixtureDate.date]
-                : [];
-        });
-    }
-
     function isSameAddress(t) {
         const otherTeamHasSameAddress = fixture.homeTeam.address === t.address;
         return otherTeamHasSameAddress && t.address !== 'Unknown';
@@ -92,12 +75,6 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         let sameFixtureDifferentDate = isSelectedInSameFixtureOnAnotherDate(t);
         if (sameFixtureDifferentDate) {
             return `Already playing same leg on ${renderDate(sameFixtureDifferentDate)}`;
-        }
-
-        let legsOnOtherDates = getLegsOnOtherDates(t);
-        if (legsOnOtherDates.length >= 2) {
-            // NOTE: it doesn't seem possible to reach this code, to do so would require Already playing same leg to not have returned
-            return `Already playing both legs ${legsOnOtherDates.map(renderDate).join(' & ')}`;
         }
 
         return null;
@@ -149,6 +126,14 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                    ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</Link>)
                    : null
                : 'Bye');
+        }
+
+        if (any(fixture.fixturesUsingAddress)) {
+            return (<div>
+                {fixture.fixturesUsingAddress.map((otherFixture, index) => {
+                    return (<div key={index}>🚫 <Link to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</Link></div>)
+                })}
+            </div>);
         }
 
         if (fixture.isKnockout) {
@@ -214,19 +199,6 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             }
 
             setSaving(true);
-            if (awayTeamId === '') {
-                // NOTE: This branch is unreachable as the save button is never rendered when there is no awayTeamId
-
-                const result = await gameApi.delete(fixture.id);
-
-                if (result.success) {
-                    await doReloadDivision();
-                } else {
-                    setSaveError(result);
-                }
-                return;
-            }
-
             const result = await gameApi.update({
                 id: undefined,
                 address: fixture.homeTeam.address,
@@ -271,6 +243,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 setDeleting(false);
             }
         } catch (exc) {
+            /* istanbul ignore next */
             onError(exc);
         }
     }

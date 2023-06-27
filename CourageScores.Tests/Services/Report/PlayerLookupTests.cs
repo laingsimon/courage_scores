@@ -1,6 +1,7 @@
 ﻿using CourageScores.Models.Cosmos.Game;
 using CourageScores.Services.Report;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Report;
 
@@ -10,7 +11,7 @@ public class PlayerLookupTests
     [Test]
     public void VisitGame_GivenGameWithNoMatches_AddsNoPlayers()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game();
+        var game = new CosmosGame();
         var lookup = new PlayerLookup();
 
         Assert.That(() => lookup.VisitGame(game), Throws.Nothing);
@@ -20,7 +21,7 @@ public class PlayerLookupTests
     public async Task VisitGame_GivenPostponedFixture_AddsNoPlayers()
     {
         var playerId = Guid.NewGuid();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Postponed = true,
             Home = new GameTeam(),
@@ -52,7 +53,7 @@ public class PlayerLookupTests
         var awayTeam = new GameTeam { Name = "Away team", Id = Guid.NewGuid() };
         var homePlayerId = Guid.NewGuid();
         var awayPlayerId = Guid.NewGuid();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Home = homeTeam,
             Away = awayTeam,
@@ -121,7 +122,7 @@ public class PlayerLookupTests
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
         };
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Home = new GameTeam
             {
@@ -166,7 +167,7 @@ public class PlayerLookupTests
             Id = Guid.NewGuid(),
             Name = "AWAY PLAYER",
         };
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Home = new GameTeam
             {

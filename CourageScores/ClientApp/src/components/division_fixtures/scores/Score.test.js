@@ -9,13 +9,13 @@ import {Score} from "./Score";
 describe('Score', () => {
     let context;
     let reportedError;
-    let fixtureDataMap = {};
+    let fixtureDataMap = { };
     let updatedFixtures;
     let createdPlayer;
     let teamsReloaded;
     let newPlayerApiResult;
     let saveGameApiResult;
-    const mockGameApi = {
+    const gameApi = {
         get: async (fixtureId) => {
             if (any(Object.keys(fixtureDataMap), key => key === fixtureId)) {
                 return fixtureDataMap[fixtureId];
@@ -32,7 +32,7 @@ describe('Score', () => {
             }
         }
     };
-    const mockPlayerApi = {
+    const playerApi = {
         create: (seasonId, teamId, playerDetails) => {
             const newPlayer = Object.assign({ id: createTemporaryId() }, playerDetails);
             createdPlayer = { seasonId, teamId, playerDetails, newPlayer };
@@ -45,7 +45,7 @@ describe('Score', () => {
     const originalConsoleLog = console.log;
 
     beforeEach(() => {
-        console.log = () => {};
+        console.log = () => { };
     });
 
     afterEach(() => {
@@ -55,16 +55,13 @@ describe('Score', () => {
 
     async function renderComponent(id, appData, account) {
         reportedError = null;
-        updatedFixtures = {};
+        updatedFixtures = { };
         createdPlayer = null;
         teamsReloaded = false;
         newPlayerApiResult = null;
         saveGameApiResult = null;
         context = await renderApp(
-            {
-                gameApi: mockGameApi,
-                playerApi: mockPlayerApi,
-            },
+            { gameApi,  playerApi },
             {
                 account,
                 onError: (err) => {
@@ -78,7 +75,7 @@ describe('Score', () => {
                     }
                 },
                 error: null,
-                reportClientSideException: () => {},
+                reportClientSideException: () => { },
                 reloadTeams: () => {
                     teamsReloaded = true;
                 },
@@ -268,7 +265,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -285,7 +282,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -350,7 +347,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -380,7 +377,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const container = context.container.querySelector('.light-background');
+            const container = context.container.querySelector('.content-background');
             expect(container).toBeTruthy();
             const tableBody = container.querySelector('table tbody');
             expect(tableBody).toBeTruthy();
@@ -491,14 +488,14 @@ describe('Score', () => {
             homeTeam.seasons[0].players.push(newHomeTeamPlayer);
             const firstSinglesMatch = fixtureDataMap[fixtureId].matches[0];
             firstSinglesMatch.homePlayers[0] = Object.assign(
-                {},
+                { },
                 newHomeTeamPlayer,
                 { name: 'Old name' });
             firstSinglesMatch.sut = true;
 
             await renderComponent(fixtureId, appData, account);
 
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             expect(playerSelection.querySelector('.dropdown-toggle').textContent).toEqual('New name (nee Old name)');
@@ -513,9 +510,9 @@ describe('Score', () => {
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({ }, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.map(ts => {
-                    const newTeamSeason = Object.assign({}, ts);
+                    const newTeamSeason = Object.assign({ }, ts);
 
                     if (ts.seasonId === createdPlayer.seasonId) {
                         newTeamSeason.players = newTeamSeason.players.concat([
@@ -533,7 +530,7 @@ describe('Score', () => {
             };
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -555,7 +552,7 @@ describe('Score', () => {
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({ }, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.filter(_ => false); // return no team seasons
 
                 return {
@@ -565,7 +562,7 @@ describe('Score', () => {
             };
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -587,9 +584,9 @@ describe('Score', () => {
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
             newPlayerApiResult = (createdPlayer) => {
-                const existingTeam = Object.assign({}, appData.teams[createdPlayer.teamId]);
+                const existingTeam = Object.assign({ }, appData.teams[createdPlayer.teamId]);
                 existingTeam.seasons = existingTeam.seasons.map(ts => {
-                    return Object.assign({}, ts);
+                    return Object.assign({ }, ts);
                 });
 
                 return {
@@ -599,7 +596,7 @@ describe('Score', () => {
             };
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -622,7 +619,7 @@ describe('Score', () => {
             await renderComponent(fixtureId, appData, account);
 
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -638,7 +635,7 @@ describe('Score', () => {
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
             expect(reportedError).toBeNull();
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
             await doSelectOption(playerSelection.querySelector('.dropdown-menu'), 'Add a player...');
@@ -686,7 +683,7 @@ describe('Score', () => {
             homeTeam.seasons[0].players.push(anotherHomePlayer);
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(1)');
 
@@ -703,7 +700,7 @@ describe('Score', () => {
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);
-            const firstSinglesRow = context.container.querySelector('.light-background table tbody tr:nth-child(2)');
+            const firstSinglesRow = context.container.querySelector('.content-background table tbody tr:nth-child(2)');
             expect(firstSinglesRow).toBeTruthy();
             const playerSelection = firstSinglesRow.querySelector('td:nth-child(5)');
 

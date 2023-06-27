@@ -101,7 +101,7 @@ describe('DivisionTeams', () => {
                 { ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
-            const teamsRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const teamsRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(teamsRows.length).toEqual(2);
             assertTeam(teamsRows[0], [ 'A team 1', '1', '2', '3', '4', '5', '6' ]);
             assertTeam(teamsRows[1], [ 'A team 2', '1', '2', '3', '4', '5', '6' ]);
@@ -115,7 +115,7 @@ describe('DivisionTeams', () => {
                 { ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
-            const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
+            const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
             expect(addTeamButton).toBeFalsy();
         });
     });
@@ -133,7 +133,7 @@ describe('DivisionTeams', () => {
                 { ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
-            const teamsRows = context.container.querySelectorAll('.light-background table.table tbody tr');
+            const teamsRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(teamsRows.length).toEqual(2);
             assertTeam(teamsRows[0], [ '✏️➕A team 1', '1', '2', '3', '4', '5', '6' ]);
             assertTeam(teamsRows[1], [ '✏️➕A team 2', '1', '2', '3', '4', '5', '6' ]);
@@ -147,7 +147,7 @@ describe('DivisionTeams', () => {
                 { ...divisionData, onReloadDivision: onReloadDivision });
 
             expect(reportedError).toBeNull();
-            const addTeamButton = context.container.querySelector('.light-background > div > div .btn-primary');
+            const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
             expect(addTeamButton).toBeTruthy();
         });
 

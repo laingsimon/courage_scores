@@ -77,7 +77,7 @@ export function ImportData() {
         }
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>Import data</h3>
         <div className="input-group mb-3">
             <input disabled={importing} type="file" className="form-control" name="file" />

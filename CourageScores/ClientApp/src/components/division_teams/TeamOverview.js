@@ -62,13 +62,13 @@ export function TeamOverview({ teamId }) {
     }
 
     if (!team) {
-        return <div className="light-background p-3">
+        return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
             <Link className="btn btn-primary" to={`/division/${divisionId}/teams/${season.id}`}>Teams</Link>
         </div>
     }
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>{team.name} <ShareButton text={`Courage League: ${team.name}`} /></h3>
         <p>Address: {team.address}</p>
 

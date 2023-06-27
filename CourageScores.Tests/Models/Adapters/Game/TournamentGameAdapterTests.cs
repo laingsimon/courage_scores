@@ -40,6 +40,11 @@ public class TournamentGameAdapterTests
             Over100Checkouts = { HiCheckPlayer },
             Notes = "notes",
             AccoladesCount = true,
+            BestOf = 7,
+            SingleRound = true,
+            Host = "host",
+            Opponent = "opponent",
+            Gender = "gender",
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -55,6 +60,11 @@ public class TournamentGameAdapterTests
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayerDto }));
         Assert.That(result.Notes, Is.EqualTo(model.Notes));
         Assert.That(result.AccoladesCount, Is.True);
+        Assert.That(result.BestOf, Is.EqualTo(model.BestOf));
+        Assert.That(result.SingleRound, Is.True);
+        Assert.That(result.Host, Is.EqualTo(model.Host));
+        Assert.That(result.Opponent, Is.EqualTo(model.Opponent));
+        Assert.That(result.Gender, Is.EqualTo(model.Gender));
     }
 
     [Test]
@@ -83,6 +93,11 @@ public class TournamentGameAdapterTests
             Over100Checkouts = { HiCheckPlayerDto },
             Notes = "notes",
             AccoladesCount = true,
+            BestOf = 7,
+            SingleRound = true,
+            Host = "host",
+            Opponent = "opponent",
+            Gender = "gender",
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -98,6 +113,11 @@ public class TournamentGameAdapterTests
         Assert.That(result.Over100Checkouts, Is.EqualTo(new[] { HiCheckPlayer }));
         Assert.That(result.Notes, Is.EqualTo(dto.Notes));
         Assert.That(result.AccoladesCount, Is.True);
+        Assert.That(result.BestOf, Is.EqualTo(dto.BestOf));
+        Assert.That(result.SingleRound, Is.True);
+        Assert.That(result.Host, Is.EqualTo(dto.Host));
+        Assert.That(result.Opponent, Is.EqualTo(dto.Opponent));
+        Assert.That(result.Gender, Is.EqualTo(dto.Gender));
     }
 
     [Test]
@@ -141,17 +161,38 @@ public class TournamentGameAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenDtoWithoutHostOpponentOrGender_SetsPropertiesCorrectly()
+    {
+        var dto = new TournamentGameDto
+        {
+            Address = "address",
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.Host, Is.Null);
+        Assert.That(result.Opponent, Is.Null);
+        Assert.That(result.Gender, Is.Null);
+    }
+
+    [Test]
     public async Task Adapt_GivenDto_TrimsWhitespace()
     {
         var dto = new TournamentGameDto
         {
             Address = "address   ",
             Notes = "notes   ",
+            Host = "host  ",
+            Opponent = "opponent   ",
+            Gender = "gender   ",
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Address, Is.EqualTo("address"));
         Assert.That(result.Notes, Is.EqualTo("notes"));
+        Assert.That(result.Host, Is.EqualTo("host"));
+        Assert.That(result.Opponent, Is.EqualTo("opponent"));
+        Assert.That(result.Gender, Is.EqualTo("gender"));
     }
 }

@@ -6,6 +6,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Season;
 using Moq;
 using NUnit.Framework;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Tests.Services.Command;
 
@@ -16,7 +17,7 @@ public class AddSeasonToTeamCommandTests
     private Mock<ISeasonService> _seasonService = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private AddSeasonToTeamCommand _command = null!;
-    private CourageScores.Models.Cosmos.Team.Team _team = null!;
+    private CosmosTeam _team = null!;
     private SeasonDto _season = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
 
@@ -27,7 +28,7 @@ public class AddSeasonToTeamCommandTests
         _auditingHelper = new Mock<IAuditingHelper>();
         _seasonService = new Mock<ISeasonService>();
         _command = new AddSeasonToTeamCommand(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
-        _team = new CourageScores.Models.Cosmos.Team.Team
+        _team = new CosmosTeam
         {
             Id = Guid.NewGuid(),
             Name = "TEAM",

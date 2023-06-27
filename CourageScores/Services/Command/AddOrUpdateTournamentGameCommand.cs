@@ -67,13 +67,18 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             Success = true,
         };
 
-        game.Address = update.Address;
+        game.Address = update.Address?.Trim() ?? "";
         game.Date = update.Date;
         game.SeasonId = latestSeason.Id;
-        game.Notes = update.Notes;
-        game.Type = update.Type;
+        game.Notes = update.Notes?.Trim();
+        game.Type = update.Type?.Trim();
+        game.BestOf = update.BestOf;
+        game.SingleRound = update.SingleRound;
         game.AccoladesCount = update.AccoladesCount;
         game.DivisionId = update.DivisionId;
+        game.Host = update.Host?.Trim();
+        game.Opponent = update.Opponent?.Trim();
+        game.Gender = update.Gender?.Trim();
         game.Sides = await update.Sides.SelectAsync(s => _tournamentSideAdapter.Adapt(s, token)).ToList();
         game.Round = update.Round != null ? await _tournamentRoundAdapter.Adapt(update.Round, token) : null;
         game.OneEighties = await update.OneEighties.SelectAsync(p => _tournamentPlayerAdapter.Adapt(p, token)).ToList();

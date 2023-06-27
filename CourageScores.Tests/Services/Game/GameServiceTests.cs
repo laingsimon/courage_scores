@@ -5,6 +5,7 @@ using CourageScores.Services.Game;
 using CourageScores.Services.Identity;
 using Moq;
 using NUnit.Framework;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Game;
 
@@ -14,7 +15,7 @@ public class GameServiceTests
     private readonly CancellationToken _token = new CancellationToken();
     private GameDto? _game;
     private Mock<IUserService> _userService = null!;
-    private Mock<IGenericDataService<CourageScores.Models.Cosmos.Game.Game,GameDto>> _underlyingService = null!;
+    private Mock<IGenericDataService<CosmosGame,GameDto>> _underlyingService = null!;
     private UserDto? _user;
     private GameService _service = null!;
 
@@ -22,7 +23,7 @@ public class GameServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _underlyingService = new Mock<IGenericDataService<CourageScores.Models.Cosmos.Game.Game, GameDto>>();
+        _underlyingService = new Mock<IGenericDataService<CosmosGame, GameDto>>();
         _service = new GameService(_underlyingService.Object, _userService.Object);
         _game = new GameDto
         {

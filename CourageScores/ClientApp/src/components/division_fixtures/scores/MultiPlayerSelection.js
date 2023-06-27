@@ -28,6 +28,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
             setPlayer(null);
             setNotes('');
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

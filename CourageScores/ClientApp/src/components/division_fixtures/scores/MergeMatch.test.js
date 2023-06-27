@@ -59,7 +59,7 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match', async () => {
-            const match = {};
+            const match = { };
             await renderComponent({
                 readOnly: false,
                 matches: [ match ],

@@ -45,7 +45,8 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
             const currentLegIndex = (homeScore || 0) + (awayScore || 0);
             const currentLeg = data.legs[currentLegIndex];
 
-            if (!currentLeg.isLastLeg) {
+            const unbeatable = newHomeScore > (numberOfLegs / 2) || newAwayScore > (numberOfLegs > 2);
+            if (!currentLeg.isLastLeg && !unbeatable) {
                 const newData = addLeg(currentLegIndex + 1);
                 const newLeg = newData.legs[currentLegIndex + 1];
 
@@ -64,6 +65,7 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
 
             await onLegComplete(newHomeScore, newAwayScore);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

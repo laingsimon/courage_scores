@@ -23,6 +23,7 @@ export function MergeHiCheckAnd180s({ fixtureData, data, setFixtureData }) {
 
             setFixtureData(newFixtureData);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }

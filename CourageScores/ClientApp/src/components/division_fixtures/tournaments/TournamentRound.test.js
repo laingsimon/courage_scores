@@ -13,6 +13,7 @@ describe('TournamentRound', () => {
     let hiCheck;
     let updatedRound;
     let updatedTournamentData;
+    let warnBeforeSave;
     const tournamentApi = {
         addSayg: async () => {
             return {
@@ -55,6 +56,7 @@ describe('TournamentRound', () => {
         hiCheck = null;
         saygApiData = {};
         updatedRound = null;
+        warnBeforeSave = null;
         context = await renderApp(
             { tournamentApi, saygApi },
             {
@@ -70,7 +72,7 @@ describe('TournamentRound', () => {
                 },
                 account
             },
-            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}}>
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}} setWarnBeforeSave={msg => warnBeforeSave = msg}>
                 <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} />
             </TournamentContainer>));
     }
@@ -199,6 +201,7 @@ describe('TournamentRound', () => {
 
             it('next round (when all sides have a score)', async () => {
                 await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    allowNextRound: true,
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -244,6 +247,52 @@ describe('TournamentRound', () => {
                 assertMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
                 assertMatch(roundTables[1], 1, [ 'SIDE 2', '', 'vs', '', 'SIDE 3' ]);
             });
+        });
+
+        it('no next round (when single round)', async () => {
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                round: {
+                    matches: [ {
+                        id: createTemporaryId(),
+                        scoreA: 1,
+                        scoreB: 2,
+                        sideA: side1,
+                        sideB: side2,
+                    }, {
+                        id: createTemporaryId(),
+                        scoreA: 2,
+                        scoreB: 1,
+                        sideA: side3,
+                        sideB: side4,
+                    } ],
+                    matchOptions: [ {
+                        startingScore: 601,
+                        numberOfLegs: 7,
+                    } ],
+                    nextRound: {
+                        matches: [ {
+                            id: createTemporaryId(),
+                            scoreA: null,
+                            scoreB: null,
+                            sideA: side2,
+                            sideB: side3,
+                        } ],
+                        matchOptions: [ {
+                            startingScore: 601,
+                            numberOfLegs: 7,
+                        } ],
+                        nextRound: null,
+                    },
+                },
+                sides: [ side1, side2, side3, side4 ],
+                readOnly,
+                depth: 1,
+            });
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
+            const roundTables = context.container.querySelectorAll('table');
+            expect(roundTables.length).toEqual(1);
         });
 
         it('cannot change round name', async () => {
@@ -375,6 +424,7 @@ describe('TournamentRound', () => {
 
             it('next round (when all sides have a score)', async () => {
                 await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    allowNextRound: true,
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -420,6 +470,52 @@ describe('TournamentRound', () => {
                 assertEditableMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
                 expect(context.container.querySelector('div > table+div > strong').textContent).toEqual('Final');
                 assertEditableMatch(roundTables[1], 1, [ 'SIDE 2', '', 'vs', '', 'SIDE 3', '🗑🛠' ]);
+            });
+
+            it('no next round (when single round)', async () => {
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    round: {
+                        matches: [ {
+                            id: createTemporaryId(),
+                            scoreA: 1,
+                            scoreB: 2,
+                            sideA: side1,
+                            sideB: side2,
+                        }, {
+                            id: createTemporaryId(),
+                            scoreA: 2,
+                            scoreB: 1,
+                            sideA: side3,
+                            sideB: side4,
+                        } ],
+                        matchOptions: [ {
+                            startingScore: 601,
+                            numberOfLegs: 7,
+                        } ],
+                        nextRound: {
+                            matches: [ {
+                                id: createTemporaryId(),
+                                scoreA: null,
+                                scoreB: null,
+                                sideA: side2,
+                                sideB: side3,
+                            } ],
+                            matchOptions: [ {
+                                startingScore: 601,
+                                numberOfLegs: 7,
+                            } ],
+                            nextRound: null,
+                        },
+                    },
+                    sides: [ side1, side2, side3, side4 ],
+                    readOnly,
+                    depth: 1,
+                });
+
+                expect(reportedError).toBeNull();
+                expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
+                const roundTables = context.container.querySelectorAll('table');
+                expect(roundTables.length).toEqual(1);
             });
         });
 
@@ -561,6 +657,34 @@ describe('TournamentRound', () => {
                     matchOptions: [],
                     nextRound: null,
                 });
+            });
+
+            it('defaults match options to bestOf', async () => {
+                const match = {
+                    id: createTemporaryId(),
+                    scoreA: null,
+                    scoreB: null,
+                    sideA: side1,
+                    sideB: side2,
+                };
+                await renderComponent({ tournamentData: { id: createTemporaryId(), bestOf: 9 } }, {
+                    round: {
+                        matches: [ match ],
+                        matchOptions: [ ],
+                        nextRound: null,
+                    },
+                    sides: [ side1, side2, side3, side4 ],
+                    readOnly,
+                    depth: 1,
+                });
+                expect(reportedError).toBeNull();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+
+                await doClick(findButton(matchRow, '🛠'));
+
+                const matchOptionsDialog = context.container.querySelector('.modal-dialog');
+                expect(matchOptionsDialog).toBeTruthy();
+                expect(matchOptionsDialog.querySelector('input[name="numberOfLegs"]').value).toEqual('9');
             });
 
             it('can change match options', async () => {
@@ -806,8 +930,32 @@ describe('TournamentRound', () => {
                 }]);
             });
 
+            it('sets up warning if side not added and tournament saved', async () => {
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    round: {
+                        matches: [ ],
+                        matchOptions: [ ],
+                        nextRound: null,
+                    },
+                    sides: [ side1, side2, side3, side4 ],
+                    readOnly,
+                    depth: 1,
+                });
+                expect(reportedError).toBeNull();
+                const matchRow = context.container.querySelector('table tr:nth-child(1)');
+
+                await doSelectOption(matchRow.querySelector('td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+                await doSelectOption(matchRow.querySelector('td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+
+                expect(updatedRound).toBeNull();
+                expect(warnBeforeSave).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
+                    '\n' +
+                    'Semi-Final: SIDE 1 vs SIDE 2');
+            });
+
             it('can set sides in sub-round', async () => {
                 await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    allowNextRound: true,
                     round: {
                         matches: [ {
                             id: createTemporaryId(),
@@ -865,6 +1013,7 @@ describe('TournamentRound', () => {
 
             it('does not show match selection after final', async () => {
                 await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    allowNextRound: true,
                     round: {
                         matches: [ {
                             id: createTemporaryId(),

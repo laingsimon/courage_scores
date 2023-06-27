@@ -72,7 +72,7 @@ public class DivisionDataGameVisitorTests
     public void VisitGame_GivenPostponedGame_IgnoresData()
     {
         var divisionData = new DivisionData();
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Postponed = true,
             Id = Guid.NewGuid(),
@@ -102,7 +102,7 @@ public class DivisionDataGameVisitorTests
         var divisionData = new DivisionData();
         var homePlayer = new GamePlayer { Id = HomePlayer.Id };
         var awayPlayer = new GamePlayer { Id = AwayPlayer.Id };
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Postponed = false,
             Id = Guid.NewGuid(),

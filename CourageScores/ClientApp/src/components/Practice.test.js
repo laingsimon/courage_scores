@@ -36,10 +36,10 @@ describe('Practice', () => {
     });
 
     beforeEach(() => {
-        saygData = {};
+        saygData = { };
     });
 
-    async function renderComponent(account, hash) {
+    async function renderComponent(account, hash, appLoading) {
         apiResultFunc = (data) => { return {
             result: data,
             success: true,
@@ -52,7 +52,7 @@ describe('Practice', () => {
             { saygApi },
             {
                 account: account,
-                appLoading: false,
+                appLoading: appLoading || false,
                 onError: (err) => {
                     reportedError = {
                         message: err.message,
@@ -89,6 +89,14 @@ describe('Practice', () => {
 
     describe('logged out', () => {
         const account = null;
+
+        it('renders when app is loading', async () => {
+            await renderComponent(account, '', true);
+
+            expect(reportedError).toBeNull();
+            assertNoDataError();
+            expect(context.container.querySelector('.loading-background')).not.toBeNull();
+        });
 
         it('renders given no saved data', async () => {
             await renderComponent(account, '');

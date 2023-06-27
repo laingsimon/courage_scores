@@ -114,6 +114,11 @@ public class AddOrUpdateTournamentGameCommandTests
         _update.Date = new DateTime(2001, 02, 03);
         _update.Notes = "notes";
         _update.AccoladesCount = true;
+        _update.BestOf = 7;
+        _update.SingleRound = true;
+        _update.Host = "host";
+        _update.Opponent = "opponent";
+        _update.Gender = "gender";
         _update.OneEighties.Add(oneEightyPlayerDto);
         _update.Over100Checkouts.Add(over100CheckoutPlayerDto);
         _update.DivisionId = Guid.NewGuid();
@@ -132,6 +137,44 @@ public class AddOrUpdateTournamentGameCommandTests
         Assert.That(result.Result!.Over100Checkouts, Is.EquivalentTo(new[] { over100CheckoutPlayer }));
         Assert.That(result.Result!.AccoladesCount, Is.True);
         Assert.That(result.Result!.DivisionId, Is.EqualTo(_update.DivisionId));
+        Assert.That(result.Result!.BestOf, Is.EqualTo(7));
+        Assert.That(result.Result!.SingleRound, Is.True);
+        Assert.That(result.Result!.Host, Is.EqualTo("host"));
+        Assert.That(result.Result!.Opponent, Is.EqualTo("opponent"));
+        Assert.That(result.Result!.Gender, Is.EqualTo("gender"));
+    }
+
+    [Test]
+    public async Task ApplyUpdates_WhenGivenTrailingWhitespace_TrimsWhitespace()
+    {
+        var oneEightyPlayerDto = new EditTournamentGameDto.RecordTournamentScoresPlayerDto { Id = Guid.NewGuid(), Name = "player" };
+        var over100CheckoutPlayerDto = new EditTournamentGameDto.TournamentOver100CheckoutDto { Id = Guid.NewGuid(), Name = "player", Notes = "120" };
+        var oneEightyPlayer = new TournamentPlayer { Id = oneEightyPlayerDto.Id };
+        var over100CheckoutPlayer = new NotableTournamentPlayer { Id = over100CheckoutPlayerDto.Id };
+        _update.Address = "new address   ";
+        _update.Date = new DateTime(2001, 02, 03);
+        _update.Notes = "notes   ";
+        _update.Host = "host   ";
+        _update.Opponent = "opponent   ";
+        _update.Gender = "gender   ";
+        _update.Type = "type   ";
+        _update.OneEighties.Add(oneEightyPlayerDto);
+        _update.Over100Checkouts.Add(over100CheckoutPlayerDto);
+        _update.DivisionId = Guid.NewGuid();
+        _seasonService.Setup(s => s.GetForDate(_update.Date, _token)).ReturnsAsync(_season);
+        _tournamentPlayerAdapter.Setup(a => a.Adapt(oneEightyPlayerDto, _token)).ReturnsAsync(oneEightyPlayer);
+        _notableTournamentPlayerAdapter.Setup(a => a.Adapt(over100CheckoutPlayerDto, _token)).ReturnsAsync(over100CheckoutPlayer);
+
+        var result = await _command.WithData(_update).ApplyUpdate(_game, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Result, Is.Not.Null);
+        Assert.That(result.Result!.Address, Is.EqualTo("new address"));
+        Assert.That(result.Result!.Notes, Is.EqualTo("notes"));
+        Assert.That(result.Result!.Host, Is.EqualTo("host"));
+        Assert.That(result.Result!.Opponent, Is.EqualTo("opponent"));
+        Assert.That(result.Result!.Gender, Is.EqualTo("gender"));
+        Assert.That(result.Result!.Type, Is.EqualTo("type"));
     }
 
     [Test]

@@ -27,6 +27,7 @@ export function Errors() {
             const result = await errorApi.getRecent(since);
             setErrors(result);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading(false);
@@ -34,7 +35,7 @@ export function Errors() {
     }
 
     let errorToShow = null;
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>View recent errors</h3>
         <div className="input-group mb-3">
             <div className="input-group-prepend">

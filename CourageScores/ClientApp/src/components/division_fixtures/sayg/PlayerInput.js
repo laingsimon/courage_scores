@@ -105,6 +105,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
             setScore('');
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setSavingInput(false);

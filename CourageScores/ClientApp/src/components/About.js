@@ -4,7 +4,7 @@ import {renderDate} from "../helpers/rendering";
 export function About() {
     const { build } = useApp();
 
-    return (<div className="light-background p-3">
+    return (<div className="content-background p-3">
         <h3>About</h3>
         <p>
             Built for, and in consultation with, the <a href="http://www.thecourageleague.co.uk">Courage League</a> to modernise and streamline the method of recording and presenting fixtures and results.
@@ -37,7 +37,7 @@ export function About() {
                 <th>Version</th>
                 <td>
                     {build.version
-                        ? (<a href={`https://github.com/laingsimon/courage_scores/commit/${build.version}`}>{build.version ? build.version.substring(0, 8) : build.version}</a>)
+                        ? (<a href={`https://github.com/laingsimon/courage_scores/commit/${build.version}`}>{build.version.substring(0, 8)}</a>)
                         : <span>Unknown</span>}
                 </td>
             </tr>

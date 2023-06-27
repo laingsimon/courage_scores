@@ -19,4 +19,9 @@ public class TournamentSideDto : AuditedDto
     /// The players in this side, e.g. the 2 players from the same team for doubles
     /// </summary>
     public List<TournamentPlayerDto> Players { get; set; } = new();
+
+    /// <summary>
+    /// Did this team show on the night
+    /// </summary>
+    public bool NoShow { get; set; }
 }

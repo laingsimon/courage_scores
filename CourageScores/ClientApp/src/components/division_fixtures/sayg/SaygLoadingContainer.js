@@ -51,6 +51,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
             sayg.lastUpdated = sayg.updated;
             setSayg(sayg);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         } finally {
             setLoading(false);
@@ -73,6 +74,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
                 setSaveError(response);
             }
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
 
@@ -115,7 +117,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
         return (<SaygContext.Provider value={saygProps}>
             {saveError ? (
                 <ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save data"/>) : null}
-            {sayg ? (<div className="p-3 light-background">
+            {sayg ? (<div className="p-3 content-background">
                 {children}
                 <ScoreAsYouGo
                     startingScore={Number.parseInt(sayg.startingScore)}

@@ -8,10 +8,15 @@ public class EditTournamentGameDto : IIntegrityCheckDto
     public DateTime? LastUpdated { get; set; }
 
     public Guid Id { get; set; }
-    public string Address { get; set; } = null!;
+    public string? Address { get; set; }
     public DateTime Date { get; set; }
     public string? Notes { get; set; }
     public string? Type { get; set; }
+    public int? BestOf { get; set; }
+    public bool SingleRound { get; set; }
+    public string? Host { get; set; }
+    public string? Opponent { get; set; }
+    public string? Gender { get; set; }
     public List<TournamentSideDto> Sides { get; set; } = new();
     public TournamentRoundDto? Round { get; set; }
     public bool AccoladesCount { get; set; }

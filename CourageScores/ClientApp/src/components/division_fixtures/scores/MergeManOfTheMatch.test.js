@@ -50,7 +50,7 @@ describe('MergeManOfTheMatch', () => {
                 },
                 away: { },
                 homeSubmission: {
-                    home: {},
+                    home: { },
                     away: {},
                 },
                 awaySubmission: {

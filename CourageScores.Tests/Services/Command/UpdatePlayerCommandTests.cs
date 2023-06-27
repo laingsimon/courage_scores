@@ -15,6 +15,7 @@ using Moq;
 using NUnit.Framework;
 
 using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
+using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
 
 namespace CourageScores.Tests.Services.Command;
 
@@ -25,7 +26,7 @@ public class UpdatePlayerCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>> _gameRepository = null!;
+    private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<AddPlayerToTeamSeasonCommand> _addPlayerToSeasonCommand = null!;
@@ -44,7 +45,7 @@ public class UpdatePlayerCommandTests
         _userService = new Mock<IUserService>();
         _seasonService = new Mock<ISeasonService>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _gameRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Game.Game>>();
+        _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
         _addPlayerToSeasonCommand = new Mock<AddPlayerToTeamSeasonCommand>(
@@ -200,7 +201,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenLastUpdatedIsMissing_ReturnsUnsuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
         _update.NewTeamId = _team.Id;
         _update.LastUpdated = null;
 
@@ -216,7 +217,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenLastUpdatedIsDifferent_ReturnsUnsuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
         _update.NewTeamId = _team.Id;
         _teamPlayer.Updated = new DateTime(2002, 03, 04);
 
@@ -232,7 +233,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenPlayerNotRegisteredToTeamSeason_UpdatesPlayerDetailsAndReturnsSuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
 
         var result = await _command
             .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
@@ -250,7 +251,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenDifferentTeamIdProvidedAndPlayerCouldNotBeAdded_ReturnsUnsuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
         var otherTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
@@ -277,7 +278,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenDifferentTeamIdProvided_UpdatesPlayerTeam()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
         var otherTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
@@ -306,7 +307,7 @@ public class UpdatePlayerCommandTests
     public async Task ApplyUpdate_WhenSameTeamIdProvided_ReturnsSuccessful()
     {
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
-            .Returns(TestUtilities.AsyncEnumerable<CourageScores.Models.Cosmos.Game.Game>());
+            .Returns(TestUtilities.AsyncEnumerable<CosmosGame>());
         _update.NewTeamId = _team.Id;
 
         var result = await _command
@@ -321,7 +322,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenDifferentTeamIdProvidedAndPlayerPlayingInGames_ReturnsUnsuccessful()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             Matches =
@@ -348,7 +349,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAGame_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             Matches =
@@ -379,7 +380,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenUpdatingPlayerInAllGames_UpdatesPlayerDetailsInGivenGame()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             Matches =
@@ -409,7 +410,7 @@ public class UpdatePlayerCommandTests
     [Test]
     public async Task ApplyUpdate_WhenPlayerNotFoundInAGame_ReturnsSuccessful()
     {
-        var game = new CourageScores.Models.Cosmos.Game.Game
+        var game = new CosmosGame
         {
             Id = Guid.NewGuid(),
             Matches =

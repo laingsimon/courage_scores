@@ -11,6 +11,7 @@ using CourageScores.Services.Team;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Tests.Services.Command;
 
@@ -29,7 +30,7 @@ public class AddOrUpdateTeamCommandTests
     private readonly Guid _seasonId = Guid.NewGuid();
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
     private List<GameDto> _games = null!;
-    private CourageScores.Models.Cosmos.Team.Team _team = null!;
+    private CosmosTeam _team = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private ActionResult<TeamSeason> _addSeasonToTeamActionResult = null!;
     private TeamSeason _addedTeamSeason = null!;
@@ -37,7 +38,7 @@ public class AddOrUpdateTeamCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _team = new CourageScores.Models.Cosmos.Team.Team
+        _team = new CosmosTeam
         {
             Id = Guid.NewGuid(),
             Name = "old name",
@@ -80,7 +81,7 @@ public class AddOrUpdateTeamCommandTests
             .Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand
             .Setup(c => c.ApplyUpdate(_team, _token))
-            .ReturnsAsync((CourageScores.Models.Cosmos.Team.Team team, CancellationToken _) =>
+            .ReturnsAsync((CosmosTeam team, CancellationToken _) =>
             {
                  team.Seasons.Add(_addedTeamSeason);
                  return _addSeasonToTeamActionResult;
