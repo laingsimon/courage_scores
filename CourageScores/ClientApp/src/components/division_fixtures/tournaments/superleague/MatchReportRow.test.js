@@ -151,7 +151,7 @@ describe('MatchReportRow', () => {
         it('second leg', async () => {
             const saygData = {
                 legs: {
-                    '0': createLeg(true, false),
+                    '0': createLeg(false, true),
                     '1': createLeg(false, true),
                 }
             };
