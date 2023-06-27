@@ -105,7 +105,7 @@ describe('MatchReportRow', () => {
                     '1': createLeg(),
                     '2': createLeg(),
                 }
-            }
+            };
 
             await renderComponent({
                 matchIndex: 1,
@@ -127,7 +127,7 @@ describe('MatchReportRow', () => {
                 legs: {
                     '0': createLeg(true, false),
                 }
-            }
+            };
 
             await renderComponent({
                 matchIndex: 0,
@@ -154,7 +154,7 @@ describe('MatchReportRow', () => {
                     '0': createLeg(true, false),
                     '1': createLeg(false, true),
                 }
-            }
+            };
 
             await renderComponent({
                 matchIndex: 0,
@@ -172,6 +172,88 @@ describe('MatchReportRow', () => {
                 '2', '90', '90', '90', '90', '15', '', '51', '0',
                 '90', '100', '110', '120', '15', '81', '', '3',
             ]);
+        });
+
+        it('ignores bust scores', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(true, false),
+                }
+            };
+            saygData.legs['0'].home.throws.forEach((thr, index) => thr.bust = index % 2 === 0);
+            saygData.legs['0'].away.throws.forEach((thr, index) => thr.bust = index % 2 !== 0);
+
+            await renderComponent({
+                matchIndex: 0,
+                saygData,
+                noOfThrows: 3,
+                noOfLegs: 2,
+                showWinner: false,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const rows = Array.from(context.container.querySelectorAll('tr'));
+            expect(getRowContent(rows[0])).toEqual([
+                'M1',
+                '14.67', 'HOST', '1', '0', '100', '0', '120', '15', '', '281', '2',
+                '18', 'OPPONENT', '90', '0', '90', '0', '15', '', '231', '0',
+            ]);
+        });
+
+        it('highlights 100+ scores', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(true, false),
+                }
+            };
+            saygData.legs['0'].home.throws.forEach((thr, index) => thr.score = 100 + (index * 10));
+            saygData.legs['0'].away.throws.forEach(thr => thr.score = 99);
+
+            await renderComponent({
+                matchIndex: 0,
+                saygData,
+                noOfThrows: 3,
+                noOfLegs: 2,
+                showWinner: false,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const rows = Array.from(context.container.querySelectorAll('tr'));
+            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 4 && index < 8);
+            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 14 && index < 18);
+            expect(hostScoreCells.map(td => td.className.trim())).toEqual([ 'text-danger', 'text-danger', 'text-danger', 'text-danger' ]);
+            expect(opponentScoreCells.map(td => td.className.trim())).toEqual([ '', '', '', '' ]);
+        });
+
+        it('highlights 180 scores', async () => {
+            const saygData = {
+                legs: {
+                    '0': createLeg(true, false),
+                }
+            };
+            saygData.legs['0'].home.throws.forEach(thr => thr.score = 180);
+            saygData.legs['0'].away.throws.forEach(thr => thr.score = 179);
+
+            await renderComponent({
+                matchIndex: 0,
+                saygData,
+                noOfThrows: 3,
+                noOfLegs: 2,
+                showWinner: false,
+                hostPlayerName: 'HOST',
+                opponentPlayerName: 'OPPONENT',
+            });
+
+            expect(reportedError).toBeNull();
+            const rows = Array.from(context.container.querySelectorAll('tr'));
+            const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 4 && index < 8);
+            const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 14 && index < 18);
+            expect(hostScoreCells.map(td => td.className.trim())).toEqual([ 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold' ]);
+            expect(opponentScoreCells.map(td => td.className.trim())).toEqual([ 'text-danger', 'text-danger', 'text-danger', 'text-danger' ]);
         });
     });
 });
