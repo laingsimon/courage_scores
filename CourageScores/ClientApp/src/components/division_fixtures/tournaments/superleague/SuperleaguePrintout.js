@@ -38,13 +38,17 @@ export function SuperLeaguePrintout({ division }) {
             return;
         }
 
-        setLoading(true);
-        const firstId = ids[0];
-        const result = await saygApi.get(firstId);
-        const newSaygDataMap = Object.assign({}, saygDataMap);
-        newSaygDataMap[firstId] = result;
-        setSaygDataMap(newSaygDataMap);
-        setLoading(false);
+        try {
+            setLoading(true);
+            const firstId = ids[0];
+            const result = await saygApi.get(firstId);
+            const newSaygDataMap = Object.assign({}, saygDataMap);
+            newSaygDataMap[firstId] = result;
+            setSaygDataMap(newSaygDataMap);
+            setLoading(false);
+        } catch (e) {
+            onError(e);
+        }
     }
 
     if (any(unloadedIds) || loading) {
