@@ -177,7 +177,7 @@ describe('MatchLog', () => {
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
-            expect(rowContent(rows[0], 'th')).toEqual([ 'HOST', 'Dart average' ]);
+            expect(rowContent(rows[0], 'th')).toEqual([ 'HOST', 'Dart average', '', '' ]);
             expect(rowContent(rows[1], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
             expect(rowContent(rows[2], 'td')).toEqual([ 'A', '1', '3', '', '401', '1', '0', '0', '1', '33.33', '33.33', '3', '100', '', '', '', '', '' ]);
             expect(rowContent(rows[3], 'td')).toEqual([      '2', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '' ]);
@@ -213,7 +213,7 @@ describe('MatchLog', () => {
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
-            expect(rowContent(rows[5], 'th')).toEqual([ 'OPPONENT', 'Dart average' ]);
+            expect(rowContent(rows[5], 'th')).toEqual([ 'OPPONENT', 'Dart average', '', '' ]);
             expect(rowContent(rows[6], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
             expect(rowContent(rows[7], 'td')).toEqual([ 'B', '1', '3', '', '451', '0', '0', '0', '0', '16.67', '16.67', '3', '50', '', '', '', '', '' ]);
             expect(rowContent(rows[8], 'td')).toEqual([      '2', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '' ]);
@@ -261,7 +261,7 @@ describe('MatchLog', () => {
             const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
-            expect(rowContent(secondMatchRows[0], 'th')).toEqual([ 'HOST', 'Dart average' ]);
+            expect(rowContent(secondMatchRows[0], 'th')).toEqual([ 'HOST', 'Dart average', '', '' ]);
             expect(rowContent(secondMatchRows[1], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
             const firstMatchPlayerAverage = 16.67;
             const secondMatchPlayerAverage = 33.33;
@@ -311,7 +311,7 @@ describe('MatchLog', () => {
             const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
-            expect(rowContent(secondMatchRows[3], 'th')).toEqual([ 'OPPONENT', 'Dart average' ]);
+            expect(rowContent(secondMatchRows[3], 'th')).toEqual([ 'OPPONENT', 'Dart average', '', '' ]);
             expect(rowContent(secondMatchRows[4], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
             const firstMatchPlayerAverage = 8.33;
             const secondMatchPlayerAverage = 16.67;

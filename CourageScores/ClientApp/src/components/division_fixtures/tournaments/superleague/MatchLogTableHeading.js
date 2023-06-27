@@ -4,7 +4,9 @@ export function MatchLogTableHeading({ team, noOfThrows }) {
     return (<>
         <tr>
             <th colSpan="9">{team}</th>
-            <th colSpan={3 + noOfThrows}>Dart average</th>
+            <th colSpan="2">Dart average</th>
+            <th></th>
+            <th colSpan={noOfThrows + 1}></th>
         </tr>
         <tr>
             <th>Player</th>
