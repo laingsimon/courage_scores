@@ -20,6 +20,7 @@ export function SuperLeaguePrintout({ division }) {
     const matches = (tournamentData.round || {}).matches || [];
     const unloadedIds = matches.map(m => m.saygId).filter(id => id && !any(Object.keys(saygDataMap), key => key === id));
     const showWinner = location.search.indexOf('winner') !== -1;
+    const visible = location.search.indexOf('print') !== -1;
 
     useEffect(() => {
         if (loading) {
@@ -53,7 +54,7 @@ export function SuperLeaguePrintout({ division }) {
     }
 
     if (any(unloadedIds) || loading) {
-        return (<div className="d-screen-none">Loading...</div>);
+        return (<div className={visible ? '' : 'd-screen-none'}>Loading...</div>);
     }
 
     const saygMatches = matches.map(m => {
@@ -66,7 +67,7 @@ export function SuperLeaguePrintout({ division }) {
     const noOfLegs = tournamentData.bestOf || max(saygMatches, map => getNoOfLegs(map.saygData));
 
     try {
-        return (<div className="d-screen-none">
+        return (<div className={visible ? '' : 'd-screen-none'}>
             <MasterDraw
                 matches={matches}
                 host={tournamentData.host}
