@@ -302,6 +302,51 @@ describe('ScoreAsYouGo', () => {
         });
     });
 
+    it('shows statistics if home player wins over half of legs', async () => {
+        const leg = {
+            currentThrow: 'home',
+            playerSequence: [
+                { text: 'HOME', value: 'home' },
+                { text: 'AWAY', value: 'away' }
+            ],
+            home: {
+                noOfDarts: 3,
+                throws: [ { noOfDarts: 3, score: 400 } ],
+                score: 400,
+            },
+            away: {
+                noOfDarts: 3,
+                throws: [ { noOfDarts: 3, score: 50 } ],
+                score: 100,
+            },
+            startingScore: 501,
+            isLastLeg: false,
+        };
+        await renderComponent({
+            data: { legs: {
+                '0': {
+                    home: { throws: [ { score: 100 }, { score: 100 }, { score: 100 }, { score: 100 }, { score: 101 } ] },
+                    away: { throws: [] }
+                },
+                '1': leg
+            } },
+            home: 'HOME',
+            away: 'AWAY',
+            startingScore: 501,
+            numberOfLegs: 3,
+            awayScore: 0,
+            homeScore: 1,
+            singlePlayer: false,
+        });
+
+        await doChange(context.container, 'input[data-score-input="true"]', '101', context.user);
+        await doClick(findButton(context.container, '📌📌📌'));
+
+        expect(completedLegs).toEqual([{ homeScore: 2, awayScore: 0 }]);
+        expect(changedLegs.length).toEqual(1);
+        expect(Object.keys(changedLegs[0].legs)).toEqual([ '0', '1' ]);
+    });
+
     it('can record winner for single player match', async () => {
         const leg = {
             currentThrow: 'home',
