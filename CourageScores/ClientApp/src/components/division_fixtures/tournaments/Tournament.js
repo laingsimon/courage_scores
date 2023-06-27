@@ -16,7 +16,7 @@ import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
-import {SuperLeaguePrintout} from "./superleague/SuperleaguePrintout";
+import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 
 export function Tournament() {
     const { tournamentId } = useParams();

@@ -2,7 +2,7 @@
 
 import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
-import {SuperLeaguePrintout} from "./SuperleaguePrintout";
+import {SuperLeaguePrintout} from "./SuperLeaguePrintout";
 import {TournamentContainer} from "../TournamentContainer";
 import {createTemporaryId} from "../../../../helpers/projection";
 

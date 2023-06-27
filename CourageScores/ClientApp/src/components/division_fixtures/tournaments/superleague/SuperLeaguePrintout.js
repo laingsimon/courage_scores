@@ -47,6 +47,7 @@ export function SuperLeaguePrintout({ division }) {
             setSaygDataMap(newSaygDataMap);
             setLoading(false);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
