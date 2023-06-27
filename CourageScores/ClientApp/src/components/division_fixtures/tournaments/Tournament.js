@@ -35,6 +35,7 @@ export function Tournament() {
     const [alreadyPlaying, setAlreadyPlaying] = useState(null);
     const [ addPlayerDialogOpen, setAddPlayerDialogOpen ] = useState(false);
     const [ newPlayerDetails, setNewPlayerDetails ] = useState({ name: '', captain: false });
+    const [ warnBeforeSave, setWarnBeforeSave ] = useState(null);
     const division = tournamentData && tournamentData.divisionId ? divisions.filter(d => d.id === tournamentData.divisionId)[0] : null;
     const genderOptions = [ { text: 'Undefined', value: '' }, { text: 'Men', value: 'men' }, { text: 'Women', value: 'women' } ];
 
@@ -123,6 +124,12 @@ export function Tournament() {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
+            return;
+        }
+
+        // if any matches exist, but have not been added, add them?
+        if (warnBeforeSave) {
+            window.alert(warnBeforeSave);
             return;
         }
 
@@ -308,7 +315,8 @@ export function Tournament() {
                     season={season}
                     alreadyPlaying={alreadyPlaying}
                     allPlayers={allPlayers}
-                    saveTournament={saveTournament}>
+                    saveTournament={saveTournament}
+                    setWarnBeforeSave={setWarnBeforeSave}>
                     <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
                     {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<TournamentSheet />)}
                 </TournamentContainer>

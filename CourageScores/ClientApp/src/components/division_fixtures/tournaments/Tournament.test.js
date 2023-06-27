@@ -893,5 +893,99 @@ describe('Tournament', () => {
 
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
+
+        it('cannot save changes when match not added', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [ {
+                    id: createTemporaryId(),
+                    name: 'SIDE 1',
+                    players: [],
+                }, {
+                    id: createTemporaryId(),
+                    name: 'SIDE 2',
+                    players: [],
+                } ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            let alert;
+            window.alert = (msg) => alert = msg;
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
+            '\n' +
+            'Final: SIDE 1 vs SIDE 2');
+        });
+
+        it('can save changes after match added', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [ {
+                    id: createTemporaryId(),
+                    name: 'SIDE 1',
+                    players: [],
+                }, {
+                    id: createTemporaryId(),
+                    name: 'SIDE 2',
+                    players: [],
+                } ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            let alert;
+            window.alert = (msg) => alert = msg;
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(1) .dropdown-menu'), 'SIDE 1');
+            await doSelectOption(context.container.querySelector('table tr td:nth-child(5) .dropdown-menu'), 'SIDE 2');
+            await doClick(findButton(context.container.querySelector('table tr td:nth-child(6)'), '➕'));
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(alert).toBeFalsy();
+            expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
+        });
     });
 });

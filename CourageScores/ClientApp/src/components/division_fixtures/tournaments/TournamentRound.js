@@ -11,7 +11,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
-    const { tournamentData } = useTournament();
+    const { tournamentData, setWarnBeforeSave } = useTournament();
     const matchOptionDefaults = {
         startingScore: 501,
         numberOfLegs: tournamentData.bestOf || 5,
@@ -22,6 +22,9 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         const newNewMatch = Object.assign({}, newMatch);
         newNewMatch[property] = sideMap[sideId];
         setNewMatch(newNewMatch);
+        setWarnBeforeSave(`Add the (new) match before saving, otherwise it would be lost.
+
+${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newNewMatch.sideA.name : ''} vs ${newNewMatch.sideB ? newNewMatch.sideB.name : ''}`);
     }
 
     function exceptSelected(side, matchIndex, property) {
@@ -61,6 +64,7 @@ export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiC
         newRound.matches = round.matches || [];
         newRound.matches.push(newMatch);
         setNewMatch({});
+        setWarnBeforeSave(null);
 
         if (onChange) {
             await onChange(newRound);
