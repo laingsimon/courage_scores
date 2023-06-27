@@ -119,14 +119,16 @@ export function Tournament() {
         return players;
     }
 
-    async function saveTournament() {
+    async function saveTournament(preventLoading) {
         /* istanbul ignore next */
         if (saving || patching) {
             /* istanbul ignore next */
             return;
         }
 
-        setSaving(true);
+        if (preventLoading !== true) {
+            setSaving(true);
+        }
 
         try {
             const response = await tournamentApi.update(tournamentData, tournamentData.updated);
@@ -137,7 +139,9 @@ export function Tournament() {
                 return response.result;
             }
         } finally {
-            setSaving(false);
+            if (preventLoading !== true) {
+                setSaving(false);
+            }
         }
     }
 
