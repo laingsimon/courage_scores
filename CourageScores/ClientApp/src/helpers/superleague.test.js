@@ -214,6 +214,12 @@ describe('superleague', () => {
             expect(result).toBeNull();
         });
 
+        it('should return 0 if no legs data', () => {
+            const result = getNoOfLegs({ legs: null });
+
+            expect(result).toEqual(0);
+        });
+
         it('should return no of legs with scores', () => {
             const saygData = {
                 legs: {
@@ -249,6 +255,12 @@ describe('superleague', () => {
             expect(result).toBeNull();
         });
 
+        it('should return 0 given no legs', () => {
+            const result = sumOfAllScores({ legs: null }, 'home');
+
+            expect(result).toEqual(0);
+        });
+
         it('should return sum of non bust scores for home', () => {
             const saygData = {
                 legs: {
@@ -279,6 +291,12 @@ describe('superleague', () => {
             const result = sumOfAllCheckouts(null, 'home');
 
             expect(result).toBeNull();
+        });
+
+        it('should return 0 when given no legs data', () => {
+            const result = sumOfAllCheckouts({ legs: null }, 'home');
+
+            expect(result).toEqual(0);
         });
 
         it('should return checkouts from winner', () => {
@@ -483,6 +501,36 @@ describe('superleague', () => {
             const result = getMatchWinner(saygData);
 
             expect(result).toEqual('away');
+        });
+
+        it('should return empty when no checkout', () => {
+            const saygData = {
+                legs: {
+                    '0': {
+                        home: {
+                            throws: [
+                                { score: 100, bust: false },
+                                { score: 100, bust: false },
+                                { score: 100, bust: false },
+                                { score: 100, bust: false },
+                            ]
+                        },
+                        away: {
+                            throws: [
+                                { score: 100, bust: false },
+                                { score: 100, bust: false },
+                                { score: 100, bust: false },
+                                { score: 100, bust: false },
+                            ]
+                        },
+                        startingScore: 501,
+                    }
+                }
+            };
+
+            const result = getMatchWinner(saygData);
+
+            expect(result).toEqual('');
         });
     });
 

@@ -1,11 +1,11 @@
 import {count, sum} from "./collections";
 
 export function playerOverallAverage(saygData, sideName) {
-    if (!saygData) {
+    if (!saygData || !saygData.legs) {
         return null;
     }
 
-    const metrics = Object.keys(saygData.legs || {}).map(legIndex => {
+    const metrics = Object.keys(saygData.legs).map(legIndex => {
         const leg = saygData.legs[legIndex];
         const side = leg[sideName];
 
@@ -79,8 +79,7 @@ export function maxNoOfThrowsAllMatches(saygMatches) {
     let throws = 0;
 
     for (let index = 0; index < saygMatches.length; index++) {
-        const map = saygMatches[index];
-        const saygData = map.saygData;
+        const saygData = saygMatches[index].saygData;
 
         if (!saygData || !saygData.legs) {
             continue;
