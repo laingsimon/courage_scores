@@ -17,6 +17,7 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
+import {ExportDataButton} from "../../common/ExportDataButton";
 
 export function Tournament() {
     const { tournamentId } = useParams();
@@ -193,6 +194,20 @@ export function Tournament() {
         setNewPlayerDetails({ name: '', captain: false });
     }
 
+    function getExportTables() {
+        let saygDataIds = [];
+        let round = tournamentData.round;
+        while (round) {
+            saygDataIds = saygDataIds.concat(round.matches.map(m => m.saygId).filter(id => id));
+            round = round.nextRound;
+        }
+
+        return {
+            tournamentGame: [ tournamentId ],
+            recordedScoreAsYouGo: saygDataIds,
+        };
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -210,6 +225,12 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="content-background p-3">
+                {canManageTournaments ? (<h4 className="pb-2">
+                    <span>Edit tournament: </span>
+                    <span className="me-4">{renderDate(tournamentData.date)}</span>
+                    <button className="btn btn-sm margin-left btn-outline-primary margin-right" onClick={window.print}>🖨️</button>
+                    <ExportDataButton tables={getExportTables()} />
+                </h4>) : null}
                 {canManageTournaments
                     ? (<div className="input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
