@@ -202,10 +202,15 @@ export function Tournament() {
             round = round.nextRound;
         }
 
-        return {
+        const exportRequest = {
             tournamentGame: [ tournamentId ],
-            recordedScoreAsYouGo: saygDataIds,
         };
+
+        if (any(saygDataIds)) {
+            exportRequest.recordedScoreAsYouGo = saygDataIds;
+        }
+
+        return exportRequest;
     }
 
     if (loading !== 'ready') {
