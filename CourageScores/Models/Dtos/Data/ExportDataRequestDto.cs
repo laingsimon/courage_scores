@@ -19,4 +19,10 @@ public class ExportDataRequestDto
     /// The tables that should be exported; empty/null = all tables
     /// </summary>
     public List<string> Tables { get; set; } = new();
+
+    /// <summary>
+    /// The tables, and any ids in those tables that should be exported
+    /// An empty set means all tables/ids.
+    /// </summary>
+    public Dictionary<string, List<Guid>> TablesAndIds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
