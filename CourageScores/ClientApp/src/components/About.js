@@ -22,6 +22,10 @@ export function About() {
             <strong>License</strong>: <a target="_blank" rel="noreferrer" href="https://github.com/laingsimon/courage_scores/blob/main/LICENSE">Apache License 2.0</a>
         </p>
 
+        <p>
+            <strong>Credits</strong>: <a target="_blank" rel="noreferrer" href="https://github.com/laingsimon/courage_scores/wiki/credits">Credits</a>
+        </p>
+
         <table className="table">
             <thead>
             <tr>
