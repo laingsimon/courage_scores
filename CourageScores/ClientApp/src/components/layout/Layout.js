@@ -2,7 +2,7 @@ import React from 'react';
 import {Container} from 'reactstrap';
 import {NavMenu} from './NavMenu';
 import {Heading} from "./Heading";
-import {PageError} from "../PageError";
+import {PageError} from "../common/PageError";
 import {useApp} from "../../AppContainer";
 import {Footer} from "./Footer";
 

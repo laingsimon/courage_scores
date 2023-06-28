@@ -25,7 +25,7 @@ import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
 import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
-import {PageError} from "../../PageError";
+import {PageError} from "../../common/PageError";
 
 export function Score() {
     const { fixtureId } = useParams();

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {useApp} from "../AppContainer";
+import {useApp} from "../../AppContainer";
 
 export function PageError({ error }){
     const [ showStack, setShowStack ] = useState(false);
