@@ -6,7 +6,7 @@ import {any, sortBy} from "../../../helpers/collections";
 import {propChanged, valueChanged} from "../../../helpers/events";
 import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
-import {ShareButton} from "../../ShareButton";
+import {ShareButton} from "../../common/ShareButton";
 import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../../../IocContainer";

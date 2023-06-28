@@ -1,5 +1,5 @@
 import {valueChanged} from "../helpers/events";
-import {ShareButton} from "./ShareButton";
+import {ShareButton} from "./common/ShareButton";
 import React from "react";
 import {useSayg} from "./division_fixtures/sayg/SaygLoadingContainer";
 
