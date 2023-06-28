@@ -209,4 +209,21 @@ describe('ExportData', () => {
         expect(exportRequest).not.toBeNull();
         expect(context.container.textContent).toContain('Could not export data');
     });
+
+    it('can close error report from export', async () => {
+        await renderComponent({
+            tables: [
+                { name: 'Table 1', canExport: true },
+                { name: 'Table 2', canExport: false }
+            ]
+        });
+        expect(reportedError).toBeNull();
+        apiResponse = { success: false };
+        await doClick(findButton(context.container, 'Export data'));
+        expect(context.container.textContent).toContain('Could not export data');
+
+        await doClick(findButton(context.container, 'Close'));
+
+        expect(context.container.textContent).not.toContain('Could not export data');
+    });
 });

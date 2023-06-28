@@ -5,10 +5,12 @@ import {valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {any, toDictionary} from "../../helpers/collections";
+import {useApp} from "../../AppContainer";
 
 export function ExportData() {
     const { dataApi } = useDependencies();
     const { tables } = useAdmin();
+    const { onError } = useApp();
     const [ exporting, setExporting ] = useState(false);
     const [ exportRequest, setExportRequest ] = useState({
         includeDeletedEntries: true,
@@ -53,7 +55,8 @@ export function ExportData() {
                 setSaveError(response);
             }
         } catch (e) {
-            setSaveError(e.toString());
+            /* istanbul ignore next */
+            onError(e);
         }
         finally {
             setExporting(false);
