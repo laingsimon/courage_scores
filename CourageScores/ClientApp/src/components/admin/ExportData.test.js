@@ -66,11 +66,11 @@ describe('ExportData', () => {
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
         expect(table1).toBeTruthy();
-        expect(table1.className).not.toContain('active');
+        expect(table1.className).toContain('active');
 
         await doClick(table1);
 
-        expect(table1.className).toContain('active');
+        expect(table1.className).not.toContain('active');
     });
 
     it('cannot select non-exportable table', async () => {
@@ -101,6 +101,10 @@ describe('ExportData', () => {
         expect(reportedError).toBeNull();
         let alert;
         window.alert = (msg) => alert = msg;
+        const tables = Array.from(context.container.querySelectorAll('ul li'));
+        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
+        expect(table1.className).toContain('active');
+        await doClick(table1); // deselect table 1
 
         await doClick(findButton(context.container, 'Export data'));
 
@@ -117,9 +121,6 @@ describe('ExportData', () => {
             ]
         });
         expect(reportedError).toBeNull();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
-        await doClick(table1); // select table 1
         await doChange(context.container, 'input[name="password"]', 'pass', context.user);
 
         await doClick(findButton(context.container, 'Export data'));
@@ -128,7 +129,7 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: 'pass',
-            tables: [ 'Table 1' ],
+            tables: { 'Table 1': [] },
         });
     });
 
@@ -140,9 +141,6 @@ describe('ExportData', () => {
             ]
         });
         expect(reportedError).toBeNull();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
-        await doClick(table1); // select table 1
 
         await doClick(findButton(context.container, 'Export data'));
 
@@ -150,7 +148,7 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: '',
-            tables: [ 'Table 1' ],
+            tables: { 'Table 1': [] },
         });
     });
 
@@ -162,9 +160,6 @@ describe('ExportData', () => {
             ]
         });
         expect(reportedError).toBeNull();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
-        await doClick(table1); // select table 1
         await doClick(context.container, 'input[name="includeDeletedEntries"]');
 
         await doClick(findButton(context.container, 'Export data'));
@@ -173,7 +168,7 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: false,
             password: '',
-            tables: [ 'Table 1' ],
+            tables: { 'Table 1': [] },
         });
     });
 
@@ -185,9 +180,6 @@ describe('ExportData', () => {
             ]
         });
         expect(reportedError).toBeNull();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
-        await doClick(table1); // select table 1
         apiResponse = {
             success: true,
             result: {
@@ -209,9 +201,6 @@ describe('ExportData', () => {
             ]
         });
         expect(reportedError).toBeNull();
-        const tables = Array.from(context.container.querySelectorAll('ul li'));
-        const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
-        await doClick(table1); // select table 1
         apiResponse = { success: false };
 
         await doClick(findButton(context.container, 'Export data'));

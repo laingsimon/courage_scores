@@ -75,8 +75,7 @@ public class CosmosTableServiceTests
         }
         var request = new ExportDataRequestDto
         {
-            Tables = { requestTable },
-            TablesAndIds = { { requestTable, new List<Guid>() } }
+            Tables = { { requestTable, new List<Guid>() } }
         };
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();

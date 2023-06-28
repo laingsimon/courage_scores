@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {TableSelection} from "./TableSelection";
-import {propChanged, valueChanged} from "../../helpers/events";
+import {valueChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
-import {any} from "../../helpers/collections";
+import {any, toDictionary} from "../../helpers/collections";
 
 export function ExportData() {
     const { dataApi } = useDependencies();
@@ -13,7 +13,7 @@ export function ExportData() {
     const [ exportRequest, setExportRequest ] = useState({
         includeDeletedEntries: true,
         password: '',
-        tables: []
+        tables: {}
     });
     const [ zipContent, setZipContent ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
@@ -23,8 +23,10 @@ export function ExportData() {
             return;
         }
 
-        const selected = tables.filter(t => t.canExport).map(t => t.name);
-        setExportRequest(Object.assign({ tables: selected }, exportRequest));
+        const selected = tables.filter(t => t.canExport);
+        const newExportRequest = Object.assign({ }, exportRequest);
+        newExportRequest.tables = toDictionary(selected, t => t.name, _ => []);
+        setExportRequest(newExportRequest);
     },
     // eslint-disable-next-line
     [ tables ]);
@@ -36,7 +38,7 @@ export function ExportData() {
             return;
         }
 
-        if (!any(exportRequest.tables)) {
+        if (!any(Object.keys(exportRequest.tables))) {
             alert('Select some tables to export');
             return;
         }
@@ -58,6 +60,12 @@ export function ExportData() {
         }
     }
 
+    async function tableChanged(newTables) {
+        const newExportRequest = Object.assign({ }, exportRequest);
+        newExportRequest.tables = toDictionary(newTables, t => t, _ => []);
+        setExportRequest(newExportRequest);
+    }
+
     return (<div className="content-background p-3">
         <h3>Export data</h3>
         <div className="input-group mb-3">
@@ -74,7 +82,7 @@ export function ExportData() {
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={tables} selected={exportRequest.tables} onTableChange={propChanged(exportRequest, setExportRequest, 'tables')} requireCanExport={true} />
+        <TableSelection allTables={tables} selected={Object.keys(exportRequest.tables)} onTableChange={tableChanged} requireCanExport={true} />
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
                 {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

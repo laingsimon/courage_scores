@@ -88,7 +88,7 @@ public class TableAccessorTests
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
         _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
-        _request.TablesAndIds.Add("TABLE", new List<Guid> { id });
+        _request.Tables.Add("TABLE", new List<Guid> { id });
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 
@@ -103,7 +103,7 @@ public class TableAccessorTests
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
         _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
-        _request.TablesAndIds.Add("TABLE", new List<Guid>());
+        _request.Tables.Add("TABLE", new List<Guid>());
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 

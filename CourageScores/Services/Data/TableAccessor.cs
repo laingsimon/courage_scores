@@ -20,7 +20,7 @@ public class TableAccessor : ITableAccessor
         ExportDataRequestDto request, CancellationToken token)
     {
         result.Tables.Add(TableName, 0);
-        request.TablesAndIds.TryGetValue(TableName, out var ids);
+        request.Tables.TryGetValue(TableName, out var ids);
         var idsToReturn = ids?.Select(id => id.ToString()).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
 
         Container container = await database.CreateContainerIfNotExistsAsync(TableName, _partitionKey, cancellationToken: token);

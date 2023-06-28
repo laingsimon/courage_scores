@@ -16,13 +16,8 @@ public class ExportDataRequestDto
     public bool IncludeDeletedEntries { get; set; }
 
     /// <summary>
-    /// The tables that should be exported; empty/null = all tables
-    /// </summary>
-    public List<string> Tables { get; set; } = new();
-
-    /// <summary>
     /// The tables, and any ids in those tables that should be exported
     /// An empty set means all tables/ids.
     /// </summary>
-    public Dictionary<string, List<Guid>> TablesAndIds { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    public Dictionary<string, List<Guid>> Tables { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
