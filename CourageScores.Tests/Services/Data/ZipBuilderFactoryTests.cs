@@ -1,3 +1,4 @@
+using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Services;
 using CourageScores.Services.Data;
@@ -45,7 +46,7 @@ public class ZipBuilderFactoryTests
     [Test]
     public async Task Create_GivenPassword_CreatesZipFileWithPassword()
     {
-        var zipBuilder = await _factory.Create("a password", _token);
+        var zipBuilder = await _factory.Create("a password", new ExportDataRequestDto(), _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
@@ -55,7 +56,7 @@ public class ZipBuilderFactoryTests
     [TestCase(null)]
     public async Task Create_GivenNoPassword_CreatesZipFileWithPassword(string password)
     {
-        var zipBuilder = await _factory.Create(password, _token);
+        var zipBuilder = await _factory.Create(password, new ExportDataRequestDto(), _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, password);
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
@@ -64,7 +65,7 @@ public class ZipBuilderFactoryTests
     [Test]
     public async Task Create_WhenLoggedIn_SerialisesMetaDataWithUserName()
     {
-        var zipBuilder = await _factory.Create("a password", _token);
+        var zipBuilder = await _factory.Create("a password", new ExportDataRequestDto(), _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
@@ -75,9 +76,9 @@ public class ZipBuilderFactoryTests
     {
         _user = null;
 
-        Assert.ThrowsAsync<InvalidOperationException>(() => _factory.Create(null, _token));
-        Assert.ThrowsAsync<InvalidOperationException>(() => _factory.Create("", _token));
-        Assert.ThrowsAsync<InvalidOperationException>(() => _factory.Create("a password", _token));
+        Assert.ThrowsAsync<InvalidOperationException>(() => _factory.Create(null, new ExportDataRequestDto(), _token));
+        Assert.ThrowsAsync<InvalidOperationException>(() => _factory.Create("", new ExportDataRequestDto(), _token));
+        Assert.ThrowsAsync<InvalidOperationException>(() => _factory.Create("a password", new ExportDataRequestDto(), _token));
     }
 
     [Test]
@@ -85,24 +86,36 @@ public class ZipBuilderFactoryTests
     {
         _httpContext.Request.Host = new HostString("hostname");
 
-        var zipBuilder = await _factory.Create("a password", _token);
+        var zipBuilder = await _factory.Create("a password", new ExportDataRequestDto(), _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Hostname, Is.EqualTo("hostname"));
-
     }
 
     [Test]
     public async Task Create_WhenLoggedIn_SerialisesMetaDataWithDateTime()
     {
-        var zipBuilder = await _factory.Create("a password", _token);
+        var zipBuilder = await _factory.Create("a password", new ExportDataRequestDto(), _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Created, Is.EqualTo(_utcNow.UtcDateTime));
-
     }
 
-    private async Task<ExportMetaData> AssertZipCanBeRead(IZipBuilder builder, string password)
+    [Test]
+    public async Task Create_WhenLoggedIn_SerialisesMetaDataWithRequest()
+    {
+        var request = new ExportDataRequestDto
+        {
+            Tables = { { "TABLE 1", new List<Guid>(new[] { Guid.Empty }) } }
+        };
+        var zipBuilder = await _factory.Create("a password", request, _token);
+
+        var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
+        Assert.That(metaData.RequestedTables.Keys, Is.EqualTo(request.Tables.Keys));
+        Assert.That(metaData.RequestedTables["TABLE 1"], Is.EqualTo(request.Tables["TABLE 1"]));
+    }
+
+    private static async Task<ExportMetaData> AssertZipCanBeRead(IZipBuilder builder, string password)
     {
         var zipBytes = await builder.CreateZip();
         var zip = ZipFile.Read(new MemoryStream(zipBytes));

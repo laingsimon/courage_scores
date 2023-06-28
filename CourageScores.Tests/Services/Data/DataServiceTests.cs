@@ -56,7 +56,7 @@ public class DataServiceTests
             }
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _zipBuilderFactory.Setup(f => f.Create(It.IsAny<string>(), _token)).ReturnsAsync(_zipBuilder.Object);
+        _zipBuilderFactory.Setup(f => f.Create(It.IsAny<string>(), _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
         _cosmosTableService
             .Setup(s => s.GetTables(_exportRequest, _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_tables));
@@ -110,7 +110,7 @@ public class DataServiceTests
     public async Task ExportData_WhenAnExceptionOccurs_ReturnsUnsuccessful()
     {
         _zipBuilderFactory
-            .Setup(f => f.Create(It.IsAny<string>(), _token))
+            .Setup(f => f.Create(It.IsAny<string>(), _exportRequest, _token))
             .Throws(() => new InvalidOperationException("some error"));
 
         var result = await _dataService.ExportData(_exportRequest, _token);
@@ -126,7 +126,7 @@ public class DataServiceTests
 
         await _dataService.ExportData(_exportRequest, _token);
 
-        _zipBuilderFactory.Verify(f => f.Create("password", _token));
+        _zipBuilderFactory.Verify(f => f.Create("password", _exportRequest, _token));
     }
 
     [Test]
@@ -134,7 +134,7 @@ public class DataServiceTests
     {
         await _dataService.ExportData(_exportRequest, _token);
 
-        _zipBuilderFactory.Verify(f => f.Create(null, _token));
+        _zipBuilderFactory.Verify(f => f.Create(null, _exportRequest, _token));
     }
 
     [Test]

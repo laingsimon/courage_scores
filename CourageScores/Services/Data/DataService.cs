@@ -52,7 +52,7 @@ public class DataService : IDataService
 
         try
         {
-            var builder = await _zipBuilderFactory.Create(request.Password, token);
+            var builder = await _zipBuilderFactory.Create(request.Password, request, token);
 
             await foreach (var table in _cosmosTableService.GetTables(request, token))
             {
