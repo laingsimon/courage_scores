@@ -21,11 +21,11 @@ public class CosmosTableService : ICosmosTableService
 
     public async IAsyncEnumerable<ITableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
     {
-        var specifiedTablesOnly = request.Tables.Any();
+        var specifiedTablesOnly = request.CaseInsensitiveTables.Any();
 
         await foreach (var table in GetTables(token))
         {
-            if (!specifiedTablesOnly || request.Tables.ContainsKey(table.Name))
+            if (!specifiedTablesOnly || request.CaseInsensitiveTables.ContainsKey(table.Name))
             {
                 yield return new TableAccessor(table.Name, table.PartitionKey);
             }

@@ -102,17 +102,21 @@ public class ZipBuilderFactoryTests
     }
 
     [Test]
-    public async Task Create_WhenLoggedIn_SerialisesMetaDataWithRequest()
+    public async Task Create_WhenLoggedIn_SerialisesMetaDataWithRequestedTables()
     {
         var request = new ExportDataRequestDto
         {
+#pragma warning disable CS0618
             Tables = { { "TABLE 1", new List<Guid>(new[] { Guid.Empty }) } }
+#pragma warning restore CS0618
         };
         var zipBuilder = await _factory.Create("a password", request, _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
+#pragma warning disable CS0618
         Assert.That(metaData.RequestedTables.Keys, Is.EqualTo(request.Tables.Keys));
         Assert.That(metaData.RequestedTables["TABLE 1"], Is.EqualTo(request.Tables["TABLE 1"]));
+#pragma warning restore CS0618
     }
 
     private static async Task<ExportMetaData> AssertZipCanBeRead(IZipBuilder builder, string password)

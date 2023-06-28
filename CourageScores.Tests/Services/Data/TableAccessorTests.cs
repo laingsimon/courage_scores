@@ -88,7 +88,9 @@ public class TableAccessorTests
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
         _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
-        _request.Tables.Add("TABLE", new List<Guid> { id });
+#pragma warning disable CS0618
+        _request.Tables.Add("table", new List<Guid> { id });
+#pragma warning restore CS0618
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 
@@ -103,7 +105,9 @@ public class TableAccessorTests
         var id = Guid.NewGuid();
         var otherId = Guid.NewGuid();
         _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
-        _request.Tables.Add("TABLE", new List<Guid>());
+#pragma warning disable CS0618
+        _request.Tables.Add("table", new List<Guid>());
+#pragma warning restore CS0618
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
 
