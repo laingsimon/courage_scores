@@ -1033,6 +1033,8 @@ describe('Tournament', () => {
                 includeDeletedEntries: false,
                 tables: {
                     tournamentGame: [ tournamentData.id ],
+                    division: [ tournamentData.divisionId ],
+                    season: [ tournamentData.seasonId ],
                 }
             });
             // NOTE: requestedScoreAsYouGo should NOT be present, to prevent export of ALL records
@@ -1082,6 +1084,8 @@ describe('Tournament', () => {
                 tables: {
                     tournamentGame: [ tournamentData.id ],
                     recordedScoreAsYouGo: [ saygId ],
+                    division: [ tournamentData.divisionId ],
+                    season: [ tournamentData.seasonId ],
                 }
             });
         });
@@ -1139,6 +1143,144 @@ describe('Tournament', () => {
                 tables: {
                     tournamentGame: [ tournamentData.id ],
                     recordedScoreAsYouGo: [ saygId1, saygId2 ],
+                    division: [ tournamentData.divisionId ],
+                    season: [ tournamentData.seasonId ],
+                }
+            });
+        });
+
+        it('can export tournament data for cross-divisional tournament', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: { access: Object.assign({ exportData: true }, account.access) },
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            window.open = () => {};
+
+            await doClick(findButton(context.container, '🛒'));
+
+            expect(exportRequest).toEqual({
+                password: '',
+                includeDeletedEntries: false,
+                tables: {
+                    tournamentGame: [ tournamentData.id ],
+                    season: [ tournamentData.seasonId ],
+                }
+            });
+        });
+
+        it('can export tournament data and team data for team sides', async () => {
+            const teamId = createTemporaryId();
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ { id: createTemporaryId(), teamId: teamId, players: [] }],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: { access: Object.assign({ exportData: true }, account.access) },
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            window.open = () => {};
+
+            await doClick(findButton(context.container, '🛒'));
+
+            expect(exportRequest).toEqual({
+                password: '',
+                includeDeletedEntries: false,
+                tables: {
+                    tournamentGame: [ tournamentData.id ],
+                    season: [ tournamentData.seasonId ],
+                    team: [ teamId ],
+                }
+            });
+        });
+
+        it('can export tournament data and team data for sides with players', async () => {
+            const playerId = createTemporaryId();
+            const team = {
+                id: createTemporaryId(),
+                seasons: [ {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    players: [ { id: playerId } ],
+                } ],
+            };
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ { id: createTemporaryId(), teamId: null, players: [ { id: playerId }] }],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: { access: Object.assign({ exportData: true }, account.access) },
+                seasons: toMap([ season ]),
+                teams: [ team ],
+                divisions: [ division ],
+            }, false);
+            window.open = () => {};
+            expect(reportedError).toBeNull();
+
+            await doClick(findButton(context.container, '🛒'));
+
+            expect(exportRequest).toEqual({
+                password: '',
+                includeDeletedEntries: false,
+                tables: {
+                    tournamentGame: [ tournamentData.id ],
+                    season: [ tournamentData.seasonId ],
+                    team: [ team.id ],
                 }
             });
         });
