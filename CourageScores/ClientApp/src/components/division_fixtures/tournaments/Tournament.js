@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 import {DivisionControls} from "../../DivisionControls";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
-import {any, sortBy} from "../../../helpers/collections";
+import {any, distinct, sortBy} from "../../../helpers/collections";
 import {propChanged, valueChanged} from "../../../helpers/events";
 import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
@@ -196,6 +196,7 @@ export function Tournament() {
 
     function getExportTables() {
         let saygDataIds = [];
+        let teamIds = [];
         let round = tournamentData.round;
         while (round) {
             saygDataIds = saygDataIds.concat(round.matches.map(m => m.saygId).filter(id => id));
@@ -204,13 +205,46 @@ export function Tournament() {
 
         const exportRequest = {
             tournamentGame: [ tournamentId ],
+            season: [ tournamentData.seasonId ],
         };
+
+        if (tournamentData.divisionId) {
+            exportRequest.division = [ tournamentData.divisionId ];
+        }
+
+        for (let i = 0; i < tournamentData.sides.length; i++) {
+            const side = tournamentData.sides[i];
+
+            if (side.teamId) {
+                teamIds = teamIds.concat([ side.teamId ]);
+            } else if (any(side.players || [])) {
+                // get the team ids for the players
+                // find the teamId for each player
+                teamIds = teamIds.concat(side.players.map(getTeamIdForPlayer));
+            }
+        }
 
         if (any(saygDataIds)) {
             exportRequest.recordedScoreAsYouGo = saygDataIds;
         }
 
+        teamIds = distinct(teamIds.filter(id => id));
+        if (any(teamIds)) {
+            exportRequest.team = teamIds;
+        }
+
         return exportRequest;
+    }
+
+    function getTeamIdForPlayer(player) {
+        const teamToSeasonMaps = teams.map(t => { return { teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], team: t } });
+        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, p => p.id === player.id));
+
+        if (any(teamsWithPlayer)) {
+            return teamsWithPlayer[0].team.id
+        }
+
+        return null;
     }
 
     if (loading !== 'ready') {
@@ -230,7 +264,7 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="content-background p-3">
-                {canManageTournaments ? (<h4 className="pb-2">
+                {canManageTournaments ? (<h4 className="pb-2 d-print-none">
                     <span>Edit tournament: </span>
                     <span className="me-4">{renderDate(tournamentData.date)}</span>
                     <button className="btn btn-sm margin-left btn-outline-primary margin-right" onClick={window.print}>🖨️</button>
