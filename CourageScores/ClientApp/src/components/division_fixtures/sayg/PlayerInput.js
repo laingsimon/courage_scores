@@ -33,6 +33,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             if (input) {
                 input.focus();
             } else {
+                /* istanbul ignore next */
                 console.log('Unable to find input to focus');
             }
             setFocusEventHandle(null);

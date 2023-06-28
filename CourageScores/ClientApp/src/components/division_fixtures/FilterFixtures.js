@@ -2,7 +2,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {isEmpty, sortBy} from "../../helpers/collections";
 import {propChanged} from "../../helpers/events";
 import {renderDate} from "../../helpers/rendering";
-import {ShareButton} from "../ShareButton";
+import {ShareButton} from "../common/ShareButton";
 import {useDivisionData} from "../DivisionDataContainer";
 
 export function FilterFixtures({ filter, setFilter }) {

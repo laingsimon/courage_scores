@@ -140,3 +140,19 @@ export function distinct(items, property) {
 
     return Object.values(map);
 }
+
+export function toDictionary(items, keySelector, valueSelector) {
+    const dict = {};
+
+    for (let index = 0; index < items.length; index++) {
+        const item = items[index];
+        const key = keySelector(item);
+        if (dict[key]) {
+            throw new Error('Duplicate key found: ' + key);
+        }
+
+        dict[key] = valueSelector ? valueSelector(item) : item;
+    }
+
+    return dict;
+}

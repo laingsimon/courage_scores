@@ -21,16 +21,14 @@ public class CosmosTableService : ICosmosTableService
 
     public async IAsyncEnumerable<ITableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
     {
+        var specifiedTablesOnly = request.CaseInsensitiveTables.Any();
+
         await foreach (var table in GetTables(token))
         {
-            if (request.Tables?.Any() == true &&
-                !request.Tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
+            if (!specifiedTablesOnly || request.CaseInsensitiveTables.ContainsKey(table.Name))
             {
-                // ignore table, as it hasn't been requested, but other tables have been
-                continue;
+                yield return new TableAccessor(table.Name, table.PartitionKey);
             }
-
-            yield return new TableAccessor(table.Name, table.PartitionKey);
         }
     }
 

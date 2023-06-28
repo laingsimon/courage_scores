@@ -75,7 +75,9 @@ public class CosmosTableServiceTests
         }
         var request = new ExportDataRequestDto
         {
-            Tables = { requestTable }
+#pragma warning disable CS0618
+            Tables = { { requestTable, new List<Guid>() } }
+#pragma warning restore CS0618
         };
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
