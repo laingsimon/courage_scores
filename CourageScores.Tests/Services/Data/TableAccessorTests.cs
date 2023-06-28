@@ -83,6 +83,46 @@ public class TableAccessorTests
     }
 
     [Test]
+    public async Task ExportData_GivenSomeIdsToExport_OnlyExportsGivenIds()
+    {
+        var id = Guid.NewGuid();
+        var otherId = Guid.NewGuid();
+        _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
+        _request.TablesAndIds.Add("TABLE", new List<Guid> { id });
+
+        await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
+
+        Assert.That(_result.Tables["TABLE"], Is.EqualTo(1));
+        _builder.Verify(b => b.AddFile("TABLE", id.ToString(), It.IsAny<JObject>()));
+        _builder.Verify(b => b.AddFile("TABLE", otherId.ToString(), It.IsAny<JObject>()), Times.Never);
+    }
+
+    [Test]
+    public async Task ExportData_GivenEmptyIdsToExport_ExportsAllIds()
+    {
+        var id = Guid.NewGuid();
+        var otherId = Guid.NewGuid();
+        _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
+        _request.TablesAndIds.Add("TABLE", new List<Guid>());
+
+        await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
+
+        Assert.That(_result.Tables["TABLE"], Is.EqualTo(2));
+    }
+
+    [Test]
+    public async Task ExportData_GivenNoIdsToExport_ExportsAllIds()
+    {
+        var id = Guid.NewGuid();
+        var otherId = Guid.NewGuid();
+        _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
+
+        await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
+
+        Assert.That(_result.Tables["TABLE"], Is.EqualTo(2));
+    }
+
+    [Test]
     public async Task ExportData_WhenCancelledBetweenBatches_AbortsEarly()
     {
         var tokenSource = new CancellationTokenSource();
@@ -132,12 +172,12 @@ public class TableAccessorTests
         Assert.That(_result.Tables["TABLE"], Is.EqualTo(4));
     }
 
-    private static JObject Row(DateTime? deleted = null)
+    private static JObject Row(Guid? id = null, DateTime? deleted = null)
     {
         var row = new CourageScores.Models.Cosmos.Division
         {
             Deleted = deleted,
-            Id = Guid.NewGuid(),
+            Id = id ?? Guid.NewGuid(),
         };
 
         var stringBuilder = new StringBuilder();
