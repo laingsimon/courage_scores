@@ -28,6 +28,7 @@ public class DataServiceTests
     private ITableAccessor[] _tables = Array.Empty<ITableAccessor>();
     private ImportDataRequestDto _importRequest = null!;
     private Mock<IDataImporter> _tableImporter = null!;
+    private ExportMetaData _importMetaData = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -55,6 +56,10 @@ public class DataServiceTests
                 ImportData = true,
             }
         };
+        _importMetaData = new ExportMetaData
+        {
+            Hostname = "HOST",
+        };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _zipBuilderFactory.Setup(f => f.Create(It.IsAny<string>(), _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
         _cosmosTableService
@@ -70,10 +75,7 @@ public class DataServiceTests
             .Setup(f => f.Create(_importRequest, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
             .ReturnsAsync(_tableImporter.Object);
         _importZip.Setup(z => z.ReadJson<ExportMetaData>(ExportMetaData.FileName))
-            .ReturnsAsync(new ExportMetaData
-            {
-                Hostname = "HOST",
-            });
+            .ReturnsAsync(_importMetaData);
 
         _dataService = new DataService(
             _database.Object,
@@ -218,6 +220,19 @@ public class DataServiceTests
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Errors, Has.Member("Zip file does not contain a meta.json file"));
+    }
+
+    [Test]
+    public async Task ImportData_WithV2PartialDataExportAndPurge_ReturnsUnsuccessful()
+    {
+        _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
+        _importRequest.PurgeData = true;
+        _importMetaData.RequestedTables.Add("TABLE 1", new List<Guid>(new[] { Guid.Empty }));
+
+        var result = await _dataService.ImportData(_importRequest, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("Purge is not permitted for partial data exports"));
     }
 
     [Test]
