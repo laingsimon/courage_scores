@@ -21,10 +21,6 @@ export function ExportData() {
     const [ saveError, setSaveError ] = useState(null);
 
     useEffect(() => {
-        if (!tables) {
-            return;
-        }
-
         const selected = tables.filter(t => t.canExport);
         const newExportRequest = Object.assign({ }, exportRequest);
         newExportRequest.tables = toDictionary(selected, t => t.name, _ => []);
