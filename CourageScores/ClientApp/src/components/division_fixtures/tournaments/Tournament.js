@@ -230,7 +230,7 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="content-background p-3">
-                {canManageTournaments ? (<h4 className="pb-2">
+                {canManageTournaments ? (<h4 className="pb-2 d-print-none">
                     <span>Edit tournament: </span>
                     <span className="me-4">{renderDate(tournamentData.date)}</span>
                     <button className="btn btn-sm margin-left btn-outline-primary margin-right" onClick={window.print}>🖨️</button>
