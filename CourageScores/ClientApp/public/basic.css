@@ -382,3 +382,7 @@ body .width-50 {
 .page-break-after {
   break-after: page;
 }
+
+.page-break-avoid {
+  page-break-inside: avoid;
+}
