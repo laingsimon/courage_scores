@@ -1,10 +1,9 @@
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
-}
-
 code {
   color: #E01A76;
+}
+
+nav {
+  background-color: #cccccc;
 }
 
 .btn-primary {
@@ -13,26 +12,17 @@ code {
   border-color: #1861ac;
 }
 
-body {
-  background: #000000;
-  color: #ffffff;
-}
-
-nav {
-  background-color: #29292a;
-}
-
 .nav .nav-link {
   color: #ffffff;
 }
 
 .darts-background {
-  background-image: url("background.jpg");
+  /*overridden in brand/*.css*/
+  background-image: url("background.png");
   background-size: cover;
   background-attachment: fixed;
   background-position: top center;
   background-repeat: no-repeat;
-  color: #ffffff;
 }
 
 @media print {
@@ -46,16 +36,14 @@ nav {
 }
 
 .content-background {
-  background-color: #ffffff;
-  color: #000000;
+  background-color: #cccccc;
 }
 
 .mid-grey-background {
-  background: #3e3e3e;
+  background: #bbbbbb;
 }
 
 .social-icon {
-  background: #333333;
   display: inline-block;
   margin-right: 5px;
   padding-left: 5px;
@@ -76,16 +64,10 @@ nav {
   text-decoration: none;
 }
 
-@font-face {
-  font-family: 'exo2extrabold';
-  src: url('exo2-extrabold.ttf') format('truetype');
-}
-
 .heading {
   text-align: center;
   padding: 3px;
-  color: #928E1F;
-  font-family: 'exo2extrabold', "Arial Black", serif;
+  font-family: "Arial Black", serif;
   font-size: 40px;
   opacity: 0.7;
 }
@@ -149,6 +131,7 @@ input[type="date"] {
 }
 
 .loading-background {
+  /*overridden in brand/*.css*/
   background-image: url("loading.gif");
   background-position: center center;
   background-repeat: no-repeat;
@@ -170,7 +153,7 @@ input[type="date"] {
 }
 
 body .bg-winner,
-body td.bg-winner {
+body .table td.bg-winner {
   background-color: #bbffbb;
 }
 
