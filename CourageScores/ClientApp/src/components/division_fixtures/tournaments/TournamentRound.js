@@ -169,7 +169,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
         </tbody></table>
         {allowNextRound && (hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1))
             ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
-                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} patchData={nestedRoundPatch} />)
+                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} patchData={nestedRoundPatch} allowNextRound={allowNextRound} />)
             : null}
     </div>);
 }
