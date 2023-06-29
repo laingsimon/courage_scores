@@ -53,6 +53,7 @@ describe('DivisionFixture', () => {
         deletedFixture = null;
         context = await renderApp(
             { gameApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

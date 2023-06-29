@@ -31,6 +31,7 @@ describe('SuperLeaguePrintout', () => {
         reportedError = null;
         context = await renderApp(
             { saygApi },
+            null,
             {
                 onError: (err) => {
                     if (err.message) {

@@ -6,8 +6,10 @@ import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
+import {useBranding} from "../../BrandingContainer";
 
 export function TeamOverview({ teamId }) {
+    const { name } = useBranding();
     const { id: divisionId, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
     const { teams } = useApp();
     const team = teams.filter(t => t.id === teamId)[0];
@@ -69,7 +71,7 @@ export function TeamOverview({ teamId }) {
     }
 
     return (<div className="content-background p-3">
-        <h3>{team.name} <ShareButton text={`Courage League: ${team.name}`} /></h3>
+        <h3>{team.name} <ShareButton text={`${name}: ${team.name}`} /></h3>
         <p>Address: {team.address}</p>
 
         <div className="overflow-x-auto">

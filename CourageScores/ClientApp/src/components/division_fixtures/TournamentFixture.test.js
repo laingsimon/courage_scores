@@ -39,6 +39,7 @@ describe('TournamentFixture', () => {
         deletedId = null;
         context = await renderApp(
             { tournamentApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

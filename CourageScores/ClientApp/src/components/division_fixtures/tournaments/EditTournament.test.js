@@ -25,6 +25,7 @@ describe('EditTournament', () => {
         updatedData = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     if (err.message) {

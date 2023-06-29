@@ -29,6 +29,7 @@ describe('DivisionTeams', () => {
         divisionReloaded = false;
         context = await renderApp(
             { teamApi },
+            { name: 'Courage Scores' },
             {
                 account: account,
                 onError: (err) => {

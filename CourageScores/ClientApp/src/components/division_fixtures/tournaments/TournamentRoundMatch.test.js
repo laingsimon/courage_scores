@@ -81,6 +81,7 @@ describe('TournamentRoundMatch', () => {
         createdSaygSessions = [];
         context = await renderApp(
             { tournamentApi, saygApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     if (err.message) {

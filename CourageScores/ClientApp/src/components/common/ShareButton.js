@@ -1,8 +1,10 @@
 import {useLocation} from "react-router-dom";
 import React, {useState} from "react";
+import {useBranding} from "../../BrandingContainer";
 
 export function ShareButton({ title, text, getHash, buttonText }) {
     const location = useLocation();
+    const { name } = useBranding();
     const [ gettingShareLink, setGettingShareLink ] = useState(false);
 
     async function share() {
@@ -14,8 +16,8 @@ export function ShareButton({ title, text, getHash, buttonText }) {
             }
 
             const shareData = {
-                text: text || 'Courage League',
-                title: title || 'Courage League',
+                text: text || name,
+                title: title || name,
                 url: location.pathname + location.search + hash
             };
 

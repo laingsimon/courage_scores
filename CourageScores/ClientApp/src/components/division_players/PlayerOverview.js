@@ -5,8 +5,10 @@ import {ShareButton} from "../common/ShareButton";
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
+import {useBranding} from "../../BrandingContainer";
 
 export function PlayerOverview({ playerId }) {
+    const { name } = useBranding();
     const { players, teams, fixtures: divisionDataFixtures, id: divisionId, season } = useDivisionData();
     const player = players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown', fixtures: {} };
     const team = teams.filter(t => t.id === player.teamId)[0] || { id: null, name: 'Unknown' };
@@ -111,7 +113,7 @@ export function PlayerOverview({ playerId }) {
                 <Link to={`/division/${divisionId}/team:${team.id}/${season.id}`} className="margin-right">{team.name}</Link>
             </span>
             <span className="margin-left">
-                <ShareButton text={`Courage League: ${player.name}`} />
+                <ShareButton text={`${name}: ${player.name}`} />
             </span>
         </h3>
 

@@ -27,6 +27,7 @@ describe('ExportData', () => {
         exportRequest = null;
         context = await renderApp(
             { dataApi },
+            { name: 'Courage Scores' },
             {
                 account: { },
                 appLoading: false,

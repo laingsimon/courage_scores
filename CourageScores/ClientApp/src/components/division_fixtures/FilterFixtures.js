@@ -4,9 +4,11 @@ import {propChanged} from "../../helpers/events";
 import {renderDate} from "../../helpers/rendering";
 import {ShareButton} from "../common/ShareButton";
 import {useDivisionData} from "../DivisionDataContainer";
+import {useBranding} from "../../BrandingContainer";
 
 export function FilterFixtures({ filter, setFilter }) {
     const { teams } = useDivisionData();
+    const { name } = useBranding();
     const teamFilters = teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name }; });
     teamFilters.unshift({ value: null, text: 'All teams' });
 
@@ -37,6 +39,6 @@ export function FilterFixtures({ filter, setFilter }) {
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'date')} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'teamId')} options={teamFilters} value={filter.teamId || null} className="dynamic-width-dropdown margin-right" />
-        <ShareButton text="Courage League, fixtures" />
+        <ShareButton text={`${name}, fixtures`} />
     </div>);
 }

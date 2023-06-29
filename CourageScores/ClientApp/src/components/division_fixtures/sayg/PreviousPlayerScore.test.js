@@ -16,6 +16,7 @@ describe('PreviousPlayerScore', () => {
         lastThrowUndone = false;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             { },
             <PreviousPlayerScore
                 {...props}

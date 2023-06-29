@@ -1,0 +1,75 @@
+﻿@font-face {
+    font-family: 'exo2extrabold';
+    /*noinspection CssUnknownTarget*/
+    src: url('exo2-extrabold.ttf') format('truetype');
+}
+
+/* Provide sufficient contrast against white background */
+body a {
+    color: #0366d6;
+}
+
+body .heading {
+    font-family: 'exo2extrabold', "Arial Black", serif;
+    color: #928E1F;
+    text-transform: uppercase;
+}
+
+body .loading-background {
+    /*noinspection CssUnknownTarget*/
+    background-image: url("loading.gif");
+}
+
+body.darts-background {
+    /*noinspection CssUnknownTarget*/
+    background-image: url("background.png");
+    background-color: #000000;
+    color: #ffffff;
+}
+
+body nav {
+    background-color: #29292a;
+}
+
+body span.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255, 255, 255, 0.55)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+body .content-background {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+body .social-icon {
+    background: #333333;
+}
+
+body .social-header {
+    background: #3e3e3e;
+}
+
+body .nav-link {
+    color: #cccccc;
+}
+
+body .nav-link:hover,
+body .nav-link:active,
+body .nav-link:focus,
+body .nav-item-active,
+body .nav-item-active:active {
+    color: #ffffff;
+}
+
+body .navbar-brand,
+body .navbar-brand:hover {
+    color: #ffffff;
+}
+
+body .nav-link.active {
+    color: #000000;
+}
+
+body .bg-winner,
+body .table td.bg-winner {
+    background-color: #bbffbb;
+}

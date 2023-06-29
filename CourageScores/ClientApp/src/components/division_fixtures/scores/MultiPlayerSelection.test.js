@@ -27,6 +27,7 @@ describe('MultiPlayerSelection', () => {
         removedPlayer = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

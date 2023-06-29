@@ -27,6 +27,7 @@ describe('ImportData', () => {
         importRequest = null;
         context = await renderApp(
             { dataApi },
+            { name: 'Courage Scores' },
             {
                 account: { },
                 appLoading: false,

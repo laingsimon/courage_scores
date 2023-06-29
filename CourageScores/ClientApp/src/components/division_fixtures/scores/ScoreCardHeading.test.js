@@ -27,6 +27,7 @@ describe('ScoreCardHeading', () => {
         updatedSubmission = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

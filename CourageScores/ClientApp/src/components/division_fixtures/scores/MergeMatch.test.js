@@ -19,6 +19,7 @@ describe('MergeMatch', () => {
         updatedData = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

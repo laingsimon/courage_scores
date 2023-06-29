@@ -56,6 +56,7 @@ describe('EditSeason', () => {
         };
         context = await renderApp(
             { seasonApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

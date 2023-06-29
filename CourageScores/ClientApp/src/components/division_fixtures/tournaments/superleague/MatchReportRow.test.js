@@ -16,6 +16,7 @@ describe('MatchReportRow', () => {
         reportedError = null;
         context = await renderApp(
             {},
+            null,
             {
                 onError: (err) => {
                     if (err.message) {
