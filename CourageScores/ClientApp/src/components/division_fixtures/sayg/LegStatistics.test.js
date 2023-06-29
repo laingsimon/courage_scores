@@ -14,6 +14,7 @@ describe('LegStatistics', () => {
     async function renderComponent(props) {
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             { },
             <LegStatistics {...props} />,
             null,

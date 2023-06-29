@@ -40,6 +40,7 @@ describe('PlayerInput', () => {
         completedLegs = [];
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             { },
             <PlayerInput
                 {...props}

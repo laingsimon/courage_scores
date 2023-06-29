@@ -21,6 +21,7 @@ describe('TeamOverview', () => {
         divisionReloaded = false;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 account: account,
                 teams: teams,

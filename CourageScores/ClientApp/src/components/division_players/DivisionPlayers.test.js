@@ -24,6 +24,7 @@ describe('DivisionPlayers', () => {
         divisionReloaded = false;
         context = await renderApp(
             { playerApi },
+            { name: 'Courage Scores' },
             {
                 account: account,
                 onError: (err) => {

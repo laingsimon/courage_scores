@@ -5,9 +5,11 @@ import './NavMenu.css';
 import {any, isEmpty} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
+import {useBranding} from "../../BrandingContainer";
 
 export function NavMenu() {
     const { settings } = useDependencies();
+    const { menu } = useBranding();
     const { account, clearError, divisions, appLoading, seasons } = useApp();
     const [collapsed, setCollapsed] = useState(true);
     const [navMenuError, setNavMenuError] = useState(null);
@@ -56,6 +58,31 @@ export function NavMenu() {
             || access.exportData;
     }
 
+    function renderMenuItem(menuItem, index, location) {
+        if (menuItem.url.startsWith('/')) {
+            return (<li key={location + '_' + index} className="nav-item">
+                <NavLink tag={Link} className={getClassName(menuItem.url)} onClick={navigate} to={menuItem.url}>
+                    {menuItem.text}
+                </NavLink>
+            </li>);
+        }
+
+        return (<li key={location + '_' + index} className="nav-item">
+            <NavLink className="nav-link" href={menuItem.url}>{menuItem.text}</NavLink>
+        </li>);
+    }
+
+    function renderItems(location) {
+        if (!menu) {
+            return null;
+        }
+
+        const items = menu[location] || [];
+        return items.map((menuItem, index) => {
+            return renderMenuItem(menuItem, index, location);
+        });
+    }
+
     if (navMenuError) {
         return (<div>ERROR: {navMenuError.message}: {navMenuError.stack}</div>)
     }
@@ -68,19 +95,7 @@ export function NavMenu() {
                 <NavbarToggler onClick={() => setCollapsed(!collapsed)} className="mr-2"/>
                 <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
                     <ul className="navbar-nav flex-grow">
-                        <li className="nav-item">
-                            <NavLink className="nav-link"
-                                     href="http://thecourageleague.co.uk/">Home</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink className="nav-link"
-                                     href="http://thecourageleague.co.uk/?cat=13">News</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink tag={Link} className={getClassName('/practice')} onClick={navigate} to={`/practice`}>
-                                Practice
-                            </NavLink>
-                        </li>
+                        {renderItems('beforeDivisions')}
                         {!appLoading && divisions.filter(shouldShowDivision).map(division => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate}
@@ -89,17 +104,7 @@ export function NavMenu() {
                                     {division.name}
                                 </NavLink>
                             </li>))}
-                        <li className="nav-item">
-                            <NavLink className="nav-link" href="http://thecourageleague.co.uk/?page_id=249">Rules</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink className="nav-link" href="http://thecourageleague.co.uk/?page_id=261">Downloads</NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink tag={Link} className={getClassName('/about')} onClick={navigate} to={`/about`}>
-                                About
-                            </NavLink>
-                        </li>
+                        {renderItems('afterDivisions')}
                         {appLoading ? (<li className="nav-item"><NavLink><span
                             className="spinner-border spinner-border-sm margin-right" role="status"
                             aria-hidden="true"></span></NavLink></li>) : null}

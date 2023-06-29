@@ -22,6 +22,7 @@ describe('HiCheckAnd180s', () => {
         updatedFixtureData = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

@@ -50,6 +50,7 @@ describe('Practice', () => {
         navigator.share = (data) => shareData = data;
         context = await renderApp(
             { saygApi },
+            { name: 'Courage Scores' },
             {
                 account: account,
                 appLoading: appLoading || false,

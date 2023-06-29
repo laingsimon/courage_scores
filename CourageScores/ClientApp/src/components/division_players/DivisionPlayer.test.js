@@ -40,6 +40,7 @@ describe('DivisionPlayer', () => {
             {
                 playerApi
             },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

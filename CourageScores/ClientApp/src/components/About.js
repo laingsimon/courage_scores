@@ -1,17 +1,19 @@
 import {useApp} from "../AppContainer";
 import {renderDate} from "../helpers/rendering";
+import {useBranding} from "../BrandingContainer";
 
 export function About() {
     const { build } = useApp();
+    const { name, website, custodians } = useBranding();
 
     return (<div className="content-background p-3">
         <h3>About</h3>
         <p>
-            Built for, and in consultation with, the <a href="http://www.thecourageleague.co.uk">Courage League</a> to modernise and streamline the method of recording and presenting fixtures and results.
+            Built for, and in consultation with, the <a href={website}>{name}</a> to modernise and streamline the method of recording and presenting fixtures and results.
         </p>
 
         <p>
-            <strong>Custodians</strong>: Dave Jewell, Jon Green
+            <strong>Custodians</strong>: <span className="csv-nodes">{(custodians || []).map((custodian, index) => <span key={index}>{custodian}</span>)}</span>
         </p>
 
         <p>

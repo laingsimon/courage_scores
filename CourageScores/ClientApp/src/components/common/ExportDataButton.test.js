@@ -27,6 +27,7 @@ describe('ExportDataButton', () => {
         apiResult = null;
         context = await renderApp(
             { dataApi },
+            null,
             {
                 onError: (err) => {
                     reportedError = {

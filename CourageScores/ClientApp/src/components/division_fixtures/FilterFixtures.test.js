@@ -20,6 +20,7 @@ describe('FilterFixtures', () => {
         updatedFilter = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

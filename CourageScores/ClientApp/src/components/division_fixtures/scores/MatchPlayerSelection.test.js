@@ -44,6 +44,7 @@ describe('MatchPlayerSelection', () => {
         createPlayerFor = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

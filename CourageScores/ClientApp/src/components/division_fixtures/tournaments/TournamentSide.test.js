@@ -31,6 +31,7 @@ describe('TournamentSide', () => {
         removed = false;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     if (err.message) {

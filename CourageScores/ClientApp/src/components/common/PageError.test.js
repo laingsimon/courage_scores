@@ -28,6 +28,7 @@ describe('PageError', () => {
         appError = error;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

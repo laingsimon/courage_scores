@@ -9,6 +9,7 @@ import {MemoryRouter, Route} from "react-router-dom";
 import {IocContainer} from "./IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./AppContainer";
+import {BrandingContainer} from "./BrandingContainer";
 
 describe('App', () => {
     let context;
@@ -64,7 +65,9 @@ describe('App', () => {
                 errorApi,
                 settings,
             },
-            (<App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />),
+            (<BrandingContainer name='COURAGE LEAGUE'>
+                <App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />
+            </BrandingContainer>),
             testRoute ? '/test' : null);
     }
 
@@ -124,9 +127,8 @@ describe('App', () => {
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
-        const expectedMenuItemsBeforeDivisions = [ 'Home', 'News', 'Practice' ];
         const divisionMenuItems = loading ? [] : allDivisions.map(d => d.name);
-        const expectedMenuItemsAfterDivisions = [ 'Rules', 'Downloads', 'About' ];
+        const expectedMenuItemsAfterDivisions = [ ];
 
         if (!loading) {
             if (account) {
@@ -138,7 +140,7 @@ describe('App', () => {
             expectedMenuItemsAfterDivisions.push(''); // spinner
         }
 
-        const expectedMenuItems = expectedMenuItemsBeforeDivisions.concat(divisionMenuItems).concat(expectedMenuItemsAfterDivisions);
+        const expectedMenuItems = divisionMenuItems.concat(expectedMenuItemsAfterDivisions);
         expect(menuItemText).toEqual(expectedMenuItems);
     }
 

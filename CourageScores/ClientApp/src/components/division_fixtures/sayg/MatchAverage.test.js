@@ -16,6 +16,7 @@ describe('MatchAverage', () => {
         oneDartAverage = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             { },
             <MatchAverage
                 {...props}

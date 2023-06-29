@@ -12,6 +12,7 @@ body a {
 body .heading {
     font-family: 'exo2extrabold', "Arial Black", serif;
     color: #928E1F;
+    text-transform: uppercase;
 }
 
 body .loading-background {

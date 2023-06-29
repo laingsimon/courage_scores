@@ -83,6 +83,7 @@ describe('Tournament', () => {
                 playerApi,
                 dataApi,
             },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     if (err.message) {

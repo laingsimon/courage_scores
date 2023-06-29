@@ -12,10 +12,11 @@ describe('Heading', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(build) {
+    async function renderComponent(build, branding) {
         reportedError = null;
         context = await renderApp(
             { },
+            branding,
             {
                 onError: (err) => {
                     reportedError = {
@@ -29,6 +30,43 @@ describe('Heading', () => {
     }
 
     describe('renders', () => {
+        it('branded email', async () => {
+            await renderComponent({ }, {
+                email: 'someone@somewhere.com',
+            });
+
+            const emailLink = context.container.querySelector('a[href^=mailto]');
+            expect(emailLink.href).toEqual('mailto:someone@somewhere.com');
+            expect(emailLink.textContent).toContain('someone@somewhere.com');
+        });
+
+        it('branded facebook', async () => {
+            await renderComponent({ }, {
+                facebook: 'CourageScores',
+            });
+
+            const facebookLink = context.container.querySelector('a[href^="https://www.facebook.com"]');
+            expect(facebookLink.href).toEqual('https://www.facebook.com/CourageScores');
+        });
+
+        it('branded twitter', async () => {
+            await renderComponent({ }, {
+                twitter: 'CourageScores',
+            });
+
+            const twitterLink = context.container.querySelector('a[href^="https://twitter.com"]');
+            expect(twitterLink.href).toEqual('https://twitter.com/CourageScores');
+        });
+
+        it('branded name', async () => {
+            await renderComponent({ }, {
+                name: 'Courage Scores',
+            });
+
+            const heading = context.container.querySelector('h1.heading');
+            expect(heading.textContent).toEqual('Courage Scores');
+        });
+
         it('when on release branch', async () => {
             await renderComponent({
                 branch: 'release',

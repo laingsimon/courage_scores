@@ -36,6 +36,7 @@ describe('FixtureDateNote', () => {
         divisionReloaded = false;
         context = await renderApp(
             { noteApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

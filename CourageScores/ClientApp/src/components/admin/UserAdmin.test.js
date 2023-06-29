@@ -28,6 +28,7 @@ describe('UserAdmin', () => {
         updatedAccess = null;
         context = await renderApp(
             { accountApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

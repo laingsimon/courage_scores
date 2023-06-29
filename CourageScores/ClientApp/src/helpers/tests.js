@@ -5,6 +5,7 @@ import {IocContainer} from "../IocContainer";
 import {AppContainer} from "../AppContainer";
 import ReactDOM from "react-dom/client";
 import React from "react";
+import {BrandingContainer} from "../BrandingContainer";
 
 /* istanbul ignore file */
 
@@ -44,7 +45,7 @@ export async function setFile(container, selector, file, user) {
     await user.type(input, '{Shift}'); //trigger the event handler again, but in an async manner
 }
 
-export async function renderApp(iocProps, appProps, content, route, currentPath, containerTag) {
+export async function renderApp(iocProps, brandingProps, appProps, content, route, currentPath, containerTag) {
     const container = document.createElement(containerTag || 'div');
     document.body.appendChild(container);
 
@@ -61,9 +62,11 @@ export async function renderApp(iocProps, appProps, content, route, currentPath,
         const component = (<MemoryRouter initialEntries={[currentPath]}>
             <Routes>
                 <Route path={route} element={<IocContainer {...iocProps}>
-                        <AppContainer {...appProps}>
-                            {content}
-                        </AppContainer>
+                        <BrandingContainer {...brandingProps}>
+                            <AppContainer {...appProps}>
+                                {content}
+                            </AppContainer>
+                        </BrandingContainer>
                     </IocContainer>} />
             </Routes>
         </MemoryRouter>);

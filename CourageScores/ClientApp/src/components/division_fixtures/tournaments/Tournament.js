@@ -17,10 +17,12 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
+import {useBranding} from "../../../BrandingContainer";
 import {ExportDataButton} from "../../common/ExportDataButton";
 
 export function Tournament() {
     const { tournamentId } = useParams();
+    const { name } = useBranding();
     const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
     const canManageTournaments = account && account.access && account.access.manageTournaments;
@@ -282,7 +284,7 @@ export function Tournament() {
                         {tournamentData.type || ''} At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                         <span className="margin-left">
                         <ShareButton
-                            text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
+                            text={`${name}: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
                         <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
                     </span>
                     </p>)}
