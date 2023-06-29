@@ -38,6 +38,7 @@ body span.navbar-toggler-icon {
 body .content-background {
     background-color: #ffffff;
     color: #000000;
+    box-shadow: none;
 }
 
 body .social-icon {
