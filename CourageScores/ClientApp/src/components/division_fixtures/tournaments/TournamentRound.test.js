@@ -250,6 +250,97 @@ describe('TournamentRound', () => {
             });
         });
 
+        it('final round (when all sides have a score)', async () => {
+            const side5 = {
+                id: createTemporaryId(),
+                name: 'SIDE 5',
+                players: []
+            };
+            const side6 = {
+                id: createTemporaryId(),
+                name: 'SIDE 6',
+                players: []
+            };
+            const side7 = {
+                id: createTemporaryId(),
+                name: 'SIDE 7',
+                players: []
+            };
+            const side8 = {
+                id: createTemporaryId(),
+                name: 'SIDE 8',
+                players: []
+            };
+
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                allowNextRound: true,
+                round: {
+                    matches: [ {
+                        id: createTemporaryId(),
+                        scoreA: 1,
+                        scoreB: 2,
+                        sideA: side1,
+                        sideB: side2,
+                    }, {
+                        id: createTemporaryId(),
+                        scoreA: 2,
+                        scoreB: 1,
+                        sideA: side3,
+                        sideB: side4,
+                    }, {
+                        id: createTemporaryId(),
+                        scoreA: 2,
+                        scoreB: 1,
+                        sideA: side5,
+                        sideB: side6,
+                    }, {
+                        id: createTemporaryId(),
+                        scoreA: 2,
+                        scoreB: 1,
+                        sideA: side7,
+                        sideB: side8,
+                    } ],
+                    matchOptions: [ {
+                        startingScore: 601,
+                        numberOfLegs: 7,
+                    } ],
+                    nextRound: {
+                        matches: [ {
+                            id: createTemporaryId(),
+                            scoreA: 2,
+                            scoreB: 1,
+                            sideA: side2,
+                            sideB: side3,
+                        }, {
+                            id: createTemporaryId(),
+                            scoreA: 1,
+                            scoreB: 2,
+                            sideA: side5,
+                            sideB: side7,
+                        } ],
+                        matchOptions: [ {
+                            startingScore: 601,
+                            numberOfLegs: 7,
+                        } ],
+                        nextRound: null,
+                    },
+                },
+                sides: [ side1, side2, side3, side4, side5, side6, side7, side8 ],
+                readOnly,
+                depth: 1,
+            });
+
+            expect(reportedError).toBeNull();
+            expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual([ 'Quarter-Final', 'Semi-Final' ]);
+            const roundTables = context.container.querySelectorAll('table');
+            assertMatch(roundTables[0], 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
+            assertMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
+            assertMatch(roundTables[0], 3, [ 'SIDE 5', '2', 'vs', '1', 'SIDE 6' ]);
+            assertMatch(roundTables[0], 4, [ 'SIDE 7', '2', 'vs', '1', 'SIDE 8' ]);
+            assertMatch(roundTables[1], 1, [ 'SIDE 2', '2', 'vs', '1', 'SIDE 3' ]);
+            assertMatch(roundTables[1], 2, [ 'SIDE 5', '1', 'vs', '2', 'SIDE 7' ]);
+        });
+
         it('no next round (when single round)', async () => {
             await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
                 round: {
@@ -471,6 +562,100 @@ describe('TournamentRound', () => {
                 assertEditableMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
                 expect(context.container.querySelector('div > table+div > strong').textContent).toEqual('Final');
                 assertEditableMatch(roundTables[1], 1, [ 'SIDE 2', '', 'vs', '', 'SIDE 3', '🗑🛠' ]);
+            });
+
+            it('final round (when all sides have a score)', async () => {
+                const side5 = {
+                    id: createTemporaryId(),
+                    name: 'SIDE 5',
+                    players: []
+                };
+                const side6 = {
+                    id: createTemporaryId(),
+                    name: 'SIDE 6',
+                    players: []
+                };
+                const side7 = {
+                    id: createTemporaryId(),
+                    name: 'SIDE 7',
+                    players: []
+                };
+                const side8 = {
+                    id: createTemporaryId(),
+                    name: 'SIDE 8',
+                    players: []
+                };
+
+                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                    allowNextRound: true,
+                    round: {
+                        matches: [
+                            {
+                            id: createTemporaryId(),
+                            scoreA: 1,
+                            scoreB: 2,
+                            sideA: side1,
+                            sideB: side2,
+                        }, {
+                            id: createTemporaryId(),
+                            scoreA: 2,
+                            scoreB: 1,
+                            sideA: side3,
+                            sideB: side4,
+                        }, {
+                            id: createTemporaryId(),
+                            scoreA: 2,
+                            scoreB: 1,
+                            sideA: side5,
+                            sideB: side6,
+                        }, {
+                            id: createTemporaryId(),
+                            scoreA: 2,
+                            scoreB: 1,
+                            sideA: side7,
+                            sideB: side8,
+                        } ],
+                        matchOptions: [ {
+                            startingScore: 601,
+                            numberOfLegs: 7,
+                        } ],
+                        nextRound: {
+                            matches: [
+                                {
+                                id: createTemporaryId(),
+                                scoreA: 2,
+                                scoreB: 1,
+                                sideA: side2,
+                                sideB: side3,
+                            }, {
+                                id: createTemporaryId(),
+                                scoreA: 1,
+                                scoreB: 2,
+                                sideA: side5,
+                                sideB: side7,
+                            } ],
+                            matchOptions: [ {
+                                startingScore: 601,
+                                numberOfLegs: 7,
+                            } ],
+                            nextRound: null,
+                        },
+                    },
+                    sides: [ side1, side2, side3, side4, side5, side6, side7, side8 ],
+                    readOnly,
+                    depth: 1,
+                });
+
+                expect(reportedError).toBeNull();
+                expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+                const roundTables = context.container.querySelectorAll('table');
+                assertMatch(roundTables[0], 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
+                assertMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
+                assertMatch(roundTables[0], 3, [ 'SIDE 5', '2', 'vs', '1', 'SIDE 6' ]);
+                assertMatch(roundTables[0], 4, [ 'SIDE 7', '2', 'vs', '1', 'SIDE 8' ]);
+                assertEditableMatch(roundTables[1], 1, [ 'SIDE 2', '2', 'vs', '1', 'SIDE 3', '🗑🛠' ]);
+                assertEditableMatch(roundTables[1], 2, [ 'SIDE 5', '1', 'vs', '2', 'SIDE 7', '🗑🛠' ]);
+                assertEditableMatch(roundTables[2], 1, [ '', '', 'vs', '', '', '➕' ]); // can add a match to the final round
             });
 
             it('no next round (when single round)', async () => {
