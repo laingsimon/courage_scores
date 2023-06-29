@@ -38,7 +38,9 @@ public class ZipBuilderFactory : IZipBuilderFactory
             Created = _clock.UtcNow.UtcDateTime,
             Creator = user.Name,
             Hostname = apiRequest!.Host.ToString(),
+#pragma warning disable CS0618
             RequestedTables = exportRequest.Tables,
+#pragma warning restore CS0618
         };
 
         var builder = new ZipBuilder(password);

@@ -25,6 +25,8 @@ public class ExportDataRequestDto
 
     [Newtonsoft.Json.JsonIgnore]
     [JsonIgnore]
+#pragma warning disable CS0618
     public IDictionary<string, List<Guid>> CaseInsensitiveTables =>
         Tables.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
+#pragma warning restore CS0618
 }
