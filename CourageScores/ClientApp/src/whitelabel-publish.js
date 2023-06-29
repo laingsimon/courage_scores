@@ -57,6 +57,7 @@ function getContentForReplacement(content) {
 
 readContent(contentPath + '/index.html', (content) => {
     const segment = getContentForReplacement(content); // find the segment to replace in the other files
+    const filesToCopyIntoBrand = ['basic.css', 'web.config', 'manifest.json'];
 
     fs.readdir(contentPath, (x, fileOrDirectoryName) => {
         const brandedPagePaths = fileOrDirectoryName
@@ -73,12 +74,18 @@ readContent(contentPath + '/index.html', (content) => {
 
         if (brandedPagePaths.length > 0) {
             console.log(`Replacing content in ${brandedPagePaths.length} files...`);
-            exhaustArray(brandedPagePaths, (item, callback) =>
-                replaceContent(item + '/index.html', segment,
-                () => copyFile(item, 'basic.css',
-                    () => copyFile(item, 'web.config', callback))), () => {
-                console.log('All whitelabel content replaced');
-            });
+            exhaustArray(
+                brandedPagePaths,
+                (brandPath, callback) => replaceContent(
+                    brandPath + '/index.html',
+                    segment,
+                    () => exhaustArray(
+                        filesToCopyIntoBrand,
+                        (file, cb) => copyFile(brandPath, file, cb),
+                        callback)),
+                () => {
+                    console.log('Completed copying content');
+                });
         } else {
             console.log('No files to update');
         }
