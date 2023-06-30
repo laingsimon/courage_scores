@@ -297,9 +297,6 @@ describe('Tournament', () => {
                 const heading = context.container.querySelector('.content-background > p');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE At ADDRESS on 2 Jan');
-                const notes = context.container.querySelector('.content-background > div.alert');
-                expect(notes).toBeTruthy();
-                expect(notes.textContent).toContain('NOTES');
             });
 
             it('tournament with team sides only', async () => {
@@ -352,9 +349,6 @@ describe('Tournament', () => {
                 const heading = context.container.querySelector('.content-background > p');
                 expect(heading).toBeTruthy();
                 expect(heading.textContent).toContain('TYPE At ADDRESS on 2 Jan');
-                const notes = context.container.querySelector('.content-background > div.alert');
-                expect(notes).toBeTruthy();
-                expect(notes.textContent).toContain('NOTES');
             });
 
             it('tournament with sides and players', async () => {
@@ -409,11 +403,8 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const editTournamentComponent = context.container.querySelector('.content-background > div:nth-child(3)');
-                expect(editTournamentComponent).toBeTruthy();
-                expect(editTournamentComponent.textContent).toContain('Playing:');
-                const sides = editTournamentComponent.querySelector('div:nth-child(2)');
-                expect(sides.textContent).toContain('SIDE 1');
+                const printableSheet = context.container.querySelector('div[datatype="printable-sheet"]');
+                expect(printableSheet).toBeTruthy();
             });
         });
 
@@ -1046,6 +1037,8 @@ describe('Tournament', () => {
             const round = {
                 matches: [ {
                     saygId: saygId,
+                    sideA: { name: 'A' },
+                    sideB: { name: 'B' },
                 } ],
                 nextRound: null,
             };
@@ -1097,6 +1090,8 @@ describe('Tournament', () => {
             const subRound = {
                 matches: [ {
                     saygId: saygId2,
+                    sideA: { name: 'A' },
+                    sideB: { name: 'B' },
                 } ],
                 nextRound: null,
             }

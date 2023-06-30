@@ -7,7 +7,6 @@ import {propChanged, valueChanged} from "../../../helpers/events";
 import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
 import {ShareButton} from "../../common/ShareButton";
-import {TournamentSheet} from "./TournamentSheet";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
@@ -19,6 +18,7 @@ import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
 import {useBranding} from "../../../BrandingContainer";
 import {ExportDataButton} from "../../common/ExportDataButton";
+import {PrintableSheet} from "./PrintableSheet";
 
 export function Tournament() {
     const { tournamentId } = useParams();
@@ -305,10 +305,7 @@ export function Tournament() {
                                   value={tournamentData.notes || ''} name="notes"
                                   onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
                     </div>)
-                    : tournamentData.notes
-                        ? (<div className="alert alert-warning alert-dismissible fade show d-print-none"
-                                role="alert">{tournamentData.notes}</div>)
-                        : null}
+                    : null}
                 {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-print-none">
                         <label htmlFor="note-text" className="input-group-text">Options</label>
@@ -379,8 +376,8 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}>
-                    <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
-                    {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<TournamentSheet />)}
+                    {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />) : null}
+                    {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<PrintableSheet printOnly={canSave} />)}
                 </TournamentContainer>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"
