@@ -2,7 +2,7 @@ import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../../helpers/projection";
 import {any, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
 
 export function PrintableSheet({ printOnly }) {
@@ -11,6 +11,79 @@ export function PrintableSheet({ printOnly }) {
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
+    const [ wiggle, setWiggle ] = useState(!printOnly);
+
+    useEffect(() => {
+        if (!wiggle) {
+            return;
+        }
+
+        setWiggle(false);
+        setupWiggle();
+    },
+    // eslint-disable-next-line
+    [ wiggle ]);
+
+    function setupWiggle() {
+        const wiggler = {
+            handle: null,
+            movements: getWiggleMovements(),
+        };
+
+        wiggler.handle = window.setInterval(() => {
+            try {
+                if (!any(wiggler.movements)) {
+                    window.clearInterval(wiggler.handle);
+                    wiggler.handle = null;
+                    return;
+                }
+
+                const element = document.querySelector('div[datatype="rounds-and-players"]');
+                if (!element) {
+                    window.clearInterval(wiggler.handle);
+                    wiggler.handle = null;
+                    return;
+                }
+
+                const movement = wiggler.movements.shift();
+                element.scrollLeft = movement.scrollLeft;
+            } catch (e) {
+                console.error(e);
+                window.clearInterval(wiggler.handle);
+                wiggler.handle = null;
+            }
+        }, 10);
+    }
+
+    function getWiggleMovements() {
+        const element = document.querySelector('div[datatype="rounds-and-players"]');
+        if (!element) {
+            return [];
+        }
+
+        function movement(percentage) {
+            return { scrollLeft: percentage * element.getBoundingClientRect().width };
+        }
+
+        function movements(lowerPercentage, upperPercentage, times) {
+            const singleMovement = (upperPercentage - lowerPercentage) / times;
+            return repeat(times + 1, index => movement(lowerPercentage + (index * singleMovement)));
+        }
+
+        return [
+            movements(0.0, 0.1, 10),
+            movements(0.1, 0.2, 10),
+            movements(0.2, 0.4, 10),
+            movements(0.4, 0.6, 10),
+            movements(0.6, 0.7, 10),
+            movements(0.7, 0.7, 10),
+            movements(0.7, 0.6, 10),
+            movements(0.6, 0.4, 10),
+            movements(0.4, 0.2, 10),
+            movements(0.2, 0.1, 10),
+            movements(0.1, 0.0, 10),
+        ].flatMap(movements => movements);
+    }
 
     function setRoundNames(layoutData) {
         const layoutDataCopy = layoutData.filter(_ => true);
@@ -145,14 +218,14 @@ export function PrintableSheet({ printOnly }) {
                 }
 
                 return 0;
-            }).map(name => <div className="p-1 no-wrap">{name} x {oneEightyMap[name]}</div>)}
+            }).map(name => <div key={name} className="p-1 no-wrap">{name} x {oneEightyMap[name]}</div>)}
         </div>);
     }
 
     function renderHiChecks() {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
-            {tournamentData.over100Checkouts.map(player => <div className="p-1 no-wrap">{player.name} ({player.notes})</div>)}
+            {tournamentData.over100Checkouts.map(player => <div key={player.name} className="p-1 no-wrap">{player.name} ({player.notes})</div>)}
         </div>);
     }
 
