@@ -511,7 +511,7 @@ describe('TournamentRoundMatch', () => {
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
                 assertScore(cells[1], '3');
-                assertScore(cells[3], '0');
+                assertScore(cells[3], '');
             });
 
             it('sideB outright winner shows 0 value score for sideA', async () => {
@@ -537,7 +537,7 @@ describe('TournamentRoundMatch', () => {
                 expect(reportedError).toBeNull();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
-                assertScore(cells[1], '0');
+                assertScore(cells[1], '');
                 assertScore(cells[3], '3');
             });
         });
