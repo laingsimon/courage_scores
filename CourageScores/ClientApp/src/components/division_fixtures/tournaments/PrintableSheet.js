@@ -48,6 +48,7 @@ export function PrintableSheet({ printOnly }) {
                 const movement = wiggler.movements.shift();
                 element.scrollLeft = movement.scrollLeft;
             } catch (e) {
+                /* istanbul ignore next */
                 console.error(e);
                 window.clearInterval(wiggler.handle);
                 wiggler.handle = null;
@@ -58,6 +59,7 @@ export function PrintableSheet({ printOnly }) {
     function getWiggleMovements() {
         const element = document.querySelector('div[datatype="rounds-and-players"]');
         if (!element) {
+            /* istanbul ignore next */
             return [];
         }
 
@@ -295,6 +297,7 @@ export function PrintableSheet({ printOnly }) {
             </div>
         </div>);
     } catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
