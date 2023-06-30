@@ -97,6 +97,11 @@ describe('PrintableSheet', () => {
             });
     }
 
+    function getAccolades(name) {
+        return Array.from(context.container.querySelectorAll('div[data-accolades="' + name + '"] div'))
+            .map(div => div.textContent);
+    }
+
     describe('played tournament', () => {
         const sideA = createSide('A');
         const sideB = createSide('B');
@@ -358,6 +363,40 @@ describe('PrintableSheet', () => {
 
             const heading = context.container.querySelector('div[datatype="heading"]');
             expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES`);
+        });
+
+        it('renders 180s', async () => {
+            const tournamentData = {
+                round: null,
+                sides: [ sideA, sideB ],
+                oneEighties: [
+                    { id: createTemporaryId(), name: 'PLAYER 1' },
+                    { id: createTemporaryId(), name: 'PLAYER 2' },
+                    { id: createTemporaryId(), name: 'PLAYER 1' },
+                    { id: createTemporaryId(), name: 'PLAYER 1' },
+                ],
+                over100Checkouts: [ ],
+            };
+
+            await renderComponent({  tournamentData }, { printOnly: false });
+
+            expect(getAccolades('180s')).toEqual([ 'PLAYER 1 x 3', 'PLAYER 2 x 1' ]);
+        });
+
+        it('renders hi checks', async () => {
+            const tournamentData = {
+                round: null,
+                sides: [ sideA, sideB ],
+                oneEighties: [],
+                over100Checkouts: [
+                    { id: createTemporaryId(), name: 'PLAYER 1', notes: '100' },
+                    { id: createTemporaryId(), name: 'PLAYER 2', notes: '120' },
+                ],
+            };
+
+            await renderComponent({  tournamentData }, { printOnly: false });
+
+            expect(getAccolades('hi-checks')).toEqual([ 'PLAYER 1 (100)', 'PLAYER 2 (120)' ]);
         });
     });
 
