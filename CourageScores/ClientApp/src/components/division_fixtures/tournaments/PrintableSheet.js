@@ -246,7 +246,7 @@ export function PrintableSheet({ printOnly }) {
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
                 {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong> - <strong>{tournamentData.notes}</strong>
             </div>
-            <div datatype="rounds-and-players" className="d-flex flex-row align-items-center overflow-auto">
+            <div datatype="rounds-and-players" className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
                 {layoutData.map((roundData, index) => (
                     <div key={index} datatype={`round-${index}`} className="d-flex flex-column p-3">
                         {index === layoutData.length - 1 ? render180s() : null}

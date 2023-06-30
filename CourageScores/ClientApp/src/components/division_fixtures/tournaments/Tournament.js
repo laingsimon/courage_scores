@@ -377,7 +377,9 @@ export function Tournament() {
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}>
                     {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />) : null}
-                    {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<PrintableSheet printOnly={canSave} />)}
+                    {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division} />) : null}
+                    {tournamentData.singleRound && canSave ? (<div className="d-screen-none"><SuperLeaguePrintout division={division} /></div>) : null}
+                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canSave} />) : null}
                 </TournamentContainer>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"

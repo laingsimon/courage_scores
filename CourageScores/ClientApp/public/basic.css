@@ -405,3 +405,9 @@ body .width-50 {
   right: 0;
   border-top: 1px dotted #cccccc;
 }
+
+@media print {
+  body .no-overflow-on-print {
+    overflow: initial !important;
+  }
+}
