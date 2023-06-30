@@ -71,17 +71,16 @@ export function PrintableSheet({ printOnly }) {
         }
 
         return [
-            movements(0.0, 0.1, 10),
-            movements(0.1, 0.2, 10),
-            movements(0.2, 0.4, 10),
-            movements(0.4, 0.6, 10),
-            movements(0.6, 0.7, 10),
-            movements(0.7, 0.7, 10),
-            movements(0.7, 0.6, 10),
-            movements(0.6, 0.4, 10),
-            movements(0.4, 0.2, 10),
-            movements(0.2, 0.1, 10),
-            movements(0.1, 0.0, 10),
+            movements(0.0, 0.05, 10),
+            movements(0.05, 0.1, 10),
+            movements(0.1, 0.2, 5),
+            movements(0.2, 0.3, 5),
+            movements(0.3, 0.35, 10),
+            movements(0.35, 0.3, 10),
+            movements(0.3, 0.2, 5),
+            movements(0.2, 0.1, 5),
+            movements(0.1, 0.05, 10),
+            movements(0.05, 0.0, 10),
         ].flatMap(movements => movements);
     }
 
