@@ -108,6 +108,8 @@ public class TournamentGame : AuditedEntity, IPermissionedEntity, IGameVisitable
 
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
+        scope = scope.With(new VisitorScope { Tournament = this });
+
         visitor.VisitGame(this);
 
         if (AccoladesCount)
