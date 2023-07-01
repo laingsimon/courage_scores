@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos.Data;
+using CourageScores.Repository;
 using CourageScores.Services.Identity;
 using Microsoft.Azure.Cosmos;
 
@@ -11,12 +12,14 @@ public class CosmosTableService : ICosmosTableService
     private readonly Database _database;
     private readonly IUserService _userService;
     private readonly IJsonSerializerService _serializer;
+    private readonly ICosmosTableNameResolver _tableNameResolver;
 
-    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer)
+    public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer, ICosmosTableNameResolver tableNameResolver)
     {
         _database = database;
         _userService = userService;
         _serializer = serializer;
+        _tableNameResolver = tableNameResolver;
     }
 
     public async IAsyncEnumerable<ITableAccessor> GetTables(ExportDataRequestDto request, [EnumeratorCancellation] CancellationToken token)
@@ -27,7 +30,7 @@ public class CosmosTableService : ICosmosTableService
         {
             if (!specifiedTablesOnly || request.CaseInsensitiveTables.ContainsKey(table.Name))
             {
-                yield return new TableAccessor(table.Name, table.PartitionKey);
+                yield return new TableAccessor(table);
             }
         }
     }
@@ -49,11 +52,12 @@ public class CosmosTableService : ICosmosTableService
                 var tableName = table.Id;
 
                 var partitionKey = table.PartitionKey.Paths.Single();
-                typeLookup.TryGetValue(tableName, out var dataType);
+                typeLookup.TryGetValue(_tableNameResolver.GetTableTypeName(tableName), out var dataType);
 
                 yield return new TableDto
                 {
-                    Name = tableName,
+                    Name = _tableNameResolver.GetTableTypeName(tableName),
+                    EnvironmentalName = tableName,
                     PartitionKey = partitionKey,
                     DataType = dataType,
                     CanImport = await CanImportDataType(dataType, token),

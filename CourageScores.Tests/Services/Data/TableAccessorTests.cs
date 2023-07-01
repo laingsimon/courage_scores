@@ -14,7 +14,7 @@ public class TableAccessorTests
 {
     private static readonly JsonSerializer Serializer = new JsonSerializer();
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly TableAccessor _accessor = new TableAccessor("TABLE");
+    private readonly TableAccessor _accessor = new TableAccessor(new TableDto { Name = "TABLE", EnvironmentalName = "TABLE_dev", PartitionKey = "/id"});
     private Mock<Database> _database = null!;
     private Mock<IZipBuilder> _builder = null!;
     private ExportDataResultDto _result = null!;
@@ -35,7 +35,7 @@ public class TableAccessorTests
             .Setup(c => c.GetItemQueryIterator<JObject>(It.IsAny<string>(), null, null))
             .Returns(() => _iterator);
         _database
-            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE", "/id", null, null, It.IsAny<CancellationToken>()))
+            .Setup(d => d.CreateContainerIfNotExistsAsync("TABLE_dev", "/id", null, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new MockContainerResponse(_container));
     }
 
