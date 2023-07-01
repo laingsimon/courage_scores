@@ -57,6 +57,9 @@ public class DivisionData
         // ReSharper disable once CollectionNeverQueried.Global
         public HashSet<Models.Cosmos.Game.Game?> Games { get; } = new();
 
+        // ReSharper disable once CollectionNeverQueried.Global
+        public HashSet<TournamentGame?> Tournaments { get; } = new();
+
         /// <summary>
         /// Have any of the hi-checks or one-eighties come from a knockout fixture?
         /// </summary>

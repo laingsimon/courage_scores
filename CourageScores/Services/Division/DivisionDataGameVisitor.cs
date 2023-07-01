@@ -123,7 +123,14 @@ public class DivisionDataGameVisitor : IGameVisitor
             _divisionData.Players.Add(player.Id, score);
         }
 
-        score.Games.Add(scope.Game);
+        if (scope.Game != null)
+        {
+            score.Games.Add(scope.Game);
+        }
+        if (scope.Tournament != null)
+        {
+            score.Tournaments.Add(scope.Tournament);
+        }
         score.FromKnockout = score.FromKnockout || scope.Game?.IsKnockout == true;
         score.OneEighties++;
     }
@@ -142,7 +149,15 @@ public class DivisionDataGameVisitor : IGameVisitor
         }
 
         score.FromKnockout = score.FromKnockout || scope.Game?.IsKnockout == true;
-        score.Games.Add(scope.Game);
+        if (scope.Game != null)
+        {
+            score.Games.Add(scope.Game);
+        }
+        if (scope.Tournament != null)
+        {
+            score.Tournaments.Add(scope.Tournament);
+        }
+
         if (hiCheck > score.HiCheckout)
         {
             score.HiCheckout = hiCheck;
