@@ -1,6 +1,6 @@
-using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Data;
 using CourageScores.Models.Dtos.Identity;
+using CourageScores.Repository;
 using CourageScores.Services;
 using CourageScores.Services.Data;
 using CourageScores.Services.Identity;
@@ -17,6 +17,7 @@ public class CosmosTableServiceTests
     private Mock<Database> _database = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IJsonSerializerService> _jsonSerializer = null!;
+    private Mock<ICosmosTableNameResolver> _tableNameResolver = null!;
     private UserDto? _user;
     private List<string> _tables = null!;
     private CosmosTableService _service = null!;
@@ -26,14 +27,15 @@ public class CosmosTableServiceTests
     {
         _tables = new List<string>
         {
-            nameof(Game),
-            nameof(TournamentGame),
-            nameof(Team),
+            "game_dev",
+            "tournamentgame_dev",
+            "team_dev",
         };
         _database = new Mock<Database>();
         _userService = new Mock<IUserService>();
         _jsonSerializer = new Mock<IJsonSerializerService>();
-        _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object);
+        _tableNameResolver = new Mock<ICosmosTableNameResolver>();
+        _service = new CosmosTableService(_database.Object, _userService.Object, _jsonSerializer.Object, _tableNameResolver.Object);
         _user = new UserDto
         {
             Access = new AccessDto
@@ -46,6 +48,7 @@ public class CosmosTableServiceTests
             .Setup(d => d.GetContainerQueryStreamIterator((string?)null, null, null))
             .Returns(() => new MockFeedIterator(_jsonSerializer, _tables.ToArray()));
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
+        _tableNameResolver.Setup(r => r.GetTableTypeName(It.IsAny<string>())).Returns((string table) => table.Replace("_dev", ""));
     }
 
     [TestCase(true)]
@@ -60,7 +63,7 @@ public class CosmosTableServiceTests
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
 
-        Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(_tables));
+        Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
     }
 
     [TestCase(true, nameof(Game))]
@@ -82,7 +85,7 @@ public class CosmosTableServiceTests
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
 
-        Assert.That(tableAccessors.Select(a => a.TableName), Is.EqualTo(new[] { nameof(Game) }));
+        Assert.That(tableAccessors.Select(a => a.TableName), Is.EqualTo(new[] { "game" }));
     }
 
     [Test]
@@ -91,7 +94,7 @@ public class CosmosTableServiceTests
         _user = null;
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(_tables));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
     }
 
     [Test]
@@ -99,7 +102,8 @@ public class CosmosTableServiceTests
     {
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(_tables));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
+        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[] { "game_dev", "tournamentgame_dev", "team_dev" }));
     }
 
     [Test]
@@ -107,7 +111,8 @@ public class CosmosTableServiceTests
     {
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(_tables));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
+        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[] { "game_dev", "tournamentgame_dev", "team_dev" }));
         Assert.That(tables.Select(a => a.PartitionKey), Has.All.EqualTo("/id"));
         Assert.That(tables.Select(a => a.DataType), Has.All.Not.Null);
     }
@@ -155,7 +160,7 @@ public class CosmosTableServiceTests
 
         var tables = await _service.GetTables(_token).ToList();
 
-        var gameTable = tables.Single(t => t.Name == nameof(Game));
+        var gameTable = tables.Single(t => t.Name == "game");
         Assert.That(gameTable.CanImport, Is.EqualTo(expectedCanImport));
         Assert.That(gameTable.CanExport, Is.EqualTo(expectedCanExport));
     }
@@ -172,7 +177,7 @@ public class CosmosTableServiceTests
 
         var tables = await _service.GetTables(_token).ToList();
 
-        var gameTable = tables.Single(t => t.Name == nameof(Game));
+        var gameTable = tables.Single(t => t.Name == "game");
         Assert.That(gameTable.CanImport, Is.EqualTo(expectedCanImport));
         Assert.That(gameTable.CanExport, Is.EqualTo(expectedCanExport));
     }

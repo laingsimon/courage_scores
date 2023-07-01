@@ -39,4 +39,9 @@ public class TableDto
     /// Can the logged in user export this data type
     /// </summary>
     public bool CanExport { get; set; }
+
+    /// <summary>
+    /// The name of the table for this environment
+    /// </summary>
+    public string EnvironmentalName { get; set; } = null!;
 }

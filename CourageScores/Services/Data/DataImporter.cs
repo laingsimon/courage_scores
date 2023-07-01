@@ -47,8 +47,8 @@ public class DataImporter : IDataImporter
             }
 
             var tableName = _request.DryRun
-                ? table.Name + DryRunTableSuffix
-                : table.Name;
+                ? table.EnvironmentalName + DryRunTableSuffix
+                : table.EnvironmentalName;
 
             if (!_request.DryRun)
             {
@@ -70,6 +70,28 @@ public class DataImporter : IDataImporter
             {
                 await container.DeleteContainerAsync(cancellationToken: token);
                 yield return $"DRY RUN: Deleting temporary table: {tableName}";
+            }
+        }
+    }
+
+    public async IAsyncEnumerable<string> PurgeData(IReadOnlyCollection<string> tables, [EnumeratorCancellation] CancellationToken token)
+    {
+        foreach (var table in _currentTables)
+        {
+            if (token.IsCancellationRequested)
+            {
+                break;
+            }
+
+            if (tables.Any() && !tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Purging data in {table.EnvironmentalName}";
+            if (!_request.DryRun)
+            {
+                await PurgeData(table, token);
             }
         }
     }
@@ -110,28 +132,6 @@ public class DataImporter : IDataImporter
         }
     }
 
-    public async IAsyncEnumerable<string> PurgeData(IReadOnlyCollection<string> tables, [EnumeratorCancellation] CancellationToken token)
-    {
-        foreach (var table in _currentTables)
-        {
-            if (token.IsCancellationRequested)
-            {
-                break;
-            }
-
-            if (tables.Any() && !tables.Contains(table.Name, StringComparer.OrdinalIgnoreCase))
-            {
-                continue;
-            }
-
-            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Purging data in {table.Name}";
-            if (!_request.DryRun)
-            {
-                await PurgeData(table.Name, token);
-            }
-        }
-    }
-
     private static async Task ImportRecord(JObject recordToImport, Container container, CancellationToken token)
     {
         var result = await container.UpsertItemAsync(recordToImport, cancellationToken: token);
@@ -145,9 +145,9 @@ public class DataImporter : IDataImporter
         throw new InvalidOperationException($"Could not import row: {result.StatusCode}");
     }
 
-    private async Task PurgeData(string tableName, CancellationToken token)
+    private async Task PurgeData(TableDto table, CancellationToken token)
     {
-        var container = _database.GetContainer(tableName);
+        var container = _database.GetContainer(table.EnvironmentalName);
         await container.DeleteContainerAsync(cancellationToken: token);
     }
 }

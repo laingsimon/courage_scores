@@ -6,15 +6,14 @@ namespace CourageScores.Services.Data;
 
 public class TableAccessor : ITableAccessor
 {
-    private readonly string _partitionKey;
+    private readonly TableDto _table;
 
-    public TableAccessor(string tableName, string partitionKey = "/id")
+    public TableAccessor(TableDto table)
     {
-        TableName = tableName;
-        _partitionKey = partitionKey;
+        _table = table;
     }
 
-    public string TableName { get; }
+    public string TableName => _table.Name;
 
     public async Task ExportData(Database database, ExportDataResultDto result, IZipBuilder builder,
         ExportDataRequestDto request, CancellationToken token)
@@ -23,7 +22,7 @@ public class TableAccessor : ITableAccessor
         request.CaseInsensitiveTables.TryGetValue(TableName, out var ids);
         var idsToReturn = ids?.Select(id => id.ToString()).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
 
-        Container container = await database.CreateContainerIfNotExistsAsync(TableName, _partitionKey, cancellationToken: token);
+        Container container = await database.CreateContainerIfNotExistsAsync(_table.EnvironmentalName, _table.PartitionKey, cancellationToken: token);
 
         var records = container.GetItemQueryIterator<JObject>();
 
@@ -38,7 +37,7 @@ public class TableAccessor : ITableAccessor
                     break;
                 }
 
-                var id = row.Value<string>(_partitionKey.TrimStart('/'));
+                var id = row.Value<string>(_table.PartitionKey.TrimStart('/'));
 
                 if (!idsToReturn.Any() || idsToReturn.Contains(id))
                 {
