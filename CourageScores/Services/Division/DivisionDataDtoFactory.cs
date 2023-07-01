@@ -195,7 +195,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     continue;
                 }
 
-                playerTuple = MissingTeamPlayerTuple(id, score);
+                playerTuple = MissingTeamPlayerTuple(id, score, divisionData);
             }
 
             if (context.TeamsInSeasonAndDivision.All(t => t.Id != playerTuple.Team.Id))
@@ -213,8 +213,18 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private static DivisionData.TeamPlayerTuple MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score)
+    private static DivisionData.TeamPlayerTuple MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score,
+        DivisionData divisionData)
     {
+        var games = score.Games.Any()
+            ? string.Join(", ", score.Games.Where(g => g != null).Select(g => $"Game: {g.Id} ({g.Date:dd MMM yyy})"))
+            : "";
+        var tournaments = score.Tournaments.Any()
+            ? string.Join(", ", score.Tournaments.Where(t => t != null).Select(t => $"Tournament: {t.Id} ({t.Type} on {t.Date:dd MMM yyy})"))
+            : "";
+
+        divisionData.DataErrors.Add($"Unidentified player {id} ({score.Player?.Name ?? "<unknown>"}) {games}{tournaments}");
+
         return new DivisionData.TeamPlayerTuple(
             new TeamPlayerDto
             {
