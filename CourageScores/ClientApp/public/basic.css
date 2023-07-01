@@ -45,6 +45,12 @@ h1 {
   box-shadow: #aaaaaa 0px 0px 20px;
 }
 
+@media print {
+  .content-background {
+    box-shadow: none;
+  }
+}
+
 .social-header {
   background: #2AEA70;
 }
@@ -385,4 +391,23 @@ body .width-50 {
 
 .page-break-avoid {
   page-break-inside: avoid;
+}
+
+.dotted-line-through {
+  position: relative;
+}
+
+.dotted-line-through:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 1px dotted #cccccc;
+}
+
+@media print {
+  body .no-overflow-on-print {
+    overflow: initial !important;
+  }
 }
