@@ -195,13 +195,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     continue;
                 }
 
-                playerTuple = MissingTeamPlayerTuple(id, score, divisionData);
-            }
-
-            if (context.TeamsInSeasonAndDivision.All(t => t.Id != playerTuple.Team.Id))
-            {
-                // player may exist for another division, for example when there are cross-division knockout fixtures
-                divisionData.DataErrors.Add($"Found potential cross-division player/team: {playerTuple.Player.Name}/{playerTuple.Team.Name}");
+                MissingTeamPlayerTuple(id, score, divisionData);
                 continue;
             }
 
@@ -213,33 +207,17 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private static DivisionData.TeamPlayerTuple MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score,
+    private static void MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score,
         DivisionData divisionData)
     {
         var games = score.Games.Any()
-            ? string.Join(", ", score.Games.Where(g => g != null).Select(g => $"Game: {g.Id} ({g.Date:dd MMM yyy})"))
+            ? string.Join(", ", score.Games.Where(g => g != null).Select(g => $"Game: ({g.Date:dd MMM yyy} - {g.Id})"))
             : "";
         var tournaments = score.Tournaments.Any()
-            ? string.Join(", ", score.Tournaments.Where(t => t != null).Select(t => $"Tournament: {t.Id} ({t.Type} on {t.Date:dd MMM yyy})"))
+            ? string.Join(", ", score.Tournaments.Where(t => t != null).Select(t => $"Tournament: ({t.Type} on {t.Date:dd MMM yyy})"))
             : "";
 
-        divisionData.DataErrors.Add($"Unidentified player {id} ({score.Player?.Name ?? "<unknown>"}) {games}{tournaments}");
-
-        return new DivisionData.TeamPlayerTuple(
-            new TeamPlayerDto
-            {
-                Id = id,
-                Name = score.Player != null
-                    ? $"Invalid player {score.Player.Name} ({id})"
-                    : "Player not found - " + id,
-            },
-            new TeamDto
-            {
-                Id = score.Team?.Id ?? Guid.Empty,
-                Name = score.Team != null
-                    ? $"Invalid team {score.Team.Name} ({score.Team.Id})"
-                    : "Team not found",
-            });
+        divisionData.DataErrors.Add($"Unidentified player ({score.Player?.Name ?? id.ToString()}) from {games}{tournaments}");
     }
 
     [ExcludeFromCodeCoverage]
