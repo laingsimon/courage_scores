@@ -5,7 +5,7 @@ import {
     legTons,
     getMatchWinner,
     playerOverallAverage,
-    legScoreLeft, legTonsNPlusN, legTonsSplit
+    legScoreLeft, legTonsSplit
 } from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
 
