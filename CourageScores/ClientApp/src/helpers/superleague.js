@@ -155,6 +155,15 @@ export function legTons(leg, accumulatorName) {
         + (countLegThrowsBetween(leg, accumulatorName, 180) * 2);
 }
 
+export function legTonsSplit(leg, accumulatorName) {
+    const oneEighties = countLegThrowsBetween(leg, accumulatorName, 180);
+    const tons = countLegThrowsBetween(leg, accumulatorName, 100, 140)
+        + countLegThrowsBetween(leg, accumulatorName, 140, 180)
+        + (oneEighties);
+
+    return `${tons}+${oneEighties}`;
+}
+
 export function legActualDarts(leg, accumulatorName) {
     const accumulator = leg[accumulatorName];
     if (!accumulator || !accumulator.throws) {
