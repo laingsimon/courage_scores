@@ -593,6 +593,7 @@ public class DivisionDataDtoFactoryTests
             Date = new DateTime(2001, 02, 03),
             Id = Guid.NewGuid(),
             SeasonId = season.Id,
+            DivisionId = division.Id,
             IsKnockout = false,
             Home = new GameTeam { Id = thisDivisionTeam.Id },
             Away = new GameTeam { Id = otherDivisionTeam.Id },
@@ -607,10 +608,22 @@ public class DivisionDataDtoFactoryTests
                 },
             },
         };
+        var tournament = new TournamentGame
+        {
+            Date = new DateTime(2001, 02, 03),
+            Id = Guid.NewGuid(),
+            SeasonId = season.Id,
+            OneEighties =
+            {
+                new TournamentPlayer { Id = Guid.NewGuid(), Name = "Tournament player" },
+            },
+            Type = "Singles",
+            AccoladesCount = true,
+        };
         var context = new DivisionDataContext(
             new[] { game },
             new List<TeamDto> { thisDivisionTeam },
-            Array.Empty<TournamentGame>(),
+            new[] { tournament },
             Array.Empty<FixtureDateNoteDto>(),
             season);
 
