@@ -9,7 +9,8 @@ import {
     getNoOfLegs, isLegWinner, legsWon,
     matchTons, maxNoOfThrowsAllMatches,
     playerOverallAverage, sumOfAllCheckouts,
-    sumOfAllScores, legTons, legActualDarts, legGameShot, legScoreLeft
+    sumOfAllScores, legTons, legActualDarts, legGameShot, legScoreLeft,
+    legTonsSplit
 } from "./superleague";
 
 describe('superleague', () => {
@@ -715,6 +716,31 @@ describe('superleague', () => {
 
             /* 180s count as 2 tons */
             expect(result).toEqual(2 + 2);
+        });
+    });
+
+    describe('legTonsSplit', () => {
+        it('should return correctly', () => {
+            const leg = {
+                home: {
+                    throws: [
+                        /* valid */
+                        { score: 100, bust: false },
+                        { score: 140, bust: false },
+                        { score: 180, bust: false },
+
+                        /* invalid */
+                        { score: 100, bust: true },
+                        { score: 140, bust: true },
+                        { score: 180, bust: true },
+                    ]
+                },
+            };
+
+            const result = legTonsSplit(leg, 'home');
+
+            /* 100-180s (inclusive) '+' no-of-180s */
+            expect(result).toEqual('3+1');
         });
     });
 
