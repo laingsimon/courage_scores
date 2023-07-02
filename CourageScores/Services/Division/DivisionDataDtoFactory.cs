@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters.Division;
@@ -48,7 +49,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
 
         var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);
-        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
+        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
@@ -180,9 +181,9 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData,
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(
+        DivisionData divisionData,
         IReadOnlyDictionary<Guid, DivisionData.TeamPlayerTuple> playerToTeamLookup,
-        DivisionDataContext context,
         [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
@@ -195,7 +196,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     continue;
                 }
 
-                MissingTeamPlayerTuple(id, score, divisionData);
+                ReportCrossDivisionalPlayer(id, score);
                 continue;
             }
 
@@ -207,17 +208,16 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private static void MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score,
-        DivisionData divisionData)
+    private static void ReportCrossDivisionalPlayer(Guid id, DivisionData.PlayerScore score)
     {
         var games = score.Games.Any()
-            ? string.Join(", ", score.Games.Where(g => g != null).Select(g => $"Game: ({g.Date:dd MMM yyy} - {g.Id})"))
+            ? string.Join(", ", score.Games.Where(g => g != null).Select(g => $"Game: ({g!.Date:dd MMM yyy} - {g.Id})"))
             : "";
         var tournaments = score.Tournaments.Any()
-            ? string.Join(", ", score.Tournaments.Where(t => t != null).Select(t => $"Tournament: ({t.Type} on {t.Date:dd MMM yyy})"))
+            ? string.Join(", ", score.Tournaments.Where(t => t != null).Select(t => $"Tournament: ({t!.Type} on {t.Date:dd MMM yyy})"))
             : "";
 
-        divisionData.DataErrors.Add($"Unidentified player ({score.Player?.Name ?? id.ToString()}) from {games}{tournaments}");
+        Trace.TraceWarning($"Unidentified player ({score.Player?.Name ?? id.ToString()}) from {games}{tournaments}");
     }
 
     [ExcludeFromCodeCoverage]
