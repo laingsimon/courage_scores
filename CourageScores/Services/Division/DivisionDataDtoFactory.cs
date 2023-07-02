@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using CourageScores.Models.Adapters.Division;
@@ -48,7 +49,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
 
         var playerToTeamLookup = CreatePlayerIdToTeamLookup(context);
-        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, context, token).ToList();
+        var playerResults = await GetPlayers(divisionData, playerToTeamLookup, token).ToList();
         var teamResults = await GetTeams(divisionData, context.TeamsInSeasonAndDivision, playerResults, token).ToList();
         var user = await _userService.GetUser(token);
         var canShowDataErrors = user?.Access?.ImportData == true;
@@ -180,9 +181,9 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(DivisionData divisionData,
+    private async IAsyncEnumerable<DivisionPlayerDto> GetPlayers(
+        DivisionData divisionData,
         IReadOnlyDictionary<Guid, DivisionData.TeamPlayerTuple> playerToTeamLookup,
-        DivisionDataContext context,
         [EnumeratorCancellation] CancellationToken token)
     {
         foreach (var (id, score) in divisionData.Players)
@@ -195,13 +196,7 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
                     continue;
                 }
 
-                playerTuple = MissingTeamPlayerTuple(id, score);
-            }
-
-            if (context.TeamsInSeasonAndDivision.All(t => t.Id != playerTuple.Team.Id))
-            {
-                // player may exist for another division, for example when there are cross-division knockout fixtures
-                divisionData.DataErrors.Add($"Found potential cross-division player/team: {playerTuple.Player.Name}/{playerTuple.Team.Name}");
+                ReportCrossDivisionalPlayer(id, score);
                 continue;
             }
 
@@ -213,23 +208,16 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
         }
     }
 
-    private static DivisionData.TeamPlayerTuple MissingTeamPlayerTuple(Guid id, DivisionData.PlayerScore score)
+    private static void ReportCrossDivisionalPlayer(Guid id, DivisionData.PlayerScore score)
     {
-        return new DivisionData.TeamPlayerTuple(
-            new TeamPlayerDto
-            {
-                Id = id,
-                Name = score.Player != null
-                    ? $"Invalid player {score.Player.Name} ({id})"
-                    : "Player not found - " + id,
-            },
-            new TeamDto
-            {
-                Id = score.Team?.Id ?? Guid.Empty,
-                Name = score.Team != null
-                    ? $"Invalid team {score.Team.Name} ({score.Team.Id})"
-                    : "Team not found",
-            });
+        var games = score.Games.Any()
+            ? string.Join(", ", score.Games.Where(g => g != null).Select(g => $"Game: ({g!.Date:dd MMM yyy} - {g.Id})"))
+            : "";
+        var tournaments = score.Tournaments.Any()
+            ? string.Join(", ", score.Tournaments.Where(t => t != null).Select(t => $"Tournament: ({t!.Type} on {t.Date:dd MMM yyy})"))
+            : "";
+
+        Trace.TraceWarning($"Unidentified player ({score.Player?.Name ?? id.ToString()}) from {games}{tournaments}");
     }
 
     [ExcludeFromCodeCoverage]
