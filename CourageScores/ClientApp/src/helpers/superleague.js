@@ -47,7 +47,7 @@ export function getNoOfLegs(saygData) {
         .length;
 }
 
-export function sumOfAllScores(saygData, accumulatorName) {
+export function sumOverThrows(saygData, accumulatorName, prop, includeBust) {
     if (!saygData) {
         return null;
     }
@@ -55,18 +55,7 @@ export function sumOfAllScores(saygData, accumulatorName) {
     return sum(Object.keys(saygData.legs || {})
         .map(legKey => saygData.legs[legKey])
         .flatMap(leg => leg[accumulatorName].throws)
-        .map(thr => thr.bust ? 0 : thr.score));
-}
-
-export function sumOfAllActualDarts(saygData, accumulatorName) {
-    if (!saygData) {
-        return null;
-    }
-
-    return sum(Object.keys(saygData.legs || {})
-        .map(legKey => saygData.legs[legKey])
-        .flatMap(leg => leg[accumulatorName].throws)
-        .map(thr => thr.noOfDarts));
+        .map(thr => includeBust || !thr.bust ? thr[prop] : 0));
 }
 
 export function maxNoOfThrowsAllMatches(saygMatches) {
