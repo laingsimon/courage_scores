@@ -6,7 +6,7 @@ import {
     countMatch140,
     countMatch180,
     matchTons,
-    playerOverallAverage, sumOfAllCheckouts,
+    playerOverallAverage, sumOfAllActualDarts,
     sumOfAllScores
 } from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
@@ -88,13 +88,13 @@ export function Summary({ showWinner, saygMatches, noOfLegs, host, opponent }) {
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Darts for windows average</td>
-                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'home')))}>
-                        {round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home')) / sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'home')))}
+                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllActualDarts(s.saygData, 'home')))}>
+                        {round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home')) / sum(saygMatches, s => sumOfAllActualDarts(s.saygData, 'home')))}
                     </td>
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Darts for windows average</td>
-                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'away')))}>
-                        {round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'away')) / sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'away')))}
+                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllActualDarts(s.saygData, 'away')))}>
+                        {round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'away')) / sum(saygMatches, s => sumOfAllActualDarts(s.saygData, 'away')))}
                     </td>
                 </tr>
                 </tfoot>

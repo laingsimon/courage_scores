@@ -58,21 +58,15 @@ export function sumOfAllScores(saygData, accumulatorName) {
         .map(thr => thr.bust ? 0 : thr.score));
 }
 
-export function sumOfAllCheckouts(saygData, accumulatorName) {
+export function sumOfAllActualDarts(saygData, accumulatorName) {
     if (!saygData) {
         return null;
     }
 
     return sum(Object.keys(saygData.legs || {})
         .map(legKey => saygData.legs[legKey])
-        .map(leg => {
-            const throws = leg[accumulatorName].throws;
-            const lastThrow = throws[throws.length - 1];
-
-            return lastThrow && isLegWinner(leg, accumulatorName)
-                ? lastThrow.score
-                : 0;
-        }));
+        .flatMap(leg => leg[accumulatorName].throws)
+        .map(thr => thr.noOfDarts));
 }
 
 export function maxNoOfThrowsAllMatches(saygMatches) {

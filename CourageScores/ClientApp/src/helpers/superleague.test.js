@@ -8,7 +8,7 @@ import {
     countMatch180, getMatchWinner,
     getNoOfLegs, isLegWinner, legsWon,
     matchTons, maxNoOfThrowsAllMatches,
-    playerOverallAverage, sumOfAllCheckouts,
+    playerOverallAverage, sumOfAllActualDarts,
     sumOfAllScores, legTons, legActualDarts, legGameShot, legScoreLeft,
     legTonsSplit
 } from "./superleague";
@@ -287,89 +287,40 @@ describe('superleague', () => {
         });
     });
 
-    describe('sumOfAllCheckouts', () => {
+    describe('sumOfAllActualDarts', () => {
         it('should return null when given null data', () => {
-            const result = sumOfAllCheckouts(null, 'home');
+            const result = sumOfAllActualDarts(null, 'home');
 
             expect(result).toBeNull();
         });
 
         it('should return 0 when given no legs data', () => {
-            const result = sumOfAllCheckouts({ legs: null }, 'home');
+            const result = sumOfAllActualDarts({ legs: null }, 'home');
 
             expect(result).toEqual(0);
         });
 
-        it('should return checkouts from winner', () => {
-            const saygData = {
+        it('should return sum of all no of darts', () => {
+            const result = sumOfAllActualDarts({
                 legs: {
                     '0': {
                         home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 101 },
-                            ]
+                            throws: [ {
+                                noOfDarts: 1,
+                            }, {
+                                noOfDarts: 2,
+                            }, {
+                                noOfDarts: 3,
+                            }],
                         },
-                        startingScore: 501,
-                    },
-                    '1': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 150 },
-                                { score: 51 },
-                            ]
-                        },
-                        startingScore: 601,
+                        away: {
+
+                        }
                     }
                 }
-            }
+            }, 'home');
 
-            const result = sumOfAllCheckouts(saygData, 'home');
-
-            expect(result).toEqual(101 + 51);
-        });
-
-        it('should return 0 when not a checkout', () => {
-            const saygData = {
-                legs: {
-                    '0': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 30 },
-                            ]
-                        },
-                        startingScore: 501,
-                    },
-                    '1': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 150 },
-                                { score: 25 },
-                            ]
-                        },
-                        startingScore: 601,
-                    }
-                }
-            }
-
-            const result = sumOfAllCheckouts(saygData, 'home');
-
-            expect(result).toEqual(0);
+            expect(result).toEqual(6);
         });
     });
 
