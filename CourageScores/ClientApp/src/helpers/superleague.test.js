@@ -8,8 +8,8 @@ import {
     countMatch180, getMatchWinner,
     getNoOfLegs, isLegWinner, legsWon,
     matchTons, maxNoOfThrowsAllMatches,
-    playerOverallAverage, sumOfAllCheckouts,
-    sumOfAllScores, legTons, legActualDarts, legGameShot, legScoreLeft,
+    playerOverallAverage, sumOverThrows,
+    legTons, legActualDarts, legGameShot, legScoreLeft,
     legTonsSplit
 } from "./superleague";
 
@@ -249,127 +249,89 @@ describe('superleague', () => {
         });
     });
 
-    describe('sumOfAllScores', () => {
+    describe('sumOverThrows', () => {
         it('should return null given null data', () => {
-            const result = sumOfAllScores(null, 'home');
+            const result = sumOverThrows(null, 'home', 'noOfDarts');
 
             expect(result).toBeNull();
         });
 
         it('should return 0 given no legs', () => {
-            const result = sumOfAllScores({ legs: null }, 'home');
+            const result = sumOverThrows({ legs: null }, 'home', 'noOfDarts');
 
             expect(result).toEqual(0);
         });
 
-        it('should return sum of non bust scores for home', () => {
-            const saygData = {
-                legs: {
-                    '0': {
-                        home: {
-                            throws: [
-                                { score: 100, bust: true },
-                                { score: 120, bust: false },
-                            ]
-                        }
-                    },
-                    '1': {
-                        home: {
-                            throws: [ { score: 50 } ]
-                        }
+        it('should return 0 given no prop', () => {
+            const result = sumOverThrows({ legs: {} }, 'home', null);
+
+            expect(result).toEqual(0);
+        });
+
+        it('should return sum of props', () => {
+            const legs = {
+                '0': {
+                    home: {
+                        throws: [{
+                            noOfDarts: 1,
+                            bust: false,
+                        }, {
+                            noOfDarts: 2,
+                            bust: false,
+                        }, {
+                            noOfDarts: 3,
+                            bust: false,
+                        }]
                     }
                 }
             };
+            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts', false);
 
-            const result = sumOfAllScores(saygData, 'home');
-
-            expect(result).toEqual(170);
-        });
-    });
-
-    describe('sumOfAllCheckouts', () => {
-        it('should return null when given null data', () => {
-            const result = sumOfAllCheckouts(null, 'home');
-
-            expect(result).toBeNull();
+            expect(result).toEqual(6);
         });
 
-        it('should return 0 when given no legs data', () => {
-            const result = sumOfAllCheckouts({ legs: null }, 'home');
-
-            expect(result).toEqual(0);
-        });
-
-        it('should return checkouts from winner', () => {
-            const saygData = {
-                legs: {
-                    '0': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 101 },
-                            ]
-                        },
-                        startingScore: 501,
-                    },
-                    '1': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 150 },
-                                { score: 51 },
-                            ]
-                        },
-                        startingScore: 601,
+        it('should return sum of non-bust props', () => {
+            const legs = {
+                '0': {
+                    home: {
+                        throws: [{
+                            noOfDarts: 1,
+                            bust: false,
+                        }, {
+                            noOfDarts: 2,
+                            bust: true,
+                        }, {
+                            noOfDarts: 3,
+                            bust: false,
+                        }]
                     }
                 }
-            }
+            };
+            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts', false);
 
-            const result = sumOfAllCheckouts(saygData, 'home');
-
-            expect(result).toEqual(101 + 51);
+            expect(result).toEqual(4);
         });
 
-        it('should return 0 when not a checkout', () => {
-            const saygData = {
-                legs: {
-                    '0': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 30 },
-                            ]
-                        },
-                        startingScore: 501,
-                    },
-                    '1': {
-                        home: {
-                            throws: [
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 100 },
-                                { score: 150 },
-                                { score: 25 },
-                            ]
-                        },
-                        startingScore: 601,
+        it('should return sum of bust and non-bust props', () => {
+            const legs = {
+                '0': {
+                    home: {
+                        throws: [{
+                            noOfDarts: 1,
+                            bust: false,
+                        }, {
+                            noOfDarts: 2,
+                            bust: true,
+                        }, {
+                            noOfDarts: 3,
+                            bust: false,
+                        }]
                     }
                 }
-            }
+            };
+            const result = sumOverThrows({ legs: legs }, 'home', 'noOfDarts', true);
 
-            const result = sumOfAllCheckouts(saygData, 'home');
-
-            expect(result).toEqual(0);
+            expect(result).toEqual(6);
         });
     });
 
