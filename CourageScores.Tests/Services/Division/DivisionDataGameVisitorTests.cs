@@ -56,6 +56,7 @@ public class DivisionDataGameVisitorTests
     };
     private static readonly IVisitorScope LeagueVisitorScope = new VisitorScope { Game = new CosmosGame { IsKnockout = false } };
     private static readonly IVisitorScope KnockoutVisitorScope = new VisitorScope { Game = new CosmosGame { IsKnockout = true } };
+    private static readonly IVisitorScope TournamentVisitorScope = new VisitorScope { Tournament = new TournamentGame() };
 
     [Test]
     public void VisitDataError_AddsError()
@@ -324,6 +325,20 @@ public class DivisionDataGameVisitorTests
     }
 
     [Test]
+    public void VisitOneEighty_GivenTournamentFixture_AddsOneEighty()
+    {
+        var divisionData = new DivisionData();
+        var homePlayer1 = new TournamentPlayer { Id = HomePlayer.Id };
+        var visitor = new DivisionDataGameVisitor(divisionData);
+
+        visitor.VisitOneEighty(TournamentVisitorScope, homePlayer1);
+
+        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[] { homePlayer1.Id }));
+        var player1Scores = divisionData.Players[homePlayer1.Id];
+        Assert.That(player1Scores.OneEighties, Is.EqualTo(1));
+    }
+
+    [Test]
     public void VisitHiCheckout_GivenPlayerWithNewHiCheck_AddsOneScore()
     {
         var divisionData = new DivisionData();
@@ -345,6 +360,20 @@ public class DivisionDataGameVisitorTests
         var visitor = new DivisionDataGameVisitor(divisionData);
 
         visitor.VisitHiCheckout(KnockoutVisitorScope, homePlayer1);
+
+        Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[] { homePlayer1.Id }));
+        var player1Scores = divisionData.Players[homePlayer1.Id];
+        Assert.That(player1Scores.HiCheckout, Is.EqualTo(120));
+    }
+
+    [Test]
+    public void VisitHiCheck_GivenTournamentFixture_AddsOneScore()
+    {
+        var divisionData = new DivisionData();
+        var homePlayer1 = new NotableTournamentPlayer { Id = HomePlayer.Id, Notes = "120" };
+        var visitor = new DivisionDataGameVisitor(divisionData);
+
+        visitor.VisitHiCheckout(TournamentVisitorScope, homePlayer1);
 
         Assert.That(divisionData.Players.Keys, Is.EquivalentTo(new[] { homePlayer1.Id }));
         var player1Scores = divisionData.Players[homePlayer1.Id];

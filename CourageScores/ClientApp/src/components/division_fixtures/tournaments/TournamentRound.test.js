@@ -59,6 +59,7 @@ describe('TournamentRound', () => {
         warnBeforeSave = null;
         context = await renderApp(
             { tournamentApi, saygApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     if (err.message) {

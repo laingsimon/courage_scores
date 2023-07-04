@@ -8,8 +8,8 @@ namespace CourageScores.Repository;
 public class GenericRepository<T> : CosmosDbRepository<T>, IGenericRepository<T>
     where T : CosmosEntity
 {
-    public GenericRepository(Database database)
-        :base(database)
+    public GenericRepository(Database database, ICosmosTableNameResolver tableNameResolver)
+        :base(database, tableNameResolver)
     { }
 
     public async Task<T?> Get(Guid id, CancellationToken token)

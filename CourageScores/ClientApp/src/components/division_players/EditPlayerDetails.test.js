@@ -51,6 +51,7 @@ describe('EditPlayerDetails', () => {
             {
                 playerApi
             },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

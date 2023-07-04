@@ -4,28 +4,56 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
+    <meta property="og:url" content="https://couragescores.azurewebsites.net/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Courage Scores" />
+    <meta name="twitter:title" content="The Courage Scores"/>
+    <meta property="og:description" content="The Courage Scores"/>
+    <meta name="twitter:description" content="The Courage Scores"/>
+    <meta property="og:image" content="https://couragescores.azurewebsites.net/social.png"/>
+    <meta name="twitter:image" content="https://couragescores.azurewebsites.net/social.png"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <title>Courage Scores</title>
     <base href="%PUBLIC_URL%/" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/basic.css" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
     <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.jpg">
-    <meta property="og:url" content="https://courageleague.azurewebsites.net/" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="The Courage League, fixtures and results" />
-    <meta name="twitter:title" content="The Courage League, fixtures and results"/>
-    <meta property="og:description" content="The Courage League, see fixtures and results for each division and season"/>
-    <meta name="twitter:description" content="The Courage League, see fixtures and results for each division and season"/>
-    <meta property="og:image" content="https://courageleague.azurewebsites.net/social.png"/>
-    <meta name="twitter:image" content="https://courageleague.azurewebsites.net/social.png"/>
-    <meta name="twitter:card" content="summary_large_image"/>
     <meta name="build:branch" content="%REACT_APP_BRANCH%" />
     <meta name="build:sha" content="%REACT_APP_SHA%" />
     <meta name="build:date" content="%REACT_APP_DATE%" />
-    <link rel="stylesheet" href="%PUBLIC_URL%/basic.css" />
-    <title>The Courage League</title>
   </head>
   <body class="darts-background">
     <noscript>
       You need to enable JavaScript to run this app.
     </noscript>
+    <script>
+      window.branding = {
+        name: 'Courage Scores',
+        email: 'info@couragescores.co.uk',
+        facebook: 'unset',
+        twitter: 'unset',
+        website: 'https://github.com/laingsimon/courage_scores',
+        custodians: [
+          'Simon Laing'
+        ],
+        menu: {
+          beforeDivisions: [ {
+            text: 'Project page',
+            url: 'https://github.com/laingsimon/courage_scores',
+          }, {
+            text: 'Practice',
+            url: '/practice',
+          } ],
+          afterDivisions: [ {
+            text: 'Help',
+            url: 'https://github.com/laingsimon/courage_scores/wiki',
+          }, {
+            text: 'About',
+            url: '/about',
+          } ]
+        }
+      }
+    </script>
     <div id="root"></div>
   </body>
 </html>

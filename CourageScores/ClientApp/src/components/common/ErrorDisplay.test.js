@@ -24,6 +24,7 @@ describe('ErrorDisplay', () => {
         reportedClientSideException = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

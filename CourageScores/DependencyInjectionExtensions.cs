@@ -49,6 +49,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IZipBuilderFactory, ZipBuilderFactory>();
         services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
         services.AddScoped<IDataImporterFactory, DataImporterFactory>();
+        services.AddSingleton<ICosmosTableNameResolver, CosmosTableNameResolver>();
         services.AddSingleton(new JsonSerializer
         {
             Converters =

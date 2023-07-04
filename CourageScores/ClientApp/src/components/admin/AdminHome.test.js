@@ -30,6 +30,7 @@ describe('AdminHome', () => {
 
         context = await renderApp(
             { dataApi, accountApi },
+            { name: 'Courage Scores' },
             { account, appLoading: false},
             (<AdminContainer>
                 <AdminHome />
@@ -49,6 +50,7 @@ describe('AdminHome', () => {
         };
         context = await renderApp(
             { dataApi: dataApi, accountApi: accountApi },
+            { name: 'Courage Scores' },
             { appLoading: false, account: account },
             (<AdminContainer>
                 <AdminHome />
@@ -64,6 +66,7 @@ describe('AdminHome', () => {
     it('shows loading when appLoading', async () => {
         context = await renderApp(
             { dataApi: dataApi, accountApi: accountApi },
+            { name: 'Courage Scores' },
             { appLoading: true },
             (<AdminContainer>
                 <AdminHome />
@@ -76,6 +79,7 @@ describe('AdminHome', () => {
     it('shows not permitted when finished loading', async () => {
         context = await renderApp(
             { dataApi: dataApi, accountApi: accountApi },
+            { name: 'Courage Scores' },
             { account: null, appLoading: false},
             (<AdminContainer>
                 <AdminHome />

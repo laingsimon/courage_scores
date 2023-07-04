@@ -56,6 +56,7 @@ describe('EditDivision', () => {
         };
         context = await renderApp(
             { divisionApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

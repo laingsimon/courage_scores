@@ -21,6 +21,7 @@ describe('GameDetails', () => {
         updatedFixtureData = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

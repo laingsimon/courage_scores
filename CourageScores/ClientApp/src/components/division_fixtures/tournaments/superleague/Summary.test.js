@@ -16,6 +16,7 @@ describe('Summary', () => {
         reportedError = null;
         context = await renderApp(
             {},
+            null,
             {
                 onError: (err) => {
                     if (err.message) {
@@ -243,10 +244,10 @@ describe('Summary', () => {
             expect(getRowContent(rows[1], 'td')).toEqual([
                 '',
                 'Darts for windows average',
-                '8.96',
+                '32.27',
                 '',
                 'Darts for windows average',
-                '17.3'
+                '31.13'
             ]);
         });
     });

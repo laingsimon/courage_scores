@@ -22,6 +22,7 @@ describe('PlayLeg', () => {
         legComplete = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             { },
             <PlayLeg
                 {...props}

@@ -49,6 +49,7 @@ describe('EditNote', () => {
         saved = false;
         context = await renderApp(
             { noteApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

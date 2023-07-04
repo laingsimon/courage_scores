@@ -4,6 +4,7 @@ import {cleanUp, renderApp} from "../helpers/tests";
 import {renderDate} from "../helpers/rendering";
 import React from "react";
 import {About} from "./About";
+import {BrandingContainer} from "../BrandingContainer";
 
 describe('About', () => {
     let context;
@@ -13,10 +14,11 @@ describe('About', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(build) {
+    async function renderComponent(build, branding) {
         reportedError = null;
         context = await renderApp(
             { },
+            branding,
             {
                 onError: (err) => {
                     reportedError = {
@@ -46,7 +48,7 @@ describe('About', () => {
                branch: 'BRANCH',
                version: '0123456789abcdef',
                date: '2023-04-05T06:07:08',
-           });
+           }, {});
 
            const branchRow = getRow('Branch');
            const cell = branchRow.querySelector('td');
@@ -58,7 +60,7 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: '2023-04-05T06:07:08',
-            });
+            }, {});
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td');
@@ -72,7 +74,7 @@ describe('About', () => {
             await renderComponent({
                 branch: 'BRANCH',
                 date: '2023-04-05T06:07:08',
-            });
+            }, {});
 
             const branchRow = getRow('Version');
             const cell = branchRow.querySelector('td');
@@ -85,12 +87,40 @@ describe('About', () => {
                 branch: 'BRANCH',
                 version: '0123456789abcdef',
                 date: buildDate,
-            });
+            }, {});
 
             const branchRow = getRow('Date');
             const cell = branchRow.querySelector('td');
             const expectedDate = renderDate(buildDate) + ' ' + new Date(buildDate).toLocaleTimeString();
             expect(cell.textContent).toEqual(expectedDate);
+        });
+    });
+
+    describe('with branding', () => {
+        it('renders link to brand website', async () => {
+            await renderComponent({}, {
+                name: 'COURAGE SCORES',
+                website: 'https://couragescores',
+                custodians: [],
+            });
+
+            const links = Array.from(context.container.querySelectorAll('a'));
+            const websiteLink = links.filter(link => link.textContent === 'COURAGE SCORES')[0];
+            expect(websiteLink).toBeTruthy();
+            expect(websiteLink.href).toEqual('https://couragescores/');
+        });
+
+        it('renders custodians', async () => {
+            await renderComponent({}, {
+                name: 'COURAGE SCORES',
+                website: 'https://couragescores',
+                custodians: [ 'Simon', 'Laing' ],
+            });
+
+            const custodians = Array.from(context.container.querySelectorAll('p')).filter(p => p.textContent.indexOf('Custodians') !== -1)[0];
+            expect(custodians).toBeTruthy();
+            expect(custodians.textContent).toContain('Simon');
+            expect(custodians.textContent).toContain('Laing');
         });
     });
 });

@@ -55,6 +55,7 @@ describe('DivisionControls', () => {
         updatedDivision = null;
         context = await renderApp(
             { seasonApi, divisionApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

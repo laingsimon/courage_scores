@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace CourageScores.Models.Dtos.Data;
 
@@ -16,7 +17,16 @@ public class ExportDataRequestDto
     public bool IncludeDeletedEntries { get; set; }
 
     /// <summary>
-    /// The tables that should be exported; empty/null = all tables
+    /// The tables, and any ids in those tables that should be exported
+    /// An empty set means all tables/ids.
     /// </summary>
-    public List<string> Tables { get; set; } = new();
+    [Obsolete($"Use {nameof(CaseInsensitiveTables)} instead; this instance has case-sensitive keys")]
+    public Dictionary<string, List<Guid>> Tables { get; set; } = new();
+
+    [Newtonsoft.Json.JsonIgnore]
+    [JsonIgnore]
+#pragma warning disable CS0618
+    public IDictionary<string, List<Guid>> CaseInsensitiveTables =>
+        Tables.ToDictionary(t => t.Key, t => t.Value, StringComparer.OrdinalIgnoreCase);
+#pragma warning restore CS0618
 }

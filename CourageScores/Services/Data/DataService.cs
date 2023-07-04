@@ -52,7 +52,7 @@ public class DataService : IDataService
 
         try
         {
-            var builder = await _zipBuilderFactory.Create(request.Password, token);
+            var builder = await _zipBuilderFactory.Create(request.Password, request, token);
 
             await foreach (var table in _cosmosTableService.GetTables(request, token))
             {
@@ -104,6 +104,16 @@ public class DataService : IDataService
             actionResult.Messages.Add(
                 $"Processing data from {metaContent.Hostname} exported on {metaContent.Created:dd MMM yyyy} by {metaContent.Creator}");
 
+            if (IsEqualOrLaterVersion(metaContent, "v2") && metaContent.RequestedTables.Any(t => t.Value.Any()))
+            {
+                actionResult.Messages.Add($"This is a partial export of {string.Join(", ", metaContent.RequestedTables.Keys)}");
+
+                if (request.PurgeData)
+                {
+                    return Unsuccessful<ImportDataResultDto>("Purge is not permitted for partial data exports");
+                }
+            }
+
             if (request.PurgeData)
             {
                 actionResult.Messages.AddRange(await tableImporter.PurgeData(request.Tables, token).ToList());
@@ -123,6 +133,11 @@ public class DataService : IDataService
         }
 
         return actionResult;
+    }
+
+    private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)
+    {
+        return StringComparer.OrdinalIgnoreCase.Compare(metaData.Version, minVersion) >= 0;
     }
 
     private static ActionResultDto<T> Unsuccessful<T>(string reason)

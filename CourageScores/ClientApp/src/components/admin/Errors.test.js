@@ -30,6 +30,7 @@ describe('Errors', () => {
         errorToThrow = null;
         context = await renderApp(
             { errorApi },
+            { name: 'Courage Scores' },
             {
                 account: { },
                 appLoading: false,

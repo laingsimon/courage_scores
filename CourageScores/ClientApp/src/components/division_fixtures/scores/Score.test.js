@@ -62,6 +62,7 @@ describe('Score', () => {
         saveGameApiResult = null;
         context = await renderApp(
             { gameApi,  playerApi },
+            { name: 'Courage Scores' },
             {
                 account,
                 onError: (err) => {

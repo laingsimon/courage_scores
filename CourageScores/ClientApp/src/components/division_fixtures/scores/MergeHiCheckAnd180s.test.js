@@ -19,6 +19,7 @@ describe('MergeHiCheckAnd180s', () => {
         updatedData = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

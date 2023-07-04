@@ -55,6 +55,7 @@ describe('Division', () => {
             divisions: [] } ];
         context = await renderApp(
             { divisionApi },
+            { name: 'Courage Scores' },
             {
                 account: account,
                 onError: (err) => {

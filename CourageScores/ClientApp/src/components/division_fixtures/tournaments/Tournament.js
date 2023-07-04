@@ -2,12 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {useParams} from "react-router-dom";
 import {DivisionControls} from "../../DivisionControls";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
-import {any, sortBy} from "../../../helpers/collections";
+import {any, distinct, sortBy} from "../../../helpers/collections";
 import {propChanged, valueChanged} from "../../../helpers/events";
 import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
-import {ShareButton} from "../../ShareButton";
-import {TournamentSheet} from "./TournamentSheet";
+import {ShareButton} from "../../common/ShareButton";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
@@ -17,9 +16,13 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
+import {useBranding} from "../../../BrandingContainer";
+import {ExportDataButton} from "../../common/ExportDataButton";
+import {PrintableSheet} from "./PrintableSheet";
 
 export function Tournament() {
     const { tournamentId } = useParams();
+    const { name } = useBranding();
     const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
     const canManageTournaments = account && account.access && account.access.manageTournaments;
@@ -193,6 +196,59 @@ export function Tournament() {
         setNewPlayerDetails({ name: '', captain: false });
     }
 
+    function getExportTables() {
+        let saygDataIds = [];
+        let teamIds = [];
+        let round = tournamentData.round;
+        while (round) {
+            saygDataIds = saygDataIds.concat(round.matches.map(m => m.saygId).filter(id => id));
+            round = round.nextRound;
+        }
+
+        const exportRequest = {
+            tournamentGame: [ tournamentId ],
+            season: [ tournamentData.seasonId ],
+        };
+
+        if (tournamentData.divisionId) {
+            exportRequest.division = [ tournamentData.divisionId ];
+        }
+
+        for (let i = 0; i < tournamentData.sides.length; i++) {
+            const side = tournamentData.sides[i];
+
+            if (side.teamId) {
+                teamIds = teamIds.concat([ side.teamId ]);
+            } else if (any(side.players || [])) {
+                // get the team ids for the players
+                // find the teamId for each player
+                teamIds = teamIds.concat(side.players.map(getTeamIdForPlayer));
+            }
+        }
+
+        if (any(saygDataIds)) {
+            exportRequest.recordedScoreAsYouGo = saygDataIds;
+        }
+
+        teamIds = distinct(teamIds.filter(id => id));
+        if (any(teamIds)) {
+            exportRequest.team = teamIds;
+        }
+
+        return exportRequest;
+    }
+
+    function getTeamIdForPlayer(player) {
+        const teamToSeasonMaps = teams.map(t => { return { teamSeason: t.seasons.filter(ts => ts.seasonId === tournamentData.seasonId)[0], team: t } });
+        const teamsWithPlayer = teamToSeasonMaps.filter(map => map.teamSeason && any(map.teamSeason.players, p => p.id === player.id));
+
+        if (any(teamsWithPlayer)) {
+            return teamsWithPlayer[0].team.id
+        }
+
+        return null;
+    }
+
     if (loading !== 'ready') {
         return (<Loading />);
     }
@@ -210,6 +266,12 @@ export function Tournament() {
                 originalDivisionData={division}
                 overrideMode="fixtures"/>
             {tournamentData ? (<div className="content-background p-3">
+                {canManageTournaments ? (<h4 className="pb-2 d-print-none">
+                    <span>Edit tournament: </span>
+                    <span className="me-4">{renderDate(tournamentData.date)}</span>
+                    <button className="btn btn-sm margin-left btn-outline-primary margin-right" onClick={window.print}>🖨️</button>
+                    <ExportDataButton tables={getExportTables()} />
+                </h4>) : null}
                 {canManageTournaments
                     ? (<div className="input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
@@ -222,7 +284,7 @@ export function Tournament() {
                         {tournamentData.type || ''} At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
                         <span className="margin-left">
                         <ShareButton
-                            text={`Courage League: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
+                            text={`${name}: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
                         <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
                     </span>
                     </p>)}
@@ -243,10 +305,7 @@ export function Tournament() {
                                   value={tournamentData.notes || ''} name="notes"
                                   onChange={valueChanged(tournamentData, setTournamentData)}></textarea>
                     </div>)
-                    : tournamentData.notes
-                        ? (<div className="alert alert-warning alert-dismissible fade show d-print-none"
-                                role="alert">{tournamentData.notes}</div>)
-                        : null}
+                    : null}
                 {canManageTournaments
                     ? (<div className="form-group input-group mb-3 d-print-none">
                         <label htmlFor="note-text" className="input-group-text">Options</label>
@@ -317,8 +376,10 @@ export function Tournament() {
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}
                     setWarnBeforeSave={setWarnBeforeSave}>
-                    <EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />
-                    {tournamentData.singleRound ? (<SuperLeaguePrintout division={division} />) : (<TournamentSheet />)}
+                    {canSave ? (<EditTournament disabled={disabled} canSave={canSave} saving={saving} applyPatch={applyPatch} />) : null}
+                    {tournamentData.singleRound && !canSave ? (<SuperLeaguePrintout division={division} />) : null}
+                    {tournamentData.singleRound && canSave ? (<div className="d-screen-none"><SuperLeaguePrintout division={division} /></div>) : null}
+                    {!tournamentData.singleRound ? (<PrintableSheet printOnly={canSave} />) : null}
                 </TournamentContainer>
                 {canManageTournaments ? (<button className="btn btn-primary d-print-none margin-right" onClick={saveTournament}>
                     {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status"

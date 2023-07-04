@@ -22,6 +22,7 @@ describe('ManOfTheMatchInput', () => {
         updatedFixtureData = null;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

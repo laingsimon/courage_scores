@@ -9,6 +9,7 @@ import {MemoryRouter, Route} from "react-router-dom";
 import {IocContainer} from "./IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./AppContainer";
+import {BrandingContainer} from "./BrandingContainer";
 
 describe('App', () => {
     let context;
@@ -64,7 +65,9 @@ describe('App', () => {
                 errorApi,
                 settings,
             },
-            (<App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />),
+            (<BrandingContainer name='COURAGE LEAGUE'>
+                <App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />
+            </BrandingContainer>),
             testRoute ? '/test' : null);
     }
 
@@ -103,7 +106,7 @@ describe('App', () => {
     }
 
     function assertSocialLinks() {
-        const socialLinks = Array.from(context.container.querySelectorAll('div.mid-grey-background a[href]'));
+        const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
         expect(socialLinks.length).toEqual(3);
         const email = socialLinks.filter(a => a.getAttribute('href').indexOf('mailto:') !== -1)[0];
         const facebook = socialLinks.filter(a => a.getAttribute('href').indexOf('facebook.com') !== -1)[0];
@@ -124,9 +127,8 @@ describe('App', () => {
         expect(header).toBeTruthy();
         const menuItems = Array.from(header.querySelectorAll('li.nav-item'));
         const menuItemText = menuItems.map(li => li.textContent);
-        const expectedMenuItemsBeforeDivisions = [ 'Home', 'News', 'Practice' ];
         const divisionMenuItems = loading ? [] : allDivisions.map(d => d.name);
-        const expectedMenuItemsAfterDivisions = [ 'Rules', 'Downloads', 'About' ];
+        const expectedMenuItemsAfterDivisions = [ ];
 
         if (!loading) {
             if (account) {
@@ -138,7 +140,7 @@ describe('App', () => {
             expectedMenuItemsAfterDivisions.push(''); // spinner
         }
 
-        const expectedMenuItems = expectedMenuItemsBeforeDivisions.concat(divisionMenuItems).concat(expectedMenuItemsAfterDivisions);
+        const expectedMenuItems = divisionMenuItems.concat(expectedMenuItemsAfterDivisions);
         expect(menuItemText).toEqual(expectedMenuItems);
     }
 
@@ -178,7 +180,7 @@ describe('App', () => {
         it('without surround', async () => {
             await renderComponent(null, true);
 
-            const socialLinks = Array.from(context.container.querySelectorAll('div.mid-grey-background a[href]'));
+            const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
             expect(socialLinks.length).toEqual(0);
             const heading = context.container.querySelector('h1.heading');
             expect(heading).toBeFalsy();

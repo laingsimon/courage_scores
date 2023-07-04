@@ -1,10 +1,14 @@
-/* Provide sufficient contrast against white background */
-a {
-  color: #0366d6;
-}
-
 code {
   color: #E01A76;
+}
+
+nav {
+  background-color: #F8E5CD;
+  color: #000000;
+}
+
+span.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 30 30%27%3e%3cpath stroke=%27rgba%280, 0, 0, 0.55%29%27 stroke-linecap=%27round%27 stroke-miterlimit=%2710%27 stroke-width=%272%27 d=%27M4 7h22M4 15h22M4 23h22%27/%3e%3c/svg%3e");
 }
 
 .btn-primary {
@@ -13,26 +17,13 @@ code {
   border-color: #1861ac;
 }
 
-body {
-  background: #000000;
-  color: #ffffff;
-}
-
-nav {
-  background-color: #29292a;
-}
-
-.nav .nav-link {
-  color: #ffffff;
-}
-
 .darts-background {
-  background-image: url("background.jpg");
+  /*overridden in brand/*.css*/
+  background-image: url("background.png");
   background-size: cover;
   background-attachment: fixed;
   background-position: top center;
   background-repeat: no-repeat;
-  color: #ffffff;
 }
 
 @media print {
@@ -45,17 +36,26 @@ nav {
   }
 }
 
-.content-background {
-  background-color: #ffffff;
-  color: #000000;
+h1 {
+  color: #F3472F;
 }
 
-.mid-grey-background {
-  background: #3e3e3e;
+.content-background {
+  background-color: #ffffff;
+  box-shadow: #aaaaaa 0px 0px 20px;
+}
+
+@media print {
+  .content-background {
+    box-shadow: none;
+  }
+}
+
+.social-header {
+  background: #2AEA70;
 }
 
 .social-icon {
-  background: #333333;
   display: inline-block;
   margin-right: 5px;
   padding-left: 5px;
@@ -76,16 +76,10 @@ nav {
   text-decoration: none;
 }
 
-@font-face {
-  font-family: 'exo2extrabold';
-  src: url('exo2-extrabold.ttf') format('truetype');
-}
-
 .heading {
   text-align: center;
   padding: 3px;
-  color: #928E1F;
-  font-family: 'exo2extrabold', "Arial Black", serif;
+  font-family: "Arial Black", serif;
   font-size: 40px;
   opacity: 0.7;
 }
@@ -149,6 +143,7 @@ input[type="date"] {
 }
 
 .loading-background {
+  /*overridden in brand/*.css*/
   background-image: url("loading.gif");
   background-position: center center;
   background-repeat: no-repeat;
@@ -170,7 +165,7 @@ input[type="date"] {
 }
 
 body .bg-winner,
-body td.bg-winner {
+body .table td.bg-winner {
   background-color: #bbffbb;
 }
 
@@ -392,4 +387,27 @@ body .width-50 {
 
 .page-break-after {
   break-after: page;
+}
+
+.page-break-avoid {
+  page-break-inside: avoid;
+}
+
+.dotted-line-through {
+  position: relative;
+}
+
+.dotted-line-through:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  border-top: 1px dotted #cccccc;
+}
+
+@media print {
+  body .no-overflow-on-print {
+    overflow: initial !important;
+  }
 }

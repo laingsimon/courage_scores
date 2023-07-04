@@ -6,22 +6,23 @@ namespace CourageScores.Services.Data;
 
 public class TableAccessor : ITableAccessor
 {
-    private readonly string _partitionKey;
+    private readonly TableDto _table;
 
-    public TableAccessor(string tableName, string partitionKey = "/id")
+    public TableAccessor(TableDto table)
     {
-        TableName = tableName;
-        _partitionKey = partitionKey;
+        _table = table;
     }
 
-    public string TableName { get; }
+    public string TableName => _table.Name;
 
     public async Task ExportData(Database database, ExportDataResultDto result, IZipBuilder builder,
         ExportDataRequestDto request, CancellationToken token)
     {
         result.Tables.Add(TableName, 0);
+        request.CaseInsensitiveTables.TryGetValue(TableName, out var ids);
+        var idsToReturn = ids?.Select(id => id.ToString()).ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>();
 
-        Container container = await database.CreateContainerIfNotExistsAsync(TableName, _partitionKey, cancellationToken: token);
+        Container container = await database.CreateContainerIfNotExistsAsync(_table.EnvironmentalName, _table.PartitionKey, cancellationToken: token);
 
         var records = container.GetItemQueryIterator<JObject>();
 
@@ -36,21 +37,25 @@ public class TableAccessor : ITableAccessor
                     break;
                 }
 
-                await ExportRow(row, result, builder, request);
+                var id = row.Value<string>(_table.PartitionKey.TrimStart('/'));
+
+                if (!idsToReturn.Any() || idsToReturn.Contains(id))
+                {
+                    await ExportRow(row, id, result, builder, request);
+                }
             }
         }
     }
 
-    private async Task ExportRow(JObject record, ExportDataResultDto result, IZipBuilder builder, ExportDataRequestDto request)
+    private async Task ExportRow(JObject row, string id, ExportDataResultDto result, IZipBuilder builder, ExportDataRequestDto request)
     {
-        var deleted = record.Value<DateTime?>("Deleted");
+        var deleted = row.Value<DateTime?>("Deleted");
         if (deleted.HasValue && !request.IncludeDeletedEntries)
         {
             return; // don't process deleted rows
         }
 
-        var id = record.Value<string>(_partitionKey.TrimStart('/'));
         result.Tables[TableName]++;
-        await builder.AddFile(TableName, id, record);
+        await builder.AddFile(TableName, id, row);
     }
 }

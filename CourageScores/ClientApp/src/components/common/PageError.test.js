@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import React from "react";
 import {PageError} from "./PageError";
 
@@ -28,6 +28,7 @@ describe('PageError', () => {
         appError = error;
         context = await renderApp(
             { },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = {

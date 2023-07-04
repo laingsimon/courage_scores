@@ -16,7 +16,7 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
 
     try {
         return (<tr className={winner && showWinner ? 'bg-winner' : ''}>
-            {legNo === 1 ? (<td rowSpan={noOfLegs} className="align-middle bg-white">{player}</td>) : null}
+            {legNo === 1 ? (<td rowSpan={noOfLegs} className="align-middle bg-white page-break-avoid">{player}</td>) : null}
             <td>{legNo}</td>
             <td>{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
             <td>{winner && lastThrow ? lastThrow.score : null}</td>

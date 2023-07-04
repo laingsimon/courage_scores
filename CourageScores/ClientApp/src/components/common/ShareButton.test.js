@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import React from "react";
 import {ShareButton} from "./ShareButton";
 
@@ -13,13 +13,14 @@ describe('ShareButton', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, currentPath) {
+    async function renderComponent(props, name, currentPath) {
         // noinspection JSValidateTypes
         navigator.share = (data) => shareData = data;
         reportedError = null;
         shareData = null;
         context = await renderApp(
             { },
+            { name },
             {
                 onError: (err) => {
                     reportedError = {
@@ -39,7 +40,7 @@ describe('ShareButton', () => {
                 title: 'TITLE',
                 text: 'TEXT',
                 getHash: () => '#HASH'
-            });
+            }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
 
@@ -53,13 +54,13 @@ describe('ShareButton', () => {
         it('shares page with default title and text', async () => {
             await renderComponent({
                 getHash: () => '#HASH'
-            });
+            }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage League');
-            expect(shareData.title).toEqual('Courage League');
+            expect(shareData.text).toEqual('Courage Scores');
+            expect(shareData.title).toEqual('Courage Scores');
             expect(shareData.url).toContain('/test');
             expect(shareData.url).toContain('#HASH');
         });
@@ -67,13 +68,13 @@ describe('ShareButton', () => {
         it('shares page without any hash', async () => {
             await renderComponent({
                 getHash: () => ''
-            });
+            }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage League');
-            expect(shareData.title).toEqual('Courage League');
+            expect(shareData.text).toEqual('Courage Scores');
+            expect(shareData.title).toEqual('Courage Scores');
             expect(shareData.url).toContain('/test');
         });
 
@@ -93,7 +94,7 @@ describe('ShareButton', () => {
             await renderComponent({
                 title: 'TITLE',
                 text: 'TEXT'
-            }, '/test/#HASH');
+            }, 'Courage Scores', '/test/#HASH');
 
             await doClick(findButton(context.container, '🔗'));
 
@@ -106,13 +107,13 @@ describe('ShareButton', () => {
 
         it('shares page with default title and text', async () => {
             await renderComponent({
-            }, '/test/#HASH');
+            }, 'Courage Scores', '/test/#HASH');
 
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage League');
-            expect(shareData.title).toEqual('Courage League');
+            expect(shareData.text).toEqual('Courage Scores');
+            expect(shareData.title).toEqual('Courage Scores');
             expect(shareData.url).toContain('/test');
             expect(shareData.url).toContain('#HASH');
         });
@@ -120,13 +121,13 @@ describe('ShareButton', () => {
         it('shares page without any hash', async () => {
             await renderComponent({
                 getHash: () => ''
-            });
+            }, 'Courage Scores');
 
             await doClick(findButton(context.container, '🔗'));
 
             expect(shareData).toBeTruthy();
-            expect(shareData.text).toEqual('Courage League');
-            expect(shareData.title).toEqual('Courage League');
+            expect(shareData.text).toEqual('Courage Scores');
+            expect(shareData.title).toEqual('Courage Scores');
             expect(shareData.url).toContain('/test');
         });
     });

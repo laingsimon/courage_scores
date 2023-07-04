@@ -47,6 +47,7 @@ describe('AssignTeamToSeasons', () => {
         apiDeleted = [];
         context = await renderApp(
             { teamApi },
+            { name: 'Courage Scores' },
             {
                 onError: (err) => {
                     reportedError = err;

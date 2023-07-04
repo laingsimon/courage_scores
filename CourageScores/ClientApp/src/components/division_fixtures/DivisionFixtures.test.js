@@ -50,6 +50,7 @@ describe('DivisionFixtures', () => {
         createdNote = null;
         context = await renderApp(
             { seasonApi, gameApi, noteApi, tournamentApi },
+            { name: 'Courage Scores' },
             {
                 account,
                 onError: (err) => {

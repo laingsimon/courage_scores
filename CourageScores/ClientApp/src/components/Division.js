@@ -117,7 +117,7 @@ export function Division() {
                 <h3>⚠ Errors in division data</h3>
                 <ol>
                     {dataErrors.map((error, index) => {
-                        return (<li key={index}>{error}></li>);
+                        return (<li key={index}>{error}</li>);
                     })}
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>

@@ -36,7 +36,7 @@ public class TournamentGameTests
 
         _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitHiCheckout(VisitorScope, player));
+        visitor.Verify(v => v.VisitHiCheckout(It.Is<VisitorScope>(s => s.Tournament == _game), player));
     }
 
     [Test]
@@ -62,7 +62,7 @@ public class TournamentGameTests
 
         _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitOneEighty(VisitorScope, player));
+        visitor.Verify(v => v.VisitOneEighty(It.Is<VisitorScope>(s => s.Tournament == _game), player));
     }
 
     [Test]
@@ -87,7 +87,7 @@ public class TournamentGameTests
 
         _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitSide(VisitorScope, side));
+        visitor.Verify(v => v.VisitSide(It.Is<VisitorScope>(s => s.Tournament == _game), side));
     }
 
     [Test]
@@ -109,6 +109,6 @@ public class TournamentGameTests
 
         _game.Accept(VisitorScope, visitor.Object);
 
-        visitor.Verify(v => v.VisitRound(VisitorScope, round));
+        visitor.Verify(v => v.VisitRound(It.Is<VisitorScope>(s => s.Tournament == _game), round));
     }
 }

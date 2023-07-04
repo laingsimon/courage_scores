@@ -9,7 +9,7 @@ import {
     isEmpty,
     max,
     sortBy,
-    sum,
+    sum, toDictionary,
     toMap
 } from "./collections.js";
 
@@ -352,6 +352,50 @@ describe('collections', () => {
             const result = distinct(items);
 
             expect(result).toEqual([ 1, 2 ]);
+        });
+    });
+
+    describe('toDictionary', () => {
+        it('should return empty map for empty collection', () => {
+            const result = toDictionary([], a => a, a => a);
+
+            expect(Object.keys(result)).toEqual([]);
+        });
+
+        it('should return map keyed correctly', () => {
+            const item1 = { name: 'NAME' };
+            const result = toDictionary([ item1 ], a => a.name, a => a);
+
+            expect(Object.keys(result)).toEqual([ 'NAME' ]);
+        });
+
+        it('should return map with values via selector', () => {
+            const item1 = { name: 'NAME', age: 1 };
+            const result = toDictionary([ item1 ], a => a.name, a => a.age);
+
+            expect(result['NAME']).toEqual(1);
+        });
+
+        it('should return map with item values', () => {
+            const item1 = { name: 'NAME', age: 1 };
+            const result = toDictionary([ item1 ], a => a.name);
+
+            expect(result['NAME']).toEqual(item1);
+        });
+
+        it('should throw for duplicate ids', () => {
+            const item1 = { name: 'NAME', age: 1 };
+            const item2 = { name: 'NAME', age: 2 };
+            let error;
+
+            try {
+                toDictionary([item1, item2], a => a.name);
+            } catch (e) {
+                error = e;
+            }
+
+            expect(error).not.toBeNull();
+            expect(error.message).toEqual('Duplicate key found: NAME');
         });
     });
 });

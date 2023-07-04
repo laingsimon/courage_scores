@@ -43,6 +43,7 @@ describe('EditTeamDetails', () => {
         canceled = false;
         context = await renderApp(
             { teamApi },
+            { name: 'Courage Scores' },
             {
                 divisions,
                 onError: (err) => {

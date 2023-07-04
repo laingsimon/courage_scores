@@ -6,13 +6,30 @@ import {
     countMatch140,
     countMatch180,
     matchTons,
-    playerOverallAverage, sumOfAllCheckouts,
-    sumOfAllScores
+    playerOverallAverage,
+    sumOverThrows
 } from "../../../../helpers/superleague";
 import {round2dp} from "../../../../helpers/rendering";
 
 export function Summary({ showWinner, saygMatches, noOfLegs, host, opponent }) {
     const { onError } = useApp();
+
+    function renderDartsForWindowsAverage(side) {
+        const sumOfScores = sum(saygMatches, s => sumOverThrows(s.saygData, side, 'score'));
+        const sumOfDarts = sum(saygMatches, s => sumOverThrows(s.saygData, side, 'noOfDarts', true));
+
+        return (<td title={round2dp(sumOfScores) + ' / ' + round2dp(sumOfDarts)}>
+            {round2dp(sumOfScores / sumOfDarts)}
+        </td>);
+    }
+
+    function renderPlayerAverage(side) {
+        const average = sum(saygMatches, map => playerOverallAverage(map.saygData, side));
+
+        return (<td title={round2dp(average) + ' / ' + noOfLegs}>
+            {round2dp(average / noOfLegs)}
+        </td>);
+    }
 
     if (!any(saygMatches)) {
         return (<div className="page-break-after">
@@ -76,26 +93,18 @@ export function Summary({ showWinner, saygMatches, noOfLegs, host, opponent }) {
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
-                    <td title={round2dp(sum(saygMatches, saygData => playerOverallAverage(saygData, 'home'))) + ' / ' + noOfLegs}>
-                        {round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'home')) / noOfLegs)}
-                    </td>
+                    {renderPlayerAverage('home')}
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Rounded average</td>
-                    <td title={round2dp(sum(saygMatches, saygData => playerOverallAverage(saygData, 'away'))) + ' / ' + noOfLegs}>
-                        {round2dp(sum(saygMatches, map => playerOverallAverage(map.saygData, 'away')) / noOfLegs)}
-                    </td>
+                    {renderPlayerAverage('away')}
                 </tr>
                 <tr>
                     <td colSpan="2"></td>
                     <td colSpan="5" className="text-end">Darts for windows average</td>
-                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'home')))}>
-                        {round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home')) / sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'home')))}
-                    </td>
+                    {renderDartsForWindowsAverage('home')}
                     <td colSpan="1"></td>
                     <td colSpan="5" className="text-end">Darts for windows average</td>
-                    <td title={round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'home'))) + ' / ' + round2dp(sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'away')))}>
-                        {round2dp(sum(saygMatches, s => sumOfAllScores(s.saygData, 'away')) / sum(saygMatches, s => sumOfAllCheckouts(s.saygData, 'away')))}
-                    </td>
+                    {renderDartsForWindowsAverage('away')}
                 </tr>
                 </tfoot>
             </table>
