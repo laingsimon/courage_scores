@@ -106,7 +106,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
         </div>
         {canShowResults ? (<TournamentRound
             round={tournamentData.round || {}}
-            sides={tournamentData.sides}
+            sides={tournamentData.sides.filter(s => !s.noShow)}
             onChange={propChanged(tournamentData, setTournamentData, 'round')}
             readOnly={readOnly}
             depth={1}
