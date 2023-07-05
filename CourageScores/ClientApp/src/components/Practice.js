@@ -41,21 +41,23 @@ export function Practice() {
             </div>);
         }
 
-        return (<SaygLoadingContainer
-            id={hasHash ?  location.hash.substring(1) : null}
-            on180={() => {}}
-            onHiCheck={() => {}}
-            defaultData={defaultSaygData}
-            autoSave={false}
-            onScoreChange={() => {}}
-            onSaved={(data) => {
-                if (location.hash !== `#${data.id}`) {
-                    navigate(`/practice#${data.id}`);
-                }
-            }}
-            onLoadError={setDataError}>
-                <EditSaygPracticeOptions />
-        </SaygLoadingContainer>);
+        return (<div className="p-3 content-background">
+            <SaygLoadingContainer
+                id={hasHash ?  location.hash.substring(1) : null}
+                on180={() => {}}
+                onHiCheck={() => {}}
+                defaultData={defaultSaygData}
+                autoSave={false}
+                onScoreChange={() => {}}
+                onSaved={(data) => {
+                    if (location.hash !== `#${data.id}`) {
+                        navigate(`/practice#${data.id}`);
+                    }
+                }}
+                onLoadError={setDataError}>
+                    <EditSaygPracticeOptions />
+            </SaygLoadingContainer>
+        </div>);
     } catch (e) {
         /* istanbul ignore next */
         onError(e);
