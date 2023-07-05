@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
 import React from "react";
 import {LegStatistics} from "./LegStatistics";
 
@@ -22,7 +22,11 @@ describe('LegStatistics', () => {
             'tbody');
     }
 
-    it('renders nothing when no narts thrown', async () => {
+    function getCellContent(tr) {
+        return Array.from(tr.querySelectorAll('td')).map(td => td.textContent);
+    }
+
+    it('renders nothing when no darts thrown', async () => {
         await renderComponent({
             leg: {
                 home: {
@@ -62,7 +66,7 @@ describe('LegStatistics', () => {
         const cells = Array.from(context.container.querySelectorAll('tr td'));
         const cellText = cells.map(td => td.textContent);
         expect(cellText).toEqual([
-            'Leg: 1🔍',
+            'Leg: 1Details',
             'Average: 100 (3 darts)Remaining: 401',
             'Average: 50 (3 darts)Remaining: 451']);
     });
@@ -97,7 +101,7 @@ describe('LegStatistics', () => {
         const cells = Array.from(context.container.querySelectorAll('tr td'));
         const cellText = cells.map(td => td.textContent);
         expect(cellText).toEqual([
-            'Leg: 1Winner: HOME🔍',
+            'Leg: 1Winner: HOMEDetails',
             'Average: 100 (3 darts)Checkout: 100',
             'Average: 50 (3 darts)Remaining: 451']);
     });
@@ -132,7 +136,7 @@ describe('LegStatistics', () => {
         const cells = Array.from(context.container.querySelectorAll('tr td'));
         const cellText = cells.map(td => td.textContent);
         expect(cellText).toEqual([
-            'Leg: 1Winner: AWAY🔍',
+            'Leg: 1Winner: AWAYDetails',
             'Average: 100 (3 darts)Remaining: 401',
             'Average: 50 (3 darts)Checkout: 50']);
     });
@@ -161,7 +165,7 @@ describe('LegStatistics', () => {
         const cells = Array.from(context.container.querySelectorAll('tr td'));
         const cellText = cells.map(td => td.textContent);
         expect(cellText).toEqual([
-            'Leg: 1🔍',
+            'Leg: 1Details',
             'Average: 100 (3 darts)Checkout: 100']);
     });
 
@@ -188,7 +192,7 @@ describe('LegStatistics', () => {
         const cells = Array.from(context.container.querySelectorAll('tr td'));
         const cellText = cells.map(td => td.textContent);
         expect(cellText).toEqual([
-            'Leg: 1🔍',
+            'Leg: 1Details',
             'Average: 100 (3 darts)Remaining: 401']);
     });
 
@@ -222,12 +226,10 @@ describe('LegStatistics', () => {
 
         await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
-        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) ol li'));
-        expect(homeThrows.map(li => li.textContent)).toEqual([ '100' ]);
-        expect(homeThrows.map(li => li.title)).toEqual([ 'Running score: 401' ]);
-        const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) ol li'));
-        expect(awayThrows.map(li => li.textContent)).toEqual([ '50' ]);
-        expect(awayThrows.map(li => li.title)).toEqual([ 'Running score: 451' ]);
+        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+        expect(homeThrows.map(getCellContent)).toEqual([ [ '100', '401', '' ] ]);
+        const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '451', '' ] ]);
     });
 
     it('can expand 2 player statistics with no throws', async () => {
@@ -268,7 +270,8 @@ describe('LegStatistics', () => {
                     noOfDarts: 3,
                     score: 100,
                     throws: [{
-                        score: 100
+                        score: 100,
+                        noOfDarts: 3,
                     }],
                 },
                 away: { },
@@ -285,9 +288,8 @@ describe('LegStatistics', () => {
 
         await doClick(firstCell.querySelector('input[id^="showThrows_"]'));
 
-        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) ol li'));
-        expect(homeThrows.map(li => li.textContent)).toEqual([ '100' ]);
-        expect(homeThrows.map(li => li.title)).toEqual([ 'Running score: 401' ]);
+        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+        expect(homeThrows.map(getCellContent)).toEqual([ [ '100', '401', '3' ] ]);
     });
 
     it('can toggle expanded statistics to show averages', async () => {
@@ -321,31 +323,31 @@ describe('LegStatistics', () => {
         const firstCell = context.container.querySelector('tr td:first-child');
 
         await doClick(firstCell, 'input[id^="showThrows_"]');
-        await doClick(firstCell, 'input[id^="average_"]');
+        await doClick(findButton(firstCell, 'Click to show running average'));
 
-        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) ol li'));
-        expect(homeThrows.map(li => li.textContent)).toEqual([ '100 (avg 100)' ]);
-        expect(homeThrows.map(li => li.title)).toEqual([ 'Running score: 401' ]);
-        const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) ol li'));
-        expect(awayThrows.map(li => li.textContent)).toEqual([ '50 (avg 50)' ]);
-        expect(awayThrows.map(li => li.title)).toEqual([ 'Running score: 451' ]);
+        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+        expect(homeThrows.map(getCellContent)).toEqual([ [ '100', '401', '100' ] ]);
+        const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '451', '50' ] ]);
     });
 
-    it('can toggle expanded statistics to show scores counting down', async () => {
+    it('can toggle expanded statistics to show no of darts', async () => {
         await renderComponent({
             leg: {
                 home: {
                     noOfDarts: 3,
                     score: 100,
                     throws: [{
-                        score: 100
+                        score: 100,
+                        noOfDarts: 3,
                     }],
                 },
                 away: {
                     noOfDarts: 3,
                     score: 50,
                     throws: [{
-                        score: 50
+                        score: 50,
+                        noOfDarts: 3,
                     }],
                 },
                 startingScore: 501,
@@ -360,13 +362,10 @@ describe('LegStatistics', () => {
         const firstCell = context.container.querySelector('tr td:first-child');
 
         await doClick(firstCell, 'input[id^="showThrows_"]');
-        await doClick(firstCell, 'input[id^="metric_"]');
 
-        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) ol li'));
-        expect(homeThrows.map(li => li.textContent)).toEqual([ '401' ]);
-        expect(homeThrows.map(li => li.title)).toEqual([ 'Running score: 401' ]);
-        const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) ol li'));
-        expect(awayThrows.map(li => li.textContent)).toEqual([ '451' ]);
-        expect(awayThrows.map(li => li.title)).toEqual([ 'Running score: 451' ]);
+        const homeThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(2) tbody tr'));
+        expect(homeThrows.map(getCellContent)).toEqual([ [ '100', '401', '3' ] ]);
+        const awayThrows = Array.from(context.container.querySelectorAll('tr td:nth-child(3) tbody tr'));
+        expect(awayThrows.map(getCellContent)).toEqual([ [ '50', '451', '3' ] ]);
     });
 });

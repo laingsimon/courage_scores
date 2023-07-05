@@ -1,47 +1,74 @@
 import {isEmpty} from "../../../helpers/collections";
 import {round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
-import {repeat} from "../../../helpers/projection";
 import React, {useState} from "react";
 
 export function LegStatistics({ leg, home, away, legNumber, singlePlayer, oneDartAverage }) {
     const homeStats = leg.home;
     const awayStats = leg.away;
     const [showThrows, setShowThrows] = useState(false);
-    const [showMetric, setShowMetric] = useState('throw');
     const [showAverage, setShowAverage] = useState(false);
 
     if (homeStats.noOfDarts + awayStats.noOfDarts === 0) {
         return null;
     }
 
-    function renderThrows(throws) {
+    function getLegStatistics(throws) {
         let score = 0;
         let noOfDarts = 0;
 
+        return throws.map(thr => {
+            score += thr.bust ? 0 : thr.score;
+            noOfDarts += thr.noOfDarts;
+            const threeDartAverage = score / (noOfDarts / 3);
+
+            return {
+                thisScore: thr.score,
+                thisNoOfDarts: thr.noOfDarts,
+                bust: thr.bust,
+                totalScore: score,
+                noOfDarts: noOfDarts,
+                remaining: leg.startingScore - score,
+                threeDartRunningAverage: threeDartAverage,
+                oneDartRunningAverage: threeDartAverage / 3,
+                checkout: score === leg.startingScore && !thr.bust,
+            };
+        });
+    }
+
+    function renderThrows(throws) {
         if (isEmpty(throws)) {
             return (<p>No throws</p>);
         }
 
-        return (<ol>
-            {throws.map((legThrow, index) => {
-                const newScore = score + legThrow.score;
-                const bust = newScore > leg.startingScore || newScore === leg.startingScore - 1 || legThrow.bust;
-                noOfDarts += legThrow.noOfDarts;
-                if (!bust) {
-                    score = newScore;
-                }
-                const runningAverage = score / (noOfDarts / 3) / (oneDartAverage ? 3 : 1);
+        const legStatistics = getLegStatistics(throws);
 
-                return (<li key={index} title={`Running score: ${leg.startingScore - score}`}>
-                    {showMetric === 'throw' ? legThrow.score : null}
-                    {showMetric === 'remaining' ? leg.startingScore - score : null}
-                    {showAverage ? (<span> (avg {round2dp(runningAverage)})</span>) : null}
-                    {bust ? (<span className="opacity-25 float-end">💥</span>) : null}
-                    {!showAverage && repeat(legThrow.noOfDarts, (index) => (<span className="opacity-25 float-end" key={index}>📌</span>))}
-                </li>);
-            })}
-        </ol>);
+        return (<table className="table-sm">
+            <thead>
+                <tr>
+                    <th>Threw</th>
+                    <th>Score</th>
+                    <th>{showAverage ? 'Avg' : 'Darts'}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {legStatistics.map((stats, index) => <tr key={index} className={stats.checkout ? 'bg-winner' : ''}>
+                <td className={`${stats.bust ? ' text-decoration-line-through' : ''}${stats.thisScore >= 100 ? ' text-danger' : ''}${stats.thisScore === 180 ? ' fw-bold' : ''}`}>
+                    {stats.thisScore}
+                </td>
+                <td>{stats.remaining}</td>
+                <td>
+                    {showAverage
+                        ? (oneDartAverage ? round2dp(stats.oneDartRunningAverage) : round2dp(stats.threeDartRunningAverage))
+                        : stats.thisNoOfDarts}
+                </td>
+            </tr>)}
+            </tbody>
+        </table>);
+    }
+
+    function toggleShowAverage() {
+        setShowAverage(!showAverage);
     }
 
     return (<tr>
@@ -51,22 +78,12 @@ export function LegStatistics({ leg, home, away, legNumber, singlePlayer, oneDar
             <div className="form-check form-switch margin-right">
                 <input className="form-check-input" type="checkbox" id={`showThrows_${legNumber}`}
                        checked={showThrows} onChange={stateChanged(setShowThrows)}/>
-                <label className="form-check-label" htmlFor={`showThrows_${legNumber}`}>🔍</label>
+                <label className="form-check-label small" htmlFor={`showThrows_${legNumber}`}>Details</label>
             </div>
-            {showThrows ? (<div className="form-check form-switch margin-right">
-                <input className="form-check-input" type="checkbox" id={`metric_${legNumber}`}
-                       checked={showMetric === 'throw'} onChange={(event) => setShowMetric(event.target.checked ? 'throw' : 'remaining')}/>
-                <label className="form-check-label" htmlFor={`metric_${legNumber}`}>
-                    {showMetric === 'throw' ? '🧭' : '📉'}
-                </label>
-            </div>) : null}
-            {showThrows ? (<div className="form-check form-switch margin-right">
-                <input className="form-check-input" type="checkbox" id={`average_${legNumber}`}
-                       checked={showAverage} onChange={(event) => setShowAverage(event.target.checked)}/>
-                <label className="form-check-label" htmlFor={`average_${legNumber}`}>
-                   {showAverage ? '📊' : '📌'}
-                </label>
-             </div>) : null}
+            {showThrows ? (<button className="btn btn-sm btn-outline-primary margin-right" onClick={toggleShowAverage}>
+                {showAverage ? (<span>Click to show <strong>No. of darts</strong></span>) : null}
+                {!showAverage ? (<span>Click to show <strong>running average</strong></span>) : null}
+             </button>) : null}
         </td>
         <td className={leg.winner === 'home' ? 'bg-winner' : ''}>
             Average: <strong>{round2dp(homeStats.score / (homeStats.noOfDarts / 3) / (oneDartAverage ? 3 : 1))}</strong> ({homeStats.noOfDarts} darts)<br />

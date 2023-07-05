@@ -125,7 +125,7 @@ describe('MatchStatistics', () => {
         assertLegRow(
             0,
             [
-                'Leg: 1🔍',
+                'Leg: 1Details',
                 'Average: 123 (3 darts)Remaining: 378',
                 'Average: 125 (6 darts)Remaining: 251']);
         assertMatchAverage(['Match average3️⃣','123','125'], false, true);
@@ -160,7 +160,7 @@ describe('MatchStatistics', () => {
         assertLegRow(
             0,
             [
-                'Leg: 1🔍',
+                'Leg: 1Details',
                 'Average: 123 (3 darts)Checkout: 123']);
         assertMatchAverage(['Match average3️⃣','123']);
         assertMatchDartCount(['Match darts','3'], true);
