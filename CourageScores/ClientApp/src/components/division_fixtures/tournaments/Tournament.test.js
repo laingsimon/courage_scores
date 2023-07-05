@@ -1280,5 +1280,115 @@ describe('Tournament', () => {
                 }
             });
         });
+
+        it('excludes no-show sides from 180 selection', async () => {
+            const side1Player = {
+                id: createTemporaryId(),
+                name: 'SIDE 1 PLAYER',
+            };
+            const side2Player = {
+                id: createTemporaryId(),
+                name: 'SIDE 2 PLAYER',
+            };
+            const side1 = {
+                id: createTemporaryId(),
+                name: 'SIDE 1',
+                players: [ side1Player ],
+            };
+            const side2 = {
+                id: createTemporaryId(),
+                name: 'SIDE 2 (no show)',
+                noShow: true,
+                players: [ side2Player ],
+            };
+            const team = {
+                id: createTemporaryId(),
+                seasons: [ {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    players: [ side1Player, side2Player ],
+                } ],
+            };
+            const tournamentData = {
+                round: null,
+                divisionId: null,
+                seasonId: season.id,
+                sides: [side1, side2],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: { access: Object.assign({ exportData: true }, account.access) },
+                seasons: toMap([ season ]),
+                teams: [ team ],
+                divisions: [ division ],
+            }, false);
+
+            const accolades = context.container.querySelector('div > div > table:nth-child(4)');
+            const oneEighties = accolades.querySelector('tbody tr:first-child td:nth-child(1)');
+            const options = Array.from(oneEighties.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(options.map(o => o.textContent)).toEqual([ '', 'SIDE 1 PLAYER' ]);
+        });
+
+        it('excludes no-show sides from hi-check selection', async () => {
+            const side1Player = {
+                id: createTemporaryId(),
+                name: 'SIDE 1 PLAYER',
+            };
+            const side2Player = {
+                id: createTemporaryId(),
+                name: 'SIDE 2 PLAYER',
+            };
+            const side1 = {
+                id: createTemporaryId(),
+                name: 'SIDE 1',
+                players: [ side1Player ],
+            };
+            const side2 = {
+                id: createTemporaryId(),
+                name: 'SIDE 2 (no show)',
+                noShow: true,
+                players: [ side2Player ],
+            };
+            const team = {
+                id: createTemporaryId(),
+                seasons: [ {
+                    id: createTemporaryId(),
+                    seasonId: season.id,
+                    players: [ side1Player, side2Player ],
+                } ],
+            };
+            const tournamentData = {
+                round: null,
+                divisionId: null,
+                seasonId: season.id,
+                sides: [side1, side2],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: { access: Object.assign({ exportData: true }, account.access) },
+                seasons: toMap([ season ]),
+                teams: [ team ],
+                divisions: [ division ],
+            }, false);
+
+            const accolades = context.container.querySelector('div > div > table:nth-child(4)');
+            const hiChecks = accolades.querySelector('tbody tr:first-child td:nth-child(2)');
+            const options = Array.from(hiChecks.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(options.map(o => o.textContent.trim())).toEqual([ '', 'SIDE 1 PLAYER' ]);
+        });
     });
 });

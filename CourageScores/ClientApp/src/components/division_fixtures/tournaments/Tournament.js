@@ -106,7 +106,7 @@ export function Tournament() {
         }
 
         const selectedTournamentTeams = tournamentData.sides
-            ? tournamentData.sides.map(side => side.teamId)
+            ? tournamentData.sides.filter(s => !s.noShow).map(side => side.teamId)
             : [];
 
         const players = teams
