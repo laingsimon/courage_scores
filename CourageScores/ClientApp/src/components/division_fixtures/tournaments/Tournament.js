@@ -98,7 +98,7 @@ export function Tournament() {
 
     function getAllPlayers(tournamentData) {
         const selectedTournamentPlayers = tournamentData.sides
-            ? tournamentData.sides.flatMap(side => side.players)
+            ? tournamentData.sides.filter(s => !s.noShow).flatMap(side => side.players)
             : [];
 
         if (any(selectedTournamentPlayers)) {

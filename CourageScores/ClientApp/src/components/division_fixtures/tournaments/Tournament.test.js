@@ -1333,7 +1333,7 @@ describe('Tournament', () => {
             const accolades = context.container.querySelector('div > div > table:nth-child(4)');
             const oneEighties = accolades.querySelector('tbody tr:first-child td:nth-child(1)');
             const options = Array.from(oneEighties.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(options.map(o => o.textContent)).toEqual([ '', 'SIDE 1 PLAYER' ]);
+            expect(options.map(o => o.textContent.trim())).toEqual([ '', 'SIDE 1 PLAYER' ]);
         });
 
         it('excludes no-show sides from hi-check selection', async () => {
