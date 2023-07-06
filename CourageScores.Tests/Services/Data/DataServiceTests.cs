@@ -5,6 +5,7 @@ using CourageScores.Services.Identity;
 using Ionic.Zip;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Moq;
 using NUnit.Framework;
 
@@ -29,6 +30,7 @@ public class DataServiceTests
     private ImportDataRequestDto _importRequest = null!;
     private Mock<IDataImporter> _tableImporter = null!;
     private ExportMetaData _importMetaData = null!;
+    private Mock<IConfiguration> _configuration = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -42,6 +44,7 @@ public class DataServiceTests
         _zipBuilder = new Mock<IZipBuilder>();
         _importZip = new Mock<IZipFileReader>();
         _tableImporter = new Mock<IDataImporter>();
+        _configuration = new Mock<IConfiguration>();
         _exportRequest = new ExportDataRequestDto();
         _importRequest = new ImportDataRequestDto
         {
@@ -50,6 +53,7 @@ public class DataServiceTests
         };
         _user = new UserDto
         {
+            Name = "USER",
             Access = new AccessDto
             {
                 ExportData = true,
@@ -61,7 +65,7 @@ public class DataServiceTests
             Hostname = "HOST",
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
-        _zipBuilderFactory.Setup(f => f.Create(It.IsAny<string>(), _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
+        _zipBuilderFactory.Setup(f => f.Create("USER", _exportRequest, _token)).ReturnsAsync(_zipBuilder.Object);
         _cosmosTableService
             .Setup(s => s.GetTables(_exportRequest, _token))
             .Returns(() => TestUtilities.AsyncEnumerable(_tables));
@@ -83,7 +87,8 @@ public class DataServiceTests
             _zipFileReaderFactory.Object,
             _dataImporterFactory.Object,
             _cosmosTableService.Object,
-            _zipBuilderFactory.Object);
+            _zipBuilderFactory.Object,
+            _configuration.Object);
     }
 
     [Test]
@@ -112,7 +117,7 @@ public class DataServiceTests
     public async Task ExportData_WhenAnExceptionOccurs_ReturnsUnsuccessful()
     {
         _zipBuilderFactory
-            .Setup(f => f.Create(It.IsAny<string>(), _exportRequest, _token))
+            .Setup(f => f.Create("USER", _exportRequest, _token))
             .Throws(() => new InvalidOperationException("some error"));
 
         var result = await _dataService.ExportData(_exportRequest, _token);
@@ -128,7 +133,7 @@ public class DataServiceTests
 
         await _dataService.ExportData(_exportRequest, _token);
 
-        _zipBuilderFactory.Verify(f => f.Create("password", _exportRequest, _token));
+        _zipBuilderFactory.Verify(f => f.Create("USER", _exportRequest, _token));
     }
 
     [Test]
@@ -136,7 +141,7 @@ public class DataServiceTests
     {
         await _dataService.ExportData(_exportRequest, _token);
 
-        _zipBuilderFactory.Verify(f => f.Create(null, _exportRequest, _token));
+        _zipBuilderFactory.Verify(f => f.Create("USER", _exportRequest, _token));
     }
 
     [Test]
@@ -283,5 +288,98 @@ public class DataServiceTests
         _tableImporter.Verify(i => i.ImportData(It.IsAny<IReadOnlyCollection<string>>(), _importZip.Object, _token));
         Assert.That(result.Success, Is.True);
         Assert.That(result.Messages, Has.Member("import message1"));
+    }
+
+    [TestCase("")]
+    [TestCase(null)]
+    public async Task BackupData_GivenNoRequestToken_ReturnsUnsuccessful(string requestToken)
+    {
+        var request = new BackupDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = requestToken,
+        };
+
+        var result = await _dataService.BackupData(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+    }
+
+    [TestCase("")]
+    [TestCase(null)]
+    public async Task BackupData_GivenNoIdentity_ReturnsUnsuccessful(string identity)
+    {
+        var request = new BackupDataRequestDto
+        {
+            Identity = identity,
+            RequestToken = "correct",
+        };
+
+        var result = await _dataService.BackupData(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Missing identity" }));
+    }
+
+    [TestCase("incorrect")]
+    [TestCase("CoRReCT")]
+    public async Task BackupData_GivenIncorrectRequestToken_ReturnsUnsuccessful(string requestToken)
+    {
+        var request = new BackupDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = requestToken,
+        };
+        _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
+
+        var result = await _dataService.BackupData(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+    }
+
+    [Test]
+    public async Task BackupData_GivenCorrectRequestToken_ReturnsSuccessful()
+    {
+        var request = new BackupDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = "Correct",
+        };
+        _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
+        _zipBuilderFactory
+            .Setup(f => f.Create("someone", It.IsAny<ExportDataRequestDto>(), _token))
+            .ReturnsAsync(_zipBuilder.Object);
+        _cosmosTableService
+            .Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<ITableAccessor>());
+
+        var result = await _dataService.BackupData(request, _token);
+
+        Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
+    public async Task BackupData_GivenCorrectRequestToken_CreatesZipWithCorrectPassword()
+    {
+        var request = new BackupDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = "Correct",
+        };
+        _configuration.Setup(c => c["BackupRequestToken"]).Returns("Correct");
+        _configuration.Setup(c => c["BackupPassword"]).Returns("ZipPassword");
+        _zipBuilderFactory
+            .Setup(f => f.Create("USER", It.IsAny<ExportDataRequestDto>(), _token))
+            .ReturnsAsync(_zipBuilder.Object);
+        _cosmosTableService
+            .Setup(s => s.GetTables(It.IsAny<ExportDataRequestDto>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable<ITableAccessor>());
+
+        await _dataService.BackupData(request, _token);
+
+        _zipBuilderFactory.Verify(f => f.Create("someone", It.Is<ExportDataRequestDto>(r => r.Password == "ZipPassword"), _token));
     }
 }

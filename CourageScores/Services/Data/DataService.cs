@@ -14,6 +14,7 @@ public class DataService : IDataService
     private readonly IDataImporterFactory _dataImporterFactory;
     private readonly ICosmosTableService _cosmosTableService;
     private readonly IZipBuilderFactory _zipBuilderFactory;
+    private readonly IConfiguration _configuration;
 
     public DataService(
         Database database,
@@ -21,7 +22,8 @@ public class DataService : IDataService
         IZipFileReaderFactory zipFileReaderFactory,
         IDataImporterFactory dataImporterFactory,
         ICosmosTableService cosmosTableService,
-        IZipBuilderFactory zipBuilderFactory)
+        IZipBuilderFactory zipBuilderFactory,
+        IConfiguration configuration)
     {
         _database = database;
         _userService = userService;
@@ -29,6 +31,7 @@ public class DataService : IDataService
         _dataImporterFactory = dataImporterFactory;
         _cosmosTableService = cosmosTableService;
         _zipBuilderFactory = zipBuilderFactory;
+        _configuration = configuration;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -44,31 +47,7 @@ public class DataService : IDataService
             return Unsuccessful<ExportDataResultDto>("Not permitted");
         }
 
-        var result = new ExportDataResultDto();
-        var actionResult = new ActionResultDto<ExportDataResultDto>
-        {
-            Result = result,
-        };
-
-        try
-        {
-            var builder = await _zipBuilderFactory.Create(request.Password, request, token);
-
-            await foreach (var table in _cosmosTableService.GetTables(request, token))
-            {
-                await table.ExportData(_database, result, builder, request, token);
-            }
-
-            result.Zip = await builder.CreateZip();
-
-            actionResult.Success = true;
-        }
-        catch (Exception exc)
-        {
-            actionResult.Errors.Add(exc.Message);
-        }
-
-        return actionResult;
+        return await DoExport(user.Name, request, token);
     }
 
     public async Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token)
@@ -135,6 +114,27 @@ public class DataService : IDataService
         return actionResult;
     }
 
+    public async Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(request.Identity))
+        {
+            return Unsuccessful<ExportDataResultDto>("Missing identity");
+        }
+
+        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["BackupRequestToken"])
+        {
+            return Unsuccessful<ExportDataResultDto>("Invalid request token");
+        }
+
+        var exportRequest = new ExportDataRequestDto
+        {
+            Password = _configuration["BackupPassword"],
+            IncludeDeletedEntries = true,
+        };
+
+        return await DoExport(request.Identity, exportRequest, token);
+    }
+
     private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)
     {
         return StringComparer.OrdinalIgnoreCase.Compare(metaData.Version, minVersion) >= 0;
@@ -150,5 +150,34 @@ public class DataService : IDataService
             },
             Success = false,
         };
+    }
+
+    private async Task<ActionResultDto<ExportDataResultDto>> DoExport(string userName, ExportDataRequestDto request, CancellationToken token)
+    {
+        var result = new ExportDataResultDto();
+        var actionResult = new ActionResultDto<ExportDataResultDto>
+        {
+            Result = result,
+        };
+
+        try
+        {
+            var builder = await _zipBuilderFactory.Create(userName, request, token);
+
+            await foreach (var table in _cosmosTableService.GetTables(request, token))
+            {
+                await table.ExportData(_database, result, builder, request, token);
+            }
+
+            result.Zip = await builder.CreateZip();
+
+            actionResult.Success = true;
+        }
+        catch (Exception exc)
+        {
+            actionResult.Errors.Add(exc.Message);
+        }
+
+        return actionResult;
     }
 }

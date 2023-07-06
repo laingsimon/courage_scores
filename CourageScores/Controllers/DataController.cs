@@ -39,4 +39,10 @@ public class DataController : Controller
         request.Tables = request.Tables.SelectMany(t => t.Split(',')).ToList();
         return await _dataService.ImportData(request, token);
     }
+
+    [HttpPost("/api/Data/Backup")]
+    public async Task<ActionResultDto<ExportDataResultDto>> ExportData(BackupDataRequestDto request, CancellationToken token)
+    {
+        return await _dataService.BackupData(request, token);
+    }
 }
