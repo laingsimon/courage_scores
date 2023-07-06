@@ -202,6 +202,17 @@ public class DataServiceTests
     }
 
     [Test]
+    public async Task ImportData_WhenNoZipFile_ReturnsUnsuccessful()
+    {
+        _importRequest.Zip = null;
+
+        var result = await _dataService.ImportData(_importRequest, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Has.Member("No zip file provided"));
+    }
+
+    [Test]
     public async Task ImportData_WhenErrorOccurs_ReturnsUnsuccessful()
     {
         _importZip = new Mock<IZipFileReader>();
@@ -381,5 +392,96 @@ public class DataServiceTests
         await _dataService.BackupData(request, _token);
 
         _zipBuilderFactory.Verify(f => f.Create("someone", It.Is<ExportDataRequestDto>(r => r.Password == "ZipPassword"), _token));
+    }
+
+    [TestCase("")]
+    [TestCase(null)]
+    public async Task RestoreData_GivenNoRequestToken_ReturnsUnsuccessful(string requestToken)
+    {
+        var request = new RestoreDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = requestToken,
+        };
+
+        var result = await _dataService.RestoreData(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+    }
+
+    [TestCase("")]
+    [TestCase(null)]
+    public async Task RestoreData_GivenNoIdentity_ReturnsUnsuccessful(string identity)
+    {
+        var request = new RestoreDataRequestDto
+        {
+            Identity = identity,
+            RequestToken = "correct",
+        };
+
+        var result = await _dataService.RestoreData(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Missing identity" }));
+    }
+
+    [TestCase("incorrect")]
+    [TestCase("CoRReCT")]
+    public async Task RestoreData_GivenIncorrectRequestToken_ReturnsUnsuccessful(string requestToken)
+    {
+        var request = new RestoreDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = requestToken,
+        };
+        _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
+
+        var result = await _dataService.RestoreData(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+    }
+
+    [Test]
+    public async Task RestoreData_GivenNoZipFile_ReturnsUnsuccessful()
+    {
+        var request = new RestoreDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = "Correct",
+            Zip = null,
+        };
+        _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
+
+        var result = await _dataService.RestoreData(request, _token);
+
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "No zip file provided" }));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
+    public async Task RestoreData_GivenCorrectRequestToken_ImportsData()
+    {
+        var request = new RestoreDataRequestDto
+        {
+            Identity = "someone",
+            RequestToken = "Correct",
+            Zip = new FormFile(new MemoryStream(), 0, 10, "name", "fileName.zip"),
+            Password = "correct password",
+        };
+        _configuration.Setup(c => c["RestoreRequestToken"]).Returns("Correct");
+        _importZip.Setup(z => z.HasFile(It.IsAny<string>())).Returns(true);
+        _dataImporterFactory
+            .Setup(f => f.Create(request, It.IsAny<ImportDataResultDto>(), It.IsAny<IAsyncEnumerable<TableDto>>()))
+            .ReturnsAsync(_tableImporter.Object);
+        _tableImporter
+            .Setup(i => i.ImportData(It.IsAny<IReadOnlyCollection<string>>(), _importZip.Object, _token))
+            .Returns(TestUtilities.AsyncEnumerable("import message1"));
+
+        var result = await _dataService.RestoreData(request, _token);
+
+        Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Success, Is.True);
     }
 }

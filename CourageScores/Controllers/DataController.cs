@@ -45,4 +45,12 @@ public class DataController : Controller
     {
         return await _dataService.BackupData(request, token);
     }
+
+    [HttpPost("/api/Data/Restore")]
+    [RequestFormLimits(KeyLengthLimit = 1024*1027*20)] // 20MB
+    [RequestSizeLimit(bytes: 1024*1024*20)] // 20MB
+    public async Task<ActionResultDto<ImportDataResultDto>> ExportData([FromForm] RestoreDataRequestDto request, CancellationToken token)
+    {
+        return await _dataService.RestoreData(request, token);
+    }
 }

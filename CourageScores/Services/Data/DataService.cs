@@ -63,6 +63,69 @@ public class DataService : IDataService
             return Unsuccessful<ImportDataResultDto>("Not permitted");
         }
 
+        return await DoImport(request, token);
+    }
+
+    public async Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(request.Identity))
+        {
+            return Unsuccessful<ExportDataResultDto>("Missing identity");
+        }
+
+        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["BackupRequestToken"])
+        {
+            return Unsuccessful<ExportDataResultDto>("Invalid request token");
+        }
+
+        var exportRequest = new ExportDataRequestDto
+        {
+            Password = _configuration["BackupPassword"],
+            IncludeDeletedEntries = true,
+        };
+
+        return await DoExport(request.Identity, exportRequest, token);
+    }
+
+    public async Task<ActionResultDto<ImportDataResultDto>> RestoreData(RestoreDataRequestDto request, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(request.Identity))
+        {
+            return Unsuccessful<ImportDataResultDto>("Missing identity");
+        }
+
+        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["RestoreRequestToken"])
+        {
+            return Unsuccessful<ImportDataResultDto>("Invalid request token");
+        }
+
+        return await DoImport(request, token);
+    }
+
+    private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)
+    {
+        return StringComparer.OrdinalIgnoreCase.Compare(metaData.Version, minVersion) >= 0;
+    }
+
+    private static ActionResultDto<T> Unsuccessful<T>(string reason)
+    {
+        return new ActionResultDto<T>
+        {
+            Errors =
+            {
+                reason
+            },
+            Success = false,
+        };
+    }
+
+    private async Task<ActionResultDto<ImportDataResultDto>> DoImport(ImportDataRequestDto request, CancellationToken token)
+    {
+        if (request.Zip == null)
+        {
+            return Unsuccessful<ImportDataResultDto>("No zip file provided");
+        }
+
         var result = new ImportDataResultDto();
         var actionResult = new ActionResultDto<ImportDataResultDto>
         {
@@ -112,44 +175,6 @@ public class DataService : IDataService
         }
 
         return actionResult;
-    }
-
-    public async Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token)
-    {
-        if (string.IsNullOrEmpty(request.Identity))
-        {
-            return Unsuccessful<ExportDataResultDto>("Missing identity");
-        }
-
-        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["BackupRequestToken"])
-        {
-            return Unsuccessful<ExportDataResultDto>("Invalid request token");
-        }
-
-        var exportRequest = new ExportDataRequestDto
-        {
-            Password = _configuration["BackupPassword"],
-            IncludeDeletedEntries = true,
-        };
-
-        return await DoExport(request.Identity, exportRequest, token);
-    }
-
-    private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)
-    {
-        return StringComparer.OrdinalIgnoreCase.Compare(metaData.Version, minVersion) >= 0;
-    }
-
-    private static ActionResultDto<T> Unsuccessful<T>(string reason)
-    {
-        return new ActionResultDto<T>
-        {
-            Errors =
-            {
-                reason
-            },
-            Success = false,
-        };
     }
 
     private async Task<ActionResultDto<ExportDataResultDto>> DoExport(string userName, ExportDataRequestDto request, CancellationToken token)
