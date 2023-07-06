@@ -48,19 +48,19 @@ export function AdminHome() {
             {appLoading ? (<Loading/>) : null}
             {!appLoading && account ? (<ul className="nav nav-tabs">
                 {access.manageAccess ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'user' ? ' text-dark active' : 'text-light'}
+                    <NavLink tag={Link} className={effectiveTab === 'user' ? ' active' : ''}
                              to={`/admin/user`}>User admin</NavLink>
                 </li>) : null}
                 {access.importData ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'import' ? ' text-dark active' : 'text-light'}
+                    <NavLink tag={Link} className={effectiveTab === 'import' ? ' active' : ''}
                              to={`/admin/import`}>Import data</NavLink>
                 </li>) : null}
                 {access.exportData ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'export' ? ' text-dark active' : 'text-light'}
+                    <NavLink tag={Link} className={effectiveTab === 'export' ? ' active' : ''}
                              to={`/admin/export`}>Export data</NavLink>
                 </li>) : null}
                 {access.viewExceptions ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'errors' ? ' text-dark active' : 'text-light'}
+                    <NavLink tag={Link} className={effectiveTab === 'errors' ? '  active' : ''}
                              to={`/admin/errors`}>Errors</NavLink>
                 </li>) : null}
             </ul>) : null}
