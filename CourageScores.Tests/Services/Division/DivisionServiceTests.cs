@@ -84,7 +84,7 @@ public class DivisionServiceTests
     {
         var insufficientData = new DivisionDataDto();
         var filter = new DivisionDataFilter();
-        _divisionDataDtoFactory.Setup(f => f.DivisionIdAndSeasonIdNotSupplied()).Returns(insufficientData);
+        _divisionDataDtoFactory.Setup(f => f.DivisionIdAndSeasonIdNotSupplied(It.IsAny<Guid?>())).Returns(insufficientData);
 
         var result = await _service.GetDivisionData(filter, _token);
 
