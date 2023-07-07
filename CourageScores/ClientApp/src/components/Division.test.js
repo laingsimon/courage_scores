@@ -9,7 +9,7 @@ import {createTemporaryId} from "../helpers/projection";
 describe('Division', () => {
     let context;
     let reportedError;
-    const divisionDataMap = { };
+    let divisionDataMap;
     const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
@@ -25,6 +25,10 @@ describe('Division', () => {
     afterEach(() => {
         cleanUp(context);
     });
+
+    beforeEach(() => {
+        divisionDataMap = {};
+    })
 
     async function renderComponent(appProps, route, address) {
         reportedError = null;
@@ -122,24 +126,6 @@ describe('Division', () => {
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
                 expect(headings.map(th => th.textContent)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
-            });
-
-            it('renders teams table within invalid division name', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: []
-                };
-
-                await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
-                }, '/division/:divisionId/:mode', `/division/unknown/teams`);
-
-                expect(reportedError).toBeNull();
-                const content = context.container.querySelector('.content-background');
-                expect(content.textContent).toEqual('No data found');
             });
 
             it('renders teams table via division and season name', async () => {
@@ -696,6 +682,46 @@ describe('Division', () => {
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
 
                 expect(reportedError).toEqual(`Data for a different season returned, requested: ${season.id}`);
+            });
+
+            it('renders no data for invalid division name', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: []
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/unknown/teams`);
+
+                expect(reportedError).toBeNull();
+                const content = context.container.querySelector('.content-background');
+                expect(content.textContent).toEqual('No data found');
+            });
+
+            it('renders no data when season not found', async () => {
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/UNKNOWN`);
+
+                expect(reportedError).toBeNull();
+                const content = context.container.querySelector('.content-background');
+                expect(content.textContent).toEqual('No data found');
+            });
+
+            it('renders no data when no divisions', async () => {
+                await renderComponent({
+                    divisions: [ ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
+
+                expect(reportedError).toBeNull();
+                const content = context.container.querySelector('.content-background');
+                expect(content.className).toContain('loading-background');
             });
         });
     });

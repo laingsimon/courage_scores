@@ -17,11 +17,13 @@ import {DivisionDataContainer} from "./DivisionDataContainer";
 import {isGuid} from "../helpers/projection";
 
 export function Division() {
+    const INVALID = 'INVALID';
     const { divisionApi } = useDependencies();
     const { account, onError, error, divisions, seasons } = useApp();
     const { divisionId: divisionIdish, mode, seasonId: seasonIdish } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
+    const [ dataRequested, setDataRequested ] = useState(false);
     const effectiveTab = mode || 'teams';
     const [ dataErrors, setDataErrors ] = useState(null);
     const divisionId = getDivisionId(divisionIdish);
@@ -37,7 +39,7 @@ export function Division() {
         }
 
         const division = divisions.filter(d => d.name.toLowerCase() === idish.toLowerCase())[0];
-        return division ? division.id : null;
+        return division ? division.id : INVALID;
     }
 
     function getSeasonId(idish) {
@@ -50,7 +52,7 @@ export function Division() {
         }
 
         const season = seasons.filter(d => d.name.toLowerCase() === idish.toLowerCase())[0];
-        return season ? season.id : null;
+        return season ? season.id : INVALID;
     }
 
     function getPlayerId(idish) {
@@ -78,7 +80,7 @@ export function Division() {
         }
 
         const teamPlayer = divisionData.players.filter(p => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
-        return teamPlayer ? teamPlayer.id : null;
+        return teamPlayer ? teamPlayer.id : INVALID;
     }
 
     function getTeamId(idish) {
@@ -91,7 +93,7 @@ export function Division() {
         }
 
         const team = divisionData.teams.filter(t => t.name.toLowerCase() === idish.toLowerCase())[0];
-        return team ? team.id : null;
+        return team ? team.id : INVALID;
     }
 
     async function reloadDivisionData() {
@@ -146,26 +148,30 @@ export function Division() {
         }
 
         function beginReload() {
-            setLoading(true);
-            // noinspection JSIgnoredPromiseFromCall
-            reloadDivisionData();
+            setDataRequested(true);
+
+            if (divisionId !== INVALID && seasonId !== INVALID) {
+                setLoading(true);
+                // noinspection JSIgnoredPromiseFromCall
+                reloadDivisionData();
+            }
         }
 
         try {
-            if (divisionId) {
-                if (!divisionData) {
-                    beginReload();
-                    return;
-                }
+            if (!divisionId) {
+                return;
+            }
 
-                if (divisionData.status) {
-                    // dont reload if there was a previous 'status' - representing an issue loading the data
-                    return;
-                }
-
-                if ((divisionData.id !== divisionId) || (seasonId && (divisionData.season || {}).id !== seasonId)) {
-                    beginReload();
-                }
+            if (!divisionData) {
+                beginReload();
+                return;
+            }
+            if (divisionData.status) {
+                // dont reload if there was a previous 'status' - representing an issue loading the data
+                return;
+            }
+            if ((divisionData.id !== divisionId) || (seasonId && (divisionData.season || {}).id !== seasonId)) {
+                beginReload();
             }
         } catch (e) {
             /* istanbul ignore next */
@@ -175,7 +181,7 @@ export function Division() {
     // eslint-disable-next-line
     [ divisionData, loading, divisionId, seasonId, error ]);
 
-    if (loading) {
+    if (loading || !dataRequested) {
         return (<Loading />);
     }
 
