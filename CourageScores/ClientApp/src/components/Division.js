@@ -32,7 +32,7 @@ export function Division() {
             return idish;
         }
 
-        if (!divisions || !any(divisions) || !idish) {
+        if (!divisions || !any(divisions)) {
             return null;
         }
 
@@ -71,10 +71,6 @@ export function Division() {
         const playerName = match[1];
         const teamName = match[2];
 
-        if (!teamName || !playerName) {
-            return idish;
-        }
-
         const team = divisionData.teams.filter(t => t.name.toLowerCase() === teamName.toLowerCase())[0];
         if (!team) {
             // team not found
@@ -100,11 +96,6 @@ export function Division() {
 
     async function reloadDivisionData() {
         try {
-            if (!isGuid(divisionId) || (seasonId && !isGuid(seasonId))) {
-                onError('Attempt to load division data without appropriate ids');
-                return;
-            }
-
             const divisionData = await divisionApi.data(divisionId, seasonId);
             setDataErrors(null);
             setDivisionData(divisionData);
@@ -134,6 +125,7 @@ export function Division() {
             }
 
             if (divisionData.status) {
+                /* istanbul ignore next */
                 console.log(divisionData);
                 const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
                 onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
@@ -151,8 +143,14 @@ export function Division() {
     // eslint-disable-next-line
     [ divisionData, loading, divisionId, seasonId, error ]);
 
-    if (loading || !divisionData) {
+    if (loading) {
         return (<Loading />);
+    }
+
+    if (loading || !divisionData) {
+        return (<div className="p-3 content-background">
+            No data found
+        </div>);
     }
 
     try {
@@ -213,7 +211,7 @@ export function Division() {
                 {effectiveTab === 'players' && divisionData.season
                     ? (<DivisionPlayers/>)
                     : null}
-                {effectiveTab === 'reports' && divisionData.season
+                {effectiveTab === 'reports' && divisionData.season && account && account.access && account.access.runReports
                     ? (<DivisionReports/>)
                     : null}
                 {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
