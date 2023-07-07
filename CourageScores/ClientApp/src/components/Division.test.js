@@ -131,7 +131,8 @@ describe('Division', () => {
         it('renders when in season', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
             await renderComponent(null, divisionId);
 
             expect(reportedError).toBeNull();
@@ -148,7 +149,7 @@ describe('Division', () => {
         it('renders teams table when in season', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
             inSeasonDivisionData.teams[0] = {
                 address: 'An address',
                 difference: 1,
@@ -164,6 +165,7 @@ describe('Division', () => {
                 points: 9,
                 winRate: 10
             };
+
             await renderComponent(null, divisionId, 'teams');
 
             expect(reportedError).toBeNull();
@@ -202,7 +204,8 @@ describe('Division', () => {
                 triples: { },
                 winPercentage: 0.5
             });
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
             await renderComponent(null, divisionId, 'players');
 
             expect(reportedError).toBeNull();
@@ -218,10 +221,118 @@ describe('Division', () => {
                 .toEqual([ '4', '🤴 A player', 'A team', '6', '7', '0', '3', '0.5', '1', '2' ]);
         });
 
+        it('navigates to player by their team and player name', async () => {
+            const divisionId = createTemporaryId();
+            const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+            const playerId = createTemporaryId();
+            inSeasonDivisionData.players.push({
+                captain: true,
+                id: playerId,
+                name: 'A player',
+                oneEighties: 1,
+                over100Checkouts: 2,
+                pairs: { },
+                points: 3,
+                rank: 4,
+                singles: {
+                    matchesPlayed: 6,
+                    matchesWon: 7,
+                    matchesLost: 0,
+                    winRate: 8
+                },
+                team: 'A team',
+                teamId: createTemporaryId(),
+                triples: { },
+                winPercentage: 0.5
+            });
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
+            await renderComponent(null, divisionId, 'players');
+
+            expect(reportedError).toBeNull();
+            const table = context.container.querySelector('.content-background table');
+            expect(table).toBeTruthy();
+            const playerRow = table.querySelector('tbody tr:first-child');
+            const playerLink = playerRow.querySelector('td:nth-child(2) a');
+            expect(playerLink.textContent).toContain('A player');
+            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/player:${playerId}/${encodeURI(inSeasonDivisionData.season.name)}`);
+        });
+
+        it('navigates to player team by their team name', async () => {
+            const divisionId = createTemporaryId();
+            const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+            const playerId = createTemporaryId();
+            const teamId = createTemporaryId();
+            inSeasonDivisionData.players.push({
+                captain: true,
+                id: playerId,
+                name: 'A player',
+                oneEighties: 1,
+                over100Checkouts: 2,
+                pairs: { },
+                points: 3,
+                rank: 4,
+                singles: {
+                    matchesPlayed: 6,
+                    matchesWon: 7,
+                    matchesLost: 0,
+                    winRate: 8
+                },
+                team: 'A team',
+                teamId: teamId,
+                triples: { },
+                winPercentage: 0.5
+            });
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
+            await renderComponent(null, divisionId, 'players');
+
+            expect(reportedError).toBeNull();
+            const table = context.container.querySelector('.content-background table');
+            expect(table).toBeTruthy();
+            const playerRow = table.querySelector('tbody tr:first-child');
+            const playerLink = playerRow.querySelector('td:nth-child(3) a');
+            expect(playerLink.textContent).toContain('A team');
+            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/team:${teamId}/${encodeURI(inSeasonDivisionData.season.name)}`);
+        });
+
+        it('navigates to team by their team name', async () => {
+            const divisionId = createTemporaryId();
+            const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+            const teamId = createTemporaryId();
+            inSeasonDivisionData.teams[0] = {
+                address: 'An address',
+                difference: 1,
+                fixturesDrawn: 2,
+                fixturesLost: 3,
+                fixturesWon: 4,
+                id: teamId,
+                lossRate: 5,
+                matchesLost: 6,
+                matchesWon: 7,
+                name: 'A team',
+                played: 8,
+                points: 9,
+                winRate: 10
+            };
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
+            await renderComponent(null, divisionId, 'teams');
+
+            expect(reportedError).toBeNull();
+            const table = context.container.querySelector('.content-background table');
+            expect(table).toBeTruthy();
+            const playerRow = table.querySelector('tbody tr:first-child');
+            const playerLink = playerRow.querySelector('a:nth-child(1)');
+            expect(playerLink.textContent).toContain('A team');
+            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/team:${teamId}/${encodeURI(inSeasonDivisionData.season.name)}`);
+        });
+
         it('renders notes when in season', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
             inSeasonDivisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -232,6 +343,7 @@ describe('Division', () => {
                 } ],
                 tournamentFixtures: [ ]
             });
+
             await renderComponent(null, divisionId, 'fixtures');
 
             expect(reportedError).toBeNull();
@@ -249,7 +361,7 @@ describe('Division', () => {
         it('renders fixtures when in season', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
             inSeasonDivisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ {
@@ -287,6 +399,7 @@ describe('Division', () => {
                 notes: [ ],
                 tournamentFixtures: []
             });
+
             await renderComponent(null, divisionId, 'fixtures');
 
             expect(reportedError).toBeNull();
@@ -309,7 +422,7 @@ describe('Division', () => {
         it('renders tournaments when in season', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
             inSeasonDivisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
                 fixtures: [ ],
@@ -343,6 +456,7 @@ describe('Division', () => {
                     type: 'Pairs'
                 }]
             });
+
             await renderComponent(null, divisionId, 'fixtures');
 
             expect(reportedError).toBeNull();
@@ -363,7 +477,8 @@ describe('Division', () => {
         it('does not render reports tab', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
             await renderComponent(null, divisionId);
 
             const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
@@ -375,7 +490,8 @@ describe('Division', () => {
         it('renders when out of season', async () => {
             const divisionId = createTemporaryId();
             const outOfSeasonDivisionData = getOutOfSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, outOfSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, outOfSeasonDivisionData);
+
             await renderComponent(null, divisionId);
 
             expect(reportedError).toBeNull();
@@ -397,7 +513,7 @@ describe('Division', () => {
                     'key': 'some error',
                 }
             };
-            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+            setupMockDivisionData(divisionId, null, errorDivisionData);
 
             console.log = () => { };
             await renderComponent(null, divisionId);
@@ -411,7 +527,7 @@ describe('Division', () => {
                 id: divisionId,
                 dataErrors: ['some data error', 'another data error']
             };
-            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+            setupMockDivisionData(divisionId, null, errorDivisionData);
 
             console.log = () => { };
             await renderComponent(null, divisionId);
@@ -425,7 +541,8 @@ describe('Division', () => {
         it('and not permitted, does not show reports tab', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
             await renderComponent({ access: { runReports: false } }, divisionId);
 
             const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
@@ -437,7 +554,8 @@ describe('Division', () => {
         it('and permitted, renders reports tab', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
             await renderComponent({ access: { runReports: true } }, divisionId);
 
             const tabs = context.container.querySelectorAll('.nav-tabs li.nav-item');
@@ -449,7 +567,8 @@ describe('Division', () => {
         it('renders when in season', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, inSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, inSeasonDivisionData);
+
             await renderComponent({ access: { } }, divisionId);
 
             expect(reportedError).toBeNull();
@@ -466,7 +585,8 @@ describe('Division', () => {
         it('renders when out of season', async () => {
             const divisionId = createTemporaryId();
             const outOfSeasonDivisionData = getOutOfSeasonDivisionData(divisionId);
-            setupMockDivisionData(divisionId, undefined, outOfSeasonDivisionData);
+            setupMockDivisionData(divisionId, null, outOfSeasonDivisionData);
+
             await renderComponent({ access: { } }, divisionId);
 
             expect(reportedError).toBeNull();
@@ -486,7 +606,7 @@ describe('Division', () => {
                 id: divisionId,
                 dataErrors: ['some data error', 'another data error']
             };
-            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+            setupMockDivisionData(divisionId, null, errorDivisionData);
 
             console.log = () => { };
             await renderComponent({ access: { } }, divisionId);
@@ -501,7 +621,7 @@ describe('Division', () => {
                 id: divisionId,
                 dataErrors: ['some data error', 'another data error']
             };
-            setupMockDivisionData(divisionId, undefined, errorDivisionData);
+            setupMockDivisionData(divisionId, null, errorDivisionData);
             console.log = () => { };
             await renderComponent({ access: { } }, divisionId);
 

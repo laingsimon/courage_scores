@@ -22,7 +22,7 @@ export function NavMenu() {
     }, [location]);
 
     function isActive(toRegex) {
-        return currentLink.match(toRegex);
+        return decodeURI(currentLink).match(toRegex);
     }
 
     function getClassName(to) {
@@ -98,8 +98,8 @@ export function NavMenu() {
                         {!appLoading && divisions.filter(shouldShowDivision).map(division => (
                             <li className="nav-item" key={division.id}>
                                 <NavLink tag={Link} onClick={navigate}
-                                         className={getClassName(`/division/${division.id}`)}
-                                         to={`/division/${division.id}`}>
+                                         className={getClassName(`/division/${division.name}`)}
+                                         to={`/division/${division.name}`}>
                                     {division.name}
                                 </NavLink>
                             </li>))}

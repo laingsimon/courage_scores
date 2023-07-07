@@ -22,3 +22,14 @@ export function repeat(times, itemProvider) {
 }
 
 export const EMPTY_ID = '00000000-0000-0000-0000-000000000000';
+
+/*
+* Determine if the given id is a compatible GUID
+* */
+export function isGuid(id) {
+    if (!id) {
+        return false;
+    }
+
+    return !!id.match(/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/);
+}

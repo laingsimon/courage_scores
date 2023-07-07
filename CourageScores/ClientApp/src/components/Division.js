@@ -14,18 +14,52 @@ import {propChanged} from "../helpers/events";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
+import {isGuid} from "../helpers/projection";
 
 export function Division() {
     const { divisionApi } = useDependencies();
-    const { account, onError, error } = useApp();
-    const { divisionId, mode, seasonId } = useParams();
+    const { account, onError, error, divisions, seasons } = useApp();
+    const { divisionId: divisionIdish, mode, seasonId: seasonIdish } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const effectiveTab = mode || 'teams';
     const [ dataErrors, setDataErrors ] = useState(null);
+    const divisionId = getDivisionId(divisionIdish);
+    const seasonId = getSeasonId(seasonIdish);
+
+    function getDivisionId(idish) {
+        if (isGuid(idish)) {
+            return idish;
+        }
+
+        if (!divisions || !any(divisions) || !idish) {
+            return null;
+        }
+
+        const division = divisions.filter(d => d.name.toLowerCase() === idish.toLowerCase())[0];
+        return division ? division.id : null;
+    }
+
+    function getSeasonId(idish) {
+        if (isGuid(idish)) {
+            return idish;
+        }
+
+        if (!seasons || !any(seasons) || !idish) {
+            return null;
+        }
+
+        const season = seasons.filter(d => d.name.toLowerCase() === idish.toLowerCase())[0];
+        return season ? season.id : null;
+    }
 
     async function reloadDivisionData() {
         try {
+            if (!isGuid(divisionId) || (seasonId && !isGuid(seasonId))) {
+                onError('Attempt to load division data without appropriate ids');
+                return;
+            }
+
             const divisionData = await divisionApi.data(divisionId, seasonId);
             setDataErrors(null);
             setDivisionData(divisionData);
@@ -46,9 +80,11 @@ export function Division() {
 
         try {
             if (!divisionData || ((divisionData.id !== divisionId || ((divisionData.season || {}).id !== seasonId && seasonId)) && !divisionData.status)) {
-                setLoading(true);
-                // noinspection JSIgnoredPromiseFromCall
-                reloadDivisionData();
+                if (divisionId) {
+                    setLoading(true);
+                    // noinspection JSIgnoredPromiseFromCall
+                    reloadDivisionData();
+                }
                 return;
             }
 
@@ -84,30 +120,30 @@ export function Division() {
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' ? 'active' : ''}
-                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Teams</NavLink>
+                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>Teams</NavLink>
                 </li>
                 {effectiveTab.startsWith('team:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Team Details</NavLink>
-                </li>) : null }
+                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>Team Details</NavLink>
+                </li>) : null}
                 <li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'fixtures' ? 'active' : ''}
-                             to={`/division/${divisionId}/fixtures${seasonId ? '/' + seasonId : ''}`}>Fixtures</NavLink>
+                             to={`/division/${divisionIdish}/fixtures${seasonIdish ? '/' + seasonIdish : ''}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'players' ? 'active' : ''}
-                             to={`/division/${divisionId}/players${seasonId ? '/' + seasonId : ''}`}>Players</NavLink>
+                             to={`/division/${divisionIdish}/players${seasonIdish ? '/' + seasonIdish : ''}`}>Players</NavLink>
                 </li>
                 {effectiveTab.startsWith('player:') ? (<li className="nav-item">
                     <NavLink tag={Link}
                              className="active"
-                             to={`/division/${divisionId}/teams${seasonId ? '/' + seasonId : ''}`}>Player Details</NavLink>
-                </li>) : null }
+                             to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>Player Details</NavLink>
+                </li>) : null}
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
                     <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
-                             to={`/division/${divisionId}/reports${seasonId ? '/' + seasonId : ''}`}>Reports</NavLink>
+                             to={`/division/${divisionIdish}/reports${seasonIdish ? '/' + seasonIdish : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
