@@ -39,14 +39,14 @@ describe('tournaments', () => {
             expect(name).toEqual('Semi-Final');
         });
 
-        it('returns Quarter-Final if 8 sides', () => {
+        it('returns Quarter-Final if 6,7 or 8 sides', () => {
             const round = {
                 name: null,
             };
 
-            const name = getRoundNameFromSides(round, 8, 1);
-
-            expect(name).toEqual('Quarter-Final');
+            expect(getRoundNameFromSides(round, 6, 1)).toEqual('Quarter-Final');
+            expect(getRoundNameFromSides(round, 7, 1)).toEqual('Quarter-Final');
+            expect(getRoundNameFromSides(round, 8, 1)).toEqual('Quarter-Final');
         });
 
         it('returns depth if unimportant number of sides', () => {
@@ -58,7 +58,6 @@ describe('tournaments', () => {
                 getRoundNameFromSides(round, 1, 1),
                 getRoundNameFromSides(round, 3, 1),
                 getRoundNameFromSides(round, 5, 1),
-                getRoundNameFromSides(round, 7, 1),
                 getRoundNameFromSides(round, 9, 1),
                 getRoundNameFromSides(round, 0, 1),
                 getRoundNameFromSides(round, 10, 1),
