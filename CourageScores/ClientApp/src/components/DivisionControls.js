@@ -95,27 +95,27 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         return data;
     }
 
-    function firstValidDivisionIdForSeason(season) {
+    function firstValidDivisionNameForSeason(season) {
         if (originalDivisionData && (isEmpty(season.divisions) || any(season.divisions, d => d.id === originalDivisionData.id))) {
-            return originalDivisionData.id;
+            return originalDivisionData.name;
         }
 
         if (any(season.divisions)) {
-            return season.divisions[0].id;
+            return season.divisions[0].name;
         }
 
         return null;
     }
 
     function navigateToSeason() {
-        navigate(`/division/${originalDivisionData.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}`);
+        navigate(`/division/${originalDivisionData.name}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.name}`);
     }
 
     function renderSeasonOption(s) {
         return (<Link
             key={s.id}
             className={`dropdown-item ${originalSeasonData && originalSeasonData.id === s.id ? ' active' : ''}`}
-            to={`/division/${firstValidDivisionIdForSeason(s)}/${overrideMode || mode || 'teams'}/${s.id}${location.search}`}>
+            to={`/division/${firstValidDivisionNameForSeason(s)}/${overrideMode || mode || 'teams'}/${s.name}${location.search}`}>
             {s.name} ({renderDate(s.startDate)} - {renderDate(s.endDate)})
         </Link>);
     }
@@ -124,7 +124,7 @@ export function DivisionControls({ originalSeasonData, onDivisionOrSeasonChanged
         return (<Link
             key={d.id}
             className={`dropdown-item ${originalDivisionData.id === d.id ? ' active' : ''}${isDivisionSelected(d) ? '' : ' text-warning'}`}
-            to={`/division/${d.id}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.id}${location.search}`}>
+            to={`/division/${d.name}/${overrideMode || stripIdFromMode(mode) || 'teams'}/${originalSeasonData.name}${location.search}`}>
             {d.name}
         </Link>);
     }

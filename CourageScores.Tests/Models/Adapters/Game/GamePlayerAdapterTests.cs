@@ -27,6 +27,20 @@ public class GamePlayerAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenModel_TrimsWhitespace()
+    {
+        var model = new GamePlayer
+        {
+            Id = Guid.NewGuid(),
+            Name = "Simon  ",
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.Name, Is.EqualTo("Simon"));
+    }
+
+    [Test]
     public async Task Adapt_GivenDto_MapsPropertiesCorrectly()
     {
         var dto = new GamePlayerDto

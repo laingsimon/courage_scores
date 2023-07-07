@@ -80,6 +80,42 @@ public class DivisionPlayerAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenNoFixtures_TrimsWhitespace()
+    {
+        var score = new DivisionData.PlayerScore
+        {
+            OneEighties = 3,
+            HiCheckout = 4,
+            PlayerPlayCount =
+            {
+                { 1, _singles },
+                { 2, _pairs },
+                { 3, _triples },
+            }
+        };
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Address = "address  ",
+            Name = "team  ",
+        };
+        var player = new TeamPlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "player   ",
+            Captain = true,
+            Updated = new DateTime(2001, 02, 03),
+        };
+        var playerTuple = new DivisionData.TeamPlayerTuple(player, team);
+        var fixtures = new Dictionary<DateTime, Guid>();
+
+        var result = await _adapter.Adapt(score, playerTuple, fixtures, _token);
+
+        Assert.That(result.Team, Is.EqualTo("team"));
+        Assert.That(result.Name, Is.EqualTo("player"));
+    }
+
+    [Test]
     public async Task Adapt_GivenTeamPlayerDto_SetsPropertiesCorrectly()
     {
         var team = new TeamDto
@@ -111,5 +147,27 @@ public class DivisionPlayerAdapterTests
         Assert.That(result.Team, Is.EqualTo(team.Name));
         Assert.That(result.Fixtures, Is.Empty);
         Assert.That(result.Updated, Is.EqualTo(player.Updated));
+    }
+
+    [Test]
+    public async Task Adapt_GivenTeamPlayerDto_TrimsWhitespace()
+    {
+        var team = new TeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Team  "
+        };
+        var player = new TeamPlayerDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Player   ",
+            Captain = true,
+            Updated = new DateTime(2001, 02, 03),
+        };
+
+        var result = await _adapter.Adapt(team, player, _token);
+
+        Assert.That(result.Name, Is.EqualTo("Player"));
+        Assert.That(result.Team, Is.EqualTo("Team"));
     }
 }

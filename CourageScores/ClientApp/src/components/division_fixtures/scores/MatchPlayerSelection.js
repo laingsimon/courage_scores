@@ -8,14 +8,14 @@ import {propChanged, stateChanged} from "../../../helpers/events";
 import {EditMatchOptions} from "../EditMatchOptions";
 import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
-import {useLeagueFixture} from "../LeagueFixtureContainer";
+import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {useMatchType} from "./MatchTypeContainer";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
 export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck }) {
     const { account, onError } = useApp();
-    const { homePlayers, awayPlayers, seasonId, divisionId, readOnly, disabled } = useLeagueFixture();
+    const { homePlayers, awayPlayers, readOnly, disabled, division, season, home, away } = useLeagueFixture();
     const { matchOptions, otherMatches, setCreatePlayerFor } = useMatchType();
     const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
     const [ saygOpen, setSaygOpen ] = useState(false);
@@ -28,6 +28,15 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
         }
 
         return matchPlayers[index] || {};
+    }
+
+    function linkToPlayer(index, side, team) {
+        const playerData = player(index, side);
+
+        return (<Link
+            to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
+            {playerData.name}
+        </Link>);
     }
 
     async function playerChanged(index, player, side) {
@@ -164,9 +173,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
                                           onClick={() => setSaygOpen(!saygOpen)}>📊</button>) : null}
                 {saygOpen ? renderSaygDialog() : null}
                 {repeat(matchOptions.playerCount).map(index => disabled
-                    ? (<div key={index}><Link
-                        to={`/division/${divisionId}/player:${player(index, 'home').id}/${seasonId}`}>{player(index, 'home').name}</Link>
-                    </div>)
+                    ? (<div key={index}>{linkToPlayer(index, 'home', home)}</div>)
                     : (<div key={index}><PlayerSelection
                         disabled={disabled}
                         readOnly={readOnly}
@@ -205,9 +212,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
                             className="btn btn-sm right-0 position-absolute"
                             onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>)}
                 {repeat(matchOptions.playerCount).map(index => disabled
-                    ? (<div key={index}><Link
-                        to={`/division/${divisionId}/player:${player(index, 'away').id}/${seasonId}`}>{player(index, 'away').name}</Link>
-                    </div>)
+                    ? (<div key={index}>{linkToPlayer(index, 'away', away)}</div>)
                     : (<div key={index}>
                         <PlayerSelection
                             disabled={disabled}

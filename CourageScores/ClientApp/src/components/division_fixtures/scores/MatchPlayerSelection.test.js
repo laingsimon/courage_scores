@@ -4,7 +4,7 @@ import React from "react";
 import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {createTemporaryId} from "../../../helpers/projection";
-import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
+import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 
 describe('MatchPlayerSelection', () => {
@@ -97,8 +97,14 @@ describe('MatchPlayerSelection', () => {
     }
 
     describe('renders', () => {
-        const seasonId = createTemporaryId();
-        const divisionId = createTemporaryId();
+        const season = {
+            id: createTemporaryId(),
+            name: 'SEASON',
+        };
+        const division = {
+            id: createTemporaryId(),
+            name: 'DIVISION',
+        };
         const account = { access: { } };
         const homePlayer = { id: createTemporaryId(), name: 'HOME' };
         const awayPlayer = { id: createTemporaryId(), name: 'AWAY' };
@@ -113,8 +119,8 @@ describe('MatchPlayerSelection', () => {
         const defaultContainerProps = {
             disabled: false,
             readOnly: false,
-            seasonId: seasonId,
-            divisionId: divisionId,
+            season: season,
+            division: division,
             homePlayers: [ homePlayer, newPlayer ],
             awayPlayers: [ awayPlayer, newPlayer ],
         };
@@ -251,8 +257,8 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: false,
                 readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer, anotherHomePlayer ],
                 awayPlayers: [ awayPlayer ],
             };
@@ -278,8 +284,8 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: false,
                 readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer ],
                 awayPlayers: [ awayPlayer, anotherAwayPlayer ],
             };
@@ -305,8 +311,8 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: false,
                 readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer, anotherHomePlayer ],
                 awayPlayers: [ awayPlayer ],
             };
@@ -347,8 +353,8 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: false,
                 readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer ],
                 awayPlayers: [ awayPlayer, anotherAwayPlayer ],
             };
@@ -422,8 +428,14 @@ describe('MatchPlayerSelection', () => {
     });
 
     describe('interactivity', () => {
-        const seasonId = createTemporaryId();
-        const divisionId = createTemporaryId();
+        const season = {
+            id: createTemporaryId(),
+            name: 'SEASON',
+        };
+        const division = {
+            id: createTemporaryId(),
+            name: 'DIVISION',
+        };
         const account = { access: { managePlayers: true } };
         const homePlayer = { id: createTemporaryId(), name: 'HOME' };
         const awayPlayer = { id: createTemporaryId(), name: 'AWAY' };
@@ -438,8 +450,8 @@ describe('MatchPlayerSelection', () => {
         const defaultContainerProps = {
             disabled: false,
             readOnly: false,
-            seasonId: seasonId,
-            divisionId: divisionId,
+            season: season,
+            division: division,
             homePlayers: [ homePlayer, newPlayer ],
             awayPlayers: [ awayPlayer, newPlayer ],
         };
@@ -876,8 +888,8 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: false,
                 readOnly: true,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer, newPlayer ],
                 awayPlayers: [ awayPlayer, newPlayer ],
             };
@@ -908,8 +920,8 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: false,
                 readOnly: true,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer, newPlayer ],
                 awayPlayers: [ awayPlayer, newPlayer ],
             };
@@ -940,10 +952,12 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: true,
                 readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer, newPlayer ],
                 awayPlayers: [ awayPlayer, newPlayer ],
+                home: { name: 'HOME_TEAM' },
+                away: { name: 'AWAY_TEAM' },
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);
@@ -968,10 +982,12 @@ describe('MatchPlayerSelection', () => {
             const containerProps = {
                 disabled: true,
                 readOnly: false,
-                seasonId: seasonId,
-                divisionId: divisionId,
+                season: season,
+                division: division,
                 homePlayers: [ homePlayer, newPlayer ],
                 awayPlayers: [ awayPlayer, newPlayer ],
+                home: { name: 'HOME_TEAM' },
+                away: { name: 'AWAY_TEAM' },
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);

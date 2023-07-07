@@ -3,12 +3,12 @@ import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Link} from "react-router-dom";
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
-import {EMPTY_ID} from "../../../helpers/projection";
 
-export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly, showNotes, divisionId, seasonId, notesClassName, dropdownClassName, placeholder }) {
+export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly,
+                                         showNotes, notesClassName, dropdownClassName, placeholder, season, division }) {
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
-    const { onError } = useApp();
+    const { onError, teams } = useApp();
 
     async function addPlayer() {
         if (!player) {
@@ -45,12 +45,27 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
     }
 
     function renderLinkToPlayer(p) {
-        const divId = (divisionId || p.divisionId);
-        if (divId && divId !== EMPTY_ID && seasonId) {
-            return (<Link to={`/division/${divId}/player:${p.id}/${seasonId}`}>{playerName(p)}</Link>);
+        if (division && season) {
+            const teamName = getTeamName(p.id);
+            const playerLink = teamName ? `${p.name}@${teamName}` : p.id;
+
+            return (<Link to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</Link>);
         }
 
         return playerName(p);
+    }
+
+    function getTeamName(playerId) {
+        const team = teams.filter(t => {
+            const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
+            if (!teamSeason) {
+                return null;
+            }
+
+            return any(teamSeason.players, p => p.id === playerId);
+        })[0];
+
+        return team ? team.name : null;
     }
 
     try {

@@ -21,7 +21,7 @@ describe('MultiPlayerSelection', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(props, allTeams) {
         reportedError = null;
         addedPlayer = null;
         removedPlayer = null;
@@ -34,7 +34,8 @@ describe('MultiPlayerSelection', () => {
                         message: err.message,
                         stack: err.stack
                     };
-                }
+                },
+                teams: allTeams,
             },
             (<MultiPlayerSelection
                 onAddPlayer={onAddPlayer}
@@ -47,8 +48,14 @@ describe('MultiPlayerSelection', () => {
     }
 
     describe('renders', () => {
-        const divisionId = createTemporaryId();
-        const seasonId = createTemporaryId();
+        const division = {
+            id: createTemporaryId(),
+            name: 'DIVISION',
+        };
+        const season = {
+            id: createTemporaryId(),
+            name: 'SEASON',
+        };
         const player = {
             id: createTemporaryId(),
             name: 'PLAYER',
@@ -157,8 +164,8 @@ describe('MultiPlayerSelection', () => {
                 readOnly: true,
                 players: [player],
                 allPlayers: [player],
-                divisionId: divisionId,
-                seasonId: seasonId,
+                division: division,
+                season: season,
             });
 
             expect(reportedError).toBeNull();
@@ -176,8 +183,8 @@ describe('MultiPlayerSelection', () => {
                 players: [player],
                 allPlayers: [player],
                 showNotes: true,
-                divisionId: divisionId,
-                seasonId: seasonId,
+                division: division,
+                season: season,
             });
 
             expect(reportedError).toBeNull();
@@ -194,16 +201,67 @@ describe('MultiPlayerSelection', () => {
                 disabled: true,
                 players: [player],
                 allPlayers: [player],
-                divisionId: divisionId,
-                seasonId: seasonId,
-            });
+                division: division,
+                season: season,
+            }, [{
+                name: 'TEAM_NAME',
+                seasons: [ {
+                    seasonId: season.id,
+                    players: [player],
+                }]
+            }]);
 
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
             const linkToPlayer = selectedPlayer.querySelector('a');
             expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(`/division/${divisionId}/player:${player.id}/${seasonId}`);
+            expect(linkToPlayer.href).toContain(`/division/${division.name}/player:${player.name}@TEAM_NAME/${season.name}`);
+            expect(linkToPlayer.textContent).toEqual('PLAYER');
+        });
+
+        it('disabled selected players link via id when team has no matching season', async () => {
+            await renderComponent({
+                disabled: true,
+                players: [player],
+                allPlayers: [player],
+                division: division,
+                season: season,
+            }, [{
+                seasons: [ {
+                    seasonId: createTemporaryId(),
+                }]
+            }]);
+
+            expect(reportedError).toBeNull();
+            const selectedPlayer = getSelectedPlayers()[0];
+            expect(selectedPlayer).toBeTruthy();
+            const linkToPlayer = selectedPlayer.querySelector('a');
+            expect(linkToPlayer).toBeTruthy();
+            expect(linkToPlayer.href).toContain(`/division/${division.name}/player:${player.id}/${season.name}`);
+            expect(linkToPlayer.textContent).toEqual('PLAYER');
+        });
+
+        it('disabled selected players link via id when player not found for team season', async () => {
+            await renderComponent({
+                disabled: true,
+                players: [player],
+                allPlayers: [player],
+                division: division,
+                season: season,
+            }, [{
+                seasons: [ {
+                    seasonId: season.id,
+                    players: [],
+                }]
+            }]);
+
+            expect(reportedError).toBeNull();
+            const selectedPlayer = getSelectedPlayers()[0];
+            expect(selectedPlayer).toBeTruthy();
+            const linkToPlayer = selectedPlayer.querySelector('a');
+            expect(linkToPlayer).toBeTruthy();
+            expect(linkToPlayer.href).toContain(`/division/${division.name}/player:${player.id}/${season.name}`);
             expect(linkToPlayer.textContent).toEqual('PLAYER');
         });
 
@@ -213,16 +271,16 @@ describe('MultiPlayerSelection', () => {
                 players: [player],
                 allPlayers: [player],
                 showNotes: true,
-                divisionId: divisionId,
-                seasonId: seasonId,
-            });
+                division: division,
+                season: season,
+            }, []);
 
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
             const linkToPlayer = selectedPlayer.querySelector('a');
             expect(linkToPlayer).toBeTruthy();
-            expect(linkToPlayer.href).toContain(`/division/${divisionId}/player:${player.id}/${seasonId}`);
+            expect(linkToPlayer.href).toContain(`/division/${division.name}/player:${player.id}/${season.name}`);
             expect(linkToPlayer.textContent).toEqual('PLAYER (NOTES)');
         });
 

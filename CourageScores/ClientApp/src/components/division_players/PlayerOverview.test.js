@@ -73,7 +73,8 @@ describe('PlayerOverview', () => {
                     players: [ player ],
                     fixtures: [],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -83,7 +84,7 @@ describe('PlayerOverview', () => {
             expect(heading.textContent).toContain(team.name);
             const linkToTeam = heading.querySelector('a');
             expect(linkToTeam).toBeTruthy();
-            expect(linkToTeam.href).toEqual(`http://localhost/division/${division.id}/team:${team.id}/${season.id}`);
+            expect(linkToTeam.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
         });
 
         it('when player not found', async () => {
@@ -94,7 +95,8 @@ describe('PlayerOverview', () => {
                     players: [ player ],
                     fixtures: [ ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -109,7 +111,8 @@ describe('PlayerOverview', () => {
                     players: [ player ],
                     fixtures: [ ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -145,7 +148,8 @@ describe('PlayerOverview', () => {
                     players: [ playerWithLeagueFixture ],
                     fixtures: [ fixtureDate ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -167,7 +171,7 @@ describe('PlayerOverview', () => {
             expect(linkToFixture.href).toEqual(`http://localhost/score/${fixture.id}`);
             const linkToHomeTeam = cells[1].querySelector('a');
             expect(linkToHomeTeam).toBeTruthy();
-            expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.id}/team:${fixture.homeTeam.id}/${season.id}`);
+            expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
             const linkToAwayTeam = cells[5].querySelector('a');
             expect(linkToAwayTeam).toBeFalsy();
         });
@@ -198,7 +202,8 @@ describe('PlayerOverview', () => {
                     players: [ playerWithLeagueFixture ],
                     fixtures: [ fixtureDate ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -222,7 +227,7 @@ describe('PlayerOverview', () => {
             expect(linkToHomeTeam).toBeFalsy();
             const linkToAwayTeam = cells[5].querySelector('a');
             expect(linkToAwayTeam).toBeTruthy();
-            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.id}/team:${fixture.awayTeam.id}/${season.id}`);
+            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.awayTeam.name}/${season.name}`);
         });
 
         it('postponed league fixture', async () => {
@@ -252,7 +257,8 @@ describe('PlayerOverview', () => {
                     players: [ playerWithLeagueFixture ],
                     fixtures: [ fixtureDate ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -276,7 +282,7 @@ describe('PlayerOverview', () => {
             expect(linkToHomeTeam).toBeFalsy();
             const linkToAwayTeam = cells[5].querySelector('a');
             expect(linkToAwayTeam).toBeTruthy();
-            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.id}/team:${fixture.awayTeam.id}/${season.id}`);
+            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.awayTeam.name}/${season.name}`);
         });
 
         it('unplayed tournament fixture', async () => {
@@ -300,7 +306,8 @@ describe('PlayerOverview', () => {
                     players: [ player ],
                     fixtures: [ fixtureDate ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -342,7 +349,8 @@ describe('PlayerOverview', () => {
                     players: [ player ],
                     fixtures: [ fixtureDate ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
@@ -384,7 +392,8 @@ describe('PlayerOverview', () => {
                     players: [ player ],
                     fixtures: [ fixtureDate ],
                     id: division.id,
-                    season
+                    name: division.name,
+                    season,
                 });
 
             expect(reportedError).toBeNull();
