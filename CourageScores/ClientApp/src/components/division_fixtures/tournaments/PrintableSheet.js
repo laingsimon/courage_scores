@@ -150,10 +150,11 @@ export function PrintableSheet({ printOnly }) {
         };
 
         const byesFromThisRound = sides
+            .filter(side => !side.noShow)
             .filter(side => !any(winnersFromThisRound, s => s.id === side.id) && !any(losersFromThis, s => s.id === side.id))
             .map(side => {
                 return {
-                    sideA: { name: side.name },
+                    sideA: side,
                     sideB: null,
                     scoreA: null,
                     scoreB: null,
@@ -162,7 +163,9 @@ export function PrintableSheet({ printOnly }) {
                 };
             });
 
-        return [ layoutDataForRound ].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound), round.nextRound, depth + 1));
+        layoutDataForRound.matches = layoutDataForRound.matches.concat(byesFromThisRound);
+
+        return [ layoutDataForRound ].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
     }
 
     function getUnplayedLayoutData(sideLength, depth) {
