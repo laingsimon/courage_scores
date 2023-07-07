@@ -96,10 +96,41 @@ export function Division() {
 
     async function reloadDivisionData() {
         try {
-            const divisionData = await divisionApi.data(divisionId, seasonId);
-            setDataErrors(null);
-            setDivisionData(divisionData);
-            return divisionData;
+            if (divisionData && divisionData.requested && divisionData.requested.divisionId === divisionId && divisionData.requested.seasonId === seasonId) {
+                // repeated call... don't request the data
+                return;
+            }
+
+            const newDivisionData = await divisionApi.data(divisionId, seasonId);
+            newDivisionData.requested = {
+                divisionId,
+                seasonId,
+            };
+
+            if (newDivisionData.status) {
+                /* istanbul ignore next */
+                console.log(newDivisionData);
+                const suffix = newDivisionData.errors ? ' -- ' + Object.keys(newDivisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
+                onError(`Error accessing division: Code: ${newDivisionData.status}${suffix}`);
+            } else if (newDivisionData.id !== divisionId) {
+                /* istanbul ignore next */
+                console.log(newDivisionData);
+                onError(`Data for a different division returned, requested: ${divisionId}`);
+            } else if (seasonId && (newDivisionData.season || {}).id !== seasonId) {
+                /* istanbul ignore next */
+                console.log(newDivisionData);
+                onError(`Data for a different season returned, requested: ${seasonId}`);
+            }
+
+            if (any(newDivisionData.dataErrors || [])) {
+                setDataErrors(newDivisionData.dataErrors);
+            } else {
+                setDataErrors(null);
+            }
+
+            setDivisionData(newDivisionData);
+
+            return newDivisionData;
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
@@ -114,26 +145,27 @@ export function Division() {
             return;
         }
 
+        function beginReload() {
+            setLoading(true);
+            // noinspection JSIgnoredPromiseFromCall
+            reloadDivisionData();
+        }
+
         try {
-            if (!divisionData || ((divisionData.id !== divisionId || ((divisionData.season || {}).id !== seasonId && seasonId)) && !divisionData.status)) {
-                if (divisionId) {
-                    setLoading(true);
-                    // noinspection JSIgnoredPromiseFromCall
-                    reloadDivisionData();
+            if (divisionId) {
+                if (!divisionData) {
+                    beginReload();
+                    return;
                 }
-                return;
-            }
 
-            if (divisionData.status) {
-                /* istanbul ignore next */
-                console.log(divisionData);
-                const suffix = divisionData.errors ? ' -- ' + Object.keys(divisionData.errors).map(key => `${key}: ${divisionData.errors[key]}`).join(', ') : '';
-                onError(`Error accessing division: Code: ${divisionData.status}${suffix}`);
-                return;
-            }
+                if (divisionData.status) {
+                    // dont reload if there was a previous 'status' - representing an issue loading the data
+                    return;
+                }
 
-            if (any(divisionData.dataErrors || [])) {
-                setDataErrors(divisionData.dataErrors);
+                if ((divisionData.id !== divisionId) || (seasonId && (divisionData.season || {}).id !== seasonId)) {
+                    beginReload();
+                }
             }
         } catch (e) {
             /* istanbul ignore next */
@@ -147,7 +179,7 @@ export function Division() {
         return (<Loading />);
     }
 
-    if (loading || !divisionData) {
+    if (!divisionData) {
         return (<div className="p-3 content-background">
             No data found
         </div>);

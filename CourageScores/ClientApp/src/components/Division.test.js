@@ -657,5 +657,46 @@ describe('Division', () => {
                 expect(heading).toBeFalsy();
             });
         });
+
+        describe('edge cases', () => {
+            it('when a different division id is returned to requested', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: createTemporaryId(), // different id to requested
+                    name: division.name,
+                    teams: [],
+                };
+                console.log = () => {};
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: { },
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toEqual(`Data for a different division returned, requested: ${division.id}`);
+            });
+
+            it('when a different season id is returned to requested', async () => {
+                divisionDataMap[division.id + ':' + season.id] = {
+                    season: {
+                        id: createTemporaryId(),
+                        name: 'ANOTHER SEASON',
+                    },
+                    id: division.id, // different id to requested
+                    name: division.name,
+                    teams: [],
+                };
+                console.log = () => {};
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: { },
+                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
+
+                expect(reportedError).toEqual(`Data for a different season returned, requested: ${season.id}`);
+            });
+        });
     });
 });
