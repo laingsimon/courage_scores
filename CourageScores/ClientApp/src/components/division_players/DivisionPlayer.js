@@ -80,7 +80,7 @@ export function DivisionPlayer({ player, hideVenue }) {
             {isAdmin ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
                 {deleting ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '🗑️'}
             </button>) : null}
-            {deleting ? (<s>{player.name}</s>) : (<Link to={`/division/${divisionName}/player:${player.id}/${season.name}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>)}
+            {deleting ? (<s>{player.name}</s>) : (<Link to={`/division/${divisionName}/player:${player.name}@${player.team}/${season.name}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>)}
             {editPlayer && isAdmin ? renderEditPlayer() : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not delete player"/>) : null}
@@ -90,7 +90,7 @@ export function DivisionPlayer({ player, hideVenue }) {
             : (<td>
                 {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
-                    : (<Link disabled={deleting} to={`/division/${divisionName}/team:${team.id}/${season.name}`} className="margin-right">
+                    : (<Link disabled={deleting} to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
                         {deleting ? (<s>{player.team}</s>) : player.team}
                     </Link>)}
             </td>)}

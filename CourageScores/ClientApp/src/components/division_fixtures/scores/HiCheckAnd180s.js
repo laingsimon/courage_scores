@@ -3,9 +3,11 @@ import React from "react";
 import {any, distinct, sortBy} from "../../../helpers/collections";
 import {add180, addHiCheck, remove180, removeHiCheck} from "../../common/Accolades";
 import {useApp} from "../../../AppContainer";
+import {useLeagueFixture} from "./LeagueFixtureContainer";
 
 export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
     const { onError } = useApp();
+    const { division, season } = useLeagueFixture();
 
     function getApplicablePlayers() {
         const players = fixtureData.matches.flatMap((match) => {
@@ -46,8 +48,8 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                     players={fixtureData.oneEighties || []}
                     onRemovePlayer={remove180(fixtureData, setFixtureData)}
                     onAddPlayer={add180(fixtureData, setFixtureData)}
-                    divisionId={fixtureData.divisionId}
-                    seasonId={fixtureData.seasonId}/>
+                    division={division}
+                    season={season} />
             </td>
             <td className="width-1 p-0"></td>
             <td colSpan="2">
@@ -60,9 +62,9 @@ export function HiCheckAnd180s({ access, saving, fixtureData, setFixtureData }){
                     onRemovePlayer={removeHiCheck(fixtureData, setFixtureData)}
                     onAddPlayer={addHiCheck(fixtureData, setFixtureData)}
                     showNotes={true}
-                    divisionId={fixtureData.divisionId}
-                    seasonId={fixtureData.seasonId}
-                    dropdownClassName="hi-check-player-dropdown"/>
+                    division={division}
+                    season={season}
+                    dropdownClassName="hi-check-player-dropdown" />
             </td>
         </tr>);
     } catch (e) {

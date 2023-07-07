@@ -224,11 +224,12 @@ describe('Division', () => {
         it('navigates to player by their team and player name', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
-            const playerId = createTemporaryId();
+            const playerName = 'A player';
+            const teamName = 'A team';
             inSeasonDivisionData.players.push({
                 captain: true,
-                id: playerId,
-                name: 'A player',
+                id: createTemporaryId(),
+                name: playerName,
                 oneEighties: 1,
                 over100Checkouts: 2,
                 pairs: { },
@@ -240,7 +241,7 @@ describe('Division', () => {
                     matchesLost: 0,
                     winRate: 8
                 },
-                team: 'A team',
+                team: teamName,
                 teamId: createTemporaryId(),
                 triples: { },
                 winPercentage: 0.5
@@ -255,14 +256,14 @@ describe('Division', () => {
             const playerRow = table.querySelector('tbody tr:first-child');
             const playerLink = playerRow.querySelector('td:nth-child(2) a');
             expect(playerLink.textContent).toContain('A player');
-            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/player:${playerId}/${encodeURI(inSeasonDivisionData.season.name)}`);
+            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/player:${encodeURI(playerName)}@${encodeURI(teamName)}/${encodeURI(inSeasonDivisionData.season.name)}`);
         });
 
         it('navigates to player team by their team name', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
             const playerId = createTemporaryId();
-            const teamId = createTemporaryId();
+            const teamName = 'A team';
             inSeasonDivisionData.players.push({
                 captain: true,
                 id: playerId,
@@ -278,8 +279,8 @@ describe('Division', () => {
                     matchesLost: 0,
                     winRate: 8
                 },
-                team: 'A team',
-                teamId: teamId,
+                team: teamName,
+                teamId: createTemporaryId(),
                 triples: { },
                 winPercentage: 0.5
             });
@@ -293,25 +294,25 @@ describe('Division', () => {
             const playerRow = table.querySelector('tbody tr:first-child');
             const playerLink = playerRow.querySelector('td:nth-child(3) a');
             expect(playerLink.textContent).toContain('A team');
-            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/team:${teamId}/${encodeURI(inSeasonDivisionData.season.name)}`);
+            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/team:${encodeURI(teamName)}/${encodeURI(inSeasonDivisionData.season.name)}`);
         });
 
         it('navigates to team by their team name', async () => {
             const divisionId = createTemporaryId();
             const inSeasonDivisionData = getInSeasonDivisionData(divisionId);
             setupMockDivisionData(divisionId, null, inSeasonDivisionData);
-            const teamId = createTemporaryId();
+            const teamName = 'A team';
             inSeasonDivisionData.teams[0] = {
                 address: 'An address',
                 difference: 1,
                 fixturesDrawn: 2,
                 fixturesLost: 3,
                 fixturesWon: 4,
-                id: teamId,
+                id: createTemporaryId(),
                 lossRate: 5,
                 matchesLost: 6,
                 matchesWon: 7,
-                name: 'A team',
+                name: teamName,
                 played: 8,
                 points: 9,
                 winRate: 10
@@ -326,7 +327,7 @@ describe('Division', () => {
             const playerRow = table.querySelector('tbody tr:first-child');
             const playerLink = playerRow.querySelector('a:nth-child(1)');
             expect(playerLink.textContent).toContain('A team');
-            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/team:${teamId}/${encodeURI(inSeasonDivisionData.season.name)}`);
+            expect(playerLink.href).toEqual(`http://localhost/division/${encodeURI(inSeasonDivisionData.name)}/team:${encodeURI(teamName)}/${encodeURI(inSeasonDivisionData.season.name)}`);
         });
 
         it('renders notes when in season', async () => {

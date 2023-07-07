@@ -180,7 +180,7 @@ describe('DivisionPlayer', () => {
                 const playerLinkCell = cells[1];
                 const link = playerLinkCell.querySelector('a');
                 expect(link).toBeTruthy();
-                expect(link.href).toEqual(`http://localhost/division/${division.name}/player:${player.id}/${season.name}`);
+                expect(link.href).toEqual(`http://localhost/division/${division.name}/player:${player.name}@${player.team}/${season.name}`);
             });
 
             it('link to team details', async () => {
@@ -196,7 +196,7 @@ describe('DivisionPlayer', () => {
                 const teamLinkCell = cells[2];
                 const link = teamLinkCell.querySelector('a');
                 expect(link).toBeTruthy();
-                expect(link.href).toEqual(`http://localhost/division/${division.name}/team:${player.teamId}/${season.name}`);
+                expect(link.href).toEqual(`http://localhost/division/${division.name}/team:${player.team}/${season.name}`);
             });
 
             it('team name only if no team id', async () => {

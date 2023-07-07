@@ -10,7 +10,7 @@ import {useBranding} from "../../BrandingContainer";
 
 export function TeamOverview({ teamId }) {
     const { name } = useBranding();
-    const { id: divisionId, fixtures: divisionDataFixtures, players: divisionDataPlayers, season } = useDivisionData();
+    const { fixtures: divisionDataFixtures, players: divisionDataPlayers, season, name: divisionName } = useDivisionData();
     const { teams } = useApp();
     const team = teams.filter(t => t.id === teamId)[0];
     const fixtures = divisionDataFixtures.map(fixtureDate => {
@@ -47,7 +47,7 @@ export function TeamOverview({ teamId }) {
                 <div className="mt-4">
                     {fixture.homeTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -57,7 +57,7 @@ export function TeamOverview({ teamId }) {
                 <div className="mt-4">
                     {fixture.awayTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionId}/team:${fixture.awayTeam.id}/${season.id}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
+                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -66,7 +66,7 @@ export function TeamOverview({ teamId }) {
     if (!team) {
         return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
-            <Link className="btn btn-primary" to={`/division/${divisionId}/teams/${season.id}`}>Teams</Link>
+            <Link className="btn btn-primary" to={`/division/${divisionName}/teams/${season.name}`}>Teams</Link>
         </div>
     }
 

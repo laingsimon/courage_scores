@@ -22,7 +22,7 @@ import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
-import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
+import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
 import {PageError} from "../../common/PageError";
@@ -458,12 +458,14 @@ export function Score() {
 
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
-            seasonId: season.id,
-            divisionId: division.id,
+            season: season,
+            division: division,
             homePlayers: homeTeam,
             awayPlayers: awayTeam,
             readOnly: !editable,
-            disabled: access === 'readonly'
+            disabled: access === 'readonly',
+            home: data.home,
+            away: data.away,
         }
 
         return (<div>

@@ -12,7 +12,7 @@ import {createTemporaryId} from "../../../helpers/projection";
 
 export function EditTournament({ canSave, disabled, saving, applyPatch }) {
     const { account } = useApp();
-    const { tournamentData, setTournamentData, allPlayers } = useTournament();
+    const { tournamentData, setTournamentData, allPlayers, season, division } = useTournament();
     const isAdmin = account && account.access && account.access.manageTournaments;
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
@@ -123,8 +123,8 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
                         disabled={disabled}
                         readOnly={saving}
                         allPlayers={allPlayers}
-                        divisionId={tournamentData.divisionId}
-                        seasonId={tournamentData.seasonId}
+                        division={division}
+                        season={season}
                         players={tournamentData.oneEighties || []}
                         onRemovePlayer={remove180(tournamentData, setTournamentData)}
                         onAddPlayer={add180(tournamentData, setTournamentData)}/>
@@ -135,8 +135,8 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
                         disabled={disabled}
                         readOnly={saving}
                         allPlayers={allPlayers}
-                        divisionId={tournamentData.divisionId}
-                        seasonId={tournamentData.seasonId}
+                        division={division}
+                        season={season}
                         players={tournamentData.over100Checkouts || []}
                         onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
                         onAddPlayer={addHiCheck(tournamentData, setTournamentData)}

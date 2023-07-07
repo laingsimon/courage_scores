@@ -58,7 +58,7 @@ export function DivisionTeam({ team }) {
                                     className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right">➕</button>) : null}
-                <Link to={`/division/${divisionName}/team:${team.id}/${season.name}`}>{team.name}</Link>
+                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{team.name}</Link>
                 {editTeam && isAdmin ? renderEditTeam() : null}
                 {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
             </td>

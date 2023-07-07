@@ -53,6 +53,51 @@ export function Division() {
         return season ? season.id : null;
     }
 
+    function getPlayerId(idish) {
+        if (isGuid(idish)) {
+            return idish;
+        }
+
+        if (!divisionData || !idish) {
+            return null;
+        }
+
+        const matchItem = idish.matchAll(/(.+)@(.+)/g).next();
+        const match = matchItem.value;
+        if (!match || match.length < 3) {
+            return idish;
+        }
+
+        const playerName = match[1];
+        const teamName = match[2];
+
+        if (!teamName || !playerName) {
+            return idish;
+        }
+
+        const team = divisionData.teams.filter(t => t.name.toLowerCase() === teamName.toLowerCase())[0];
+        if (!team) {
+            // team not found
+            return idish;
+        }
+
+        const teamPlayer = divisionData.players.filter(p => p.teamId === team.id && p.name.toLowerCase() === playerName.toLowerCase())[0];
+        return teamPlayer ? teamPlayer.id : null;
+    }
+
+    function getTeamId(idish) {
+        if (isGuid(idish)) {
+            return idish;
+        }
+
+        if (!divisionData || !idish) {
+            return null;
+        }
+
+        const team = divisionData.teams.filter(t => t.name.toLowerCase() === idish.toLowerCase())[0];
+        return team ? team.id : null;
+    }
+
     async function reloadDivisionData() {
         try {
             if (!isGuid(divisionId) || (seasonId && !isGuid(seasonId))) {
@@ -172,10 +217,10 @@ export function Division() {
                     ? (<DivisionReports/>)
                     : null}
                 {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
-                    ? (<TeamOverview teamId={effectiveTab.substring('team:'.length)}/>)
+                    ? (<TeamOverview teamId={getTeamId(effectiveTab.substring('team:'.length))}/>)
                     : null}
                 {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
-                    ? (<PlayerOverview playerId={effectiveTab.substring('player:'.length)}/>)
+                    ? (<PlayerOverview playerId={getPlayerId(effectiveTab.substring('player:'.length))}/>)
                     : null}
             </DivisionDataContainer>)}
         </div>);
