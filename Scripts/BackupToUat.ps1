@@ -87,7 +87,7 @@ $($boundary)--
     $responseData.messages | ForEach-Object { Write-Output $_ }
 
     if ($responseData.success -ne $true) {
-        Write-Output -ForegroundColor Red "Restore was not successful, exiting"
+        Write-Output "Restore was not successful, exiting"
         Exit
     }
 
