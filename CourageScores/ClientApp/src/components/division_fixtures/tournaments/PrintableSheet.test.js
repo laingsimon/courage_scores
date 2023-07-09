@@ -193,8 +193,7 @@ describe('PrintableSheet', () => {
                     ],
                     nextRound: {
                         matches: [
-                            { sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1 },
-                            { sideA: sideE, sideB: sideF, scoreA: 2, scoreB: 1 },
+                            { sideA: sideE, sideB: sideB, scoreA: 2, scoreB: 1 },
                         ],
                         nextRound: {
                             matches: [
@@ -204,7 +203,7 @@ describe('PrintableSheet', () => {
                         },
                     }
                 },
-                sides: [ sideA, sideB, sideC, sideD ],
+                sides: [ sideA, sideB, sideC, sideD, sideE ],
                 oneEighties: [],
                 over100Checkouts: [],
             };
@@ -220,6 +219,7 @@ describe('PrintableSheet', () => {
                 matches: [
                     { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
                     { sideAname: 'C', sideBname: 'D', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    { sideAname: 'E', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -227,8 +227,8 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'B', sideBname: 'C', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'E', sideBname: 'F', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    { sideAname: 'E', sideBname: 'B', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    { sideAname: 'C', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
                 ],
             });
             expect(rounds[2]).toEqual({
@@ -299,6 +299,8 @@ describe('PrintableSheet', () => {
                 matches: [
                     { sideAname: 'B', sideBname: 'C', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
                     { sideAname: 'E', sideBname: 'H', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    { sideAname: 'J', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    { sideAname: 'L', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
                 ],
             });
             expect(rounds[2]).toEqual({

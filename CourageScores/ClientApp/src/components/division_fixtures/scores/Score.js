@@ -22,7 +22,7 @@ import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 import {Dialog} from "../../common/Dialog";
 import {EditPlayerDetails} from "../../division_players/EditPlayerDetails";
-import {LeagueFixtureContainer} from "../LeagueFixtureContainer";
+import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
 import {MatchTypeContainer} from "./MatchTypeContainer";
 import {getMatchDefaults, getMatchOptionDefaults, getMatchOptionsLookup} from "../../../helpers/matchOptions";
 import {PageError} from "../../common/PageError";
@@ -458,12 +458,14 @@ export function Score() {
 
         const editable = !saving && (access === 'admin' || (!fixtureData.resultsPublished && account && account.access && account.access.inputResults === true));
         const leagueFixtureData = {
-            seasonId: season.id,
-            divisionId: division.id,
+            season: season,
+            division: division,
             homePlayers: homeTeam,
             awayPlayers: awayTeam,
             readOnly: !editable,
-            disabled: access === 'readonly'
+            disabled: access === 'readonly',
+            home: data.home,
+            away: data.away,
         }
 
         return (<div>
@@ -473,17 +475,17 @@ export function Score() {
                 overrideMode="fixtures"/>
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-light" to={`/division/${data.divisionId}/teams/${season.id}`}>Teams</NavLink>
+                    <NavLink tag={Link} to={`/division/${data.divisionId}/teams/${season.id}`}>Teams</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-light"
+                    <NavLink tag={Link}
                              to={`/division/${data.divisionId}/fixtures/${season.id}`}>Fixtures</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-dark active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
+                    <NavLink tag={Link} className="active" to={`/score/${fixtureId}`}>{renderDate(data.date)}</NavLink>
                 </li>
                 <li className="nav-item">
-                    <NavLink tag={Link} className="text-light"
+                    <NavLink tag={Link}
                              to={`/division/${data.divisionId}/players/${season.id}`}>Players</NavLink>
                 </li>
             </ul>

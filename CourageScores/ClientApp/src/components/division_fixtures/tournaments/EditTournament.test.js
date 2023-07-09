@@ -717,5 +717,45 @@ describe('EditTournament', () => {
                 players: []
             });
         });
+
+        it('excludes no-show sides from match selection', async () => {
+            const side1 = {
+                id: createTemporaryId(),
+                name: 'SIDE 1',
+                teamId: team1.id,
+                players: [],
+            };
+            const side2 = {
+                id: createTemporaryId(),
+                name: 'SIDE 2 (no show)',
+                teamId: team1.id,
+                noShow: true,
+                players: [],
+            };
+            const tournamentData = {
+                round: null,
+                divisionId: null,
+                seasonId: season.id,
+                sides: [side1, side2],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: [],
+                allPlayers: [],
+            }, {
+                disabled: false,
+                saving: false,
+                canSave: true
+            }, account, [ team1 ]);
+
+            const rounds = context.container.querySelector('div > div > div:nth-child(3)');
+            const round1SideA = rounds.querySelector('table tbody tr:first-child td:nth-child(1)');
+            const sideOptions = Array.from(round1SideA.querySelectorAll('.dropdown-menu .dropdown-item'));
+            expect(sideOptions.map(o => o.textContent)).toEqual([ 'SIDE 1' ]);
+        });
     });
 });

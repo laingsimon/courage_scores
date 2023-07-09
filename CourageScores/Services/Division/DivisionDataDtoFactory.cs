@@ -98,16 +98,16 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     {
         if (deleted != null)
         {
-            return DataError($"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})");
+            return DataError(divisionId, $"Requested division ({deleted.Name} / {deleted.Id}) has been deleted {deleted.Deleted:d MMM yyyy HH:mm:ss})");
         }
 
-        return DataError($"Requested division ({divisionId}) was not found");
+        return DataError(divisionId, $"Requested division ({divisionId}) was not found");
     }
 
     [ExcludeFromCodeCoverage]
-    public DivisionDataDto DivisionIdAndSeasonIdNotSupplied()
+    public DivisionDataDto DivisionIdAndSeasonIdNotSupplied(Guid? divisionId)
     {
-        return DataError("SeasonId and/or DivisionId must be supplied");
+        return DataError(divisionId ?? Guid.Empty, "SeasonId and/or DivisionId must be supplied");
     }
 
     private async Task<IReadOnlyCollection<DivisionPlayerDto>> AddAllPlayersIfAdmin(IReadOnlyCollection<DivisionPlayerDto> players,
@@ -221,10 +221,11 @@ public class DivisionDataDtoFactory : IDivisionDataDtoFactory
     }
 
     [ExcludeFromCodeCoverage]
-    private static DivisionDataDto DataError(string message)
+    private static DivisionDataDto DataError(Guid divisionId, string message)
     {
         return new DivisionDataDto
         {
+            Id = divisionId,
             DataErrors = { message }
         };
     }

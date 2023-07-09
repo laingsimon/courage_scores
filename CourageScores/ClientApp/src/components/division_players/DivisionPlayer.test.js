@@ -94,7 +94,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -120,7 +120,7 @@ describe('DivisionPlayer', () => {
                         player: captain,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -135,7 +135,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: true
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -158,7 +158,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -172,7 +172,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -180,7 +180,7 @@ describe('DivisionPlayer', () => {
                 const playerLinkCell = cells[1];
                 const link = playerLinkCell.querySelector('a');
                 expect(link).toBeTruthy();
-                expect(link.href).toEqual(`http://localhost/division/${division.id}/player:${player.id}/${season.id}`);
+                expect(link.href).toEqual(`http://localhost/division/${division.name}/player:${player.name}@${player.team}/${season.name}`);
             });
 
             it('link to team details', async () => {
@@ -188,7 +188,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -196,7 +196,7 @@ describe('DivisionPlayer', () => {
                 const teamLinkCell = cells[2];
                 const link = teamLinkCell.querySelector('a');
                 expect(link).toBeTruthy();
-                expect(link.href).toEqual(`http://localhost/division/${division.id}/team:${player.teamId}/${season.id}`);
+                expect(link.href).toEqual(`http://localhost/division/${division.name}/team:${player.team}/${season.name}`);
             });
 
             it('team name only if no team id', async () => {
@@ -206,7 +206,7 @@ describe('DivisionPlayer', () => {
                         player: noTeamPlayer,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
 
                 expect(reportedError).toBeNull();
@@ -263,7 +263,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 expect(nameCell.textContent).toContain('NAME');
@@ -280,7 +280,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -296,7 +296,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = false;
@@ -314,7 +314,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
@@ -332,7 +332,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -353,7 +353,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season },
+                    { id: division.id, season, name: division.name },
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));

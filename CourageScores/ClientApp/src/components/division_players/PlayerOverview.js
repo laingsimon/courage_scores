@@ -9,7 +9,7 @@ import {useBranding} from "../../BrandingContainer";
 
 export function PlayerOverview({ playerId }) {
     const { name } = useBranding();
-    const { players, teams, fixtures: divisionDataFixtures, id: divisionId, season } = useDivisionData();
+    const { players, teams, fixtures: divisionDataFixtures, season, name: divisionName } = useDivisionData();
     const player = players.filter(p => p.id === playerId)[0] || { id: null, name: 'Unknown', fixtures: {} };
     const team = teams.filter(t => t.id === player.teamId)[0] || { id: null, name: 'Unknown' };
     const fixtures = divisionDataFixtures.map(fixtureDate => {
@@ -60,7 +60,7 @@ export function PlayerOverview({ playerId }) {
                 <div className="mt-4">
                 {fixture.homeTeam.id === team.id
                     ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                    : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+                    : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -70,7 +70,7 @@ export function PlayerOverview({ playerId }) {
                 <div className="mt-4">
                 {fixture.awayTeam.id === team.id
                     ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                    : (<Link to={`/division/${divisionId}/team:${fixture.awayTeam.id}/${season.id}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
+                    : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
                 </div>
             </td>
         </tr>);
@@ -110,7 +110,7 @@ export function PlayerOverview({ playerId }) {
         <h3>
             {player.name}
             <span className="h6 margin-left">
-                <Link to={`/division/${divisionId}/team:${team.id}/${season.id}`} className="margin-right">{team.name}</Link>
+                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">{team.name}</Link>
             </span>
             <span className="margin-left">
                 <ShareButton text={`${name}: ${player.name}`} />

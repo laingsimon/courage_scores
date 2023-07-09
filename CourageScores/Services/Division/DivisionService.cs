@@ -51,7 +51,7 @@ public class DivisionService : IDivisionService
     {
         if (filter.DivisionId == null && filter.SeasonId == null)
         {
-            return _divisionDataDtoFactory.DivisionIdAndSeasonIdNotSupplied();
+            return _divisionDataDtoFactory.DivisionIdAndSeasonIdNotSupplied(filter.DivisionId);
         }
 
         var division = filter.DivisionId == null

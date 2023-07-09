@@ -8,7 +8,7 @@ public class ImportDataRequestDto
     /// <summary>
     /// The binary content of the zip file
     /// </summary>
-    public IFormFile Zip { get; set; } = null!;
+    public IFormFile? Zip { get; set; }
 
     /// <summary>
     /// Whether the tables should be purged before restoring the data

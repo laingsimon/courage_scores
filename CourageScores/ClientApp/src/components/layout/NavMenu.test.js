@@ -114,7 +114,7 @@ describe('NavMenu', () => {
             expect(listItems.map(li => li.querySelector('a').href)).toEqual([
                 'https://localhost/BEFORE1',
                 'https://localhost/BEFORE2',
-                'http://localhost/division/' + division.id,
+                'http://localhost/division/' + division.name,
                 'https://localhost/AFTER1',
                 'https://localhost/AFTER2',
                 'https://localhost/api/Account/Login/?redirectUrl=https://localhost/practice' ]);
@@ -255,7 +255,7 @@ describe('NavMenu', () => {
                     appLoading: false },
                 null,
                 '/division/:id',
-                '/division/' + division.id);
+                '/division/' + division.name);
             expect(context.container.textContent).not.toContain('ERROR:');
 
             const menu = context.container.querySelector('nav');

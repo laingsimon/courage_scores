@@ -8,7 +8,7 @@ export function getRoundNameFromSides(round, sideLength, depth) {
     if (sideLength === 4) {
         return 'Semi-Final';
     }
-    if (sideLength === 8) {
+    if (sideLength >= 6 && sideLength <= 8) {
         return 'Quarter-Final';
     }
 

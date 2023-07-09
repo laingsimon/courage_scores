@@ -8,7 +8,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 
 export function DivisionTeam({ team }) {
-    const { id: divisionId, season, onReloadDivision } = useDivisionData();
+    const { id: divisionId, season, onReloadDivision, name: divisionName } = useDivisionData();
     const { account, onError } = useApp();
     const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));
     const [ editTeam, setEditTeam ] = useState(false);
@@ -58,7 +58,7 @@ export function DivisionTeam({ team }) {
                                     className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right">➕</button>) : null}
-                <Link to={`/division/${divisionId}/team:${team.id}`}>{team.name}</Link>
+                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{team.name}</Link>
                 {editTeam && isAdmin ? renderEditTeam() : null}
                 {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
             </td>

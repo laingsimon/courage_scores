@@ -14,6 +14,7 @@ public class DataService : IDataService
     private readonly IDataImporterFactory _dataImporterFactory;
     private readonly ICosmosTableService _cosmosTableService;
     private readonly IZipBuilderFactory _zipBuilderFactory;
+    private readonly IConfiguration _configuration;
 
     public DataService(
         Database database,
@@ -21,7 +22,8 @@ public class DataService : IDataService
         IZipFileReaderFactory zipFileReaderFactory,
         IDataImporterFactory dataImporterFactory,
         ICosmosTableService cosmosTableService,
-        IZipBuilderFactory zipBuilderFactory)
+        IZipBuilderFactory zipBuilderFactory,
+        IConfiguration configuration)
     {
         _database = database;
         _userService = userService;
@@ -29,6 +31,7 @@ public class DataService : IDataService
         _dataImporterFactory = dataImporterFactory;
         _cosmosTableService = cosmosTableService;
         _zipBuilderFactory = zipBuilderFactory;
+        _configuration = configuration;
     }
 
     public async Task<ActionResultDto<ExportDataResultDto>> ExportData(ExportDataRequestDto request, CancellationToken token)
@@ -44,31 +47,7 @@ public class DataService : IDataService
             return Unsuccessful<ExportDataResultDto>("Not permitted");
         }
 
-        var result = new ExportDataResultDto();
-        var actionResult = new ActionResultDto<ExportDataResultDto>
-        {
-            Result = result,
-        };
-
-        try
-        {
-            var builder = await _zipBuilderFactory.Create(request.Password, request, token);
-
-            await foreach (var table in _cosmosTableService.GetTables(request, token))
-            {
-                await table.ExportData(_database, result, builder, request, token);
-            }
-
-            result.Zip = await builder.CreateZip();
-
-            actionResult.Success = true;
-        }
-        catch (Exception exc)
-        {
-            actionResult.Errors.Add(exc.Message);
-        }
-
-        return actionResult;
+        return await DoExport(user.Name, request, token);
     }
 
     public async Task<ActionResultDto<ImportDataResultDto>> ImportData(ImportDataRequestDto request, CancellationToken token)
@@ -82,6 +61,69 @@ public class DataService : IDataService
         if (user.Access?.ImportData != true)
         {
             return Unsuccessful<ImportDataResultDto>("Not permitted");
+        }
+
+        return await DoImport(request, token);
+    }
+
+    public async Task<ActionResultDto<ExportDataResultDto>> BackupData(BackupDataRequestDto request, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(request.Identity))
+        {
+            return Unsuccessful<ExportDataResultDto>("Missing identity");
+        }
+
+        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["BackupRequestToken"])
+        {
+            return Unsuccessful<ExportDataResultDto>("Invalid request token");
+        }
+
+        var exportRequest = new ExportDataRequestDto
+        {
+            Password = _configuration["BackupPassword"],
+            IncludeDeletedEntries = true,
+        };
+
+        return await DoExport(request.Identity, exportRequest, token);
+    }
+
+    public async Task<ActionResultDto<ImportDataResultDto>> RestoreData(RestoreDataRequestDto request, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(request.Identity))
+        {
+            return Unsuccessful<ImportDataResultDto>("Missing identity");
+        }
+
+        if (string.IsNullOrEmpty(request.RequestToken) || request.RequestToken != _configuration["RestoreRequestToken"])
+        {
+            return Unsuccessful<ImportDataResultDto>("Invalid request token");
+        }
+
+        return await DoImport(request, token);
+    }
+
+    private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)
+    {
+        return StringComparer.OrdinalIgnoreCase.Compare(metaData.Version, minVersion) >= 0;
+    }
+
+    private static ActionResultDto<T> Unsuccessful<T>(string reason)
+    {
+        return new ActionResultDto<T>
+        {
+            Errors =
+            {
+                reason
+            },
+            Success = false,
+        };
+    }
+
+    private async Task<ActionResultDto<ImportDataResultDto>> DoImport(ImportDataRequestDto request, CancellationToken token)
+    {
+        if (request.Zip == null)
+        {
+            return Unsuccessful<ImportDataResultDto>("No zip file provided");
         }
 
         var result = new ImportDataResultDto();
@@ -135,20 +177,32 @@ public class DataService : IDataService
         return actionResult;
     }
 
-    private static bool IsEqualOrLaterVersion(ExportMetaData metaData, string minVersion)
+    private async Task<ActionResultDto<ExportDataResultDto>> DoExport(string userName, ExportDataRequestDto request, CancellationToken token)
     {
-        return StringComparer.OrdinalIgnoreCase.Compare(metaData.Version, minVersion) >= 0;
-    }
-
-    private static ActionResultDto<T> Unsuccessful<T>(string reason)
-    {
-        return new ActionResultDto<T>
+        var result = new ExportDataResultDto();
+        var actionResult = new ActionResultDto<ExportDataResultDto>
         {
-            Errors =
-            {
-                reason
-            },
-            Success = false,
+            Result = result,
         };
+
+        try
+        {
+            var builder = await _zipBuilderFactory.Create(userName, request, token);
+
+            await foreach (var table in _cosmosTableService.GetTables(request, token))
+            {
+                await table.ExportData(_database, result, builder, request, token);
+            }
+
+            result.Zip = await builder.CreateZip();
+
+            actionResult.Success = true;
+        }
+        catch (Exception exc)
+        {
+            actionResult.Errors.Add(exc.Message);
+        }
+
+        return actionResult;
     }
 }
