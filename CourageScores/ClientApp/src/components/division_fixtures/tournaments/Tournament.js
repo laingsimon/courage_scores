@@ -372,6 +372,7 @@ export function Tournament() {
                     tournamentData={tournamentData}
                     setTournamentData={setTournamentData}
                     season={season}
+                    division={division}
                     alreadyPlaying={alreadyPlaying}
                     allPlayers={allPlayers}
                     saveTournament={saveTournament}

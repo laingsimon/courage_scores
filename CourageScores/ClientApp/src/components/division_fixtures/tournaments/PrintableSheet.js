@@ -4,10 +4,11 @@ import {any, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
+import {Link} from "react-router-dom";
 
 export function PrintableSheet({ printOnly }) {
-    const { onError } = useApp();
-    const { tournamentData } = useTournament();
+    const { onError, teams } = useApp();
+    const { tournamentData, season, division } = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
         : getUnplayedLayoutData(tournamentData.sides.length, 1));
@@ -116,6 +117,32 @@ export function PrintableSheet({ printOnly }) {
         return newLayoutData;
     }
 
+    function getLinkToSide(side) {
+        if (side && side.teamId && division) {
+            return (<Link to={`/division/${division.name}/team:${side.name}/${season.name}`}>{side.name}</Link>);
+        }
+
+        const team = side && side.players && side.players.length === 1
+            ? findTeamForPlayer(side.players[0])
+            : null;
+        if (side && team && division) {
+            return (<Link to={`/division/${division.name}/player:${side.name}@${team.name}/${season.name}`}>{side.name}</Link>);
+        }
+
+        return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
+    }
+
+    function findTeamForPlayer(player) {
+        return teams.filter(t => {
+            const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
+            if (!teamSeason) {
+                return false;
+            }
+
+            return any(teamSeason.players, p => p.id === player.id);
+        })[0];
+    }
+
     function getPlayedLayoutData(sides, round, depth) {
         if (!round) {
             return [];
@@ -139,8 +166,8 @@ export function PrintableSheet({ printOnly }) {
                 }
 
                 return {
-                    sideA: { name: m.sideA.name },
-                    sideB: { name: m.sideB.name },
+                    sideA: { name: m.sideA.name, link: getLinkToSide(m.sideA) },
+                    sideB: { name: m.sideB.name, link: getLinkToSide(m.sideB) },
                     scoreA: m.scoreA || '0',
                     scoreB: m.scoreB || '0',
                     bye: false,
@@ -154,7 +181,11 @@ export function PrintableSheet({ printOnly }) {
             .filter(side => !any(winnersFromThisRound, s => s.id === side.id) && !any(losersFromThis, s => s.id === side.id))
             .map(side => {
                 return {
-                    sideA: side,
+                    sideA: { 
+                        id: side.id,
+                        name: side.name,
+                        link: getLinkToSide(side),
+                    },
                     sideB: null,
                     scoreA: null,
                     scoreB: null,
@@ -203,17 +234,26 @@ export function PrintableSheet({ printOnly }) {
 
     function render180s() {
         const oneEightyMap = {};
+        const playerLookup = {};
+
         tournamentData.oneEighties.forEach(player => {
-            if (oneEightyMap[player.name]) {
-                oneEightyMap[player.name]++;
+            if (oneEightyMap[player.id]) {
+                oneEightyMap[player.id]++;
             } else {
-                oneEightyMap[player.name] = 1;
+                oneEightyMap[player.id] = 1;
+            }
+
+            if (!playerLookup[player.id]) {
+                playerLookup[player.id] = player;
             }
         });
 
         return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5">
             <h5>180s</h5>
-            {Object.keys(oneEightyMap).sort((a, b) => {
+            {Object.keys(oneEightyMap).sort((aId, bId) => {
+                const a = playerLookup[aId].name;
+                const b = playerLookup[bId].name;
+
                 if (oneEightyMap[a] > oneEightyMap[b]) {
                     return -1;
                 }
@@ -222,14 +262,39 @@ export function PrintableSheet({ printOnly }) {
                 }
 
                 return 0;
-            }).map(name => <div key={name} className="p-1 no-wrap">{name} x {oneEightyMap[name]}</div>)}
+            }).map(id => {
+                const player = playerLookup[id];
+                const team = findTeamForPlayer(player);
+
+                if (division && team) {
+                    return (<div key={id} className="p-1 no-wrap">
+                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>{player.name}</Link> x {oneEightyMap[id]}
+                    </div>);
+                }
+
+                return (<div key={id} className="p-1 no-wrap">
+                    {player.name} x {oneEightyMap[id]}
+                </div>);
+            })}
         </div>);
     }
 
     function renderHiChecks() {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
-            {tournamentData.over100Checkouts.map(player => <div key={player.name} className="p-1 no-wrap">{player.name} ({player.notes})</div>)}
+            {tournamentData.over100Checkouts.map(player => {
+                const team = findTeamForPlayer(player);
+
+                if (division && team) {
+                    return (<div key={player.name} className="p-1 no-wrap">
+                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>{player.name}</Link> ({player.notes})
+                    </div>);
+                }
+
+                return (<div key={player.name} className="p-1 no-wrap">
+                    {player.name} ({player.notes})
+                </div>);
+            })}
         </div>);
     }
 
@@ -240,7 +305,8 @@ export function PrintableSheet({ printOnly }) {
 
         const final = layoutData[layoutData.length - 1].matches[0];
         if (final && final.winner) {
-            return final[final.winner].name;
+            const winningSide = final[final.winner];
+            return winningSide.link;
         }
 
         return null;
@@ -261,7 +327,7 @@ export function PrintableSheet({ printOnly }) {
                             {matchData.bye ? (<div className="position-absolute-bottom-right">Bye</div>) : null}
                             <div datatype="sideA"
                                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideA' ? 'bg-winner fw-bold' : ''}`}>
-                                <div className="no-wrap pe-3" datatype="sideAname">{matchData.sideA.name || (
+                                <div className="no-wrap pe-3" datatype="sideAname">{matchData.sideA.link || (
                                     <span>&nbsp;</span>)}</div>
                                 <div datatype="scoreA">{matchData.scoreA || ''}</div>
                             </div>
@@ -270,7 +336,7 @@ export function PrintableSheet({ printOnly }) {
                             </div>)}
                             {matchData.bye ? null : (<div datatype="sideB"
                                  className={`d-flex flex-row justify-content-between p-2 min-width-150 ${matchData.winner === 'sideB' ? 'bg-winner fw-bold' : ''}`}>
-                                <div className="no-wrap pe-3" datatype="sideBname">{matchData.sideB.name || (
+                                <div className="no-wrap pe-3" datatype="sideBname">{matchData.sideB.link || (
                                     <span>&nbsp;</span>)}</div>
                                 <div datatype="scoreB">{matchData.scoreB || ''}</div>
                             </div>)}
@@ -291,9 +357,10 @@ export function PrintableSheet({ printOnly }) {
                 <div datatype="playing" className="ms-5">
                     <h4>Playing</h4>
                     <ul className="list-group">
-                        {tournamentData.sides.sort(sortBy('name')).map((side, index) => <li key={side.id}
-                                                                                            className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
-                            {index + 1} - {side.name}
+                        {tournamentData.sides.sort(sortBy('name')).map((side, index) => <li
+                            key={side.id}
+                            className={`list-group-item no-wrap${side.noShow ? ' text-decoration-line-through' : ''}`}>
+                            {index + 1} - {getLinkToSide(side)}
                         </li>)}
                     </ul>
                 </div>
