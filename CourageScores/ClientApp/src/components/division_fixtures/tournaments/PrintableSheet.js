@@ -7,7 +7,7 @@ import {useApp} from "../../../AppContainer";
 import {Link} from "react-router-dom";
 
 export function PrintableSheet({ printOnly }) {
-    const { onError, teams } = useApp();
+    const { onError, teams, divisions } = useApp();
     const { tournamentData, season, division } = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
         ? getPlayedLayoutData(tournamentData.sides, tournamentData.round, 1)
@@ -122,25 +122,43 @@ export function PrintableSheet({ printOnly }) {
             return (<Link to={`/division/${division.name}/team:${side.name}/${season.name}`}>{side.name}</Link>);
         }
 
-        const team = side && side.players && side.players.length === 1
-            ? findTeamForPlayer(side.players[0])
+        const teamAndDivision = side && side.players && side.players.length === 1
+            ? findTeamAndDivisionForPlayer(side.players[0])
             : null;
-        if (side && team && division) {
-            return (<Link to={`/division/${division.name}/player:${side.name}@${team.name}/${season.name}`}>{side.name}</Link>);
+        if (side && teamAndDivision && teamAndDivision.division) {
+            return (<Link to={`/division/${teamAndDivision.division.name}/player:${side.name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</Link>);
         }
 
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
     }
 
-    function findTeamForPlayer(player) {
-        return teams.filter(t => {
+    function findTeamAndDivisionForPlayer(player) {
+        const teamAndDivisionMapping = teams.map(t => {
             const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
             if (!teamSeason) {
-                return false;
+                return null;
             }
 
-            return any(teamSeason.players, p => p.id === player.id);
-        })[0];
+            const hasPlayer = any(teamSeason.players, p => p.id === player.id);
+            return hasPlayer ? { team: t, divisionId: teamSeason.divisionId } : null;
+        }).filter(a => a !== null)[0];
+
+        if (!teamAndDivisionMapping) {
+            return null;
+        }
+
+        if (teamAndDivisionMapping.divisionId) {
+            const teamDivision = divisions.filter(d => d.id === teamAndDivisionMapping.divisionId)[0];
+            return {
+                team: teamAndDivisionMapping.team,
+                division: teamDivision || division,
+            };
+        }
+
+        return {
+            team: teamAndDivisionMapping.team,
+            division: division,
+        };
     }
 
     function getPlayedLayoutData(sides, round, depth) {
@@ -264,11 +282,11 @@ export function PrintableSheet({ printOnly }) {
                 return 0;
             }).map(id => {
                 const player = playerLookup[id];
-                const team = findTeamForPlayer(player);
+                const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
-                if (division && team) {
+                if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={id} className="p-1 no-wrap">
-                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>{player.name}</Link> x {oneEightyMap[id]}
+                        <Link to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</Link> x {oneEightyMap[id]}
                     </div>);
                 }
 
@@ -283,11 +301,11 @@ export function PrintableSheet({ printOnly }) {
         return (<div data-accolades="hi-checks" className="border-1 border-solid my-2 min-height-100 p-2 mt-5">
             <h5>Hi-checks</h5>
             {tournamentData.over100Checkouts.map(player => {
-                const team = findTeamForPlayer(player);
+                const teamAndDivision = findTeamAndDivisionForPlayer(player);
 
-                if (division && team) {
+                if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={player.name} className="p-1 no-wrap">
-                        <Link to={`/division/${division.name}/player:${player.name}@${team.name}/${season.name}`}>{player.name}</Link> ({player.notes})
+                        <Link to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</Link> ({player.notes})
                     </div>);
                 }
 
