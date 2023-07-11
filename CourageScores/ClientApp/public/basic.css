@@ -30,6 +30,10 @@ span.navbar-toggler-icon {
   background: none;
 }
 
+.embed .container {
+  max-width: none;
+}
+
 @media print {
   .darts-background {
     background: none;
