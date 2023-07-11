@@ -355,64 +355,6 @@ describe('PrintableSheet', () => {
             });
         });
 
-        it('renders who is playing (singles)', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
-            const tournamentData = {
-                round: null,
-                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
-            const teams = toMap([ {
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    players: [ player1 ],
-                }],
-            } ]);
-            const divisions = [ division ];
-
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
-
-            expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([ `http://localhost/division/${division.name}/player:A@TEAM/${season.name}`, null ]);
-        });
-
-        it('renders who is playing (teams)', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    players: [ ],
-                }],
-            };
-            const sideA = createSide('A');
-            sideA.teamId = team.id;
-            const sideB = createSide('B');
-            sideB.teamId = createTemporaryId();
-            const tournamentData = {
-                round: null,
-                sides: [ sideA, sideB ],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
-            const teams = toMap([ team ]);
-            const divisions = [ division ];
-
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
-
-            expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([
-                `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
-                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}` ]);
-        });
-
         it('renders winner', async () => {
             const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
             const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
@@ -479,6 +421,64 @@ describe('PrintableSheet', () => {
             expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(sideBSinglePlayer.name)}@TEAM/${season.name}`);
         });
 
+        it('renders who is playing (singles)', async () => {
+            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
+            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
+            const tournamentData = {
+                round: null,
+                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const teams = toMap([ {
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [ player1 ],
+                }],
+            } ]);
+            const divisions = [ division ];
+
+            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([ `http://localhost/division/${division.name}/player:A@TEAM/${season.name}`, null ]);
+        });
+
+        it('renders who is playing (teams)', async () => {
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [ ],
+                }],
+            };
+            const sideA = createSide('A');
+            sideA.teamId = team.id;
+            const sideB = createSide('B');
+            sideB.teamId = createTemporaryId();
+            const tournamentData = {
+                round: null,
+                sides: [ sideA, sideB ],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const teams = toMap([ team ]);
+            const divisions = [ division ];
+
+            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([
+                `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
+                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}` ]);
+        });
+
         it('renders who is playing when cross-divisional', async () => {
             const tournamentData = {
                 round: null,
@@ -486,13 +486,49 @@ describe('PrintableSheet', () => {
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([]);
+            const teams = toMap([ {
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: createTemporaryId(),
+                    divisionId: division.id,
+                    players: [ ],
+                }],
+            } ]);
             const divisions = [ division ];
 
             await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
 
             expect(reportedError).toBeNull();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([ null, null ]);
+        });
+
+        it('renders who is playing when team not found', async () => {
+            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
+            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
+            const sideASinglePlayer = createSide('A', [ player1 ]);
+            const sideBSinglePlayer = createSide('B', [ player2 ]);
+            const tournamentData = {
+                round: null,
+                sides: [ sideASinglePlayer, sideBSinglePlayer ],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const teams = toMap([ {
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: createTemporaryId(),
+                    divisionId: division.id,
+                    players: [ player1, player2 ],
+                }],
+            } ]);
+            const divisions = [ division ];
+
+            await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([ null, null ]);
         });
 
         it('renders who is playing with no shows', async () => {
@@ -509,6 +545,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B', '-3 - C-' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([ null, null, null ]);
         });
 
         it('renders heading', async () => {
