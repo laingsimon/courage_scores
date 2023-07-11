@@ -91,13 +91,20 @@ describe('PrintableSheet', () => {
             });
     }
 
-    function getWhoIsPlaying() {
+    function getWhoIsPlaying(selector) {
         return Array.from(context.container.querySelectorAll('div[datatype="playing"] li'))
-            .map(li => {
-                return li.className.indexOf('text-decoration-line-through') !== -1
-                    ? '-' + li.textContent + '-'
-                    : li.textContent;
-            });
+            .map(selector);
+    }
+
+    function whoIsPlayingText(li) {
+        return li.className.indexOf('text-decoration-line-through') !== -1
+            ? '-' + li.textContent + '-'
+            : li.textContent;
+    }
+
+    function linkHref(container) {
+        const link = container.querySelector('a');
+        return link ? link.href : null;
     }
 
     function getAccolades(name, selector) {
@@ -348,18 +355,62 @@ describe('PrintableSheet', () => {
             });
         });
 
-        it('renders who is playing', async () => {
+        it('renders who is playing (singles)', async () => {
+            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
+            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
+            const tournamentData = {
+                round: null,
+                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const teams = toMap([ {
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [ player1 ],
+                }],
+            } ]);
+            const divisions = [ division ];
+
+            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+
+            expect(reportedError).toBeNull();
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([ `http://localhost/division/${division.name}/player:A@TEAM/${season.name}`, null ]);
+        });
+
+        it('renders who is playing (teams)', async () => {
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                seasons: [{
+                    seasonId: season.id,
+                    divisionId: division.id,
+                    players: [ ],
+                }],
+            };
+            const sideA = createSide('A');
+            sideA.teamId = team.id;
+            const sideB = createSide('B');
+            sideB.teamId = createTemporaryId();
             const tournamentData = {
                 round: null,
                 sides: [ sideA, sideB ],
                 oneEighties: [],
                 over100Checkouts: [],
             };
+            const teams = toMap([ team ]);
+            const divisions = [ division ];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying()).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([
+                `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
+                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}` ]);
         });
 
         it('renders winner', async () => {
@@ -441,7 +492,7 @@ describe('PrintableSheet', () => {
             await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying()).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
         });
 
         it('renders who is playing with no shows', async () => {
@@ -457,7 +508,7 @@ describe('PrintableSheet', () => {
             await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying()).toEqual([ '1 - A', '2 - B', '-3 - C-' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B', '-3 - C-' ]);
         });
 
         it('renders heading', async () => {
@@ -503,7 +554,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             expect(getAccolades('180s', d => d.textContent)).toEqual([ 'PLAYER 1 x 3', 'PLAYER 2 x 1' ]);
-            expect(getAccolades('180s', d => d.querySelector('a') ? d.querySelector('a').href : null))
+            expect(getAccolades('180s', linkHref))
                 .toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
         });
 
@@ -530,7 +581,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             expect(getAccolades('180s', d => d.textContent)).toEqual([ 'PLAYER 1 x 3', 'PLAYER 2 x 1' ]);
-            expect(getAccolades('180s', d => d.querySelector('a') ? d.querySelector('a').href : null)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
+            expect(getAccolades('180s', linkHref)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
         });
 
         it('renders hi checks', async () => {
@@ -556,7 +607,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual([ 'PLAYER 1 (100)', 'PLAYER 2 (120)' ]);
-            expect(getAccolades('hi-checks', d => d.querySelector('a') ? d.querySelector('a').href : null))
+            expect(getAccolades('hi-checks', linkHref))
                 .toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
         });
 
@@ -583,7 +634,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             expect(getAccolades('hi-checks', d => d.textContent)).toEqual([ 'PLAYER 1 (100)', 'PLAYER 2 (120)' ]);
-            expect(getAccolades('hi-checks', d => d.querySelector('a') ? d.querySelector('a').href : null)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
+            expect(getAccolades('hi-checks', linkHref)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
         });
     });
 
@@ -873,7 +924,7 @@ describe('PrintableSheet', () => {
             await renderComponent({ tournamentData, season, division }, { printOnly: false });
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying()).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
         });
 
         it('renders who is playing when cross-divisional', async () => {
@@ -887,7 +938,7 @@ describe('PrintableSheet', () => {
             await renderComponent({ tournamentData, season, division: null }, { printOnly: false });
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying()).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
         });
 
         it('renders heading', async () => {

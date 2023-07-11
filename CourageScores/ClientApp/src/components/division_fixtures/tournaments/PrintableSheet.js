@@ -119,7 +119,9 @@ export function PrintableSheet({ printOnly }) {
 
     function getLinkToSide(side) {
         if (side && side.teamId && division) {
-            return (<Link to={`/division/${division.name}/team:${side.name}/${season.name}`}>{side.name}</Link>);
+            const team = teams[side.teamId];
+
+            return (<Link to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</Link>);
         }
 
         const teamAndDivision = side && side.players && side.players.length === 1
