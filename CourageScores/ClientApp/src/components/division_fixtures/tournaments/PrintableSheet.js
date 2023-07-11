@@ -271,13 +271,10 @@ export function PrintableSheet({ printOnly }) {
         return (<div data-accolades="180s" className="border-1 border-solid my-2 min-height-100 p-2 mb-5">
             <h5>180s</h5>
             {Object.keys(oneEightyMap).sort((aId, bId) => {
-                const a = playerLookup[aId].name;
-                const b = playerLookup[bId].name;
-
-                if (oneEightyMap[a] > oneEightyMap[b]) {
+                if (oneEightyMap[aId] > oneEightyMap[bId]) {
                     return -1;
                 }
-                if (oneEightyMap[a] < oneEightyMap[b]) {
+                if (oneEightyMap[aId] < oneEightyMap[bId]) {
                     return 1;
                 }
 
