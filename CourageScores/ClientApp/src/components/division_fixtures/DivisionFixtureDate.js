@@ -11,7 +11,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
 
 export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
-    const { account } = useApp();
+    const { account, controls } = useApp();
     const navigate = useNavigate();
     const location = useLocation();
     const { fixtures, teams } = useDivisionData();
@@ -124,7 +124,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
         <h4>
             📅 {renderDate(date.date)}{hasKnockoutFixture && !showQualifierToggle ? (<span> (Qualifier)</span>) : null}
             {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
-            {any(tournamentFixturesForDate, f => !f.proposed) && !date.isNew ? (
+            {any(tournamentFixturesForDate, f => !f.proposed) && !date.isNew && controls ? (
                 <span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />

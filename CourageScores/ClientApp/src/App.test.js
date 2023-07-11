@@ -49,7 +49,7 @@ describe('App', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(build, excludeSurround, testRoute) {
+    async function renderComponent(build, embed, testRoute) {
         if (build) {
             createBuildElements(build);
         }
@@ -66,7 +66,7 @@ describe('App', () => {
                 settings,
             },
             (<BrandingContainer name='COURAGE LEAGUE'>
-                <App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />
+                <App embed={embed} testRoute={testRoute} />
             </BrandingContainer>),
             testRoute ? '/test' : null);
     }
@@ -105,12 +105,19 @@ describe('App', () => {
         document.head.appendChild(meta);
     }
 
+    function isForDomain(a, domain) {
+        const href = a.getAttribute('href');
+        const url = new URL(href);
+
+        return url.host === domain;
+    }
+
     function assertSocialLinks() {
         const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
         expect(socialLinks.length).toEqual(3);
         const email = socialLinks.filter(a => a.getAttribute('href').indexOf('mailto:') !== -1)[0];
-        const facebook = socialLinks.filter(a => a.getAttribute('href').indexOf('facebook.com') !== -1)[0];
-        const twitter = socialLinks.filter(a => a.getAttribute('href').indexOf('twitter.com') !== -1)[0];
+        const facebook = socialLinks.filter(a => isForDomain(a, 'www.facebook.com'))[0];
+        const twitter = socialLinks.filter(a => isForDomain(a, 'twitter.com'))[0];
         expect(email).toBeTruthy();
         expect(facebook).toBeTruthy();
         expect(twitter).toBeTruthy();
@@ -177,7 +184,7 @@ describe('App', () => {
             assertMenu();
         });
 
-        it('without surround', async () => {
+        it('embedded', async () => {
             await renderComponent(null, true);
 
             const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));

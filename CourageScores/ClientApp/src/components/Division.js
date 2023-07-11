@@ -19,7 +19,7 @@ import {isGuid} from "../helpers/projection";
 export function Division() {
     const INVALID = 'INVALID';
     const { divisionApi } = useDependencies();
-    const { account, onError, error, divisions, seasons } = useApp();
+    const { account, onError, error, divisions, seasons, controls } = useApp();
     const { divisionId: divisionIdish, mode, seasonId: seasonIdish } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
@@ -193,11 +193,11 @@ export function Division() {
 
     try {
         return (<div>
-            <DivisionControls
+            {controls || !divisionData.season ? (<DivisionControls
                 originalSeasonData={divisionData.season}
                 originalDivisionData={{name: divisionData.name, id: divisionData.id, updated: divisionData.updated}}
-                onDivisionOrSeasonChanged={reloadDivisionData} />
-            <ul className="nav nav-tabs">
+                onDivisionOrSeasonChanged={reloadDivisionData} />) : null}
+            {controls ? (<ul className="nav nav-tabs">
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' ? 'active' : ''}
@@ -229,7 +229,7 @@ export function Division() {
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
                 </li>) : null}
-            </ul>
+            </ul>) : null}
             {dataErrors && account ? (<div className="content-background p-3">
                 <h3>⚠ Errors in division data</h3>
                 <ol>

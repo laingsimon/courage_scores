@@ -7,13 +7,13 @@ import {useApp} from "../../AppContainer";
 import {Footer} from "./Footer";
 
 export function Layout({ children }) {
-    const { error, onError, excludeSurround } = useApp();
+    const { error, onError, embed } = useApp();
 
     function renderError() {
         return (<PageError error={error} />)
     }
 
-    if (excludeSurround) {
+    if (embed) {
         return (<div>
             {error ? renderError() : (<Container>
                 {children}

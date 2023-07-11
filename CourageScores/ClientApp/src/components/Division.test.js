@@ -5,6 +5,7 @@ import {Division} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
 import {createTemporaryId} from "../helpers/projection";
+import {renderDate} from "../helpers/rendering";
 
 describe('Division', () => {
     let context;
@@ -65,6 +66,27 @@ describe('Division', () => {
             await renderComponent({
                 divisions: [],
                 seasons: [],
+                controls: true,
+            }, '/division/:divisionId', `/division/${divisionId}`);
+
+            expect(reportedError).toBeNull();
+            const seasonSelection = context.container.querySelector('.btn-group .btn-group:nth-child(1)');
+            const divisionSelection = context.container.querySelector('.btn-group .btn-group:nth-child(2)');
+            expect(seasonSelection.textContent).toContain('Select a season');
+            expect(seasonSelection.className).toContain('show');
+            expect(divisionSelection.textContent).toContain('All divisions');
+        });
+
+        it('renders prompt for season when no controls', async () => {
+            divisionDataMap[divisionId] = {
+                season: null,
+                id: divisionId,
+            };
+
+            await renderComponent({
+                divisions: [],
+                seasons: [],
+                controls: false,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
             expect(reportedError).toBeNull();
@@ -544,7 +566,8 @@ describe('Division', () => {
                         access: {
                             runReports: true,
                         }
-                    }
+                    },
+                    controls: true,
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toBeNull();
@@ -725,4 +748,95 @@ describe('Division', () => {
             });
         });
     });
+
+    describe('rendering options', () => {
+        const division = {
+            id: createTemporaryId(),
+            name: 'DIVISION',
+        };
+        const season = {
+            id: createTemporaryId(),
+            name: 'SEASON',
+            divisions: [ division ],
+            startDate: '2023-01-01',
+            endDate: '2023-06-01',
+        };
+
+        it('does show division controls when not denied', async () => {
+            divisionDataMap[division.id] = {
+                season: season,
+                id: division.id,
+                name: division.name,
+                teams: []
+            };
+
+            await renderComponent({
+                divisions: [ division ],
+                seasons: [ season ],
+                controls: true,
+            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('.btn-group')).toBeTruthy();
+            expect(context.container.innerHTML).toContain(`${season.name} (${renderDate(season.startDate)} - ${renderDate(season.endDate)})`);
+            expect(context.container.innerHTML).toContain(division.name);
+        });
+
+        it('does show tabs when not denied', async () => {
+            divisionDataMap[division.id] = {
+                season: season,
+                id: division.id,
+                name: division.name,
+                teams: []
+            };
+
+            await renderComponent({
+                divisions: [ division ],
+                seasons: [ season ],
+                controls: true,
+            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('.nav-tabs')).toBeTruthy();
+            expect(context.container.innerHTML).toContain('Teams');
+            expect(context.container.innerHTML).toContain('Fixtures');
+            expect(context.container.innerHTML).toContain('Players');
+        });
+
+        it('does not show division controls when instructed', async () => {
+            divisionDataMap[division.id] = {
+                season: season,
+                id: division.id,
+                name: division.name,
+                teams: []
+            };
+
+            await renderComponent({
+                divisions: [ division ],
+                seasons: [ season ],
+                controls: false,
+            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('.btn-group')).toBeFalsy();
+        });
+
+        it('does not show tabs when instructed', async () => {
+            divisionDataMap[division.id] = {
+                season: season,
+                id: division.id,
+                name: division.name,
+                teams: []
+            };
+
+            await renderComponent({
+                divisions: [ division ],
+                seasons: [ season ],
+                controls: false,
+            }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('.nav-tabs')).toBeFalsy();
+        });
+    })
 });

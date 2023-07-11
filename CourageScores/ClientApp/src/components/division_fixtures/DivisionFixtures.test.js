@@ -42,7 +42,7 @@ describe('DivisionFixtures', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData, account, route, path) {
+    async function renderComponent(divisionData, account, route, path, excludeControls) {
         reportedError = null;
         newFixtures = null;
         divisionReloaded = false;
@@ -57,7 +57,8 @@ describe('DivisionFixtures', () => {
                     reportedError = err;
                 },
                 seasons: [],
-                divisions: []
+                divisions: [],
+                controls: !excludeControls,
             },
             (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData}>
                 <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures} />
@@ -390,11 +391,39 @@ describe('DivisionFixtures', () => {
                 }]
             });
             await renderComponent(divisionData, account);
-            const filterContainer = context.container.querySelector('.content-background > div:first-child');
+            const filterContainer = context.container.querySelector('.content-background > div[datatype="fixture-filters"]');
 
             await doSelectOption(filterContainer.querySelector('.dropdown-menu'), 'League fixtures');
 
             expect(reportedError).toBeNull();
+        });
+
+        it('hides filters when no controls', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    notes: 'Someone to run the venue',
+                    players: [],
+                    proposed: false,
+                    seasonId: divisionData.season.id,
+                    sides: [ {
+                        name: 'The winning side'
+                    }],
+                    type: 'Pairs'
+                }]
+            });
+            await renderComponent(divisionData, account, null, null, true);
+
+            expect(reportedError).toBeNull();
+            const filterContainer = context.container.querySelector('.content-background > div[datatype="fixture-filters"]');
+            expect(filterContainer).toBeFalsy();
         });
     });
 
