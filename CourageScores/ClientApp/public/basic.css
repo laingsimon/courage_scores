@@ -26,6 +26,10 @@ span.navbar-toggler-icon {
   background-repeat: no-repeat;
 }
 
+.embed {
+  background: none;
+}
+
 @media print {
   .darts-background {
     background: none;

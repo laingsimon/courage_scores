@@ -49,7 +49,7 @@ describe('App', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(build, excludeSurround, testRoute) {
+    async function renderComponent(build, embed, testRoute) {
         if (build) {
             createBuildElements(build);
         }
@@ -66,7 +66,7 @@ describe('App', () => {
                 settings,
             },
             (<BrandingContainer name='COURAGE LEAGUE'>
-                <App shouldExcludeSurround={excludeSurround} testRoute={testRoute} />
+                <App embed={embed} testRoute={testRoute} />
             </BrandingContainer>),
             testRoute ? '/test' : null);
     }
@@ -184,7 +184,7 @@ describe('App', () => {
             assertMenu();
         });
 
-        it('without surround', async () => {
+        it('embedded', async () => {
             await renderComponent(null, true);
 
             const socialLinks = Array.from(context.container.querySelectorAll('div.social-header a[href]'));
