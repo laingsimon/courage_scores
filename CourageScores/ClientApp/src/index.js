@@ -10,14 +10,18 @@ import {BrandingContainer} from "./BrandingContainer";
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
-const shouldExcludeSurround = document.location.search.indexOf('surround=false') !== -1;
+const search = document.location.search;
+const hash = document.location.hash;
+const embed = search.indexOf('embed=true') !== -1 || hash.indexOf('embed=true') !== -1;
+const controls = (search.indexOf('controls=') === -1 || search.indexOf('controls=true') !== -1)
+&& (hash.indexOf('controls=') === -1 || hash.indexOf('controls=true') !== -1);
 const branding = window.branding || {};
 
 root.render(
   <BrowserRouter basename={baseUrl}>
     <IocContainer>
         <BrandingContainer {...branding}>
-            <App shouldExcludeSurround={shouldExcludeSurround} />
+            <App embed={embed} controls={controls} />
         </BrandingContainer>
     </IocContainer>
   </BrowserRouter>);

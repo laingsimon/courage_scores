@@ -14,7 +14,7 @@ import {About} from "./components/About";
 import {mapForLogging, mapError} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 
-export function App({ shouldExcludeSurround, testRoute }) {
+export function App({ embed, controls, testRoute }) {
     const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
@@ -25,6 +25,7 @@ export function App({ shouldExcludeSurround, testRoute }) {
 
     useEffect(() => {
         // should only fire on componentDidMount
+        document.body.className = embed ? 'embed' : 'darts-background';
 
         // noinspection JSIgnoredPromiseFromCall
         reloadAll();
@@ -93,7 +94,8 @@ export function App({ shouldExcludeSurround, testRoute }) {
         account,
         error,
         appLoading: appLoading === null ? true : appLoading,
-        excludeSurround: shouldExcludeSurround,
+        embed,
+        controls,
         reloadDivisions,
         reloadAccount,
         reloadAll,

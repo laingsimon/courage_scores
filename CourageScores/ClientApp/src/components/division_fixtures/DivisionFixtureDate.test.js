@@ -36,7 +36,7 @@ describe('DivisionFixtureDate', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData, account) {
+    async function renderComponent(props, divisionData, account, excludeControls) {
         newFixtures = null;
         startingToAddNote = null;
         showPlayers = null;
@@ -53,7 +53,8 @@ describe('DivisionFixtureDate', () => {
                         stack: err.stack
                     };
                 },
-                account
+                account,
+                controls: !excludeControls
             },
             (<DivisionDataContainer {...divisionData}>
                 <DivisionFixtureDate
@@ -441,6 +442,35 @@ describe('DivisionFixtureDate', () => {
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
             expect(showPlayers).toEqual({ });
+        });
+
+        it('does not show who is playing option when controls are disabled', async () => {
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [],
+                tournamentFixtures: [{
+                    id: createTemporaryId(),
+                    type: 'TYPE',
+                    address: 'ADDRESS',
+                    sides: [{
+                        id: createTemporaryId(),
+                        name: 'SIDE',
+                        players: [{
+                            id: createTemporaryId(),
+                            name: 'PLAYER',
+                        }],
+                    }],
+                }],
+                notes: [],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account, true);
+
+            expect(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]')).toBeFalsy();
         });
     });
 

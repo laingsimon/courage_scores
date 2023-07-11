@@ -14,7 +14,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account, onError } = useApp();
+    const { account, onError, controls } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
     const [ newDateDialogOpen, setNewDateDialogOpen ] = useState(false);
@@ -169,7 +169,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     try {
         const resultsToRender = fixtures.map(renderFixtureDate);
         return (<div className="content-background p-3">
-            <FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>
+            {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
             <div>
                 {resultsToRender}

@@ -12,7 +12,7 @@ describe('Layout', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(error, excludeSurround) {
+    async function renderComponent(error, embed) {
         reportedError = null;
         context = await renderApp(
             { },
@@ -25,7 +25,7 @@ describe('Layout', () => {
                     };
                 },
                 error,
-                excludeSurround,
+                embed,
                 divisions: [],
                 reportClientSideException: () => { }
             },
@@ -53,7 +53,7 @@ describe('Layout', () => {
         });
     });
 
-    describe('when no surround', () => {
+    describe('when embedded', () => {
         it('when an error present', async () => {
             await renderComponent({ message: 'some error', stack: 'stack' }, true);
 
