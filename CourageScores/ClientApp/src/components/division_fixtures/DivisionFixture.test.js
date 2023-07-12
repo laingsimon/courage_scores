@@ -194,7 +194,7 @@ describe('DivisionFixture', () => {
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                { id: division.id, name: division.name, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
                 account,
                 toMap([ team ]));
 
@@ -203,7 +203,7 @@ describe('DivisionFixture', () => {
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'Bye']);
             const linkToHome = cells[0].querySelector('a');
-            expect(linkToHome.href).toEqual(`http://localhost/division/${division.id}/team:${fixture.homeTeam.id}/${season.id}`);
+            expect(linkToHome.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
             const linkToAway = cells[4].querySelector('a');
             expect(linkToAway).toBeFalsy();
         });
@@ -325,7 +325,7 @@ describe('DivisionFixture', () => {
             };
             await renderComponent(
                 { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                { id: division.id, name: division.name, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
                 account,
                 toMap([ homeTeam, awayTeam ]));
 
@@ -334,7 +334,7 @@ describe('DivisionFixture', () => {
             const cellText = cells.map(td => td.textContent);
             expect(cellText).toEqual(['HOME', '', 'vs', '', 'AWAY', '']);
             const linkToHome = cells[0].querySelector('a');
-            expect(linkToHome.href).toEqual(`http://localhost/division/${division.id}/team:${fixture.homeTeam.id}/${season.id}`);
+            expect(linkToHome.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
         });
 
         it('renders unselectable away team with same address (league fixture)', async () => {

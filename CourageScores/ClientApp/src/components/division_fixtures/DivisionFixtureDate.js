@@ -15,7 +15,6 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     const navigate = useNavigate();
     const location = useLocation();
     const { fixtures, teams } = useDivisionData();
-
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const filters = getFilters(filter, renderContext, fixtures);
@@ -83,6 +82,11 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
         }
 
         if (any(tournamentFixturesForDate, t => !t.proposed)) {
+            return false;
+        }
+
+        if (any(date.fixtures, f => f.isKnockout) && !fixture.awayTeam && !isAdmin) {
+            // don't show byes for any knockout/qualifier fixtures when logged out
             return false;
         }
 
