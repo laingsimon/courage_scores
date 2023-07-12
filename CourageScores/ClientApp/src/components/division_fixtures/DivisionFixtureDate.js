@@ -1,5 +1,5 @@
 import {getFilters} from "../../helpers/filters";
-import {any, isEmpty} from "../../helpers/collections";
+import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionFixture} from "./DivisionFixture";
