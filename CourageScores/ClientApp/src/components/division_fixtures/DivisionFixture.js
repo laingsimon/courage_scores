@@ -14,7 +14,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         value: '',
     };
     const { account, teams: allTeams, onError } = useApp();
-    const { id: divisionId, fixtures, season, teams, onReloadDivision } = useDivisionData();
+    const { id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -252,7 +252,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         <td>
             {awayTeamId && (fixture.id !== fixture.homeTeam.id)
                ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
-               : (<EmbedAwareLink to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+               : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
         </td>
         <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
