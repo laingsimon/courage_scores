@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {Link} from "react-router-dom";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {renderDate} from "../../helpers/rendering";
@@ -7,6 +6,7 @@ import {any, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
 export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, beforeReloadDivision }) {
     const bye = {
@@ -123,7 +123,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
                ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                   ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</Link>)
+                   ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
                    : null
                : 'Bye');
         }
@@ -131,7 +131,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         if (any(fixture.fixturesUsingAddress)) {
             return (<div>
                 {fixture.fixturesUsingAddress.map((otherFixture, index) => {
-                    return (<div key={index}>🚫 <Link to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</Link></div>)
+                    return (<div key={index}>🚫 <EmbedAwareLink to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</EmbedAwareLink></div>)
                 })}
             </div>);
         }
@@ -251,8 +251,8 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
         <td>
             {awayTeamId && (fixture.id !== fixture.homeTeam.id)
-               ? (<Link to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)
-               : (<Link to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+               ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
+               : (<EmbedAwareLink to={`/division/${divisionId}/team:${fixture.homeTeam.id}/${season.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
         </td>
         <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.homeScore}</td>
         <td className="narrow-column">vs</td>

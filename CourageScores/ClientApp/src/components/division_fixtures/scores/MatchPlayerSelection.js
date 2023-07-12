@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
 import {Dialog} from "../../common/Dialog";
-import {Link} from "react-router-dom";
 import {any, distinct} from "../../../helpers/collections";
 import {repeat} from "../../../helpers/projection";
 import {propChanged, stateChanged} from "../../../helpers/events";
@@ -10,6 +9,7 @@ import {ScoreAsYouGo} from "../sayg/ScoreAsYouGo";
 import {useApp} from "../../../AppContainer";
 import {useLeagueFixture} from "./LeagueFixtureContainer";
 import {useMatchType} from "./MatchTypeContainer";
+import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
@@ -33,10 +33,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
     function linkToPlayer(index, side, team) {
         const playerData = player(index, side);
 
-        return (<Link
+        return (<EmbedAwareLink
             to={`/division/${division.name}/player:${playerData.name}@${team.name}/${season.name}`}>
             {playerData.name}
-        </Link>);
+        </EmbedAwareLink>);
     }
 
     async function playerChanged(index, player, side) {

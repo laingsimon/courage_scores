@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {EditTeamDetails} from "./EditTeamDetails";
 import {Dialog} from "../common/Dialog";
-import {Link} from "react-router-dom";
 import {propChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
+import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
 export function DivisionTeam({ team }) {
     const { id: divisionId, season, onReloadDivision, name: divisionName } = useDivisionData();
@@ -58,7 +58,7 @@ export function DivisionTeam({ team }) {
                                     className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right">➕</button>) : null}
-                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{team.name}</Link>
+                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{team.name}</EmbedAwareLink>
                 {editTeam && isAdmin ? renderEditTeam() : null}
                 {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
             </td>

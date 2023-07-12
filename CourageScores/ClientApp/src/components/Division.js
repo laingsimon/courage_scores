@@ -15,6 +15,7 @@ import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
 import {isGuid} from "../helpers/projection";
+import {EmbedAwareLink} from "./common/EmbedAwareLink";
 
 export function Division() {
     const INVALID = 'INVALID';
@@ -223,7 +224,7 @@ export function Division() {
                              to={`/division/${divisionIdish}/teams${seasonIdish ? '/' + seasonIdish : ''}`}>Player Details</NavLink>
                 </li>) : null}
                 {account && account.access && account.access.runReports ? (<li className="nav-item">
-                    <NavLink tag={Link} className={effectiveTab === 'reports' ? 'active' : ''}
+                    <NavLink tag={EmbedAwareLink} className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${divisionIdish}/reports${seasonIdish ? '/' + seasonIdish : ''}`}>Reports</NavLink>
                 </li>) : null}
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
