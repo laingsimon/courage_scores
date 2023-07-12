@@ -254,9 +254,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
                : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
         </td>
-        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.homeScore}</td>
+        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.homeScore}</td>
         <td className="narrow-column">vs</td>
-        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? 'P' : fixture.awayScore}</td>
+        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.awayScore}</td>
         <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
             {renderAwayTeam()}
         </td>
