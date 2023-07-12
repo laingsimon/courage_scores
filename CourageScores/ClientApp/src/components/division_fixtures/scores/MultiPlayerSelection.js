@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
 import {PlayerSelection} from "../../division_players/PlayerSelection";
-import {Link} from "react-router-dom";
 import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
+import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
 export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly,
                                          showNotes, notesClassName, dropdownClassName, placeholder, season, division }) {
@@ -49,7 +49,7 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
             const teamName = getTeamName(p.id);
             const playerLink = teamName ? `${p.name}@${teamName}` : p.id;
 
-            return (<Link to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</Link>);
+            return (<EmbedAwareLink to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</EmbedAwareLink>);
         }
 
         return playerName(p);

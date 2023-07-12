@@ -4,7 +4,7 @@ import {any, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
-import {Link} from "react-router-dom";
+import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
 export function PrintableSheet({ printOnly }) {
     const { onError, teams, divisions } = useApp();
@@ -121,14 +121,14 @@ export function PrintableSheet({ printOnly }) {
         if (side && side.teamId && division) {
             const team = teams[side.teamId];
 
-            return (<Link to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</Link>);
+            return (<EmbedAwareLink to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</EmbedAwareLink>);
         }
 
         const teamAndDivision = side && side.players && side.players.length === 1
             ? findTeamAndDivisionForPlayer(side.players[0])
             : null;
         if (side && teamAndDivision && teamAndDivision.division) {
-            return (<Link to={`/division/${teamAndDivision.division.name}/player:${side.name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</Link>);
+            return (<EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${side.name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
         }
 
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);
@@ -285,7 +285,7 @@ export function PrintableSheet({ printOnly }) {
 
                 if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={id} className="p-1 no-wrap">
-                        <Link to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</Link> x {oneEightyMap[id]}
+                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> x {oneEightyMap[id]}
                     </div>);
                 }
 
@@ -304,7 +304,7 @@ export function PrintableSheet({ printOnly }) {
 
                 if (teamAndDivision && teamAndDivision.division) {
                     return (<div key={player.name} className="p-1 no-wrap">
-                        <Link to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</Link> ({player.notes})
+                        <EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${player.name}@${teamAndDivision.team.name}/${season.name}`}>{player.name}</EmbedAwareLink> ({player.notes})
                     </div>);
                 }
 
