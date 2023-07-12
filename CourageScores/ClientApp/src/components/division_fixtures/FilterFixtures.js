@@ -27,6 +27,11 @@ export function FilterFixtures({ filter, setFilter }) {
         { value: 'last+next', text: 'Prev & next dates' },
     ];
 
+    const notesFilters = [
+        { value: null, text: 'All notes' },
+        { value: 'only-with-fixtures', text: 'Only with fixtures' },
+    ];
+
     if (filter.date && isEmpty(dateFilters, f => f.value === filter.date)) {
         if (filter.date.match(/\d{4}-\d{2}-\d{2}/)) {
             dateFilters.push({ value: filter.date, text: renderDate(filter.date) });
@@ -39,6 +44,7 @@ export function FilterFixtures({ filter, setFilter }) {
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'date')} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'teamId')} options={teamFilters} value={filter.teamId || null} className="dynamic-width-dropdown margin-right" />
+        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'notes')} options={notesFilters} value={filter.notes || null} className="dynamic-width-dropdown margin-right" />
         <ShareButton text={`${name}, fixtures`} />
     </div>);
 }

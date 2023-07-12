@@ -24,8 +24,11 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     const fixturesForDate = (!isAdmin && !hasFixtures)
         ? []
         : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
+    const showDatesWithNotesAndNoFixtures = filter.notes !== 'only-with-fixtures';
+    const hasFixturesToShow = any(fixturesForDate) || any(tournamentFixturesForDate);
+    const hasSomethingToShow = hasFixturesToShow || (any(notesForDate) && showDatesWithNotesAndNoFixtures)
 
-    if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
+    if (!hasSomethingToShow) {
         return null;
     }
 
