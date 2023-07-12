@@ -1,7 +1,7 @@
 import {Link} from "react-router-dom";
 import {useApp} from "../../AppContainer";
 
-export function EmbedAwareLink({ children, to }) {
+export function EmbedAwareLink({ children, className, to }) {
     const { embed } = useApp();
     const props = embed ? getEmbeddedLinkProps() : {};
 
@@ -12,5 +12,5 @@ export function EmbedAwareLink({ children, to }) {
         };
     }
 
-    return (<Link to={to} {...props}>{children}</Link>);
+    return (<Link to={to} className={className} {...props}>{children}</Link>);
 }
