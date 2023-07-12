@@ -1,5 +1,4 @@
 import React from 'react';
-import {Link} from "react-router-dom";
 import {DivisionPlayers} from "../division_players/DivisionPlayers";
 import {ShareButton} from "../common/ShareButton";
 import {any} from "../../helpers/collections";
@@ -7,6 +6,7 @@ import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
+import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
 export function TeamOverview({ teamId }) {
     const { name } = useBranding();
@@ -39,7 +39,7 @@ export function TeamOverview({ teamId }) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
-                    <Link to={`/score/${fixture.id}`}>{renderDate(fixtureDate.date)}</Link>
+                    <EmbedAwareLink to={`/score/${fixture.id}`}>{renderDate(fixtureDate.date)}</EmbedAwareLink>
                     {fixture.isKnockout ? (<span className="margin-left">(Qualifier)</span>) : null}
                 </div>
             </td>
@@ -47,7 +47,7 @@ export function TeamOverview({ teamId }) {
                 <div className="mt-4">
                     {fixture.homeTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</Link>)}
+                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -57,7 +57,7 @@ export function TeamOverview({ teamId }) {
                 <div className="mt-4">
                     {fixture.awayTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</Link>)}
+                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
         </tr>);
@@ -66,7 +66,7 @@ export function TeamOverview({ teamId }) {
     if (!team) {
         return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
-            <Link className="btn btn-primary" to={`/division/${divisionName}/teams/${season.name}`}>Teams</Link>
+            <EmbedAwareLink className="btn btn-primary" to={`/division/${divisionName}/teams/${season.name}`}>Teams</EmbedAwareLink>
         </div>
     }
 

@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import {EMPTY_ID} from "../../../helpers/projection";
-import {Link} from "react-router-dom";
 import {useApp} from "../../../AppContainer";
 import {EditSide} from "./EditSide";
 import {useTournament} from "./TournamentContainer";
+import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
 export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
     const { teams: teamMap } = useApp();
@@ -16,7 +16,9 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
             return null;
         }
 
-        return (<div data-name="team-name" className={side.noShow ? 'text-decoration-line-through' : ''}><Link to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</Link></div>);
+        return (<div data-name="team-name" className={side.noShow ? 'text-decoration-line-through' : ''}>
+            <EmbedAwareLink to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</EmbedAwareLink>
+        </div>);
     }
 
     function renderPlayers () {
@@ -30,7 +32,7 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
 
         return (<ol className="no-list-indent">
             {side.players.map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
-                {p.divisionId && p.divisionId !== EMPTY_ID ? (<Link to={`/division/${p.divisionId}/player:${p.id}/${season.id}`}>{p.name}</Link>) : p.name}
+                {p.divisionId && p.divisionId !== EMPTY_ID ? (<EmbedAwareLink to={`/division/${p.divisionId}/player:${p.id}/${season.id}`}>{p.name}</EmbedAwareLink>) : p.name}
             </li>))}
         </ol>);
     }
@@ -42,10 +44,10 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
 
         let name = side.name;
         if (singlePlayer && singlePlayer.divisionId && singlePlayer.divisionId !== EMPTY_ID) {
-            name = (<Link to={`/division/${singlePlayer.divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</Link>);
+            name = (<EmbedAwareLink to={`/division/${singlePlayer.divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</EmbedAwareLink>);
         } else if (side.teamId && teamMap[side.teamId]) {
             const team = teamMap[side.teamId];
-            name = (<Link to={`/division/${team.divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>);
+            name = (<EmbedAwareLink to={`/division/${team.divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</EmbedAwareLink>);
         }
 
         return (<strong className={side.noShow ? 'text-decoration-line-through' : ''}>{name}</strong>);

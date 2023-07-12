@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
 import {Dialog} from "../common/Dialog";
 import {EditPlayerDetails} from "./EditPlayerDetails";
-import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {propChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EMPTY_ID} from "../../helpers/projection";
+import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
 export function DivisionPlayer({ player, hideVenue }) {
     const { account, reloadTeams } = useApp();
@@ -80,7 +80,7 @@ export function DivisionPlayer({ player, hideVenue }) {
             {isAdmin ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
                 {deleting ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '🗑️'}
             </button>) : null}
-            {deleting ? (<s>{player.name}</s>) : (<Link to={`/division/${divisionName}/player:${player.name}@${player.team}/${season.name}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</Link>)}
+            {deleting ? (<s>{player.name}</s>) : (<EmbedAwareLink to={`/division/${divisionName}/player:${player.name}@${player.team}/${season.name}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</EmbedAwareLink>)}
             {editPlayer && isAdmin ? renderEditPlayer() : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not delete player"/>) : null}
@@ -90,9 +90,9 @@ export function DivisionPlayer({ player, hideVenue }) {
             : (<td>
                 {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
-                    : (<Link disabled={deleting} to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
+                    : (<EmbedAwareLink disabled={deleting} to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
                         {deleting ? (<s>{player.team}</s>) : player.team}
-                    </Link>)}
+                    </EmbedAwareLink>)}
             </td>)}
         <td>{player.singles.matchesPlayed}</td>
         <td>{player.singles.matchesWon}</td>

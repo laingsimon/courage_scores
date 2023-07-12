@@ -1,11 +1,11 @@
 import React from 'react';
-import {Link} from "react-router-dom";
 import {DivisionPlayers} from "./DivisionPlayers";
 import {ShareButton} from "../common/ShareButton";
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {useDivisionData} from "../DivisionDataContainer";
 import {useBranding} from "../../BrandingContainer";
+import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
 export function PlayerOverview({ playerId }) {
     const { name } = useBranding();
@@ -52,7 +52,7 @@ export function PlayerOverview({ playerId }) {
         return (<tr key={fixture.id}>
             <td>
                 <div className="position-absolute">
-                    <Link to={`/score/${fixture.id}`}>{renderDate(date)}</Link>
+                    <EmbedAwareLink to={`/score/${fixture.id}`}>{renderDate(date)}</EmbedAwareLink>
                     {fixture.isKnockout ? (<span className="margin-left">(Qualifier)</span>) : null}
                 </div>
             </td>
@@ -60,7 +60,7 @@ export function PlayerOverview({ playerId }) {
                 <div className="mt-4">
                 {fixture.homeTeam.id === team.id
                     ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                    : (<Link to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</Link>)}
+                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -70,7 +70,7 @@ export function PlayerOverview({ playerId }) {
                 <div className="mt-4">
                 {fixture.awayTeam.id === team.id
                     ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                    : (<Link to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right">{fixture.awayTeam.name}</Link>)}
+                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
         </tr>);
@@ -80,14 +80,14 @@ export function PlayerOverview({ playerId }) {
         return (<tr key={tournament.id}>
             <td>
                 <div className="position-absolute">
-                    <Link to={`/tournament/${tournament.id}`}>{renderDate(date)}</Link>
+                    <EmbedAwareLink to={`/tournament/${tournament.id}`}>{renderDate(date)}</EmbedAwareLink>
                 </div>
             </td>
             <td className="text-end" colSpan="3">
                 <div className="mt-4">
-                    <Link to={`/tournament/${tournament.id}`} className="text-nowrap">
+                    <EmbedAwareLink to={`/tournament/${tournament.id}`} className="text-nowrap">
                         {tournament.type} at <strong>{tournament.address}</strong>
-                    </Link>
+                    </EmbedAwareLink>
                 </div>
             </td>
             <td colSpan="2">
@@ -110,7 +110,7 @@ export function PlayerOverview({ playerId }) {
         <h3>
             {player.name}
             <span className="h6 margin-left">
-                <Link to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">{team.name}</Link>
+                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">{team.name}</EmbedAwareLink>
             </span>
             <span className="margin-left">
                 <ShareButton text={`${name}: ${player.name}`} />

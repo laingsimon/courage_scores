@@ -3,6 +3,7 @@
 import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
+import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -36,7 +37,7 @@ describe('DivisionFixtureDate', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData, account, excludeControls) {
+    async function renderComponent(props, divisionData, account, excludeControls, teams) {
         newFixtures = null;
         startingToAddNote = null;
         showPlayers = null;
@@ -54,7 +55,8 @@ describe('DivisionFixtureDate', () => {
                     };
                 },
                 account,
-                controls: !excludeControls
+                controls: !excludeControls,
+                teams: toMap(teams || []),
             },
             (<DivisionDataContainer {...divisionData}>
                 <DivisionFixtureDate
@@ -130,7 +132,11 @@ describe('DivisionFixtureDate', () => {
                     homeTeam: {
                         id: createTemporaryId(),
                         name: 'HOME',
-                    }
+                    },
+                    awayTeam: {
+                        id: createTemporaryId(),
+                        name: 'AWAY',
+                    },
                 }],
                 tournamentFixtures: [],
                 notes: [],
@@ -152,7 +158,50 @@ describe('DivisionFixtureDate', () => {
             expect(table.querySelectorAll('tr').length).toEqual(1);
             const row = table.querySelector('tr');
             expect(row.innerHTML).toContain('HOME');
-            expect(row.innerHTML).toContain('Bye');
+            expect(row.innerHTML).toContain('AWAY');
+        });
+
+        it('does not render league qualifier/knockout byes', async () => {
+            const homeTeamId = createTemporaryId();
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [{
+                    id: homeTeamId,
+                    isKnockout: true,
+                    homeTeam: {
+                        id: homeTeamId,
+                        name: 'A BYE HOME',
+                    },
+                    awayTeam: null,
+                }, {
+                    id: createTemporaryId(),
+                    isKnockout: true,
+                    homeTeam: {
+                        id: createTemporaryId(),
+                        name: 'ANOTHER HOME',
+                    },
+                    awayTeam: {
+                        id: createTemporaryId(),
+                        name: 'ANOTHER AWAY',
+                    },
+                }],
+                tournamentFixtures: [],
+                notes: [],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, name: division.name }, account);
+
+            expect(reportedError).toBeNull();
+            const table = context.container.querySelector('table');
+            expect(table).toBeTruthy();
+            expect(table.querySelectorAll('tr').length).toEqual(1);
+            const row = table.querySelector('tr');
+            expect(row.innerHTML).toContain('ANOTHER HOME');
+            expect(row.innerHTML).toContain('ANOTHER AWAY');
         });
 
         it('renders tournament fixtures', async () => {
@@ -475,19 +524,25 @@ describe('DivisionFixtureDate', () => {
     });
 
     describe('when logged in', () => {
+        const season = {
+            id: createTemporaryId(),
+            name: 'SEASON',
+        };
         const team = {
             id: createTemporaryId(),
             name: 'TEAM',
             address: 'ADDRESS',
+            seasons: [{
+                seasonId: season.id,
+            }],
         };
         const anotherTeam = {
             id: createTemporaryId(),
             name: 'ANOTHER TEAM',
             address: 'ANOTHER ADDRESS',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
+            seasons: [{
+                seasonId: season.id,
+            }],
         };
         const division = {
             id: createTemporaryId(),
@@ -630,7 +685,7 @@ describe('DivisionFixtureDate', () => {
                 fixtures: [{
                     id: team.id,
                     homeTeam: team,
-                    awayTeam: null,
+                    awayTeam: anotherTeam,
                     isKnockout: false,
                     fixturesUsingAddress: [ ],
                 }],
@@ -650,7 +705,11 @@ describe('DivisionFixtureDate', () => {
                 date: '2023-05-06T00:00:00',
                 fixtures: [{
                     id: team.id,
-                    homeTeam: team,
+                    homeTeam: {
+                        id: team.id,
+                        address: team.address,
+                        name: team.name,
+                    },
                     awayTeam: null,
                     isKnockout: true,
                     accoladesCount: true,
@@ -683,6 +742,94 @@ describe('DivisionFixtureDate', () => {
             await doClick(findButton(context.container, '📌 Add note'));
 
             expect(startingToAddNote).toEqual(fixtureDate.date);
+        });
+
+        it('renders league qualifier/knockout fixtures', async () => {
+            const awayTeam = {
+                id: createTemporaryId(),
+                name: 'AWAY',
+                seasons: [{
+                    seasonId: season.id
+                }]
+            };
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [{
+                    id: createTemporaryId(),
+                    isKnockout: true,
+                    homeTeam: {
+                        id: team.id,
+                        name: 'HOME',
+                    },
+                    awayTeam: {
+                        id: awayTeam.id,
+                        name: 'AWAY',
+                    },
+                    fixturesUsingAddress: [],
+                }],
+                tournamentFixtures: [],
+                notes: [],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account, null, [ team, awayTeam ]);
+
+            expect(reportedError).toBeNull();
+            const heading = context.container.querySelector('h4');
+            expect(heading).toBeTruthy();
+            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
+            expect(heading.textContent).toContain('Qualifier');
+            const table = context.container.querySelector('table');
+            expect(table).toBeTruthy();
+            expect(table.querySelectorAll('tr').length).toEqual(1);
+            const row = table.querySelector('tr');
+            expect(row.innerHTML).toContain('HOME');
+            expect(row.querySelector('td:nth-child(5) .dropdown-toggle').textContent).toEqual('AWAY');
+        });
+
+        it('renders league qualifier/knockout byes', async () => {
+            const awayTeam = {
+                id: createTemporaryId(),
+                name: 'AWAY',
+                seasons: [{
+                    seasonId: season.id
+                }]
+            };
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [{
+                    id: createTemporaryId(),
+                    isKnockout: true,
+                    homeTeam: {
+                        id: team.id,
+                        name: 'HOME',
+                    },
+                    fixturesUsingAddress: [],
+                }],
+                tournamentFixtures: [],
+                notes: [],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account, null, [ team, awayTeam ]);
+
+            expect(reportedError).toBeNull();
+            const heading = context.container.querySelector('h4');
+            expect(heading).toBeTruthy();
+            expect(heading.textContent).toContain(renderDate(fixtureDate.date));
+            expect(heading.textContent).toContain('Qualifier');
+            const table = context.container.querySelector('table');
+            expect(table).toBeTruthy();
+            expect(table.querySelectorAll('tr').length).toEqual(1);
+            const row = table.querySelector('tr');
+            expect(row.innerHTML).toContain('HOME');
+            expect(row.querySelector('td:nth-child(5) .dropdown-toggle').textContent).toEqual('');
         });
     });
 });

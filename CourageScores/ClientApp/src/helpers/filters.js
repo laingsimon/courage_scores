@@ -109,6 +109,9 @@ export function initFilter(location) {
     if (search.has('teamId')) {
         filter.teamId = search.get('teamId');
     }
+    if (search.has('notes')) {
+        filter.notes = search.get('notes');
+    }
 
     return filter;
 }

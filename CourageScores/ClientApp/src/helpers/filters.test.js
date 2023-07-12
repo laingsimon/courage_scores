@@ -382,6 +382,12 @@ describe('filters', () => {
             expect(filter).toEqual({ teamId: 'abcd' });
         });
 
+        it('inits notes filter', () => {
+            const filter = initFilter({ search: '?notes=abcd' });
+
+            expect(filter).toEqual({ notes: 'abcd' });
+        });
+
         it('accepts no filter expressions', () => {
             expect(initFilter({ search: '?' })).toEqual({ });
             expect(initFilter({ search: '' })).toEqual({ });

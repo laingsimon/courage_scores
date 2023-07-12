@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import {Link} from "react-router-dom";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {any, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
+import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
 export function TournamentFixture({ tournament, onTournamentChanged, date, expanded }) {
     const { id: divisionId, season } = useDivisionData();
@@ -73,7 +73,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     }
 
     function renderLinkToPlayer(player) {
-        return (<Link key={player.id} to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.name}</Link>);
+        return (<EmbedAwareLink key={player.id} to={`/division/${divisionId}/player:${player.id}/${season.id}`}>{player.name}</EmbedAwareLink>);
     }
 
     function showTournamentSidesPlayers() {
@@ -83,7 +83,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             {tournament.sides.map(side => {
                 if (side.teamId && side.players.length !== 1) {
                     return (<div key={side.id}>
-                        <Link to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</Link>
+                        <EmbedAwareLink to={`/division/${divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</EmbedAwareLink>
                     </div>);
                 }
 
@@ -99,7 +99,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     function renderWinner(winningSide) {
         if (winningSide.teamId) {
             return (<strong className="text-primary">
-                <Link to={`/division/${divisionId}/team:${winningSide.teamId}/${season.id}`}>{winningSide.name}</Link>
+                <EmbedAwareLink to={`/division/${divisionId}/team:${winningSide.teamId}/${season.id}`}>{winningSide.name}</EmbedAwareLink>
             </strong>);
         }
 
@@ -127,9 +127,9 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
 
     return (<tr>
         <td colSpan={tournament.winningSide ? 3 : 5}>
-            <Link to={`/tournament/${tournament.id}`}>
+            <EmbedAwareLink to={`/tournament/${tournament.id}`}>
                 {tournament.type} at <strong>{tournament.address}</strong>
-            </Link>
+            </EmbedAwareLink>
             {expanded ? showTournamentSidesPlayers() : null}
         </td>
         {tournament.winningSide ? (<td colSpan="2">

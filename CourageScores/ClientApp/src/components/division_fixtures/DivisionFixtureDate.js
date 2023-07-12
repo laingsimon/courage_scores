@@ -1,5 +1,5 @@
 import {getFilters} from "../../helpers/filters";
-import {any, isEmpty} from "../../helpers/collections";
+import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionFixture} from "./DivisionFixture";
@@ -15,7 +15,6 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     const navigate = useNavigate();
     const location = useLocation();
     const { fixtures, teams } = useDivisionData();
-
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
     const filters = getFilters(filter, renderContext, fixtures);
@@ -25,8 +24,11 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     const fixturesForDate = (!isAdmin && !hasFixtures)
         ? []
         : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
+    const showDatesWithNotesAndNoFixtures = filter.notes !== 'only-with-fixtures';
+    const hasFixturesToShow = any(fixturesForDate) || any(tournamentFixturesForDate);
+    const hasSomethingToShow = hasFixturesToShow || (any(notesForDate) && showDatesWithNotesAndNoFixtures)
 
-    if (isEmpty(fixturesForDate) && isEmpty(tournamentFixturesForDate) && isEmpty(notesForDate)) {
+    if (!hasSomethingToShow) {
         return null;
     }
 
@@ -83,6 +85,11 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
         }
 
         if (any(tournamentFixturesForDate, t => !t.proposed)) {
+            return false;
+        }
+
+        if (any(date.fixtures, f => f.isKnockout) && !fixture.awayTeam && !isAdmin) {
+            // don't show byes for any knockout/qualifier fixtures when logged out
             return false;
         }
 
