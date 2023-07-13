@@ -1,4 +1,4 @@
-import {any} from "./collections";
+import {all, any} from "./collections";
 import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "../Filter";
 import {isInFuture, isInPast, isToday} from "./dates";
 
@@ -52,13 +52,14 @@ export function getDateFilter(date, renderContext, fixtures) {
                 new Filter(c => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
                 new Filter(c => isNextFixtureAfterToday(renderContext, c.date))
             ]);
-        default:
-            if (date && date.match(/\d{4}-\d{2}/)) {
-                return new Filter(c => c.date.indexOf(date) === 0);
-            }
-
-            return new NullFilter();
     }
+
+    if (date && all(date.split(','), d => d.match(/\d{4}-\d{2}/))) {
+        const splitDates = date.split(',');
+        return new Filter(c => any(splitDates, date => c.date.indexOf(date) === 0));
+    }
+
+    return new NullFilter();
 }
 
 export function getTypeFilter(type) {
