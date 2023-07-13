@@ -239,6 +239,35 @@ describe('filters', () => {
             expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(false);
         });
 
+        it('when matches date yyyy-MM,yyyy-MM format', () => {
+            const filter = getDateFilter('2023-02,2023-03', {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({ date: '2023-01-01T00:00:00' })).toEqual(false);
+            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
+            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(true);
+            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(true);
+            expect(filter.apply({ date: '2023-04-04T00:00:00' })).toEqual(false);
+        });
+
+        it('when matches date yyyy-MM-dd format', () => {
+            const filter = getDateFilter('2023-02-01', {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
+            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(false);
+            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(false);
+        });
+
+        it('when matches date yyyy-MM-dd,yyyy-MM-dd format', () => {
+            const filter = getDateFilter('2023-02-01,2023-03-03', {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
+            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(false);
+            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(true);
+        });
+
         it('otherwise returns null filter', () => {
             const filter = getDateFilter('foo', {}, []);
 
@@ -426,6 +455,7 @@ describe('filters', () => {
             changeFilter(filter, setFilter, navigate, location);
 
             expect(navigated).not.toBeNull();
+            // noinspection JSObjectNullOrUndefined
             expect(navigated.search).toEqual('date=past');
             expect(navigated.pathname).toEqual(location.pathname);
             expect(navigated.hash).toEqual(location.hash);
@@ -439,6 +469,7 @@ describe('filters', () => {
             changeFilter(filter, setFilter, navigate, location);
 
             expect(navigated).not.toBeNull();
+            // noinspection JSObjectNullOrUndefined
             expect(navigated.search).toContain('date=past');
             expect(navigated.search).toContain('type=league');
             expect(navigated.pathname).toEqual(location.pathname);
