@@ -52,14 +52,14 @@ export function getDateFilter(date, renderContext, fixtures) {
                 new Filter(c => isLastFixtureBeforeToday(renderContext, fixtures, c.date)),
                 new Filter(c => isNextFixtureAfterToday(renderContext, c.date))
             ]);
-    }
+        default:
+            if (date && all(date.split(','), d => d.match(/\d{4}-\d{2}/))) {
+                const splitDates = date.split(',');
+                return new Filter(c => any(splitDates, date => c.date.indexOf(date) === 0));
+            }
 
-    if (date && all(date.split(','), d => d.match(/\d{4}-\d{2}/))) {
-        const splitDates = date.split(',');
-        return new Filter(c => any(splitDates, date => c.date.indexOf(date) === 0));
+            return new NullFilter();
     }
-
-    return new NullFilter();
 }
 
 export function getTypeFilter(type) {
