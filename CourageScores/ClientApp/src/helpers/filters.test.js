@@ -426,6 +426,7 @@ describe('filters', () => {
             changeFilter(filter, setFilter, navigate, location);
 
             expect(navigated).not.toBeNull();
+            // noinspection JSObjectNullOrUndefined
             expect(navigated.search).toEqual('date=past');
             expect(navigated.pathname).toEqual(location.pathname);
             expect(navigated.hash).toEqual(location.hash);
@@ -439,6 +440,7 @@ describe('filters', () => {
             changeFilter(filter, setFilter, navigate, location);
 
             expect(navigated).not.toBeNull();
+            // noinspection JSObjectNullOrUndefined
             expect(navigated.search).toContain('date=past');
             expect(navigated.search).toContain('type=league');
             expect(navigated.pathname).toEqual(location.pathname);
