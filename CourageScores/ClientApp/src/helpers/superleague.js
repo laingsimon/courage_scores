@@ -144,6 +144,10 @@ export function legTonsSplit(leg, accumulatorName) {
         + countLegThrowsBetween(leg, accumulatorName, 140, 180)
         + (oneEighties);
 
+    if (oneEighties === 0) {
+        return `${tons}`;
+    }
+
     return `${tons}+${oneEighties}`;
 }
 
