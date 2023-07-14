@@ -169,19 +169,20 @@ export function PrintableSheet({ printOnly }) {
         }
 
         const winnersFromThisRound = [];
-        const losersFromThis = [];
+        const playedInThisRound = [];
 
         const layoutDataForRound = {
             name: round.name,
             matches: round.matches.map(m => {
                 let winner = null;
+                playedInThisRound.push(m.sideA);
+                playedInThisRound.push(m.sideB);
+
                 if (m.scoreA > m.scoreB) {
                     winnersFromThisRound.push(m.sideA);
-                    losersFromThis.push(m.sideB);
                     winner = 'sideA';
                 } else if (m.scoreB > m.scoreA) {
                     winnersFromThisRound.push(m.sideB);
-                    losersFromThis.push(m.sideA);
                     winner = 'sideB';
                 }
 
@@ -198,7 +199,7 @@ export function PrintableSheet({ printOnly }) {
 
         const byesFromThisRound = sides
             .filter(side => !side.noShow)
-            .filter(side => !any(winnersFromThisRound, s => s.id === side.id) && !any(losersFromThis, s => s.id === side.id))
+            .filter(side => !any(playedInThisRound, s => s.id === side.id))
             .map(side => {
                 return {
                     sideA: { 
