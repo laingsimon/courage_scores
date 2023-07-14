@@ -682,7 +682,7 @@ describe('superleague', () => {
     });
 
     describe('legTonsSplit', () => {
-        it('should return correctly', () => {
+        it('should return 100s+180s', () => {
             const leg = {
                 home: {
                     throws: [
@@ -703,6 +703,28 @@ describe('superleague', () => {
 
             /* 100-180s (inclusive) '+' no-of-180s */
             expect(result).toEqual('3+1');
+        });
+
+        it('should return 100s when no 180s', () => {
+            const leg = {
+                home: {
+                    throws: [
+                        /* valid */
+                        { score: 100, bust: false },
+                        { score: 140, bust: false },
+
+                        /* invalid */
+                        { score: 100, bust: true },
+                        { score: 140, bust: true },
+                        { score: 180, bust: true },
+                    ]
+                },
+            };
+
+            const result = legTonsSplit(leg, 'home');
+
+            /* 100-180s (inclusive) */
+            expect(result).toEqual('2');
         });
     });
 
