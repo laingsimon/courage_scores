@@ -172,6 +172,54 @@ describe('PrintableSheet', () => {
             });
         });
 
+        it('renders incomplete tournament with six sides and one round', async () => {
+            const tournamentData = {
+                round: {
+                    matches: [
+                        { sideA: sideA, sideB: sideB, scoreA: 0, scoreB: 0 },
+                        { sideA: sideC, sideB: sideD, scoreA: 0, scoreB: 0 },
+                        { sideA: sideE, sideB: sideF, scoreA: 0, scoreB: 0 },
+                    ],
+                },
+                sides: [ sideA, sideB, sideC, sideD, sideE, sideF ],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+
+            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+
+            expect(reportedError).toBeNull();
+            const rounds = getRounds();
+            expect(rounds.length).toEqual(3);
+            expect(rounds[0]).toEqual({
+                heading: 'Quarter-Final',
+                hiChecks: null,
+                oneEighties: null,
+                matches: [
+                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                    { sideAname: 'C', sideBname: 'D', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                    { sideAname: 'E', sideBname: 'F', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                ],
+            });
+            expect(rounds[1]).toEqual({
+                heading: 'Semi-Final',
+                hiChecks: null,
+                oneEighties: null,
+                matches: [
+                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                ],
+            });
+            expect(rounds[2]).toEqual({
+                heading: 'Final',
+                hiChecks: { players: [] },
+                oneEighties: { players: [] },
+                matches: [
+                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                ],
+            });
+        });
+
         it('renders tournament with 2 rounds', async () => {
             const tournamentData = {
                 round: {
