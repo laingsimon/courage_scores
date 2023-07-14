@@ -2,6 +2,7 @@
 
 import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
+import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TournamentFixture} from "./TournamentFixture";
@@ -32,7 +33,7 @@ describe('TournamentFixture', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData, account) {
+    async function renderComponent(props, divisionData, account, teams) {
         reportedError = null;
         tournamentChanged = null;
         savedTournament = null;
@@ -48,6 +49,7 @@ describe('TournamentFixture', () => {
                     };
                 },
                 account,
+                teams: toMap(teams || []),
             },
             (<DivisionDataContainer {...divisionData}>
                 <TournamentFixture
@@ -85,7 +87,7 @@ describe('TournamentFixture', () => {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
-            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.id}/team:${teamId}/${season.id}`);
+            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.name}/team:${encodeURI(teamId)}/${season.name}`);
             assertPlayersAndLinks(side, players);
         }
 
@@ -109,7 +111,7 @@ describe('TournamentFixture', () => {
             players.forEach((player, index) => {
                 const link = links[index];
                 expect(link.textContent).toEqual(player.name);
-                expect(link.href).toEqual(`http://localhost/division/${division.id}/player:${player.id}/${season.id}`);
+                expect(link.href).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player.name)}/${season.name}`);
             });
         }
 
@@ -158,10 +160,14 @@ describe('TournamentFixture', () => {
         });
 
         it('renders tournament won by team', async () => {
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+            };
             const side = {
                 id: createTemporaryId(),
                 name: 'WINNER',
-                teamId: createTemporaryId(),
+                teamId: team.id,
             };
             const tournament = {
                 id: createTemporaryId(),
@@ -173,8 +179,9 @@ describe('TournamentFixture', () => {
             };
             await renderComponent(
                 { tournament, date: '2023-05-06T00:00:00', expanded: false },
-                { id: division.id, season, players: [ player ] },
-                account);
+                { id: division.id, name: division.name, season, players: [ player ] },
+                account,
+                [ team ]);
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -183,7 +190,39 @@ describe('TournamentFixture', () => {
             const linkToTeam = cells[1].querySelector('a');
             expect(linkToTeam).toBeTruthy();
             expect(linkToTeam.textContent).toEqual(side.name);
-            expect(linkToTeam.href).toEqual(`http://localhost/division/${division.id}/team:${side.teamId}/${season.id}`);
+            expect(linkToTeam.href).toEqual(`http://localhost/division/${division.name}/team:${encodeURI(team.name)}/${season.name}`);
+        });
+
+        it('renders tournament won by team (when team not found)', async () => {
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+            };
+            const side = {
+                id: createTemporaryId(),
+                name: 'WINNER',
+                teamId: team.id,
+            };
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [ side ],
+                winningSide: side,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, name: division.name, season, players: [ player ] },
+                account,
+                [ ]);
+
+            expect(reportedError).toBeNull();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cellText = cells.map(td => td.textContent);
+            expect(cellText).toEqual([ 'TYPE at ADDRESS', 'Winner: WINNER' ]);
+            const linkToTeam = cells[1].querySelector('a');
+            expect(linkToTeam).toBeFalsy();
         });
 
         it('does not render proposed tournaments', async () => {
@@ -243,7 +282,7 @@ describe('TournamentFixture', () => {
             };
             await renderComponent(
                 { tournament, date: '2023-05-06T00:00:00', expanded: true },
-                { id: division.id, season, players: [ player1, player2, player3, player4, player5, player6, player7 ] },
+                { id: division.id, name: division.name, season, players: [ player1, player2, player3, player4, player5, player6, player7 ] },
                 account);
 
             expect(reportedError).toBeNull();
