@@ -190,15 +190,32 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
-            expect(rounds.length).toEqual(1);
+            expect(rounds.length).toEqual(3);
             expect(rounds[0]).toEqual({
-                heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                heading: 'Quarter-Final',
+                hiChecks: null,
+                oneEighties: null,
                 matches: [
                     { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
                     { sideAname: 'C', sideBname: 'D', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
                     { sideAname: 'E', sideBname: 'F', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                ],
+            });
+            expect(rounds[1]).toEqual({
+                heading: 'Semi-Final',
+                hiChecks: null,
+                oneEighties: null,
+                matches: [
+                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                ],
+            });
+            expect(rounds[2]).toEqual({
+                heading: 'Final',
+                hiChecks: { players: [] },
+                oneEighties: { players: [] },
+                matches: [
+                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
                 ],
             });
         });

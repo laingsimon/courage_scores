@@ -217,6 +217,11 @@ export function PrintableSheet({ printOnly }) {
 
         layoutDataForRound.matches = layoutDataForRound.matches.concat(byesFromThisRound);
 
+        if (!any(winnersFromThisRound)) {
+            // partially played tournament... project the remaining rounds as unplayed...
+            return [ layoutDataForRound ].concat(getUnplayedLayoutData(Math.ceil(playedInThisRound.length / 2), depth + 1));
+        }
+
         return [ layoutDataForRound ].concat(getPlayedLayoutData(winnersFromThisRound.concat(byesFromThisRound.map(b => b.sideA)), round.nextRound, depth + 1));
     }
 
