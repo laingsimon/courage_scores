@@ -389,6 +389,50 @@ describe('DivisionFixtureDate', () => {
             expect(component).toBeFalsy();
         });
 
+        it('renders nothing when no fixtures and notes filter is only-with-fixtures', async () => {
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [],
+                tournamentFixtures: [],
+                notes: [{
+                    id: createTemporaryId(),
+                    note: 'SOME NOTE'
+                }],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { notes: 'only-with-fixtures' },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+
+            expect(reportedError).toBeNull();
+            const component = context.container.querySelector('div');
+            expect(component).toBeFalsy();
+        });
+
+        it('renders notes when no fixtures and notes filter is NOT only-with-fixtures', async () => {
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [],
+                tournamentFixtures: [],
+                notes: [{
+                    id: createTemporaryId(),
+                    note: 'SOME NOTE'
+                }],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { notes: 'some-other-value' },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+
+            expect(reportedError).toBeNull();
+            const component = context.container.querySelector('div');
+            expect(component).toBeTruthy();
+        });
+
         it('renders who is playing', async () => {
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
@@ -830,6 +874,50 @@ describe('DivisionFixtureDate', () => {
             const row = table.querySelector('tr');
             expect(row.innerHTML).toContain('HOME');
             expect(row.querySelector('td:nth-child(5) .dropdown-toggle').textContent).toEqual('');
+        });
+
+        it('renders nothing when no fixtures and notes filter is only-with-fixtures', async () => {
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [],
+                tournamentFixtures: [],
+                notes: [{
+                    id: createTemporaryId(),
+                    note: 'SOME NOTE'
+                }],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { notes: 'only-with-fixtures' },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+
+            expect(reportedError).toBeNull();
+            const component = context.container.querySelector('div');
+            expect(component).toBeFalsy();
+        });
+
+        it('renders notes when no fixtures and notes filter is NOT only-with-fixtures', async () => {
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [],
+                tournamentFixtures: [],
+                notes: [{
+                    id: createTemporaryId(),
+                    note: 'SOME NOTE'
+                }],
+            };
+            await renderComponent({
+                date: fixtureDate,
+                filter: { notes: 'some-other-value' },
+                renderContext: { },
+                showPlayers: { },
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+
+            expect(reportedError).toBeNull();
+            const component = context.container.querySelector('div');
+            expect(component).toBeTruthy();
         });
     });
 });
