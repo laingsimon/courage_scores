@@ -172,6 +172,37 @@ describe('PrintableSheet', () => {
             });
         });
 
+        it('renders incomplete tournament with six sides and one round', async () => {
+            const tournamentData = {
+                round: {
+                    matches: [
+                        { sideA: sideA, sideB: sideB, scoreA: 0, scoreB: 0 },
+                        { sideA: sideC, sideB: sideD, scoreA: 0, scoreB: 0 },
+                        { sideA: sideE, sideB: sideF, scoreA: 0, scoreB: 0 },
+                    ],
+                },
+                sides: [ sideA, sideB, sideC, sideD, sideE, sideF ],
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+
+            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+
+            expect(reportedError).toBeNull();
+            const rounds = getRounds();
+            expect(rounds.length).toEqual(1);
+            expect(rounds[0]).toEqual({
+                heading: 'Final',
+                hiChecks: { players: [] },
+                oneEighties: { players: [] },
+                matches: [
+                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                    { sideAname: 'C', sideBname: 'D', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                    { sideAname: 'E', sideBname: 'F', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                ],
+            });
+        });
+
         it('renders tournament with 2 rounds', async () => {
             const tournamentData = {
                 round: {
