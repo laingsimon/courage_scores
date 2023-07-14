@@ -20,7 +20,7 @@ describe('EditTournament', () => {
         updatedData = newData;
     }
 
-    async function renderComponent(containerProps, props, account, teams) {
+    async function renderComponent(containerProps, props, account, teams, divisions) {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
@@ -39,6 +39,7 @@ describe('EditTournament', () => {
                 },
                 account,
                 teams: toMap(teams || []),
+                divisions: divisions || [],
             },
             (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
                 <EditTournament {...props} />

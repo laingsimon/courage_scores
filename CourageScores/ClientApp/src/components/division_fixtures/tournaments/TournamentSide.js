@@ -6,9 +6,9 @@ import {useTournament} from "./TournamentContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
 export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
-    const { teams: teamMap } = useApp();
+    const { teams: teamMap, divisions } = useApp();
     const [ editSide, setEditSide ] = useState(null);
-    const { season } = useTournament();
+    const { season, division } = useTournament();
 
     function renderTeamName() {
         const team = side.teamId ? teamMap[side.teamId] : null;
@@ -16,8 +16,10 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
             return null;
         }
 
+        const theDivision = division || getDivision(getDivisionIdForTeam(team, season.id));
+
         return (<div data-name="team-name" className={side.noShow ? 'text-decoration-line-through' : ''}>
-            <EmbedAwareLink to={`/division/${team.divisionId}/team:${team.id}/${season.id}`}>{team.name}</EmbedAwareLink>
+            {theDivision ? (<EmbedAwareLink to={`/division/${theDivision.name}/team:${team.name}/${season.name}`}>{team.name}</EmbedAwareLink>) : team.name}
         </div>);
     }
 
@@ -32,9 +34,28 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
 
         return (<ol className="no-list-indent">
             {side.players.map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
-                {p.divisionId && p.divisionId !== EMPTY_ID ? (<EmbedAwareLink to={`/division/${p.divisionId}/player:${p.id}/${season.id}`}>{p.name}</EmbedAwareLink>) : p.name}
+                {renderPlayer(p)}
             </li>))}
         </ol>);
+    }
+
+    function getDivision(id) {
+        return divisions.filter(d => d.id === id)[0];
+    }
+
+    function getDivisionIdForTeam(team, seasonId) {
+        const teamSeason = team.seasons.filter(ts => ts.seasonId === seasonId)[0];
+        return teamSeason ? teamSeason.divisionId : null;
+    }
+
+    function renderPlayer(p) {
+        const theDivision = division || getDivision(p.divisionId);
+
+        if (!theDivision) {
+            return p.name;
+        }
+
+        return (<EmbedAwareLink to={`/division/${theDivision.name}/player:${p.name}/${season.name}`}>{p.name}</EmbedAwareLink>);
     }
 
     function renderSideName() {
@@ -44,10 +65,16 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
 
         let name = side.name;
         if (singlePlayer && singlePlayer.divisionId && singlePlayer.divisionId !== EMPTY_ID) {
-            name = (<EmbedAwareLink to={`/division/${singlePlayer.divisionId}/player:${singlePlayer.id}/${season.id}`}>{side.name}</EmbedAwareLink>);
+            const theDivision = division || getDivision(singlePlayer.divisionId);
+            if (theDivision) {
+                name = (<EmbedAwareLink to={`/division/${theDivision.name}/player:${singlePlayer.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            }
         } else if (side.teamId && teamMap[side.teamId]) {
             const team = teamMap[side.teamId];
-            name = (<EmbedAwareLink to={`/division/${team.divisionId}/team:${side.teamId}/${season.id}`}>{side.name}</EmbedAwareLink>);
+            const theDivision = division || getDivision(getDivisionIdForTeam(team, season.id));
+            if (theDivision) {
+                name = (<EmbedAwareLink to={`/division/${theDivision.name}/team:${team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            }
         }
 
         return (<strong className={side.noShow ? 'text-decoration-line-through' : ''}>{name}</strong>);
