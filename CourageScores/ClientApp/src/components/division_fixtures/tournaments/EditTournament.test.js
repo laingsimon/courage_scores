@@ -20,7 +20,7 @@ describe('EditTournament', () => {
         updatedData = newData;
     }
 
-    async function renderComponent(containerProps, props, account, teams, divisions) {
+    async function renderComponent(containerProps, props, account, teams) {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
@@ -39,7 +39,6 @@ describe('EditTournament', () => {
                 },
                 account,
                 teams: toMap(teams || []),
-                divisions: divisions || [],
             },
             (<TournamentContainer {...containerProps} setTournamentData={setTournamentData}>
                 <EditTournament {...props} />
@@ -753,7 +752,7 @@ describe('EditTournament', () => {
                 canSave: true
             }, account, [ team1 ]);
 
-            const rounds = context.container.querySelector('div > div > div:nth-child(3)');
+            const rounds = context.container.querySelector('div > div > div.mt-3:nth-child(3)');
             const round1SideA = rounds.querySelector('table tbody tr:first-child td:nth-child(1)');
             const sideOptions = Array.from(round1SideA.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(sideOptions.map(o => o.textContent)).toEqual([ 'SIDE 1' ]);

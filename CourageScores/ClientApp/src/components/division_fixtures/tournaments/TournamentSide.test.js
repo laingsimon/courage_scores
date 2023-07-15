@@ -25,7 +25,7 @@ describe('TournamentSide', () => {
         removed = true;
     }
 
-    async function renderComponent(containerProps, props, teams, divisions) {
+    async function renderComponent(containerProps, props, teams) {
         reportedError = null;
         updatedData = null;
         removed = false;
@@ -44,7 +44,6 @@ describe('TournamentSide', () => {
                     }
                 },
                 teams: toMap(teams || []),
-                divisions: divisions || [],
             },
             (<TournamentContainer {...containerProps}>
                 <TournamentSide {...props} onChange={onChange} onRemove={onRemove} />
@@ -63,10 +62,6 @@ describe('TournamentSide', () => {
         const team = {
             id: createTemporaryId(),
             name: 'TEAM',
-            seasons: [{
-                seasonId: season.id,
-                divisionId: division.id,
-            }]
         };
 
         it('single player (with not found division id) side', async () => {
@@ -118,13 +113,11 @@ describe('TournamentSide', () => {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ], [ division ]);
+            }, [ team ]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
-            expect(sideLink.href).toEqual(`http://localhost/division/${division.name}/player:${player.name}/${season.name}`);
-            expect(sideLink.textContent).toEqual('SIDE NAME');
+            expect(sideName.textContent).toEqual('SIDE NAME');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
@@ -241,17 +234,11 @@ describe('TournamentSide', () => {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ], [ division ]);
+            }, [ team ]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
-            expect(sideLink.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
             expect(sideName.textContent).toEqual(side.name);
-            const teamName = context.container.querySelector('div[data-name="team-name"]');
-            const teamLink = teamName.querySelector('a');
-            expect(teamLink.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
-            expect(teamLink.textContent).toEqual(team.name);
             const players = context.container.querySelector('ol');
             expect(players).toBeFalsy();
         });
@@ -271,12 +258,7 @@ describe('TournamentSide', () => {
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
-            expect(sideLink).toBeFalsy();
             expect(sideName.textContent).toEqual(side.name);
-            const teamName = context.container.querySelector('div[data-name="team-name"]');
-            expect(teamName.querySelector('a')).toBeFalsy();
-            expect(teamName.textContent).toEqual(team.name);
             const players = context.container.querySelector('ol');
             expect(players).toBeFalsy();
         });
@@ -293,19 +275,12 @@ describe('TournamentSide', () => {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ], [ division ]);
+            }, [ team ]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
-            expect(sideLink.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
-            expect(sideLink.textContent).toEqual('SIDE NAME');
-            expect(sideLink.parentElement.className).toContain('text-decoration-line-through');
-            const teamName = context.container.querySelector('div[data-name="team-name"]');
-            expect(teamName.className).toContain('text-decoration-line-through');
-            const teamLink = teamName.querySelector('a');
-            expect(teamLink.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
-            expect(teamLink.textContent).toEqual(team.name);
+            expect(sideName.textContent).toEqual('SIDE NAME');
+            expect(sideName.className).toContain('text-decoration-line-through');
             const players = context.container.querySelector('ol');
             expect(players).toBeFalsy();
         });
@@ -321,13 +296,11 @@ describe('TournamentSide', () => {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ], [ division ]);
+            }, [ team ]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
-            expect(sideLink.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
-            expect(sideLink.textContent).toEqual(team.name);
+            expect(sideName.textContent).toEqual(team.name);
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');
@@ -346,14 +319,12 @@ describe('TournamentSide', () => {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ], [ division ]);
+            }, [ team ]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
-            const sideLink = sideName.querySelector('a');
-            expect(sideLink.href).toEqual(`http://localhost/division/${division.name}/team:${team.name}/${season.name}`);
-            expect(sideLink.textContent).toEqual(team.name);
-            expect(sideLink.parentElement.className).toContain('text-decoration-line-through');
+            expect(sideName.textContent).toEqual(team.name);
+            expect(sideName.className).toContain('text-decoration-line-through');
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = context.container.querySelector('ol');
