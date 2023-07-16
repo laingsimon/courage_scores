@@ -39,7 +39,7 @@ export function IocContainer({ children, ...services }) {
         playerApi: new PlayerApi(http),
         reportApi: new ReportApi(http),
         saygApi: new SaygApi(http),
-        parentHeight: new ParentHeight(),
+        parentHeight: new ParentHeight(25),
     };
 
     return (<DependenciesContext.Provider value={Object.assign({}, defaultServices, services)}>

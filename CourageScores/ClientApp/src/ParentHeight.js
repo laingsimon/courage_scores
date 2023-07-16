@@ -3,8 +3,10 @@ export class ParentHeight {
     lastHeight;
     getHeight;
     getParent;
+    extraHeight;
 
-    constructor(getHeight, getParent) {
+    constructor(extraHeight, getHeight, getParent) {
+        this.extraHeight = extraHeight || 0;
         this.getHeight = getHeight || (() => document.body.scrollHeight);
         this.getParent = getParent || (() => window.parent);
     }
@@ -27,12 +29,13 @@ export class ParentHeight {
     }
 
     publishContentHeight() {
+        const height = this.getHeight();
         const msg = {
-            height: this.getHeight(),
+            height: height + this.extraHeight,
         };
 
-        if (!this.lastHeight || this.lastHeight !== msg.height) {
-            this.lastHeight = msg.height;
+        if (!this.lastHeight || this.lastHeight !== height) {
+            this.lastHeight = height;
             this.getParent().postMessage(msg,'*');
         }
     }
