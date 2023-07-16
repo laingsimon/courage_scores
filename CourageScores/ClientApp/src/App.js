@@ -33,6 +33,27 @@ export function App({ embed, controls, testRoute }) {
     // eslint-disable-next-line
     []);
 
+    useEffect(() => {
+       // should only fire once (on page load)
+       if (!window.parent) {
+           return;
+       }
+
+       window.setInterval(publishContentHeight, 1000);
+    });
+
+    function publishContentHeight() {
+        const lastHeight = Number.parseInt(document.body.getAttribute('lastHeight'));
+        const msg = {
+            height: document.body.scrollHeight,
+        };
+
+        if (!lastHeight || lastHeight !== msg.height) {
+            document.body.setAttribute('lastHeight', msg.height);
+            window.parent.postMessage(msg,'*');
+        }
+    }
+
     function onError(error) {
         console.error(error);
         setError(mapError(error));
