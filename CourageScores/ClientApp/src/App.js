@@ -15,7 +15,7 @@ import {mapForLogging, mapError} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 
 export function App({ embed, controls, testRoute }) {
-    const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
+    const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
@@ -34,25 +34,9 @@ export function App({ embed, controls, testRoute }) {
     []);
 
     useEffect(() => {
-       // should only fire once (on page load)
-       if (!window.parent) {
-           return;
-       }
-
-       window.setInterval(publishContentHeight, 250);
+        // should only fire once (on page load)
+        parentHeight.setupInterval();
     });
-
-    function publishContentHeight() {
-        const lastHeight = Number.parseInt(document.body.getAttribute('lastHeight'));
-        const msg = {
-            height: document.body.scrollHeight,
-        };
-
-        if (!lastHeight || lastHeight !== msg.height) {
-            document.body.setAttribute('lastHeight', msg.height);
-            window.parent.postMessage(msg,'*');
-        }
-    }
 
     function onError(error) {
         console.error(error);
