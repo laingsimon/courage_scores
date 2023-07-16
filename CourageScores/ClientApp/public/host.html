@@ -1,11 +1,6 @@
 ﻿<!DOCTYPE html>
 <html>
-<script>
-    window.addEventListener("message", (event) => {
-        let iframe = document.querySelector('iframe#courageLeague');
-        iframe.height = event.data.height + 10;
-    });
-</script>
+<script src="parentHeight.js"></script>
 <body>
     <iframe id="courageLeague" src="https://couragescoresdev.azurewebsites.net/practice" style="width: 100%; min-height: 100px;"></iframe>
 </body>
