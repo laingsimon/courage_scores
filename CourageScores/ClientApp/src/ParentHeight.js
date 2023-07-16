@@ -2,13 +2,15 @@ export class ParentHeight {
     handle;
     lastHeight;
     getHeight;
+    getParent;
 
-    constructor(getHeight) {
+    constructor(getHeight, getParent) {
         this.getHeight = getHeight || (() => document.body.scrollHeight);
+        this.getParent = getParent || (() => window.parent);
     }
 
     setupInterval(frequency) {
-        if (this.handle || !window.parent) {
+        if (this.handle || !this.getParent()) {
             return;
         }
 
@@ -31,7 +33,7 @@ export class ParentHeight {
 
         if (!this.lastHeight || this.lastHeight !== msg.height) {
             this.lastHeight = msg.height;
-            window.parent.postMessage(msg,'*');
+            this.getParent().postMessage(msg,'*');
         }
     }
 }
