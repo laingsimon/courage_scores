@@ -33,9 +33,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             }, null);
 
             if (response.success) {
-                if (onTournamentChanged) {
-                    await onTournamentChanged();
-                }
+                await onTournamentChanged();
             } else {
                 setSaveError(response);
             }
@@ -61,9 +59,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             const response = await tournamentApi.delete(tournament.id);
 
             if (response.success) {
-                if (onTournamentChanged) {
-                    await onTournamentChanged();
-                }
+                await onTournamentChanged();
             } else {
                 setSaveError(response);
             }
