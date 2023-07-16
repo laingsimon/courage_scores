@@ -1,4 +1,4 @@
-﻿export class ParentHeight {
+export class ParentHeight {
     handle;
     lastHeight;
     getHeight;

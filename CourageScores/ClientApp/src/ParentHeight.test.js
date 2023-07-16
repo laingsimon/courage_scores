@@ -1,4 +1,4 @@
-﻿// noinspection JSUnresolvedReference
+// noinspection JSUnresolvedReference
 
 import {ParentHeight} from "./ParentHeight";
 
