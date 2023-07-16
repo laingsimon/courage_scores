@@ -57,7 +57,7 @@ function getContentForReplacement(content) {
 
 readContent(contentPath + '/index.html', (content) => {
     const segment = getContentForReplacement(content); // find the segment to replace in the other files
-    const filesToCopyIntoBrand = ['basic.css', 'web.config', 'manifest.json'];
+    const filesToCopyIntoBrand = ['basic.css', 'web.config', 'manifest.json', 'host.html', 'parentHeight.js'];
 
     fs.readdir(contentPath, (x, fileOrDirectoryName) => {
         const brandedPagePaths = fileOrDirectoryName
