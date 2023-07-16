@@ -39,7 +39,7 @@ export function App({ embed, controls, testRoute }) {
            return;
        }
 
-       window.setInterval(publishContentHeight, 1000);
+       window.setInterval(publishContentHeight, 250);
     });
 
     function publishContentHeight() {
