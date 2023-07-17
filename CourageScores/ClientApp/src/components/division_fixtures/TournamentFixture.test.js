@@ -13,15 +13,16 @@ describe('TournamentFixture', () => {
     let tournamentChanged;
     let savedTournament;
     let deletedId;
+    let apiResponse;
 
     const tournamentApi = {
         update: async (data, lastUpdated) => {
             savedTournament = { data, lastUpdated };
-            return { success: true };
+            return apiResponse || { success: true };
         },
         delete: async (id) => {
             deletedId = id;
-            return { success: true };
+            return apiResponse || { success: true };
         }
     }
 
@@ -38,6 +39,7 @@ describe('TournamentFixture', () => {
         tournamentChanged = null;
         savedTournament = null;
         deletedId = null;
+        apiResponse = null;
         context = await renderApp(
             { tournamentApi },
             { name: 'Courage Scores' },
@@ -50,6 +52,7 @@ describe('TournamentFixture', () => {
                 },
                 account,
                 teams: toMap(teams || []),
+                reportClientSideException: () => {},
             },
             (<DivisionDataContainer {...divisionData}>
                 <TournamentFixture
@@ -361,6 +364,56 @@ describe('TournamentFixture', () => {
             expect(tournamentChanged).toEqual(true);
         });
 
+        it('handles error during add tournament', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: true,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+                updated: '2023-07-01T00:00:00',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doClick(findButton(adminCell, '➕'));
+
+            expect(reportedError).toBeNull();
+            expect(savedTournament).not.toBeNull();
+            expect(tournamentChanged).toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.container.textContent).toContain('Could not create tournament');
+        });
+
+        it('can close error dialog after creation failure', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: true,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+                updated: '2023-07-01T00:00:00',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doClick(findButton(adminCell, '➕'));
+            expect(context.container.textContent).toContain('Could not create tournament');
+
+            await doClick(findButton(adminCell, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not create tournament');
+        });
+
         it('can delete tournament', async () => {
             const tournament = {
                 id: createTemporaryId(),
@@ -384,6 +437,80 @@ describe('TournamentFixture', () => {
             expect(reportedError).toBeNull();
             expect(deletedId).toEqual(tournament.id);
             expect(tournamentChanged).toEqual(true);
+        });
+
+        it('does not delete tournament is confirmation rejected', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            let confirm;
+            window.confirm = (message) => { confirm = message; return false; };
+
+            await doClick(findButton(adminCell, '🗑'));
+
+            expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
+            expect(reportedError).toBeNull();
+            expect(deletedId).toBeNull();
+            expect(tournamentChanged).toEqual(null);
+        });
+
+        it('handles error during delete', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            window.confirm = () => { return true; };
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doClick(findButton(adminCell, '🗑'));
+
+            expect(reportedError).toBeNull();
+            expect(tournamentChanged).toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.container.textContent).toContain('Could not delete tournament');
+        });
+
+        it('can close error dialog after delete failure', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            window.confirm = () => { return true; };
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doClick(findButton(adminCell, '🗑'));
+            expect(context.container.textContent).toContain('Could not delete tournament');
+
+            await doClick(findButton(adminCell, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not delete tournament');
         });
     });
 });
