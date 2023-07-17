@@ -109,8 +109,11 @@ export function DivisionFixtures({ setNewFixtures }) {
     function scrollFixtureDateIntoView(date) {
         // setup scroll to fixture
         window.setTimeout(() => {
+            /* istanbul ignore next */
             const newFixtureDateElement = document.querySelector(`div[data-fixture-date="${date}"]`);
+            /* istanbul ignore next */
             if (newFixtureDateElement) {
+                /* istanbul ignore next */
                 newFixtureDateElement.scrollIntoView();
             }
         }, 100);
