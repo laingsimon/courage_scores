@@ -13,8 +13,12 @@ describe('Tournament', () => {
     let divisionDataLookup;
     let tournamentDataLookup;
     let updatedTournamentData;
+    let patchedTournamentData;
+    let saygDataLookup;
     let createdPlayer;
     let exportRequest;
+    let apiResponse;
+
     const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}_${seasonId}`;
@@ -35,25 +39,40 @@ describe('Tournament', () => {
         },
         update: async (data, lastUpdated) => {
             updatedTournamentData.push({ data, lastUpdated });
-            return {
-                success: true,
-            };
-        }
+            return apiResponse || { success: true };
+        },
+        patch: async (id, data) => {
+            patchedTournamentData.push({ id, data });
+            return apiResponse || { success: true };
+        },
     };
     const playerApi = {
         create: async (seasonId, teamId, playerDetails) => {
             createdPlayer = { seasonId, teamId, playerDetails };
-            return {
-                success: true,
-            };
+            return apiResponse || { success: true };
         }
-    }
+    };
     const dataApi = {
         export: async (request) => {
             exportRequest = request;
             return { success: true, result: { zip: 'content' }};
         }
-    }
+    };
+    const saygApi = {
+        get: async (id) => {
+            if (any(Object.keys(saygDataLookup), k => k === id)) {
+                return saygDataLookup[id];
+            }
+
+            throw new Error('Unexpected request for sayg data: ' + id);
+        },
+        upsert: async (data) => {
+            return {
+                success: true,
+                result: data,
+            };
+        }
+    };
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
         if (!divisionDataLookup) {
@@ -67,21 +86,25 @@ describe('Tournament', () => {
     afterEach(() => {
         divisionDataLookup = { };
         tournamentDataLookup = { };
+        saygDataLookup = { };
         cleanUp(context);
     });
 
     async function renderComponent(tournamentId, scenario, appLoading) {
         updatedTournamentData = [];
+        patchedTournamentData = [];
         reportedError = null;
         teamsReloaded = false;
         createdPlayer = null;
         exportRequest = null;
+        apiResponse = null;
         context = await renderApp(
             {
                 divisionApi,
                 tournamentApi,
                 playerApi,
                 dataApi,
+                saygApi,
             },
             { name: 'Courage Scores' },
             {
@@ -104,6 +127,7 @@ describe('Tournament', () => {
                     return scenario.teams;
                 },
                 divisions: scenario.divisions,
+                reportClientSideException: () => {},
             },
             (<Tournament />),
             '/test/:tournamentId',
@@ -895,6 +919,77 @@ describe('Tournament', () => {
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
         });
 
+        it('handles error during save', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(context.container.textContent).toContain('Could not save tournament details');
+            expect(context.container.textContent).toContain('SOME ERROR');
+        });
+
+        it('can close error dialog after save failure', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doClick(findButton(context.container, 'Save'));
+            expect(context.container.textContent).toContain('Could not save tournament details');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not save tournament details');
+        });
+
         it('cannot save changes when match not added', async () => {
             const tournamentData = {
                 id: createTemporaryId(),
@@ -1389,6 +1484,269 @@ describe('Tournament', () => {
             const hiChecks = accolades.querySelector('tbody tr:first-child td:nth-child(2)');
             const options = Array.from(hiChecks.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(options.map(o => o.textContent.trim())).toEqual([ '', 'SIDE 1 PLAYER' ]);
+        });
+
+        it('can patch data with sayg score for match', async () => {
+            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
+            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const sayg = {
+                id: createTemporaryId(),
+                legs: {
+                    '0': {
+                        startingScore: 501,
+                        home: { throws: [ { score: 100 } ], score: 451 },
+                        away: { throws: [ { score: 100 } ], score: 200 },
+                        currentThrow: 'home',
+                        playerSequence: [
+                            { value: 'home', text: 'HOME' },
+                            { value: 'away', text: 'AWAY' },
+                        ],
+                    }
+                },
+                homeScore: 0,
+                awayScore: 0,
+            };
+            const sideA = {
+                id: createTemporaryId(),
+                name: 'A',
+                players: [ playerA ],
+            };
+            const sideB = {
+                id: createTemporaryId(),
+                name: 'B',
+                players: [ playerB ],
+            };
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ sideA, sideB ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: {
+                    matches: [{
+                        id: createTemporaryId(),
+                        saygId: sayg.id,
+                        sideA: sideA,
+                        sideB: sideB,
+                    }],
+                },
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            saygDataLookup = {};
+            saygDataLookup[sayg.id] = sayg;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([ season ]),
+                teams: [ ],
+                divisions: [ division ],
+            }, false);
+            await doClick(findButton(context.container, '📊'));
+            expect(reportedError).toBeNull();
+
+            await doChange(context.container, 'input[data-score-input="true"]', '50', context.user);
+            await doClick(findButton(context.container, '📌📌📌'));
+
+            expect(reportedError).toBeNull();
+            expect(patchedTournamentData).toEqual([{
+                data: {
+                    round: {
+                        match: {
+                            scoreA: 1,
+                            scoreB: 0,
+                            sideA: sideA.id,
+                            sideB: sideB.id,
+                        },
+                    }
+                },
+                id: tournamentData.id,
+            }]);
+        });
+
+        it('can patch data with sayg 180 for match', async () => {
+            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
+            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const sayg = {
+                id: createTemporaryId(),
+                legs: {
+                    '0': {
+                        startingScore: 501,
+                        home: { throws: [ { score: 100 } ], score: 100 },
+                        away: { throws: [ { score: 100 } ], score: 200 },
+                        currentThrow: 'home',
+                        playerSequence: [
+                            { value: 'home', text: 'HOME' },
+                            { value: 'away', text: 'AWAY' },
+                        ],
+                    }
+                },
+                homeScore: 0,
+                awayScore: 0,
+            };
+            const sideA = {
+                id: createTemporaryId(),
+                name: 'A',
+                players: [ playerA ],
+            };
+            const sideB = {
+                id: createTemporaryId(),
+                name: 'B',
+                players: [ playerB ],
+            };
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ sideA, sideB ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: {
+                    matches: [{
+                        id: createTemporaryId(),
+                        saygId: sayg.id,
+                        sideA: sideA,
+                        sideB: sideB,
+                    }],
+                },
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            saygDataLookup = {};
+            saygDataLookup[sayg.id] = sayg;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([ season ]),
+                teams: [ ],
+                divisions: [ division ],
+            }, false);
+            await doClick(findButton(context.container, '📊'));
+            expect(reportedError).toBeNull();
+
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
+            await doClick(findButton(context.container, '📌📌📌'));
+
+            expect(reportedError).toBeNull();
+            expect(patchedTournamentData).toEqual([{
+                data: {
+                    additional180: playerA,
+                },
+                id: tournamentData.id,
+            }]);
+        });
+
+        it('can patch data with sayg hi-check for match', async () => {
+            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
+            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const sayg = {
+                id: createTemporaryId(),
+                legs: {
+                    '0': {
+                        startingScore: 501,
+                        home: { throws: [ { score: 100 } ], score: 401 },
+                        away: { throws: [ { score: 100 } ], score: 200 },
+                        currentThrow: 'home',
+                        playerSequence: [
+                            { value: 'home', text: 'HOME' },
+                            { value: 'away', text: 'AWAY' },
+                        ],
+                    }
+                },
+                homeScore: 0,
+                awayScore: 0,
+            };
+            const sideA = {
+                id: createTemporaryId(),
+                name: 'A',
+                players: [ playerA ],
+            };
+            const sideB = {
+                id: createTemporaryId(),
+                name: 'B',
+                players: [ playerB ],
+            };
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ sideA, sideB ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: {
+                    matches: [{
+                        id: createTemporaryId(),
+                        saygId: sayg.id,
+                        sideA: sideA,
+                        sideB: sideB,
+                    }],
+                },
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            saygDataLookup = {};
+            saygDataLookup[sayg.id] = sayg;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([ season ]),
+                teams: [ ],
+                divisions: [ division ],
+            }, false);
+            await doClick(findButton(context.container, '📊'));
+            expect(reportedError).toBeNull();
+
+            await doChange(context.container, 'input[data-score-input="true"]', '100', context.user);
+            await doClick(findButton(context.container, '📌📌📌'));
+
+            expect(reportedError).toBeNull();
+            expect(patchedTournamentData).toEqual([{
+                data: {
+                    additionalOver100Checkout: {
+                        id: playerA.id,
+                        name: playerA.name,
+                        notes: '100',
+                    },
+                },
+                id: tournamentData.id,
+            }, {
+                data: {
+                    round: {
+                        match: {
+                            scoreA: 1,
+                            scoreB: 0,
+                            sideA: sideA.id,
+                            sideB: sideB.id,
+                        },
+                    },
+                },
+                id: tournamentData.id,
+            }]);
         });
     });
 });

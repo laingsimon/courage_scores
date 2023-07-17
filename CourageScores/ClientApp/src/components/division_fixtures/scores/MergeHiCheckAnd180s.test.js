@@ -164,6 +164,68 @@ describe('MergeHiCheckAnd180s', () => {
                 const submissions = oneEightiesCell.querySelectorAll('div');
                 expect(submissions.length).toEqual(0);
             });
+
+            it('when no home submission', async () => {
+                const data = {
+                    homeSubmission: null,
+                    awaySubmission: {
+                        editor: 'AWAY',
+                        oneEighties: [{
+                            id: createTemporaryId(),
+                            name: 'NAME',
+                        }],
+                        over100Checkouts: [],
+                    },
+                };
+                const fixtureData = {
+                    oneEighties: [],
+                    over100Checkouts: [],
+                };
+
+                await renderComponent(data, fixtureData);
+
+                const oneEightiesCell = context.container.querySelector('td:nth-child(1)');
+                expect(oneEightiesCell.querySelectorAll('div > div').length).toEqual(1);
+            });
+
+            it('when no away submission', async () => {
+                const data = {
+                    homeSubmission: {
+                        editor: 'HOME',
+                        oneEighties: [{
+                            id: createTemporaryId(),
+                            name: 'NAME',
+                        }],
+                        over100Checkouts: [],
+                    },
+                    awaySubmission: null,
+                };
+                const fixtureData = {
+                    oneEighties: [],
+                    over100Checkouts: [],
+                };
+
+                await renderComponent(data, fixtureData);
+
+                const oneEightiesCell = context.container.querySelector('td:nth-child(1)');
+                expect(oneEightiesCell.querySelectorAll('div > div').length).toEqual(1);
+            });
+
+            it('when no submissions', async () => {
+                const data = {
+                    homeSubmission: null,
+                    awaySubmission: null,
+                };
+                const fixtureData = {
+                    oneEighties: [],
+                    over100Checkouts: [],
+                };
+
+                await renderComponent(data, fixtureData);
+
+                const oneEightiesCell = context.container.querySelector('td:nth-child(1)');
+                expect(oneEightiesCell.querySelectorAll('div > div').length).toEqual(0);
+            });
         });
 
         describe('interactivity', () => {
@@ -363,6 +425,70 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(hiChecksCell).toBeTruthy();
                 const submissions = hiChecksCell.querySelectorAll('div > div');
                 expect(submissions.length).toEqual(0);
+            });
+
+            it('when no home submission', async () => {
+                const data = {
+                    homeSubmission: null,
+                    awaySubmission: {
+                        editor: 'AWAY',
+                        oneEighties: [],
+                        over100Checkouts: [{
+                            id: createTemporaryId(),
+                            name: 'NAME',
+                            notes: '100',
+                        }],
+                    },
+                };
+                const fixtureData = {
+                    oneEighties: [],
+                    over100Checkouts: [],
+                };
+
+                await renderComponent(data, fixtureData);
+
+                const oneEightiesCell = context.container.querySelector('td:nth-child(3)');
+                expect(oneEightiesCell.querySelectorAll('div > ol').length).toEqual(1);
+            });
+
+            it('when no away submission', async () => {
+                const data = {
+                    homeSubmission: {
+                        editor: 'HOME',
+                        oneEighties: [],
+                        over100Checkouts: [{
+                            id: createTemporaryId(),
+                            name: 'NAME',
+                            notes: 100,
+                        }],
+                    },
+                    awaySubmission: null,
+                };
+                const fixtureData = {
+                    oneEighties: [],
+                    over100Checkouts: [],
+                };
+
+                await renderComponent(data, fixtureData);
+
+                const oneEightiesCell = context.container.querySelector('td:nth-child(3)');
+                expect(oneEightiesCell.querySelectorAll('div > ol').length).toEqual(1);
+            });
+
+            it('when no submissions', async () => {
+                const data = {
+                    homeSubmission: null,
+                    awaySubmission: null,
+                };
+                const fixtureData = {
+                    oneEighties: [],
+                    over100Checkouts: [],
+                };
+
+                await renderComponent(data, fixtureData);
+
+                const oneEightiesCell = context.container.querySelector('td:nth-child(3)');
+                expect(oneEightiesCell.querySelectorAll('div > ol').length).toEqual(0);
             });
         });
 

@@ -33,9 +33,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             }, null);
 
             if (response.success) {
-                if (onTournamentChanged) {
-                    await onTournamentChanged();
-                }
+                await onTournamentChanged();
             } else {
                 setSaveError(response);
             }
@@ -61,9 +59,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             const response = await tournamentApi.delete(tournament.id);
 
             if (response.success) {
-                if (onTournamentChanged) {
-                    await onTournamentChanged();
-                }
+                await onTournamentChanged();
             } else {
                 setSaveError(response);
             }
@@ -125,6 +121,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
                         {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '➕'}
                     </button>)
                     : null}
+                {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not create tournament" />) : null}
             </td>
         </tr>)
     }
@@ -145,7 +142,7 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             <button className="btn btn-sm btn-danger" onClick={deleteTournamentGame}>
                 {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
             </button>
-            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save fixture details" />) : null}
+            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not delete tournament" />) : null}
         </td>) : null}
     </tr>);
 }
