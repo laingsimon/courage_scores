@@ -15,6 +15,8 @@ describe('Tournament', () => {
     let updatedTournamentData;
     let createdPlayer;
     let exportRequest;
+    let apiResponse;
+
     const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}_${seasonId}`;
@@ -35,17 +37,13 @@ describe('Tournament', () => {
         },
         update: async (data, lastUpdated) => {
             updatedTournamentData.push({ data, lastUpdated });
-            return {
-                success: true,
-            };
+            return apiResponse || { success: true };
         }
     };
     const playerApi = {
         create: async (seasonId, teamId, playerDetails) => {
             createdPlayer = { seasonId, teamId, playerDetails };
-            return {
-                success: true,
-            };
+            return apiResponse || { success: true };
         }
     }
     const dataApi = {
@@ -76,6 +74,7 @@ describe('Tournament', () => {
         teamsReloaded = false;
         createdPlayer = null;
         exportRequest = null;
+        apiResponse = null;
         context = await renderApp(
             {
                 divisionApi,
@@ -104,6 +103,7 @@ describe('Tournament', () => {
                     return scenario.teams;
                 },
                 divisions: scenario.divisions,
+                reportClientSideException: () => {},
             },
             (<Tournament />),
             '/test/:tournamentId',
@@ -893,6 +893,77 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(updatedTournamentData.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('handles error during save', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doClick(findButton(context.container, 'Save'));
+
+            expect(context.container.textContent).toContain('Could not save tournament details');
+            expect(context.container.textContent).toContain('SOME ERROR');
+        });
+
+        it('can close error dialog after save failure', async () => {
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: division.id,
+                date: '2023-01-02T00:00:00',
+                sides: [],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: null,
+                oneEighties: null,
+                over100Checkouts: null,
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account,
+                seasons: toMap([ season ]),
+                teams: [],
+                divisions: [ division ],
+            }, false);
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doClick(findButton(context.container, 'Save'));
+            expect(context.container.textContent).toContain('Could not save tournament details');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not save tournament details');
         });
 
         it('cannot save changes when match not added', async () => {
