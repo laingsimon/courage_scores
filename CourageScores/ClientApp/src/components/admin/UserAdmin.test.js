@@ -10,11 +10,12 @@ describe('UserAdmin', () => {
     let reportedError;
     let accountReloaded;
     let updatedAccess;
+    let apiResponse;
 
     const accountApi = {
         update: (update) => {
             updatedAccess = update;
-            return { success: true };
+            return apiResponse || { success: true };
         }
     };
 
@@ -26,6 +27,7 @@ describe('UserAdmin', () => {
         reportedError = null;
         accountReloaded = false;
         updatedAccess = null;
+        apiResponse = null;
         context = await renderApp(
             { accountApi },
             { name: 'Courage Scores' },
@@ -37,7 +39,8 @@ describe('UserAdmin', () => {
                     };
                 },
                 account,
-                reloadAccount: () => { accountReloaded = true; }
+                reloadAccount: () => { accountReloaded = true; },
+                reportClientSideException: () => {},
             },
             (<AdminContainer accounts={accounts}>
                 <UserAdmin />
@@ -68,8 +71,8 @@ describe('UserAdmin', () => {
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
-
         await renderComponent( [ account ], account);
+
         await doClick(context.container, 'input[id="showEmailAddress"]');
 
         expect(reportedError).toBeNull();
@@ -137,10 +140,10 @@ describe('UserAdmin', () => {
             }
         };
         await renderComponent( [ account, otherAccount ], account);
-
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
         await doClick(getAccess('manageGames'));
-        await doClick(findButton(context.container,'Set access'));
+
+        await doClick(findButton(context.container, 'Set access'));
 
         expect(reportedError).toBeNull();
         expect(updatedAccess).toEqual({
@@ -150,6 +153,60 @@ describe('UserAdmin', () => {
             },
             emailAddress: 'c@d.com',
         });
+    });
+
+    it('handles error during save', async () => {
+        const account = {
+            emailAddress: 'a@b.com',
+            name: 'Admin',
+            access: {
+                manageAccess: true,
+            }
+        };
+        const otherAccount = {
+            emailAddress: 'c@d.com',
+            name: 'Other user',
+            access: {
+                manageAccess: true,
+            }
+        };
+        await renderComponent( [ account, otherAccount ], account);
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
+        await doClick(getAccess('manageGames'));
+        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+        await doClick(findButton(context.container, 'Set access'));
+
+        expect(reportedError).toBeNull();
+        expect(context.container.textContent).toContain('SOME ERROR');
+        expect(context.container.textContent).toContain('Could not save access');
+    });
+
+    it('can close error dialog after save failure', async () => {
+        const account = {
+            emailAddress: 'a@b.com',
+            name: 'Admin',
+            access: {
+                manageAccess: true,
+            }
+        };
+        const otherAccount = {
+            emailAddress: 'c@d.com',
+            name: 'Other user',
+            access: {
+                manageAccess: true,
+            }
+        };
+        await renderComponent( [ account, otherAccount ], account);
+        await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
+        await doClick(getAccess('manageGames'));
+        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        await doClick(findButton(context.container, 'Set access'));
+        expect(context.container.textContent).toContain('Could not save access');
+
+        await doClick(findButton(context.container, 'Close'));
+
+        expect(context.container.textContent).not.toContain('Could not save access');
     });
 
     it('can change access for self', async () => {
@@ -168,9 +225,9 @@ describe('UserAdmin', () => {
             }
         };
         await renderComponent( [ account, otherAccount ], account);
-
         await doClick(getAccess('manageGames'));
-        await doClick(findButton(context.container,'Set access'));
+
+        await doClick(findButton(context.container, 'Set access'));
 
         expect(reportedError).toBeNull();
         expect(updatedAccess).not.toBeNull();

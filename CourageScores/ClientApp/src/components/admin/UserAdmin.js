@@ -82,7 +82,8 @@ export function UserAdmin() {
                 await reloadAccount();
             }
         } catch (e) {
-            setSaveError(e);
+            /* istanbul ignore next */
+            onError(e);
         }
         finally {
             setSaving(false);
