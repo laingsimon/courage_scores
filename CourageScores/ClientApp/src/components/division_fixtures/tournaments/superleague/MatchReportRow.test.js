@@ -145,7 +145,7 @@ describe('MatchReportRow', () => {
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
                 '33.4', 'HOST', '1', '90', '100', '110', '120', '15', '81', '', '3',
-                '30', 'OPPONENT', '90', '90', '90', '90', '15', '', '51', '0+0',
+                '30', 'OPPONENT', '90', '90', '90', '90', '15', '', '51', '0',
             ]);
         });
 
@@ -171,7 +171,7 @@ describe('MatchReportRow', () => {
             const rows = Array.from(context.container.querySelectorAll('tr'));
             expect(getRowContent(rows[1])).toEqual([
                 '2', '90', '90', '90', '90', '15', '', '51', '0',
-                '90', '100', '110', '120', '15', '81', '', '3+0',
+                '90', '100', '110', '120', '15', '81', '', '3',
             ]);
         });
 
@@ -199,7 +199,7 @@ describe('MatchReportRow', () => {
             expect(getRowContent(rows[0])).toEqual([
                 'M1',
                 '14.67', 'HOST', '1', '0', '100', '0', '120', '15', '', '281', '2',
-                '18', 'OPPONENT', '90', '0', '90', '0', '15', '', '231', '0+0',
+                '18', 'OPPONENT', '90', '0', '90', '0', '15', '', '231', '0',
             ]);
         });
 

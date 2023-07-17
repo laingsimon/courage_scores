@@ -752,7 +752,7 @@ describe('EditTournament', () => {
                 canSave: true
             }, account, [ team1 ]);
 
-            const rounds = context.container.querySelector('div > div > div:nth-child(3)');
+            const rounds = context.container.querySelector('div > div > div.mt-3:nth-child(3)');
             const round1SideA = rounds.querySelector('table tbody tr:first-child td:nth-child(1)');
             const sideOptions = Array.from(round1SideA.querySelectorAll('.dropdown-menu .dropdown-item'));
             expect(sideOptions.map(o => o.textContent)).toEqual([ 'SIDE 1' ]);

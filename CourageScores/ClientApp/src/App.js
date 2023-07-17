@@ -15,7 +15,7 @@ import {mapForLogging, mapError} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 
 export function App({ embed, controls, testRoute }) {
-    const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings } = useDependencies();
+    const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight } = useDependencies();
     const [ account, setAccount ] = useState(null);
     const [ divisions, setDivisions ] = useState(toMap([]));
     const [ seasons, setSeasons ] = useState(toMap([]));
@@ -32,6 +32,11 @@ export function App({ embed, controls, testRoute }) {
     },
     // eslint-disable-next-line
     []);
+
+    useEffect(() => {
+        // should only fire once (on page load)
+        parentHeight.setupInterval();
+    });
 
     function onError(error) {
         console.error(error);

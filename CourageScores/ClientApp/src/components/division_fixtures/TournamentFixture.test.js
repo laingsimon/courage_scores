@@ -2,6 +2,7 @@
 
 import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
+import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TournamentFixture} from "./TournamentFixture";
@@ -12,15 +13,16 @@ describe('TournamentFixture', () => {
     let tournamentChanged;
     let savedTournament;
     let deletedId;
+    let apiResponse;
 
     const tournamentApi = {
         update: async (data, lastUpdated) => {
             savedTournament = { data, lastUpdated };
-            return { success: true };
+            return apiResponse || { success: true };
         },
         delete: async (id) => {
             deletedId = id;
-            return { success: true };
+            return apiResponse || { success: true };
         }
     }
 
@@ -32,11 +34,12 @@ describe('TournamentFixture', () => {
         cleanUp(context);
     });
 
-    async function renderComponent(props, divisionData, account) {
+    async function renderComponent(props, divisionData, account, teams) {
         reportedError = null;
         tournamentChanged = null;
         savedTournament = null;
         deletedId = null;
+        apiResponse = null;
         context = await renderApp(
             { tournamentApi },
             { name: 'Courage Scores' },
@@ -48,6 +51,8 @@ describe('TournamentFixture', () => {
                     };
                 },
                 account,
+                teams: toMap(teams || []),
+                reportClientSideException: () => {},
             },
             (<DivisionDataContainer {...divisionData}>
                 <TournamentFixture
@@ -85,7 +90,7 @@ describe('TournamentFixture', () => {
             const side = playersCell.querySelector(`div.px-3 > div:nth-child(${ordinal})`);
             expect(side).toBeTruthy();
 
-            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.id}/team:${teamId}/${season.id}`);
+            assertSideNameAndLink(side, sideName, `http://localhost/division/${division.name}/team:${encodeURI(teamId)}/${season.name}`);
             assertPlayersAndLinks(side, players);
         }
 
@@ -109,7 +114,7 @@ describe('TournamentFixture', () => {
             players.forEach((player, index) => {
                 const link = links[index];
                 expect(link.textContent).toEqual(player.name);
-                expect(link.href).toEqual(`http://localhost/division/${division.id}/player:${player.id}/${season.id}`);
+                expect(link.href).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player.name)}/${season.name}`);
             });
         }
 
@@ -158,10 +163,14 @@ describe('TournamentFixture', () => {
         });
 
         it('renders tournament won by team', async () => {
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+            };
             const side = {
                 id: createTemporaryId(),
                 name: 'WINNER',
-                teamId: createTemporaryId(),
+                teamId: team.id,
             };
             const tournament = {
                 id: createTemporaryId(),
@@ -173,8 +182,9 @@ describe('TournamentFixture', () => {
             };
             await renderComponent(
                 { tournament, date: '2023-05-06T00:00:00', expanded: false },
-                { id: division.id, season, players: [ player ] },
-                account);
+                { id: division.id, name: division.name, season, players: [ player ] },
+                account,
+                [ team ]);
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -183,7 +193,39 @@ describe('TournamentFixture', () => {
             const linkToTeam = cells[1].querySelector('a');
             expect(linkToTeam).toBeTruthy();
             expect(linkToTeam.textContent).toEqual(side.name);
-            expect(linkToTeam.href).toEqual(`http://localhost/division/${division.id}/team:${side.teamId}/${season.id}`);
+            expect(linkToTeam.href).toEqual(`http://localhost/division/${division.name}/team:${encodeURI(team.name)}/${season.name}`);
+        });
+
+        it('renders tournament won by team (when team not found)', async () => {
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+            };
+            const side = {
+                id: createTemporaryId(),
+                name: 'WINNER',
+                teamId: team.id,
+            };
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [ side ],
+                winningSide: side,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, name: division.name, season, players: [ player ] },
+                account,
+                [ ]);
+
+            expect(reportedError).toBeNull();
+            const cells = Array.from(context.container.querySelectorAll('td'));
+            const cellText = cells.map(td => td.textContent);
+            expect(cellText).toEqual([ 'TYPE at ADDRESS', 'Winner: WINNER' ]);
+            const linkToTeam = cells[1].querySelector('a');
+            expect(linkToTeam).toBeFalsy();
         });
 
         it('does not render proposed tournaments', async () => {
@@ -243,7 +285,7 @@ describe('TournamentFixture', () => {
             };
             await renderComponent(
                 { tournament, date: '2023-05-06T00:00:00', expanded: true },
-                { id: division.id, season, players: [ player1, player2, player3, player4, player5, player6, player7 ] },
+                { id: division.id, name: division.name, season, players: [ player1, player2, player3, player4, player5, player6, player7 ] },
                 account);
 
             expect(reportedError).toBeNull();
@@ -322,6 +364,56 @@ describe('TournamentFixture', () => {
             expect(tournamentChanged).toEqual(true);
         });
 
+        it('handles error during add tournament', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: true,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+                updated: '2023-07-01T00:00:00',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doClick(findButton(adminCell, '➕'));
+
+            expect(reportedError).toBeNull();
+            expect(savedTournament).not.toBeNull();
+            expect(tournamentChanged).toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.container.textContent).toContain('Could not create tournament');
+        });
+
+        it('can close error dialog after creation failure', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: true,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+                updated: '2023-07-01T00:00:00',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doClick(findButton(adminCell, '➕'));
+            expect(context.container.textContent).toContain('Could not create tournament');
+
+            await doClick(findButton(adminCell, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not create tournament');
+        });
+
         it('can delete tournament', async () => {
             const tournament = {
                 id: createTemporaryId(),
@@ -345,6 +437,80 @@ describe('TournamentFixture', () => {
             expect(reportedError).toBeNull();
             expect(deletedId).toEqual(tournament.id);
             expect(tournamentChanged).toEqual(true);
+        });
+
+        it('does not delete tournament is confirmation rejected', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            let confirm;
+            window.confirm = (message) => { confirm = message; return false; };
+
+            await doClick(findButton(adminCell, '🗑'));
+
+            expect(confirm).toEqual('Are you sure you want to delete this tournament fixture?');
+            expect(reportedError).toBeNull();
+            expect(deletedId).toBeNull();
+            expect(tournamentChanged).toEqual(null);
+        });
+
+        it('handles error during delete', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            window.confirm = () => { return true; };
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doClick(findButton(adminCell, '🗑'));
+
+            expect(reportedError).toBeNull();
+            expect(tournamentChanged).toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.container.textContent).toContain('Could not delete tournament');
+        });
+
+        it('can close error dialog after delete failure', async () => {
+            const tournament = {
+                id: createTemporaryId(),
+                proposed: false,
+                address: 'ADDRESS',
+                sides: [],
+                winningSide: null,
+                type: 'TYPE',
+            };
+            await renderComponent(
+                { tournament, date: '2023-05-06T00:00:00', expanded: false },
+                { id: division.id, season, players: [ player ] },
+                account);
+            const adminCell = context.container.querySelector('td:nth-child(2)');
+            window.confirm = () => { return true; };
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            await doClick(findButton(adminCell, '🗑'));
+            expect(context.container.textContent).toContain('Could not delete tournament');
+
+            await doClick(findButton(adminCell, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not delete tournament');
         });
     });
 });
