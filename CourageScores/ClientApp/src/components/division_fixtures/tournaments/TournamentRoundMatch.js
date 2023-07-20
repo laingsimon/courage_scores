@@ -107,9 +107,35 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     }
 
     function canOpenSayg() {
-        return match.sideA !== null
-            && match.sideB !== null
-            && (match.saygId || (account || { access: {} }).access.recordScoresAsYouGo);
+        const isPermitted = (account || { access: {} }).access.recordScoresAsYouGo;
+        const hasSaygData = !!match.saygId;
+        const hasSidesSelected = match.sideA !== null && match.sideB !== null;
+
+        if (!hasSidesSelected) {
+            return false;
+        }
+
+        if (hasSaygData) {
+            // there is some data, allow it to be viewed
+            return true;
+        }
+
+        if (!isPermitted) {
+            // no existing data, not permitted to create new data
+            return false;
+        }
+
+        if (tournamentData.singleRound) {
+            // super league match, and permitted, allow it to be created
+            return true;
+        }
+
+        if (match.sideA.players.length === 1 && match.sideB.players.length === 1) {
+            // singles tournament, and permitted, allow it to be created
+            return true;
+        }
+
+        return false;
     }
 
     async function recordHiCheck(sideName, score) {

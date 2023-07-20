@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
 import {Division} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
@@ -236,6 +236,48 @@ describe('Division', () => {
                 const heading = context.container.querySelector('.content-background h3');
                 expect(heading.textContent).toEqual('TEAM_NAME 🔗');
             });
+
+            it('renders team not found when provided no team name', async () => {
+                divisionDataMap[division.id + ':' + season.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    fixtures: [],
+                    players: [],
+                    teams: [ team ],
+                };
+
+                await renderComponent({
+                    divisions: [division],
+                    seasons: [season],
+                    teams: toMap([team]),
+                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:/${season.name}`);
+
+                expect(reportedError).toBeNull();
+                const content = context.container.querySelector('.content-background');
+                expect(content.textContent).toContain('⚠ Team could not be found');
+            });
+
+            it('renders team not found when provided with missing team', async () => {
+                divisionDataMap[division.id + ':' + season.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    fixtures: [],
+                    players: [],
+                    teams: [ team ],
+                };
+
+                await renderComponent({
+                    divisions: [division],
+                    seasons: [season],
+                    teams: toMap([team]),
+                }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/team:UNKNOWN_TEAM/${season.name}`);
+
+                expect(reportedError).toBeNull();
+                const content = context.container.querySelector('.content-background');
+                expect(content.textContent).toContain('⚠ Team could not be found');
+            });
         });
 
         describe('fixtures', () => {
@@ -448,7 +490,7 @@ describe('Division', () => {
                 expect(heading.textContent).toContain('PLAYER_NAME');
             });
 
-            it('renders player details when provided with missing team', async () => {
+            it('renders player not found when provided with missing team', async () => {
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
@@ -468,7 +510,7 @@ describe('Division', () => {
                 expect(heading.textContent).toContain('⚠ Player could not be found');
             });
 
-            it('renders player details when provided with missing player', async () => {
+            it('renders player not found when provided with missing player', async () => {
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
@@ -488,7 +530,27 @@ describe('Division', () => {
                 expect(heading.textContent).toContain('⚠ Player could not be found');
             });
 
-            it('renders player details when provided with malformed names', async () => {
+            it('renders player not found when provided no player name', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    players: [ player ],
+                    teams: [ team ],
+                    fixtures: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/${division.name}/player:`);
+
+                expect(reportedError).toBeNull();
+                const heading = context.container.querySelector('.content-background h5');
+                expect(heading.textContent).toContain('⚠ Player could not be found');
+            });
+
+            it('renders player not found when provided with malformed names', async () => {
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
@@ -645,6 +707,29 @@ describe('Division', () => {
                 expect(heading.textContent).toEqual('⚠ Errors in division data');
             });
 
+            it('can hide data errors', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                    dataErrors: [
+                        'Some error'
+                    ],
+                };
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: { },
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+                const heading = context.container.querySelector('h3');
+                expect(heading.textContent).toEqual('⚠ Errors in division data');
+
+                await doClick(findButton(context.container, 'Hide errors'));
+
+                expect(context.container.querySelector('h3')).toBeFalsy();
+            });
+
             it('does not render data errors when not permitted', async () => {
                 divisionDataMap[division.id] = {
                     season: season,
@@ -745,6 +830,38 @@ describe('Division', () => {
                 expect(reportedError).toBeNull();
                 const content = context.container.querySelector('.content-background');
                 expect(content.className).toContain('loading-background');
+            });
+
+            it('renders error when data returns with a status code with errors', async () => {
+                divisionDataMap[division.id] = {
+                    status: 500,
+                    errors: {
+                        key1: 'some error1',
+                        key2: 'some error2',
+                    },
+                };
+                console.log = () => {};
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toEqual('Error accessing division: Code: 500 -- key1: some error1, key2: some error2');
+            });
+
+            it('renders error when data returns with a status code without errors', async () => {
+                divisionDataMap[division.id] = {
+                    status: 500,
+                };
+                console.log = () => {};
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toEqual('Error accessing division: Code: 500');
             });
         });
     });

@@ -1748,5 +1748,83 @@ describe('Tournament', () => {
                 id: tournamentData.id,
             }]);
         });
+
+        it('can handle error during patch', async () => {
+            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
+            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const sayg = {
+                id: createTemporaryId(),
+                legs: {
+                    '0': {
+                        startingScore: 501,
+                        home: { throws: [ { score: 100 } ], score: 100 },
+                        away: { throws: [ { score: 100 } ], score: 200 },
+                        currentThrow: 'home',
+                        playerSequence: [
+                            { value: 'home', text: 'HOME' },
+                            { value: 'away', text: 'AWAY' },
+                        ],
+                    }
+                },
+                homeScore: 0,
+                awayScore: 0,
+            };
+            const sideA = {
+                id: createTemporaryId(),
+                name: 'A',
+                players: [ playerA ],
+            };
+            const sideB = {
+                id: createTemporaryId(),
+                name: 'B',
+                players: [ playerB ],
+            };
+            const tournamentData = {
+                id: createTemporaryId(),
+                seasonId: season.id,
+                divisionId: null,
+                date: '2023-01-02T00:00:00',
+                sides: [ sideA, sideB ],
+                address: 'ADDRESS',
+                type: 'TYPE',
+                notes: 'NOTES',
+                accoladesCount: true,
+                round: {
+                    matches: [{
+                        id: createTemporaryId(),
+                        saygId: sayg.id,
+                        sideA: sideA,
+                        sideB: sideB,
+                    }],
+                },
+                oneEighties: [],
+                over100Checkouts: [],
+            };
+            const divisionData = {
+                fixtures: [],
+            };
+            tournamentDataLookup = {};
+            tournamentDataLookup[tournamentData.id] = tournamentData;
+            saygDataLookup = {};
+            saygDataLookup[sayg.id] = sayg;
+            expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
+            await renderComponent(tournamentData.id, {
+                account: account,
+                seasons: toMap([ season ]),
+                teams: [ ],
+                divisions: [ division ],
+            }, false);
+            await doClick(findButton(context.container, '📊'));
+            expect(reportedError).toBeNull();
+            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+            await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
+            await doClick(findButton(context.container, '📌📌📌'));
+
+            expect(reportedError).toBeNull();
+            expect(patchedTournamentData).not.toBeNull();
+            expect(context.container.textContent).toContain('Could not save tournament details');
+            expect(context.container.textContent).toContain('SOME ERROR');
+        });
     });
 });
