@@ -154,6 +154,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const checkout = intScore === remainingScore;
     const hasRemainingDouble = remainingScore - intScore >= 2;
     const canBeBust = score && remainingScore <= 180 && intScore >= 0;
+
     return (<div className="text-center">
         <h2>
             <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>
