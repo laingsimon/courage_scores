@@ -31,13 +31,14 @@ describe('TournamentRoundMatch', () => {
             // NOTE: intentionally mutates the source data so the tests work with updated state.
             responseData.match.saygId = responseData.saygId;
 
-            return {
+            return tournamentApiResponse || {
                 success: responseData.success,
                 result: responseData.result
             };
         }
     };
     let saygApiData;
+    let tournamentApiResponse;
     const saygApi = {
         get: async (id) => {
             return saygApiData[id];
@@ -70,6 +71,7 @@ describe('TournamentRoundMatch', () => {
     async function renderComponent(containerProps, props, account) {
         reportedError = null;
         updatedRound = null;
+        tournamentApiResponse = null;
         updatedMatchOptions = null;
         updatedTournamentData = null;
         hiChecks = [];
@@ -94,6 +96,7 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
                 account,
+                reportClientSideException: () => {},
             },
             (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}}>
                 <TournamentRoundMatch
@@ -781,6 +784,100 @@ describe('TournamentRoundMatch', () => {
             expect(createdSaygSessions.length).toEqual(1);
             expect(createdSaygSessions[0].matchId).toEqual(match.id);
             expect(createdSaygSessions[0].matchOptions).toEqual(matchOptions);
+        });
+
+        it('handles error when opening sayg dialog', async () => {
+            const match = {
+                id: createTemporaryId(),
+                sideA: sideA,
+                sideB: sideB,
+                scoreA: 0,
+                scoreB: 0,
+            };
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([ sideA, sideB ]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: {
+                    matches: [ match ]
+                },
+                matchOptions,
+            }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            tournamentApiResponse = { success: false, errors: [ 'SOME ERROR'] };
+
+            await doClick(findButton(cells[0], '📊'));
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).toContain('SOME ERROR');
+            expect(context.container.textContent).toContain('Could not create sayg session');
+        });
+
+        it('can close error dialog after sayg creation failure', async () => {
+            const match = {
+                id: createTemporaryId(),
+                sideA: sideA,
+                sideB: sideB,
+                scoreA: 0,
+                scoreB: 0,
+            };
+            const matchOptions = {
+                startingScore: 501,
+                numberOfLegs: 3,
+            }
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([ sideA, sideB ]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: {
+                    matches: [ match ]
+                },
+                matchOptions,
+            }, account);
+            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            addSaygLookup.push({
+                match: match,
+                success: true,
+                result: {
+                    id: createTemporaryId(),
+                    round: {
+                        matches: [ match ]
+                    },
+                },
+                saygId: saygData.id,
+            });
+            saygApiData[saygData.id] = saygData;
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            tournamentApiResponse = { success: false, errors: [ 'SOME ERROR'] };
+            await doClick(findButton(cells[0], '📊'));
+            expect(context.container.textContent).toContain('Could not create sayg session');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not create sayg session');
         });
 
         it('does not open sayg for tentative match', async () => {
@@ -1496,6 +1593,38 @@ describe('TournamentRoundMatch', () => {
             expect(updatedRound).toEqual({
                 matches: [ ],
             });
+        });
+
+        it('does not remove a match', async () => {
+            const match = {
+                sideA: sideA,
+                sideB: sideB,
+                scoreA: 1,
+                scoreB: 2,
+            };
+            returnFromExceptSelected['sideA'] = [ sideB, sideD ];
+            returnFromExceptSelected['sideB'] = [ sideA, sideE ];
+            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                readOnly: false,
+                match: match,
+                hasNextRound: false,
+                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                exceptSelected: exceptSelected,
+                matchIndex: 0,
+                round: {
+                    matches: [ match ]
+                },
+                matchOptions: {},
+            }, account);
+            const cells = Array.from(context.container.querySelectorAll('tr td'));
+            let confirm;
+            window.confirm = (message) => { confirm = message; return false; };
+
+            await doClick(findButton(cells[5], '🗑'));
+
+            expect(reportedError).toBeNull();
+            expect(confirm).toEqual('Are you sure you want to remove this match?');
+            expect(updatedRound).toBeNull();
         });
     });
 });
