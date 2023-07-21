@@ -613,7 +613,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('div[datatype="heading"]');
-            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES`);
+            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
         });
 
         it('renders 180s', async () => {
@@ -1043,7 +1043,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('div[datatype="heading"]');
-            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES`);
+            expect(heading.textContent).toEqual(`TYPE at ADDRESS on ${renderDate('2023-06-01')} - NOTES🔗🖨️`);
         });
     });
 });

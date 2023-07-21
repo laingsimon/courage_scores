@@ -5,8 +5,11 @@ import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
+import {ShareButton} from "../../common/ShareButton";
+import {useBranding} from "../../../BrandingContainer";
 
 export function PrintableSheet({ printOnly }) {
+    const { name } = useBranding();
     const { onError, teams, divisions } = useApp();
     const { tournamentData, season, division } = useTournament();
     const layoutData = setRoundNames(tournamentData.round && any(tournamentData.round.matches)
@@ -338,7 +341,13 @@ export function PrintableSheet({ printOnly }) {
     try {
         return (<div className={printOnly ? 'd-screen-none' : ''} datatype="printable-sheet">
             <div datatype="heading" className="border-1 border-solid border-secondary p-3 text-center">
-                {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong> - <strong>{tournamentData.notes}</strong>
+                {tournamentData.type} at <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
+                {tournamentData.notes ? (<> - <strong>{tournamentData.notes}</strong></>) : null}
+                <span className="d-print-none margin-left">
+                    <ShareButton
+                        text={`${name}: ${tournamentData.type} at ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
+                        <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
+                </span>
             </div>
             <div datatype="rounds-and-players" className="d-flex flex-row align-items-center overflow-auto no-overflow-on-print">
                 {layoutData.map((roundData, index) => (

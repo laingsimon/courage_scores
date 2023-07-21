@@ -6,7 +6,6 @@ import {any, distinct, sortBy} from "../../../helpers/collections";
 import {propChanged, valueChanged} from "../../../helpers/events";
 import {renderDate} from "../../../helpers/rendering";
 import {Loading} from "../../common/Loading";
-import {ShareButton} from "../../common/ShareButton";
 import {EditTournament} from "./EditTournament";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
@@ -16,13 +15,11 @@ import {BootstrapDropdown} from "../../common/BootstrapDropdown";
 import {EMPTY_ID} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
 import {SuperLeaguePrintout} from "./superleague/SuperLeaguePrintout";
-import {useBranding} from "../../../BrandingContainer";
 import {ExportDataButton} from "../../common/ExportDataButton";
 import {PrintableSheet} from "./PrintableSheet";
 
 export function Tournament() {
     const { tournamentId } = useParams();
-    const { name } = useBranding();
     const { appLoading, account, seasons, onError, teams, reloadTeams, divisions } = useApp();
     const { divisionApi, tournamentApi } = useDependencies();
     const canManageTournaments = account && account.access && account.access.manageTournaments;
@@ -280,14 +277,7 @@ export function Tournament() {
                         <input className="form-control" disabled={saving} type="text" value={tournamentData.address}
                                name="address" onChange={valueChanged(tournamentData, setTournamentData)}/>
                     </div>)
-                    : (<p className="d-print-none">
-                        {tournamentData.type || ''} At <strong>{tournamentData.address}</strong> on <strong>{renderDate(tournamentData.date)}</strong>
-                        <span className="margin-left">
-                        <ShareButton
-                            text={`${name}: ${tournamentData.address} on ${renderDate(tournamentData.date)}`}/>
-                        <button className="btn btn-sm margin-left btn-outline-primary" onClick={window.print}>🖨️</button>
-                    </span>
-                    </p>)}
+                    : null}
                 {canManageTournaments
                     ? (<div className="form-group input-group mb-1 d-print-none">
                         <div className="input-group-prepend">
