@@ -318,9 +318,9 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background > p');
+                const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
-                expect(heading.textContent).toContain('TYPE At ADDRESS on 2 Jan');
+                expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
             });
 
             it('tournament with team sides only', async () => {
@@ -370,9 +370,9 @@ describe('Tournament', () => {
                 }, false);
 
                 expect(reportedError).toBeNull();
-                const heading = context.container.querySelector('.content-background > p');
+                const heading = context.container.querySelector('.content-background div[datatype="heading"]');
                 expect(heading).toBeTruthy();
-                expect(heading.textContent).toContain('TYPE At ADDRESS on 2 Jan');
+                expect(heading.textContent).toContain('TYPE at ADDRESS on 2 Jan - NOTES🔗🖨️');
             });
 
             it('tournament with sides and players', async () => {
