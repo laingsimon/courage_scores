@@ -1,28 +1,38 @@
 nav {
-  background-color: #F8E5CD;
+  background-color: #1A57BF;
   color: #000000;
 }
 
+body .nav-link,
+body .navbar-brand,
+body .nav-link:hover,
+body .nav-link:focus {
+  color: #ffffff;
+}
+
 h1 {
-  color: #F3472F;
+  color: #218CFF;
+}
+
+body.darts-background {
+  background: #2D4187;
 }
 
 .content-background {
   background-color: #ffffff;
-  box-shadow: #aaaaaa 0px 0px 20px;
 }
 
 .social-header {
-  background: #2AEA70;
+  background: #1A57BF;
 }
 
 .bg-yellow {
-  background-color: #ffffcc;
+  background-color: #2075BF;
 }
 
 body .bg-winner,
 body .table td.bg-winner {
-  background-color: #bbffbb;
+  background-color: #77E3FF;
 }
 
 .hover-highlight:hover {
