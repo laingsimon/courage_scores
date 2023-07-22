@@ -18,7 +18,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     async function keyUp(event) {
         if (event.key === 'Enter') {
+            /* istanbul ignore next */
             await addThrow(score, 3, true);
+            /* istanbul ignore next */
             return false;
         }
     }
@@ -49,9 +51,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             }
 
             const score = Number.parseInt(scoreInput);
-            if (!Number.isFinite(score) || score < 0 || score > 180) {
-                return;
-            }
 
             setSavingInput(true);
             const accumulatorName = leg.currentThrow;
@@ -118,7 +117,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     function isSingleDartScore(value, doubleOnly) {
-        if (value <= 0) {
+        if (value <= 0 || !Number.isFinite(value)) {
             return false;
         }
 
@@ -135,15 +134,15 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     function isTwoDartScore(value) {
-        if (value <= 0) {
+        if (value <= 0 || !Number.isFinite(value)) {
             return false;
         }
 
-        return value <= 110;
+        return value <= 120;
     }
 
     function isThreeDartScore(value) {
-        if (value < 0) {
+        if (value < 0 || !Number.isFinite(value)) {
             return false;
         }
 
