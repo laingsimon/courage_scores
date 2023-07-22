@@ -90,7 +90,7 @@ export function getTeamIdFilter(teamId) {
     ]);
 }
 
-export function getFilters(filter, renderContext, fixtures) {
+export function getFixtureFilters(filter, renderContext, fixtures) {
     return new AndFilter([
         optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
         optionallyInvertFilter(getTypeFilter, filter.type),

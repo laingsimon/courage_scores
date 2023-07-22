@@ -2,7 +2,7 @@
 
 import {
     changeFilter,
-    getDateFilter, getFilters, getTeamIdFilter, getTypeFilter, initFilter,
+    getDateFilter, getFixtureFilters, getTeamIdFilter, getTypeFilter, initFilter,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
     optionallyInvertFilter
@@ -377,16 +377,16 @@ describe('filters', () => {
         });
     });
 
-    describe('getFilters', () => {
+    describe('getFixtureFilters', () => {
         it('returns positive filter when expression is empty', () => {
-            const filter = getFilters('', {}, []);
+            const filter = getFixtureFilters('', {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
         it('returns filter when expression is not empty', () => {
-            const filter = getFilters('date=past', {}, []);
+            const filter = getFixtureFilters('date=past', {}, []);
 
             expect(filter).not.toBeNull();
         });

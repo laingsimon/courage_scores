@@ -1,4 +1,4 @@
-import {getFilters} from "../../helpers/filters";
+import {getFixtureFilters} from "../../helpers/filters";
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
@@ -17,13 +17,13 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     const { fixtures, teams } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
-    const filters = getFilters(filter, renderContext, fixtures);
-    const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: null, tournamentFixture: f, note: null }));
-    const notesForDate = date.notes.filter(n => filters.apply({ date: date.date, fixture: null, tournamentFixture: null, note: n }));
+    const fixtureFilters = getFixtureFilters(filter, renderContext, fixtures);
+    const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => fixtureFilters.apply({ date: date.date, fixture: null, tournamentFixture: f, note: null }));
+    const notesForDate = date.notes.filter(n => fixtureFilters.apply({ date: date.date, fixture: null, tournamentFixture: null, note: n }));
     const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);
     const fixturesForDate = (!isAdmin && !hasFixtures)
         ? []
-        : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
+        : (date.fixtures || []).filter(f => fixtureFilters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
     const showDatesWithNotesAndNoFixtures = filter.notes !== 'only-with-fixtures';
     const hasFixturesToShow = any(fixturesForDate) || any(tournamentFixturesForDate);
     const hasSomethingToShow = hasFixturesToShow || (any(notesForDate) && showDatesWithNotesAndNoFixtures)
