@@ -5,7 +5,8 @@ import {
     getDateFilter, getFixtureFilters, getTeamIdFilter, getTypeFilter, initFilter,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
-    optionallyInvertFilter
+    optionallyInvertFilter,
+    getFixtureDateFilters,
 } from "./filters";
 
 describe('filters', () => {
@@ -379,14 +380,29 @@ describe('filters', () => {
 
     describe('getFixtureFilters', () => {
         it('returns positive filter when expression is empty', () => {
-            const filter = getFixtureFilters('', {}, []);
+            const filter = getFixtureFilters('');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
         it('returns filter when expression is not empty', () => {
-            const filter = getFixtureFilters('date=past', {}, []);
+            const filter = getFixtureFilters('type=league');
+
+            expect(filter).not.toBeNull();
+        });
+    });
+
+    describe('getFixtureDateFilters', () => {
+        it('returns positive filter when expression is empty', () => {
+            const filter = getFixtureDateFilters('', {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({})).toEqual(true);
+        });
+
+        it('returns filter when expression is not empty', () => {
+            const filter = getFixtureDateFilters('date=past', {}, []);
 
             expect(filter).not.toBeNull();
         });

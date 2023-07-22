@@ -10,14 +10,14 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
 
-export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
+export function DivisionFixtureDate({ date, filter, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
     const { account, controls } = useApp();
     const navigate = useNavigate();
     const location = useLocation();
     const { fixtures, teams } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
-    const fixtureFilters = getFixtureFilters(filter, renderContext, fixtures);
+    const fixtureFilters = getFixtureFilters(filter);
     const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => fixtureFilters.apply({ date: date.date, fixture: null, tournamentFixture: f, note: null }));
     const notesForDate = date.notes.filter(n => fixtureFilters.apply({ date: date.date, fixture: null, tournamentFixture: null, note: n }));
     const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);

@@ -7,7 +7,7 @@ import {stateChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
-import {changeFilter, initFilter} from "../../helpers/filters";
+import {changeFilter, getFixtureDateFilters, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
@@ -48,7 +48,6 @@ export function DivisionFixtures({ setNewFixtures }) {
             key={fixtureDate.date + (fixtureDate.isNew ? '_new' : '')}
             date={fixtureDate}
             filter={filter}
-            renderContext={renderContext}
             showPlayers={showPlayers}
             startAddNote={startAddNote}
             setEditNote={setEditNote}
@@ -164,7 +163,8 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     const renderContext = {};
     try {
-        const resultsToRender = fixtures.map(renderFixtureDate);
+        const fixtureDateFilters = getFixtureDateFilters(filter, renderContext, fixtures);
+        const resultsToRender = fixtures.filter(fd => fixtureDateFilters.apply(fd)).map(renderFixtureDate);
         return (<div className="content-background p-3">
             {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
