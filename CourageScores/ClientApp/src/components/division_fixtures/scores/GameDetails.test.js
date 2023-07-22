@@ -55,7 +55,7 @@ describe('GameDetails', () => {
             await renderComponent(false, '', fixtureData);
 
             const component = context.container;
-            expect(component.textContent).toContain('Qualifier at: ADDRESS');
+            expect(component.textContent).toContain('at: ADDRESS');
         });
 
         it('when postponed=true and isKnockout=false', async () => {
@@ -93,7 +93,7 @@ describe('GameDetails', () => {
             await renderComponent(false, '', fixtureData);
 
             const component = context.container;
-            expect(component.textContent).toContain('Qualifier at: ADDRESSPostponed');
+            expect(component.textContent).toContain('at: ADDRESSPostponed');
         });
 
         it('when home is unset', async () => {

@@ -53,7 +53,6 @@ export function PlayerOverview({ playerId }) {
             <td>
                 <div className="position-absolute">
                     <EmbedAwareLink to={`/score/${fixture.id}`}>{renderDate(date)}</EmbedAwareLink>
-                    {fixture.isKnockout ? (<span className="margin-left">(Qualifier)</span>) : null}
                 </div>
             </td>
             <td className="text-end">

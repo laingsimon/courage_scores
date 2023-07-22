@@ -207,7 +207,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct (Qualifier)');
+            assertFixtureDate(fixtureDateElement, '13 Oct');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout', account);
@@ -511,7 +511,7 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             const fixtureDateElement = getFixtureDateElement(0, account);
-            assertFixtureDate(fixtureDateElement, '13 Oct (Qualifier)📌 Add note');
+            assertFixtureDate(fixtureDateElement, '13 Oct📌 Add note');
             const fixturesForDate = fixtureDateElement.querySelectorAll('table tbody tr');
             expect(fixturesForDate.length).toEqual(1); // number of fixtures for this date
             assertFixture(fixturesForDate[0], 'home2 - knockout', '3', '4', 'away2 - knockout', account);
