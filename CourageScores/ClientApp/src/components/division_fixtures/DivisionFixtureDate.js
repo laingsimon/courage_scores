@@ -129,7 +129,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
-            📅 {renderDate(date.date)}{hasKnockoutFixture && !showQualifierToggle ? (<span> (Qualifier)</span>) : null}
+            📅 {renderDate(date.date)}
             {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
             {any(tournamentFixturesForDate, f => !f.proposed) && !date.isNew && controls ? (
                 <span className="margin-left form-switch h6 text-body">

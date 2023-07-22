@@ -114,7 +114,6 @@ describe('DivisionFixtureDate', () => {
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            expect(heading.textContent).not.toContain('Qualifier');
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -152,7 +151,6 @@ describe('DivisionFixtureDate', () => {
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            expect(heading.textContent).toContain('Qualifier');
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -226,7 +224,6 @@ describe('DivisionFixtureDate', () => {
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            expect(heading.textContent).not.toContain('Qualifier');
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -260,7 +257,6 @@ describe('DivisionFixtureDate', () => {
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            expect(heading.textContent).not.toContain('Qualifier');
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -825,7 +821,6 @@ describe('DivisionFixtureDate', () => {
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            expect(heading.textContent).toContain('Qualifier');
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
@@ -867,7 +862,6 @@ describe('DivisionFixtureDate', () => {
             const heading = context.container.querySelector('h4');
             expect(heading).toBeTruthy();
             expect(heading.textContent).toContain(renderDate(fixtureDate.date));
-            expect(heading.textContent).toContain('Qualifier');
             const table = context.container.querySelector('table');
             expect(table).toBeTruthy();
             expect(table.querySelectorAll('tr').length).toEqual(1);
