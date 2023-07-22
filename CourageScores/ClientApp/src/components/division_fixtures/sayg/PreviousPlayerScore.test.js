@@ -198,6 +198,43 @@ describe('PreviousPlayerScore', () => {
         expect(lastThrowUndone).toEqual(true);
     });
 
+    it ('does not undo last score from opponent statistics', async () => {
+        await renderComponent({
+            home: 'HOME',
+            away: 'AWAY',
+            leg: {
+                currentThrow: 'home',
+                startingScore: 501,
+                home: {
+                    throws: [{
+                        score: 123,
+                        noOfDarts: 3,
+                    }],
+                    score: 123,
+                    noOfDarts: 3,
+                    bust: false,
+                },
+                away: {
+                    throws: [ {
+                        score: 100,
+                        noOfDarts: 3,
+                    }, {
+                        score: 150,
+                        noOfDarts: 3,
+                    }],
+                    score: 250,
+                    noOfDarts: 0,
+                    bust: false,
+                },
+            },
+        });
+        window.confirm = () => false;
+
+        await doClick(context.container.querySelector('p:nth-child(2)'));
+
+        expect(lastThrowUndone).toEqual(false);
+    });
+
     it('renders last opponent last throw', async () => {
         await renderComponent({
             home: 'HOME',
