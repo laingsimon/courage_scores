@@ -375,10 +375,6 @@ body .width-50 {
 }
 
 /* custom styles */
-code {
-  color: #E01A76;
-}
-
 nav {
   background-color: #F8E5CD;
   color: #000000;
@@ -397,10 +393,6 @@ h1 {
   background: #2AEA70;
 }
 
-.highlight-row td {
-  background: #dee2e6;
-}
-
 .bg-yellow {
   background-color: #ffffcc;
 }
@@ -417,8 +409,3 @@ body .table td.bg-winner {
 .text-secondary-50 {
   color: #bbbbbb;
 }
-
-.bg-light-warning {
-  background: #ffffcc;
-}
-
