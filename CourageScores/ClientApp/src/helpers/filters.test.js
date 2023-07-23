@@ -399,6 +399,46 @@ describe('filters', () => {
                 tournamentFixtures: [],
             })).toEqual(true);
         });
+
+        it('keeps dates with single note matching filter', () => {
+            const filter = getNotesFilter('abcd');
+
+            expect(filter.apply({
+                notes: [ { note: 'abcd' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with any note matching any filter criteria', () => {
+            const filter = getNotesFilter('abcd;efgh');
+
+            expect(filter.apply({
+                notes: [ { note: 'another note' }, { note: 'efgh' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with any note matching filter ignoring case', () => {
+            const filter = getNotesFilter('abcd;efgh');
+
+            expect(filter.apply({
+                notes: [ { note: 'EFGH' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('ignores dates without any note matching filter', () => {
+            const filter = getNotesFilter('abcd;efgh');
+
+            expect(filter.apply({
+                notes: [ { note: 'ijkl' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
     });
 
     describe('getFixtureFilters', () => {

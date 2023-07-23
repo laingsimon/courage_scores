@@ -99,7 +99,10 @@ export function getNotesFilter(notesFilter) {
         case 'only-with-fixtures':
             return new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures));
         default:
-            return new NullFilter();
+            const notes = notesFilter.split(';');
+            return new OrFilter(
+                notes.map(note => new Filter(fd => any(fd.notes, n => n.note.toLowerCase() === note.toLowerCase())))
+            );
     }
 }
 
