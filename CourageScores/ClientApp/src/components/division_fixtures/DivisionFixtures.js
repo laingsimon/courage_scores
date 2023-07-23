@@ -7,7 +7,7 @@ import {stateChanged} from "../../helpers/events";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
-import {changeFilter, getFixtureDateFilters, initFilter} from "../../helpers/filters";
+import {changeFilter, getFixtureDateFilters, getFixtureFilters, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
@@ -47,7 +47,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         return (<DivisionFixtureDate
             key={fixtureDate.date + (fixtureDate.isNew ? '_new' : '')}
             date={fixtureDate}
-            filter={filter}
             showPlayers={showPlayers}
             startAddNote={startAddNote}
             setEditNote={setEditNote}
@@ -161,10 +160,27 @@ export function DivisionFixtures({ setNewFixtures }) {
         </Dialog>);
     }
 
+    function applyFixtureFilters(fixtureDate, renderContext, fixtureFilters) {
+        const filteredFixtureDate = Object.assign({}, fixtureDate);
+        filteredFixtureDate.tournamentFixtures = (fixtureDate.tournamentFixtures || []).filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: null, tournamentFixture: f, note: null }));
+        filteredFixtureDate.notes = fixtureDate.notes.filter(n => fixtureFilters.apply({ date: fixtureDate.date, fixture: null, tournamentFixture: null, note: n }));
+        const hasFixtures = any(fixtureDate.fixtures, f => f.id !== f.homeTeam.id);
+        filteredFixtureDate.fixtures = (!isAdmin && !hasFixtures)
+            ? []
+            : (fixtureDate.fixtures || []).filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: f, tournamentFixture: null, note: null }));
+
+        return filteredFixtureDate;
+    }
+
     const renderContext = {};
     try {
         const fixtureDateFilters = getFixtureDateFilters(filter, renderContext, fixtures);
-        const resultsToRender = fixtures.filter(fd => fixtureDateFilters.apply(fd)).map(renderFixtureDate);
+        const fixtureFilters = getFixtureFilters(filter);
+        const resultsToRender = fixtures
+            .filter(fd => fixtureDateFilters.apply(fd))
+            .map(fd => applyFixtureFilters(fd, renderContext, fixtureFilters))
+            .filter(fd => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
+            .map(renderFixtureDate);
         return (<div className="content-background p-3">
             {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}

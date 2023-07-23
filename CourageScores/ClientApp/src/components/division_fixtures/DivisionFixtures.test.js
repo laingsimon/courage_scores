@@ -425,6 +425,87 @@ describe('DivisionFixtures', () => {
             const filterContainer = context.container.querySelector('.content-background > div[datatype="fixture-filters"]');
             expect(filterContainer).toBeFalsy();
         });
+
+        it('filters fixtures dates', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    notes: 'Someone to run the venue',
+                    players: [],
+                    proposed: false,
+                    seasonId: divisionData.season.id,
+                    sides: [ {
+                        name: 'The winning side'
+                    }],
+                    type: 'Pairs'
+                }]
+            });
+            await renderComponent(divisionData, account, '/divisions', '/divisions?date=2020-01-01');
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).not.toContain('Pairs at another address');
+        });
+
+        it('filters fixtures', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    notes: 'Someone to run the venue',
+                    players: [],
+                    proposed: false,
+                    seasonId: divisionData.season.id,
+                    sides: [ {
+                        name: 'The winning side'
+                    }],
+                    type: 'Pairs'
+                }]
+            });
+            await renderComponent(divisionData, account, '/divisions', '/divisions?date=2022-10-13&type=tournaments');
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).toContain('Pairs at another address');
+        });
+
+        it('filters fixtures dates after fixtures', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            divisionData.fixtures.push({
+                date: '2022-10-13T00:00:00',
+                fixtures: [ ],
+                notes: [ ],
+                tournamentFixtures: [ {
+                    address: 'another address',
+                    date: '2022-10-13T00:00:00',
+                    id: createTemporaryId(),
+                    notes: 'Someone to run the venue',
+                    players: [],
+                    proposed: false,
+                    seasonId: divisionData.season.id,
+                    sides: [ {
+                        name: 'The winning side'
+                    }],
+                    type: 'Pairs'
+                }]
+            });
+            await renderComponent(divisionData, account, '/divisions', '/divisions?date=2022-10-13&type=league');
+
+            expect(reportedError).toBeNull();
+            expect(context.container.textContent).not.toContain('📅');
+        });
     });
 
     describe('when logged in', () => {

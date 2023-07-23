@@ -90,6 +90,19 @@ export function getTeamIdFilter(teamId) {
     ]);
 }
 
+export function getNotesFilter(notesFilter) {
+    if (!notesFilter) {
+        return new NullFilter();
+    }
+
+    switch (notesFilter) {
+        case 'only-with-fixtures':
+            return new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures));
+        default:
+            return new NullFilter();
+    }
+}
+
 export function getFixtureFilters(filter) {
     return new AndFilter([
         optionallyInvertFilter(getTypeFilter, filter.type),
@@ -99,7 +112,9 @@ export function getFixtureFilters(filter) {
 
 export function getFixtureDateFilters(filter, renderContext, fixtures) {
     return new AndFilter([
+        new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes)),
         optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
+        optionallyInvertFilter(getNotesFilter, filter.notes),
     ]);
 }
 

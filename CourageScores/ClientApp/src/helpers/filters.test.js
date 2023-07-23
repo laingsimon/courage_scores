@@ -7,6 +7,7 @@ import {
     isNextFixtureAfterToday,
     optionallyInvertFilter,
     getFixtureDateFilters,
+    getNotesFilter
 } from "./filters";
 
 describe('filters', () => {
@@ -378,6 +379,28 @@ describe('filters', () => {
         });
     });
 
+    describe('getNotesFilter', () => {
+        it('filters out dates with no fixtures and no tournaments', () => {
+            const filter = getNotesFilter('only-with-fixtures');
+
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+
+        it('keeps dates with notes and no fixtures or tournaments', () => {
+            const filter = getNotesFilter('');
+
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+    });
+
     describe('getFixtureFilters', () => {
         it('returns positive filter when expression is empty', () => {
             const filter = getFixtureFilters('');
@@ -387,22 +410,59 @@ describe('filters', () => {
         });
 
         it('returns filter when expression is not empty', () => {
-            const filter = getFixtureFilters('type=league');
+            const filter = getFixtureFilters({ type: 'league' });
 
             expect(filter).not.toBeNull();
         });
     });
 
     describe('getFixtureDateFilters', () => {
-        it('returns positive filter when expression is empty', () => {
-            const filter = getFixtureDateFilters('', {}, []);
+        it('returns negative when no notes, fixtures or tournaments', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({})).toEqual(true);
+            expect(filter.apply({
+                notes: [],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
         });
 
-        it('returns filter when expression is not empty', () => {
-            const filter = getFixtureDateFilters('date=past', {}, []);
+        it('returns positive when notes but no fixtures or tournaments', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('returns positive when no notes but has fixtures and tournaments', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [],
+                fixtures: [ {} ],
+                tournamentFixtures: [ {} ],
+            })).toEqual(true);
+        });
+
+        it('returns negative when notes but no fixtures or tournaments', () => {
+            const filter = getFixtureDateFilters({ notes: 'only-with-fixtures'}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+
+        it('returns filter for dates', () => {
+            const filter = getFixtureDateFilters({ date: 'past' }, {}, []);
 
             expect(filter).not.toBeNull();
         });
