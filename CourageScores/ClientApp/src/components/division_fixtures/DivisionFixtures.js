@@ -160,25 +160,23 @@ export function DivisionFixtures({ setNewFixtures }) {
         </Dialog>);
     }
 
-    function applyFixtureFilters(fixtureDate, renderContext, fixtureFilters) {
+    function applyFixtureFilters(fixtureDate, fixtureFilters) {
         const filteredFixtureDate = Object.assign({}, fixtureDate);
-        filteredFixtureDate.tournamentFixtures = (fixtureDate.tournamentFixtures || []).filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: null, tournamentFixture: f, note: null }));
-        filteredFixtureDate.notes = fixtureDate.notes.filter(n => fixtureFilters.apply({ date: fixtureDate.date, fixture: null, tournamentFixture: null, note: n }));
+        filteredFixtureDate.tournamentFixtures = fixtureDate.tournamentFixtures.filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: null, tournamentFixture: f }));
         const hasFixtures = any(fixtureDate.fixtures, f => f.id !== f.homeTeam.id);
         filteredFixtureDate.fixtures = (!isAdmin && !hasFixtures)
             ? []
-            : (fixtureDate.fixtures || []).filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: f, tournamentFixture: null, note: null }));
+            : fixtureDate.fixtures.filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: f, tournamentFixture: null }));
 
         return filteredFixtureDate;
     }
 
-    const renderContext = {};
     try {
-        const fixtureDateFilters = getFixtureDateFilters(filter, renderContext, fixtures);
+        const fixtureDateFilters = getFixtureDateFilters(filter, {}, fixtures);
         const fixtureFilters = getFixtureFilters(filter);
         const resultsToRender = fixtures
             .filter(fd => fixtureDateFilters.apply(fd))
-            .map(fd => applyFixtureFilters(fd, renderContext, fixtureFilters))
+            .map(fd => applyFixtureFilters(fd, fixtureFilters))
             .filter(fd => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
