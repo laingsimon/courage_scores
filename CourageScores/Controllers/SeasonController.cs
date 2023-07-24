@@ -1,7 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Services.Command;
+using CourageScores.Services.Health;
 using CourageScores.Services.Season;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +15,13 @@ public class SeasonController : Controller
 {
     private readonly ISeasonService _seasonService;
     private readonly ICommandFactory _commandFactory;
+    private readonly IHealthCheckService _healthCheckService;
 
-    public SeasonController(CachingSeasonService seasonService, ICommandFactory commandFactory)
+    public SeasonController(CachingSeasonService seasonService, ICommandFactory commandFactory, IHealthCheckService healthCheckService)
     {
         _seasonService = seasonService;
         _commandFactory = commandFactory;
+        _healthCheckService = healthCheckService;
     }
 
     [HttpGet("/api/Season/{id}")]
@@ -43,5 +47,11 @@ public class SeasonController : Controller
     public async Task<ActionResultDto<SeasonDto>> DeleteSeason(Guid id, CancellationToken token)
     {
         return await _seasonService.Delete(id, token);
+    }
+
+    [HttpGet("/api/Season/{id}/health")]
+    public async Task<HealthCheckResultDto> GetHealth(Guid id, CancellationToken token)
+    {
+        return await _healthCheckService.Check(id, token);
     }
 }

@@ -27,6 +27,7 @@ using CourageScores.Services.Data;
 using CourageScores.Services.Division;
 using CourageScores.Services.Error;
 using CourageScores.Services.Game;
+using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
@@ -103,6 +104,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IZipFileReaderFactory, ZipFileReaderFactory>();
         services.AddScoped<IDivisionDataDtoFactory, DivisionDataDtoFactory>();
         services.AddScoped<IErrorDetailService, ErrorDetailService>();
+
+        services.AddScoped<IHealthCheckService, HealthCheckService>();
+        services.AddScoped<ISeasonHealthCheckFactory, SeasonHealthCheckFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)

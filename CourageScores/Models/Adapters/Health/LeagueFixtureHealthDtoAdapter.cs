@@ -5,14 +5,14 @@ namespace CourageScores.Models.Adapters.Health;
 
 public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?>
 {
-    public async Task<LeagueFixtureHealthDto?> Adapt(DivisionFixtureDto model, CancellationToken token)
+    public Task<LeagueFixtureHealthDto?> Adapt(DivisionFixtureDto model, CancellationToken token)
     {
         if (model.IsKnockout || model.AwayTeam == null)
         {
-            return null;
+            return Task.FromResult<LeagueFixtureHealthDto?>(null);
         }
 
-        return new LeagueFixtureHealthDto
+        return Task.FromResult(new LeagueFixtureHealthDto
         {
             Id = model.Id,
             Date = model.Date,
@@ -20,6 +20,6 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixtur
             HomeTeamId = model.HomeTeam.Id,
             AwayTeam = model.AwayTeam.Name,
             AwayTeamId = model.AwayTeam.Id,
-        };
+        });
     }
 }
