@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Newtonsoft.Json;
 
 namespace CourageScores.Models.Dtos.Division;
 
@@ -15,4 +16,8 @@ public class DivisionFixtureDto
     public bool IsKnockout { get; set; }
     public bool AccoladesCount { get; set; }
     public List<OtherDivisionFixtureDto> FixturesUsingAddress { get; set; } = new();
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    [JsonIgnore]
+    public DateTime Date { get; set; }
 }

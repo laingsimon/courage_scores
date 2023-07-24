@@ -3,6 +3,7 @@ using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Division;
 using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
+using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos;
@@ -11,8 +12,10 @@ using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
+using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Game;
 using CourageScores.Models.Dtos.Game.Sayg;
+using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Team;
@@ -157,6 +160,11 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IUpdateRecordedScoreAsYouGoDtoAdapter, UpdateRecordedScoreAsYouGoDtoAdapter>();
         services.AddScoped<ITournamentPlayerAdapter, TournamentPlayerAdapter>();
         services.AddScoped<INotableTournamentPlayerAdapter, NotableTournamentPlayerAdapter>();
+
+        services.AddScoped<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>, SeasonHealthDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>, DivisionHealthDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<DivisionFixtureDateDto, DivisionDateHealthDto>, DivisionDateHealthDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?>, LeagueFixtureHealthDtoAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
