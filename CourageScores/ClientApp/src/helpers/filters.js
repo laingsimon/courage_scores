@@ -78,23 +78,46 @@ export function getTypeFilter(type) {
     }
 }
 
-export function getTeamIdFilter(teamId) {
-    if (!teamId) {
+export function getTeamFilter(name) {
+    if (!name) {
         return new NullFilter();
     }
 
     return new OrFilter([
-        new Filter(c => c.fixture && c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
-        new Filter(c => c.fixture && c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
-        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === teamId))
+        new Filter(c => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === name || c.fixture.homeTeam.name.toLowerCase() === name.toLowerCase())),
+        new Filter(c => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === name || c.fixture.awayTeam.name.toLowerCase() === name.toLowerCase())),
+        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
     ]);
 }
 
-export function getFilters(filter, renderContext, fixtures) {
+export function getNotesFilter(notesFilter) {
+    if (!notesFilter) {
+        return new NullFilter();
+    }
+
+    switch (notesFilter) {
+        case 'only-with-fixtures':
+            return new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures));
+        default:
+            const notes = notesFilter.split(';');
+            return new OrFilter(
+                notes.map(note => new Filter(fd => any(fd.notes, n => n.note.toLowerCase() === note.toLowerCase())))
+            );
+    }
+}
+
+export function getFixtureFilters(filter) {
     return new AndFilter([
-        optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
         optionallyInvertFilter(getTypeFilter, filter.type),
-        optionallyInvertFilter(getTeamIdFilter, filter.teamId)
+        optionallyInvertFilter(getTeamFilter, filter.team)
+    ]);
+}
+
+export function getFixtureDateFilters(filter, renderContext, fixtures) {
+    return new AndFilter([
+        new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes)),
+        optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
+        optionallyInvertFilter(getNotesFilter, filter.notes),
     ]);
 }
 
@@ -107,8 +130,8 @@ export function initFilter(location) {
     if (search.has('type')) {
         filter.type = search.get('type');
     }
-    if (search.has('teamId')) {
-        filter.teamId = search.get('teamId');
+    if (search.has('team')) {
+        filter.team = search.get('team');
     }
     if (search.has('notes')) {
         filter.notes = search.get('notes');

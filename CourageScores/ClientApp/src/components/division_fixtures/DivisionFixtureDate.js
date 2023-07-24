@@ -1,4 +1,3 @@
-import {getFilters} from "../../helpers/filters";
 import {any} from "../../helpers/collections";
 import {renderDate} from "../../helpers/rendering";
 import {FixtureDateNote} from "./FixtureDateNote";
@@ -10,27 +9,13 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useDivisionData} from "../DivisionDataContainer";
 import {isInPast, isToday} from "../../helpers/dates";
 
-export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
+export function DivisionFixtureDate({ date, showPlayers, startAddNote, setEditNote, setShowPlayers, setNewFixtures, onTournamentChanged }) {
     const { account, controls } = useApp();
     const navigate = useNavigate();
     const location = useLocation();
     const { fixtures, teams } = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const isNoteAdmin = account && account.access && account.access.manageNotes;
-    const filters = getFilters(filter, renderContext, fixtures);
-    const tournamentFixturesForDate = (date.tournamentFixtures || []).filter(f => filters.apply({ date: date.date, fixture: null, tournamentFixture: f, note: null }));
-    const notesForDate = date.notes.filter(n => filters.apply({ date: date.date, fixture: null, tournamentFixture: null, note: n }));
-    const hasFixtures = any(date.fixtures, f => f.id !== f.homeTeam.id);
-    const fixturesForDate = (!isAdmin && !hasFixtures)
-        ? []
-        : (date.fixtures || []).filter(f => filters.apply({ date: date.date, fixture: f, tournamentFixture: null, note: null }));
-    const showDatesWithNotesAndNoFixtures = filter.notes !== 'only-with-fixtures';
-    const hasFixturesToShow = any(fixturesForDate) || any(tournamentFixturesForDate);
-    const hasSomethingToShow = hasFixturesToShow || (any(notesForDate) && showDatesWithNotesAndNoFixtures)
-
-    if (!hasSomethingToShow) {
-        return null;
-    }
 
     function toggleShowPlayers(date) {
         const newShowPlayers = Object.assign({}, showPlayers);
@@ -84,7 +69,7 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
             return true;
         }
 
-        if (any(tournamentFixturesForDate, t => !t.proposed)) {
+        if (any(date.tournamentFixtures, t => !t.proposed)) {
             return false;
         }
 
@@ -124,14 +109,14 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
         setNewFixtures(fixtures.map(fd => fd.date === date.date ? newFixtureDate : fd));
     }
 
-    const hasKnockoutFixture = any(fixturesForDate, f => f.id !== f.homeTeam.id && f.isKnockout);
-    const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(tournamentFixturesForDate, f => !f.proposed) && !any(fixturesForDate, f => f.id !== f.homeTeam.id)) || date.isNew);
+    const hasKnockoutFixture = any(date.fixtures, f => f.id !== f.homeTeam.id && f.isKnockout);
+    const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(date.tournamentFixtures, f => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
             📅 {renderDate(date.date)}
             {isNoteAdmin ? (<button className="btn btn-primary btn-sm margin-left" onClick={() => startAddNote(date.date)}>📌 Add note</button>) : null}
-            {any(tournamentFixturesForDate, f => !f.proposed) && !date.isNew && controls ? (
+            {any(date.tournamentFixtures, f => !f.proposed) && !date.isNew && controls ? (
                 <span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
                            id={'showPlayers_' + date.date} checked={showPlayers[date.date] || false} onChange={() => toggleShowPlayers(date.date)} />
@@ -139,22 +124,22 @@ export function DivisionFixtureDate({ date, filter, renderContext, showPlayers, 
                 </span>) : null}
             {showQualifierToggle ? (<span className="margin-left form-switch h6 text-body">
                     <input type="checkbox" className="form-check-input align-baseline"
-                           disabled={any(fixturesForDate, f => f.isKnockout && f.id !== f.homeTeam.id)}
+                           disabled={any(date.fixtures, f => f.isKnockout && f.id !== f.homeTeam.id)}
                            id={'isKnockout_' + date.date}
-                           checked={any(fixturesForDate, f => f.isKnockout && f.id !== f.homeTeam.id) || date.isKnockout || false}
+                           checked={any(date.fixtures, f => f.isKnockout && f.id !== f.homeTeam.id) || date.isKnockout || false}
                            onChange={onChangeIsKnockout} />
                     <label className="form-check-label margin-left" htmlFor={'isKnockout_' + date.date}>Qualifier</label>
                 </span>) : null}
         </h4>
-        {notesForDate.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote} />))}
+        {date.notes.map(note => (<FixtureDateNote key={note.id} note={note} setEditNote={setEditNote} />))}
         <table className="table layout-fixed">
             <tbody>
-            {fixturesForDate.filter(isPotentialFixtureValid).map(f => (<DivisionFixture
+            {date.fixtures.filter(isPotentialFixtureValid).map(f => (<DivisionFixture
                 key={f.id}
                 fixture={f}
                 date={date.date}
                 onUpdateFixtures={onUpdateFixtures} />))}
-            {any(fixturesForDate, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout) || date.isKnockout ? null : tournamentFixturesForDate.map(tournament => (<TournamentFixture
+            {any(date.fixtures, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout) || date.isKnockout ? null : date.tournamentFixtures.map(tournament => (<TournamentFixture
                 key={tournament.address + '-' + tournament.date}
                 tournament={tournament}
                 date={date.date}
