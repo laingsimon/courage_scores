@@ -157,6 +157,7 @@ export function UserAdmin() {
         {renderAccessOption('inputResults', 'Input results')}
         {renderAccessOption('viewExceptions', 'View exceptions')}
         {renderAccessOption('recordScoresAsYouGo', 'Record scores as you go')}
+        {renderAccessOption('runHealthChecks', 'Run health checks')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
