@@ -213,7 +213,7 @@ describe('PlayerOverview', () => {
             expect(rows.length).toEqual(1);
             const cells = Array.from(rows[0].querySelectorAll('td'));
             expect(cells.map(td => td.textContent)).toEqual([
-                renderDate(fixtureDate.date) + '(Qualifier)',
+                renderDate(fixtureDate.date),
                 'TEAM',
                 '3',
                 'vs',

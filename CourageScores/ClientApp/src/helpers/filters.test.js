@@ -2,10 +2,12 @@
 
 import {
     changeFilter,
-    getDateFilter, getFilters, getTeamIdFilter, getTypeFilter, initFilter,
+    getDateFilter, getFixtureFilters, getTeamFilter, getTypeFilter, initFilter,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
-    optionallyInvertFilter
+    optionallyInvertFilter,
+    getFixtureDateFilters,
+    getNotesFilter
 } from "./filters";
 
 describe('filters', () => {
@@ -345,26 +347,26 @@ describe('filters', () => {
         });
     });
 
-    describe('getTeamIdFilter', () => {
+    describe('getTeamFilter', () => {
         it('when empty', () => {
-            const filter = getTeamIdFilter('');
+            const filter = getTeamFilter('');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
-        it('when provided', () => {
-            const filter = getTeamIdFilter('abcd');
+        it('when id provided', () => {
+            const filter = getTeamFilter('abcd');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 fixture: {
-                    homeTeam: { id: 'abcd' }
+                    homeTeam: { id: 'abcd' },
                 },
             })).toEqual(true);
             expect(filter.apply({
                 fixture: {
-                    awayTeam: { id: 'abcd' }
+                    awayTeam: { id: 'abcd' },
                 },
             })).toEqual(true);
             expect(filter.apply({
@@ -375,18 +377,180 @@ describe('filters', () => {
                 },
             })).toEqual(true);
         });
+
+        it('when name provided', () => {
+            const filter = getTeamFilter('name');
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                fixture: {
+                    homeTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                fixture: {
+                    awayTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                tournamentFixture: {
+                    sides: [{
+                        teamId: 'abcd',
+                        name: 'name',
+                    }]
+                },
+            })).toEqual(true);
+        });
+
+        it('when name provided ignores case', () => {
+            const filter = getTeamFilter('NAME');
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                fixture: {
+                    homeTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                fixture: {
+                    awayTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                tournamentFixture: {
+                    sides: [{
+                        teamId: 'abcd',
+                        name: 'name',
+                    }]
+                },
+            })).toEqual(true);
+        });
     });
 
-    describe('getFilters', () => {
+    describe('getNotesFilter', () => {
+        it('filters out dates with no fixtures and no tournaments', () => {
+            const filter = getNotesFilter('only-with-fixtures');
+
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+
+        it('keeps dates with notes and no fixtures or tournaments', () => {
+            const filter = getNotesFilter('');
+
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with single note matching filter', () => {
+            const filter = getNotesFilter('abcd');
+
+            expect(filter.apply({
+                notes: [ { note: 'abcd' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with any note matching any filter criteria', () => {
+            const filter = getNotesFilter('abcd;efgh');
+
+            expect(filter.apply({
+                notes: [ { note: 'another note' }, { note: 'efgh' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('keeps dates with any note matching filter ignoring case', () => {
+            const filter = getNotesFilter('abcd;efgh');
+
+            expect(filter.apply({
+                notes: [ { note: 'EFGH' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('ignores dates without any note matching filter', () => {
+            const filter = getNotesFilter('abcd;efgh');
+
+            expect(filter.apply({
+                notes: [ { note: 'ijkl' } ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+    });
+
+    describe('getFixtureFilters', () => {
         it('returns positive filter when expression is empty', () => {
-            const filter = getFilters('', {}, []);
+            const filter = getFixtureFilters('');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
         it('returns filter when expression is not empty', () => {
-            const filter = getFilters('date=past', {}, []);
+            const filter = getFixtureFilters({ type: 'league' });
+
+            expect(filter).not.toBeNull();
+        });
+    });
+
+    describe('getFixtureDateFilters', () => {
+        it('returns negative when no notes, fixtures or tournaments', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+
+        it('returns positive when notes but no fixtures or tournaments', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(true);
+        });
+
+        it('returns positive when no notes but has fixtures and tournaments', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [],
+                fixtures: [ {} ],
+                tournamentFixtures: [ {} ],
+            })).toEqual(true);
+        });
+
+        it('returns negative when notes but no fixtures or tournaments', () => {
+            const filter = getFixtureDateFilters({ notes: 'only-with-fixtures'}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [ {} ],
+                fixtures: [],
+                tournamentFixtures: [],
+            })).toEqual(false);
+        });
+
+        it('returns filter for dates', () => {
+            const filter = getFixtureDateFilters({ date: 'past' }, {}, []);
 
             expect(filter).not.toBeNull();
         });
@@ -405,10 +569,10 @@ describe('filters', () => {
             expect(filter).toEqual({ type: 'league' });
         });
 
-        it('inits teamId filter', () => {
-            const filter = initFilter({ search: '?teamId=abcd' });
+        it('inits team filter', () => {
+            const filter = initFilter({ search: '?team=abcd' });
 
-            expect(filter).toEqual({ teamId: 'abcd' });
+            expect(filter).toEqual({ team: 'abcd' });
         });
 
         it('inits notes filter', () => {
@@ -423,9 +587,9 @@ describe('filters', () => {
         });
 
         it('inits multiple filters', () => {
-            const filter = initFilter({ search: '?teamId=abcd&date=past&type=league' });
+            const filter = initFilter({ search: '?team=abcd&date=past&type=league' });
 
-            expect(filter).toEqual({ teamId: 'abcd', date: 'past', type: 'league' });
+            expect(filter).toEqual({ team: 'abcd', date: 'past', type: 'league' });
         });
     });
 

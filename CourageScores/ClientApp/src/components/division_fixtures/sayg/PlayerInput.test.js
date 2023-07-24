@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doChange} from "../../../helpers/tests";
+import {cleanUp, renderApp, doChange, doClick, findButton} from "../../../helpers/tests";
 import React from "react";
 import {PlayerInput} from "./PlayerInput";
 
@@ -10,6 +10,7 @@ describe('PlayerInput', () => {
     let hiChecks;
     let changedLegs;
     let completedLegs;
+    let reportedError;
     const home = 'home-player';
     const away = 'away-player';
 
@@ -38,10 +39,18 @@ describe('PlayerInput', () => {
         hiChecks = [];
         changedLegs = [];
         completedLegs = [];
+        reportedError = null;
         context = await renderApp(
             { },
             { name: 'Courage Scores' },
-            { },
+            {
+                onError: (err) => {
+                    reportedError = {
+                        message: err.message,
+                        stack: err.stack
+                    };
+                },
+            },
             <PlayerInput
                 {...props}
                 on180={on180}
@@ -169,10 +178,34 @@ describe('PlayerInput', () => {
         expect(buttons).toEqual([ '💥', '💥💥', '💥💥💥' ]);
     });
 
-    it('Renders correct options for double-1 bust score', async () => {
+    it('Renders correct options for double-1 score', async () => {
         const buttons = await runScoreTest(480, '21');
 
         expect(buttons).toEqual([ '📌📌', '📌📌📌', '💥', '💥💥', '💥💥💥' ]);
+    });
+
+    it('Renders no options for negative score', async () => {
+        const buttons = await runScoreTest(480, '-1');
+
+        expect(buttons).toEqual([ ]);
+    });
+
+    it('Renders no options for score over 180', async () => {
+        const buttons = await runScoreTest(0, '181');
+
+        expect(buttons).toEqual([ ]);
+    });
+
+    it('Renders no options for empty score', async () => {
+        const buttons = await runScoreTest(0, '');
+
+        expect(buttons).toEqual([ ]);
+    });
+
+    it('Renders no options for invalid score', async () => {
+        const buttons = await runScoreTest(0, '*');
+
+        expect(buttons).toEqual([ ]);
     });
 
     it('Renders correct options for 0 score', async () => {
@@ -185,5 +218,239 @@ describe('PlayerInput', () => {
         const buttons = await runScoreTest(499, '1');
 
         expect(buttons).toEqual([ '💥', '💥💥', '💥💥💥' ]);
+    });
+
+    it('records 3 dart throw', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 100,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput(50);
+        await doClick(findButton(context.container, '📌📌📌'));
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([{
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 150,
+                noOfDarts: 3,
+                bust: false,
+                throws: [{
+                    bust: false,
+                    noOfDarts: 3,
+                    score: 50,
+                }],
+            },
+        }]);
+    });
+
+    it('records 2 dart throw', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 401,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput(100);
+        await doClick(findButton(context.container, '📌📌'));
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([{
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: 'home',
+            home: {
+                score: 501,
+                noOfDarts: 2,
+                bust: false,
+                throws: [{
+                    bust: false,
+                    noOfDarts: 2,
+                    score: 100,
+                }],
+            },
+        }]);
+    });
+
+    it('records 1 dart throw', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 451,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput(50);
+        await doClick(findButton(context.container, '📌'));
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([{
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: 'home',
+            home: {
+                score: 501,
+                noOfDarts: 1,
+                bust: false,
+                throws: [{
+                    bust: false,
+                    noOfDarts: 1,
+                    score: 50,
+                }],
+            },
+        }]);
+    });
+
+    it('records 3 dart bust', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 331,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput(180);
+        await doClick(findButton(context.container, '💥💥💥'));
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([{
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 331,
+                noOfDarts: 3,
+                bust: true,
+                throws: [{
+                    bust: true,
+                    noOfDarts: 3,
+                    score: 180,
+                }],
+            },
+        }]);
+    });
+
+    it('records 2 dart bust', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 391,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput(120);
+        await doClick(findButton(context.container, '💥💥'));
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([{
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 391,
+                noOfDarts: 2,
+                bust: true,
+                throws: [{
+                    bust: true,
+                    noOfDarts: 2,
+                    score: 120,
+                }],
+            },
+        }]);
+    });
+
+    it('records 1 dart bust', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 461,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput(60);
+        await doClick(findButton(context.container, '💥'));
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([{
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 461,
+                noOfDarts: 1,
+                bust: true,
+                throws: [{
+                    bust: true,
+                    noOfDarts: 1,
+                    score: 60,
+                }],
+            },
+        }]);
     });
 });

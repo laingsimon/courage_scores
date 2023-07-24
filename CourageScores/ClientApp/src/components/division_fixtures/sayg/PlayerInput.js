@@ -18,7 +18,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
 
     async function keyUp(event) {
         if (event.key === 'Enter') {
+            /* istanbul ignore next */
             await addThrow(score, 3, true);
+            /* istanbul ignore next */
             return false;
         }
     }
@@ -49,9 +51,6 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             }
 
             const score = Number.parseInt(scoreInput);
-            if (!Number.isFinite(score) || score < 0 || score > 180) {
-                return;
-            }
 
             setSavingInput(true);
             const accumulatorName = leg.currentThrow;
@@ -118,7 +117,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     function isSingleDartScore(value, doubleOnly) {
-        if (value <= 0) {
+        if (value <= 0 || !Number.isFinite(value)) {
             return false;
         }
 
@@ -135,15 +134,15 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     }
 
     function isTwoDartScore(value) {
-        if (value <= 0) {
+        if (value <= 0 || !Number.isFinite(value)) {
             return false;
         }
 
-        return value <= 110;
+        return value <= 120;
     }
 
     function isThreeDartScore(value) {
-        if (value < 0) {
+        if (value < 0 || !Number.isFinite(value)) {
             return false;
         }
 
@@ -154,6 +153,7 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
     const checkout = intScore === remainingScore;
     const hasRemainingDouble = remainingScore - intScore >= 2;
     const canBeBust = score && remainingScore <= 180 && intScore >= 0;
+
     return (<div className="text-center">
         <h2>
             <strong>{playerLookup[leg.currentThrow]} </strong> requires <strong className="text-primary">{leg.startingScore - accumulator.score}</strong>

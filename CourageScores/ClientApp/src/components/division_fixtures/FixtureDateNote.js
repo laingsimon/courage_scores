@@ -40,11 +40,11 @@ export function FixtureDateNote({ note, setEditNote, preventDelete }) {
         }
     }
 
-    return (<div className="alert alert-warning alert-dismissible fade show" role="alert" key={note.id}>
-        <span className="margin-right">📌</span>
+    return (<div className="alert alert-warning alert-dismissible fade show pb-0 mb-1" role="alert" key={note.id}>
+        <span className="margin-right float-start">📌</span>
         <ReactMarkdown remarkPlugins={[gfm]}>{note.note}</ReactMarkdown>
         {isNoteAdmin && !preventDelete ? (<button type="button" className="btn-close" data-dismiss="alert" aria-label="Close" onClick={() => deleteNote(note)}></button>) : null}
-        {isNoteAdmin && setEditNote ? (<div className="mt-2">
+        {isNoteAdmin && setEditNote ? (<div className="mt-2 mb-3">
             <button className="btn btn-sm btn-primary margin-right" onClick={() => setEditNote(note)}>Edit</button>
         </div>) : null}
     </div>);
