@@ -38,7 +38,7 @@ export function FilterFixtures({ filter, setFilter }) {
     return (<div className="mb-3" datatype="fixture-filters">
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'date')} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
-        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'teamId')} options={teamFilters} value={filter.teamId ? filter.teamId.toLowerCase() : null} className="dynamic-width-dropdown margin-right" />
+        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'team')} options={teamFilters} value={filter.team ? filter.team.toLowerCase() : null} className="dynamic-width-dropdown margin-right" />
         <ShareButton text={`${name}, fixtures`} />
     </div>);
 }

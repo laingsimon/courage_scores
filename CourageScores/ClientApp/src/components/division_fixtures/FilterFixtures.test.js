@@ -102,13 +102,13 @@ describe('FilterFixtures', () => {
         });
     });
 
-    describe('teamId', () => {
+    describe('team', () => {
         it('when selected', async () => {
             const team = {
                 id: 'abcd',
                 name: 'TEAM'
             };
-            await renderComponent({ teamId: 'TEAM' }, [ team ]);
+            await renderComponent({ team: 'TEAM' }, [ team ]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();
@@ -121,7 +121,7 @@ describe('FilterFixtures', () => {
                 id: 'abcd',
                 name: 'TEAM'
             };
-            await renderComponent({ teamId: '1234' }, [ team ]);
+            await renderComponent({ team: '1234' }, [ team ]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();

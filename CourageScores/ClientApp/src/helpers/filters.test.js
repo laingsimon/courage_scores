@@ -2,7 +2,7 @@
 
 import {
     changeFilter,
-    getDateFilter, getFixtureFilters, getTeamIdFilter, getTypeFilter, initFilter,
+    getDateFilter, getFixtureFilters, getTeamFilter, getTypeFilter, initFilter,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
     optionallyInvertFilter,
@@ -347,16 +347,16 @@ describe('filters', () => {
         });
     });
 
-    describe('getTeamIdFilter', () => {
+    describe('getTeamFilter', () => {
         it('when empty', () => {
-            const filter = getTeamIdFilter('');
+            const filter = getTeamFilter('');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({})).toEqual(true);
         });
 
         it('when id provided', () => {
-            const filter = getTeamIdFilter('abcd');
+            const filter = getTeamFilter('abcd');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -379,7 +379,7 @@ describe('filters', () => {
         });
 
         it('when name provided', () => {
-            const filter = getTeamIdFilter('name');
+            const filter = getTeamFilter('name');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -403,7 +403,7 @@ describe('filters', () => {
         });
 
         it('when name provided ignores case', () => {
-            const filter = getTeamIdFilter('NAME');
+            const filter = getTeamFilter('NAME');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
@@ -569,10 +569,10 @@ describe('filters', () => {
             expect(filter).toEqual({ type: 'league' });
         });
 
-        it('inits teamId filter', () => {
-            const filter = initFilter({ search: '?teamId=abcd' });
+        it('inits team filter', () => {
+            const filter = initFilter({ search: '?team=abcd' });
 
-            expect(filter).toEqual({ teamId: 'abcd' });
+            expect(filter).toEqual({ team: 'abcd' });
         });
 
         it('inits notes filter', () => {
@@ -587,9 +587,9 @@ describe('filters', () => {
         });
 
         it('inits multiple filters', () => {
-            const filter = initFilter({ search: '?teamId=abcd&date=past&type=league' });
+            const filter = initFilter({ search: '?team=abcd&date=past&type=league' });
 
-            expect(filter).toEqual({ teamId: 'abcd', date: 'past', type: 'league' });
+            expect(filter).toEqual({ team: 'abcd', date: 'past', type: 'league' });
         });
     });
 

@@ -78,15 +78,15 @@ export function getTypeFilter(type) {
     }
 }
 
-export function getTeamIdFilter(teamId) {
-    if (!teamId) {
+export function getTeamFilter(name) {
+    if (!name) {
         return new NullFilter();
     }
 
     return new OrFilter([
-        new Filter(c => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === teamId || c.fixture.homeTeam.name.toLowerCase() === teamId.toLowerCase())),
-        new Filter(c => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === teamId || c.fixture.awayTeam.name.toLowerCase() === teamId.toLowerCase())),
-        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === teamId || s.name.toLowerCase() === teamId.toLowerCase()))
+        new Filter(c => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === name || c.fixture.homeTeam.name.toLowerCase() === name.toLowerCase())),
+        new Filter(c => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === name || c.fixture.awayTeam.name.toLowerCase() === name.toLowerCase())),
+        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === name || s.name.toLowerCase() === name.toLowerCase()))
     ]);
 }
 
@@ -109,7 +109,7 @@ export function getNotesFilter(notesFilter) {
 export function getFixtureFilters(filter) {
     return new AndFilter([
         optionallyInvertFilter(getTypeFilter, filter.type),
-        optionallyInvertFilter(getTeamIdFilter, filter.teamId)
+        optionallyInvertFilter(getTeamFilter, filter.team)
     ]);
 }
 
@@ -130,8 +130,8 @@ export function initFilter(location) {
     if (search.has('type')) {
         filter.type = search.get('type');
     }
-    if (search.has('teamId')) {
-        filter.teamId = search.get('teamId');
+    if (search.has('team')) {
+        filter.team = search.get('team');
     }
     if (search.has('notes')) {
         filter.notes = search.get('notes');
