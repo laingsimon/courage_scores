@@ -84,9 +84,9 @@ export function getTeamIdFilter(teamId) {
     }
 
     return new OrFilter([
-        new Filter(c => c.fixture && c.fixture.homeTeam && c.fixture.homeTeam.id === teamId),
-        new Filter(c => c.fixture && c.fixture.awayTeam && c.fixture.awayTeam.id === teamId),
-        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === teamId))
+        new Filter(c => c.fixture && c.fixture.homeTeam && (c.fixture.homeTeam.id === teamId || c.fixture.homeTeam.name.toLowerCase() === teamId.toLowerCase())),
+        new Filter(c => c.fixture && c.fixture.awayTeam && (c.fixture.awayTeam.id === teamId || c.fixture.awayTeam.name.toLowerCase() === teamId.toLowerCase())),
+        new Filter(c => c.tournamentFixture && any(c.tournamentFixture.sides, s => s.teamId === teamId || s.name.toLowerCase() === teamId.toLowerCase()))
     ]);
 }
 

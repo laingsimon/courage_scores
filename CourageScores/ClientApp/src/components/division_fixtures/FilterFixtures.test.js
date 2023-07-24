@@ -108,7 +108,7 @@ describe('FilterFixtures', () => {
                 id: 'abcd',
                 name: 'TEAM'
             };
-            await renderComponent({ teamId: 'abcd' }, [ team ]);
+            await renderComponent({ teamId: 'TEAM' }, [ team ]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();

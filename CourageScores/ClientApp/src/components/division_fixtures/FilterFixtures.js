@@ -9,7 +9,7 @@ import {useBranding} from "../../BrandingContainer";
 export function FilterFixtures({ filter, setFilter }) {
     const { teams } = useDivisionData();
     const { name } = useBranding();
-    const teamFilters = teams.sort(sortBy('name')).map(t => { return { value: t.id, text: t.name }; });
+    const teamFilters = teams.sort(sortBy('name')).map(t => { return { value: t.name.trim().toLowerCase(), text: t.name }; });
     teamFilters.unshift({ value: null, text: 'All teams' });
 
     const typeFilters = [
@@ -38,7 +38,7 @@ export function FilterFixtures({ filter, setFilter }) {
     return (<div className="mb-3" datatype="fixture-filters">
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'type')} options={typeFilters} value={filter.type || null} className="dynamic-width-dropdown margin-right" />
         <BootstrapDropdown onChange={propChanged(filter, setFilter, 'date')} options={dateFilters} value={filter.date || null} className="dynamic-width-dropdown margin-right" />
-        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'teamId')} options={teamFilters} value={filter.teamId || null} className="dynamic-width-dropdown margin-right" />
+        <BootstrapDropdown onChange={propChanged(filter, setFilter, 'teamId')} options={teamFilters} value={filter.teamId ? filter.teamId.toLowerCase() : null} className="dynamic-width-dropdown margin-right" />
         <ShareButton text={`${name}, fixtures`} />
     </div>);
 }

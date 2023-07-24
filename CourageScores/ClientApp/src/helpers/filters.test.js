@@ -355,24 +355,72 @@ describe('filters', () => {
             expect(filter.apply({})).toEqual(true);
         });
 
-        it('when provided', () => {
+        it('when id provided', () => {
             const filter = getTeamIdFilter('abcd');
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 fixture: {
-                    homeTeam: { id: 'abcd' }
+                    homeTeam: { id: 'abcd' },
                 },
             })).toEqual(true);
             expect(filter.apply({
                 fixture: {
-                    awayTeam: { id: 'abcd' }
+                    awayTeam: { id: 'abcd' },
                 },
             })).toEqual(true);
             expect(filter.apply({
                 tournamentFixture: {
                     sides: [{
                         teamId: 'abcd',
+                    }]
+                },
+            })).toEqual(true);
+        });
+
+        it('when name provided', () => {
+            const filter = getTeamIdFilter('name');
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                fixture: {
+                    homeTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                fixture: {
+                    awayTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                tournamentFixture: {
+                    sides: [{
+                        teamId: 'abcd',
+                        name: 'name',
+                    }]
+                },
+            })).toEqual(true);
+        });
+
+        it('when name provided ignores case', () => {
+            const filter = getTeamIdFilter('NAME');
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                fixture: {
+                    homeTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                fixture: {
+                    awayTeam: { id: 'abcd', name: 'name' },
+                },
+            })).toEqual(true);
+            expect(filter.apply({
+                tournamentFixture: {
+                    sides: [{
+                        teamId: 'abcd',
+                        name: 'name',
                     }]
                 },
             })).toEqual(true);
