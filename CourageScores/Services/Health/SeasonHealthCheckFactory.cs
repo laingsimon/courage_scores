@@ -11,5 +11,6 @@ public class SeasonHealthCheckFactory : ISeasonHealthCheckFactory
         yield return new FixturesAfterStartDate();
         yield return new FixturesBeforeEndDate();
         yield return new TeamsHaveBothLegs();
+        yield return new ContiguousHomeOrAwayFixtures();
     }
 }
