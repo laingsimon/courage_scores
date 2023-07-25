@@ -17,17 +17,17 @@ export function ViewHealthCheck({ result }) {
                             {checkResult.success ? '✔' : '❌'} {check}
                         </div>
                         <div>
-                            {checkResult.errors.map((error, index) => (<div key={index} className="text-secondary-50 no-wrap">❌ {error}</div>))}
-                            {checkResult.warnings.map((warning, index) => (<div key={index} className="text-secondary-50 no-wrap">⚠ {warning}</div>))}
-                            {checkResult.messages.map((message, index) => (<div key={index} className="text-secondary-50 no-wrap">{message}</div>))}
+                            {checkResult.errors.map((error, index) => (<div key={index} className="text-secondary-50 text-nowrap ">❌ {error}</div>))}
+                            {checkResult.warnings.map((warning, index) => (<div key={index} className="text-secondary-50 text-nowrap">⚠ {warning}</div>))}
+                            {checkResult.messages.map((message, index) => (<div key={index} className="text-secondary-50 text-nowrap">{message}</div>))}
                         </div>
                     </li>)
                 })}
             </ol>
             <div>
-                {result.errors.map((error, index) => (<div key={index} className="text-secondary no-wrap">❌ {error}</div>))}
-                {result.warnings.map((warning, index) => (<div key={index} className="text-secondary no-wrap">⚠ {warning}</div>))}
-                {result.messages.map((message, index) => (<div key={index} className="text-secondary no-wrap">{message}</div>))}
+                {result.errors.map((error, index) => (<div key={index} className="text-secondary text-nowrap">❌ {error}</div>))}
+                {result.warnings.map((warning, index) => (<div key={index} className="text-secondary text-nowrap">⚠ {warning}</div>))}
+                {result.messages.map((message, index) => (<div key={index} className="text-secondary text-nowrap">{message}</div>))}
             </div>
         </div>);
     } catch (e) {
