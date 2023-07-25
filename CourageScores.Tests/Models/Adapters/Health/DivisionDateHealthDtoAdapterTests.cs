@@ -12,12 +12,12 @@ public class DivisionDateHealthDtoAdapterTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private DivisionDateHealthDtoAdapter _adapter = null!;
-    private Mock<ISimpleOnewayAdapter<DivisionFixtureDto,LeagueFixtureHealthDto>> _fixtureAdapter = null!;
+    private Mock<ISimpleOnewayAdapter<DivisionFixtureDto,LeagueFixtureHealthDto?>> _fixtureAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _fixtureAdapter = new Mock<ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto>>();
+        _fixtureAdapter = new Mock<ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?>>();
         _adapter = new DivisionDateHealthDtoAdapter(_fixtureAdapter.Object);
     }
 

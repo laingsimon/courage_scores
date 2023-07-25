@@ -12,7 +12,7 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixtur
             return Task.FromResult<LeagueFixtureHealthDto?>(null);
         }
 
-        return Task.FromResult(new LeagueFixtureHealthDto
+        return Task.FromResult<LeagueFixtureHealthDto?>(new LeagueFixtureHealthDto
         {
             Id = model.Id,
             Date = model.Date,
