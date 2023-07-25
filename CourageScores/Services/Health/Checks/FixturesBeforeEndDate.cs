@@ -6,7 +6,8 @@ public class FixturesBeforeEndDate : ISeasonHealthCheck
 {
     public string Name => "All fixtures on or before end date";
 
-    public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context)
+    public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions,
+        HealthCheckContext context, CancellationToken token)
     {
         return Task.FromResult(new HealthCheckResultDto
         {

@@ -7,7 +7,8 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
 {
     public string Name => "Teams have both legs defined";
 
-    public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context)
+    public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions,
+        HealthCheckContext context, CancellationToken token)
     {
         return (await divisions
             .SelectAsync(CheckDivision).ToList())
@@ -42,7 +43,10 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
         var warnings = new List<string>();
         if (homeLegs.Count != 1)
         {
-            warnings.Add($"{division.Name}: Expected 1 leg for {team1.Name} vs {team2.Name}, found {homeLegs.Count} ({string.Join(", ", homeLegs.Select(l => l.Date.ToString("d MMM yyyy")))})");
+            var dates = homeLegs.Count > 0
+                ? $" ({string.Join(", ", homeLegs.Select(l => l.Date.ToString("d MMM yyyy")))})"
+                : "";
+            warnings.Add($"{division.Name}: Expected 1 leg for {team1.Name} vs {team2.Name}, found {homeLegs.Count}{dates}");
         }
 
         return Task.FromResult(new HealthCheckResultDto

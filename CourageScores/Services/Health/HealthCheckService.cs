@@ -1,4 +1,5 @@
 using CourageScores.Models.Adapters;
+using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Services.Division;
@@ -13,20 +14,20 @@ public class HealthCheckService : IHealthCheckService
     private readonly ISeasonService _seasonService;
     private readonly IDivisionService _divisionService;
     private readonly ISeasonHealthCheckFactory _seasonHealthCheckFactory;
-    private readonly ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto> _divisionAdapter;
+    private readonly ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> _seasonAdapter;
 
     public HealthCheckService(
         IUserService userService,
         ISeasonService seasonService,
         IDivisionService divisionService,
         ISeasonHealthCheckFactory seasonHealthCheckFactory,
-        ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto> divisionAdapter)
+        ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> seasonAdapter)
     {
         _userService = userService;
         _seasonService = seasonService;
         _divisionService = divisionService;
         _seasonHealthCheckFactory = seasonHealthCheckFactory;
-        _divisionAdapter = divisionAdapter;
+        _seasonAdapter = seasonAdapter;
     }
 
     public async Task<SeasonHealthCheckResultDto> Check(Guid seasonId, CancellationToken token)
@@ -72,12 +73,11 @@ public class HealthCheckService : IHealthCheckService
         };
 
         var checks = _seasonHealthCheckFactory.GetHealthChecks();
-        var healthCheckData = await divisionalData.SelectAsync(d => _divisionAdapter.Adapt(d, token)).ToList();
-        var context = new HealthCheckContext(season);
+        var context = new HealthCheckContext(await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), token));
 
         foreach (var check in checks)
         {
-            var checkResult = await check.RunCheck(healthCheckData, context);
+            var checkResult = await check.RunCheck(context.Season.Divisions, context, token);
 
             result.Checks.Add(check.Name, checkResult);
             result.Success = result.Success && checkResult.Success;

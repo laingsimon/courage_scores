@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Services.Health.Checks;
 
 namespace CourageScores.Services.Health;
 
 public class SeasonHealthCheckFactory : ISeasonHealthCheckFactory
 {
+    [ExcludeFromCodeCoverage]
     public IEnumerable<ISeasonHealthCheck> GetHealthChecks()
     {
         yield return new FixturesAfterStartDate();

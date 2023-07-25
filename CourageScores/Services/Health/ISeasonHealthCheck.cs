@@ -8,5 +8,6 @@ public interface ISeasonHealthCheck
 {
     public string Name { get; }
 
-    public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context);
+    public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions,
+        HealthCheckContext context, CancellationToken token);
 }
