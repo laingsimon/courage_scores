@@ -6,9 +6,9 @@ public class FixturesAfterStartDate : ISeasonHealthCheck
 {
     public string Name => "All fixtures on or after start date";
 
-    public Task<SeasonHealthCheckResult> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context)
+    public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context)
     {
-        return Task.FromResult(new SeasonHealthCheckResult
+        return Task.FromResult(new HealthCheckResultDto
         {
             Success = divisions.All(d => d.Dates.All(f => f.Date >= context.Season.StartDate)),
         });

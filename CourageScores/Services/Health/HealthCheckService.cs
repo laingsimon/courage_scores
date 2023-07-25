@@ -29,13 +29,13 @@ public class HealthCheckService : IHealthCheckService
         _divisionAdapter = divisionAdapter;
     }
 
-    public async Task<HealthCheckResultDto> Check(Guid seasonId, CancellationToken token)
+    public async Task<SeasonHealthCheckResultDto> Check(Guid seasonId, CancellationToken token)
     {
         var user = await _userService.GetUser(token);
 
         if (user?.Access?.RunHealthChecks != true)
         {
-            return new HealthCheckResultDto
+            return new SeasonHealthCheckResultDto
             {
                 Errors = { "Not permitted" },
             };
@@ -44,7 +44,7 @@ public class HealthCheckService : IHealthCheckService
         var season = await _seasonService.Get(seasonId, token);
         if (season == null)
         {
-            return new HealthCheckResultDto
+            return new SeasonHealthCheckResultDto
             {
                 Errors = { "Season not found" },
             };
@@ -58,14 +58,14 @@ public class HealthCheckService : IHealthCheckService
 
         if (divisionalData.Count == 0)
         {
-            return new HealthCheckResultDto
+            return new SeasonHealthCheckResultDto
             {
                 Warnings = { "No divisions" },
                 Success = true,
             };
         }
 
-        var result = new HealthCheckResultDto
+        var result = new SeasonHealthCheckResultDto
         {
             Errors = divisionalData.SelectMany(d => d.DataErrors).ToList(),
             Success = divisionalData.Any(d => !d.DataErrors.Any()),

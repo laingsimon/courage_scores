@@ -144,7 +144,7 @@ public class HealthCheckServiceTests
             .Setup(d => d.GetDivisionData(It.Is<DivisionDataFilter>(f => f.DivisionId == divisionId), _token))
             .ReturnsAsync(() => new DivisionDataDto { Id = divisionId, DataErrors = { $"Requested division ({divisionId}) was not found" } });
         _healthCheck.Setup(c => c.RunCheck(It.IsAny<IReadOnlyCollection<DivisionHealthDto>>(), It.IsAny<HealthCheckContext>()))
-            .ReturnsAsync(() => new SeasonHealthCheckResult { Success = true });
+            .ReturnsAsync(() => new HealthCheckResultDto { Success = true });
 
         var result = await _service.Check(seasonWithMissingDivision.Id, _token);
 
@@ -156,7 +156,7 @@ public class HealthCheckServiceTests
     public async Task Check_GivenAllChecksSucceed_ShouldReturnSuccess()
     {
         _healthCheck.Setup(c => c.RunCheck(It.IsAny<IReadOnlyCollection<DivisionHealthDto>>(), It.IsAny<HealthCheckContext>()))
-            .ReturnsAsync(() => new SeasonHealthCheckResult
+            .ReturnsAsync(() => new HealthCheckResultDto
             {
                 Success = true,
                 Errors = { "Check errors" },
@@ -173,7 +173,7 @@ public class HealthCheckServiceTests
     public async Task Check_GivenACheckFails_ShouldReturnFailure()
     {
         _healthCheck.Setup(c => c.RunCheck(It.IsAny<IReadOnlyCollection<DivisionHealthDto>>(), It.IsAny<HealthCheckContext>()))
-            .ReturnsAsync(() => new SeasonHealthCheckResult
+            .ReturnsAsync(() => new HealthCheckResultDto
             {
                 Success = false,
                 Errors = { "Check errors" },

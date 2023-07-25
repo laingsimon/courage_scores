@@ -4,5 +4,5 @@ namespace CourageScores.Services.Health;
 
 public interface IHealthCheckService
 {
-    Task<HealthCheckResultDto> Check(Guid seasonId, CancellationToken token);
+    Task<SeasonHealthCheckResultDto> Check(Guid seasonId, CancellationToken token);
 }

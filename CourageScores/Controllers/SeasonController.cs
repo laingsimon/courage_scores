@@ -50,7 +50,7 @@ public class SeasonController : Controller
     }
 
     [HttpGet("/api/Season/{id}/health")]
-    public async Task<HealthCheckResultDto> GetHealth(Guid id, CancellationToken token)
+    public async Task<SeasonHealthCheckResultDto> GetHealth(Guid id, CancellationToken token)
     {
         return await _healthCheckService.Check(id, token);
     }
