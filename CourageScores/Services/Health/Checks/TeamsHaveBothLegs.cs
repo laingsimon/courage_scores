@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 
@@ -5,6 +6,7 @@ namespace CourageScores.Services.Health.Checks;
 
 public class TeamsHaveBothLegs : ISeasonHealthCheck
 {
+    [ExcludeFromCodeCoverage]
     public string Name => "Teams have both legs defined";
 
     public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions,
