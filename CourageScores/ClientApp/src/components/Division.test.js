@@ -21,7 +21,12 @@ describe('Division', () => {
 
             return divisionDataMap[key];
         },
-    }
+    };
+    const seasonApi = {
+        getHealth: async () => {
+            return { success: true, checks: {}, messages: [], warnings: [], errors: [] };
+        },
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -34,7 +39,7 @@ describe('Division', () => {
     async function renderComponent(appProps, route, address) {
         reportedError = null;
         context = await renderApp(
-            { divisionApi },
+            { divisionApi, seasonApi },
             { name: 'Courage Scores' },
             {
                 ...appProps,
@@ -681,6 +686,119 @@ describe('Division', () => {
                 expect(reportedError).toBeNull();
                 const button = context.container.querySelector('.btn.btn-primary');
                 expect(button.textContent).toEqual('📊 Get reports...');
+            });
+        });
+
+        describe('health', () => {
+            it('does not health tab when logged out', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toBeNull();
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Health');
+            });
+
+            it('does not render tab when not permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: false,
+                        }
+                    }
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toBeNull();
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Health');
+            });
+
+            it('renders tab when permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: true,
+                        }
+                    },
+                    controls: true,
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toBeNull();
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(tabs.map(t => t.textContent)).toContain('Health');
+            });
+
+            it('does not render health content when not permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: false,
+                        }
+                    }
+                }, '/division/:divisionId/:mode', `/division/${division.id}/health`);
+
+                expect(reportedError).toBeNull();
+                const button = context.container.querySelector('.btn.btn-primary');
+                expect(button).toBeFalsy();
+            });
+
+            it('renders health content when permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: true,
+                        }
+                    }
+                }, '/division/:divisionId/:mode', `/division/${division.id}/health`);
+
+                expect(reportedError).toBeNull();
+                const component = context.container.querySelector('div[datatype="health"]');
+                expect(component).toBeTruthy();
             });
         });
 

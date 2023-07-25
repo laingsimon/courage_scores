@@ -18,6 +18,10 @@ class SeasonApi {
     getAll() {
         return this.http.get(`/api/Season`, {});
     }
+
+    getHealth(id) {
+        return this.http.get(`/api/Season/${id}/health`, {});
+    }
 }
 
 export { SeasonApi };
