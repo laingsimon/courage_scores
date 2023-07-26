@@ -280,26 +280,6 @@ public class ContiguousHomeOrAwayFixturesTests
         Assert.That(result.Success, Is.False);
     }
 
-    [Test]
-    public async Task RunCheck_WithTeamPlayingAgainstThemselves_ReturnsFailure()
-    {
-        var division = new DivisionHealthDto
-        {
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
-            Dates =
-            {
-                FixtureDate(0, PlayingSelf()), // 3-Feb 2001
-            }
-        };
-        var context = new HealthCheckContext(new SeasonHealthDto());
-
-        var result = await _check.RunCheck(new[] { division }, context, _token);
-
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Found HOME playing against themselves on 3 Feb 2001" }));
-        Assert.That(result.Warnings, Is.Empty);
-        Assert.That(result.Success, Is.False);
-    }
-
     private static DivisionDateHealthDto FixtureDate(int offsetWeeks, params Func<DateTime, LeagueFixtureHealthDto>[] fixtures)
     {
         var date = new DateTime(2001, 02, 03).AddDays(offsetWeeks * 7);

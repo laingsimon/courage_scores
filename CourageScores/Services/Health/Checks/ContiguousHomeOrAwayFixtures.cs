@@ -46,8 +46,6 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
         foreach (var date in division.Dates)
         {
             var fixtures = date.Fixtures.Where(f => f.HomeTeamId == team.Id || f.AwayTeamId == team.Id).ToArray();
-            var homeEvent = fixtures.Any(f => f.HomeTeamId == team.Id);
-            var awayEvent = fixtures.Any(f => f.AwayTeamId == team.Id);
 
             if (!fixtures.Any())
             {
@@ -66,7 +64,7 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
                 continue;
             }
 
-            var location = homeEvent ? "home" : "away";
+            var location = fixtures.Any(f => f.HomeTeamId == team.Id) ? "home" : "away";
             if (contiguousEvents.Any(e => e.Location != location))
             {
                 if (contiguousEvents.Count > _maxContiguousEvents)
@@ -79,12 +77,6 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
             }
 
             contiguousEvents.Add(new EventDetail(location, date.Date, fixtures));
-
-            if (homeEvent && awayEvent)
-            {
-                result.Success = false;
-                result.Errors.Add($"Found {team.Name} playing against themselves on {date.Date:d MMM yyyy}");
-            }
         }
 
         if (contiguousEvents.Count > _maxContiguousEvents)
