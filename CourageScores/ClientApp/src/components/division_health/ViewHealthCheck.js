@@ -16,8 +16,8 @@ export function ViewHealthCheck({ result }) {
                         <div>
                             {checkResult.success ? '✔' : '❌'} {check}
                         </div>
-                        <div>
-                            {checkResult.errors.map((error, index) => (<div key={index} className="text-secondary-50 text-nowrap ">❌ {error}</div>))}
+                        <div className="ps-4">
+                            {checkResult.errors.map((error, index) => (<div key={index} className="text-secondary-50 text-nowrap">❌ {error}</div>))}
                             {checkResult.warnings.map((warning, index) => (<div key={index} className="text-secondary-50 text-nowrap">⚠ {warning}</div>))}
                             {checkResult.messages.map((message, index) => (<div key={index} className="text-secondary-50 text-nowrap">{message}</div>))}
                         </div>
