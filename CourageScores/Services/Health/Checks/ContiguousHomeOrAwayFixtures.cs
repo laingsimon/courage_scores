@@ -16,78 +16,106 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
     }
 
     [ExcludeFromCodeCoverage]
-    public string Name => "Not too many home or away games in succession";
+    public string Name => $"No more than {_maxContiguousEvents} consecutive home or away fixtures";
 
     public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
     {
-        return (await divisions.SelectAsync(division => RunDivisionCheck(division, context, token)).ToList())
+        return (await divisions.SelectAsync(division => RunDivisionCheck(division, token)).ToList())
             .Aggregate(
                 new HealthCheckResultDto { Success = true },
                 (prev, current) => prev.MergeWith(current));
     }
 
-    private async Task<HealthCheckResultDto> RunDivisionCheck(DivisionHealthDto division, HealthCheckContext context, CancellationToken token)
+    private async Task<HealthCheckResultDto> RunDivisionCheck(DivisionHealthDto division, CancellationToken token)
     {
-        return (await division.Teams.SelectAsync(team => RunTeamCheck(division, team, context, token)).ToList())
+        return (await division.Teams.SelectAsync(team => RunTeamCheck(division, team, token)).ToList())
             .Aggregate(
                 new HealthCheckResultDto { Success = true },
                 (prev, current) => prev.MergeWith(current));
     }
 
-    private async Task<HealthCheckResultDto> RunTeamCheck(DivisionHealthDto division, DivisionTeamDto team, HealthCheckContext context, CancellationToken token)
+    // ReSharper disable once UnusedParameter.Local
+    private Task<HealthCheckResultDto> RunTeamCheck(DivisionHealthDto division, DivisionTeamDto team, CancellationToken token)
     {
         var result = new HealthCheckResultDto
         {
             Success = true,
         };
 
-        var contiguousEvents = new List<string>();
-        var lastDate = DateTime.MinValue;
+        var contiguousEvents = new List<EventDetail>();
         foreach (var date in division.Dates)
         {
             var fixtures = date.Fixtures.Where(f => f.HomeTeamId == team.Id || f.AwayTeamId == team.Id).ToArray();
             var homeEvent = fixtures.Any(f => f.HomeTeamId == team.Id);
             var awayEvent = fixtures.Any(f => f.AwayTeamId == team.Id);
-            var hasIntervalPassed = date.Date == lastDate.AddDays(_intervalDays) || lastDate == DateTime.MinValue;
 
-            if (hasIntervalPassed)
+            if (!fixtures.Any())
             {
-                // TODO: Ensure the first event of the season (e.g. AGM) doesn't affect the continuance
-                lastDate = date.Date;
-            }
+                if (date.Date >= contiguousEvents.LastOrDefault()?.Date.AddDays(_intervalDays))
+                {
+                    if (contiguousEvents.Count > _maxContiguousEvents)
+                    {
+                        result.Success = false;
+                        result.Warnings.Add(GetWarningMessage(team, contiguousEvents));
+                    }
 
-            if (!homeEvent && !awayEvent)
-            {
+                    // if there has been over 1 week between fixtures then clear the record of back-to-back games
+                    contiguousEvents.Clear();
+                }
+
                 continue;
             }
+
+            var location = homeEvent ? "home" : "away";
+            if (contiguousEvents.Any(e => e.Location != location))
+            {
+                if (contiguousEvents.Count > _maxContiguousEvents)
+                {
+                    result.Success = false;
+                    result.Warnings.Add(GetWarningMessage(team, contiguousEvents));
+                }
+
+                contiguousEvents.Clear();
+            }
+
+            contiguousEvents.Add(new EventDetail(location, date.Date, fixtures));
 
             if (homeEvent && awayEvent)
             {
                 result.Success = false;
                 result.Errors.Add($"Found {team.Name} playing against themselves on {date.Date:d MMM yyyy}");
-                continue;
             }
-
-            var location = homeEvent ? "home" : "away";
-            if (contiguousEvents.Any(e => e != location))
-            {
-                if (contiguousEvents.Count > _maxContiguousEvents)
-                {
-                    result.Success = false;
-                    result.Warnings.Add($"{team.Name} is playing {contiguousEvents[0]} too many times ({contiguousEvents.Count}) in a row, ending on {date.Date:d MMM yyyy}");
-                }
-
-                contiguousEvents.Clear();
-            }
-            contiguousEvents.Add(location);
         }
 
         if (contiguousEvents.Count > _maxContiguousEvents)
         {
             result.Success = false;
-            result.Warnings.Add($"{team.Name} is playing {contiguousEvents[0]} too many times ({contiguousEvents.Count}) in a row, ending on {lastDate.Date:d MMM yyyy}");
+            result.Warnings.Add(GetWarningMessage(team, contiguousEvents));
         }
 
-        return result;
+        return Task.FromResult(result);
+    }
+
+    private static string GetWarningMessage(DivisionTeamDto team, List<EventDetail> contiguousEvents)
+    {
+        var firstEvent = contiguousEvents.First();
+        var lastEvent = contiguousEvents.Last();
+
+        return $"{team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM yyyy} - {lastEvent.Date:d MMM yyyy}";
+    }
+
+    private class EventDetail
+    {
+        public EventDetail(string location, DateTime date, IReadOnlyCollection<LeagueFixtureHealthDto> fixtures)
+        {
+            Location = location;
+            Date = date;
+            Fixtures = fixtures;
+        }
+
+        public string Location { get; }
+        public DateTime Date { get; }
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        public IReadOnlyCollection<LeagueFixtureHealthDto> Fixtures { get; }
     }
 }
