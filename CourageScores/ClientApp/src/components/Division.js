@@ -98,11 +98,13 @@ export function Division() {
         return team ? team.id : INVALID;
     }
 
-    async function reloadDivisionData() {
+    async function reloadDivisionData(preventReloadIfIdsAreTheSame) {
         try {
             if (divisionData && divisionData.requested && divisionData.requested.divisionId === divisionId && divisionData.requested.seasonId === seasonId) {
                 // repeated call... don't request the data
-                return;
+                if (preventReloadIfIdsAreTheSame) {
+                    return;
+                }
             }
 
             const newDivisionData = await divisionApi.data(divisionId, seasonId);
@@ -155,7 +157,7 @@ export function Division() {
             if (divisionId !== INVALID && seasonId !== INVALID) {
                 setLoading(true);
                 // noinspection JSIgnoredPromiseFromCall
-                reloadDivisionData();
+                reloadDivisionData(true);
             }
         }
 

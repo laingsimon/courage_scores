@@ -8,7 +8,7 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDate : ISeasonHealthCheck
     [ExcludeFromCodeCoverage]
     public string Name => "Venues do not have multiple fixtures on the same date";
 
-    public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
+    public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
     {
         var result = new HealthCheckResultDto
         {
@@ -30,6 +30,6 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDate : ISeasonHealthCheck
             }
         }
 
-        return result;
+        return Task.FromResult(result);
     }
 }
