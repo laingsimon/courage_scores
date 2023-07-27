@@ -168,7 +168,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>, SeasonHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>, DivisionHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<DivisionFixtureDateDto, DivisionDateHealthDto>, DivisionDateHealthDtoAdapter>();
-        services.AddScoped<ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?>, LeagueFixtureHealthDtoAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>, LeagueFixtureHealthDtoAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

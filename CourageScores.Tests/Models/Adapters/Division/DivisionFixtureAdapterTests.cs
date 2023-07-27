@@ -81,7 +81,6 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
         Assert.That(result.Id, Is.EqualTo(game.Id));
-        Assert.That(result.Date, Is.EqualTo(game.Date));
         Assert.That(result.Postponed, Is.EqualTo(game.Postponed));
         Assert.That(result.Proposal, Is.False);
         Assert.That(result.HomeScore, Is.EqualTo(1));
@@ -127,7 +126,6 @@ public class DivisionFixtureAdapterTests
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Home, _homeTeam.Address, _token));
         _divisionFixtureTeamAdapter.Verify(a => a.Adapt(game.Away, _awayTeam.Address, _token));
         Assert.That(result.Id, Is.EqualTo(game.Id));
-        Assert.That(result.Date, Is.EqualTo(game.Date));
         Assert.That(result.Postponed, Is.EqualTo(game.Postponed));
         Assert.That(result.Proposal, Is.False);
         Assert.That(result.HomeScore, Is.EqualTo(0));

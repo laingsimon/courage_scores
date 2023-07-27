@@ -6,9 +6,9 @@ namespace CourageScores.Models.Adapters.Health;
 
 public class DivisionDateHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixtureDateDto, DivisionDateHealthDto>
 {
-    private readonly ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?> _fixtureAdapter;
+    private readonly ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?> _fixtureAdapter;
 
-    public DivisionDateHealthDtoAdapter(ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?> fixtureAdapter)
+    public DivisionDateHealthDtoAdapter(ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?> fixtureAdapter)
     {
         _fixtureAdapter = fixtureAdapter;
     }
@@ -19,7 +19,7 @@ public class DivisionDateHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixture
         {
             Date = model.Date,
             Fixtures = await model.Fixtures
-                .SelectAsync(f => _fixtureAdapter.Adapt(f, token))
+                .SelectAsync(f => _fixtureAdapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(model.Date, f), token))
                 .WhereAsync(f => f != null)
                 .SelectAsync(f => f!)
                 .ToList(),

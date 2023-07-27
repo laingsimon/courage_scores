@@ -3,25 +3,37 @@ using CourageScores.Models.Dtos.Health;
 
 namespace CourageScores.Models.Adapters.Health;
 
-public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?>
+public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>
 {
-    public Task<LeagueFixtureHealthDto?> Adapt(DivisionFixtureDto model, CancellationToken token)
+    public Task<LeagueFixtureHealthDto?> Adapt(FixtureDateMapping model, CancellationToken token)
     {
-        if (model.IsKnockout || model.AwayTeam == null)
+        if (model.Fixture.IsKnockout || model.Fixture.AwayTeam == null)
         {
             return Task.FromResult<LeagueFixtureHealthDto?>(null);
         }
 
         return Task.FromResult<LeagueFixtureHealthDto?>(new LeagueFixtureHealthDto
         {
-            Id = model.Id,
+            Id = model.Fixture.Id,
             Date = model.Date,
-            HomeTeam = model.HomeTeam.Name,
-            HomeTeamAddress = model.HomeTeam.Address?.Trim(),
-            HomeTeamId = model.HomeTeam.Id,
-            AwayTeam = model.AwayTeam.Name,
-            AwayTeamAddress = model.AwayTeam.Address?.Trim(),
-            AwayTeamId = model.AwayTeam.Id,
+            HomeTeam = model.Fixture.HomeTeam.Name,
+            HomeTeamAddress = model.Fixture.HomeTeam.Address?.Trim(),
+            HomeTeamId = model.Fixture.HomeTeam.Id,
+            AwayTeam = model.Fixture.AwayTeam.Name,
+            AwayTeamAddress = model.Fixture.AwayTeam.Address?.Trim(),
+            AwayTeamId = model.Fixture.AwayTeam.Id,
         });
+    }
+
+    public class FixtureDateMapping
+    {
+        public DateTime Date { get; }
+        public DivisionFixtureDto Fixture { get; }
+
+        public FixtureDateMapping(DateTime date, DivisionFixtureDto fixture)
+        {
+            Date = date;
+            Fixture = fixture;
+        }
     }
 }

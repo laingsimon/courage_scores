@@ -12,12 +12,12 @@ public class DivisionDateHealthDtoAdapterTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private DivisionDateHealthDtoAdapter _adapter = null!;
-    private Mock<ISimpleOnewayAdapter<DivisionFixtureDto,LeagueFixtureHealthDto?>> _fixtureAdapter = null!;
+    private Mock<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>> _fixtureAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _fixtureAdapter = new Mock<ISimpleOnewayAdapter<DivisionFixtureDto, LeagueFixtureHealthDto?>>();
+        _fixtureAdapter = new Mock<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>>();
         _adapter = new DivisionDateHealthDtoAdapter(_fixtureAdapter.Object);
     }
 
@@ -31,7 +31,9 @@ public class DivisionDateHealthDtoAdapterTests
             Date = new DateTime(2001, 02, 03),
             Fixtures = { fixture },
         };
-        _fixtureAdapter.Setup(a => a.Adapt(fixture, _token)).ReturnsAsync(fixtureDto);
+        _fixtureAdapter
+            .Setup(a => a.Adapt(It.Is<LeagueFixtureHealthDtoAdapter.FixtureDateMapping>(m => m.Fixture == fixture && m.Date == model.Date), _token))
+            .ReturnsAsync(fixtureDto);
 
         var result = await _adapter.Adapt(model, _token);
 

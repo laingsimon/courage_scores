@@ -13,10 +13,10 @@ public class LeagueFixtureHealthDtoAdapterTests
     [Test]
     public async Task Adapt_GivenDivisionFixture_SetsPropertiesCorrectly()
     {
+        var date = new DateTime(2001, 02, 03);
         var fixture = new DivisionFixtureDto
         {
             Id = Guid.NewGuid(),
-            Date = new DateTime(2001, 02, 03),
             HomeTeam = new DivisionFixtureTeamDto
             {
                 Id = Guid.NewGuid(),
@@ -31,11 +31,11 @@ public class LeagueFixtureHealthDtoAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(fixture, _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(date, fixture), _token);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.Id, Is.EqualTo(fixture.Id));
-        Assert.That(result.Date, Is.EqualTo(fixture.Date));
+        Assert.That(result.Date, Is.EqualTo(date));
         Assert.That(result.HomeTeamId, Is.EqualTo(fixture.HomeTeam.Id));
         Assert.That(result.HomeTeam, Is.EqualTo(fixture.HomeTeam.Name));
         Assert.That(result.HomeTeamAddress, Is.EqualTo(fixture.HomeTeam.Address));
@@ -63,7 +63,7 @@ public class LeagueFixtureHealthDtoAdapterTests
             IsKnockout = true,
         };
 
-        var result = await _adapter.Adapt(fixture, _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(new DateTime(2001, 02, 03), fixture), _token);
 
         Assert.That(result, Is.Null);
     }
@@ -81,7 +81,7 @@ public class LeagueFixtureHealthDtoAdapterTests
             },
         };
 
-        var result = await _adapter.Adapt(fixture, _token);
+        var result = await _adapter.Adapt(new LeagueFixtureHealthDtoAdapter.FixtureDateMapping(new DateTime(2001, 02, 03), fixture), _token);
 
         Assert.That(result, Is.Null);
     }
