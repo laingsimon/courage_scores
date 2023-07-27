@@ -96,6 +96,7 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
         return $"{division.Name}: {team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM yyyy} - {lastEvent.Date:d MMM yyyy}";
     }
 
+    [ExcludeFromCodeCoverage]
     private class EventDetail
     {
         public EventDetail(string location, DateTime date, IReadOnlyCollection<LeagueFixtureHealthDto> fixtures)
