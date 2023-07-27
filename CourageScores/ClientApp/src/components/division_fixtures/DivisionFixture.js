@@ -119,52 +119,36 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         });
     }
 
-    function renderAwayTeam() {
-        if (!isAdmin || fixture.homeScore || fixture.awayScore) {
-            return (fixture.awayTeam
-               ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                   ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
-                   : null
-               : 'Bye');
-        }
+    function renderKnockoutAwayTeams() {
+        const options = allTeams
+            .filter(t => t.id !== fixture.homeTeam.id)
+            .filter(t => any(t.seasons, ts => ts.seasonId === season.id))
+            .map(t => {
+                const otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
+                const unavailableReason = otherFixtureSameDate
+                    ? otherFixtureSameDate.awayTeam.id === t.id
+                        ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
+                        : `Already playing against ${otherFixtureSameDate.awayTeam.name}`
+                    : null;
 
-        if (any(fixture.fixturesUsingAddress)) {
-            return (<div>
-                {fixture.fixturesUsingAddress.map((otherFixture, index) => {
-                    return (<div key={index}>🚫 <EmbedAwareLink to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</EmbedAwareLink></div>)
-                })}
-            </div>);
-        }
-
-        if (fixture.isKnockout) {
-            const options = allTeams
-                .filter(t => t.id !== fixture.homeTeam.id)
-                .filter(t => any(t.seasons, ts => ts.seasonId === season.id))
-                .map(t => {
-                    const otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
-                    const unavailableReason = otherFixtureSameDate
-                        ? otherFixtureSameDate.awayTeam.id === t.id
-                            ? `Already playing against ${otherFixtureSameDate.homeTeam.name}`
-                            : `Already playing against ${otherFixtureSameDate.awayTeam.name}`
-                        : null;
-
-                    return {
-                        value: t.id,
-                        text: otherFixtureSameDate ? `🚫 ${t.name} (${unavailableReason})`: t.name,
-                        disabled: !!otherFixtureSameDate
-                    };
+                return {
+                    value: t.id,
+                    text: otherFixtureSameDate ? `🚫 ${t.name} (${unavailableReason})`: t.name,
+                    disabled: !!otherFixtureSameDate
+                };
             });
 
-            return (<BootstrapDropdown
-                value={awayTeamId}
-                onChange={onChangeAwayTeam}
-                options={options}
-                onOpen={toggleCellClip}
-                disabled={deleting}
-                readOnly={readOnly}
-            />);
-        }
+        return (<BootstrapDropdown
+            value={awayTeamId}
+            onChange={onChangeAwayTeam}
+            options={options}
+            onOpen={toggleCellClip}
+            disabled={deleting}
+            readOnly={readOnly}
+        />);
+    }
 
+    function renderLeagueAwayTeams() {
         const byeOption = fixture.id !== fixture.homeTeam.id ? [] : [bye];
         const options = byeOption.concat(teams
             .filter(t => t.id !== fixture.homeTeam.id)
@@ -186,6 +170,28 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             disabled={deleting}
             readOnly={readOnly}
         />);
+    }
+
+    function renderAwayTeam() {
+        if (!isAdmin || fixture.homeScore || fixture.awayScore) {
+            return (fixture.awayTeam
+               ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
+                   ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
+                   : null
+               : 'Bye');
+        }
+
+        if (any(fixture.fixturesUsingAddress)) {
+            return (<div>
+                {fixture.fixturesUsingAddress.map((otherFixture, index) => {
+                    return (<div key={index}>🚫 <EmbedAwareLink to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</EmbedAwareLink></div>)
+                })}
+            </div>);
+        }
+
+        return fixture.isKnockout
+            ? renderKnockoutAwayTeams()
+            : renderLeagueAwayTeams();
     }
 
     function toggleCellClip(isOpen) {
