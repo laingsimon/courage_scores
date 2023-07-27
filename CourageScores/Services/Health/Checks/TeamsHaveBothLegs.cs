@@ -41,20 +41,31 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
     private Task<HealthCheckResultDto> CheckLegs(DivisionHealthDto division, IReadOnlyCollection<LeagueFixtureHealthDto> allFixtures, DivisionTeamDto team1, DivisionTeamDto team2)
     {
         var homeLegs = allFixtures.Where(f => f.HomeTeamId == team1.Id && f.AwayTeamId == team2.Id).ToList();
-
-        var warnings = new List<string>();
-        if (homeLegs.Count != 1)
+        switch (homeLegs.Count)
         {
-            var dates = homeLegs.Count > 0
-                ? $" ({string.Join(", ", homeLegs.Select(l => l.Date.ToString("d MMM yyyy")))})"
-                : "";
-            warnings.Add($"{division.Name}: Expected 1 leg for {team1.Name} vs {team2.Name}, found {homeLegs.Count}{dates}");
+            case 1:
+                return Task.FromResult(new HealthCheckResultDto
+                {
+                    Success = true
+                });
+            case 0:
+                return Task.FromResult(new HealthCheckResultDto
+                {
+                    Success = false,
+                    Warnings =
+                    {
+                        $"{division.Name}: Missing fixture for {team1.Name} vs {team2.Name}",
+                    }
+                });
+            default:
+                return Task.FromResult(new HealthCheckResultDto
+                {
+                    Success = false,
+                    Warnings =
+                    {
+                        $"{division.Name}: Multiple fixtures for {team1.Name} vs {team2.Name} ({string.Join(", ", homeLegs.Select(l => l.Date.ToString("d MMM yyyy")))})",
+                    }
+                });
         }
-
-        return Task.FromResult(new HealthCheckResultDto
-        {
-            Success = warnings.Count == 0,
-            Warnings = warnings,
-        });
     }
 }

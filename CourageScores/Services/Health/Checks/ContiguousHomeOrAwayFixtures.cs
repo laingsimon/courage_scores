@@ -54,7 +54,7 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
                     if (contiguousEvents.Count > _maxContiguousEvents)
                     {
                         result.Success = false;
-                        result.Warnings.Add(GetWarningMessage(team, contiguousEvents));
+                        result.Warnings.Add(GetWarningMessage(division, team, contiguousEvents));
                     }
 
                     // if there has been over 1 week between fixtures then clear the record of back-to-back games
@@ -70,7 +70,7 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
                 if (contiguousEvents.Count > _maxContiguousEvents)
                 {
                     result.Success = false;
-                    result.Warnings.Add(GetWarningMessage(team, contiguousEvents));
+                    result.Warnings.Add(GetWarningMessage(division, team, contiguousEvents));
                 }
 
                 contiguousEvents.Clear();
@@ -82,18 +82,18 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
         if (contiguousEvents.Count > _maxContiguousEvents)
         {
             result.Success = false;
-            result.Warnings.Add(GetWarningMessage(team, contiguousEvents));
+            result.Warnings.Add(GetWarningMessage(division, team, contiguousEvents));
         }
 
         return Task.FromResult(result);
     }
 
-    private static string GetWarningMessage(DivisionTeamDto team, List<EventDetail> contiguousEvents)
+    private static string GetWarningMessage(DivisionHealthDto division, DivisionTeamDto team, IReadOnlyCollection<EventDetail> contiguousEvents)
     {
         var firstEvent = contiguousEvents.First();
         var lastEvent = contiguousEvents.Last();
 
-        return $"{team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM yyyy} - {lastEvent.Date:d MMM yyyy}";
+        return $"{division.Name}: {team.Name} is playing {contiguousEvents.Count} fixtures in a row at {firstEvent.Location} from {firstEvent.Date:d MMM yyyy} - {lastEvent.Date:d MMM yyyy}";
     }
 
     private class EventDetail

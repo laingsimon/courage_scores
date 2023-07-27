@@ -31,8 +31,8 @@ public class TeamsHaveBothLegsTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: Expected 1 leg for HOME vs AWAY, found 0",
-            "DIVISION: Expected 1 leg for AWAY vs HOME, found 0",
+            "DIVISION: Missing fixture for HOME vs AWAY",
+            "DIVISION: Missing fixture for AWAY vs HOME",
         }));
     }
 
@@ -72,7 +72,7 @@ public class TeamsHaveBothLegsTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: Expected 1 leg for AWAY vs HOME, found 0",
+            "DIVISION: Missing fixture for AWAY vs HOME",
         }));
     }
 
@@ -112,7 +112,7 @@ public class TeamsHaveBothLegsTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: Expected 1 leg for HOME vs AWAY, found 0",
+            "DIVISION: Missing fixture for HOME vs AWAY",
         }));
     }
 
@@ -216,7 +216,7 @@ public class TeamsHaveBothLegsTests
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: Expected 1 leg for AWAY vs HOME, found 2 (10 Feb 2001, 17 Feb 2001)",
+            "DIVISION: Multiple fixtures for AWAY vs HOME (10 Feb 2001, 17 Feb 2001)",
         }));
     }
 }
