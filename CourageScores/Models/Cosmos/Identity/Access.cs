@@ -20,4 +20,5 @@ public class Access
     public bool ViewExceptions { get; set; }
     public bool RecordScoresAsYouGo { get; set; }
     public bool ManageTournaments { get; set; }
+    public bool RunHealthChecks { get; set; }
 }

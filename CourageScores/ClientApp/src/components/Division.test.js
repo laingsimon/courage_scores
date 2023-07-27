@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../helpers/tests";
+import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../helpers/tests";
 import {Division} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
@@ -11,6 +11,8 @@ describe('Division', () => {
     let context;
     let reportedError;
     let divisionDataMap;
+    let dataRequested;
+
     const divisionApi = {
         data: async (divisionId, seasonId) => {
             const key = `${divisionId}${seasonId ? ':' + seasonId : ''}`;
@@ -19,8 +21,22 @@ describe('Division', () => {
                 throw new Error(`DivisionData request not expected for ${key}`);
             }
 
+            dataRequested.push({ divisionId, seasonId });
             return divisionDataMap[key];
         },
+    };
+    const seasonApi = {
+        getHealth: async () => {
+            return { success: true, checks: {}, messages: [], warnings: [], errors: [] };
+        },
+    };
+    const gameApi = {
+        update: async (data) => {
+            return { success: true };
+        },
+        delete: async (data) => {
+            return { success: true };
+        }
     }
 
     afterEach(() => {
@@ -28,13 +44,14 @@ describe('Division', () => {
     });
 
     beforeEach(() => {
+        dataRequested = [];
         divisionDataMap = {};
     })
 
     async function renderComponent(appProps, route, address) {
         reportedError = null;
         context = await renderApp(
-            { divisionApi },
+            { divisionApi, seasonApi, gameApi },
             { name: 'Courage Scores' },
             {
                 ...appProps,
@@ -684,6 +701,119 @@ describe('Division', () => {
             });
         });
 
+        describe('health', () => {
+            it('does not health tab when logged out', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toBeNull();
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Health');
+            });
+
+            it('does not render tab when not permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: false,
+                        }
+                    }
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toBeNull();
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(tabs.map(t => t.textContent)).not.toContain('Health');
+            });
+
+            it('renders tab when permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: true,
+                        }
+                    },
+                    controls: true,
+                }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
+
+                expect(reportedError).toBeNull();
+                const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));
+                expect(tabs.map(t => t.textContent)).toContain('Health');
+            });
+
+            it('does not render health content when not permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: false,
+                        }
+                    }
+                }, '/division/:divisionId/:mode', `/division/${division.id}/health`);
+
+                expect(reportedError).toBeNull();
+                const button = context.container.querySelector('.btn.btn-primary');
+                expect(button).toBeFalsy();
+            });
+
+            it('renders health content when permitted', async () => {
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    teams: [],
+                };
+
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            runHealthChecks: true,
+                        }
+                    }
+                }, '/division/:divisionId/:mode', `/division/${division.id}/health`);
+
+                expect(reportedError).toBeNull();
+                const component = context.container.querySelector('div[datatype="health"]');
+                expect(component).toBeTruthy();
+            });
+        });
+
         describe('data errors', () => {
             it('renders data errors when permitted', async () => {
                 divisionDataMap[division.id] = {
@@ -862,6 +992,120 @@ describe('Division', () => {
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toEqual('Error accessing division: Code: 500');
+            });
+
+            it('reloads division data when fixture created', async () => {
+                const homeTeam = {
+                    id: createTemporaryId(),
+                    name: 'HOME',
+                    seasons: [{ seasonId: season.id, players: [] }],
+                };
+                const awayTeam = {
+                    id: createTemporaryId(),
+                    name: 'AWAY',
+                    seasons: [{ seasonId: season.id, players: [] }],
+                };
+                const fixture = {
+                    id: homeTeam.id,
+                    date: '2023-07-01',
+                    homeTeam: homeTeam,
+                    awayTeam: null,
+                    isKnockout: true,
+                    fixturesUsingAddress: [],
+                };
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    fixtures: [ {
+                        date: fixture.date,
+                        fixtures: [ fixture ],
+                        tournamentFixtures: [],
+                        notes: [],
+                    }],
+                    teams: [],
+                };
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            manageGames: true,
+                        }
+                    },
+                    teams: [ homeTeam, awayTeam ],
+                }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
+                expect(dataRequested).toEqual([
+                    { divisionId: division.id, seasonId: null },
+                ]); // data loaded once
+                expect(reportedError).toBeNull();
+                const fixtureContainer = context.container.querySelector('div[data-fixture-date="2023-07-01"]').parentElement;
+
+                await doSelectOption(fixtureContainer.querySelector('.dropdown-menu'), 'AWAY');
+                await doClick(findButton(fixtureContainer, '💾'));
+
+                expect(reportedError).toBeNull();
+                expect(dataRequested).toEqual([
+                    { divisionId: division.id, seasonId: null },
+                    { divisionId: division.id, seasonId: null },
+                ]); // data loaded twice
+            });
+
+            it('reloads division data when fixture deleted', async () => {
+                const homeTeam = {
+                    id: createTemporaryId(),
+                    name: 'HOME',
+                    seasons: [{ seasonId: season.id, players: [] }],
+                };
+                const awayTeam = {
+                    id: createTemporaryId(),
+                    name: 'AWAY',
+                    seasons: [{ seasonId: season.id, players: [] }],
+                };
+                const fixture = {
+                    id: createTemporaryId(),
+                    date: '2023-07-01',
+                    homeTeam: homeTeam,
+                    awayTeam: awayTeam,
+                    isKnockout: true,
+                    fixturesUsingAddress: [],
+                };
+                divisionDataMap[division.id] = {
+                    season: season,
+                    id: division.id,
+                    name: division.name,
+                    fixtures: [ {
+                        date: fixture.date,
+                        fixtures: [ fixture ],
+                        tournamentFixtures: [],
+                        notes: [],
+                    }],
+                    teams: [],
+                };
+                await renderComponent({
+                    divisions: [ division ],
+                    seasons: [ season ],
+                    account: {
+                        access: {
+                            manageGames: true,
+                        }
+                    },
+                    teams: [ homeTeam, awayTeam ],
+                }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
+                expect(dataRequested).toEqual([
+                    { divisionId: division.id, seasonId: null },
+                ]); // data loaded once
+                expect(reportedError).toBeNull();
+                const fixtureContainer = context.container.querySelector('div[data-fixture-date="2023-07-01"]').parentElement;
+                window.confirm = () => true;
+
+                await doClick(findButton(fixtureContainer, '🗑'));
+
+                expect(reportedError).toBeNull();
+                expect(dataRequested).toEqual([
+                    { divisionId: division.id, seasonId: null },
+                    { divisionId: division.id, seasonId: null },
+                ]); // data loaded twice
             });
         });
     });

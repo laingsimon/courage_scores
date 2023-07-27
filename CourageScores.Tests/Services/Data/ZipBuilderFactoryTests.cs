@@ -67,7 +67,9 @@ public class ZipBuilderFactoryTests
         Assert.ThrowsAsync<InvalidOperationException>(
             () => _factory.Create("", new ExportDataRequestDto(), _token));
         Assert.ThrowsAsync<InvalidOperationException>(
+#pragma warning disable CS8625
             () => _factory.Create(null, new ExportDataRequestDto(), _token));
+#pragma warning restore CS8625
     }
 
     [Test]

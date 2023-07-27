@@ -24,6 +24,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ViewExceptions = model.ViewExceptions,
             RecordScoresAsYouGo = model.RecordScoresAsYouGo,
             ManageTournaments = model.ManageTournaments,
+            RunHealthChecks = model.RunHealthChecks,
         });
     }
 
@@ -46,6 +47,7 @@ public class AccessAdapter : ISimpleAdapter<Access, AccessDto>
             ViewExceptions = dto.ViewExceptions,
             RecordScoresAsYouGo = dto.RecordScoresAsYouGo,
             ManageTournaments = dto.ManageTournaments,
+            RunHealthChecks = dto.RunHealthChecks,
         });
     }
 }
