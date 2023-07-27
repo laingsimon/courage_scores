@@ -16,6 +16,7 @@ import {useApp} from "../AppContainer";
 import {DivisionDataContainer} from "./DivisionDataContainer";
 import {isGuid} from "../helpers/projection";
 import {EmbedAwareLink} from "./common/EmbedAwareLink";
+import {DivisionHealth} from "./division_health/DivisionHealth";
 
 export function Division() {
     const INVALID = 'INVALID';
@@ -227,6 +228,10 @@ export function Division() {
                     <NavLink tag={EmbedAwareLink} className={effectiveTab === 'reports' ? 'active' : ''}
                              to={`/division/${divisionIdish}/reports${seasonIdish ? '/' + seasonIdish : ''}`}>Reports</NavLink>
                 </li>) : null}
+                {account && account.access && account.access.runHealthChecks ? (<li className="nav-item">
+                    <NavLink tag={EmbedAwareLink} className={effectiveTab === 'health' ? 'active' : ''}
+                             to={`/division/${divisionIdish}/health${seasonIdish ? '/' + seasonIdish : ''}`}>Health</NavLink>
+                </li>) : null}
                 {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
                     <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
                 </li>) : null}
@@ -252,6 +257,9 @@ export function Division() {
                     : null}
                 {effectiveTab === 'reports' && divisionData.season && account && account.access && account.access.runReports
                     ? (<DivisionReports/>)
+                    : null}
+                {effectiveTab === 'health' && divisionData.season && account && account.access && account.access.runHealthChecks
+                    ? (<DivisionHealth/>)
                     : null}
                 {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
                     ? (<TeamOverview teamId={getTeamId(effectiveTab.substring('team:'.length))}/>)
