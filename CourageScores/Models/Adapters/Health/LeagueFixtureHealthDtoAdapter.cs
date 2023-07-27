@@ -17,8 +17,10 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<DivisionFixtur
             Id = model.Id,
             Date = model.Date,
             HomeTeam = model.HomeTeam.Name,
+            HomeTeamAddress = model.HomeTeam.Address?.Trim(),
             HomeTeamId = model.HomeTeam.Id,
             AwayTeam = model.AwayTeam.Name,
+            AwayTeamAddress = model.AwayTeam.Address?.Trim(),
             AwayTeamId = model.AwayTeam.Id,
         });
     }

@@ -21,11 +21,13 @@ public class LeagueFixtureHealthDtoAdapterTests
             {
                 Id = Guid.NewGuid(),
                 Name = "HOME",
+                Address = "HOME ADDRESS",
             },
             AwayTeam = new DivisionFixtureTeamDto
             {
                 Id = Guid.NewGuid(),
                 Name = "AWAY",
+                Address = "AWAY ADDRESS",
             },
         };
 
@@ -36,8 +38,10 @@ public class LeagueFixtureHealthDtoAdapterTests
         Assert.That(result.Date, Is.EqualTo(fixture.Date));
         Assert.That(result.HomeTeamId, Is.EqualTo(fixture.HomeTeam.Id));
         Assert.That(result.HomeTeam, Is.EqualTo(fixture.HomeTeam.Name));
+        Assert.That(result.HomeTeamAddress, Is.EqualTo(fixture.HomeTeam.Address));
         Assert.That(result.AwayTeamId, Is.EqualTo(fixture.AwayTeam.Id));
         Assert.That(result.AwayTeam, Is.EqualTo(fixture.AwayTeam.Name));
+        Assert.That(result.AwayTeamAddress, Is.EqualTo(fixture.AwayTeam.Address));
     }
 
     [Test]
