@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 
@@ -5,6 +6,7 @@ namespace CourageScores.Services.Health.Checks;
 
 public class TeamsAreNotPlayingAgainstThemselves : ISeasonHealthCheck
 {
+    [ExcludeFromCodeCoverage]
     public string Name => "Teams aren't configured to play against themselves";
 
     public async Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
