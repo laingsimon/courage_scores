@@ -27,7 +27,7 @@ public class TeamsPlayingMultipleFixturesOnSameDate : ISeasonHealthCheck
             (prev, current) => prev.MergeWith(current));
     }
 
-    private async Task<HealthCheckResultDto> CheckTeam(DivisionHealthDto division, DivisionTeamDto team)
+    private Task<HealthCheckResultDto> CheckTeam(DivisionHealthDto division, DivisionTeamDto team)
     {
         var result = new HealthCheckResultDto { Success = true };
 
@@ -41,6 +41,6 @@ public class TeamsPlayingMultipleFixturesOnSameDate : ISeasonHealthCheck
             }
         }
 
-        return result;
+        return Task.FromResult(result);
     }
 }
