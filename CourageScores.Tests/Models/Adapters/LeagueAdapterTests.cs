@@ -3,20 +3,21 @@ using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using NUnit.Framework;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 
 namespace CourageScores.Tests.Models.Adapters;
 
 [TestFixture]
 public class LeagueAdapterTests
 {
-    private static readonly Season Season = new Season();
+    private static readonly CosmosSeason Season = new CosmosSeason();
     private static readonly SeasonDto SeasonDto = new SeasonDto();
     private static readonly CourageScores.Models.Cosmos.Division Division = new CourageScores.Models.Cosmos.Division();
     private static readonly DivisionDto DivisionDto = new DivisionDto();
     private readonly CancellationToken _token = new CancellationToken();
     private readonly LeagueAdapter _adapter = new LeagueAdapter(
         new MockAdapter<CourageScores.Models.Cosmos.Division, DivisionDto>(Division, DivisionDto),
-        new MockAdapter<Season, SeasonDto>(Season, SeasonDto));
+        new MockAdapter<CosmosSeason, SeasonDto>(Season, SeasonDto));
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()

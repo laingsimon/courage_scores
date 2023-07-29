@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 using CosmosGame = CourageScores.Models.Cosmos.Game.Game;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 
 namespace CourageScores.Tests.Services.Division;
 
@@ -28,7 +29,7 @@ public class DivisionServiceTests
     private DivisionService _service = null!;
     private Mock<IGenericDataService<CourageScores.Models.Cosmos.Division,DivisionDto>> _genericService = null!;
     private Mock<ITeamService> _teamService = null!;
-    private Mock<IGenericDataService<CourageScores.Models.Cosmos.Season,SeasonDto>> _genericSeasonService = null!;
+    private Mock<IGenericDataService<CosmosSeason,SeasonDto>> _genericSeasonService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentGameRepository = null!;
     private Mock<IGenericDataService<FixtureDateNote,FixtureDateNoteDto>> _noteService = null!;
@@ -43,7 +44,7 @@ public class DivisionServiceTests
     {
         _genericService = new Mock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>>();
         _teamService = new Mock<ITeamService>();
-        _genericSeasonService = new Mock<IGenericDataService<CourageScores.Models.Cosmos.Season, SeasonDto>>();
+        _genericSeasonService = new Mock<IGenericDataService<CosmosSeason, SeasonDto>>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _tournamentGameRepository = new Mock<IGenericRepository<TournamentGame>>();
         _noteService = new Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>>();

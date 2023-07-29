@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Dtos.Identity;
 
-namespace CourageScores.Models.Cosmos;
+namespace CourageScores.Models.Cosmos.Season;
 
 /// <summary>
 /// A record of a season within the league

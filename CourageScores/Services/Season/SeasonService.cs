@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Authentication;
 
 namespace CourageScores.Services.Season;
 
-public class SeasonService : GenericDataService<Models.Cosmos.Season, SeasonDto>, ISeasonService
+public class SeasonService : GenericDataService<Models.Cosmos.Season.Season, SeasonDto>, ISeasonService
 {
     private readonly ISystemClock _clock;
 
     public SeasonService(
-        IGenericRepository<Models.Cosmos.Season> repository,
-        IAdapter<Models.Cosmos.Season, SeasonDto> adapter,
+        IGenericRepository<Models.Cosmos.Season.Season> repository,
+        IAdapter<Models.Cosmos.Season.Season, SeasonDto> adapter,
         IUserService userService,
         IAuditingHelper auditingHelper,
         ISystemClock clock,
