@@ -6,12 +6,14 @@ using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Adapters.Identity;
 using CourageScores.Models.Adapters.Season;
+using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Cosmos.Identity;
 using CourageScores.Models.Cosmos.Season;
+using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -20,6 +22,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
@@ -145,6 +148,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<League, LeagueDto, LeagueAdapter>(services);
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
         AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
+        AddAdapter<Template, TemplateDto, TemplateAdapter>(services);
 
         services.AddScoped<IDivisionFixtureAdapter, DivisionFixtureAdapter>();
         services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
@@ -171,6 +175,11 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>, DivisionHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<DivisionFixtureDateDto, DivisionDateHealthDto>, DivisionDateHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>, LeagueFixtureHealthDtoAdapter>();
+
+        services.AddScoped<ISimpleAdapter<DateTemplate, DateTemplateDto>, DateTemplateAdapter>();
+        services.AddScoped<ISimpleAdapter<DivisionTemplate, DivisionTemplateDto>, DivisionTemplateAdapter>();
+        services.AddScoped<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>, FixtureTemplateAdapter>();
+        services.AddScoped<ISimpleAdapter<SharedAddress, SharedAddressDto>, SharedAddressAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
