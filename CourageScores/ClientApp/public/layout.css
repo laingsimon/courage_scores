@@ -372,3 +372,7 @@ body .width-50 {
         overflow: initial !important;
     }
 }
+
+.width-100 {
+    width: 100%;
+}
