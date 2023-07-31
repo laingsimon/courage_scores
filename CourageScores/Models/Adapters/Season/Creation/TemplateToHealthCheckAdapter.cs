@@ -9,14 +9,16 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
 {
     public Task<SeasonHealthDto> Adapt(Template model, CancellationToken token)
     {
-        var teams = GetTeams(model);
         var startDate = new DateTime(2023, 01, 01);
-
-        return Task.FromResult(new SeasonHealthDto
+        var dto = new SeasonHealthDto
         {
             Name = model.Name,
-            Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index+1}", startDate, teams)).ToList(),
-        });
+            StartDate = startDate,
+            Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model))).ToList(),
+        };
+        dto.EndDate = dto.Divisions.SelectMany(d => d.Dates).Max(d => d.Date);
+
+        return Task.FromResult(dto);
     }
 
     private static IEnumerable<string> GetPlaceholdersForDivision(DivisionTemplate division)

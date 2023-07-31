@@ -404,6 +404,8 @@ public class TemplateToHealthCheckAdapterTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Divisions.Count, Is.EqualTo(1));
+        Assert.That(result.StartDate, Is.EqualTo(new DateTime(2023, 01, 01)));
+        Assert.That(result.EndDate, Is.EqualTo(new DateTime(2023, 01, 08)));
         AssertDivision(
             result.Divisions[0],
             new DivisionHealthDto
