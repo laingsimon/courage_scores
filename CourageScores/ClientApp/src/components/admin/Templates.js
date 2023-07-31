@@ -57,7 +57,24 @@ export function Templates() {
     }
 
     function setEditingTemplate(t) {
-        setEditing(JSON.stringify(t, excludePropertiesFromEdit, '  '));
+        let jsonString = JSON.stringify(t, excludePropertiesFromEdit, '  ');
+
+        // fixture inlining
+        jsonString = jsonString.replaceAll(',\n              "away"', ', "away"');
+        jsonString = jsonString.replaceAll('"\n            }', '" }');
+        jsonString = jsonString.replaceAll('{\n              "', '{ "');
+
+        // division shared address inlining
+        jsonString = jsonString.replaceAll('[\n          "', '[ "');
+        jsonString = jsonString.replaceAll('",\n          "', '", "');
+        jsonString = jsonString.replaceAll('"\n        ]', '" ]');
+
+        // season shared address inlining
+        jsonString = jsonString.replaceAll('[\n      "', '[ "');
+        jsonString = jsonString.replaceAll('",\n      "', '", "');
+        jsonString = jsonString.replaceAll('"\n    ]', '" ]');
+
+        setEditing(jsonString);
         setValid(true);
     }
 
