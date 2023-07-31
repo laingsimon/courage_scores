@@ -15,7 +15,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         return Task.FromResult(new SeasonHealthDto
         {
             Name = model.Name,
-            Divisions = model.Divisions.Select(d => AdaptDivision(d, startDate, teams)).ToList(),
+            Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index+1}", startDate, teams)).ToList(),
         });
     }
 
@@ -79,11 +79,13 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
 
     private static DivisionHealthDto AdaptDivision(
         DivisionTemplate divisionTemplate,
+        string name,
         DateTime startDate,
         IReadOnlyDictionary<string, DivisionTeamDto> teams)
     {
         return new DivisionHealthDto
         {
+            Name = name,
             Teams = teams.Values.Where(t => divisionTemplate.Placeholders.Contains(t.Name)).ToList(),
             Dates = divisionTemplate.Dates.Select((d, index) => AdaptDate(d, startDate.AddDays(index * 7), teams)).ToList(),
         };

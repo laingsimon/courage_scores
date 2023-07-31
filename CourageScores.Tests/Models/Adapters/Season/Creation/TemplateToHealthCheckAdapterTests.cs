@@ -45,6 +45,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A" },
@@ -104,6 +105,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A" },
@@ -163,6 +165,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A", Address = "A & D" },
@@ -222,6 +225,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A" },
@@ -281,6 +285,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A", Address = "A & D" },
@@ -344,6 +349,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A", Address = "A & D" },
@@ -407,6 +413,7 @@ public class TemplateToHealthCheckAdapterTests
             result.Divisions[0],
             new DivisionHealthDto
             {
+                Name = "Division 1",
                 Teams =
                 {
                     new DivisionTeamDto { Name = "A" }, new DivisionTeamDto { Name = "B" },
@@ -440,6 +447,7 @@ public class TemplateToHealthCheckAdapterTests
         DivisionHealthDto division,
         DivisionHealthDto expected)
     {
+        Assert.That(division.Name, Is.EqualTo(expected.Name));
         Assert.That(division.Teams.Select(t => t.Name), Is.EquivalentTo(expected.Teams.Select(t => t.Name)));
         Assert.That(division.Teams.Select(t => t.Address), Is.EquivalentTo(expected.Teams.Select(t => t.Address)));
 
