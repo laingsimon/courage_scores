@@ -22,7 +22,6 @@ public class DivisionTemplateAdapter : ISimpleAdapter<DivisionTemplate, Division
         return new DivisionTemplateDto
         {
             Dates = await model.Dates.SelectAsync(d => _dateTemplateAdapter.Adapt(d, token)).ToList(),
-            Placeholders = model.Placeholders.Select(p => new TeamPlaceholderDto(p)).ToList(),
             SharedAddresses =
                 await model.SharedAddresses.SelectAsync(a => _sharedAddressAdapter.Adapt(a, token)).ToList(),
         };
@@ -33,7 +32,6 @@ public class DivisionTemplateAdapter : ISimpleAdapter<DivisionTemplate, Division
         return new DivisionTemplate
         {
             Dates = await dto.Dates.SelectAsync(d => _dateTemplateAdapter.Adapt(d, token)).ToList(),
-            Placeholders = dto.Placeholders.Select(p => p.Key).ToList(),
             SharedAddresses = await dto.SharedAddresses.SelectAsync(a => _sharedAddressAdapter.Adapt(a, token)).ToList(),
         };
     }

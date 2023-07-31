@@ -9,11 +9,6 @@ namespace CourageScores.Models.Dtos.Season.Creation;
 public class DivisionTemplateDto
 {
     /// <summary>
-    /// The team placeholders for this template
-    /// </summary>
-    public List<TeamPlaceholderDto> Placeholders { get; set; } = new();
-
-    /// <summary>
     /// Which teams can have the same address
     /// </summary>
     public List<SharedAddressDto> SharedAddresses { get; set; } = new();

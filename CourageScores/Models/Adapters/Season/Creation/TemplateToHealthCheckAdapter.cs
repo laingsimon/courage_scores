@@ -19,10 +19,30 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         });
     }
 
+    private static IEnumerable<string> GetPlaceholdersForDivision(DivisionTemplate division)
+    {
+        foreach (var date in division.Dates)
+        {
+            foreach (var fixture in date.Fixtures)
+            {
+                yield return fixture.Home;
+                yield return fixture.Away;
+            }
+        }
+
+        foreach (var sharedAddress in division.SharedAddresses)
+        {
+            foreach (var team in sharedAddress.Teams)
+            {
+                yield return team;
+            }
+        }
+    }
+
     private static IReadOnlyDictionary<string, DivisionTeamDto> GetTeams(Template model)
     {
         var allPlaceholders = model.Divisions
-            .SelectMany(d => d.Placeholders)
+            .SelectMany(GetPlaceholdersForDivision)
             .Distinct()
             .Select(p => new DivisionTeamDto { Name = p, Id = Guid.NewGuid() })
             .ToDictionary(t => t.Name);
@@ -83,10 +103,12 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         DateTime startDate,
         IReadOnlyDictionary<string, DivisionTeamDto> teams)
     {
+        var teamsInDivision = GetPlaceholdersForDivision(divisionTemplate).ToHashSet();
+
         return new DivisionHealthDto
         {
             Name = name,
-            Teams = teams.Values.Where(t => divisionTemplate.Placeholders.Contains(t.Name)).ToList(),
+            Teams = teams.Values.Where(t => teamsInDivision.Contains(t.Name)).ToList(),
             Dates = divisionTemplate.Dates.Select((d, index) => AdaptDate(d, startDate.AddDays(index * 7), teams)).ToList(),
         };
     }

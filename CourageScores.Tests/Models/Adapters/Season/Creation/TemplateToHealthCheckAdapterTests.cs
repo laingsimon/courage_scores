@@ -21,7 +21,6 @@ public class TemplateToHealthCheckAdapterTests
             {
                 new DivisionTemplate
                 {
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate
@@ -81,7 +80,6 @@ public class TemplateToHealthCheckAdapterTests
             {
                 new DivisionTemplate
                 {
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate
@@ -141,7 +139,6 @@ public class TemplateToHealthCheckAdapterTests
             {
                 new DivisionTemplate
                 {
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate
@@ -201,7 +198,6 @@ public class TemplateToHealthCheckAdapterTests
                     {
                         new SharedAddress { Teams = { "E", "F" } },
                     },
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate
@@ -232,6 +228,8 @@ public class TemplateToHealthCheckAdapterTests
                     new DivisionTeamDto { Name = "B" },
                     new DivisionTeamDto { Name = "C" },
                     new DivisionTeamDto { Name = "D" },
+                    new DivisionTeamDto { Name = "E", Address = "E & F" },
+                    new DivisionTeamDto { Name = "F", Address = "E & F" },
                 },
                 Dates =
                 {
@@ -261,7 +259,6 @@ public class TemplateToHealthCheckAdapterTests
                     {
                         new SharedAddress { Teams = { "A", "D" } },
                     },
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate
@@ -325,7 +322,6 @@ public class TemplateToHealthCheckAdapterTests
                     {
                         new SharedAddress { Teams = { "A", "B" } },
                     },
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate
@@ -381,7 +377,6 @@ public class TemplateToHealthCheckAdapterTests
             {
                 new DivisionTemplate
                 {
-                    Placeholders = { "A", "B", "C", "D" },
                     Dates =
                     {
                         new DateTemplate

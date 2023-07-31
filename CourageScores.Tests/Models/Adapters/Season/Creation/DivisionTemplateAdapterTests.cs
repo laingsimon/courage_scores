@@ -37,11 +37,6 @@ public class DivisionTemplateAdapterTests
             {
                 DateTemplateDto,
             },
-            Placeholders =
-            {
-                new TeamPlaceholderDto("A"),
-                new TeamPlaceholderDto("B"),
-            },
             SharedAddresses =
             {
                 SharedAddressDto
@@ -51,7 +46,6 @@ public class DivisionTemplateAdapterTests
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Dates, Is.EquivalentTo(new[] { DateTemplate }));
-        Assert.That(result.Placeholders, Is.EquivalentTo(new[] { "A", "B" }));
         Assert.That(result.SharedAddresses, Is.EquivalentTo(new[] { SharedAddress }));
     }
 
@@ -64,7 +58,6 @@ public class DivisionTemplateAdapterTests
             {
                 DateTemplate,
             },
-            Placeholders = { "A", "B" },
             SharedAddresses =
             {
                 SharedAddress
@@ -74,7 +67,6 @@ public class DivisionTemplateAdapterTests
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Dates, Is.EquivalentTo(new[] { DateTemplateDto }));
-        Assert.That(result.Placeholders.Select(p => p.Key), Is.EquivalentTo(new[] { "A", "B" }));
         Assert.That(result.SharedAddresses, Is.EquivalentTo(new[] { SharedAddressDto }));
     }
 }
