@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
+import {stateChanged} from "../../helpers/events";
 
 export function Templates() {
     const EMPTY_TEMPLATE = {};
@@ -17,13 +18,13 @@ export function Templates() {
     const [ deleting, setDeleting ] = useState(false);
     const [ valid, setValid ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
+    const [ fixtureToFormat, setFixtureToFormat ] = useState(null);
 
     async function loadTemplates() {
         try {
             const templates = await templateApi.getAll();
             setTemplates(templates);
             setLoading(false);
-            setEditing(null);
         } catch (e) {
             onError(e);
         }
@@ -144,6 +145,7 @@ export function Templates() {
             }
             const result = await templateApi.update(template);
             if (result.success) {
+                setEditing(null);
                 await loadTemplates();
             } else {
                 setSaveError(result);
@@ -166,6 +168,7 @@ export function Templates() {
         try {
             const result = await templateApi.delete(selected.id);
             if (result.success) {
+                setEditing(null);
                 await loadTemplates();
             } else {
                 setSaveError(result);
@@ -183,6 +186,36 @@ export function Templates() {
         } catch (e) {
             setValid(false);
         }
+    }
+
+    function formatFixtureInput() {
+        if (!fixtureToFormat) {
+            return '';
+        }
+
+        const fixtures = fixtureToFormat.split(/\s+/);
+
+        const toFormat = {
+            fixtures: []
+        };
+        let fixtureBatch = [];
+        while (fixtures.length > 0) {
+            const fixture = fixtures.shift();
+            if (!fixture) {
+                continue;
+            }
+
+            fixtureBatch.push(fixture);
+            if (fixtureBatch.length === 2){
+                toFormat.fixtures.push({
+                    home: fixtureBatch[0],
+                    away: fixtureBatch[1],
+                });
+                fixtureBatch = [];
+            }
+        }
+
+        return JSON.stringify(toFormat, null, '    ');
     }
 
     try {
@@ -207,6 +240,11 @@ export function Templates() {
                 {selected && selected.templateHealth ? (<div>
                     <ViewHealthCheck result={selected.templateHealth} />
                 </div>) : null}
+                <div className="mt-3 text-secondary">
+                    <div>Authoring tools: Copy fixture template from excel (per division)</div>
+                    <input value={fixtureToFormat} placeholder="Copy from excel" onChange={stateChanged(setFixtureToFormat)} />
+                    <textarea value={formatFixtureInput()} className="d-inline-block width-100" placeholder="Copy into template" readOnly="true"></textarea>
+                </div>
             </div> : (<div>
                 <button className="btn btn-primary margin-right" onClick={() => setEditingTemplate(EMPTY_TEMPLATE)}>Add</button>
             </div>)}
