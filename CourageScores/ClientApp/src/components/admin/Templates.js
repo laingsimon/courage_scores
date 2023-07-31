@@ -2,6 +2,7 @@ import {useDependencies} from "../../IocContainer";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
+import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
 
 export function Templates() {
     const EMPTY_TEMPLATE = {};
@@ -171,9 +172,12 @@ export function Templates() {
             {loading || loading === null
                 ? (<p><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span> Loading templates...</p>)
                 : renderTemplates()}
-            {editing ? <div>
+            {editing !== null ? <div>
                 <p>Template definition</p>
                 <textarea className="width-100 min-height-100" rows="15" value={editing} onChange={e => updateTemplate(e.target.value)}></textarea>
+                {selected && selected.templateHealth ? (<div>
+                    <ViewHealthCheck result={selected.templateHealth} />
+                </div>) : null}
                 <div>
                     <button className="btn btn-primary margin-right" onClick={saveTemplate} disabled={!valid}>
                         {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}

@@ -326,6 +326,7 @@ describe('Templates', () => {
 
         expect(reportedError).toBeNull();
         expect(context.container.querySelector('textarea').value).toEqual('{}');
+        expect(context.container.querySelector('button.bg-danger')).toBeFalsy();
     });
 
     it('can save new template', async () => {
@@ -339,5 +340,20 @@ describe('Templates', () => {
         expect(updated).toEqual({
             lastUpdated: undefined,
         });
+    });
+
+    it('an empty template does not exit editing', async () => {
+        const template = {
+            id: createTemporaryId(),
+            name: 'TEMPLATE',
+        };
+        templates = [ template ];
+        await renderComponent();
+        await doClick(findButton(context.container, 'Add'));
+
+        await doChange(context.container, 'textarea', '', context.user);
+
+        expect(reportedError).toBeNull();
+        expect(findButton(context.container, 'Save')).toBeTruthy();
     });
 });
