@@ -32,6 +32,7 @@ public class AccessAdapterTests
             ViewExceptions = true,
             ManageTournaments = true,
             RunHealthChecks = true,
+            ManageSeasonTemplates = true,
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -52,6 +53,7 @@ public class AccessAdapterTests
         Assert.That(result.RecordScoresAsYouGo, Is.EqualTo(model.RecordScoresAsYouGo));
         Assert.That(result.ManageTournaments, Is.EqualTo(model.ManageTournaments));
         Assert.That(result.RunHealthChecks, Is.EqualTo(model.RunHealthChecks));
+        Assert.That(result.ManageSeasonTemplates, Is.EqualTo(model.ManageSeasonTemplates));
     }
 
     [Test]
@@ -75,6 +77,7 @@ public class AccessAdapterTests
             RecordScoresAsYouGo = true,
             ManageTournaments = true,
             RunHealthChecks = true,
+            ManageSeasonTemplates = true,
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -94,5 +97,6 @@ public class AccessAdapterTests
         Assert.That(result.RecordScoresAsYouGo, Is.EqualTo(dto.RecordScoresAsYouGo));
         Assert.That(result.ManageTournaments, Is.EqualTo(dto.ManageTournaments));
         Assert.That(result.RunHealthChecks, Is.EqualTo(dto.RunHealthChecks));
+        Assert.That(result.ManageSeasonTemplates, Is.EqualTo(dto.ManageSeasonTemplates));
     }
 }

@@ -57,7 +57,18 @@ public class HealthCheckService : IHealthCheckService
                 token))
             .ToList();
 
-        if (divisionalData.Count == 0)
+        var seasonHealthDto = await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), token);
+
+        var result = await Check(seasonHealthDto, token);
+        result.Errors.InsertRange(0, divisionalData.SelectMany(d => d.DataErrors));
+        result.Success = result.Success && result.Errors.Count == 0;
+
+        return result;
+    }
+
+    public async Task<SeasonHealthCheckResultDto> Check(SeasonHealthDto season, CancellationToken token)
+    {
+        if (season.Divisions.Count == 0)
         {
             return new SeasonHealthCheckResultDto
             {
@@ -66,14 +77,9 @@ public class HealthCheckService : IHealthCheckService
             };
         }
 
-        var result = new SeasonHealthCheckResultDto
-        {
-            Errors = divisionalData.SelectMany(d => d.DataErrors).ToList(),
-            Success = divisionalData.Any(d => !d.DataErrors.Any()),
-        };
-
         var checks = _seasonHealthCheckFactory.GetHealthChecks();
-        var context = new HealthCheckContext(await _seasonAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(season, divisionalData), token));
+        var context = new HealthCheckContext(season);
+        var result = new SeasonHealthCheckResultDto { Success = true };
 
         foreach (var check in checks)
         {

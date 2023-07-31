@@ -14,6 +14,7 @@ import {DivisionApi} from "./api/division";
 import {SeasonApi} from "./api/season";
 import {SaygApi} from "./api/sayg";
 import {ParentHeight} from "./ParentHeight";
+import {TemplateApi} from "./api/template";
 
 const DependenciesContext = createContext({});
 
@@ -39,6 +40,7 @@ export function IocContainer({ children, ...services }) {
         playerApi: new PlayerApi(http),
         reportApi: new ReportApi(http),
         saygApi: new SaygApi(http),
+        templateApi: new TemplateApi(http),
         parentHeight: new ParentHeight(25),
     };
 

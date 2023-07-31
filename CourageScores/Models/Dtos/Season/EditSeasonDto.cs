@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace CourageScores.Models.Dtos;
+namespace CourageScores.Models.Dtos.Season;
 
 [ExcludeFromCodeCoverage]
 public class EditSeasonDto : IIntegrityCheckDto

@@ -17,7 +17,7 @@ public class DivisionService : IDivisionService
 {
     private readonly IGenericDataService<Models.Cosmos.Division, DivisionDto> _genericDivisionService;
     private readonly ITeamService _genericTeamService;
-    private readonly IGenericDataService<Models.Cosmos.Season, SeasonDto> _genericSeasonService;
+    private readonly IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> _genericSeasonService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly IGenericRepository<TournamentGame> _tournamentGameRepository;
     private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
@@ -28,7 +28,7 @@ public class DivisionService : IDivisionService
     public DivisionService(
         IGenericDataService<Models.Cosmos.Division, DivisionDto> genericDivisionService,
         ITeamService genericTeamService,
-        IGenericDataService<Models.Cosmos.Season, SeasonDto> genericSeasonService,
+        IGenericDataService<Models.Cosmos.Season.Season, SeasonDto> genericSeasonService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentGameRepository,
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,

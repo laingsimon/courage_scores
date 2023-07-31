@@ -158,6 +158,7 @@ export function UserAdmin() {
         {renderAccessOption('viewExceptions', 'View exceptions')}
         {renderAccessOption('recordScoresAsYouGo', 'Record scores as you go')}
         {renderAccessOption('runHealthChecks', 'Run health checks')}
+        {renderAccessOption('manageSeasonTemplates', 'Manage season templates')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
                 {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
