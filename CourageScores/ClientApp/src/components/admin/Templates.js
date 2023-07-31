@@ -199,10 +199,10 @@ export function Templates() {
                         {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                         Save
                     </button>
-                    <button className="btn btn-danger margin-right" onClick={deleteTemplate}>
+                    {selected && selected.id ? (<button className="btn btn-danger margin-right" onClick={deleteTemplate}>
                         {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                         Delete
-                    </button>
+                    </button>) : null}
                 </div>
                 {selected && selected.templateHealth ? (<div>
                     <ViewHealthCheck result={selected.templateHealth} />
