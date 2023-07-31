@@ -68,41 +68,24 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         {
             foreach (var sharedAddress in division.SharedAddresses)
             {
-                var existingAddresses = sharedAddress
+                var teamsForSharedAddress = sharedAddress
+                    .Distinct()
                     .Select(p => allPlaceholders.TryGetValue(p, out var team)
                         ? team
                         : null)
-                    .Where(t => t != null && !string.IsNullOrEmpty(t.Address))
-                    .Distinct()
+                    .ToArray();
+                var teamsWithSameAddress = allPlaceholders.Values.Join(
+                    teamsForSharedAddress.Where(t => t != null && !string.IsNullOrEmpty(t.Address)),
+                    t => t.Address,
+                    t => t!.Address,
+                    (allPlaceholdersTeam, _) => allPlaceholdersTeam)
                     .ToArray();
 
-                if (existingAddresses.Length > 1)
+                var address = string.Join(" & ", teamsWithSameAddress.Select(t => t.Name).Concat(sharedAddress).Distinct().OrderBy(a => a));
+
+                foreach (var otherTeam in teamsWithSameAddress.Concat(teamsForSharedAddress.Where(t => t != null)).Distinct())
                 {
-                    Trace.TraceError("Multiple shared addresses found for teams that require a shared address in division");
-                    continue;
-                }
-
-                var existingTeamsWithSameAddress = existingAddresses.Length == 1
-                    ? allPlaceholders.Values.Where(t => t.Address == existingAddresses[0]!.Address).ToArray()
-                    : Array.Empty<DivisionTeamDto>();
-                var address = existingAddresses.Length == 1
-                    ? string.Join(" & ", existingTeamsWithSameAddress.Select(t => t!.Name).Concat(sharedAddress).Distinct())
-                    : string.Join(" & ", sharedAddress);
-
-                foreach (var placeholder in sharedAddress)
-                {
-                    if (!allPlaceholders.TryGetValue(placeholder, out var team))
-                    {
-                        Trace.TraceError($"Could not find team for placeholder {placeholder}");
-                        continue;
-                    }
-
-                    team.Address = address;
-                }
-
-                foreach (var otherTeams in existingTeamsWithSameAddress)
-                {
-                    otherTeams.Address = address;
+                    otherTeam!.Address = address;
                 }
             }
         }

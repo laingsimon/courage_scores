@@ -348,10 +348,10 @@ public class TemplateToHealthCheckAdapterTests
                 Name = "Division 1",
                 Teams =
                 {
-                    new DivisionTeamDto { Name = "A", Address = "A & D & B" },
-                    new DivisionTeamDto { Name = "B", Address = "A & D & B" },
+                    new DivisionTeamDto { Name = "A", Address = "A & B & D" },
+                    new DivisionTeamDto { Name = "B", Address = "A & B & D" },
                     new DivisionTeamDto { Name = "C" },
-                    new DivisionTeamDto { Name = "D", Address = "A & D & B" },
+                    new DivisionTeamDto { Name = "D", Address = "A & B & D" },
                 },
                 Dates =
                 {
@@ -360,8 +360,72 @@ public class TemplateToHealthCheckAdapterTests
                         Date = new DateTime(2023, 01, 01),
                         Fixtures =
                         {
-                            new LeagueFixtureHealthDto { HomeTeam = "A", AwayTeam = "B", HomeTeamAddress = "A & D & B", AwayTeamAddress = "A & D & B" },
-                            new LeagueFixtureHealthDto { HomeTeam = "C", AwayTeam = "D", AwayTeamAddress = "A & D & B" }
+                            new LeagueFixtureHealthDto { HomeTeam = "A", AwayTeam = "B", HomeTeamAddress = "A & B & D", AwayTeamAddress = "A & B & D" },
+                            new LeagueFixtureHealthDto { HomeTeam = "C", AwayTeam = "D", AwayTeamAddress = "A & B & D" }
+                        }
+                    }
+                }
+            });
+    }
+
+    [Test]
+    public async Task Adapt_GivenTeamWithMultipleDivisionSharedAddresses_ShouldSetSharedAddress()
+    {
+        var template = new Template
+        {
+            SharedAddresses =
+            {
+                new List<string> { "A", "D" },
+            },
+            Divisions =
+            {
+                new DivisionTemplate
+                {
+                    SharedAddresses =
+                    {
+                        new List<string> { "A", "D" },
+                        new List<string> { "A", "C" }, // something different to A & D
+                    },
+                    Dates =
+                    {
+                        new DateTemplate
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplate { Home = "A", Away = "B" },
+                                new FixtureTemplate { Home = "C", Away = "D" },
+                            }
+                        },
+                    },
+                },
+            },
+        };
+
+        var result = await _adapter.Adapt(template, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Divisions.Count, Is.EqualTo(1));
+        AssertDivision(
+            result.Divisions[0],
+            new DivisionHealthDto
+            {
+                Name = "Division 1",
+                Teams =
+                {
+                    new DivisionTeamDto { Name = "A", Address = "A & C & D" },
+                    new DivisionTeamDto { Name = "B" },
+                    new DivisionTeamDto { Name = "C", Address = "A & C & D" },
+                    new DivisionTeamDto { Name = "D", Address = "A & C & D" },
+                },
+                Dates =
+                {
+                    new DivisionDateHealthDto
+                    {
+                        Date = new DateTime(2023, 01, 01),
+                        Fixtures =
+                        {
+                            new LeagueFixtureHealthDto { HomeTeam = "A", AwayTeam = "B", HomeTeamAddress = "A & C & D" },
+                            new LeagueFixtureHealthDto { HomeTeam = "C", AwayTeam = "D", HomeTeamAddress = "A & C & D", AwayTeamAddress = "A & C & D" }
                         }
                     }
                 }
@@ -476,8 +540,8 @@ public class TemplateToHealthCheckAdapterTests
     private static void AssertFixture(LeagueFixtureHealthDto actual, LeagueFixtureHealthDto expected)
     {
         Assert.That(actual.HomeTeam, Is.EqualTo(expected.HomeTeam));
-        Assert.That(actual.HomeTeamAddress, Is.EqualTo(expected.HomeTeamAddress));
+        Assert.That(actual.HomeTeamAddress, Is.EqualTo(expected.HomeTeamAddress), () => $"Home address for {expected.HomeTeam} vs {expected.AwayTeam} is incorrect");
         Assert.That(actual.AwayTeam, Is.EqualTo(expected.AwayTeam));
-        Assert.That(actual.AwayTeamAddress, Is.EqualTo(expected.AwayTeamAddress));
+        Assert.That(actual.AwayTeamAddress, Is.EqualTo(expected.AwayTeamAddress), () => $"Away address for {expected.HomeTeam} vs {expected.AwayTeam} is incorrect");
     }
 }
