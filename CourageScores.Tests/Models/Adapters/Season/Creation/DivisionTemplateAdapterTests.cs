@@ -11,18 +11,18 @@ public class DivisionTemplateAdapterTests
 {
     private static readonly DateTemplate DateTemplate = new DateTemplate();
     private static readonly DateTemplateDto DateTemplateDto = new DateTemplateDto();
-    private static readonly SharedAddress SharedAddress = new SharedAddress();
-    private static readonly SharedAddressDto SharedAddressDto = new SharedAddressDto();
+    private static readonly List<string> SharedAddress = new List<string>();
+    private static readonly List<TeamPlaceholderDto> SharedAddressDto = new List<TeamPlaceholderDto>();
     private readonly CancellationToken _token = new CancellationToken();
     private DivisionTemplateAdapter _adapter = null!;
     private ISimpleAdapter<DateTemplate, DateTemplateDto> _dateTemplateAdapter = null!;
-    private ISimpleAdapter<SharedAddress, SharedAddressDto> _sharedAddressAdapter = null!;
+    private ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
         _dateTemplateAdapter = new MockSimpleAdapter<DateTemplate, DateTemplateDto>(DateTemplate, DateTemplateDto);
-        _sharedAddressAdapter = new MockSimpleAdapter<SharedAddress, SharedAddressDto>(SharedAddress, SharedAddressDto);
+        _sharedAddressAdapter = new MockSimpleAdapter<List<string>, List<TeamPlaceholderDto>>(SharedAddress, SharedAddressDto);
         _adapter = new DivisionTemplateAdapter(
             _dateTemplateAdapter,
             _sharedAddressAdapter);

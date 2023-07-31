@@ -10,19 +10,19 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class TemplateAdapterTests
 {
-    private static readonly SharedAddress SharedAddress = new SharedAddress();
-    private static readonly SharedAddressDto SharedAddressDto = new SharedAddressDto();
+    private static readonly List<string> SharedAddress = new List<string>();
+    private static readonly List<TeamPlaceholderDto> SharedAddressDto = new List<TeamPlaceholderDto>();
     private static readonly DivisionTemplate DivisionTemplate = new DivisionTemplate();
     private static readonly DivisionTemplateDto DivisionTemplateDto = new DivisionTemplateDto();
     private readonly CancellationToken _token = new CancellationToken();
     private TemplateAdapter _adapter = null!;
-    private ISimpleAdapter<SharedAddress, SharedAddressDto> _sharedAddressAdapter = null!;
+    private ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter = null!;
     private ISimpleAdapter<DivisionTemplate, DivisionTemplateDto> _divisionTemplateAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _sharedAddressAdapter = new MockSimpleAdapter<SharedAddress, SharedAddressDto>(SharedAddress, SharedAddressDto);
+        _sharedAddressAdapter = new MockSimpleAdapter<List<string>, List<TeamPlaceholderDto>>(SharedAddress, SharedAddressDto);
         _divisionTemplateAdapter = new MockSimpleAdapter<DivisionTemplate, DivisionTemplateDto>(DivisionTemplate, DivisionTemplateDto);
         _adapter = new TemplateAdapter(
             _sharedAddressAdapter,

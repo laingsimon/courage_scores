@@ -1,5 +1,4 @@
 ﻿using CourageScores.Models.Adapters.Season.Creation;
-using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos.Season.Creation;
 using NUnit.Framework;
 
@@ -20,50 +19,41 @@ public class SharedAddressAdapterTests
     [Test]
     public async Task Adapt_GivenDto_SetsPropertiesCorrectly()
     {
-        var dto = new SharedAddressDto
+        var dto = new List<TeamPlaceholderDto>
         {
-            Teams =
-            {
-                new TeamPlaceholderDto("A"),
-                new TeamPlaceholderDto("B"),
-            }
+            new TeamPlaceholderDto("A"),
+            new TeamPlaceholderDto("B"),
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Teams, Is.EqualTo(new[] { "A", "B" }));
+        Assert.That(result, Is.EqualTo(new[] { "A", "B" }));
     }
 
     [Test]
     public async Task Adapt_GivenDto_TrimsWhitespaceFromKeys()
     {
-        var dto = new SharedAddressDto
+        var dto = new List<TeamPlaceholderDto>
         {
-            Teams =
-            {
-                new TeamPlaceholderDto("A   "),
-                new TeamPlaceholderDto("  B"),
-            }
+            new TeamPlaceholderDto("A   "),
+            new TeamPlaceholderDto("  B"),
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Teams, Is.EqualTo(new[] { "A", "B" }));
+        Assert.That(result, Is.EqualTo(new[] { "A", "B" }));
     }
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
     {
-        var model = new SharedAddress
+        var model = new List<string>
         {
-            Teams =
-            {
-                "A", "B"
-            }
+            "A", "B"
         };
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Teams.Select(p => p.Key), Is.EqualTo(new[] { "A", "B" }));
+        Assert.That(result.Select(p => p.Key), Is.EqualTo(new[] { "A", "B" }));
     }
 }

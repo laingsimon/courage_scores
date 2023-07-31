@@ -74,7 +74,7 @@ public class TemplateToHealthCheckAdapterTests
         {
             SharedAddresses =
             {
-                new SharedAddress { Teams = { "E", "F" } },
+                new List<string> { "E", "F" },
             },
             Divisions =
             {
@@ -133,7 +133,7 @@ public class TemplateToHealthCheckAdapterTests
         {
             SharedAddresses =
             {
-                new SharedAddress { Teams = { "A", "D" } },
+                new List<string> { "A", "D" },
             },
             Divisions =
             {
@@ -196,7 +196,7 @@ public class TemplateToHealthCheckAdapterTests
                 {
                     SharedAddresses =
                     {
-                        new SharedAddress { Teams = { "E", "F" } },
+                        new List<string> { "E", "F" },
                     },
                     Dates =
                     {
@@ -257,7 +257,7 @@ public class TemplateToHealthCheckAdapterTests
                 {
                     SharedAddresses =
                     {
-                        new SharedAddress { Teams = { "A", "D" } },
+                        new List<string> { "A", "D" },
                     },
                     Dates =
                     {
@@ -312,7 +312,7 @@ public class TemplateToHealthCheckAdapterTests
         {
             SharedAddresses =
             {
-                new SharedAddress { Teams = { "A", "D" } },
+                new List<string> { "A", "D" },
             },
             Divisions =
             {
@@ -320,7 +320,7 @@ public class TemplateToHealthCheckAdapterTests
                 {
                     SharedAddresses =
                     {
-                        new SharedAddress { Teams = { "A", "B" } },
+                        new List<string> { "A", "B" },
                     },
                     Dates =
                     {

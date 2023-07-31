@@ -32,7 +32,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
 
         foreach (var sharedAddress in division.SharedAddresses)
         {
-            foreach (var team in sharedAddress.Teams)
+            foreach (var team in sharedAddress)
             {
                 yield return team;
             }
@@ -49,8 +49,8 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
 
         foreach (var sharedAddress in model.SharedAddresses)
         {
-            var address = string.Join(" & ", sharedAddress.Teams);
-            foreach (var placeholder in sharedAddress.Teams)
+            var address = string.Join(" & ", sharedAddress);
+            foreach (var placeholder in sharedAddress)
             {
                 if (!allPlaceholders.TryGetValue(placeholder, out var team))
                 {
@@ -66,7 +66,7 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         {
             foreach (var sharedAddress in division.SharedAddresses)
             {
-                var existingAddresses = sharedAddress.Teams
+                var existingAddresses = sharedAddress
                     .Select(p => allPlaceholders.TryGetValue(p, out var team)
                         ? team.Address
                         : null)
@@ -80,8 +80,8 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
                     continue;
                 }
 
-                var address = existingAddresses.FirstOrDefault() ?? string.Join(" & ", sharedAddress.Teams);
-                foreach (var placeholder in sharedAddress.Teams)
+                var address = existingAddresses.FirstOrDefault() ?? string.Join(" & ", sharedAddress);
+                foreach (var placeholder in sharedAddress)
                 {
                     if (!allPlaceholders.TryGetValue(placeholder, out var team))
                     {

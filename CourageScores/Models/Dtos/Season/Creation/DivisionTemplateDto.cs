@@ -11,7 +11,7 @@ public class DivisionTemplateDto
     /// <summary>
     /// Which teams can have the same address
     /// </summary>
-    public List<SharedAddressDto> SharedAddresses { get; set; } = new();
+    public List<List<TeamPlaceholderDto>> SharedAddresses { get; set; } = new();
 
     /// <summary>
     /// Which fixture dates can be created for this division

@@ -9,7 +9,7 @@ public class Template : AuditedEntity, IPermissionedEntity
 {
     public string Name { get; set; } = null!;
     public List<DivisionTemplate> Divisions { get; set; } = new();
-    public List<SharedAddress> SharedAddresses { get; set; } = new();
+    public List<List<string>> SharedAddresses { get; set; } = new();
     public SeasonHealthCheckResultDto? TemplateHealth { get; set; }
 
     [ExcludeFromCodeCoverage]

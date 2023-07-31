@@ -179,7 +179,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<DateTemplate, DateTemplateDto>, DateTemplateAdapter>();
         services.AddScoped<ISimpleAdapter<DivisionTemplate, DivisionTemplateDto>, DivisionTemplateAdapter>();
         services.AddScoped<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>, FixtureTemplateAdapter>();
-        services.AddScoped<ISimpleAdapter<SharedAddress, SharedAddressDto>, SharedAddressAdapter>();
+        services.AddScoped<ISimpleAdapter<List<string>, List<TeamPlaceholderDto>>, SharedAddressAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
     }
 

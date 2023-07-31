@@ -22,7 +22,7 @@ public class TemplateDto : AuditedDto
     /// <summary>
     /// The teams that can have the same address within different divisions
     /// </summary>
-    public List<SharedAddressDto> SharedAddresses { get; set; } = new();
+    public List<List<TeamPlaceholderDto>> SharedAddresses { get; set; } = new();
 
     /// <summary>
     /// The last recorded health analysis of this template

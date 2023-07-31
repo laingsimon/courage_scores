@@ -23,7 +23,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         },
         SharedAddresses =
         {
-            new SharedAddress()
+            new List<string>()
         },
     };
     private readonly CancellationToken _token = new CancellationToken();
