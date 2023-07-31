@@ -68,9 +68,9 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             {
                 var existingAddresses = sharedAddress
                     .Select(p => allPlaceholders.TryGetValue(p, out var team)
-                        ? team.Address
+                        ? team
                         : null)
-                    .Where(a => !string.IsNullOrEmpty(a))
+                    .Where(t => t != null && !string.IsNullOrEmpty(t.Address))
                     .Distinct()
                     .ToArray();
 
@@ -80,7 +80,13 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
                     continue;
                 }
 
-                var address = existingAddresses.FirstOrDefault() ?? string.Join(" & ", sharedAddress);
+                var existingTeamsWithSameAddress = existingAddresses.Length == 1
+                    ? allPlaceholders.Values.Where(t => t.Address == existingAddresses[0]!.Address).ToArray()
+                    : Array.Empty<DivisionTeamDto>();
+                var address = existingAddresses.Length == 1
+                    ? string.Join(" & ", existingTeamsWithSameAddress.Select(t => t!.Name).Concat(sharedAddress).Distinct())
+                    : string.Join(" & ", sharedAddress);
+
                 foreach (var placeholder in sharedAddress)
                 {
                     if (!allPlaceholders.TryGetValue(placeholder, out var team))
@@ -90,6 +96,11 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
                     }
 
                     team.Address = address;
+                }
+
+                foreach (var otherTeams in existingTeamsWithSameAddress)
+                {
+                    otherTeams.Address = address;
                 }
             }
         }

@@ -348,10 +348,10 @@ public class TemplateToHealthCheckAdapterTests
                 Name = "Division 1",
                 Teams =
                 {
-                    new DivisionTeamDto { Name = "A", Address = "A & D" },
-                    new DivisionTeamDto { Name = "B", Address = "A & D" },
+                    new DivisionTeamDto { Name = "A", Address = "A & D & B" },
+                    new DivisionTeamDto { Name = "B", Address = "A & D & B" },
                     new DivisionTeamDto { Name = "C" },
-                    new DivisionTeamDto { Name = "D", Address = "A & D" },
+                    new DivisionTeamDto { Name = "D", Address = "A & D & B" },
                 },
                 Dates =
                 {
@@ -360,8 +360,8 @@ public class TemplateToHealthCheckAdapterTests
                         Date = new DateTime(2023, 01, 01),
                         Fixtures =
                         {
-                            new LeagueFixtureHealthDto { HomeTeam = "A", AwayTeam = "B", HomeTeamAddress = "A & D", AwayTeamAddress = "A & D" },
-                            new LeagueFixtureHealthDto { HomeTeam = "C", AwayTeam = "D", AwayTeamAddress = "A & D" }
+                            new LeagueFixtureHealthDto { HomeTeam = "A", AwayTeam = "B", HomeTeamAddress = "A & D & B", AwayTeamAddress = "A & D & B" },
+                            new LeagueFixtureHealthDto { HomeTeam = "C", AwayTeam = "D", AwayTeamAddress = "A & D & B" }
                         }
                     }
                 }
