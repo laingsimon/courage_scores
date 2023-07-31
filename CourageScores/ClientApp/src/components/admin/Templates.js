@@ -29,7 +29,9 @@ export function Templates() {
     }
 
     useEffect(() => {
+        /* istanbul ignore next */
         if (loading) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -107,7 +109,9 @@ export function Templates() {
     }
 
     async function saveTemplate() {
+        /* istanbul ignore next */
         if (saving) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -130,7 +134,7 @@ export function Templates() {
     }
 
     async function deleteTemplate() {
-        if (deleting) {
+        if (!selected || deleting) {
             return;
         }
 
@@ -140,8 +144,7 @@ export function Templates() {
 
         setDeleting(true);
         try {
-            const template = JSON.parse(editing);
-            const result = await templateApi.delete(template.id);
+            const result = await templateApi.delete(selected.id);
             if (result.success) {
                 await loadTemplates();
             } else {
@@ -176,7 +179,7 @@ export function Templates() {
                         {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                         Save
                     </button>
-                    <button className="btn btn-danger margin-right" onClick={deleteTemplate} disabled={!valid}>
+                    <button className="btn btn-danger margin-right" onClick={deleteTemplate}>
                         {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                         Delete
                     </button>
@@ -188,6 +191,7 @@ export function Templates() {
         </div>);
     }
     catch (e) {
+        /* istanbul ignore next */
         onError(e);
     }
 }
