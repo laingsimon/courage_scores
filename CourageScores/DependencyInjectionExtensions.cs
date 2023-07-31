@@ -180,6 +180,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleAdapter<DivisionTemplate, DivisionTemplateDto>, DivisionTemplateAdapter>();
         services.AddScoped<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>, FixtureTemplateAdapter>();
         services.AddScoped<ISimpleAdapter<SharedAddress, SharedAddressDto>, SharedAddressAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
