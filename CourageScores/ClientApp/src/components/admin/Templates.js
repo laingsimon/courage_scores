@@ -18,7 +18,7 @@ export function Templates() {
     const [ deleting, setDeleting ] = useState(false);
     const [ valid, setValid ] = useState(null);
     const [ saveError, setSaveError ] = useState(null);
-    const [ fixtureToFormat, setFixtureToFormat ] = useState(null);
+    const [ fixtureToFormat, setFixtureToFormat ] = useState('');
 
     async function loadTemplates() {
         try {
