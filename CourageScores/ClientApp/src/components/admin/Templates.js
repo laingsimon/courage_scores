@@ -26,6 +26,7 @@ export function Templates() {
             setTemplates(templates);
             setLoading(false);
         } catch (e) {
+            /* istanbul ignore next */
             onError(e);
         }
     }
