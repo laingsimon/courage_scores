@@ -189,6 +189,13 @@ describe('Templates', () => {
             editor: 'Simon',
             deleted: null,
             remover: null,
+            templateHealth: {
+                checks: {},
+                success: true,
+                errors: [],
+                warnings: [],
+                messages: [],
+            }
         };
         templates = [ template ];
         await renderComponent();
@@ -202,7 +209,6 @@ describe('Templates', () => {
         const textarea = context.container.querySelector('textarea');
         expect(textarea).toBeTruthy();
         const editableTemplate = {
-            id: template.id,
             name: template.name,
         }
         expect(textarea.value).toEqual(JSON.stringify(editableTemplate, null, '  '));

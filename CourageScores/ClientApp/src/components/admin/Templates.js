@@ -63,6 +63,7 @@ export function Templates() {
 
     function excludePropertiesFromEdit(key, value) {
         switch (key) {
+            case 'id':
             case 'created':
             case 'author':
             case 'editor':
@@ -122,6 +123,7 @@ export function Templates() {
             const template = JSON.parse(editing);
             if (selected) {
                 template.lastUpdated = selected.updated;
+                template.id = selected.id;
             }
             const result = await templateApi.update(template);
             if (result.success) {
