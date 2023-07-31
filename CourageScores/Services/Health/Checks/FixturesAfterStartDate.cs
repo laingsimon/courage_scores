@@ -10,9 +10,17 @@ public class FixturesAfterStartDate : ISeasonHealthCheck
 
     public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions, HealthCheckContext context, CancellationToken token)
     {
+        var fixturesBeforeStart = divisions
+            .SelectMany(d => d.Dates)
+            .Select(d => d.Date)
+            .Where(d => d < context.Season.StartDate)
+            .Distinct()
+            .ToArray();
+
         return Task.FromResult(new HealthCheckResultDto
         {
-            Success = divisions.All(d => d.Dates.All(f => f.Date >= context.Season.StartDate)),
+            Success = fixturesBeforeStart.Length == 0,
+            Warnings = fixturesBeforeStart.Select(d => $"Fixture exists before season start date: {d:d MMM yyyy}").ToList(),
         });
     }
 }
