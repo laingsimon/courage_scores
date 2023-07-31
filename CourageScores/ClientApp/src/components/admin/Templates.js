@@ -83,10 +83,27 @@ export function Templates() {
 
     function renderTemplates() {
         return (<ul className="list-group mb-2">
-            {templates.map(t => (<li key={t.id} className={`list-group-item${isSelected(t) ? ' active' : ''}`} onClick={toggleSelected(t)}>
-                {t.name}
+            {templates.map(t => (<li key={t.id} className={`list-group-item d-flex justify-content-between align-items-center${isSelected(t) ? ' active' : ''}`} onClick={toggleSelected(t)}>
+                <label>{t.name}</label>
+                {renderBadge(t.templateHealth)}
             </li>))}
         </ul>);
+    }
+
+    function renderBadge(templateHealth) {
+        if (!templateHealth) {
+            return null;
+        }
+
+        const success = Object.values(templateHealth.checks).filter(c => c.success).length;
+        const fail = Object.values(templateHealth.checks).filter(c => !c.success && c.errors.length === 0).length;
+        const error = Object.values(templateHealth.checks).filter(c => c.errors.length > 0).length + templateHealth.errors.length;
+
+        return (<span>
+            {success ? (<span className="badge rounded-pill bg-success margin-left">{success}</span>) : null}
+            {fail ? (<span className="badge rounded-pill bg-warning margin-left">{fail}</span>) : null}
+            {error ? (<span className="badge rounded-pill bg-danger margin-left">{error}</span>) : null}
+        </span>);
     }
 
     async function saveTemplate() {

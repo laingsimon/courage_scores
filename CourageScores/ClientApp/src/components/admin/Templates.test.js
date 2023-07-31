@@ -69,7 +69,114 @@ describe('Templates', () => {
 
         expect(reportedError).toBeNull();
         const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-        expect(templateItems.map(li => li.textContent)).toEqual([ 'TEMPLATE' ]);
+        expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual([ 'TEMPLATE' ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([ [ ] ]);
+    });
+
+    it('renders template with some errors', async () => {
+        const template = {
+            id: createTemporaryId(),
+            name: 'TEMPLATE',
+            templateHealth: {
+                errors: [ 'SOME ERROR' ],
+                checks: {
+
+                }
+            },
+        };
+        templates = [ template ];
+
+        await renderComponent();
+
+        expect(reportedError).toBeNull();
+        const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+        expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual([ 'TEMPLATE' ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([ [ '1' ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([ [ ] ]);
+    });
+
+    it('renders template with some check errors', async () => {
+        const template = {
+            id: createTemporaryId(),
+            name: 'TEMPLATE',
+            templateHealth: {
+                errors: [ ],
+                checks: {
+                    'a check': {
+                        success: false,
+                        errors: [ 'ERROR' ],
+                        warnings: [],
+                    }
+                }
+            },
+        };
+        templates = [ template ];
+
+        await renderComponent();
+
+        expect(reportedError).toBeNull();
+        const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+        expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual([ 'TEMPLATE' ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([ [ '1' ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([ [ ] ]);
+    });
+
+    it('renders template with an unsuccessful check', async () => {
+        const template = {
+            id: createTemporaryId(),
+            name: 'TEMPLATE',
+            templateHealth: {
+                errors: [ ],
+                checks: {
+                    'a check': {
+                        success: false,
+                        errors: [],
+                        warnings: [],
+                    }
+                }
+            },
+        };
+        templates = [ template ];
+
+        await renderComponent();
+
+        expect(reportedError).toBeNull();
+        const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+        expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual([ 'TEMPLATE' ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([ [ '1' ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([ [ ] ]);
+    });
+
+    it('renders template with an successful check', async () => {
+        const template = {
+            id: createTemporaryId(),
+            name: 'TEMPLATE',
+            templateHealth: {
+                errors: [ ],
+                checks: {
+                    'a check': {
+                        success: true,
+                        errors: [],
+                        warnings: [],
+                    }
+                }
+            },
+        };
+        templates = [ template ];
+
+        await renderComponent();
+
+        expect(reportedError).toBeNull();
+        const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+        expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual([ 'TEMPLATE' ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([ [ ] ]);
+        expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([ [ '1' ] ]);
     });
 
     it('can select template', async () => {
@@ -82,16 +189,16 @@ describe('Templates', () => {
             editor: 'Simon',
             deleted: null,
             remover: null,
-            templateHealth: {},
         };
         templates = [ template ];
         await renderComponent();
+        expect(reportedError).toBeNull();
 
         await doClick(context.container, '.list-group .list-group-item:first-child');
 
         expect(reportedError).toBeNull();
         const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-        expect(templateItems.map(li => li.className)).toEqual([ 'list-group-item active' ]);
+        expect(templateItems.map(li => li.className)).toEqual([ 'list-group-item d-flex justify-content-between align-items-center active' ]);
         const textarea = context.container.querySelector('textarea');
         expect(textarea).toBeTruthy();
         const editableTemplate = {
@@ -108,13 +215,14 @@ describe('Templates', () => {
         };
         templates = [ template ];
         await renderComponent();
+        expect(reportedError).toBeNull();
 
         await doClick(context.container, '.list-group .list-group-item:first-child');
         await doClick(context.container, '.list-group .list-group-item:first-child');
 
         expect(reportedError).toBeNull();
         const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-        expect(templateItems.map(li => li.className)).toEqual([ 'list-group-item' ]);
+        expect(templateItems.map(li => li.className)).toEqual([ 'list-group-item d-flex justify-content-between align-items-center' ]);
         expect(context.container.querySelector('textarea')).toBeFalsy();
     });
 
