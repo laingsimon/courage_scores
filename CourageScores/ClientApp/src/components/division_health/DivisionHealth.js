@@ -4,6 +4,7 @@ import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {Loading} from "../common/Loading";
 import {ViewHealthCheck} from "./ViewHealthCheck";
+import {isEmpty} from "../../helpers/collections";
 
 export function DivisionHealth() {
     const [ result, setResult ] = useState(null);
@@ -11,6 +12,7 @@ export function DivisionHealth() {
     const { onError } = useApp();
     const { seasonApi } = useDependencies();
     const { season } = useDivisionData();
+    const healthy = result && result.success && isEmpty(result.errors) && isEmpty(result.warnings);
 
     async function loadHealthCheck() {
         /* istanbul ignore next */
@@ -47,7 +49,10 @@ export function DivisionHealth() {
     try {
         return (<div datatype="health">
             {loading ? (<Loading/>) : null}
-            {!loading && result ? (<div className="content-background p-3 overflow-auto"><ViewHealthCheck result={result}/></div>) : null}
+            {!loading && result ? (<div className="content-background p-3 overflow-auto">
+                <h3 className={healthy ? 'text-success' : 'text-warning'}>Status: {healthy ? 'Healthy' : 'Unhealthy'}</h3>
+                <ViewHealthCheck result={result}/>
+            </div>) : null}
             {!loading && !result ? (<div className="content-background p-3">No health check result</div>) : null}
         </div>);
     } catch (e) {

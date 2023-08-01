@@ -1,13 +1,11 @@
-import {isEmpty} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 
 export function ViewHealthCheck({ result }) {
     const { onError } = useApp();
-    const healthy = result.success && isEmpty(result.errors) && isEmpty(result.warnings);
+
 
     try {
         return (<div datatype="view-health-check">
-            <h3 className={healthy ? 'text-success' : 'text-warning'}>Status: {healthy ? 'Healthy' : 'Unhealthy'}</h3>
             <ol>
                 {Object.keys(result.checks).map(check => {
                     const checkResult = result.checks[check];
