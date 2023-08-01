@@ -5,7 +5,7 @@ namespace CourageScores.Services.Season.Creation.CompatibilityCheck;
 
 public class SameNumberOfDivisions : ICompatibilityCheck
 {
-    public async Task<ActionResultDto<TemplateDto>> Check(TemplateDto template, TemplateMatchContext context,
+    public Task<ActionResultDto<TemplateDto>> Check(TemplateDto template, TemplateMatchContext context,
         CancellationToken token)
     {
         var result = new ActionResultDto<TemplateDto>
@@ -19,6 +19,6 @@ public class SameNumberOfDivisions : ICompatibilityCheck
             result.Warnings.Add($"Template has {template.Divisions.Count} divisions, season has {context.Divisions.Count}");
         }
 
-        return result;
+        return Task.FromResult(result);
     }
 }

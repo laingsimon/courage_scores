@@ -6,7 +6,7 @@ namespace CourageScores.Services.Season.Creation.CompatibilityCheck;
 
 public class SeasonHasRightNumberOfTeamsWithSharedAddress : ICompatibilityCheck
 {
-    public async Task<ActionResultDto<TemplateDto>> Check(TemplateDto template, TemplateMatchContext context, CancellationToken token)
+    public Task<ActionResultDto<TemplateDto>> Check(TemplateDto template, TemplateMatchContext context, CancellationToken token)
     {
         var seasonSharedAddresses = context.Divisions
             .SelectMany(UnsharedAddress)
@@ -16,17 +16,17 @@ public class SeasonHasRightNumberOfTeamsWithSharedAddress : ICompatibilityCheck
 
         if (seasonSharedAddresses.Length > template.SharedAddresses.Count)
         {
-            return new ActionResultDto<TemplateDto>
+            return Task.FromResult(new ActionResultDto<TemplateDto>
             {
                 Success = false,
                 Warnings = { $"Template supports up-to {template.SharedAddresses.Count} cross-division shared addresses, found {seasonSharedAddresses.Length}" },
-            };
+            });
         }
 
-        return new ActionResultDto<TemplateDto>
+        return Task.FromResult(new ActionResultDto<TemplateDto>
         {
             Success = true,
-        };
+        });
     }
 
     private IEnumerable<string> UnsharedAddress(DivisionDataDto division)

@@ -5,7 +5,7 @@ namespace CourageScores.Services.Season.Creation.CompatibilityCheck;
 
 public class EachDivisionHasRightNumberOfTeamsWithSharedAddress : ICompatibilityCheck
 {
-    public async Task<ActionResultDto<TemplateDto>> Check(TemplateDto template, TemplateMatchContext context, CancellationToken token)
+    public Task<ActionResultDto<TemplateDto>> Check(TemplateDto template, TemplateMatchContext context, CancellationToken token)
     {
         var result = new ActionResultDto<TemplateDto>
         {
@@ -28,6 +28,6 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddress : ICompatibility
             }
         }
 
-        return result;
+        return Task.FromResult(result);
     }
 }
