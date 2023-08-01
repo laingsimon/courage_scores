@@ -18,6 +18,10 @@ class TemplateApi {
     update(template) {
         return this.http.put(`/api/Template/`, template);
     }
+
+    getCompatibility(seasonId) {
+        return this.http.get(`/api/Template/ForSeason/${seasonId}`, {});
+    }
 }
 
 export { TemplateApi };

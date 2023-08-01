@@ -3,7 +3,6 @@ import {useApp} from "../../AppContainer";
 export function ViewHealthCheck({ result }) {
     const { onError } = useApp();
 
-
     try {
         return (<div datatype="view-health-check">
             <ol>
