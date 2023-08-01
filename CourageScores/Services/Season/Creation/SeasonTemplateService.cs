@@ -53,10 +53,17 @@ public class SeasonTemplateService : ISeasonTemplateService
         }
 
         var context = await CreateContext(season, token);
+        var checks = _compatibilityCheckFactory.CreateChecks();
+
         return new ActionResultDto<List<ActionResultDto<TemplateDto>>>
         {
             Success = true,
-            Result = await _underlyingService.GetAll(token).SelectAsync(t => MatchToSeason(t, context, token)).ToList(),
+            Result = await _underlyingService.GetAll(token).SelectAsync(async template =>
+            {
+                var compatible = await checks.Check(template, context, token);
+                compatible.Result = template;
+                return compatible;
+            }).ToList(),
         };
     }
 
@@ -69,21 +76,6 @@ public class SeasonTemplateService : ISeasonTemplateService
         }, token)).ToList();
 
         return new TemplateMatchContext(season, divisions);
-    }
-
-    private async Task<ActionResultDto<TemplateDto>> MatchToSeason(TemplateDto template, TemplateMatchContext context, CancellationToken token)
-    {
-        var compatible = await _compatibilityCheckFactory.CreateChecks().Check(template, context, token);
-        if (!compatible.Success)
-        {
-            return compatible;
-        }
-
-        return new ActionResultDto<TemplateDto>
-        {
-            Success = true,
-            Result = template,
-        };
     }
 
     private static ActionResultDto<T> Error<T>(string error)

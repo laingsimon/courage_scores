@@ -146,6 +146,7 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(result.Result!.Select(r => r.Result), Has.All.Not.Null);
         Assert.That(result.Result!.Select(r => r.Success), Has.All.False);
     }
 
@@ -161,6 +162,7 @@ public class SeasonTemplateServiceTests
         var result = await _service.GetForSeason(_season.Id, _token);
 
         Assert.That(result.Success, Is.True);
+        Assert.That(result.Result!.Select(r => r.Result), Has.All.Not.Null);
         Assert.That(result.Result!.Select(r => r.Success), Has.All.True);
     }
 }
