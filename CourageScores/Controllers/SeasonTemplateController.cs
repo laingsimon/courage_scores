@@ -34,6 +34,12 @@ public class SeasonTemplateController : Controller
         return _seasonTemplateService.GetAll(token);
     }
 
+    [HttpGet("/api/Template/ForSeason/{seasonId}")]
+    public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetTemplates(Guid seasonId, CancellationToken token)
+    {
+        return await _seasonTemplateService.GetForSeason(seasonId, token);
+    }
+
     [HttpPut("/api/Template/")]
     public async Task<ActionResultDto<TemplateDto>> AddOrUpdateTemplate(EditTemplateDto template, CancellationToken token)
     {
