@@ -1,8 +1,10 @@
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace CourageScores.Services.Season.Creation;
 
+[ExcludeFromCodeCoverage]
 public class TemplateMatchContext
 {
     public SeasonDto SeasonDto { get; }
