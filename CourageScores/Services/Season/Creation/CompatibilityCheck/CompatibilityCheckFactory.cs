@@ -11,6 +11,8 @@ public class CompatibilityCheckFactory : ICompatibilityCheckFactory
         {
             new SameNumberOfDivisions(),
             new NoMoreThanTemplateDivisionTeamCount(),
+            new EachDivisionHasRightNumberOfTeamsWithSharedAddress(),
+            new SeasonHasRightNumberOfTeamsWithSharedAddress(),
         });
     }
 }
