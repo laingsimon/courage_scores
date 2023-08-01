@@ -194,7 +194,7 @@ export function DivisionFixtures({ setNewFixtures }) {
             </div>
             {isAdmin ? (<div className="mt-3">
                 <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
-                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>Create fixtures</button>
+                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>🗓️ Create fixtures</button>
             </div>) : null}
         </div>);
     } catch (exc) {

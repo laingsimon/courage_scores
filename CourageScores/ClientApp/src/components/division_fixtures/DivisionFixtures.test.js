@@ -36,7 +36,12 @@ describe('DivisionFixtures', () => {
         create: async () => {
             return { success: true };
         }
-    }
+    };
+    const templateApi = {
+        getCompatibility: () => {
+            return { success: false };
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
@@ -49,7 +54,7 @@ describe('DivisionFixtures', () => {
         updatedNote = null;
         createdNote = null;
         context = await renderApp(
-            { seasonApi, gameApi, noteApi, tournamentApi },
+            { seasonApi, gameApi, noteApi, tournamentApi, templateApi },
             { name: 'Courage Scores' },
             {
                 account,
@@ -977,6 +982,32 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
+        });
+
+        it('can open create new fixtures dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+
+            await doClick(findButton(context.container, '🗓️ Create fixtures'));
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('Create season fixtures...');
+        });
+
+        it('can close create new fixtures dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+            await doClick(findButton(context.container, '🗓️ Create fixtures'));
+            expect(reportedError).toBeNull();
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'))
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeFalsy();
         });
     });
 });
