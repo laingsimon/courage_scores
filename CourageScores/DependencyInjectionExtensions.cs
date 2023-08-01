@@ -36,6 +36,7 @@ using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
+using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
@@ -112,6 +113,7 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IHealthCheckService, HealthCheckService>();
         services.AddScoped<ISeasonHealthCheckFactory, SeasonHealthCheckFactory>();
+        services.AddScoped<ISeasonTemplateService, SeasonTemplateService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
