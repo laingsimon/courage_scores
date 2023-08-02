@@ -19,7 +19,7 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
                 (prev, current) => prev.MergeWith(current));
     }
 
-    private async Task<HealthCheckResultDto> CheckDivision(DivisionHealthDto division)
+    private static async Task<HealthCheckResultDto> CheckDivision(DivisionHealthDto division)
     {
         var teamResults = await division.Teams.OrderBy(t => t.Name).SelectAsync(t => CheckTeam(division, t)).ToList();
         return teamResults.Aggregate(
@@ -27,7 +27,7 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
             (prev, current) => prev.MergeWith(current));
     }
 
-    private async Task<HealthCheckResultDto> CheckTeam(DivisionHealthDto division, DivisionTeamDto team)
+    private static async Task<HealthCheckResultDto> CheckTeam(DivisionHealthDto division, DivisionTeamDto team)
     {
         var allFixtures = division.Dates.SelectMany(fd => fd.Fixtures).OrderBy(f => f.HomeTeam).ThenBy(f => f.AwayTeam).ToList();
         var allOtherTeams = division.Teams.Except(new[] { team }).OrderBy(t => t.Name).ToList();
@@ -38,7 +38,7 @@ public class TeamsHaveBothLegs : ISeasonHealthCheck
                 (prev, current) => prev.MergeWith(current));
     }
 
-    private Task<HealthCheckResultDto> CheckLegs(DivisionHealthDto division, IReadOnlyCollection<LeagueFixtureHealthDto> allFixtures, DivisionTeamDto team1, DivisionTeamDto team2)
+    private static Task<HealthCheckResultDto> CheckLegs(DivisionHealthDto division, IEnumerable<LeagueFixtureHealthDto> allFixtures, DivisionTeamDto team1, DivisionTeamDto team2)
     {
         var homeLegs = allFixtures.Where(f => f.HomeTeamId == team1.Id && f.AwayTeamId == team2.Id).ToList();
         switch (homeLegs.Count)

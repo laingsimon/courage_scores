@@ -65,6 +65,7 @@ export function Templates() {
         jsonString = jsonString.replaceAll(',\n              "away"', ', "away"');
         jsonString = jsonString.replaceAll('"\n            }', '" }');
         jsonString = jsonString.replaceAll('{\n              "', '{ "');
+        jsonString = jsonString.replaceAll(', "away": null\n            }', ' }');
 
         // division shared address inlining
         jsonString = jsonString.replaceAll('[\n          "', '[ "');
@@ -151,13 +152,17 @@ export function Templates() {
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
         } finally {
             setSaving(false);
         }
     }
 
     async function deleteTemplate() {
-        if (!selected || deleting) {
+        if (deleting) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -174,6 +179,9 @@ export function Templates() {
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
         } finally {
             setDeleting(false);
         }
@@ -190,11 +198,12 @@ export function Templates() {
     }
 
     function formatFixtureInput() {
-        if (!fixtureToFormat) {
-            return '';
-        }
+        const lines = fixtureToFormat.split('\n');
+        return lines.filter(l => l.trim() !== '').map(formatFixtureLine).join(', ');
+    }
 
-        const fixtures = fixtureToFormat.split(/\s+/);
+    function formatFixtureLine(excelLine) {
+        const fixtures = excelLine.split(/\s+/);
 
         const toFormat = {
             fixtures: []
@@ -208,10 +217,14 @@ export function Templates() {
 
             fixtureBatch.push(fixture);
             if (fixtureBatch.length === 2){
-                toFormat.fixtures.push({
+                const fixture = {
                     home: fixtureBatch[0],
-                    away: fixtureBatch[1],
-                });
+                };
+                if (fixtureBatch[1] !== '-') {
+                    fixture.away = fixtureBatch[1];
+                }
+
+                toFormat.fixtures.push(fixture);
                 fixtureBatch = [];
             }
         }
@@ -243,7 +256,7 @@ export function Templates() {
                 </div>) : null}
                 <div className="mt-3 text-secondary">
                     <div>Authoring tools: Copy fixture template from excel (per division)</div>
-                    <input value={fixtureToFormat} placeholder="Copy from excel" onChange={stateChanged(setFixtureToFormat)} />
+                    <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel" onChange={stateChanged(setFixtureToFormat)} />
                     <textarea value={formatFixtureInput()} className="d-inline-block width-100" placeholder="Copy into template" readOnly={true}></textarea>
                 </div>
             </div> : (<div>

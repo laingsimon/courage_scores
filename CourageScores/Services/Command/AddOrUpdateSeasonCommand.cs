@@ -1,6 +1,5 @@
 using CourageScores.Filters;
 using CourageScores.Models;
-using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Repository;
 using CourageScores.Services.Season;

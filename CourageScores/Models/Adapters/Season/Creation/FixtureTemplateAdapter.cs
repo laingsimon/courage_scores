@@ -10,7 +10,7 @@ public class FixtureTemplateAdapter : ISimpleAdapter<FixtureTemplate, FixtureTem
         return Task.FromResult(new FixtureTemplateDto
         {
             Home = new TeamPlaceholderDto(model.Home),
-            Away = new TeamPlaceholderDto(model.Away),
+            Away = string.IsNullOrEmpty(model.Away) ? null : new TeamPlaceholderDto(model.Away),
         });
     }
 
@@ -19,7 +19,7 @@ public class FixtureTemplateAdapter : ISimpleAdapter<FixtureTemplate, FixtureTem
         return Task.FromResult(new FixtureTemplate
         {
             Home = dto.Home.Key,
-            Away = dto.Away.Key,
+            Away = dto.Away?.Key,
         });
     }
 }

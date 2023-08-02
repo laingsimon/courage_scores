@@ -9,6 +9,7 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {changeFilter, getFixtureDateFilters, getFixtureFilters, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
+import {CreateSeasonDialog} from "./CreateSeasonDialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
     const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
@@ -22,6 +23,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const [ filter, setFilter ] = useState(initFilter(location));
     const [ editNote, setEditNote ] = useState(null);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
+    const [ createFixturesDialogOpen, setCreateFixturesDialogOpen ] = useState(false);
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -182,6 +184,7 @@ export function DivisionFixtures({ setNewFixtures }) {
         return (<div className="content-background p-3">
             {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
+            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
             <div>
                 {resultsToRender}
                 {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (
@@ -190,7 +193,8 @@ export function DivisionFixtures({ setNewFixtures }) {
                 {editNote ? renderEditNote() : null}
             </div>
             {isAdmin ? (<div className="mt-3">
-                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
+                <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
+                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>🗓️ Create fixtures</button>
             </div>) : null}
         </div>);
     } catch (exc) {

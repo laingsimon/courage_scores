@@ -13,6 +13,21 @@ public class TemplateToHealthCheckAdapterTests
     private readonly TemplateToHealthCheckAdapter _adapter = new TemplateToHealthCheckAdapter();
 
     [Test]
+    public async Task Adapt_GivenNoDivisions_ShouldReturnCorrectly()
+    {
+        var template = new Template
+        {
+            Name = "NAME",
+        };
+
+        var result = await _adapter.Adapt(template, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Divisions.Count, Is.EqualTo(0));
+        Assert.That(result.Name, Is.EqualTo("NAME"));
+    }
+
+    [Test]
     public async Task Adapt_GivenSingleDivision_ShouldReturnCorrectly()
     {
         var template = new Template
@@ -61,6 +76,56 @@ public class TemplateToHealthCheckAdapterTests
                         {
                             new LeagueFixtureHealthDto { HomeTeam = "A", AwayTeam = "B" },
                             new LeagueFixtureHealthDto { HomeTeam = "C", AwayTeam = "D" }
+                        }
+                    }
+                }
+            });
+    }
+
+    [Test]
+    public async Task Adapt_GivenByeFixture_ShouldReturnCorrectly()
+    {
+        var template = new Template
+        {
+            Divisions =
+            {
+                new DivisionTemplate
+                {
+                    Dates =
+                    {
+                        new DateTemplate
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplate { Home = "A" },
+                            }
+                        },
+                    },
+                },
+            },
+        };
+
+        var result = await _adapter.Adapt(template, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Divisions.Count, Is.EqualTo(1));
+        AssertDivision(
+            result.Divisions[0],
+            new DivisionHealthDto
+            {
+                Name = "Division 1",
+                Teams =
+                {
+                    new DivisionTeamDto { Name = "A" },
+                },
+                Dates =
+                {
+                    new DivisionDateHealthDto
+                    {
+                        Date = new DateTime(2023, 01, 01),
+                        Fixtures =
+                        {
+                            new LeagueFixtureHealthDto { HomeTeam = "A" },
                         }
                     }
                 }

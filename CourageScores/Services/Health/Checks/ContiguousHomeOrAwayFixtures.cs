@@ -45,7 +45,10 @@ public class ContiguousHomeOrAwayFixtures : ISeasonHealthCheck
         var contiguousEvents = new List<EventDetail>();
         foreach (var date in division.Dates)
         {
-            var fixtures = date.Fixtures.Where(f => f.HomeTeamId == team.Id || f.AwayTeamId == team.Id).ToArray();
+            var fixtures = date.Fixtures
+                .Where(f => f.AwayTeamId != null) // exclude byes
+                .Where(f => f.HomeTeamId == team.Id || f.AwayTeamId == team.Id)
+                .ToArray();
 
             if (!fixtures.Any())
             {

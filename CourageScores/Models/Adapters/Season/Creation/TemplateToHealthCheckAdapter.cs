@@ -16,7 +16,11 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             StartDate = startDate,
             Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model))).ToList(),
         };
-        dto.EndDate = dto.Divisions.SelectMany(d => d.Dates).Max(d => d.Date);
+        var dates = dto.Divisions.SelectMany(d => d.Dates).ToArray();
+        if (dates.Any())
+        {
+            dto.EndDate = dates.Max(d => d.Date);
+        }
 
         return Task.FromResult(dto);
     }
@@ -28,7 +32,10 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             foreach (var fixture in date.Fixtures)
             {
                 yield return fixture.Home;
-                yield return fixture.Away;
+                if (!string.IsNullOrEmpty(fixture.Away))
+                {
+                    yield return fixture.Away;
+                }
             }
         }
 
@@ -127,7 +134,9 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
         IReadOnlyDictionary<string, DivisionTeamDto> teams)
     {
         var homeTeam = teams[fixture.Home];
-        var awayTeam = teams[fixture.Away];
+        var awayTeam = string.IsNullOrEmpty(fixture.Away)
+            ? null
+            : teams[fixture.Away];
 
         return new LeagueFixtureHealthDto
         {
@@ -136,9 +145,9 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             HomeTeam = fixture.Home,
             HomeTeamId = homeTeam.Id,
             HomeTeamAddress = homeTeam.Address,
-            AwayTeam = fixture.Away,
-            AwayTeamId = awayTeam.Id,
-            AwayTeamAddress = awayTeam.Address,
+            AwayTeam = awayTeam?.Name,
+            AwayTeamId = awayTeam?.Id,
+            AwayTeamAddress = awayTeam?.Address,
         };
     }
 }

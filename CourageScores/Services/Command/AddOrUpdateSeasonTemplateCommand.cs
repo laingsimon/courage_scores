@@ -31,8 +31,18 @@ public class AddOrUpdateSeasonTemplateCommand : AddOrUpdateCommand<Template, Edi
         template.Divisions = dto.Divisions;
         template.SharedAddresses = dto.SharedAddresses;
 
-        var result = await _healthCheckService.Check(await _healthCheckAdapter.Adapt(template, token), token);
-        template.TemplateHealth = result;
+        try
+        {
+            var result = await _healthCheckService.Check(await _healthCheckAdapter.Adapt(template, token), token);
+            template.TemplateHealth = result;
+        }
+        catch (Exception exc)
+        {
+            template.TemplateHealth = new SeasonHealthCheckResultDto
+            {
+                Errors = { exc.Message },
+            };
+        }
 
         return new ActionResult<Template>
         {

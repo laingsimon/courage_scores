@@ -6,5 +6,5 @@ namespace CourageScores.Models.Cosmos.Season.Creation;
 public class FixtureTemplate
 {
     public string Home { get; set; } = null!;
-    public string Away { get; set; } = null!;
+    public string? Away { get; set; }
 }

@@ -1,9 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season.Creation;
-using CourageScores.Services;
 using CourageScores.Services.Command;
+using CourageScores.Services.Season.Creation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourageScores.Controllers;
@@ -12,11 +11,11 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class SeasonTemplateController : Controller
 {
-    private readonly IGenericDataService<Template, TemplateDto> _seasonTemplateService;
+    private readonly ISeasonTemplateService _seasonTemplateService;
     private readonly ICommandFactory _commandFactory;
 
     public SeasonTemplateController(
-        IGenericDataService<Template, TemplateDto> seasonTemplateService,
+        ISeasonTemplateService seasonTemplateService,
         ICommandFactory commandFactory)
     {
         _seasonTemplateService = seasonTemplateService;
@@ -33,6 +32,12 @@ public class SeasonTemplateController : Controller
     public IAsyncEnumerable<TemplateDto> GetTemplates(CancellationToken token)
     {
         return _seasonTemplateService.GetAll(token);
+    }
+
+    [HttpGet("/api/Template/ForSeason/{seasonId}")]
+    public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetTemplates(Guid seasonId, CancellationToken token)
+    {
+        return await _seasonTemplateService.GetForSeason(seasonId, token);
     }
 
     [HttpPut("/api/Template/")]
