@@ -53,6 +53,29 @@ public class ContiguousByesTests
     }
 
     [Test]
+    public async Task RunCheck_With2ByesInARowThenAFixture_ReturnsFailure()
+    {
+        var division = new DivisionHealthDto
+        {
+            Name = "DIVISION",
+            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Dates =
+            {
+                FixtureDate(0, ByeFixture()), // 3-Feb 2001
+                FixtureDate(1, ByeFixture()), // 10-Feb 2001
+                FixtureDate(2, HomeFixture()) // 17-Feb 2001
+            }
+        };
+        var context = new HealthCheckContext(new SeasonHealthDto());
+
+        var result = await _check.RunCheck(new[] { division }, context, _token);
+
+        Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME has 2 byes in a row from 3 Feb 2001 - 10 Feb 2001" }));
+        Assert.That(result.Success, Is.False);
+    }
+
+    [Test]
     public async Task RunCheck_WithByesSplitByAHomeGame_ReturnsSuccess()
     {
         var division = new DivisionHealthDto
