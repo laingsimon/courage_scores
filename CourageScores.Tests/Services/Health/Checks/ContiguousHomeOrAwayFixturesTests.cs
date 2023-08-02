@@ -175,6 +175,28 @@ public class ContiguousHomeOrAwayFixturesTests
     }
 
     [Test]
+    public async Task RunCheck_WithTwoHomeFixturesInARowThenABye_ReturnsSuccess()
+    {
+        var division = new DivisionHealthDto
+        {
+            Name = "DIVISION",
+            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Dates =
+            {
+                FixtureDate(0, HomeFixture()), // 3-Feb 2001
+                FixtureDate(1, HomeFixture()), // 10-Feb 2001
+                FixtureDate(2, ByeFixture()), // 17-Feb 2001
+            }
+        };
+        var context = new HealthCheckContext(new SeasonHealthDto());
+
+        var result = await _check.RunCheck(new[] { division }, context, _token);
+
+        Assert.That(result.Errors, Is.Empty);
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
     public async Task RunCheck_WithThreeHomeFixturesInARow_ReturnsFailure()
     {
         var division = new DivisionHealthDto
@@ -313,6 +335,19 @@ public class ContiguousHomeOrAwayFixturesTests
             HomeTeamId = TeamId,
             AwayTeam = "OTHER TEAM",
             AwayTeamId = Guid.NewGuid(),
+        };
+    }
+
+    private static Func<DateTime, LeagueFixtureHealthDto> ByeFixture()
+    {
+        return date => new LeagueFixtureHealthDto
+        {
+            Date = date,
+            Id = Guid.NewGuid(),
+            HomeTeam = "HOME",
+            HomeTeamId = TeamId,
+            AwayTeam = null,
+            AwayTeamId = null,
         };
     }
 

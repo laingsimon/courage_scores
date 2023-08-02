@@ -22,7 +22,11 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDate : ISeasonHealthCheck
                 .SelectMany(division => division.Dates.Where(d => d.Date == date).SelectMany(d => d.Fixtures))
                 .ToArray();
 
-            var multipleFixturesPerVenue = fixturesPerDateAllDivisions.GroupBy(f => f.HomeTeamAddress ?? f.HomeTeam).Where(g => g.Count() > 1);
+            var multipleFixturesPerVenue = fixturesPerDateAllDivisions
+                .Where(f => f.AwayTeamId != null) // exclude byes
+                .GroupBy(f => f.HomeTeamAddress ?? f.HomeTeam)
+                .Where(g => g.Count() > 1);
+
             foreach (var group in multipleFixturesPerVenue)
             {
                 result.Success = false;

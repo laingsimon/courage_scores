@@ -127,6 +127,33 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
     }
 
     [Test]
+    public async Task RunCheck_GivenDateWithTwoFixturesUsingSameVenuesAndOneIsABye_ReturnsSuccess()
+    {
+        var division1 = new DivisionHealthDto
+        {
+            Name = "DIVISION 1",
+            Teams = { _teamA, _teamB, _anotherTeam },
+            Dates =
+            {
+                new DivisionDateHealthDto
+                {
+                    Date = new DateTime(2001, 02, 03),
+                    Fixtures =
+                    {
+                        Fixture(new DateTime(2001, 02, 03), _teamA, _anotherTeam),
+                        Fixture(new DateTime(2001, 02, 03), _teamB, null),
+                    }
+                }
+            }
+        };
+        var context = new HealthCheckContext(new SeasonHealthDto());
+
+        var result = await _check.RunCheck(new[] { division1 }, context, _token);
+
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
     public async Task RunCheck_GivenDateWithTwoFixturesUsingSameVenues_ReturnsFailure()
     {
         var division1 = new DivisionHealthDto
@@ -239,16 +266,16 @@ public class VenuesBeingUsedByMultipleTeamsOnSameDateTests
         Assert.That(result.Success, Is.True);
     }
 
-    private static LeagueFixtureHealthDto Fixture(DateTime date, DivisionTeamDto home, DivisionTeamDto away)
+    private static LeagueFixtureHealthDto Fixture(DateTime date, DivisionTeamDto home, DivisionTeamDto? away)
     {
         return new LeagueFixtureHealthDto
         {
             HomeTeam = home.Name,
             HomeTeamAddress = home.Address,
             HomeTeamId = home.Id,
-            AwayTeam = away.Name,
-            AwayTeamAddress = away.Address,
-            AwayTeamId = away.Id,
+            AwayTeam = away?.Name,
+            AwayTeamAddress = away?.Address,
+            AwayTeamId = away?.Id,
             Date = date,
             Id = Guid.NewGuid(),
         };
