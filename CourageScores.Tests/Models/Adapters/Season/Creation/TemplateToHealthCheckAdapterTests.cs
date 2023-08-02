@@ -83,6 +83,56 @@ public class TemplateToHealthCheckAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenByeFixture_ShouldReturnCorrectly()
+    {
+        var template = new Template
+        {
+            Divisions =
+            {
+                new DivisionTemplate
+                {
+                    Dates =
+                    {
+                        new DateTemplate
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplate { Home = "A" },
+                            }
+                        },
+                    },
+                },
+            },
+        };
+
+        var result = await _adapter.Adapt(template, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Divisions.Count, Is.EqualTo(1));
+        AssertDivision(
+            result.Divisions[0],
+            new DivisionHealthDto
+            {
+                Name = "Division 1",
+                Teams =
+                {
+                    new DivisionTeamDto { Name = "A" },
+                },
+                Dates =
+                {
+                    new DivisionDateHealthDto
+                    {
+                        Date = new DateTime(2023, 01, 01),
+                        Fixtures =
+                        {
+                            new LeagueFixtureHealthDto { HomeTeam = "A" },
+                        }
+                    }
+                }
+            });
+    }
+
+    [Test]
     public async Task Adapt_GivenSeasonSharedAddressesNotInDivision_ShouldNotSetSharedAddress()
     {
         var template = new Template

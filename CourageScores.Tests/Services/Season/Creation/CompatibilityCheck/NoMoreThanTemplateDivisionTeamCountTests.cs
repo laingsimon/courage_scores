@@ -55,6 +55,45 @@ public class NoMoreThanTemplateDivisionTeamCountTests
     }
 
     [Test]
+    public async Task Check_GivenByeFixturesInTemplate_DoesNotThrow()
+    {
+        var template = new TemplateDto
+        {
+            Name = "1 division template",
+            Divisions =
+            {
+                new DivisionTemplateDto
+                {
+                    Dates =
+                    {
+                        new DateTemplateDto
+                        {
+                            Fixtures =
+                            {
+                                new FixtureTemplateDto
+                                {
+                                    Home = new TeamPlaceholderDto("H"),
+                                },
+                            }
+                        }
+                    }
+                },
+            }
+        }; // template has 1 team
+        var division = new DivisionDataDto
+        {
+            Teams =
+            {
+                new DivisionTeamDto(),
+            } // division has 1 team
+        };
+
+        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+
+        Assert.That(result.Success, Is.True);
+    }
+
+    [Test]
     public async Task Check_GivenSameNumberOfTeamsInADivisionAsTemplate_ReturnsTemplateCompatible()
     {
         var template = new TemplateDto

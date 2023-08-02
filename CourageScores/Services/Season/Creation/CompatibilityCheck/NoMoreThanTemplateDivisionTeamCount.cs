@@ -20,7 +20,7 @@ public class NoMoreThanTemplateDivisionTeamCount : ICompatibilityCheck
         foreach (var division in divisionMappings)
         {
             var templateTeams = division.templateDivision.Dates.SelectMany(d => d.Fixtures)
-                .SelectMany(f => new[] { f.Home, f.Away }).Select(p => p.Key).Distinct().ToArray();
+                .SelectMany(f => new[] { f.Home, f.Away }).Select(p => p?.Key).Where(p => !string.IsNullOrEmpty(p)).Distinct().ToArray();
             var seasonTeams = division.seasonDivision.Teams;
 
             if (seasonTeams.Count > templateTeams.Length)

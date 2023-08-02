@@ -16,5 +16,5 @@ public class FixtureTemplateDto
     /// <summary>
     /// A link to the relevant away team
     /// </summary>
-    public TeamPlaceholderDto Away { get; set; } = null!;
+    public TeamPlaceholderDto? Away { get; set; }
 }

@@ -34,6 +34,20 @@ public class FixtureTemplateAdapterTests
     }
 
     [Test]
+    public async Task Adapt_GivenDtoWithNoAwayTeam_SetsPropertiesCorrectly()
+    {
+        var dto = new FixtureTemplateDto
+        {
+            Home = new TeamPlaceholderDto("H"),
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.Home, Is.EqualTo("H"));
+        Assert.That(result.Away, Is.Null);
+    }
+
+    [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()
     {
         var model = new FixtureTemplate
@@ -46,5 +60,19 @@ public class FixtureTemplateAdapterTests
 
         Assert.That(result.Home, Is.EqualTo(new TeamPlaceholderDto("H")).Using(new TeamPlaceholderDtoEqualityComparer()));
         Assert.That(result.Away, Is.EqualTo(new TeamPlaceholderDto("A")).Using(new TeamPlaceholderDtoEqualityComparer()));
+    }
+
+    [Test]
+    public async Task Adapt_GivenModelWithNoAwayTeam_SetsPropertiesCorrectly()
+    {
+        var model = new FixtureTemplate
+        {
+            Home = "H",
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.Home, Is.EqualTo(new TeamPlaceholderDto("H")).Using(new TeamPlaceholderDtoEqualityComparer()));
+        Assert.That(result.Away, Is.Null);
     }
 }
