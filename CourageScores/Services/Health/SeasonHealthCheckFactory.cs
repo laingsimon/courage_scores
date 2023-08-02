@@ -15,5 +15,6 @@ public class SeasonHealthCheckFactory : ISeasonHealthCheckFactory
         yield return new TeamsAreNotPlayingAgainstThemselves();
         yield return new TeamsPlayingMultipleFixturesOnSameDate();
         yield return new VenuesBeingUsedByMultipleTeamsOnSameDate();
+        yield return new ContiguousByes();
     }
 }
