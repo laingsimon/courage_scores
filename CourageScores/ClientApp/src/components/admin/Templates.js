@@ -197,11 +197,16 @@ export function Templates() {
     }
 
     function formatFixtureInput() {
-        if (!fixtureToFormat) {
+        const lines = fixtureToFormat.split('\n');
+        return lines.filter(l => l.trim() !== '').map(formatFixtureLine).join(', ');
+    }
+
+    function formatFixtureLine(excelLine) {
+        if (!excelLine) {
             return '';
         }
 
-        const fixtures = fixtureToFormat.split(/\s+/);
+        const fixtures = excelLine.split(/\s+/);
 
         const toFormat = {
             fixtures: []
@@ -250,7 +255,7 @@ export function Templates() {
                 </div>) : null}
                 <div className="mt-3 text-secondary">
                     <div>Authoring tools: Copy fixture template from excel (per division)</div>
-                    <input value={fixtureToFormat} placeholder="Copy from excel" onChange={stateChanged(setFixtureToFormat)} />
+                    <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel" onChange={stateChanged(setFixtureToFormat)} />
                     <textarea value={formatFixtureInput()} className="d-inline-block width-100" placeholder="Copy into template" readOnly={true}></textarea>
                 </div>
             </div> : (<div>
