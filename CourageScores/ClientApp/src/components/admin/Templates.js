@@ -151,6 +151,9 @@ export function Templates() {
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
         } finally {
             setSaving(false);
         }
@@ -174,6 +177,9 @@ export function Templates() {
             } else {
                 setSaveError(result);
             }
+        } catch (e) {
+            /* istanbul ignore next */
+            onError(e);
         } finally {
             setDeleting(false);
         }
