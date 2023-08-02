@@ -45,7 +45,7 @@ public class ActionResultAdapterTests
             Success = true,
         };
 
-        var dto = await _adapter.Adapt<object, string>(result, null);
+        var dto = await _adapter.Adapt<object, string>(result);
 
         Assert.That(dto.Errors, Is.EqualTo(new[] { "error" }));
         Assert.That(dto.Warnings, Is.EqualTo(new[] { "warning" }));
