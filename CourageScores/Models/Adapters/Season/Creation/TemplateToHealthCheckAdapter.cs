@@ -16,7 +16,11 @@ public class TemplateToHealthCheckAdapter : ISimpleOnewayAdapter<Template, Seaso
             StartDate = startDate,
             Divisions = model.Divisions.Select((d, index) => AdaptDivision(d, $"Division {index + 1}", startDate, GetTeams(model))).ToList(),
         };
-        dto.EndDate = dto.Divisions.SelectMany(d => d.Dates).Max(d => d.Date);
+        var dates = dto.Divisions.SelectMany(d => d.Dates).ToArray();
+        if (dates.Any())
+        {
+            dto.EndDate = dates.Max(d => d.Date);
+        }
 
         return Task.FromResult(dto);
     }

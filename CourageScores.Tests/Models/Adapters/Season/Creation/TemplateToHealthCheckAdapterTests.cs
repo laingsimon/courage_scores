@@ -13,6 +13,21 @@ public class TemplateToHealthCheckAdapterTests
     private readonly TemplateToHealthCheckAdapter _adapter = new TemplateToHealthCheckAdapter();
 
     [Test]
+    public async Task Adapt_GivenNoDivisions_ShouldReturnCorrectly()
+    {
+        var template = new Template
+        {
+            Name = "NAME",
+        };
+
+        var result = await _adapter.Adapt(template, _token);
+
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Divisions.Count, Is.EqualTo(0));
+        Assert.That(result.Name, Is.EqualTo("NAME"));
+    }
+
+    [Test]
     public async Task Adapt_GivenSingleDivision_ShouldReturnCorrectly()
     {
         var template = new Template
