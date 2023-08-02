@@ -65,6 +65,7 @@ export function Templates() {
         jsonString = jsonString.replaceAll(',\n              "away"', ', "away"');
         jsonString = jsonString.replaceAll('"\n            }', '" }');
         jsonString = jsonString.replaceAll('{\n              "', '{ "');
+        jsonString = jsonString.replaceAll(', "away": null\n            }', ' }');
 
         // division shared address inlining
         jsonString = jsonString.replaceAll('[\n          "', '[ "');
