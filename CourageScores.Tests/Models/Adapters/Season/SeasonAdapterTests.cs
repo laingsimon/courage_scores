@@ -1,4 +1,3 @@
-using CourageScores.Models.Adapters;
 using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;

@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using CourageScores.Services.Health;
 
 namespace CourageScores.Models.Dtos.Health;
 

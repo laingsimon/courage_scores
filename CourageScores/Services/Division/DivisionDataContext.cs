@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
