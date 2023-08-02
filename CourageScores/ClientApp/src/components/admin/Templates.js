@@ -161,7 +161,8 @@ export function Templates() {
     }
 
     async function deleteTemplate() {
-        if (!selected || deleting) {
+        if (deleting) {
+            /* istanbul ignore next */
             return;
         }
 
@@ -202,10 +203,6 @@ export function Templates() {
     }
 
     function formatFixtureLine(excelLine) {
-        if (!excelLine) {
-            return '';
-        }
-
         const fixtures = excelLine.split(/\s+/);
 
         const toFormat = {
