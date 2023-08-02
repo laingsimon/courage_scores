@@ -88,4 +88,55 @@ public class AddOrUpdateSeasonTemplateCommandTests
         Assert.That(result.Success, Is.True);
         Assert.That(_template.TemplateHealth, Is.EqualTo(_seasonHealthDto));
     }
+
+    [Test]
+    public async Task ApplyUpdate_WhenHealthCheckAdapterThrows_AppliesUpdateRecordingDetailOfError()
+    {
+        var throwingTemplate = new Template
+        {
+            Updated = new DateTime(2001, 02, 03),
+        };
+        var update = new EditTemplateDto
+        {
+            LastUpdated = throwingTemplate.Updated,
+        };
+        _adapter.AddMapping(Template, update);
+        _healthCheckAdapter
+            .Setup(a => a.Adapt(throwingTemplate, _token))
+            .ThrowsAsync(new InvalidOperationException("Exception in adapter"));
+
+        var result = await _command.WithData(update).ApplyUpdate(throwingTemplate, _token);
+
+        _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
+        Assert.That(result.Success, Is.True);
+        Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
+        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[] { "Exception in adapter" }));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_WhenHealthCheckServiceThrows_AppliesUpdateRecordingDetailOfError()
+    {
+        var throwingTemplate = new Template
+        {
+            Updated = new DateTime(2001, 02, 03),
+        };
+        var update = new EditTemplateDto
+        {
+            LastUpdated = throwingTemplate.Updated,
+        };
+        _adapter.AddMapping(Template, update);
+        _healthCheckAdapter
+            .Setup(a => a.Adapt(throwingTemplate, _token))
+            .ReturnsAsync(_healthCheckDto);
+        _healthCheckService
+            .Setup(s => s.Check(_healthCheckDto, _token))
+            .ThrowsAsync(new InvalidOperationException("Exception in service"));
+
+        var result = await _command.WithData(update).ApplyUpdate(throwingTemplate, _token);
+
+        _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
+        Assert.That(result.Success, Is.True);
+        Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
+        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[] { "Exception in service" }));
+    }
 }
