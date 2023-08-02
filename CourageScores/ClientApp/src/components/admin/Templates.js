@@ -220,10 +220,14 @@ export function Templates() {
 
             fixtureBatch.push(fixture);
             if (fixtureBatch.length === 2){
-                toFormat.fixtures.push({
+                const fixture = {
                     home: fixtureBatch[0],
-                    away: fixtureBatch[1],
-                });
+                };
+                if (fixtureBatch[1] !== '-') {
+                    fixture.away = fixtureBatch[1];
+                }
+
+                toFormat.fixtures.push(fixture);
                 fixtureBatch = [];
             }
         }
