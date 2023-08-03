@@ -7,4 +7,5 @@ namespace CourageScores.Services.Season.Creation;
 public interface ISeasonTemplateService : IGenericDataService<Template, TemplateDto>
 {
     Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetForSeason(Guid seasonId, CancellationToken token);
+    Task<ActionResultDto<ProposalResultDto>> ProposeForSeason(ProposalRequestDto request, CancellationToken token);
 }

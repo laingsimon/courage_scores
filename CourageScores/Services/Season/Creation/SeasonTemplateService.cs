@@ -18,19 +18,22 @@ public class SeasonTemplateService : ISeasonTemplateService
     private readonly ISeasonService _seasonService;
     private readonly IDivisionService _divisionService;
     private readonly ICompatibilityCheckFactory _compatibilityCheckFactory;
+    private readonly ISeasonProposalStrategy _proposalStrategy;
 
     public SeasonTemplateService(
         IGenericDataService<Template, TemplateDto> underlyingService,
         IUserService userService,
         ISeasonService seasonService,
         IDivisionService divisionService,
-        ICompatibilityCheckFactory compatibilityCheckFactory)
+        ICompatibilityCheckFactory compatibilityCheckFactory,
+        ISeasonProposalStrategy proposalStrategy)
     {
         _underlyingService = underlyingService;
         _userService = userService;
         _seasonService = seasonService;
         _divisionService = divisionService;
         _compatibilityCheckFactory = compatibilityCheckFactory;
+        _proposalStrategy = proposalStrategy;
     }
 
     public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetForSeason(Guid seasonId, CancellationToken token)
@@ -65,6 +68,35 @@ public class SeasonTemplateService : ISeasonTemplateService
                 return compatible;
             }).ToList(),
         };
+    }
+
+    public async Task<ActionResultDto<ProposalResultDto>> ProposeForSeason(ProposalRequestDto request, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            return Error<ProposalResultDto>("Not logged in");
+        }
+
+        if (user.Access?.ManageGames != true)
+        {
+            return Error<ProposalResultDto>("Not permitted");
+        }
+
+        var season = await _seasonService.Get(request.SeasonId, token);
+        if (season == null)
+        {
+            return Error<ProposalResultDto>("Season not found");
+        }
+
+        var template = await Get(request.TemplateId, token);
+        if (template == null)
+        {
+            return Error<ProposalResultDto>("Template not found");
+        }
+
+        var context = await CreateContext(season, token);
+        return await _proposalStrategy.ProposeFixtures(context, template, token);
     }
 
     private async Task<TemplateMatchContext> CreateContext(SeasonDto season, CancellationToken token)

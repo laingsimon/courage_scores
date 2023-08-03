@@ -26,6 +26,7 @@ public class SeasonTemplateServiceTests
     private Mock<IDivisionService> _divisionService = null!;
     private Mock<ICompatibilityCheckFactory> _checkFactory = null!;
     private Mock<ICompatibilityCheck> _check = null!;
+    private Mock<ISeasonProposalStrategy> _proposalStrategy = null!;
     private UserDto? _user;
     private TemplateDto[] _templates = null!;
     private SeasonDto _season = null!;
@@ -40,7 +41,14 @@ public class SeasonTemplateServiceTests
         _divisionService = new Mock<IDivisionService>();
         _checkFactory = new Mock<ICompatibilityCheckFactory>();
         _check = new Mock<ICompatibilityCheck>();
-        _service = new SeasonTemplateService(_underlyingService.Object, _userService.Object, _seasonService.Object, _divisionService.Object, _checkFactory.Object);
+        _proposalStrategy = new Mock<ISeasonProposalStrategy>();
+        _service = new SeasonTemplateService(
+            _underlyingService.Object,
+            _userService.Object,
+            _seasonService.Object,
+            _divisionService.Object,
+            _checkFactory.Object,
+            _proposalStrategy.Object);
         _user = new UserDto
         {
             Access = new AccessDto
@@ -69,6 +77,9 @@ public class SeasonTemplateServiceTests
         };
 
         _underlyingService.Setup(s => s.GetAll(_token)).Returns(() => TestUtilities.AsyncEnumerable(_templates));
+        _underlyingService
+            .Setup(s => s.Get(It.IsAny<Guid>(), _token))
+            .ReturnsAsync((Guid id, CancellationToken _) => _templates.SingleOrDefault(t => t.Id == id));
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _divisionService
@@ -164,5 +175,95 @@ public class SeasonTemplateServiceTests
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result!.Select(r => r.Result), Has.All.Not.Null);
         Assert.That(result.Result!.Select(r => r.Success), Has.All.True);
+    }
+
+    [Test]
+    public async Task ProposeForSeason_WhenLoggedOut_ReturnsNotLoggedIn()
+    {
+        _user = null;
+        var template = new TemplateDto { Id = Guid.NewGuid() };
+        _templates = new[] { template };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = _season.Id,
+            TemplateId = template.Id,
+        };
+
+        var result = await _service.ProposeForSeason(request,  _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not logged in" }));
+    }
+
+    [Test]
+    public async Task ProposeForSeason_WhenNotPermitted_ReturnsNotPermitted()
+    {
+        _user!.Access!.ManageGames = false;
+        var template = new TemplateDto { Id = Guid.NewGuid() };
+        _templates = new[] { template };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = _season.Id,
+            TemplateId = template.Id,
+        };
+
+        var result = await _service.ProposeForSeason(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Not permitted" }));
+    }
+
+    [Test]
+    public async Task ProposeForSeason_WhenSeasonNotFound_ReturnsSeasonNotFound()
+    {
+        var template = new TemplateDto { Id = Guid.NewGuid() };
+        _templates = new[] { template };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = Guid.NewGuid(),
+            TemplateId = template.Id,
+        };
+
+        var result = await _service.ProposeForSeason(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Season not found" }));
+    }
+
+    [Test]
+    public async Task ProposeForSeason_WhenTemplateNotFound_ReturnsTemplateNotFound()
+    {
+        var template = new TemplateDto { Id = Guid.NewGuid() };
+        _templates = new[] { template };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = _season.Id,
+            TemplateId = Guid.NewGuid(),
+        };
+
+        var result = await _service.ProposeForSeason(request, _token);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Template not found" }));
+    }
+
+    [Test]
+    public async Task ProposeForSeason_WhenPermitted_ProposesFixturesForAllDivisions()
+    {
+        var template = new TemplateDto { Id = Guid.NewGuid() };
+        _templates = new[] { template };
+        var request = new ProposalRequestDto
+        {
+            SeasonId = _season.Id,
+            TemplateId = template.Id,
+        };
+        var proposalResult = new ActionResultDto<ProposalResultDto>();
+        _proposalStrategy
+            .Setup(s => s.ProposeFixtures(It.IsAny<TemplateMatchContext>(), template, _token))
+            .ReturnsAsync(proposalResult);
+
+        var result = await _service.ProposeForSeason(request, _token);
+
+        Assert.That(result, Is.SameAs(proposalResult));
     }
 }

@@ -35,9 +35,15 @@ public class SeasonTemplateController : Controller
     }
 
     [HttpGet("/api/Template/ForSeason/{seasonId}")]
-    public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetTemplates(Guid seasonId, CancellationToken token)
+    public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetForSeason(Guid seasonId, CancellationToken token)
     {
         return await _seasonTemplateService.GetForSeason(seasonId, token);
+    }
+
+    [HttpPost("/api/Template/Propose/")]
+    public async Task<ActionResultDto<ProposalResultDto>> ProposeForSeason(ProposalRequestDto request, CancellationToken token)
+    {
+        return await _seasonTemplateService.ProposeForSeason(request, token);
     }
 
     [HttpPut("/api/Template/")]
