@@ -189,7 +189,7 @@ export function DivisionFixtures({ setNewFixtures }) {
         return (<div className="content-background p-3">
             {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
-            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
+            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog setNewFixtures={setNewFixtures} seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
             <div>
                 {resultsToRender}
                 {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (

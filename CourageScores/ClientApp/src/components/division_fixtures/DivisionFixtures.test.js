@@ -14,6 +14,7 @@ describe('DivisionFixtures', () => {
     let divisionReloaded = false;
     let updatedNote;
     let createdNote;
+    let overriddenDivisionData;
     const seasonApi = {
 
     };
@@ -53,6 +54,7 @@ describe('DivisionFixtures', () => {
         newFixtures = null;
         divisionReloaded = false;
         updatedNote = null;
+        overriddenDivisionData = null;
         createdNote = null;
         context = await renderApp(
             { seasonApi, gameApi, noteApi, tournamentApi, templateApi },
@@ -70,7 +72,7 @@ describe('DivisionFixtures', () => {
                 controls: !excludeControls,
                 teams: toMap(teams || []),
             },
-            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData}>
+            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData} setDivisionData={d => overriddenDivisionData = d}>
                 <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures} />
             </DivisionDataContainer>),
             route,
