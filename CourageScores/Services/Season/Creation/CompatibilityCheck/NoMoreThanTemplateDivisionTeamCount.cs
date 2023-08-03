@@ -13,20 +13,16 @@ public class NoMoreThanTemplateDivisionTeamCount : ICompatibilityCheck
             Success = true,
         };
 
-        var divisionMappings = template.Divisions
-            .Zip(context.Divisions)
-            .Select(mapping => new { templateDivision = mapping.First, seasonDivision = mapping.Second });
-
-        foreach (var division in divisionMappings)
+        foreach (var division in context.GetDivisionMappings(template))
         {
-            var templateTeams = division.templateDivision.Dates.SelectMany(d => d.Fixtures)
+            var templateTeams = division.TemplateDivision.Dates.SelectMany(d => d.Fixtures)
                 .SelectMany(f => new[] { f.Home, f.Away }).Select(p => p?.Key).Where(p => !string.IsNullOrEmpty(p)).Distinct().ToArray();
-            var seasonTeams = division.seasonDivision.Teams;
+            var seasonTeams = division.SeasonDivision.Teams;
 
             if (seasonTeams.Count > templateTeams.Length)
             {
                 result.Success = false;
-                result.Warnings.Add($"{division.seasonDivision.Name} has {seasonTeams.Count} teams, template has fewer ({templateTeams.Length})");
+                result.Warnings.Add($"{division.SeasonDivision.Name} has {seasonTeams.Count} teams, template has fewer ({templateTeams.Length})");
             }
         }
 
