@@ -16,8 +16,8 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
         {
             token.ThrowIfCancellationRequested();
 
-            var templateDateForDivisions = divisionMappings.Select(mapping => mapping.TemplateDivision.Dates[templateDateIndex]);
-            var fixtureDateForDivisions = context.MatchContext.Divisions.Select(d => d.Fixtures.Where(fd => fd.Date == currentDate)).ToList();
+            var templateDateForDivisions = divisionMappings.Select(mapping => mapping.TemplateDivision.Dates[templateDateIndex]).ToArray();
+            var fixtureDateForDivisions = context.MatchContext.Divisions.Select(d => d.Fixtures.Where(fd => fd.Date == currentDate).ToArray()).ToList();
 
             // there must be no fixtures, notes or tournaments on this date
             if (!AreThereAnyFixturesNotesOrTournaments(fixtureDateForDivisions))
@@ -64,14 +64,33 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
         }
     }
 
-    private static async Task CreateFixturesForDate(ProposalContext context, List<FixtureTemplateDto> fixturesToCreate, DivisionFixtureDateDto fixtureDate, CancellationToken token)
+    private static Task CreateFixturesForDate(ProposalContext context, List<FixtureTemplateDto> fixturesToCreate, DivisionFixtureDateDto fixtureDate, CancellationToken token)
     {
         foreach (var fixtureToCreate in fixturesToCreate)
         {
             token.ThrowIfCancellationRequested();
 
-            var homeTeam = context.PlaceholderMapping[fixtureToCreate.Home.Key];
-            var awayTeam = fixtureToCreate.Away != null ? context.PlaceholderMapping[fixtureToCreate.Away.Key] : null;
+            DivisionTeamDto? awayTeam = null;
+            context.PlaceholderMapping.TryGetValue(fixtureToCreate.Home.Key, out var homeTeam);
+            if (fixtureToCreate.Away != null)
+            {
+                context.PlaceholderMapping.TryGetValue(fixtureToCreate.Away.Key, out awayTeam);
+            }
+
+            if (homeTeam == null)
+            {
+                context.Result.Success = false;
+                context.Result.Errors.Add($"Could not find home team for fixture - {fixtureToCreate.Home.Key}");
+                continue;
+            }
+
+            if (awayTeam == null && fixtureToCreate.Away?.Key != null)
+            {
+                context.Result.Success = false;
+                context.Result.Errors.Add($"Could not find away team for fixture - {fixtureToCreate.Away.Key}");
+                continue;
+            }
+
             fixtureDate.Fixtures.Add(new DivisionFixtureDto
             {
                 Id = homeTeam.Id,
@@ -88,5 +107,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
                 HomeScore = null,
             });
         }
+
+        return Task.CompletedTask;
     }
 }

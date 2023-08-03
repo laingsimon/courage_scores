@@ -80,7 +80,7 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.Result.Result!.Divisions.Count, Is.EqualTo(1));
+        Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(1));
         Assert.That(
             context.Result.Result!.Divisions[0],
             Is.EqualTo(OutputDivision(
@@ -117,7 +117,7 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.Result.Result!.Divisions.Count, Is.EqualTo(1));
+        Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(1));
         Assert.That(
             context.Result.Result!.Divisions[0],
             Is.EqualTo(OutputDivision(
@@ -154,7 +154,7 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.Result.Result!.Divisions.Count, Is.EqualTo(2));
+        Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(2));
         Assert.That(
             context.Result.Result!.Divisions[0],
             Is.EqualTo(OutputDivision(
@@ -196,7 +196,7 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.Result.Result!.Divisions.Count, Is.EqualTo(1));
+        Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(1));
         Assert.That(
             context.Result.Result!.Divisions[0],
             Is.EqualTo(OutputDivision(
@@ -238,7 +238,7 @@ public class FixtureDateAssignmentStrategyTests
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.True);
-        Assert.That(context.Result.Result!.Divisions.Count, Is.EqualTo(1));
+        Assert.That(context.Result.Result!.Divisions!.Count, Is.EqualTo(1));
         Assert.That(
             context.Result.Result!.Divisions[0],
             Is.EqualTo(OutputDivision(
