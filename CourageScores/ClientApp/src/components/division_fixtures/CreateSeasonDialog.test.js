@@ -4,16 +4,21 @@ import {cleanUp, renderApp, doSelectOption} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
+import {DivisionDataContainer} from "../DivisionDataContainer";
 
 describe('CreateSeasonDialog', () => {
     let context;
     let reportedError;
     let closed;
     let compatibilityResponses;
+    let allDataReloaded;
     const templateApi = {
         getCompatibility: (seasonId) => {
             return compatibilityResponses[seasonId] || { success: false };
         }
+    };
+    const gameApi = {
+
     };
 
     function onClose() {
@@ -25,14 +30,15 @@ describe('CreateSeasonDialog', () => {
     });
 
     beforeEach(() => {
+        allDataReloaded = false;
         reportedError = null;
         compatibilityResponses = {};
         closed = false;
     });
 
-    async function renderComponent(props) {
+    async function renderComponent(appProps, divisionDataProps, props) {
         context = await renderApp(
-            { templateApi },
+            { templateApi, gameApi },
             { name: 'Courage Scores' },
             {
                 onError: (err) => {
@@ -41,8 +47,14 @@ describe('CreateSeasonDialog', () => {
                         stack: err.stack
                     };
                 },
+                reloadAll: () => {
+                    allDataReloaded = true;
+                },
+                ...appProps
             },
-            (<CreateSeasonDialog {...props} onClose={onClose} />));
+            (<DivisionDataContainer {...divisionDataProps}>
+                <CreateSeasonDialog {...props} onClose={onClose} />
+            </DivisionDataContainer>));
     }
 
     describe('renders', () => {
@@ -53,6 +65,8 @@ describe('CreateSeasonDialog', () => {
                 result: []
             };
             await renderComponent({
+                divisions: []
+            }, null, {
                 seasonId: seasonId,
             });
 
@@ -75,6 +89,8 @@ describe('CreateSeasonDialog', () => {
                 }]
             };
             await renderComponent({
+                divisions: []
+            }, null, {
                 seasonId: seasonId,
             });
 
@@ -98,6 +114,8 @@ describe('CreateSeasonDialog', () => {
                 }]
             };
             await renderComponent({
+                divisions: []
+            }, null, {
                 seasonId: seasonId,
             });
 
@@ -126,6 +144,8 @@ describe('CreateSeasonDialog', () => {
                 }]
             };
             await renderComponent({
+                divisions: []
+            }, null, {
                 seasonId: seasonId,
             });
 
@@ -161,6 +181,8 @@ describe('CreateSeasonDialog', () => {
                 }]
             };
             await renderComponent({
+                divisions: []
+            }, null, {
                 seasonId: seasonId,
             });
 
