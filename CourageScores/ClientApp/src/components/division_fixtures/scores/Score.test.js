@@ -33,9 +33,9 @@ describe('Score', () => {
         }
     };
     const playerApi = {
-        create: (seasonId, teamId, playerDetails) => {
+        create: (divisionId, seasonId, teamId, playerDetails) => {
             const newPlayer = Object.assign({ id: createTemporaryId() }, playerDetails);
-            createdPlayer = { seasonId, teamId, playerDetails, newPlayer };
+            createdPlayer = { divisionId, seasonId, teamId, playerDetails, newPlayer };
             if (!newPlayerApiResult) {
                 throw new Error('You must set newPlayerApiResult to a factory method instance');
             }

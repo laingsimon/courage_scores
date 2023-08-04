@@ -21,10 +21,10 @@ public class PlayerController : Controller
         _commandFactory = commandFactory;
     }
 
-    [HttpPost("/api/Player/{seasonId}/{teamId}")]
-    public async Task<ActionResultDto<TeamDto>> AddPlayer(Guid seasonId, Guid teamId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
+    [HttpPost("/api/Player/{divisionId}/{seasonId}/{teamId}")]
+    public async Task<ActionResultDto<TeamDto>> AddPlayer(Guid divisionId, Guid seasonId, Guid teamId, [FromBody] EditTeamPlayerDto player, CancellationToken token)
     {
-        var command = _commandFactory.GetCommand<AddPlayerToTeamSeasonCommand>().ToSeason(seasonId).ForPlayer(player);
+        var command = _commandFactory.GetCommand<AddPlayerToTeamSeasonCommand>().ToSeason(seasonId).ToDivision(divisionId).ForPlayer(player);
         return await _teamService.Upsert(teamId, command, token);
     }
 

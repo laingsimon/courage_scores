@@ -15,8 +15,8 @@ describe('EditPlayerDetails', () => {
     let canceled;
     let apiResponse;
     const playerApi = {
-        create: async (seasonId, teamId, playerDetails) => {
-            createdPlayer = { seasonId, teamId, playerDetails };
+        create: async (divisionId, seasonId, teamId, playerDetails) => {
+            createdPlayer = { divisionId, seasonId, teamId, playerDetails };
             return apiResponse || { success: true };
         },
         update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {

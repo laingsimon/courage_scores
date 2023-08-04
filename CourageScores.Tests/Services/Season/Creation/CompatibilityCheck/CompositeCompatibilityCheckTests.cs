@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using Moq;
@@ -14,7 +15,7 @@ public class CompositeCompatibilityCheckTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private readonly TemplateDto _template = new TemplateDto();
-    private readonly TemplateMatchContext _context = new TemplateMatchContext(new SeasonDto(), new[] { new DivisionDataDto() });
+    private readonly TemplateMatchContext _context = new TemplateMatchContext(new SeasonDto(), new[] { new DivisionDataDto() }, new Dictionary<Guid, TeamDto[]>());
 
     [Test]
     public async Task Check_GivenNoChecks_ReturnsSuccess()

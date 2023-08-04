@@ -22,6 +22,10 @@ class TemplateApi {
     getCompatibility(seasonId) {
         return this.http.get(`/api/Template/ForSeason/${seasonId}`, {});
     }
+
+    propose(request) {
+        return this.http.post(`/api/Template/Propose/`, request);
+    }
 }
 
 export { TemplateApi };

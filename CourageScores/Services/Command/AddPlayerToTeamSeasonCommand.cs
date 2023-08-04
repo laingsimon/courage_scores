@@ -16,6 +16,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private EditTeamPlayerDto? _player;
     private Guid? _seasonId;
+    private Guid? _divisionId;
     private bool _addSeasonToTeamIfMissing = true;
 
     public AddPlayerToTeamSeasonCommand(
@@ -44,6 +45,12 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         return this;
     }
 
+    public virtual AddPlayerToTeamSeasonCommand ToDivision(Guid divisionId)
+    {
+        _divisionId = divisionId;
+        return this;
+    }
+
     public virtual AddPlayerToTeamSeasonCommand AddSeasonToTeamIfMissing(bool allowed)
     {
         _addSeasonToTeamIfMissing = allowed;
@@ -60,6 +67,11 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
         if (_seasonId == null)
         {
             throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(ToSeason)} is called");
+        }
+
+        if (_divisionId == null)
+        {
+            throw new InvalidOperationException($"DivisionId hasn't been set, ensure {nameof(ToDivision)} is called");
         }
 
         if (model.Deleted != null)
@@ -112,7 +124,10 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
                 };
             }
 
-            var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
+            var addSeasonCommand = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
+                .ForSeason(season.Id)
+                .ForDivision(_divisionId.Value);
+
             var result = await addSeasonCommand.ApplyUpdate(model, token);
             if (!result.Success || result.Result == null)
             {

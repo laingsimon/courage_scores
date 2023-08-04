@@ -52,6 +52,7 @@ public class AddOrUpdateSeasonCommandTests
 
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
+        _addSeasonToTeamCommand.Setup(c => c.ForDivision(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.CopyPlayersFromSeasonId(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.SkipSeasonExistenceCheck()).Returns(_addSeasonToTeamCommand.Object);
         _divisionRepository.Setup(r => r.Get(_division.Id, _token)).ReturnsAsync(_division);
@@ -196,6 +197,14 @@ public class AddOrUpdateSeasonCommandTests
         var otherSeasonTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = otherSeason.Id,
+                    DivisionId = _division.Id,
+                }
+            }
         };
         _seasonService.Setup(s => s.Get(otherSeason.Id, _token)).ReturnsAsync(otherSeason);
         _teamService.Setup(s => s.GetTeamsForSeason(otherSeason.Id, _token)).Returns(TestUtilities.AsyncEnumerable(otherSeasonTeam));
@@ -208,6 +217,7 @@ public class AddOrUpdateSeasonCommandTests
         _teamService
             .Verify(s => s.Upsert(otherSeasonTeam.Id, _addSeasonToTeamCommand.Object, _token));
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
+        _addSeasonToTeamCommand.Verify(c => c.ForDivision(_division.Id));
         _addSeasonToTeamCommand.Verify(c => c.CopyPlayersFromSeasonId(otherSeason.Id));
         _addSeasonToTeamCommand.Verify(c => c.SkipSeasonExistenceCheck());
         Assert.That(result.Success, Is.True);

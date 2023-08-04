@@ -71,13 +71,13 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Home == null || game.Home.Id != update.HomeTeamId)
         {
-            game.Home = await UpdateTeam(update.HomeTeamId, season, token);
+            game.Home = await UpdateTeam(update.HomeTeamId, season, game.DivisionId, token);
         }
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (game.Away == null || game.Away.Id != update.AwayTeamId)
         {
-            game.Away = await UpdateTeam(update.AwayTeamId, season, token);
+            game.Away = await UpdateTeam(update.AwayTeamId, season, game.DivisionId, token);
         }
 
         return new ActionResult<Models.Cosmos.Game.Game>
@@ -87,7 +87,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         };
     }
 
-    private async Task<GameTeam> UpdateTeam(Guid teamId, SeasonDto season, CancellationToken token)
+    private async Task<GameTeam> UpdateTeam(Guid teamId, SeasonDto season, Guid divisionId, CancellationToken token)
     {
         var teamDto = await _teamService.Get(teamId, token);
 
@@ -99,7 +99,10 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         if (teamDto.Seasons.All(s => s.SeasonId != season.Id))
         {
             // add team to season
-            var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>().ForSeason(season.Id);
+            var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
+                .ForSeason(season.Id)
+                .ForDivision(divisionId);
+
             var result = await _teamService.Upsert(teamId, command, token);
 
             if (!result.Success)

@@ -8,6 +8,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Season.Creation;
 
@@ -18,19 +19,25 @@ public class SeasonTemplateService : ISeasonTemplateService
     private readonly ISeasonService _seasonService;
     private readonly IDivisionService _divisionService;
     private readonly ICompatibilityCheckFactory _compatibilityCheckFactory;
+    private readonly ISeasonProposalStrategy _proposalStrategy;
+    private readonly ITeamService _teamService;
 
     public SeasonTemplateService(
         IGenericDataService<Template, TemplateDto> underlyingService,
         IUserService userService,
         ISeasonService seasonService,
         IDivisionService divisionService,
-        ICompatibilityCheckFactory compatibilityCheckFactory)
+        ICompatibilityCheckFactory compatibilityCheckFactory,
+        ISeasonProposalStrategy proposalStrategy,
+        ITeamService teamService)
     {
         _underlyingService = underlyingService;
         _userService = userService;
         _seasonService = seasonService;
         _divisionService = divisionService;
         _compatibilityCheckFactory = compatibilityCheckFactory;
+        _proposalStrategy = proposalStrategy;
+        _teamService = teamService;
     }
 
     public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetForSeason(Guid seasonId, CancellationToken token)
@@ -67,6 +74,35 @@ public class SeasonTemplateService : ISeasonTemplateService
         };
     }
 
+    public async Task<ActionResultDto<ProposalResultDto>> ProposeForSeason(ProposalRequestDto request, CancellationToken token)
+    {
+        var user = await _userService.GetUser(token);
+        if (user == null)
+        {
+            return Error<ProposalResultDto>("Not logged in");
+        }
+
+        if (user.Access?.ManageGames != true)
+        {
+            return Error<ProposalResultDto>("Not permitted");
+        }
+
+        var season = await _seasonService.Get(request.SeasonId, token);
+        if (season == null)
+        {
+            return Error<ProposalResultDto>("Season not found");
+        }
+
+        var template = await Get(request.TemplateId, token);
+        if (template == null)
+        {
+            return Error<ProposalResultDto>("Template not found");
+        }
+
+        var context = await CreateContext(season, token);
+        return await _proposalStrategy.ProposeFixtures(context, template, token);
+    }
+
     private async Task<TemplateMatchContext> CreateContext(SeasonDto season, CancellationToken token)
     {
         var divisions = await season.Divisions.SelectAsync(d => _divisionService.GetDivisionData(new DivisionDataFilter
@@ -75,7 +111,12 @@ public class SeasonTemplateService : ISeasonTemplateService
             SeasonId = season.Id,
         }, token)).ToList();
 
-        return new TemplateMatchContext(season, divisions);
+        var teamsInSeason = await _teamService.GetTeamsForSeason(season.Id, token).ToList();
+        var teams = teamsInSeason
+            .GroupBy(t => t.Seasons.Single(ts => ts.SeasonId == season.Id).DivisionId)
+            .ToDictionary(g => g.Key, g => g.ToArray());
+
+        return new TemplateMatchContext(season, divisions, teams);
     }
 
     private static ActionResultDto<T> Error<T>(string error)

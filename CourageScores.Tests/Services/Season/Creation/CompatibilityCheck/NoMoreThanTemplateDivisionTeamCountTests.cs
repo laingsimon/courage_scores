@@ -1,6 +1,7 @@
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using NUnit.Framework;
@@ -41,15 +42,13 @@ public class NoMoreThanTemplateDivisionTeamCountTests
                 },
             }
         }; // template has 2 teams
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new[]
         {
-            Teams =
-            {
-                new DivisionTeamDto(),
-            } // division has 1 team
-        };
+            new TeamDto(),
+        }; // division has 1 team
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -82,13 +81,14 @@ public class NoMoreThanTemplateDivisionTeamCountTests
         }; // template has 1 team
         var division = new DivisionDataDto
         {
-            Teams =
-            {
-                new DivisionTeamDto(),
-            } // division has 1 team
+            Id = Guid.NewGuid(),
         };
+        var teams = new[]
+        {
+            new TeamDto(),
+        }; // division has 1 team
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -122,14 +122,15 @@ public class NoMoreThanTemplateDivisionTeamCountTests
         }; // template has 2 teams
         var division = new DivisionDataDto
         {
-            Teams =
-            {
-                new DivisionTeamDto(),
-                new DivisionTeamDto(),
-            } // division has 2 teams
+            Id = Guid.NewGuid()
         };
+        var teams = new[]
+        {
+            new TeamDto(),
+            new TeamDto(),
+        }; // division has 2 teams
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -164,17 +165,29 @@ public class NoMoreThanTemplateDivisionTeamCountTests
         var division = new DivisionDataDto
         {
             Name = "Division One",
-            Teams =
-            {
-                new DivisionTeamDto(),
-                new DivisionTeamDto(),
-                new DivisionTeamDto(),
-            } // division has 3 teams
+            Id = Guid.NewGuid(),
         };
+        var teams = new[]
+        {
+            new TeamDto(),
+            new TeamDto(),
+            new TeamDto(),
+        }; // division has 3 teams
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Division One has 3 teams, template has fewer (2)" }));
+    }
+
+    private TemplateMatchContext TemplateMatchContext(DivisionDataDto division, TeamDto[] teams)
+    {
+        return new TemplateMatchContext(
+            _season,
+            new[] { division },
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division.Id, teams },
+            });
     }
 }

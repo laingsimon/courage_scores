@@ -12,19 +12,14 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddress : ICompatibility
             Success = true,
         };
 
-        var divisions = template.Divisions
-            .Zip(context.Divisions)
-            .Select(mapping => new { templateDivision = mapping.First, seasonDivision = mapping.Second })
-            .ToArray();
-
-        foreach (var division in divisions)
+        foreach (var division in context.GetDivisionMappings(template))
         {
-            var seasonSharedAddresses = division.seasonDivision.Teams.GroupBy(t => t.Address).Where(g => g.Count() > 1).ToArray();
+            var seasonSharedAddresses = division.SharedAddressesFromSeason;
 
-            if (seasonSharedAddresses.Length > division.templateDivision.SharedAddresses.Count)
+            if (seasonSharedAddresses.Count > division.TemplateDivision.SharedAddresses.Count)
             {
                 result.Success = false;
-                result.Warnings.Add($"{division.seasonDivision.Name} has {seasonSharedAddresses.Length} shared addresses, template only supports {division.templateDivision.SharedAddresses.Count}");
+                result.Warnings.Add($"{division.SeasonDivision.Name} has {seasonSharedAddresses.Count} shared addresses, template only supports {division.TemplateDivision.SharedAddresses.Count}");
             }
         }
 

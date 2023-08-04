@@ -3,8 +3,8 @@ class PlayerApi {
         this.http = http;
     }
 
-    create(seasonId, teamId, player) {
-        return this.http.post(`/api/Player/${seasonId}/${teamId}`, player);
+    create(divisionId, seasonId, teamId, player) {
+        return this.http.post(`/api/Player/${divisionId}/${seasonId}/${teamId}`, player);
     }
 
     delete(seasonId, teamId, playerId) {

@@ -116,6 +116,9 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISeasonHealthCheckFactory, SeasonHealthCheckFactory>();
         services.AddScoped<ISeasonTemplateService, SeasonTemplateService>();
         services.AddScoped<ICompatibilityCheckFactory, CompatibilityCheckFactory>();
+        services.AddScoped<ISeasonProposalStrategy, TemplatedSeasonProposalStrategy>();
+        services.AddScoped<IAddressAssignmentStrategy, AddressAssignmentStrategy>();
+        services.AddScoped<IFixtureDateAssignmentStrategy, FixtureDateAssignmentStrategy>();
     }
 
     private static void AddRepositories(IServiceCollection services)

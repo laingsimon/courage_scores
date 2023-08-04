@@ -189,7 +189,6 @@ export function DivisionFixtures({ setNewFixtures }) {
         return (<div className="content-background p-3">
             {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
-            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
             <div>
                 {resultsToRender}
                 {isEmpty(resultsToRender, f => f != null) && any(fixtures) ? (
@@ -197,6 +196,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
                 {editNote ? renderEditNote() : null}
             </div>
+            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
             {isAdmin ? (<div className="mt-3">
                 <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
                 <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>🗓️ Create fixtures</button>
