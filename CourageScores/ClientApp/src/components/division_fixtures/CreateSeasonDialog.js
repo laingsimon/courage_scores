@@ -3,15 +3,15 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import React, {useEffect, useState} from "react";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {Loading} from "../common/Loading";
 import {any} from "../../helpers/collections";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
 import {useDivisionData} from "../DivisionDataContainer";
+import {renderDate} from "../../helpers/rendering";
 
-export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
-    const { templateApi } = useDependencies();
-    const { onError, divisions } = useApp();
-    const { id } = useDivisionData();
+export function CreateSeasonDialog({ seasonId, onClose }) {
+    const { templateApi, gameApi } = useDependencies();
+    const { onError, divisions, reloadAll } = useApp();
+    const { id, setDivisionData, onReloadDivision } = useDivisionData();
     const [ loading, setLoading ] = useState(false);
     const [ templates, setTemplates ] = useState(null);
     const [ selectedTemplate, setSelectedTemplate ] = useState(null);
@@ -31,6 +31,10 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
         })
         .map(d => { return { value: d.id, text: d.name }; })
     const [ selectedDivisionId, setSelectedDivisionId ] = useState(id);
+    const [ saveMessage, setSaveMessage ] = useState(null);
+    const [ fixturesToSave, setFixturesToSave ] = useState([]);
+    const [ savingProposal, setSavingProposal ] = useState(false);
+    const [ saveResults, setSaveResults ] = useState([]);
 
     function getTemplateOption(compatibility) {
         let text = compatibility.success
@@ -45,7 +49,7 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
 
     async function loadTemplateCompatibility() {
         /* istanbul ignore next */
-        if (loading) {
+        if (loading || templates) {
             /* istanbul ignore next */
             return;
         }
@@ -65,12 +69,18 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
     async function onPrevious() {
         switch (stage) {
             default:
-            case 'review-divisions':
+            case 'review':
+                setDivisionData(null);
+                setStage('pick');
+                return;
+            case 'review-proposals':
                 setStage('review');
                 return;
-            case 'pick':
-            case 'review':
-                setStage('pick');
+            case 'confirm-save':
+                setStage('review-proposals');
+                return;
+            case 'saving':
+                setStage('aborted');
                 return;
         }
     }
@@ -80,10 +90,23 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
             case 'pick':
                 return await onPropose();
             case 'review':
-                return showFixtures();
-            case 'review-divisions':
-                alert('Not implemented yet');
+                changeVisibleDivision(selectedDivisionId);
+                setStage('review-proposals');
+                return;
+            case 'review-proposals':
+                const toSave = response.result.divisions
+                    .flatMap(d => d.fixtures.flatMap(fd => fd.fixtures.map(f => { return { fixture: f, date: fd, division: d } })))
+                    .filter(f => f.fixture.proposal && f.fixture.awayTeam);
+
+                setFixturesToSave(toSave);
+                setStage('confirm-save');
                 break;
+            case 'confirm-save':
+                return await saveProposals();
+            case 'aborted':
+                setSaveMessage(`Resuming save...`);
+                setStage('saving');
+                return;
             default:
                 return;
         }
@@ -117,16 +140,92 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
         }
     }
 
-    function showFixtures() {
-        const newDivision = response.result.divisions.filter(d => d.id === selectedDivisionId)[0];
-        setNewFixtures(newDivision.fixtures);
-        setStage('review-divisions');
+    async function saveProposals() {
+        setSaveMessage(`Starting save...`);
+        setStage('saving');
+        setDivisionData(null);
     }
 
     function changeVisibleDivision(id) {
         setSelectedDivisionId(id);
         const newDivision = response.result.divisions.filter(d => d.id === id)[0];
-        setNewFixtures(newDivision.fixtures);
+        setDivisionData(newDivision);
+    }
+
+    useEffect(() => {
+        if (stage !== 'saving' || fixturesToSave == null) {
+            return;
+        }
+
+        // save a fixture and pop it off the list
+        if (!any(fixturesToSave)) {
+            // noinspection JSIgnoredPromiseFromCall
+            proposalsSaved();
+            return;
+        }
+
+        // noinspection JSIgnoredPromiseFromCall
+        saveNextProposal();
+    },
+    // eslint-disable-next-line
+    [ stage, fixturesToSave, savingProposal ]);
+
+    async function proposalsSaved() {
+        setSaveMessage('Reloading division data...');
+        await reloadAll();
+        await onReloadDivision();
+        setDivisionData(null);
+        setStage('saved');
+
+        const errors = saveResults.filter(r => !r.success);
+        if (any(errors)) {
+            setSaveMessage(`Some (${errors.length}) fixtures could not be saved`);
+            return;
+        }
+
+        onClose();
+    }
+
+    async function saveNextProposal() {
+        if (savingProposal) {
+            return;
+        }
+
+        const fixtureToSave = fixturesToSave[0];
+        setFixturesToSave(fixturesToSave.filter(f => f !== fixtureToSave));
+        setSavingProposal(true);
+
+        try {
+            const fixture = fixtureToSave.fixture;
+            const date = fixtureToSave.date;
+            const division = fixtureToSave.division;
+
+            setSaveMessage(`Saving - ${division.name}: ${renderDate(date.date)}, ${fixture.homeTeam.name} vs ${fixture.awayTeam.name}`);
+            const result = await gameApi.update({
+                id: undefined,
+                address: fixture.homeTeam.address,
+                divisionId: division.id,
+                homeTeamId: fixture.homeTeam.id,
+                awayTeamId: fixture.awayTeam.id,
+                date: date.date,
+                isKnockout: false,
+                seasonId: seasonId,
+                accoladesCount: true,
+            }, null);
+            setSaveResults(saveResults.concat(result));
+        } catch (e) {
+            setSaveMessage('Error saving proposal: ' + e.message);
+        } finally {
+            setSavingProposal(false);
+        }
+    }
+
+    function getPercentageComplete() {
+        const total = saveResults.length + fixturesToSave.length;
+        const complete = saveResults.length;
+        const percentage = complete / total;
+
+        return percentage * 100;
     }
 
     useEffect(() => {
@@ -136,7 +235,7 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
     // eslint-disable-next-line
     []);
 
-    if (stage === 'review-divisions') {
+    if (stage === 'review-proposals') {
         return (<div className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
             <h6>Review the fixtures in the divisions</h6>
             <BootstrapDropdown options={divisionOptions} value={selectedDivisionId} onChange={changeVisibleDivision} />
@@ -149,11 +248,13 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
 
     try {
         return (<Dialog title="Create season fixtures...">
-            {loading ? (<Loading />) : null}
-            {!loading && stage === 'pick' ? (<div>
-                Fixture template: <BootstrapDropdown options={templateOptions} value={selectedTemplate ? selectedTemplate.result.id : null} onChange={value => setSelectedTemplate(templates.result.filter(t => t.result.id === value)[0])} />
+            {stage === 'pick' ? (<div>
+                <span className="margin-right">Fixture template:</span>
+                {loading
+                    ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+                    : (<BootstrapDropdown options={templateOptions} value={selectedTemplate ? selectedTemplate.result.id : null} onChange={value => setSelectedTemplate(templates.result.filter(t => t.result.id === value)[0])} />)}
             </div>) : null}
-            {!loading && selectedTemplate && stage === 'pick' ? (<div className={`alert mt-3 ${selectedTemplate.success ? 'alert-success' : 'alert-warning'}`}>
+            {selectedTemplate && stage === 'pick' ? (<div className={`alert mt-3 ${selectedTemplate.success ? 'alert-success' : 'alert-warning'}`}>
                 {selectedTemplate.success ? (<h4>✔ Compatible with this season</h4>) : (<h4>🚫 Incompatible with this season</h4>)}
                 {any(selectedTemplate.errors) ? (<ol>{selectedTemplate.errors.map((e, i) => <li className="text-danger" key={i}>{e}</li>)}</ol>) : null}
                 {any(selectedTemplate.warnings) ? (<ol>{selectedTemplate.warnings.map((w, i) => <li key={i}>{w}</li>)}</ol>) : null}
@@ -161,9 +262,9 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
 
                 {selectedTemplate.success ? (<ViewHealthCheck result={selectedTemplate.result.templateHealth} />) : null}
             </div>) : null}
-            {!loading && stage === 'review' ? (<div>
-                {response.success ? (<h4>✔ Fixtures have been proposed successful</h4>) : (<h4>⚠ There was an issue proposing fixtures</h4>)}
-                <p>Health report for proposed fixtures (all divisions)</p>
+            {stage === 'review' ? (<div>
+                {response.success ? (<h4>✔ Fixtures have been proposed</h4>) : (<h4>⚠ There was an issue proposing fixtures</h4>)}
+                <p>Press <kbd>Next</kbd> to review the fixtures in the divisions before saving</p>
                 <div className={`overflow-auto max-height-250 alert mt-3 ${response.success ? 'alert-success' : 'alert-warning'}`}>
                     {any(response.errors) ? (<ol>{response.errors.map((e, i) => <li className="text-danger" key={i}>{e}</li>)}</ol>) : null}
                     {any(response.warnings) ? (<ol>{response.warnings.map((w, i) => <li key={i}>{w}</li>)}</ol>) : null}
@@ -171,14 +272,33 @@ export function CreateSeasonDialog({ seasonId, onClose, setNewFixtures }) {
                     {response.success ? (<ViewHealthCheck result={response.result.proposalHealth} />) : null}
                 </div>
             </div>) : null}
+            {stage === 'confirm-save' ? (<div>
+                <p>Press <kbd>Next</kbd> to save all {fixturesToSave.length} fixtures across {divisionOptions.length} divisions</p>
+                <p>You must keep your device on and connected to the internet during the process of saving the fixtures</p>
+            </div>) : null}
+            {stage === 'saving' || stage === 'aborted' || stage === 'saved' ? (<div>
+                {stage === 'saving' && any(fixturesToSave) ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {saveMessage}
+                <div>{saveResults.length} fixtures of {saveResults.length + fixturesToSave.length} saved</div>
+                <div className="progress">
+                    <div className="progress-bar progress-bar-striped" style={{ width: getPercentageComplete() + '%' }} role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                {any(saveResults, r => !r.success) ? (<div className="overflow-auto max-height-250">
+                    {saveResults.map((r, index) => (<p key={index}>
+                        {any(response.errors) ? (<ol>{response.errors.map((e, i) => <li className="text-danger" key={i}>{e}</li>)}</ol>) : null}
+                        {any(response.warnings) ? (<ol>{response.warnings.map((w, i) => <li key={i}>{w}</li>)}</ol>) : null}
+                        {any(response.messages) ? (<ol>{response.messages.map((m, i) => <li className="text-secondary" key={i}>{m}</li>)}</ol>) : null}
+                    </p>))}
+                </div>) : null}
+            </div>) : null}
             <div className="modal-footer px-0 mt-3 pb-0">
                 <div className="left-aligned">
-                    <button className="btn btn-secondary" onClick={onClose}>Close</button>
+                    <button className="btn btn-secondary" onClick={() => { setDivisionData(null); onClose(); }} disabled={stage === 'saving'}>Close</button>
                 </div>
-                <button className="btn btn-primary" onClick={onPrevious} disabled={stage === 'pick'}>
+                <button className="btn btn-primary" onClick={onPrevious} disabled={stage === 'pick' || stage === 'saved'}>
                     Back
                 </button>
-                <button className="btn btn-primary" onClick={onNext} disabled={!selectedTemplate}>
+                <button className="btn btn-primary" onClick={onNext} disabled={!selectedTemplate || stage === 'saving' || stage === 'saved'}>
                     {proposing ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
                     Next
                 </button>
