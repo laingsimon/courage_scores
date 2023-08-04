@@ -151,6 +151,9 @@ export function Division() {
         if (loading || error) {
             return;
         }
+        if (!seasons.length) {
+            return;
+        }
 
         function beginReload() {
             setDataRequested(true);
@@ -184,7 +187,7 @@ export function Division() {
         }
     },
     // eslint-disable-next-line
-    [ divisionData, loading, divisionId, seasonId, error ]);
+    [ divisionData, loading, divisionId, seasonId, error, seasons ]);
 
     if (loading || !dataRequested) {
         return (<Loading />);
