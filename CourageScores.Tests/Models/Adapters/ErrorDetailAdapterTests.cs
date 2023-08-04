@@ -55,7 +55,7 @@ public class ErrorDetailAdapterTests
         var result = await _adapter.Adapt(feature.Object, _token);
 
         Assert.That(result, Is.Not.Null);
-        Assert.That(result.Id, Is.Not.EqualTo(Guid.Empty));
+        Assert.That(result.Id, Is.EqualTo(Guid.Empty));
         Assert.That(result.Source, Is.EqualTo(SourceSystem.Api));
         Assert.That(result.Time, Is.EqualTo(_now.UtcDateTime));
         Assert.That(result.UserAgent, Is.EqualTo("some user agent"));

@@ -21,7 +21,6 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
     {
         return Task.FromResult(new ErrorDetailDto
         {
-            Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
             Time = _clock.UtcNow.UtcDateTime,
             UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
