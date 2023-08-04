@@ -174,6 +174,7 @@ public class AddOrUpdateGameCommandTests
             Id = _game.Id,
             SeasonId = _season.Id,
             LastUpdated = _game.Updated,
+            DivisionId = _game.DivisionId,
         };
         var success = new ActionResultDto<TeamDto>
         {
