@@ -65,6 +65,50 @@ public class FixtureDateAssignmentStrategyTests
     }
 
     [Test]
+    public async Task AssignDates_GivenHomeTeamIsNotFound_ReturnsUnsuccessful()
+    {
+        var template = new TemplateDto
+        {
+            Divisions =
+            {
+                TemplateDivision(
+                    TemplateDate(TemplateFixture("J", "B"))
+                ),
+            }
+        };
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
+
+        var result = await _strategy.AssignDates(context, _token);
+
+        Assert.That(result, Is.False);
+        Assert.That(context.Result.Errors, Is.EquivalentTo(new[] { "Could not find home team for fixture - J" }));
+    }
+
+    [Test]
+    public async Task AssignDates_GivenAwayTeamIsNotFound_ReturnsUnsuccessful()
+    {
+        var template = new TemplateDto
+        {
+            Divisions =
+            {
+                TemplateDivision(
+                    TemplateDate(TemplateFixture("A", "J"))
+                ),
+            }
+        };
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
+
+        var result = await _strategy.AssignDates(context, _token);
+
+        Assert.That(result, Is.False);
+        Assert.That(context.Result.Errors, Is.EquivalentTo(new[] { "Could not find away team for fixture - J" }));
+    }
+
+    [Test]
     public async Task AssignDates_GivenSingleDivisionAndNoExistingDates_CreatesDatesFromSeasonStartDate()
     {
         var template = new TemplateDto

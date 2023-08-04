@@ -12,6 +12,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
         var currentDate = context.MatchContext.SeasonDto.StartDate;
         var templateDateIndex = 0;
         var maxTemplateIndex = context.Template.Divisions.Select(d => d.Dates.Count).OrderByDescending(c => c).FirstOrDefault();
+        var success = true;
 
         while (templateDateIndex < maxTemplateIndex)
         {
@@ -24,14 +25,14 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             if (!AreThereAnyFixturesNotesOrTournaments(fixtureDateForDivisions))
             {
                 // ok to provision fixtures for this date
-                await ProvisionFixturesForThisDate(context, currentDate, templateDateForDivisions, token);
+                success = await ProvisionFixturesForThisDate(context, currentDate, templateDateForDivisions, token) && success;
                 templateDateIndex++;
             }
 
             currentDate = currentDate.AddDays(7);
         }
 
-        return true;
+        return success;
     }
 
     private static bool AreThereAnyFixturesNotesOrTournaments(IEnumerable<IEnumerable<DivisionFixtureDateDto>> fixtureDateForDivisions)
@@ -41,13 +42,15 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             (current, prev) => current + prev.Count(d => d.Fixtures.Count + d.Notes.Count + d.TournamentFixtures.Count > 0)) > 0;
     }
 
-    private static async Task ProvisionFixturesForThisDate(
+    private static async Task<bool> ProvisionFixturesForThisDate(
         ProposalContext context,
         DateTime currentDate,
         IEnumerable<DateTemplateDto> templateDateForDivisions,
         CancellationToken token)
     {
         var divisionMappings = context.MatchContext.GetDivisionMappings(context.Template);
+        var success = true;
+
         foreach (var mapping in divisionMappings.Zip(templateDateForDivisions))
         {
             token.ThrowIfCancellationRequested();
@@ -61,12 +64,16 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
                 divisionToAddFixturesTo.Fixtures = divisionToAddFixturesTo.Fixtures.Concat(new[] { fixtureDate }).OrderBy(f => f.Date).ToList();
             }
 
-            await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token);
+            success = await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token) && success;
         }
+
+        return success;
     }
 
-    private static Task CreateFixturesForDate(ProposalContext context, List<FixtureTemplateDto> fixturesToCreate, DivisionFixtureDateDto fixtureDate, CancellationToken token)
+    private static Task<bool> CreateFixturesForDate(ProposalContext context, List<FixtureTemplateDto> fixturesToCreate, DivisionFixtureDateDto fixtureDate, CancellationToken token)
     {
+        var success = true;
+
         foreach (var fixtureToCreate in fixturesToCreate)
         {
             token.ThrowIfCancellationRequested();
@@ -82,6 +89,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             {
                 context.Result.Success = false;
                 context.Result.Errors.Add($"Could not find home team for fixture - {fixtureToCreate.Home.Key}");
+                success = false;
                 continue;
             }
 
@@ -89,6 +97,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             {
                 context.Result.Success = false;
                 context.Result.Errors.Add($"Could not find away team for fixture - {fixtureToCreate.Away.Key}");
+                success = false;
                 continue;
             }
 
@@ -109,6 +118,6 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             });
         }
 
-        return Task.CompletedTask;
+        return Task.FromResult(success);
     }
 }
