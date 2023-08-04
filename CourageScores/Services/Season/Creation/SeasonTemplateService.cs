@@ -8,6 +8,7 @@ using CourageScores.Services.Command;
 using CourageScores.Services.Division;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
+using CourageScores.Services.Team;
 
 namespace CourageScores.Services.Season.Creation;
 
@@ -19,6 +20,7 @@ public class SeasonTemplateService : ISeasonTemplateService
     private readonly IDivisionService _divisionService;
     private readonly ICompatibilityCheckFactory _compatibilityCheckFactory;
     private readonly ISeasonProposalStrategy _proposalStrategy;
+    private readonly ITeamService _teamService;
 
     public SeasonTemplateService(
         IGenericDataService<Template, TemplateDto> underlyingService,
@@ -26,7 +28,8 @@ public class SeasonTemplateService : ISeasonTemplateService
         ISeasonService seasonService,
         IDivisionService divisionService,
         ICompatibilityCheckFactory compatibilityCheckFactory,
-        ISeasonProposalStrategy proposalStrategy)
+        ISeasonProposalStrategy proposalStrategy,
+        ITeamService teamService)
     {
         _underlyingService = underlyingService;
         _userService = userService;
@@ -34,6 +37,7 @@ public class SeasonTemplateService : ISeasonTemplateService
         _divisionService = divisionService;
         _compatibilityCheckFactory = compatibilityCheckFactory;
         _proposalStrategy = proposalStrategy;
+        _teamService = teamService;
     }
 
     public async Task<ActionResultDto<List<ActionResultDto<TemplateDto>>>> GetForSeason(Guid seasonId, CancellationToken token)
@@ -107,7 +111,12 @@ public class SeasonTemplateService : ISeasonTemplateService
             SeasonId = season.Id,
         }, token)).ToList();
 
-        return new TemplateMatchContext(season, divisions);
+        var teamsInSeason = await _teamService.GetTeamsForSeason(season.Id, token).ToList();
+        var teams = teamsInSeason
+            .GroupBy(t => t.Seasons.Single(ts => ts.SeasonId == season.Id).DivisionId)
+            .ToDictionary(g => g.Key, g => g.ToArray());
+
+        return new TemplateMatchContext(season, divisions, teams);
     }
 
     private static ActionResultDto<T> Error<T>(string error)

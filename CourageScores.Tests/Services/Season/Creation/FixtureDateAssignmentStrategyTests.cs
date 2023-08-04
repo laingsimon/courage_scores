@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season.Creation;
 using NUnit.Framework;
 
@@ -10,13 +11,13 @@ namespace CourageScores.Tests.Services.Season.Creation;
 [TestFixture]
 public class FixtureDateAssignmentStrategyTests
 {
-    private static readonly DivisionTeamDto Team1 = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "Team 1" };
-    private static readonly DivisionTeamDto Team2 = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "Team 2" };
-    private static readonly DivisionTeamDto Team3 = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "Team 3" };
-    private static readonly DivisionTeamDto Team4 = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "Team 4" };
+    private static readonly TeamDto Team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1" };
+    private static readonly TeamDto Team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2" };
+    private static readonly TeamDto Team3 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 3" };
+    private static readonly TeamDto Team4 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 4" };
     private readonly IEqualityComparer<DivisionDataDto> _comparer = new DateAndTeamNameComparer();
     private readonly CancellationToken _token = new CancellationToken();
-    private readonly Dictionary<string, DivisionTeamDto> _placeholderMappings = new Dictionary<string, DivisionTeamDto>
+    private readonly Dictionary<string, TeamDto> _placeholderMappings = new Dictionary<string, TeamDto>
     {
         { "A", Team1 },
         { "B", Team2 },
@@ -42,8 +43,9 @@ public class FixtureDateAssignmentStrategyTests
         {
             Divisions = { new DivisionTemplateDto() }
         };
-        var division = new DivisionDataDto();
-        var context = ProposalContext(new[] { division }, template);
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -54,7 +56,8 @@ public class FixtureDateAssignmentStrategyTests
     public async Task AssignDates_GivenNoDivisions_ReturnSuccessful()
     {
         var template = new TemplateDto();
-        var context = ProposalContext(Array.Empty<DivisionDataDto>(), template);
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(Array.Empty<DivisionDataDto>(), template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -74,8 +77,9 @@ public class FixtureDateAssignmentStrategyTests
                 ),
             }
         };
-        var division = new DivisionDataDto();
-        var context = ProposalContext(new[] { division }, template);
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -103,6 +107,7 @@ public class FixtureDateAssignmentStrategyTests
         };
         var division = new DivisionDataDto
         {
+            Id = Guid.NewGuid(),
             Fixtures =
             {
                 new DivisionFixtureDateDto
@@ -112,7 +117,8 @@ public class FixtureDateAssignmentStrategyTests
                 }
             }
         };
-        var context = ProposalContext(new[] { division }, template);
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -147,9 +153,10 @@ public class FixtureDateAssignmentStrategyTests
                 ),
             }
         };
-        var division1 = new DivisionDataDto();
-        var division2 = new DivisionDataDto();
-        var context = ProposalContext(new[] { division1, division2 }, template);
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division1, division2 }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -182,6 +189,7 @@ public class FixtureDateAssignmentStrategyTests
         };
         var division = new DivisionDataDto
         {
+            Id = Guid.NewGuid(),
             Fixtures =
             {
                 new DivisionFixtureDateDto
@@ -191,7 +199,8 @@ public class FixtureDateAssignmentStrategyTests
                 }
             }
         };
-        var context = ProposalContext(new[] { division }, template);
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -224,6 +233,7 @@ public class FixtureDateAssignmentStrategyTests
         };
         var division = new DivisionDataDto
         {
+            Id = Guid.NewGuid(),
             Fixtures =
             {
                 new DivisionFixtureDateDto
@@ -233,7 +243,8 @@ public class FixtureDateAssignmentStrategyTests
                 }
             }
         };
-        var context = ProposalContext(new[] { division }, template);
+        var teams = new Dictionary<Guid, TeamDto[]>();
+        var context = ProposalContext(new[] { division }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -251,10 +262,10 @@ public class FixtureDateAssignmentStrategyTests
                 OutputDate(new DateTime(2001, 01, 15), OutputFixture(Team2, Team3), OutputFixture(Team4, Team1)))).Using(_comparer));
     }
 
-    private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template)
+    private ProposalContext ProposalContext(IReadOnlyCollection<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
     {
         return new ProposalContext(
-            new TemplateMatchContext(_season, divisions),
+            new TemplateMatchContext(_season, divisions, teams),
             template,
             new ActionResultDto<ProposalResultDto>
             {
@@ -291,7 +302,7 @@ public class FixtureDateAssignmentStrategyTests
         };
     }
 
-    private static DivisionFixtureDto OutputFixture(DivisionTeamDto home, DivisionTeamDto? away)
+    private static DivisionFixtureDto OutputFixture(TeamDto home, TeamDto? away)
     {
         return new DivisionFixtureDto
         {

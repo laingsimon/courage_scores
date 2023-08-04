@@ -1,5 +1,5 @@
-using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Season.Creation;
 
@@ -18,7 +18,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
             .GetSeasonSharedAddresses()
             .Select(a =>
             {
-                var allTeams = context.MatchContext.Divisions.SelectMany(d => d.Teams);
+                var allTeams = context.MatchContext.Teams.SelectMany(pair => pair.Value);
                 return allTeams.Where(t => a.Any(aa => t.Address.Trim().Equals(aa.Trim(), StringComparison.OrdinalIgnoreCase))).ToArray();
             })
             .ToArray();
@@ -72,7 +72,7 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
         foreach (var divisionMapping in context.MatchContext.GetDivisionMappings(context.Template))
         {
             // TODO: Find all teams in the division...
-            var remainingTeams = divisionMapping.SeasonDivision.Teams.Except(context.PlaceholderMapping.Values).ToList();
+            var remainingTeams = divisionMapping.Teams.Except(context.PlaceholderMapping.Values).ToList();
             var allPlaceholders = divisionMapping.TemplateDivision.Dates.SelectMany(d => d.Fixtures).Select(f => f.Home.Key).Distinct();
             var remainingPlaceholders = allPlaceholders.Except(context.PlaceholderMapping.Keys).ToList();
 
@@ -105,12 +105,12 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
 
     private static Task<bool> ApplyTemplatePlaceholders(
         ProposalContext context,
-        IEnumerable<DivisionTeamDto[]> teams,
+        IEnumerable<TeamDto[]> teams,
         IEnumerable<List<TeamPlaceholderDto>> placeholders,
         string messagePrefix,
         CancellationToken token)
     {
-        var teamsOrderedLargestToSmallest = new Queue<DivisionTeamDto[]>(teams.OrderByDescending(a => a.Length));
+        var teamsOrderedLargestToSmallest = new Queue<TeamDto[]>(teams.OrderByDescending(a => a.Length));
         var placeholdersOrderedLargestToSmallest = new Queue<List<TeamPlaceholderDto>>(placeholders.OrderByDescending(a => a.Count));
 
         while (teamsOrderedLargestToSmallest.Any())

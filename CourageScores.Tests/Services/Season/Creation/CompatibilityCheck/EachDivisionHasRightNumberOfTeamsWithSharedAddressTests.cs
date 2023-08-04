@@ -1,6 +1,7 @@
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using NUnit.Framework;
@@ -18,16 +19,14 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
     public async Task Check_GivenNoRequiredSharedAddressesAndNonePresent_ReturnsSuccess()
     {
         var template = new TemplateDto();
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new[]
         {
-            Teams =
-            {
-                new DivisionTeamDto { Name = "A", Address = "A" },
-                new DivisionTeamDto { Name = "B", Address = "B" },
-            }
+            new TeamDto { Name = "A", Address = "A" },
+            new TeamDto { Name = "B", Address = "B" },
         };
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -52,16 +51,14 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
                 }
             }
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new[]
         {
-            Teams =
-            {
-                new DivisionTeamDto { Name = "A", Address = "A" },
-                new DivisionTeamDto { Name = "B", Address = "B" },
-            }
+            new TeamDto { Name = "A", Address = "A" },
+            new TeamDto { Name = "B", Address = "B" },
         };
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -86,16 +83,14 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
                 }
             }
         };
-        var division = new DivisionDataDto
+        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var teams = new[]
         {
-            Teams =
-            {
-                new DivisionTeamDto { Name = "A", Address = "A" },
-                new DivisionTeamDto { Name = "B", Address = "A" },
-            }
+            new TeamDto { Name = "A", Address = "A" },
+            new TeamDto { Name = "B", Address = "A" },
         };
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -122,19 +117,31 @@ public class EachDivisionHasRightNumberOfTeamsWithSharedAddressTests
         };
         var division = new DivisionDataDto
         {
-            Name = "Division One",
-            Teams =
-            {
-                new DivisionTeamDto { Name = "A", Address = "A" },
-                new DivisionTeamDto { Name = "B", Address = "A" },
-                new DivisionTeamDto { Name = "C", Address = "C" },
-                new DivisionTeamDto { Name = "D", Address = "C" },
-            }
+            Id = Guid.NewGuid(),
+            Name = "Division One"
+        };
+        var teams = new[]
+        {
+            new TeamDto { Name = "A", Address = "A" },
+            new TeamDto { Name = "B", Address = "A" },
+            new TeamDto { Name = "C", Address = "C" },
+            new TeamDto { Name = "D", Address = "C" },
         };
 
-        var result = await _check.Check(template, new TemplateMatchContext(_season, new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(division, teams), _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Division One has 2 shared addresses, template only supports 1" }));
+    }
+
+    private TemplateMatchContext TemplateMatchContext(DivisionDataDto division, TeamDto[] teams)
+    {
+        return new TemplateMatchContext(
+            _season,
+            new[] { division },
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division.Id, teams }
+            });
     }
 }

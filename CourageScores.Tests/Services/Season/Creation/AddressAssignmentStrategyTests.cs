@@ -2,6 +2,7 @@ using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Season.Creation;
 using NUnit.Framework;
 
@@ -18,15 +19,16 @@ public class AddressAssignmentStrategyTests
     public async Task AssignAddresses_GivenMoreSeasonSharedAddressesThanInTemplate_ReturnsFailure()
     {
         var template = new TemplateDto();
-        var division1 = new DivisionDataDto
-        {
-            Teams = { new DivisionTeamDto { Address = "Venue" } }
-        };
-        var division2 = new DivisionDataDto
-        {
-            Teams = { new DivisionTeamDto { Address = "Venue" } }
-        };
-        var context = ProposalContext(new[] { division1, division2 }, template);
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var context = ProposalContext(
+            new[] { division1, division2 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { new TeamDto { Address = "Venue" } } },
+                { division2.Id, new[] { new TeamDto { Address = "Venue" } } },
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -48,11 +50,18 @@ public class AddressAssignmentStrategyTests
                 }.ToList(),
             }
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var division1 = new DivisionDataDto { Teams = { teamA } };
-        var division2 = new DivisionDataDto { Teams = { teamB } };
-        var context = ProposalContext(new[] { division1, division2 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var context = ProposalContext(
+            new[] { division1, division2 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA } },
+                { division2.Id, new[] { teamB } },
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -81,11 +90,18 @@ public class AddressAssignmentStrategyTests
                 }.ToList(),
             }
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var division1 = new DivisionDataDto { Teams = { teamA } };
-        var division2 = new DivisionDataDto { Teams = { teamB } };
-        var context = ProposalContext(new[] { division1, division2 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var context = ProposalContext(
+            new[] { division1, division2 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA } },
+                { division2.Id, new[] { teamB } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -109,13 +125,21 @@ public class AddressAssignmentStrategyTests
                 }.ToList(),
             }
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var teamC = new DivisionTeamDto { Name = "C", Address = "Venue" };
-        var division1 = new DivisionDataDto { Teams = { teamA } };
-        var division2 = new DivisionDataDto { Teams = { teamB } };
-        var division3 = new DivisionDataDto { Teams = { teamC } };
-        var context = ProposalContext(new[] { division1, division2, division3 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var teamC = new TeamDto { Name = "C", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division3 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var context = ProposalContext(
+            new[] { division1, division2, division3 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA } },
+                { division2.Id, new[] { teamB } },
+                { division3.Id, new[] { teamC } },
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -133,14 +157,16 @@ public class AddressAssignmentStrategyTests
                 new DivisionTemplateDto()
             },
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var division1 = new DivisionDataDto
-        {
-            Name = "Division 1",
-            Teams = { teamA, teamB }
-        };
-        var context = ProposalContext(new[] { division1 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid(), Name = "Division 1" };
+        var context = ProposalContext(
+            new[] { division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA, teamB } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -168,15 +194,17 @@ public class AddressAssignmentStrategyTests
                 }
             },
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var division1 = new DivisionDataDto
-        {
-            Name = "Division 1",
-            Teams = { teamA, teamB }
-        };
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid(), Name = "Division 1" };
 
-        var context = ProposalContext(new[] { division1 }, template);
+        var context = ProposalContext(
+            new[] { division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA, teamB } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -211,14 +239,16 @@ public class AddressAssignmentStrategyTests
                 }
             },
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var division1 = new DivisionDataDto
-        {
-            Name = "Division 1",
-            Teams = { teamA, teamB }
-        };
-        var context = ProposalContext(new[] { division1 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid(), Name = "Division 1" };
+        var context = ProposalContext(
+            new[] { division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA, teamB } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -248,15 +278,17 @@ public class AddressAssignmentStrategyTests
                 },
             },
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue" };
-        var teamC = new DivisionTeamDto { Name = "C", Address = "Venue" };
-        var division1 = new DivisionDataDto
-        {
-            Name = "Division 1",
-            Teams = { teamA, teamB, teamC }
-        };
-        var context = ProposalContext(new[] { division1 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue" };
+        var teamC = new TeamDto { Name = "C", Address = "Venue" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid(), Name = "Division 1" };
+        var context = ProposalContext(
+            new[] { division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA, teamB, teamC } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -265,7 +297,7 @@ public class AddressAssignmentStrategyTests
     }
 
     [Test]
-    public async Task AssignAddresses_GivenInsufficientNonSharedAddressPlaceholdes_ReturnsFailure()
+    public async Task AssignAddresses_GivenInsufficientNonSharedAddressPlaceholders_ReturnsFailure()
     {
         var template = new TemplateDto
         {
@@ -274,14 +306,16 @@ public class AddressAssignmentStrategyTests
                 new DivisionTemplateDto()
             },
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue 1" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue 2" };
-        var division1 = new DivisionDataDto
-        {
-            Name = "Division 1",
-            Teams = { teamA, teamB }
-        };
-        var context = ProposalContext(new[] { division1 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue 1" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue 2" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid(), Name = "Division 1" };
+        var context = ProposalContext(
+            new[] { division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA, teamB } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -318,14 +352,16 @@ public class AddressAssignmentStrategyTests
                 }
             },
         };
-        var teamA = new DivisionTeamDto { Name = "A", Address = "Venue 1" };
-        var teamB = new DivisionTeamDto { Name = "B", Address = "Venue 2" };
-        var division1 = new DivisionDataDto
-        {
-            Name = "Division 1",
-            Teams = { teamA, teamB }
-        };
-        var context = ProposalContext(new[] { division1 }, template);
+        var teamA = new TeamDto { Name = "A", Address = "Venue 1" };
+        var teamB = new TeamDto { Name = "B", Address = "Venue 2" };
+        var division1 = new DivisionDataDto { Id = Guid.NewGuid(), Name = "Division 1" };
+        var context = ProposalContext(
+            new[] { division1 },
+            template,
+            new Dictionary<Guid, TeamDto[]>
+            {
+                { division1.Id, new[] { teamA, teamB } }
+            });
 
         var result = await _strategy.AssignAddresses(context, _token);
 
@@ -335,10 +371,10 @@ public class AddressAssignmentStrategyTests
         Assert.That(context.PlaceholderMapping.Values, Is.EquivalentTo(new[] { teamA, teamB }));
     }
 
-    private ProposalContext ProposalContext(IEnumerable<DivisionDataDto> divisions, TemplateDto template)
+    private ProposalContext ProposalContext(IEnumerable<DivisionDataDto> divisions, TemplateDto template, Dictionary<Guid, TeamDto[]> teams)
     {
         return new ProposalContext(
-            new TemplateMatchContext(_season, divisions),
+            new TemplateMatchContext(_season, divisions, teams),
             template,
             new ActionResultDto<ProposalResultDto>
             {

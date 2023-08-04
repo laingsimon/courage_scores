@@ -1,5 +1,6 @@
 using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 
 namespace CourageScores.Services.Season.Creation;
 
@@ -70,7 +71,7 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
         {
             token.ThrowIfCancellationRequested();
 
-            DivisionTeamDto? awayTeam = null;
+            TeamDto? awayTeam = null;
             context.PlaceholderMapping.TryGetValue(fixtureToCreate.Home.Key, out var homeTeam);
             if (fixtureToCreate.Away != null)
             {

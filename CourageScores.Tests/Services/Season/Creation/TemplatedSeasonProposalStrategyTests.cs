@@ -4,6 +4,7 @@ using CourageScores.Models.Dtos.Division;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Season;
 using CourageScores.Models.Dtos.Season.Creation;
+using CourageScores.Models.Dtos.Team;
 using CourageScores.Services.Health;
 using CourageScores.Services.Season.Creation;
 using Moq;
@@ -36,7 +37,7 @@ public class TemplatedSeasonProposalStrategyTests
             _dateAssignmentStrategy.Object,
             _healthCheckService.Object,
             _adapter.Object);
-        _matchContext = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>());
+        _matchContext = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>());
     }
 
     [Test]
