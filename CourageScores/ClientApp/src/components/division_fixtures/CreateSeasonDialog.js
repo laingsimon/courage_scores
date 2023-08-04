@@ -236,14 +236,17 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
     []);
 
     if (stage === 'review-proposals') {
-        return (<div className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
-            <h6>Review the fixtures in the divisions</h6>
-            <BootstrapDropdown options={divisionOptions} value={selectedDivisionId} onChange={changeVisibleDivision} />
-            <div className="mt-3">
-                <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
-                <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
+        return (<>
+            <div style={{ zIndex: '1051' }} className="position-fixed p-3 top-0 right-0 bg-white border-2 border-solid border-success box-shadow me-3 mt-3">
+                <h6>Review the fixtures in the divisions</h6>
+                <BootstrapDropdown options={divisionOptions} value={selectedDivisionId} onChange={changeVisibleDivision} />
+                <div className="mt-3">
+                    <button className="btn btn-primary margin-right" onClick={onPrevious}>Back</button>
+                    <button className="btn btn-primary margin-right" onClick={onNext}>Save all fixtures</button>
+                </div>
             </div>
-        </div>);
+            <div className="modal-backdrop fade show"></div>
+        </>);
     }
 
     try {
