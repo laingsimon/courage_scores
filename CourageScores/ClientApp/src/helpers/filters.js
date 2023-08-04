@@ -115,7 +115,7 @@ export function getFixtureFilters(filter) {
 
 export function getFixtureDateFilters(filter, renderContext, fixtures) {
     return new AndFilter([
-        new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes)),
+        new Filter(fd => any(fd.fixtures) || any(fd.tournamentFixtures) || any(fd.notes) || fd.isNew),
         optionallyInvertFilter(getDateFilter, filter.date, renderContext, fixtures),
         optionallyInvertFilter(getNotesFilter, filter.notes),
     ]);

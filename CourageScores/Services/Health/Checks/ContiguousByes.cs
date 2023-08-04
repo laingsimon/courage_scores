@@ -43,8 +43,16 @@ public class ContiguousByes : ISeasonHealthCheck
         var contiguousByes = new List<DateTime>();
         foreach (var date in division.Dates)
         {
-            var fixture = date.Fixtures.SingleOrDefault(f => f.HomeTeamId == team.Id || f.AwayTeamId == team.Id);
+            var fixtures = date.Fixtures.Where(f => f.HomeTeamId == team.Id || f.AwayTeamId == team.Id).ToArray();
 
+            if (fixtures.Length > 1)
+            {
+                result.Errors.Add($"{division.Name}: Found multiple fixtures on {date.Date:dd MMM yyyy} for {team.Name}");
+                result.Success = false;
+                continue;
+            }
+
+            var fixture = fixtures.SingleOrDefault();
             if (fixture?.AwayTeamId != null)
             {
                 if (contiguousByes.Count > _maxContiguousByes)

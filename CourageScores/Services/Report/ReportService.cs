@@ -53,7 +53,7 @@ public class ReportService : IReportService
         var playerLookup = new PlayerLookup();
         var visitorScope = new VisitorScope();
 
-        await foreach (var game in games.WithCancellation(token))
+        await foreach (var game in games)
         {
             gameCount++;
             game.Accept(visitorScope, playerLookup);

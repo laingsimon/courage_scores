@@ -145,6 +145,27 @@ public class ContiguousByesTests
         Assert.That(result.Success, Is.False);
     }
 
+    [Test]
+    public async Task RunCheck_WithMultipleFixturesForTeamOnSameDate_ReturnsFailure()
+    {
+        var division = new DivisionHealthDto
+        {
+            Name = "DIVISION",
+            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Dates =
+            {
+                FixtureDate(0, HomeFixture(), AwayFixture()), // 3-Feb 2001
+            }
+        };
+        var context = new HealthCheckContext(new SeasonHealthDto());
+
+        var result = await _check.RunCheck(new[] { division }, context, _token);
+
+        Assert.That(result.Errors, Is.EquivalentTo(new[] { "DIVISION: Found multiple fixtures on 03 Feb 2001 for HOME" }));
+        Assert.That(result.Warnings, Is.Empty);
+        Assert.That(result.Success, Is.False);
+    }
+
     private static DivisionDateHealthDto FixtureDate(int offsetWeeks, params Func<DateTime, LeagueFixtureHealthDto>[] fixtures)
     {
         var date = new DateTime(2001, 02, 03).AddDays(offsetWeeks * 7);

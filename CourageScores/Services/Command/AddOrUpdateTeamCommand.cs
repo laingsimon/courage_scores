@@ -38,7 +38,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         var addressLookup = new Dictionary<Guid, TeamDto?>();
         var gamesWithSameHomeAddressAsUpdate = new Dictionary<DateTime, HashSet<GameDto>>();
 
-        await foreach (var game in games.WithCancellation(token))
+        await foreach (var game in games)
         {
             if (!addressLookup.ContainsKey(game.Home.Id))
             {
