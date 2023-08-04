@@ -82,7 +82,7 @@ describe('Division', () => {
 
             await renderComponent({
                 divisions: [],
-                seasons: [],
+                seasons: [{ id: createTemporaryId(), name: 'SEASON', divisions: [] }],
                 controls: true,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -102,7 +102,7 @@ describe('Division', () => {
 
             await renderComponent({
                 divisions: [],
-                seasons: [],
+                seasons: [{ id: createTemporaryId(), name: 'SEASON', divisions: [] }],
                 controls: false,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
