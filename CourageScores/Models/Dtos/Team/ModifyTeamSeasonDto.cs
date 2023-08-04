@@ -7,5 +7,6 @@ public class ModifyTeamSeasonDto
 {
     public Guid Id { get; set; }
     public Guid SeasonId { get; set; }
+    public Guid DivisionId { get; set; }
     public Guid? CopyPlayersFromSeasonId { get; set; }
 }

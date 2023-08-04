@@ -114,7 +114,7 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         if (teamSeason == null)
         {
             var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
-            var result = await command.ForSeason(update.SeasonId).ApplyUpdate(team, token);
+            var result = await command.ForSeason(update.SeasonId).ForDivision(update.NewDivisionId).ApplyUpdate(team, token);
 
             if (!result.Success || result.Result == null)
             {

@@ -65,15 +65,17 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
             };
         }
 
-        var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
-            .ForSeason(seasonId)
-            .CopyPlayersFromSeasonId(copyFromSeasonId)
-            .SkipSeasonExistenceCheck();
-
         var teamsCopied = 0;
         var totalTeams = 0;
         await foreach (var teamToCopy in _teamService.GetTeamsForSeason(copyFromSeasonId, token))
         {
+            var currentTeamSeason = teamToCopy.Seasons.Single(ts => ts.SeasonId == copyFromSeasonId);
+            var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
+                .ForSeason(seasonId)
+                .ForDivision(currentTeamSeason.DivisionId)
+                .CopyPlayersFromSeasonId(copyFromSeasonId)
+                .SkipSeasonExistenceCheck();
+
             totalTeams++;
             var result = await _teamService.Upsert(teamToCopy.Id, command, token);
             if (result.Success)

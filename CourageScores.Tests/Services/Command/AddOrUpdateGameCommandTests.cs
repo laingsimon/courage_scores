@@ -34,6 +34,7 @@ public class AddOrUpdateGameCommandTests
         _game = new CosmosGame
         {
             Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
         };
         _season = new SeasonDto
         {
@@ -57,6 +58,7 @@ public class AddOrUpdateGameCommandTests
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(_season.Id)).Returns(_addSeasonToTeamCommand.Object);
+        _addSeasonToTeamCommand.Setup(c => c.ForDivision(_game.DivisionId)).Returns(_addSeasonToTeamCommand.Object);
         _cacheFlags = new ScopedCacheManagementFlags();
 
         _command = new AddOrUpdateGameCommand(
@@ -203,6 +205,7 @@ public class AddOrUpdateGameCommandTests
             Id = _game.Id,
             SeasonId = _season.Id,
             LastUpdated = _game.Updated,
+            DivisionId = _game.DivisionId,
         };
         var fail = new ActionResultDto<TeamDto>
         {

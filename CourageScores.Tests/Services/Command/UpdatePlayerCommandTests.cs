@@ -114,6 +114,9 @@ public class UpdatePlayerCommandTests
             .Setup(c => c.ToSeason(It.IsAny<Guid>()))
             .Returns(_addPlayerToSeasonCommand.Object);
         _addPlayerToSeasonCommand
+            .Setup(c => c.ToDivision(It.IsAny<Guid>()))
+            .Returns(_addPlayerToSeasonCommand.Object);
+        _addPlayerToSeasonCommand
             .Setup(c => c.AddSeasonToTeamIfMissing(It.IsAny<bool>()))
             .Returns(_addPlayerToSeasonCommand.Object);
     }
@@ -294,7 +297,9 @@ public class UpdatePlayerCommandTests
             });
 
         var result = await _command
-            .ForPlayer(_teamPlayer.Id).InSeason(_season.Id).WithData(_update)
+            .ForPlayer(_teamPlayer.Id)
+            .InSeason(_season.Id)
+            .WithData(_update)
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
