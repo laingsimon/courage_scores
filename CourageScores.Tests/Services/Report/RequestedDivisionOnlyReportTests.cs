@@ -722,6 +722,17 @@ public class RequestedDivisionOnlyReportTests
     }
 
     [Test]
+    public void VisitSide_WithoutVisitGameForTournamentFixture_DoesNotVisitMatch()
+    {
+        var underlying = new Mock<IReport>();
+        var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
+
+        report.VisitSide(VisitorScope, new TournamentSide());
+
+        underlying.Verify(r => r.VisitSide(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
+    }
+
+    [Test]
     public void VisitDataError_AfterVisitGameForTournamentFixtureInSameDivision_CallsVisitMatch()
     {
         var underlying = new Mock<IReport>();
