@@ -12,10 +12,10 @@ import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
-    const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
+    const { id: divisionId, season, fixtures, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account, onError, controls } = useApp();
+    const { account, onError, controls, teams } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
     const [ newDateDialogOpen, setNewDateDialogOpen ] = useState(false);
@@ -59,11 +59,15 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function getNewFixtureDate(date, isKnockout) {
+        const seasonalTeams = teams.filter(t => {
+            return t.seasons.filter(ts => ts.seasonId === season.id).length > 0;
+        });
+
         return {
             isNew: true,
             isKnockout: isKnockout,
             date: date,
-            fixtures: teams.map(team => {
+            fixtures: seasonalTeams.map(team => {
                 return {
                     id: team.id,
                     homeTeam: {
@@ -74,9 +78,10 @@ export function DivisionFixtures({ setNewFixtures }) {
                     awayTeam: null,
                     isKnockout: isKnockout,
                     accoladesCount: true,
+                    fixturesUsingAddress: [],
                 };
             }),
-            tournamentFixtures: teams.map(team => {
+            tournamentFixtures: seasonalTeams.map(team => {
                 return {
                     address: team.name,
                     proposed: true,
