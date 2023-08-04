@@ -193,6 +193,23 @@ public class RequestedDivisionOnlyReportTests
     }
 
     [Test]
+    public void VisitOneEighty_AfterVisitKnockoutGameInAnotherDivision_CallsVisitMatch()
+    {
+        var underlying = new Mock<IReport>();
+        var game = new CosmosGame
+        {
+            DivisionId = Guid.NewGuid(),
+            IsKnockout = true,
+        };
+        var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
+        report.VisitGame(game);
+
+        report.VisitOneEighty(VisitorScope, new GamePlayer());
+
+        underlying.Verify(r => r.VisitOneEighty(VisitorScope, It.IsAny<GamePlayer>()));
+    }
+
+    [Test]
     public void VisitOneEighty_AfterVisitGameForFixtureInDifferentDivision_DoesNotVisitMatch()
     {
         var underlying = new Mock<IReport>();
@@ -698,6 +715,17 @@ public class RequestedDivisionOnlyReportTests
         };
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
+
+        report.VisitSide(VisitorScope, new TournamentSide());
+
+        underlying.Verify(r => r.VisitSide(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
+    }
+
+    [Test]
+    public void VisitSide_WithoutVisitGameForTournamentFixture_DoesNotVisitMatch()
+    {
+        var underlying = new Mock<IReport>();
+        var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
 
         report.VisitSide(VisitorScope, new TournamentSide());
 
