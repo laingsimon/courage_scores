@@ -51,6 +51,9 @@ export function PlayerInput({ home, away, homeScore, awayScore, on180, onHiCheck
             }
 
             const score = Number.parseInt(scoreInput);
+            if (!Number.isFinite(score)) {
+                return;
+            }
 
             setSavingInput(true);
             const accumulatorName = leg.currentThrow;
