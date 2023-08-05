@@ -953,6 +953,7 @@ describe('DivisionFixtures', () => {
                 address: 'ADDRESS',
                 seasons: [ {
                     seasonId: divisionData.season.id,
+                    divisionId: divisionData.id,
                 } ]
             };
             const outOfSeasonTeam = {
