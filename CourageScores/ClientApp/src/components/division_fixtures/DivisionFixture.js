@@ -57,15 +57,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         return any(matching) ? matching[0].date : null;
     }
 
-    function isSameAddress(t) {
-        const otherTeamHasSameAddress = fixture.homeTeam.address === t.address;
-        return otherTeamHasSameAddress && t.address !== 'Unknown';
-    }
-
     function getUnavailableReason(t) {
-        if (isSameAddress(t)) {
-            return `Same address`;
-        }
         let otherFixtureSameDate = isSelectedInAnotherFixtureOnThisDate(t);
         if (otherFixtureSameDate) {
             return otherFixtureSameDate.awayTeam.id === t.id

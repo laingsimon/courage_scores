@@ -340,7 +340,7 @@ describe('DivisionFixture', () => {
             expect(linkToHome.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
         });
 
-        it('renders unselectable away team with same address (league fixture)', async () => {
+        it('renders selectable away team with same address (league fixture)', async () => {
             const date = '2023-05-06T00:00:00';
             const anotherTeamAtHomeAddress = {
                 id: createTemporaryId(),
@@ -362,7 +362,8 @@ describe('DivisionFixture', () => {
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
-            expect(awayCell.textContent).toContain('🚫 ANOTHER TEAM (Same address)');
+            expect(awayCell.textContent).toContain('ANOTHER TEAM');
+            expect(awayCell.textContent).not.toContain('🚫');
         });
 
         it('renders unselectable away team playing elsewhere (league fixture)', async () => {
