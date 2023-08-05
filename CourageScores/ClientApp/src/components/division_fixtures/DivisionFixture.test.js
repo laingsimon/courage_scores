@@ -845,12 +845,9 @@ describe('DivisionFixture', () => {
             let prompted = false;
             window.confirm = () => { prompted = true; return false; };
 
-            await doClick(findButton(saveCell, '🗑'));
+            const button = findButton(saveCell, '🗑');
 
-            expect(prompted).toEqual(false);
-            expect(deletedFixture).toBeNull();
-            expect(beforeReloadDivision).toEqual(null);
-            expect(divisionReloaded).toEqual(false);
+            expect(button.disabled).toEqual(true);
         });
 
         it('does not delete league fixture', async () => {
