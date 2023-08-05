@@ -333,10 +333,9 @@ describe('MultiPlayerSelection', () => {
             const selectedPlayer = getSelectedPlayers()[0];
             expect(selectedPlayer).toBeTruthy();
 
-            await doClick(findButton(selectedPlayer, 'PLAYER 🗑'));
+            const button = findButton(selectedPlayer, 'PLAYER 🗑');
 
-            // passes because <button ... disabled=true ... />
-            expect(removedPlayer).toBeNull();
+            expect(button.disabled).toEqual(true);
         });
 
         it('allows players to be added', async () => {

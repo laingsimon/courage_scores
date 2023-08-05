@@ -13,6 +13,7 @@ export async function doClick(container, selector) {
     const item = selector ? container.querySelector(selector) : container;
     // noinspection JSUnresolvedFunction
     expect(item).toBeTruthy();
+    expect(item.disabled || false).toEqual(false);
     const clickEvent = new MouseEvent('click', { bubbles: true });
     await act(async () => {
         item.dispatchEvent(clickEvent);
