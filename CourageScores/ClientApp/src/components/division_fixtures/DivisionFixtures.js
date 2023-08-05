@@ -60,7 +60,7 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     function getNewFixtureDate(date, isKnockout) {
         const seasonalTeams = teams.filter(t => {
-            return t.seasons.filter(ts => ts.seasonId === season.id).length > 0;
+            return t.seasons.filter(ts => ts.seasonId === season.id && ts.divisionId === divisionId).length > 0;
         });
 
         return {
