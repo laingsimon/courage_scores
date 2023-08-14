@@ -92,7 +92,7 @@ export function EditNote({ note, onNoteChanged, onClose, onSaved }) {
                     title="Could not save note" />)
                 : null}
         </div>
-        <div className="modal-footer px-0">
+        <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
             </div>

@@ -206,7 +206,7 @@ export function Division() {
                 originalSeasonData={divisionDataToUse.season}
                 originalDivisionData={{name: divisionDataToUse.name, id: divisionDataToUse.id, updated: divisionDataToUse.updated}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />) : null}
-            {controls ? (<ul className="nav nav-tabs">
+            {controls ? (<ul className="nav nav-tabs d-print-none">
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' ? 'active' : ''}

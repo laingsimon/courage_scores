@@ -12,7 +12,7 @@ export function PrintDivisionHeading({ hideDivision }) {
         return null;
     }
 
-    return <div datatype="print-division-heading" className="d-screen-none position-absolute right-0 top-0">
+    return <div datatype="print-division-heading" className="d-screen-none float-end">
         <strong className="mx-2 d-inline-block fs-3">{hideDivision ? '' : `${name}, `}{season.name}</strong>
     </div>;
 }

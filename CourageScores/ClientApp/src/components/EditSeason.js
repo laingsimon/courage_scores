@@ -112,7 +112,7 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
                 {divisions.sort(sortBy('name')).map(d => (<li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`} onClick={async () => await toggleDivision(d.id)}>{d.name}</li>))}
             </ul>
         </div>
-        <div className="modal-footer px-0">
+        <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
             </div>

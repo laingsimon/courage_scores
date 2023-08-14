@@ -158,7 +158,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                     <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                 </div>
             </div>
-            <div className="modal-footer px-0">
+            <div className="modal-footer px-0 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
                 </div>

@@ -131,7 +131,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
-        <div className="modal-footer px-0">
+        <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
             </div>

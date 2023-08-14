@@ -13,7 +13,7 @@ export function DivisionPlayers({ hideVenue, hideHeading, players }) {
 
     return (<div className="content-background p-3 overflow-x-auto">
         <PrintDivisionHeading />
-        <div>
+        <div className="clear-float">
             {hideHeading ? null : (<p className="d-print-none">Only players that have played a singles match will appear here</p>)}
             <table className="table">
                 <thead>
