@@ -7,7 +7,7 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<LeagueFixtureH
 {
     public Task<LeagueFixtureHealthDto?> Adapt(FixtureDateMapping model, CancellationToken token)
     {
-        if (model.Fixture.IsKnockout || model.Fixture.AwayTeam == null)
+        if (model.Fixture.IsKnockout || (model.Fixture.Id == model.Fixture.HomeTeam.Id && model.Fixture.AwayTeam == null))
         {
             return Task.FromResult<LeagueFixtureHealthDto?>(null);
         }
@@ -19,9 +19,9 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<LeagueFixtureH
             HomeTeam = model.Fixture.HomeTeam.Name,
             HomeTeamAddress = model.Fixture.HomeTeam.Address?.Trim(),
             HomeTeamId = model.Fixture.HomeTeam.Id,
-            AwayTeam = model.Fixture.AwayTeam.Name,
-            AwayTeamAddress = model.Fixture.AwayTeam.Address?.Trim(),
-            AwayTeamId = model.Fixture.AwayTeam.Id,
+            AwayTeam = model.Fixture.AwayTeam?.Name,
+            AwayTeamAddress = model.Fixture.AwayTeam?.Address?.Trim(),
+            AwayTeamId = model.Fixture.AwayTeam?.Id,
         });
     }
 

@@ -19,7 +19,10 @@ public class RequestedDivisionOnlyReportTests
         var underlying = new Mock<IReport>();
         var playerLookup = new Mock<IPlayerLookup>();
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
-        var reportDto = new ReportDto();
+        var reportDto = new ReportDto
+        {
+            ThisDivisionOnly = false,
+        };
         underlying
             .Setup(r => r.GetReport(playerLookup.Object, _token))
             .ReturnsAsync(reportDto);
@@ -28,6 +31,7 @@ public class RequestedDivisionOnlyReportTests
 
         underlying.Verify(r => r.GetReport(playerLookup.Object, _token));
         Assert.That(result, Is.SameAs(reportDto));
+        Assert.That(result.ThisDivisionOnly, Is.EqualTo(true));
     }
 
     [Test]
@@ -185,6 +189,23 @@ public class RequestedDivisionOnlyReportTests
             DivisionId = Guid.NewGuid(),
         };
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
+        report.VisitGame(game);
+
+        report.VisitOneEighty(VisitorScope, new GamePlayer());
+
+        underlying.Verify(r => r.VisitOneEighty(VisitorScope, It.IsAny<GamePlayer>()));
+    }
+
+    [Test]
+    public void VisitOneEighty_AfterVisitKnockoutGameInAnotherDivision_CallsVisitMatch()
+    {
+        var underlying = new Mock<IReport>();
+        var game = new CosmosGame
+        {
+            DivisionId = Guid.NewGuid(),
+            IsKnockout = true,
+        };
+        var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
 
         report.VisitOneEighty(VisitorScope, new GamePlayer());
@@ -698,6 +719,17 @@ public class RequestedDivisionOnlyReportTests
         };
         var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
         report.VisitGame(game);
+
+        report.VisitSide(VisitorScope, new TournamentSide());
+
+        underlying.Verify(r => r.VisitSide(It.IsAny<IVisitorScope>(), It.IsAny<TournamentSide>()), Times.Never);
+    }
+
+    [Test]
+    public void VisitSide_WithoutVisitGameForTournamentFixture_DoesNotVisitMatch()
+    {
+        var underlying = new Mock<IReport>();
+        var report = new RequestedDivisionOnlyReport(underlying.Object, Guid.NewGuid());
 
         report.VisitSide(VisitorScope, new TournamentSide());
 

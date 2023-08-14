@@ -7,7 +7,7 @@ export function Report({ rows, valueHeading }) {
         return (<NoRows />);
     }
 
-    return (<div>
+    return (<div className="clear-float">
         <table className="table table-striped">
             <thead>
             <tr>

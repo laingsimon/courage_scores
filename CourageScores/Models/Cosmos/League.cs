@@ -21,5 +21,5 @@ public class League : AuditedEntity
     /// <summary>
     /// The seasons that have been defined within the league
     /// </summary>
-    public List<Season> Seasons { get; set; } = new();
+    public List<Season.Season> Seasons { get; set; } = new();
 }

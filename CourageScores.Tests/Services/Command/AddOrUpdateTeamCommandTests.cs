@@ -80,6 +80,9 @@ public class AddOrUpdateTeamCommandTests
             .Setup(c => c.ForSeason(_seasonId))
             .Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand
+            .Setup(c => c.ForDivision(_divisionId))
+            .Returns(_addSeasonToTeamCommand.Object);
+        _addSeasonToTeamCommand
             .Setup(c => c.ApplyUpdate(_team, _token))
             .ReturnsAsync((CosmosTeam team, CancellationToken _) =>
             {

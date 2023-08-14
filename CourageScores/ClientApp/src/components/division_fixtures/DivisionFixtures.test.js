@@ -3,6 +3,7 @@
 import {cleanUp, renderApp, findButton, doClick, doChange, doSelectOption} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
+import {toMap} from "../../helpers/collections";
 import {DivisionFixtures} from "./DivisionFixtures";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 
@@ -13,6 +14,7 @@ describe('DivisionFixtures', () => {
     let divisionReloaded = false;
     let updatedNote;
     let createdNote;
+    let overriddenDivisionData;
     const seasonApi = {
 
     };
@@ -36,20 +38,26 @@ describe('DivisionFixtures', () => {
         create: async () => {
             return { success: true };
         }
-    }
+    };
+    const templateApi = {
+        getCompatibility: () => {
+            return { success: false };
+        }
+    };
 
     afterEach(() => {
         cleanUp(context);
     });
 
-    async function renderComponent(divisionData, account, route, path, excludeControls) {
+    async function renderComponent(divisionData, account, route, path, excludeControls, teams) {
         reportedError = null;
         newFixtures = null;
         divisionReloaded = false;
         updatedNote = null;
+        overriddenDivisionData = null;
         createdNote = null;
         context = await renderApp(
-            { seasonApi, gameApi, noteApi, tournamentApi },
+            { seasonApi, gameApi, noteApi, tournamentApi, templateApi },
             { name: 'Courage Scores' },
             {
                 account,
@@ -62,8 +70,9 @@ describe('DivisionFixtures', () => {
                 seasons: [],
                 divisions: [],
                 controls: !excludeControls,
+                teams: toMap(teams || []),
             },
-            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData}>
+            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData} setDivisionData={d => overriddenDivisionData = d}>
                 <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures} />
             </DivisionDataContainer>),
             route,
@@ -938,7 +947,21 @@ describe('DivisionFixtures', () => {
         it('can add a date', async () => {
             const divisionId = createTemporaryId();
             const divisionData = getInSeasonDivisionData(divisionId);
-            await renderComponent(divisionData, account);
+            const team = {
+                id: createTemporaryId(),
+                name: 'TEAM',
+                address: 'ADDRESS',
+                seasons: [ {
+                    seasonId: divisionData.season.id,
+                    divisionId: divisionData.id,
+                } ]
+            };
+            const outOfSeasonTeam = {
+                id: createTemporaryId(),
+                name: 'OUT OF SEASON TEAM',
+                seasons: [ ]
+            };
+            await renderComponent(divisionData, account, null, null, null, [ team, outOfSeasonTeam ]);
             await doClick(findButton(context.container, '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
@@ -948,9 +971,18 @@ describe('DivisionFixtures', () => {
 
             expect(reportedError).toBeNull();
             expect(newFixtures).not.toBeNull();
+            expect(newFixtures.length).toEqual(1);
             expect(newFixtures[0].date).toEqual('2023-05-06T00:00:00');
             expect(newFixtures[0].isNew).toEqual(true);
             expect(newFixtures[0].isKnockout).toEqual(true);
+            expect(newFixtures[0].fixtures.length).toEqual(1);
+            expect(newFixtures[0].fixtures[0].fixturesUsingAddress).toEqual([]);
+            expect(newFixtures[0].fixtures[0].homeTeam.id).toEqual(team.id);
+            expect(newFixtures[0].fixtures[0].homeTeam.name).toEqual(team.name);
+            expect(newFixtures[0].fixtures[0].homeTeam.address).toEqual(team.address);
+            expect(newFixtures[0].fixtures[0].awayTeam).toBeNull();
+            expect(newFixtures[0].fixtures[0].isKnockout).toEqual(true);
+            expect(newFixtures[0].fixtures[0].accoladesCount).toEqual(true);
         });
 
         it('renders new dates correctly', async () => {
@@ -977,6 +1009,32 @@ describe('DivisionFixtures', () => {
             await renderComponent(divisionData, account);
 
             expect(reportedError).toBeNull();
+        });
+
+        it('can open create new fixtures dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+
+            await doClick(findButton(context.container, '🗓️ Create fixtures'));
+
+            expect(reportedError).toBeNull();
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeTruthy();
+            expect(dialog.textContent).toContain('Create season fixtures...');
+        });
+
+        it('can close create new fixtures dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = getInSeasonDivisionData(divisionId);
+            await renderComponent(divisionData, account);
+            await doClick(findButton(context.container, '🗓️ Create fixtures'));
+            expect(reportedError).toBeNull();
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Close'))
+
+            const dialog = context.container.querySelector('.modal-dialog');
+            expect(dialog).toBeFalsy();
         });
     });
 });

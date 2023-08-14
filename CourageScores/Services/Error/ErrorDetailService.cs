@@ -45,7 +45,7 @@ public class ErrorDetailService : IErrorDetailService
         }
 
         var errors = _genericDataService.GetWhere($"t.Time >= '{since:yyyy-MM-ddTHH:mm:ss}'", token);
-        await foreach (var error in errors.WithCancellation(token))
+        await foreach (var error in errors)
         {
             yield return error;
         }

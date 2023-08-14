@@ -157,7 +157,9 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             var command = _commandFactory.GetCommand<AddPlayerToTeamSeasonCommand>()
                 .ForPlayer(_player)
                 .ToSeason(season.Id)
+                .ToDivision(Guid.Empty) // division id isn't required as the team won't be added to a season
                 .AddSeasonToTeamIfMissing(false);
+
             var addResult = await _teamService.Upsert(_player.NewTeamId.Value, command, token);
             if (!addResult.Success)
             {

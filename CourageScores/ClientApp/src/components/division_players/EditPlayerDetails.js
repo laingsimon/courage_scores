@@ -44,7 +44,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
 
             const response = player.id
                 ? await playerApi.update(seasonId, player.teamId || team.id, player.id, playerDetails, player.updated)
-                : await playerApi.create(seasonId, player.teamId || team.id, playerDetails);
+                : await playerApi.create(divisionId, seasonId, player.teamId || team.id, playerDetails);
 
             if (response.success) {
                 if (onSaved) {
@@ -131,7 +131,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
-        <div className="modal-footer px-0">
+        <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
             </div>

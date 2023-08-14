@@ -505,7 +505,7 @@ describe('filters', () => {
     });
 
     describe('getFixtureDateFilters', () => {
-        it('returns negative when no notes, fixtures or tournaments', () => {
+        it('returns negative when no notes, fixtures or tournaments and not new', () => {
             const filter = getFixtureDateFilters({}, {}, []);
 
             expect(filter).not.toBeNull();
@@ -514,6 +514,18 @@ describe('filters', () => {
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
+        });
+
+        it('returns positive when no notes, fixtures or tournaments and new', () => {
+            const filter = getFixtureDateFilters({}, {}, []);
+
+            expect(filter).not.toBeNull();
+            expect(filter.apply({
+                notes: [],
+                fixtures: [],
+                tournamentFixtures: [],
+                isNew: true,
+            })).toEqual(true);
         });
 
         it('returns positive when notes but no fixtures or tournaments', () => {

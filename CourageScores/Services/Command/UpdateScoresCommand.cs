@@ -132,6 +132,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
 
     private async Task<ActionResult<GameDto>> UpdateGameDetails(Models.Cosmos.Game.Game game, CancellationToken token)
     {
+        // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
         game.Address = _scores!.Address ?? game.Address;
         game.Postponed = _scores.Postponed;
         game.IsKnockout = _scores.IsKnockout;
@@ -146,9 +147,10 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
             var newSeasonId = await GetAppropriateSeasonId(game.Date, token);
             if (newSeasonId != null && (newSeasonId != game.SeasonId || dateChanged))
             {
-                var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>();
-                command.ForSeason(newSeasonId.Value);
-                command.CopyPlayersFromSeasonId(game.SeasonId);
+                var command = _commandFactory.GetCommand<AddSeasonToTeamCommand>()
+                    .ForSeason(newSeasonId.Value)
+                    .ForDivision(game.DivisionId)
+                    .CopyPlayersFromSeasonId(game.SeasonId);
 
                 game.SeasonId = newSeasonId.Value;
 

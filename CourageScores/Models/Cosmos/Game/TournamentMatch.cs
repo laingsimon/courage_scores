@@ -1,6 +1,4 @@
-﻿using CourageScores.Models.Cosmos.Game.Sayg;
-
-namespace CourageScores.Models.Cosmos.Game;
+﻿namespace CourageScores.Models.Cosmos.Game;
 
 /// <summary>
 /// Representation of a match in a tournament round

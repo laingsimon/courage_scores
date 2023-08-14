@@ -127,7 +127,7 @@ export function AssignTeamToSeasons({ teamOverview, onClose }) {
             <ul className="list-group mb-3">
                 {seasons.sort(sortBy('startDate')).map(renderSeason)}
             </ul>
-            <div className="modal-footer px-0">
+            <div className="modal-footer px-0 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={onClose}>Close</button>
                 </div>

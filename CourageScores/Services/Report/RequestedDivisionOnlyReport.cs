@@ -18,13 +18,24 @@ public class RequestedDivisionOnlyReport : IReport
 
     private bool IsForRequestedDivision()
     {
-        return (_currentGame != null && _currentGame.DivisionId == _requestedDivisionId)
-            || (_currentTournament != null && (_currentTournament.DivisionId == _requestedDivisionId || _currentTournament.DivisionId == null));
+        if (_currentGame != null)
+        {
+            return _currentGame.DivisionId == _requestedDivisionId || _currentGame.IsKnockout;
+        }
+
+        if (_currentTournament != null)
+        {
+            return _currentTournament.DivisionId == _requestedDivisionId || _currentTournament.DivisionId == null;
+        }
+
+        return false;
     }
 
-    public Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
+    public async Task<ReportDto> GetReport(IPlayerLookup playerLookup, CancellationToken token)
     {
-        return _report.GetReport(playerLookup, token);
+        var report = await _report.GetReport(playerLookup, token);
+        report.ThisDivisionOnly = true;
+        return report;
     }
 
     public void VisitGame(Models.Cosmos.Game.Game game)

@@ -1,12 +1,11 @@
-using CourageScores.Models.Adapters;
-using CourageScores.Models.Cosmos;
+using CourageScores.Models.Adapters.Season;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Season;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
 
-namespace CourageScores.Tests.Models.Adapters;
+namespace CourageScores.Tests.Models.Adapters.Season;
 
 [TestFixture]
 public class SeasonAdapterTests
@@ -33,7 +32,7 @@ public class SeasonAdapterTests
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()
     {
-        var model = new Season
+        var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),
             Name = "Season 1",
@@ -59,7 +58,7 @@ public class SeasonAdapterTests
     public async Task Adapt_GivenNowBeforeStartDate_SetsIsCurrentToFalse()
     {
         _now = new DateTimeOffset(2000, 01, 02, 0, 0, 0, TimeSpan.Zero);
-        var model = new Season
+        var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),
             Name = "Season 1",
@@ -80,7 +79,7 @@ public class SeasonAdapterTests
     public async Task Adapt_GivenNowAfterEndDate_SetsIsCurrentToFalse()
     {
         _now = new DateTimeOffset(2003, 02, 01, 0, 0, 0, TimeSpan.Zero);
-        var model = new Season
+        var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),
             Name = "Season 1",
@@ -101,7 +100,7 @@ public class SeasonAdapterTests
     public async Task Adapt_GivenNowSameAsStartDate_SetsIsCurrentToTrue()
     {
         _now = new DateTimeOffset(2001, 02, 03, 0, 0, 0, TimeSpan.Zero);
-        var model = new Season
+        var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),
             Name = "Season 1",
@@ -122,7 +121,7 @@ public class SeasonAdapterTests
     public async Task Adapt_GivenNowSameAsEndDate_SetsIsCurrentToTrue()
     {
         _now = new DateTimeOffset(2002, 03, 04, 0, 0, 0, TimeSpan.Zero);
-        var model = new Season
+        var model = new CourageScores.Models.Cosmos.Season.Season
         {
             Id = Guid.NewGuid(),
             Name = "Season 1",

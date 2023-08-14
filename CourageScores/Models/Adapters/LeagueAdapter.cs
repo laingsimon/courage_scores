@@ -8,11 +8,11 @@ namespace CourageScores.Models.Adapters;
 public class LeagueAdapter : IAdapter<League, LeagueDto>
 {
     private readonly IAdapter<Cosmos.Division, DivisionDto> _divisionAdapter;
-    private readonly IAdapter<Season, SeasonDto> _seasonAdapter;
+    private readonly IAdapter<Cosmos.Season.Season, SeasonDto> _seasonAdapter;
 
     public LeagueAdapter(
         IAdapter<Cosmos.Division, DivisionDto> divisionAdapter,
-        IAdapter<Season, SeasonDto> seasonAdapter)
+        IAdapter<Cosmos.Season.Season, SeasonDto> seasonAdapter)
     {
         _divisionAdapter = divisionAdapter;
         _seasonAdapter = seasonAdapter;

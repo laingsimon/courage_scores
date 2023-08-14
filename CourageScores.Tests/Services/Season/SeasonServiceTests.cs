@@ -9,7 +9,7 @@ using CourageScores.Tests.Models.Adapters;
 using Microsoft.AspNetCore.Authentication;
 using Moq;
 using NUnit.Framework;
-using CosmosSeason = CourageScores.Models.Cosmos.Season;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 
 namespace CourageScores.Tests.Services.Season;
 

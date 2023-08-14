@@ -6,7 +6,6 @@ import {AdminContainer} from "./AdminContainer";
 import {renderApp,cleanUp} from "../../helpers/tests";
 
 describe('AdminHome', () => {
-    let container;
     let context;
     const dataApi = {
         tables: async () => {
@@ -138,6 +137,18 @@ describe('AdminHome', () => {
         }, '/admin/errors', false);
     });
 
+    it('shows template admin if permitted', async () => {
+        await assertTab({
+            manageSeasonTemplates: true
+        }, '/admin/templates', true);
+    });
+
+    it('excludes template admin if not permitted', async () => {
+        await assertTab({
+            manageSeasonTemplates: false
+        }, '/admin/templates', false);
+    });
+
     it('renders the user admin content', async () => {
         await assertContent({
                 manageAccess: true
@@ -168,5 +179,13 @@ describe('AdminHome', () => {
             },
             '/admin/errors',
             'View recent errors');
+    });
+
+    it('renders the user admin content', async () => {
+        await assertContent({
+                manageSeasonTemplates: true
+            },
+            '/admin/templates',
+            'Manage templates');
     });
 });

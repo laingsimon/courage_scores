@@ -5,11 +5,15 @@ using CourageScores.Models.Adapters.Game;
 using CourageScores.Models.Adapters.Game.Sayg;
 using CourageScores.Models.Adapters.Health;
 using CourageScores.Models.Adapters.Identity;
+using CourageScores.Models.Adapters.Season;
+using CourageScores.Models.Adapters.Season.Creation;
 using CourageScores.Models.Adapters.Team;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Cosmos.Game.Sayg;
 using CourageScores.Models.Cosmos.Identity;
+using CourageScores.Models.Cosmos.Season;
+using CourageScores.Models.Cosmos.Season.Creation;
 using CourageScores.Models.Cosmos.Team;
 using CourageScores.Models.Dtos;
 using CourageScores.Models.Dtos.Division;
@@ -18,6 +22,7 @@ using CourageScores.Models.Dtos.Game.Sayg;
 using CourageScores.Models.Dtos.Health;
 using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Season;
+using CourageScores.Models.Dtos.Season.Creation;
 using CourageScores.Models.Dtos.Team;
 using CourageScores.Repository;
 using CourageScores.Repository.Identity;
@@ -31,6 +36,8 @@ using CourageScores.Services.Health;
 using CourageScores.Services.Identity;
 using CourageScores.Services.Report;
 using CourageScores.Services.Season;
+using CourageScores.Services.Season.Creation;
+using CourageScores.Services.Season.Creation.CompatibilityCheck;
 using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
@@ -107,6 +114,11 @@ public static class DependencyInjectionExtensions
 
         services.AddScoped<IHealthCheckService, HealthCheckService>();
         services.AddScoped<ISeasonHealthCheckFactory, SeasonHealthCheckFactory>();
+        services.AddScoped<ISeasonTemplateService, SeasonTemplateService>();
+        services.AddScoped<ICompatibilityCheckFactory, CompatibilityCheckFactory>();
+        services.AddScoped<ISeasonProposalStrategy, TemplatedSeasonProposalStrategy>();
+        services.AddScoped<IAddressAssignmentStrategy, AddressAssignmentStrategy>();
+        services.AddScoped<IFixtureDateAssignmentStrategy, FixtureDateAssignmentStrategy>();
     }
 
     private static void AddRepositories(IServiceCollection services)
@@ -143,6 +155,7 @@ public static class DependencyInjectionExtensions
         AddAdapter<League, LeagueDto, LeagueAdapter>(services);
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
         AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
+        AddAdapter<Template, TemplateDto, TemplateAdapter>(services);
 
         services.AddScoped<IDivisionFixtureAdapter, DivisionFixtureAdapter>();
         services.AddScoped<IDivisionTournamentFixtureDetailsAdapter, DivisionTournamentFixtureDetailsAdapter>();
@@ -169,6 +182,12 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>, DivisionHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<DivisionFixtureDateDto, DivisionDateHealthDto>, DivisionDateHealthDtoAdapter>();
         services.AddScoped<ISimpleOnewayAdapter<LeagueFixtureHealthDtoAdapter.FixtureDateMapping, LeagueFixtureHealthDto?>, LeagueFixtureHealthDtoAdapter>();
+
+        services.AddScoped<ISimpleAdapter<DateTemplate, DateTemplateDto>, DateTemplateAdapter>();
+        services.AddScoped<ISimpleAdapter<DivisionTemplate, DivisionTemplateDto>, DivisionTemplateAdapter>();
+        services.AddScoped<ISimpleAdapter<FixtureTemplate, FixtureTemplateDto>, FixtureTemplateAdapter>();
+        services.AddScoped<ISimpleAdapter<List<string>, List<TeamPlaceholderDto>>, SharedAddressAdapter>();
+        services.AddScoped<ISimpleOnewayAdapter<Template, SeasonHealthDto>, TemplateToHealthCheckAdapter>();
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)

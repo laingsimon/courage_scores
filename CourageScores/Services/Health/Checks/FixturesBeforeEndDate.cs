@@ -11,9 +11,17 @@ public class FixturesBeforeEndDate : ISeasonHealthCheck
     public Task<HealthCheckResultDto> RunCheck(IReadOnlyCollection<DivisionHealthDto> divisions,
         HealthCheckContext context, CancellationToken token)
     {
+        var fixturesAfterEnd = divisions
+            .SelectMany(d => d.Dates)
+            .Select(d => d.Date)
+            .Where(d => d > context.Season.EndDate)
+            .Distinct()
+            .ToArray();
+
         return Task.FromResult(new HealthCheckResultDto
         {
-            Success = divisions.All(d => d.Dates.All(f => f.Date <= context.Season.EndDate)),
+            Success = fixturesAfterEnd.Length == 0,
+            Warnings = fixturesAfterEnd.Select(d => $"Fixture exists after season end date: {d:d MMM yyyy}").ToList(),
         });
     }
 }

@@ -453,4 +453,79 @@ describe('PlayerInput', () => {
             },
         }]);
     });
+
+    it('prevents empty score via enter key press', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 461,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput('');
+        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([]);
+    });
+
+    it('prevents invalid score via enter key press', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 461,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput('.');
+        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs).toEqual([]);
+    });
+
+    it('accepts valid score via enter key press', async () => {
+        const leg = {
+            currentThrow: 'home',
+            startingScore: 501,
+            winner: null,
+            home: {
+                score: 461,
+                noOfDarts: 0,
+                throws: [],
+            },
+        }
+        await renderComponent({
+            home: home,
+            homeScore: 0,
+            leg: leg,
+            singlePlayer: true
+        });
+
+        await setScoreInput('50');
+        await context.user.type(context.container.querySelector('input[data-score-input="true"]'), '{Enter}');
+
+        expect(reportedError).toBeNull();
+        expect(changedLegs.length).toEqual(1);
+    });
 });

@@ -11,6 +11,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
     private readonly ISeasonService _seasonService;
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private Guid? _seasonId;
+    private Guid? _divisionId;
     private Guid? _copyPlayersFromOtherSeasonId;
     private bool _skipSeasonExistenceCheck;
 
@@ -27,6 +28,12 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
     public virtual AddSeasonToTeamCommand ForSeason(Guid seasonId)
     {
         _seasonId = seasonId;
+        return this;
+    }
+
+    public virtual AddSeasonToTeamCommand ForDivision(Guid divisionId)
+    {
+        _divisionId = divisionId;
         return this;
     }
 
@@ -47,6 +54,11 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         if (_seasonId == null)
         {
             throw new InvalidOperationException($"SeasonId hasn't been set, ensure {nameof(ForSeason)} is called");
+        }
+
+        if (_divisionId == null)
+        {
+            throw new InvalidOperationException($"DivisionId hasn't been set, ensure {nameof(ForDivision)} is called");
         }
 
         if (model.Deleted != null)
@@ -74,6 +86,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
             {
                 teamSeason.Players = GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value);
                 _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
+                _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
                 await _auditingHelper.SetUpdated(teamSeason, token);
                 return new ActionResult<TeamSeason>
                 {
@@ -97,6 +110,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         {
             Id = Guid.NewGuid(),
             SeasonId = _seasonId.Value,
+            DivisionId = _divisionId.Value,
             Players = _copyPlayersFromOtherSeasonId.HasValue
                 ? GetPlayersFromOtherSeason(model, _copyPlayersFromOtherSeasonId.Value)
                 : new List<TeamPlayer>(),
@@ -104,6 +118,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
         await _auditingHelper.SetUpdated(teamSeason, token);
         model.Seasons.Add(teamSeason);
         _cacheFlags.EvictDivisionDataCacheForSeasonId = _seasonId;
+        _cacheFlags.EvictDivisionDataCacheForDivisionId = _divisionId;
 
         return new ActionResult<TeamSeason>
         {

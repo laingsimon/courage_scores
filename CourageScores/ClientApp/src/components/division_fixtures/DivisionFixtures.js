@@ -9,12 +9,13 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {changeFilter, getFixtureDateFilters, getFixtureFilters, initFilter} from "../../helpers/filters";
 import {Dialog} from "../common/Dialog";
+import {CreateSeasonDialog} from "./CreateSeasonDialog";
 
 export function DivisionFixtures({ setNewFixtures }) {
-    const { id: divisionId, season, fixtures, teams, onReloadDivision } = useDivisionData();
+    const { id: divisionId, season, fixtures, onReloadDivision } = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account, onError, controls } = useApp();
+    const { account, onError, controls, teams } = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
     const [ newDate, setNewDate ] = useState('');
     const [ newDateDialogOpen, setNewDateDialogOpen ] = useState(false);
@@ -22,6 +23,7 @@ export function DivisionFixtures({ setNewFixtures }) {
     const [ filter, setFilter ] = useState(initFilter(location));
     const [ editNote, setEditNote ] = useState(null);
     const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
+    const [ createFixturesDialogOpen, setCreateFixturesDialogOpen ] = useState(false);
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -57,11 +59,15 @@ export function DivisionFixtures({ setNewFixtures }) {
     }
 
     function getNewFixtureDate(date, isKnockout) {
+        const seasonalTeams = teams.filter(t => {
+            return t.seasons.filter(ts => ts.seasonId === season.id && ts.divisionId === divisionId).length > 0;
+        });
+
         return {
             isNew: true,
             isKnockout: isKnockout,
             date: date,
-            fixtures: teams.map(team => {
+            fixtures: seasonalTeams.map(team => {
                 return {
                     id: team.id,
                     homeTeam: {
@@ -72,9 +78,10 @@ export function DivisionFixtures({ setNewFixtures }) {
                     awayTeam: null,
                     isKnockout: isKnockout,
                     accoladesCount: true,
+                    fixturesUsingAddress: [],
                 };
             }),
-            tournamentFixtures: teams.map(team => {
+            tournamentFixtures: seasonalTeams.map(team => {
                 return {
                     address: team.name,
                     proposed: true,
@@ -151,7 +158,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                     <label className="form-check-label" htmlFor="isKnockout">Qualifier</label>
                 </div>
             </div>
-            <div className="modal-footer px-0">
+            <div className="modal-footer px-0 pb-0">
                 <div className="left-aligned">
                     <button className="btn btn-secondary" onClick={() => setNewDateDialogOpen(false)}>Close</button>
                 </div>
@@ -189,8 +196,10 @@ export function DivisionFixtures({ setNewFixtures }) {
                 {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
                 {editNote ? renderEditNote() : null}
             </div>
+            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
             {isAdmin ? (<div className="mt-3">
-                <button className="btn btn-primary" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
+                <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
+                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>🗓️ Create fixtures</button>
             </div>) : null}
         </div>);
     } catch (exc) {

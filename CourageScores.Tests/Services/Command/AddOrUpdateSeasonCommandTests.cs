@@ -9,6 +9,7 @@ using CourageScores.Services.Season;
 using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
+using CosmosSeason = CourageScores.Models.Cosmos.Season.Season;
 
 namespace CourageScores.Tests.Services.Command;
 
@@ -21,7 +22,7 @@ public class AddOrUpdateSeasonCommandTests
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private readonly CancellationToken _token = new CancellationToken();
     private AddOrUpdateSeasonCommand _command = null!;
-    private CourageScores.Models.Cosmos.Season _season = null!;
+    private CosmosSeason _season = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private Mock<IGenericRepository<CourageScores.Models.Cosmos.Division>> _divisionRepository = null!;
     private CourageScores.Models.Cosmos.Division _division = null!;
@@ -38,7 +39,7 @@ public class AddOrUpdateSeasonCommandTests
         {
             Id = Guid.NewGuid(),
         };
-        _season = new CourageScores.Models.Cosmos.Season
+        _season = new CosmosSeason
         {
             Id = Guid.NewGuid(),
             Name = "SEASON",
@@ -51,6 +52,7 @@ public class AddOrUpdateSeasonCommandTests
 
         _commandFactory.Setup(f => f.GetCommand<AddSeasonToTeamCommand>()).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.ForSeason(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
+        _addSeasonToTeamCommand.Setup(c => c.ForDivision(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.CopyPlayersFromSeasonId(It.IsAny<Guid>())).Returns(_addSeasonToTeamCommand.Object);
         _addSeasonToTeamCommand.Setup(c => c.SkipSeasonExistenceCheck()).Returns(_addSeasonToTeamCommand.Object);
         _divisionRepository.Setup(r => r.Get(_division.Id, _token)).ReturnsAsync(_division);
@@ -107,7 +109,7 @@ public class AddOrUpdateSeasonCommandTests
     [Test]
     public async Task ApplyUpdate_WhenSeasonDoesNotExist_SetsProperties()
     {
-        _season = new CourageScores.Models.Cosmos.Season();
+        _season = new CosmosSeason();
         var update = new EditSeasonDto
         {
             Name = "NEW SEASON",
@@ -195,6 +197,14 @@ public class AddOrUpdateSeasonCommandTests
         var otherSeasonTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = otherSeason.Id,
+                    DivisionId = _division.Id,
+                }
+            }
         };
         _seasonService.Setup(s => s.Get(otherSeason.Id, _token)).ReturnsAsync(otherSeason);
         _teamService.Setup(s => s.GetTeamsForSeason(otherSeason.Id, _token)).Returns(TestUtilities.AsyncEnumerable(otherSeasonTeam));
@@ -207,6 +217,7 @@ public class AddOrUpdateSeasonCommandTests
         _teamService
             .Verify(s => s.Upsert(otherSeasonTeam.Id, _addSeasonToTeamCommand.Object, _token));
         _addSeasonToTeamCommand.Verify(c => c.ForSeason(_season.Id));
+        _addSeasonToTeamCommand.Verify(c => c.ForDivision(_division.Id));
         _addSeasonToTeamCommand.Verify(c => c.CopyPlayersFromSeasonId(otherSeason.Id));
         _addSeasonToTeamCommand.Verify(c => c.SkipSeasonExistenceCheck());
         Assert.That(result.Success, Is.True);

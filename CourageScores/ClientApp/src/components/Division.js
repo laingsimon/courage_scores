@@ -24,6 +24,7 @@ export function Division() {
     const { account, onError, error, divisions, seasons, controls } = useApp();
     const { divisionId: divisionIdish, mode, seasonId: seasonIdish } = useParams();
     const [ divisionData, setDivisionData ] = useState(null);
+    const [ overrideDivisionData, setOverrideDivisionData ] = useState(null);
     const [ loading, setLoading ] = useState(false);
     const [ dataRequested, setDataRequested ] = useState(false);
     const effectiveTab = mode || 'teams';
@@ -150,6 +151,9 @@ export function Division() {
         if (loading || error) {
             return;
         }
+        if (!seasons.length) {
+            return;
+        }
 
         function beginReload() {
             setDataRequested(true);
@@ -183,13 +187,14 @@ export function Division() {
         }
     },
     // eslint-disable-next-line
-    [ divisionData, loading, divisionId, seasonId, error ]);
+    [ divisionData, loading, divisionId, seasonId, error, seasons ]);
 
     if (loading || !dataRequested) {
         return (<Loading />);
     }
 
-    if (!divisionData) {
+    const divisionDataToUse = overrideDivisionData || divisionData;
+    if (!divisionDataToUse) {
         return (<div className="p-3 content-background">
             No data found
         </div>);
@@ -197,11 +202,11 @@ export function Division() {
 
     try {
         return (<div>
-            {controls || !divisionData.season ? (<DivisionControls
-                originalSeasonData={divisionData.season}
-                originalDivisionData={{name: divisionData.name, id: divisionData.id, updated: divisionData.updated}}
+            {controls || !divisionDataToUse.season ? (<DivisionControls
+                originalSeasonData={divisionDataToUse.season}
+                originalDivisionData={{name: divisionDataToUse.name, id: divisionDataToUse.id, updated: divisionDataToUse.updated}}
                 onDivisionOrSeasonChanged={reloadDivisionData} />) : null}
-            {controls ? (<ul className="nav nav-tabs">
+            {controls ? (<ul className="nav nav-tabs d-print-none">
                 <li className="nav-item">
                     <NavLink tag={Link}
                              className={effectiveTab === 'teams' ? 'active' : ''}
@@ -234,9 +239,6 @@ export function Division() {
                     <NavLink tag={EmbedAwareLink} className={effectiveTab === 'health' ? 'active' : ''}
                              to={`/division/${divisionIdish}/health${seasonIdish ? '/' + seasonIdish : ''}`}>Health</NavLink>
                 </li>) : null}
-                {divisionData.season ? (<li className="d-screen-none position-absolute right-0">
-                    <strong className="mx-2 d-inline-block fs-3">{divisionData.name}, {divisionData.season.name}</strong>
-                </li>) : null}
             </ul>) : null}
             {dataErrors && account ? (<div className="content-background p-3">
                 <h3>⚠ Errors in division data</h3>
@@ -246,27 +248,27 @@ export function Division() {
                     })}
                 </ol>
                 <button className="btn btn-primary" onClick={() => setDataErrors(null)}>Hide errors</button>
-            </div>) : (<DivisionDataContainer {...divisionData} onReloadDivision={reloadDivisionData}>
-                {effectiveTab === 'teams' && divisionData.season
+            </div>) : (<DivisionDataContainer {...divisionDataToUse} onReloadDivision={reloadDivisionData} setDivisionData={setOverrideDivisionData}>
+                {effectiveTab === 'teams' && divisionDataToUse.season
                     ? (<DivisionTeams/>)
                     : null}
-                {effectiveTab === 'fixtures' && divisionData.season
+                {effectiveTab === 'fixtures' && divisionDataToUse.season
                     ? (<DivisionFixtures
-                        setNewFixtures={propChanged(divisionData, setDivisionData, 'fixtures')}/>)
+                        setNewFixtures={propChanged(divisionDataToUse, setDivisionData, 'fixtures')}/>)
                     : null}
-                {effectiveTab === 'players' && divisionData.season
+                {effectiveTab === 'players' && divisionDataToUse.season
                     ? (<DivisionPlayers/>)
                     : null}
-                {effectiveTab === 'reports' && divisionData.season && account && account.access && account.access.runReports
+                {effectiveTab === 'reports' && divisionDataToUse.season && account && account.access && account.access.runReports
                     ? (<DivisionReports/>)
                     : null}
-                {effectiveTab === 'health' && divisionData.season && account && account.access && account.access.runHealthChecks
+                {effectiveTab === 'health' && divisionDataToUse.season && account && account.access && account.access.runHealthChecks
                     ? (<DivisionHealth/>)
                     : null}
-                {effectiveTab && effectiveTab.startsWith('team:') && divisionData.season
+                {effectiveTab && effectiveTab.startsWith('team:') && divisionDataToUse.season
                     ? (<TeamOverview teamId={getTeamId(effectiveTab.substring('team:'.length))}/>)
                     : null}
-                {effectiveTab && effectiveTab.startsWith('player:') && divisionData.season
+                {effectiveTab && effectiveTab.startsWith('player:') && divisionDataToUse.season
                     ? (<PlayerOverview playerId={getPlayerId(effectiveTab.substring('player:'.length))}/>)
                     : null}
             </DivisionDataContainer>)}

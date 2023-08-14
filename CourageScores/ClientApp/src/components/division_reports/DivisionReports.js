@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
-import {any, isEmpty} from "../../helpers/collections";
+import {any, isEmpty, sortBy} from "../../helpers/collections";
 import {stateChanged} from "../../helpers/events";
 import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {Report} from "./Report";
 import {ReportGenerationMessages} from "./ReportGenerationMessages";
+import {PrintDivisionHeading} from "../PrintDivisionHeading";
 
 export function DivisionReports() {
     const { id: divisionId, season } = useDivisionData();
     const [ reportData, setReportData ] = useState(null);
     const [ gettingData, setGettingData ] = useState(false);
-    const [ topCount, setTopCount ] = useState(3);
+    const [ topCount, setTopCount ] = useState(15);
     const [ activeReport, setActiveReport ] = useState(null);
     const { reportApi } = useDependencies();
 
@@ -44,26 +45,19 @@ export function DivisionReports() {
             return null;
         }
 
-        return (<div>
+        return (<div className="d-print-none">
+            <span className="margin-right">Show:</span>
             <BootstrapDropdown
                 onChange={setActiveReport}
-                options={reportData.reports.map(report => { return { value: report.name, text: report.description }})}
+                options={reportData.reports.sort(sortBy('name')).map(report => { return { value: report.name, text: report.description }})}
                 value={activeReport}
                 className="d-print-none" />
-            <h4 className="d-screen-none">{activeReport}</h4>
-        </div>)
+        </div>);
     }
 
-    function renderActiveReport() {
-        if (activeReport == null) {
-            return null;
-        }
-
-        const report = reportData.reports.filter(r => r.name === activeReport)[0];
-        return (<Report rows={report.rows} valueHeading={report.valueHeading} />);
-    }
-
+    const report = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
+        <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly} />
         <div className="input-group d-print-none">
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>
@@ -78,9 +72,12 @@ export function DivisionReports() {
             </button>
         </div>
         <div>
-            {reportData && ! gettingData ? (<ReportGenerationMessages messages={reportData.messages} />) : null}
-            {reportData && ! gettingData ? renderReportNames() : null}
-            {reportData && ! gettingData ? renderActiveReport() : null}
+            {reportData && !gettingData ? (<ReportGenerationMessages messages={reportData.messages} />) : null}
+            {reportData && !gettingData ? renderReportNames() : null}
+            {activeReport ? (<div className="d-screen-none">
+                <strong className="fs-3 float-left">{activeReport}</strong>
+            </div>) : null}
+            {report && !gettingData ? (<Report rows={report.rows} valueHeading={report.valueHeading} />) : null}
         </div>
     </div>);
 }

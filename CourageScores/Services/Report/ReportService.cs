@@ -15,14 +15,22 @@ public class ReportService : IReportService
     private readonly ISeasonService _seasonService;
     private readonly IDivisionService _divisionService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly IGenericRepository<TournamentGame> _tournamentRepository;
     private readonly ISystemClock _clock;
 
-    public ReportService(IUserService userService, ISeasonService seasonService, IDivisionService divisionService, IGenericRepository<Models.Cosmos.Game.Game> gameRepository, ISystemClock clock)
+    public ReportService(
+        IUserService userService,
+        ISeasonService seasonService,
+        IDivisionService divisionService,
+        IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
+        IGenericRepository<TournamentGame> tournamentRepository,
+        ISystemClock clock)
     {
         _userService = userService;
         _seasonService = seasonService;
         _divisionService = divisionService;
         _gameRepository = gameRepository;
+        _tournamentRepository = tournamentRepository;
         _clock = clock;
     }
 
@@ -48,16 +56,22 @@ public class ReportService : IReportService
 
         var reportVisitors = GetReportVisitors(request, user).ToArray();
         var reportVisitor = new CompositeGameVisitor(reportVisitors, user.Access.ManageScores);
-        var games = _gameRepository.GetSome($"t.SeasonId = '{request.SeasonId}'", token);
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
         var visitorScope = new VisitorScope();
 
-        await foreach (var game in games.WithCancellation(token))
+        await foreach (var game in _gameRepository.GetSome($"t.SeasonId = '{request.SeasonId}'", token))
         {
             gameCount++;
             game.Accept(visitorScope, playerLookup);
             game.Accept(visitorScope, reportVisitor);
+        }
+
+        await foreach (var tournament in _tournamentRepository.GetSome($"t.SeasonId = '{request.SeasonId}'", token))
+        {
+            gameCount++;
+            tournament.Accept(visitorScope, playerLookup);
+            tournament.Accept(visitorScope, reportVisitor);
         }
 
         return new ReportCollectionDto

@@ -80,7 +80,7 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
                 value={team.newDivisionId}
                 onChange={(newDivisionId) => onChange ? onChange('newDivisionId', newDivisionId) : null} />
         </div>
-        <div className="modal-footer px-0">
+        <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
             </div>

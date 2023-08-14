@@ -24,12 +24,14 @@ public class ReportServiceTests
     private Mock<IDivisionService> _divisionService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ISystemClock> _clock = null!;
+    private Mock<IGenericRepository<TournamentGame>> _tournamentRepository = null!;
     private ReportService _service = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
     private DivisionDto _division = null!;
     private CosmosGame _game1 = null!;
     private CosmosGame _game2 = null!;
+    private TournamentGame _tournament1 = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -38,12 +40,14 @@ public class ReportServiceTests
         _seasonService = new Mock<ISeasonService>();
         _divisionService = new Mock<IDivisionService>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
+        _tournamentRepository = new Mock<IGenericRepository<TournamentGame>>();
         _clock = new Mock<ISystemClock>();
         _service = new ReportService(
             _userService.Object,
             _seasonService.Object,
             _divisionService.Object,
             _gameRepository.Object,
+            _tournamentRepository.Object,
             _clock.Object);
 
         _user = new UserDto
@@ -75,12 +79,15 @@ public class ReportServiceTests
                 new GameMatch()
             },
         };
+        _tournament1 = new TournamentGame();
 
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
         _divisionService.Setup(s => s.Get(_division.Id, _token)).ReturnsAsync(_division);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _gameRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
             .Returns(TestUtilities.AsyncEnumerable(_game1, _game2));
+        _tournamentRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable(_tournament1));
     }
 
     [Test]
