@@ -3,7 +3,7 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import React, {useEffect, useState} from "react";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
-import {any} from "../../helpers/collections";
+import {any, sortBy} from "../../helpers/collections";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
 import {useDivisionData} from "../DivisionDataContainer";
 import {renderDate} from "../../helpers/rendering";
@@ -29,6 +29,7 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
 
             return any(response.result.divisions, proposedDivision => proposedDivision.id === d.id);
         })
+        .sort(sortBy('name'))
         .map(d => { return { value: d.id, text: d.name }; })
     const [ selectedDivisionId, setSelectedDivisionId ] = useState(id);
     const [ saveMessage, setSaveMessage ] = useState(null);
@@ -68,6 +69,7 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
 
     async function onPrevious() {
         switch (stage) {
+            /* istanbul ignore next */
             default:
             case 'review':
                 setDivisionData(null);
@@ -107,6 +109,7 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
                 setSaveMessage(`Resuming save...`);
                 setStage('saving');
                 return;
+            /* istanbul ignore next */
             default:
                 return;
         }
@@ -158,7 +161,7 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
         }
 
         // save a fixture and pop it off the list
-        if (!any(fixturesToSave)) {
+        if (!any(fixturesToSave) && !savingProposal) {
             // noinspection JSIgnoredPromiseFromCall
             proposalsSaved();
             return;
@@ -168,7 +171,7 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
         saveNextProposal();
     },
     // eslint-disable-next-line
-    [ stage, fixturesToSave, savingProposal ]);
+    [ stage, fixturesToSave, savingProposal, saveResults ]);
 
     async function proposalsSaved() {
         setSaveMessage('Reloading division data...');
@@ -214,6 +217,10 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
             }, null);
             setSaveResults(saveResults.concat(result));
         } catch (e) {
+            setSaveResults(saveResults.concat({
+                success: false,
+                errors: [ 'Error saving proposal: ' + e.message ]
+            }));
             setSaveMessage('Error saving proposal: ' + e.message);
         } finally {
             setSavingProposal(false);
@@ -287,11 +294,11 @@ export function CreateSeasonDialog({ seasonId, onClose }) {
                     <div className="progress-bar progress-bar-striped" style={{ width: getPercentageComplete() + '%' }} role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 {any(saveResults, r => !r.success) ? (<div className="overflow-auto max-height-250">
-                    {saveResults.map((r, index) => (<p key={index}>
+                    {saveResults.map((r, index) => (<div key={index}>
                         {any(response.errors) ? (<ol>{response.errors.map((e, i) => <li className="text-danger" key={i}>{e}</li>)}</ol>) : null}
                         {any(response.warnings) ? (<ol>{response.warnings.map((w, i) => <li key={i}>{w}</li>)}</ol>) : null}
                         {any(response.messages) ? (<ol>{response.messages.map((m, i) => <li className="text-secondary" key={i}>{m}</li>)}</ol>) : null}
-                    </p>))}
+                    </div>))}
                 </div>) : null}
             </div>) : null}
             <div className="modal-footer px-0 mt-3 pb-0">
