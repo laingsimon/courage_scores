@@ -44,7 +44,7 @@ export function DivisionTeams() {
 
     return (<div className="content-background p-3">
         <PrintDivisionHeading />
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto clear-float">
             <table className="table">
                 <thead>
                     <tr>
@@ -64,7 +64,7 @@ export function DivisionTeams() {
                 </tbody>
             </table>
         </div>
-        {isAdmin ? (<div>
+        {isAdmin ? (<div className="d-print-none">
             <div>
                 <button className="btn btn-sm btn-primary" onClick={() => setNewTeam(true)}>Add team</button>
             </div>

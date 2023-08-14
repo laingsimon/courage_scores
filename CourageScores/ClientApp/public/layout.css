@@ -376,3 +376,7 @@ body .width-50 {
 .width-100 {
     width: 100%;
 }
+
+.clear-float {
+    clear: both;
+}

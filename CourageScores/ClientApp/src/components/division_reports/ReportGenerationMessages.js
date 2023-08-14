@@ -6,7 +6,9 @@ export function ReportGenerationMessages({ messages }) {
         return null;
     }
 
-    return (<ul className="d-print-none">
-        {messages.map((msg, index) => (<li key={index}>{msg}</li>))}
-    </ul>);
+    return (<div className="d-print-none alert alert-success my-2">
+        <ul className="my-0">
+            {messages.map((msg, index) => (<li key={index}>{msg}</li>))}
+        </ul>
+    </div>);
 }

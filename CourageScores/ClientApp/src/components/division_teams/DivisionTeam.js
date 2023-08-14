@@ -55,9 +55,9 @@ export function DivisionTeam({ team }) {
         return (<tr>
             <td>
                 {isAdmin ? (<button onClick={() => setEditTeam(true)}
-                                    className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
+                                    className="btn btn-sm btn-primary margin-right d-print-none">✏️</button>) : null}
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
-                                    className="btn btn-sm btn-primary margin-right">➕</button>) : null}
+                                    className="btn btn-sm btn-primary margin-right d-print-none">➕</button>) : null}
                 <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{team.name}</EmbedAwareLink>
                 {editTeam && isAdmin ? renderEditTeam() : null}
                 {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
