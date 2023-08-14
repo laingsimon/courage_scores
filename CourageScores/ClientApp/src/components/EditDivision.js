@@ -72,7 +72,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
             </div>
             <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name" className="form-control margin-right" />
         </div>
-        <div className="modal-footer px-0">
+        <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
             </div>
