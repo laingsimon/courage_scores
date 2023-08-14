@@ -27,4 +27,9 @@ public class ReportDto
     /// The text to display to explain the value column
     /// </summary>
     public string ValueHeading { get; set; } = "Value";
+
+    /// <summary>
+    /// Whether this report driven from data from this division only
+    /// </summary>
+    public bool ThisDivisionOnly { get; set; }
 }
