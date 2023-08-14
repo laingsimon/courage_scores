@@ -6,6 +6,7 @@ import {useDependencies} from "../../IocContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {Report} from "./Report";
 import {ReportGenerationMessages} from "./ReportGenerationMessages";
+import {PrintDivisionHeading} from "../PrintDivisionHeading";
 
 export function DivisionReports() {
     const { id: divisionId, season } = useDivisionData();
@@ -54,16 +55,9 @@ export function DivisionReports() {
         </div>)
     }
 
-    function renderActiveReport() {
-        if (activeReport == null) {
-            return null;
-        }
-
-        const report = reportData.reports.filter(r => r.name === activeReport)[0];
-        return (<Report rows={report.rows} valueHeading={report.valueHeading} />);
-    }
-
+    const report = activeReport ? reportData.reports.filter(r => r.name === activeReport)[0] : null;
     return (<div className="content-background p-3">
+        <PrintDivisionHeading hideDivision={report && !report.thisDivisionOnly} />
         <div className="input-group d-print-none">
             <div className="input-group-prepend">
                 <span className="input-group-text">Return top </span>
@@ -78,9 +72,9 @@ export function DivisionReports() {
             </button>
         </div>
         <div>
-            {reportData && ! gettingData ? (<ReportGenerationMessages messages={reportData.messages} />) : null}
-            {reportData && ! gettingData ? renderReportNames() : null}
-            {reportData && ! gettingData ? renderActiveReport() : null}
+            {reportData && !gettingData ? (<ReportGenerationMessages messages={reportData.messages} />) : null}
+            {reportData && !gettingData ? renderReportNames() : null}
+            {report && !gettingData ? (<Report rows={report.rows} valueHeading={report.valueHeading} />) : null}
         </div>
     </div>);
 }

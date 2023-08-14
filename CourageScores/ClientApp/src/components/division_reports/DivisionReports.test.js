@@ -55,6 +55,7 @@ describe('DivisionTeams', () => {
         };
         return {
             id: divisionId,
+            name: 'DIVISION',
             teams: [ ],
             players: [ ],
             season: season
@@ -273,6 +274,68 @@ describe('DivisionTeams', () => {
             expect(reportRows.length).toEqual(2);
             assertReportRow(reportRows[0], [ '1', 'A player', 'A team', '1' ]);
             assertReportRow(reportRows[1], [ '2', 'Another player', 'Another team', '2' ]);
+        });
+
+        it('renders per-division print heading', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [ {
+                    name: 'A report',
+                    description: 'A report description',
+                    valueHeading: 'A value heading',
+                    rows: [ {
+                        playerName: 'A player',
+                        teamName: 'A team',
+                        value: 1
+                    }, {
+                        playerName: 'Another player',
+                        teamName: 'Another team',
+                        value: 2
+                    } ],
+                    thisDivisionOnly: true,
+                } ],
+                messages: [ ]
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            expect(reportedError).toBeNull();
+            const heading = context.container.querySelector('div[datatype="print-division-heading"]');
+            expect(heading).toBeTruthy();
+            expect(heading.textContent).toEqual('DIVISION, A season');
+        });
+
+        it('renders cross-division print heading', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                reports: [ {
+                    name: 'A report',
+                    description: 'A report description',
+                    valueHeading: 'A value heading',
+                    rows: [ {
+                        playerName: 'A player',
+                        teamName: 'A team',
+                        value: 1
+                    }, {
+                        playerName: 'Another player',
+                        teamName: 'Another team',
+                        value: 2
+                    } ],
+                    thisDivisionOnly: false,
+                } ],
+                messages: [ ]
+            }
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            expect(reportedError).toBeNull();
+            const heading = context.container.querySelector('div[datatype="print-division-heading"]');
+            expect(heading).toBeTruthy();
+            expect(heading.textContent).toEqual('A season');
         });
     });
 });
