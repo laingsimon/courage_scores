@@ -66,7 +66,7 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
     }
 
     return (<div>
-        <div className="input-group">
+        <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
