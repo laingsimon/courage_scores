@@ -5,6 +5,7 @@ import {EditTeamDetails} from "./EditTeamDetails";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
+import {PrintDivisionHeading} from "../PrintDivisionHeading";
 
 export function DivisionTeams() {
     const { id: divisionId, season, teams, onReloadDivision } = useDivisionData();
@@ -42,6 +43,7 @@ export function DivisionTeams() {
     }
 
     return (<div className="content-background p-3">
+        <PrintDivisionHeading />
         <div className="overflow-x-auto">
             <table className="table">
                 <thead>

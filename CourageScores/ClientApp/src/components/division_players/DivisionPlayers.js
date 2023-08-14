@@ -3,6 +3,7 @@ import {DivisionPlayer} from "./DivisionPlayer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {sortBy} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
+import {PrintDivisionHeading} from "../PrintDivisionHeading";
 
 export function DivisionPlayers({ hideVenue, hideHeading, players }) {
     const { account } = useApp();
@@ -11,6 +12,7 @@ export function DivisionPlayers({ hideVenue, hideHeading, players }) {
     const playersToShow = players || divisionDataPlayers;
 
     return (<div className="content-background p-3 overflow-x-auto">
+        <PrintDivisionHeading />
         <div>
             {hideHeading ? null : (<p className="d-print-none">Only players that have played a singles match will appear here</p>)}
             <table className="table">

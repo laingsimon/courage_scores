@@ -239,9 +239,6 @@ export function Division() {
                     <NavLink tag={EmbedAwareLink} className={effectiveTab === 'health' ? 'active' : ''}
                              to={`/division/${divisionIdish}/health${seasonIdish ? '/' + seasonIdish : ''}`}>Health</NavLink>
                 </li>) : null}
-                {divisionDataToUse.season ? (<li className="d-screen-none position-absolute right-0">
-                    <strong className="mx-2 d-inline-block fs-3">{divisionDataToUse.name}, {divisionDataToUse.season.name}</strong>
-                </li>) : null}
             </ul>) : null}
             {dataErrors && account ? (<div className="content-background p-3">
                 <h3>⚠ Errors in division data</h3>

@@ -4,7 +4,6 @@ import {cleanUp, renderApp} from "../helpers/tests";
 import {renderDate} from "../helpers/rendering";
 import React from "react";
 import {About} from "./About";
-import {BrandingContainer} from "../BrandingContainer";
 
 describe('About', () => {
     let context;
