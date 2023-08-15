@@ -38,6 +38,7 @@ using CourageScores.Services.Report;
 using CourageScores.Services.Season;
 using CourageScores.Services.Season.Creation;
 using CourageScores.Services.Season.Creation.CompatibilityCheck;
+using CourageScores.Services.Status;
 using CourageScores.Services.Team;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;
@@ -74,6 +75,7 @@ public static class DependencyInjectionExtensions
         AddRepositories(services);
         AddAdapters(services);
         AddCommands(services);
+        services.AddSingleton(ApplicationMetrics.Create());
     }
 
     private static void AddCommands(IServiceCollection services)
@@ -119,6 +121,8 @@ public static class DependencyInjectionExtensions
         services.AddScoped<ISeasonProposalStrategy, TemplatedSeasonProposalStrategy>();
         services.AddScoped<IAddressAssignmentStrategy, AddressAssignmentStrategy>();
         services.AddScoped<IFixtureDateAssignmentStrategy, FixtureDateAssignmentStrategy>();
+
+        services.AddScoped<IStatusService, StatusService>();
     }
 
     private static void AddRepositories(IServiceCollection services)
