@@ -152,6 +152,39 @@ describe('EditSide', () => {
             expect(playerItems.map(li => li.textContent)).toEqual([ 'ANOTHER PLAYER (🚫 Selected in another side)' ]);
         });
 
+        it('players with common name with their team name', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                players: []
+            };
+            const playerWithSameNameInDifferentTeam = {
+                id: createTemporaryId(),
+                name: player.name,
+            };
+            const anotherTeam = {
+                id: createTemporaryId(),
+                name: 'ANOTHER TEAM',
+                seasons: [ {
+                    seasonId: season.id,
+                    players: [ playerWithSameNameInDifferentTeam ],
+                    divisionId: tournamentData.divisionId,
+                } ]
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team, anotherTeam ]);
+
+            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toEqual([
+                'ANOTHER PLAYER (🚫 Selected in another side)',
+                'PLAYER [TEAM]',
+                'PLAYER [ANOTHER TEAM]' ]);
+        });
+
         it('side with teamId', async () => {
             const side = {
                 name: 'SIDE NAME',
@@ -293,7 +326,7 @@ describe('EditSide', () => {
             expect(playerItems.map(li => li.textContent)).toContain( 'OTHER DIVISION PLAYER');
         });
 
-        it('unselectable players when selected in another tournament', async () => {
+        it('warning about players that are selected in another tournament', async () => {
             const side = {
                 name: 'SIDE NAME',
             };
@@ -306,7 +339,7 @@ describe('EditSide', () => {
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain( 'PLAYER (🚫 Playing in another tournament)');
+            expect(playerItems.map(li => li.textContent)).toContain( 'PLAYER (⚠ Playing in another tournament)');
         });
 
         it('unselectable players when selected in another side', async () => {
@@ -759,6 +792,51 @@ describe('EditSide', () => {
             expect(reportedError).toBeNull();
             expect(closed).toEqual(true);
             expect(applied).toEqual(false);
+        });
+
+        it('can add players that are selected in another tournament', async () => {
+            const side = {
+                name: 'SIDE NAME',
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: alreadyPlaying(player),
+            }, side, [ team ]);
+            expect(reportedError).toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in another tournament)')[0];
+            expect(playerItem).toBeTruthy();
+            expect(playerItem.className).not.toContain('disabled');
+
+            await doClick(playerItem);
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toEqual({
+                name: 'SIDE NAME',
+                players: [player],
+            });
+        });
+
+        it('cannot select players that are selected in another side', async () => {
+            const side = {
+                name: 'SIDE NAME',
+            };
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {},
+            }, side, [ team ]);
+            expect(reportedError).toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in another side)')[0];
+            expect(playerItem).toBeTruthy();
+            expect(playerItem.className).toContain('disabled');
+
+            await doClick(playerItem);
+
+            expect(reportedError).toBeNull();
+            expect(updatedData).toBeNull();
         });
     });
 });
