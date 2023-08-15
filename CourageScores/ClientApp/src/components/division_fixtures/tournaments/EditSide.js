@@ -103,9 +103,8 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
             return;
         }
 
-        const playingInAnotherTournament = alreadyPlaying[player.id];
         const otherSidePlayerSelectedIn = getOtherSidePlayerSelectedIn(player);
-        if (!playingInAnotherTournament && !otherSidePlayerSelectedIn) {
+        if (!otherSidePlayerSelectedIn) {
             await onAddPlayer(player);
         }
     }
@@ -178,10 +177,10 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                             const playingInAnotherTournament = alreadyPlaying[player.id];
                             const selectedInAnotherSide = getOtherSidePlayerSelectedIn(player);
                             return (<li key={player.id}
-                                        className={`list-group-item${selected ? ' active' : ''}${playingInAnotherTournament || selectedInAnotherSide ? ' disabled' : ''}`}
+                                        className={`list-group-item${selected ? ' active' : ''}${selectedInAnotherSide ? ' disabled' : ''}`}
                                         onClick={() => togglePlayer(player)}>
                                 {player.name}
-                                {playingInAnotherTournament ? ' (🚫 Playing in another tournament)' : null}
+                                {playingInAnotherTournament ? ' (⚠ Playing in another tournament)' : null}
                                 {selectedInAnotherSide ? ` (🚫 Selected in another side)` : null}
                             </li>);
                         })}
