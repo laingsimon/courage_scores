@@ -347,6 +347,7 @@ describe('EditTournament', () => {
             name: 'TEAM 1',
             seasons: [ {
                 seasonId: season.id,
+                players: [],
             } ],
         };
 

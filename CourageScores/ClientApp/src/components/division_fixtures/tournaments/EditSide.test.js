@@ -152,6 +152,39 @@ describe('EditSide', () => {
             expect(playerItems.map(li => li.textContent)).toEqual([ 'ANOTHER PLAYER (🚫 Selected in another side)' ]);
         });
 
+        it('players with common name with their team name', async () => {
+            const side = {
+                name: 'SIDE NAME',
+                players: []
+            };
+            const playerWithSameNameInDifferentTeam = {
+                id: createTemporaryId(),
+                name: player.name,
+            };
+            const anotherTeam = {
+                id: createTemporaryId(),
+                name: 'ANOTHER TEAM',
+                seasons: [ {
+                    seasonId: season.id,
+                    players: [ playerWithSameNameInDifferentTeam ],
+                    divisionId: tournamentData.divisionId,
+                } ]
+            };
+
+            await renderComponent({
+                tournamentData,
+                season,
+                alreadyPlaying: {}
+            }, side, [ team, anotherTeam ]);
+
+            expect(context.container.querySelector('ol.list-group')).not.toBeNull();
+            const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
+            expect(playerItems.map(li => li.textContent)).toEqual([
+                'ANOTHER PLAYER (🚫 Selected in another side)',
+                'PLAYER [TEAM]',
+                'PLAYER [ANOTHER TEAM]' ]);
+        });
+
         it('side with teamId', async () => {
             const side = {
                 name: 'SIDE NAME',
