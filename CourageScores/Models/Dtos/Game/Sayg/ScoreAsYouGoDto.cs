@@ -6,7 +6,7 @@ namespace CourageScores.Models.Dtos.Game.Sayg;
 /// Details of scores in a match
 /// </summary>
 [ExcludeFromCodeCoverage]
-public class ScoreAsYouGoDto
+public class ScoreAsYouGoDto : IScoreAsYouGoDto
 {
     /// <summary>
     /// The legs for the match
