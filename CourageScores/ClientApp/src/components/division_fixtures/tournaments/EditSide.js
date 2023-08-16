@@ -18,7 +18,7 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
         .flatMap(t => {
             const teamSeason = t.seasons.filter(ts => ts.seasonId === season.id)[0];
             if (teamSeason && isTeamSeasonForDivision(teamSeason)) {
-                return teamSeason.players || [];
+                return teamSeason.players.map(p => { return { id: p.id, name: p.name, team: t } }) || [];
             }
 
             return [];
@@ -103,9 +103,8 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
             return;
         }
 
-        const playingInAnotherTournament = alreadyPlaying[player.id];
         const otherSidePlayerSelectedIn = getOtherSidePlayerSelectedIn(player);
-        if (!playingInAnotherTournament && !otherSidePlayerSelectedIn) {
+        if (!otherSidePlayerSelectedIn) {
             await onAddPlayer(player);
         }
     }
@@ -177,11 +176,14 @@ export function EditSide({ side, onChange, onClose, onApply, onDelete }) {
                             const selected = side.players && any(side.players, p => p.id === player.id);
                             const playingInAnotherTournament = alreadyPlaying[player.id];
                             const selectedInAnotherSide = getOtherSidePlayerSelectedIn(player);
+                            const hasSameNameAsAnotherPlayer = allPossiblePlayers.filter(p => p.name === player.name).length > 1;
+
                             return (<li key={player.id}
-                                        className={`list-group-item${selected ? ' active' : ''}${playingInAnotherTournament || selectedInAnotherSide ? ' disabled' : ''}`}
+                                        className={`list-group-item${selected ? ' active' : ''}${selectedInAnotherSide ? ' disabled' : ''}`}
                                         onClick={() => togglePlayer(player)}>
                                 {player.name}
-                                {playingInAnotherTournament ? ' (🚫 Playing in another tournament)' : null}
+                                {hasSameNameAsAnotherPlayer ? ` [${player.team.name}]` : null}
+                                {playingInAnotherTournament ? ' (⚠ Playing in another tournament)' : null}
                                 {selectedInAnotherSide ? ` (🚫 Selected in another side)` : null}
                             </li>);
                         })}

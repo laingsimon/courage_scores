@@ -131,7 +131,7 @@ export function PrintableSheet({ printOnly }) {
             ? findTeamAndDivisionForPlayer(side.players[0])
             : null;
         if (side && teamAndDivision && teamAndDivision.division) {
-            return (<EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${side.name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
+            return (<EmbedAwareLink to={`/division/${teamAndDivision.division.name}/player:${side.players[0].name}@${teamAndDivision.team.name}/${season.name}`}>{side.name}</EmbedAwareLink>);
         }
 
         return (<span>{(side || {}).name || (<>&nbsp;</>)}</span>);

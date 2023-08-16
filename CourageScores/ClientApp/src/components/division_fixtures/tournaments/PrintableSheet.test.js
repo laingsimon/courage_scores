@@ -433,7 +433,7 @@ describe('PrintableSheet', () => {
             expect(reportedError).toBeNull();
             const winner = getWinner();
             expect(winner.name).toEqual('B');
-            expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(sideBSinglePlayer.name)}@TEAM/${season.name}`);
+            expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`);
         });
 
         it('renders winner when cross-divisional', async () => {
@@ -466,7 +466,7 @@ describe('PrintableSheet', () => {
             expect(reportedError).toBeNull();
             const winner = getWinner();
             expect(winner.name).toEqual('B');
-            expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(sideBSinglePlayer.name)}@TEAM/${season.name}`);
+            expect(winner.link).toEqual(`http://localhost/division/${division.name}/player:${encodeURI(player2.name)}@TEAM/${season.name}`);
         });
 
         it('renders who is playing (singles)', async () => {
@@ -492,7 +492,7 @@ describe('PrintableSheet', () => {
 
             expect(reportedError).toBeNull();
             expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([ `http://localhost/division/${division.name}/player:A@TEAM/${season.name}`, null ]);
+            expect(getWhoIsPlaying(linkHref)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`, null ]);
         });
 
         it('renders who is playing (teams)', async () => {

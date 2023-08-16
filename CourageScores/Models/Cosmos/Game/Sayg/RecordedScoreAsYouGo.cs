@@ -3,7 +3,7 @@ using CourageScores.Models.Dtos.Identity;
 
 namespace CourageScores.Models.Cosmos.Game.Sayg;
 
-public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity
+public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity, IScoreAsYouGo
 {
     public Dictionary<int, Leg> Legs { get; set; } = new();
     public string YourName { get; set; } = null!;
