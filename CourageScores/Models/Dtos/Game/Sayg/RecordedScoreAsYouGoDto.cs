@@ -3,7 +3,7 @@
 namespace CourageScores.Models.Dtos.Game.Sayg;
 
 [ExcludeFromCodeCoverage]
-public class RecordedScoreAsYouGoDto : AuditedDto
+public class RecordedScoreAsYouGoDto : AuditedDto, IScoreAsYouGoDto
 {
     /// <summary>
     /// The legs for the match

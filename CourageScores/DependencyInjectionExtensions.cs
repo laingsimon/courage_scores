@@ -156,7 +156,6 @@ public static class DependencyInjectionExtensions
         AddAdapter<TeamSeason, TeamSeasonDto, TeamSeasonAdapter>(services);
 
         AddAdapter<Division, DivisionDto, DivisionAdapter>(services);
-        AddAdapter<League, LeagueDto, LeagueAdapter>(services);
         AddAdapter<Season, SeasonDto, SeasonAdapter>(services);
         AddAdapter<ErrorDetail, ErrorDetailDto, ErrorDetailAdapter>(services);
         AddAdapter<Template, TemplateDto, TemplateAdapter>(services);
