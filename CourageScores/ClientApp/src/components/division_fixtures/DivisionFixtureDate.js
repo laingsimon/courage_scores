@@ -102,6 +102,7 @@ export function DivisionFixtureDate({ date, showPlayers, startAddNote, setEditNo
                     awayTeam: null,
                     isKnockout: newFixtureDate.isKnockout,
                     accoladesCount: true,
+                    fixturesUsingAddress: [],
                 };
             });
         }

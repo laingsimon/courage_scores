@@ -642,13 +642,7 @@ describe('DivisionFixtureDate', () => {
         it('can change isKnockout when no fixtures exist', async () => {
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
-                fixtures: [{
-                    id: team.id,
-                    homeTeam: team,
-                    awayTeam: anotherTeam,
-                    isKnockout: false,
-                    fixturesUsingAddress: [ ],
-                }],
+                fixtures: [],
                 tournamentFixtures: [],
                 notes: [],
             };
@@ -672,11 +666,41 @@ describe('DivisionFixtureDate', () => {
                     awayTeam: null,
                     isKnockout: true,
                     accoladesCount: true,
+                    fixturesUsingAddress: [],
                 }],
                 tournamentFixtures: [],
                 notes: [],
                 isKnockout: true,
             }]);
+        });
+
+        it('can render venues after isKnockout change with no existing fixtures', async () => {
+            const fixtureDate = {
+                date: '2023-05-06T00:00:00',
+                fixtures: [{
+                    id: team.id,
+                    homeTeam: {
+                        id: team.id,
+                        address: team.address,
+                        name: team.name,
+                    },
+                    awayTeam: null,
+                    isKnockout: true,
+                    accoladesCount: true,
+                    fixturesUsingAddress: [],
+                }],
+                tournamentFixtures: [],
+                notes: [],
+            };
+
+            await renderComponent({
+                date: fixtureDate,
+                renderContext: {},
+                showPlayers: {},
+            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+
+            expect(reportedError).toBeNull();
+            expect(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]')).toBeTruthy();
         });
 
         it('can add a note', async () => {
