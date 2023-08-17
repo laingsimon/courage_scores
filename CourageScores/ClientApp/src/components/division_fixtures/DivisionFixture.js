@@ -246,28 +246,33 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         }
     }
 
-    return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
-        <td>
-            {awayTeamId && (fixture.id !== fixture.homeTeam.id)
-               ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
-               : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
-        </td>
-        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.homeScore}</td>
-        <td className="narrow-column">vs</td>
-        <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.awayScore}</td>
-        <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
-            {renderAwayTeam()}
-        </td>
-        {isAdmin ? (<td className="medium-column">
-            {fixture.originalAwayTeamId && awayTeamId !== fixture.originalAwayTeamId && awayTeamId
-                ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
-                    <span className="spinner-border spinner-border-sm" role="status"
-                          aria-hidden="true"></span>) : '💾'}</button>)
-                : null}
-            {fixture.id !== fixture.homeTeam.id && awayTeamId && !saving && !deleting ? (
-                <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
-            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
-                                        title="Could not save fixture details"/>) : null}
-        </td>) : null}
-    </tr>)
+    try {
+        return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
+            <td>
+                {awayTeamId && (fixture.id !== fixture.homeTeam.id)
+                    ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
+                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+            </td>
+            <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.homeScore}</td>
+            <td className="narrow-column">vs</td>
+            <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.awayScore}</td>
+            <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
+                {renderAwayTeam()}
+            </td>
+            {isAdmin ? (<td className="medium-column">
+                {fixture.originalAwayTeamId && awayTeamId !== fixture.originalAwayTeamId && awayTeamId
+                    ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
+                        <span className="spinner-border spinner-border-sm" role="status"
+                              aria-hidden="true"></span>) : '💾'}</button>)
+                    : null}
+                {fixture.id !== fixture.homeTeam.id && awayTeamId && !saving && !deleting ? (
+                    <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
+                {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+                                            title="Could not save fixture details"/>) : null}
+            </td>) : null}
+        </tr>)
+    } catch (e) {
+        // istanbul ignore next
+        onError(e);
+    }
 }
