@@ -12,7 +12,7 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class ErrorDetailAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private DefaultHttpContext _httpContext = null!;
     private ErrorDetailAdapter _adapter = null!;
@@ -35,7 +35,7 @@ public class ErrorDetailAdapterTests
                 Host = new HostString("courageleague.com"),
                 PathBase = new PathString("/some/path"),
                 QueryString = new QueryString("?some-queryString"),
-            }
+            },
         };
         _clock = new Mock<ISystemClock>();
         _now = new DateTimeOffset(new DateTime(2001, 02, 03), TimeSpan.Zero);
@@ -74,7 +74,10 @@ public class ErrorDetailAdapterTests
             Url = "url",
             Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
-            Stack = new[] { "frame1", "frame2" },
+            Stack = new[]
+            {
+                "frame1", "frame2",
+            },
             Time = new DateTime(2001, 02, 03),
             UserAgent = "user-agent",
             Message = "message",
@@ -103,7 +106,10 @@ public class ErrorDetailAdapterTests
             Url = "url",
             Id = Guid.NewGuid(),
             Source = SourceSystem.Api,
-            Stack = new[] { "frame1", "frame2" },
+            Stack = new[]
+            {
+                "frame1", "frame2",
+            },
             Time = new DateTime(2001, 02, 03),
             UserAgent = "user-agent",
             Message = "message",

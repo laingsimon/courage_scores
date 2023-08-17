@@ -21,11 +21,11 @@ namespace CourageScores.Tests.Services.Identity;
 [TestFixture]
 public class UserServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<IHttpContextAccessor> _httpContextAccessor = null!;
     private Mock<IUserRepository> _userRepository = null!;
-    private ISimpleAdapter<User,UserDto> _userAdapter = null!;
-    private ISimpleAdapter<Access,AccessDto> _accessAdapter = null!;
+    private ISimpleAdapter<User, UserDto> _userAdapter = null!;
+    private ISimpleAdapter<Access, AccessDto> _accessAdapter = null!;
     private Mock<IGenericRepository<CosmosTeam>> _teamRepository = null!;
     private UserService _service = null!;
     private DefaultHttpContext? _httpContext;
@@ -123,7 +123,7 @@ public class UserServiceTests
         var teamPlayer = new TeamPlayer
         {
             Id = Guid.NewGuid(),
-            EmailAddress = "simon@email.com"
+            EmailAddress = "simon@email.com",
         };
         var team = new CosmosTeam
         {
@@ -134,10 +134,10 @@ public class UserServiceTests
                 {
                     Players =
                     {
-                        teamPlayer
-                    }
-                }
-            }
+                        teamPlayer,
+                    },
+                },
+            },
         };
         _userRepository
             .Setup(r => r.GetUser("simon@email.com"))
@@ -306,7 +306,7 @@ public class UserServiceTests
         var otherUser = new User
         {
             EmailAddress = "other@email.com",
-            Name = "Other User"
+            Name = "Other User",
         };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
@@ -375,18 +375,24 @@ public class UserServiceTests
             {
                 ManageAccess = true,
             },
-            Name = "Logged in user"
+            Name = "Logged in user",
         };
         var otherUser = new User
         {
-            Name = "Other user"
+            Name = "Other user",
         };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
-        _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(new[] { otherUser, loggedInUser }));
+        _userRepository.Setup(r => r.GetAll()).Returns(TestUtilities.AsyncEnumerable(new[]
+        {
+            otherUser, loggedInUser,
+        }));
 
         var users = await _service.GetAll(_token).ToList();
 
-        Assert.That(users.Select(u => u.Name), Is.EquivalentTo(new[] { "Logged in user", "Other user" }));
+        Assert.That(users.Select(u => u.Name), Is.EquivalentTo(new[]
+        {
+            "Logged in user", "Other user",
+        }));
     }
 
     [Test]
@@ -398,7 +404,10 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not logged in",
+        }));
     }
 
     [Test]
@@ -418,7 +427,10 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
     }
 
     [Test]
@@ -434,7 +446,7 @@ public class UserServiceTests
         };
         var update = new UpdateAccessDto
         {
-            EmailAddress = "other@email.com"
+            EmailAddress = "other@email.com",
         };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(() => null);
@@ -442,7 +454,10 @@ public class UserServiceTests
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not found" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not found",
+        }));
     }
 
     [Test]
@@ -462,14 +477,17 @@ public class UserServiceTests
             Access = new AccessDto
             {
                 ManageAccess = false,
-            }
+            },
         };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
 
         var result = await _service.UpdateAccess(update, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Cannot remove your own user access" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Cannot remove your own user access",
+        }));
     }
 
     [Test]
@@ -485,7 +503,7 @@ public class UserServiceTests
         };
         var otherUser = new User
         {
-            Name = "Other User"
+            Name = "Other User",
         };
         var update = new UpdateAccessDto
         {
@@ -493,7 +511,7 @@ public class UserServiceTests
             Access = new AccessDto
             {
                 ManageGames = true,
-            }
+            },
         };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
@@ -502,7 +520,10 @@ public class UserServiceTests
 
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == true)));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[]
+        {
+            "Access updated",
+        }));
     }
 
     [Test]
@@ -522,7 +543,7 @@ public class UserServiceTests
             Access = new Access
             {
                 ManageGames = true,
-            }
+            },
         };
         var update = new UpdateAccessDto
         {
@@ -530,7 +551,7 @@ public class UserServiceTests
             Access = new AccessDto
             {
                 ManageGames = false,
-            }
+            },
         };
         _userRepository.Setup(r => r.GetUser("simon@email.com")).ReturnsAsync(loggedInUser);
         _userRepository.Setup(r => r.GetUser("other@email.com")).ReturnsAsync(otherUser);
@@ -539,7 +560,10 @@ public class UserServiceTests
 
         _userRepository.Verify(r => r.UpsertUser(It.Is<User>(u => u.Name == "Other User" && u.Access!.ManageGames == false)));
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Access updated" }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[]
+        {
+            "Access updated",
+        }));
     }
 
     private void CreateTicket(string fullName, string email, string givenName)

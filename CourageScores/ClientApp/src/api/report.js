@@ -8,4 +8,4 @@ class ReportApi {
     }
 }
 
-export { ReportApi };
+export {ReportApi};

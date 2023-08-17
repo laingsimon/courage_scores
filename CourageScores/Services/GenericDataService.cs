@@ -3,9 +3,9 @@ using CourageScores.Models;
 using CourageScores.Models.Adapters;
 using CourageScores.Models.Cosmos;
 using CourageScores.Models.Dtos;
-using CourageScores.Services.Identity;
 using CourageScores.Repository;
 using CourageScores.Services.Command;
+using CourageScores.Services.Identity;
 
 namespace CourageScores.Services;
 
@@ -13,11 +13,11 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
     where TModel : AuditedEntity, IPermissionedEntity, new()
     where TDto : AuditedDto
 {
-    private readonly IGenericRepository<TModel> _repository;
-    private readonly IAdapter<TModel, TDto> _adapter;
-    private readonly IUserService _userService;
-    private readonly IAuditingHelper _auditingHelper;
     private readonly IActionResultAdapter _actionResultAdapter;
+    private readonly IAdapter<TModel, TDto> _adapter;
+    private readonly IAuditingHelper _auditingHelper;
+    private readonly IGenericRepository<TModel> _repository;
+    private readonly IUserService _userService;
 
     public GenericDataService(
         IGenericRepository<TModel> repository,
@@ -70,7 +70,10 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
 
         if (item == null)
         {
-            item = new TModel { Id = id };
+            item = new TModel
+            {
+                Id = id,
+            };
 
             if (!item.CanCreate(user))
             {
@@ -133,7 +136,10 @@ public class GenericDataService<TModel, TDto> : IGenericDataService<TModel, TDto
         var result = new ActionResult<TModel>
         {
             Success = true,
-            Messages = { $"{typeof(TModel).Name} deleted" },
+            Messages =
+            {
+                $"{typeof(TModel).Name} deleted",
+            },
         };
 
         return await _actionResultAdapter.Adapt(result, await _adapter.Adapt(item, token));

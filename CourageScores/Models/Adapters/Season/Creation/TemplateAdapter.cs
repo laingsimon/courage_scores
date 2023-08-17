@@ -6,12 +6,12 @@ namespace CourageScores.Models.Adapters.Season.Creation;
 
 public class TemplateAdapter : IAdapter<Template, TemplateDto>
 {
-    private readonly ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter;
     private readonly ISimpleAdapter<DivisionTemplate, DivisionTemplateDto> _divisionTemplateAdapter;
+    private readonly ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter;
 
     public TemplateAdapter(
         ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> sharedAddressAdapter,
-        ISimpleAdapter<DivisionTemplate,DivisionTemplateDto> divisionTemplateAdapter)
+        ISimpleAdapter<DivisionTemplate, DivisionTemplateDto> divisionTemplateAdapter)
     {
         _sharedAddressAdapter = sharedAddressAdapter;
         _divisionTemplateAdapter = divisionTemplateAdapter;

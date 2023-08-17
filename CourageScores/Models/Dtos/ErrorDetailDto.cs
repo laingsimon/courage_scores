@@ -6,8 +6,6 @@ namespace CourageScores.Models.Dtos;
 [ExcludeFromCodeCoverage]
 public class ErrorDetailDto : AuditedDto, IIntegrityCheckDto
 {
-    public DateTime? LastUpdated { get; set; }
-
     public SourceSystem Source { get; set; }
     public DateTime Time { get; set; }
     public string Message { get; set; } = null!;
@@ -16,4 +14,5 @@ public class ErrorDetailDto : AuditedDto, IIntegrityCheckDto
     public string? UserName { get; set; }
     public string? UserAgent { get; set; }
     public string? Url { get; set; }
+    public DateTime? LastUpdated { get; set; }
 }

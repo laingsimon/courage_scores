@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {Practice} from "./Practice";
 import {createTemporaryId} from "../helpers/projection";
@@ -36,21 +36,23 @@ describe('Practice', () => {
     });
 
     beforeEach(() => {
-        saygData = { };
+        saygData = {};
     });
 
     async function renderComponent(account, hash, appLoading) {
-        apiResultFunc = (data) => { return {
-            result: data,
-            success: true,
-        } };
+        apiResultFunc = (data) => {
+            return {
+                result: data,
+                success: true,
+            }
+        };
         reportedError = null;
         shareData = null;
         // noinspection JSValidateTypes
         navigator.share = (data) => shareData = data;
         context = await renderApp(
-            { saygApi },
-            { name: 'Courage Scores' },
+            {saygApi},
+            {name: 'Courage Scores'},
             {
                 account: account,
                 appLoading: appLoading || false,

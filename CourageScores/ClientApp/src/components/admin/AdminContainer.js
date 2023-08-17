@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import {createContext, useContext} from "react";
+
 const AdminContext = createContext({});
 
 export function useAdmin() {
@@ -6,7 +7,7 @@ export function useAdmin() {
 }
 
 /* istanbul ignore next */
-export function AdminContainer({ children, ...data }) {
+export function AdminContainer({children, ...data}) {
     return (<AdminContext.Provider value={data}>
         {children}
     </AdminContext.Provider>)

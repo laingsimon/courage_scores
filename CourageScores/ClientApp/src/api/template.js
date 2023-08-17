@@ -28,4 +28,4 @@ class TemplateApi {
     }
 }
 
-export { TemplateApi };
+export {TemplateApi};

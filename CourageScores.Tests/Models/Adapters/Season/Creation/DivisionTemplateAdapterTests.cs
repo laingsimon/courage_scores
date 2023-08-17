@@ -9,11 +9,11 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class DivisionTemplateAdapterTests
 {
-    private static readonly DateTemplate DateTemplate = new DateTemplate();
-    private static readonly DateTemplateDto DateTemplateDto = new DateTemplateDto();
-    private static readonly List<string> SharedAddress = new List<string>();
-    private static readonly List<TeamPlaceholderDto> SharedAddressDto = new List<TeamPlaceholderDto>();
-    private readonly CancellationToken _token = new CancellationToken();
+    private static readonly DateTemplate DateTemplate = new();
+    private static readonly DateTemplateDto DateTemplateDto = new();
+    private static readonly List<string> SharedAddress = new();
+    private static readonly List<TeamPlaceholderDto> SharedAddressDto = new();
+    private readonly CancellationToken _token = new();
     private DivisionTemplateAdapter _adapter = null!;
     private ISimpleAdapter<DateTemplate, DateTemplateDto> _dateTemplateAdapter = null!;
     private ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter = null!;
@@ -39,14 +39,20 @@ public class DivisionTemplateAdapterTests
             },
             SharedAddresses =
             {
-                SharedAddressDto
+                SharedAddressDto,
             },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Dates, Is.EquivalentTo(new[] { DateTemplate }));
-        Assert.That(result.SharedAddresses, Is.EquivalentTo(new[] { SharedAddress }));
+        Assert.That(result.Dates, Is.EquivalentTo(new[]
+        {
+            DateTemplate,
+        }));
+        Assert.That(result.SharedAddresses, Is.EquivalentTo(new[]
+        {
+            SharedAddress,
+        }));
     }
 
     [Test]
@@ -60,13 +66,19 @@ public class DivisionTemplateAdapterTests
             },
             SharedAddresses =
             {
-                SharedAddress
+                SharedAddress,
             },
         };
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Dates, Is.EquivalentTo(new[] { DateTemplateDto }));
-        Assert.That(result.SharedAddresses, Is.EquivalentTo(new[] { SharedAddressDto }));
+        Assert.That(result.Dates, Is.EquivalentTo(new[]
+        {
+            DateTemplateDto,
+        }));
+        Assert.That(result.SharedAddresses, Is.EquivalentTo(new[]
+        {
+            SharedAddressDto,
+        }));
     }
 }

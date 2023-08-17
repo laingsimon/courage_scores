@@ -5,9 +5,9 @@ namespace CourageScores.Services.Report;
 
 public class MostPlayedPlayerReport : IReport
 {
+    private readonly Dictionary<Guid, int> _playerGamesRecord = new();
     private readonly bool _singlesOnly;
     private readonly int _topCount;
-    private readonly Dictionary<Guid, int> _playerGamesRecord = new();
 
     public MostPlayedPlayerReport(bool singlesOnly = false, int topCount = 3)
     {

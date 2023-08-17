@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {EditDivision} from "./EditDivision";
 import {createTemporaryId} from "../helpers/projection";
@@ -26,7 +26,7 @@ describe('EditDivision', () => {
     let deletedId;
     const divisionApi = {
         update: (data, lastUpdated) => {
-            updatedDivision = { data, lastUpdated };
+            updatedDivision = {data, lastUpdated};
             return apiResponse;
         },
         delete: (id) => {
@@ -40,8 +40,13 @@ describe('EditDivision', () => {
     });
 
     async function renderComponent(props) {
-        window.alert = (message) => { alert = message };
-        window.confirm = (message) => { confirm = message; return confirmResponse };
+        window.alert = (message) => {
+            alert = message
+        };
+        window.confirm = (message) => {
+            confirm = message;
+            return confirmResponse
+        };
         alert = null;
         confirm = null;
         reportedError = null;
@@ -55,8 +60,8 @@ describe('EditDivision', () => {
             success: true,
         };
         context = await renderApp(
-            { divisionApi },
-            { name: 'Courage Scores' },
+            {divisionApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -67,9 +72,9 @@ describe('EditDivision', () => {
             },
             (<EditDivision
                 {...props}
-                onClose={() => closed = true }
-                onSave={() => saved = true }
-                setSaveError={(err) => saveError = err }
+                onClose={() => closed = true}
+                onSave={() => saved = true}
+                setSaveError={(err) => saveError = err}
             />));
     }
 

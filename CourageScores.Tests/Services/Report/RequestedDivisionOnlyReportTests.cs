@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class RequestedDivisionOnlyReportTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private static readonly IVisitorScope VisitorScope = new VisitorScope();
 
     [Test]
@@ -75,7 +75,10 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId);
         report.VisitGame(game);
 
-        report.VisitGame(new CosmosGame { DivisionId = Guid.NewGuid() });
+        report.VisitGame(new CosmosGame
+        {
+            DivisionId = Guid.NewGuid(),
+        });
         report.VisitMatch(VisitorScope, new GameMatch());
 
         underlying.Verify(r => r.VisitGame(It.IsAny<CosmosGame>()), Times.Once);
@@ -526,7 +529,10 @@ public class RequestedDivisionOnlyReportTests
         var report = new RequestedDivisionOnlyReport(underlying.Object, game.DivisionId.Value);
         report.VisitGame(game);
 
-        report.VisitGame(new TournamentGame { DivisionId = Guid.NewGuid() });
+        report.VisitGame(new TournamentGame
+        {
+            DivisionId = Guid.NewGuid(),
+        });
         report.VisitMatch(VisitorScope, new TournamentMatch());
 
         underlying.Verify(r => r.VisitGame(It.IsAny<TournamentGame>()), Times.Once);

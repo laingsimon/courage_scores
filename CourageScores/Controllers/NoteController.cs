@@ -11,8 +11,8 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class NoteController : Controller
 {
-    private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
     private readonly ICommandFactory _commandFactory;
+    private readonly IGenericDataService<FixtureDateNote, FixtureDateNoteDto> _noteService;
 
     public NoteController(
         IGenericDataService<FixtureDateNote, FixtureDateNoteDto> noteService,

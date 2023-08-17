@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
@@ -30,8 +30,8 @@ describe('TournamentSide', () => {
         updatedData = null;
         removed = false;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     if (err.message) {
@@ -46,7 +46,7 @@ describe('TournamentSide', () => {
                 teams: toMap(teams || []),
             },
             (<TournamentContainer {...containerProps}>
-                <TournamentSide {...props} onChange={onChange} onRemove={onRemove} />
+                <TournamentSide {...props} onChange={onChange} onRemove={onRemove}/>
             </TournamentContainer>));
     }
 
@@ -78,11 +78,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -92,7 +92,7 @@ describe('TournamentSide', () => {
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
-            expect(players.map(p => p.textContent)).toEqual([ player.name ]);
+            expect(players.map(p => p.textContent)).toEqual([player.name]);
         });
 
         it('single player (with found division id) side', async () => {
@@ -109,11 +109,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -121,7 +121,7 @@ describe('TournamentSide', () => {
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
-            expect(players.map(p => p.textContent)).toEqual([ player.name ]);
+            expect(players.map(p => p.textContent)).toEqual([player.name]);
         });
 
         it('single player (without division id) side', async () => {
@@ -138,11 +138,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -150,7 +150,7 @@ describe('TournamentSide', () => {
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
-            expect(players.map(p => p.textContent)).toEqual([ player.name ]);
+            expect(players.map(p => p.textContent)).toEqual([player.name]);
         });
 
         it('multi player side', async () => {
@@ -172,11 +172,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -184,7 +184,7 @@ describe('TournamentSide', () => {
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
-            expect(players.map(p => p.textContent)).toEqual([ player1.name, player2.name ]);
+            expect(players.map(p => p.textContent)).toEqual([player1.name, player2.name]);
         });
 
         it('no-show multi player side', async () => {
@@ -207,11 +207,11 @@ describe('TournamentSide', () => {
                 noShow: true,
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -219,8 +219,8 @@ describe('TournamentSide', () => {
             const teamName = context.container.querySelector('div[data-name="team-name"]');
             expect(teamName).toBeFalsy();
             const players = Array.from(context.container.querySelectorAll('ol li'));
-            expect(players.map(p => p.textContent)).toEqual([ player1.name, player2.name ]);
-            expect(players.map(p => p.className)).toEqual([ 'text-decoration-line-through', 'text-decoration-line-through' ]);
+            expect(players.map(p => p.textContent)).toEqual([player1.name, player2.name]);
+            expect(players.map(p => p.className)).toEqual(['text-decoration-line-through', 'text-decoration-line-through']);
         });
 
         it('team (with different side name) side', async () => {
@@ -230,11 +230,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -250,11 +250,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ], [ ]);
+            }, [team], []);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -271,11 +271,11 @@ describe('TournamentSide', () => {
                 noShow: true,
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -292,11 +292,11 @@ describe('TournamentSide', () => {
                 name: team.name,
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -315,11 +315,11 @@ describe('TournamentSide', () => {
                 noShow: true,
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -338,11 +338,11 @@ describe('TournamentSide', () => {
                 name: team.name,
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const sideName = context.container.querySelector('strong');
@@ -374,11 +374,11 @@ describe('TournamentSide', () => {
                 teamId: team.id,
                 name: 'SIDE NAME',
             };
-            await renderComponent({ season, tournamentData: {} }, {
+            await renderComponent({season, tournamentData: {}}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             await doClick(findButton(context.container, '✏️'));
 
@@ -394,11 +394,11 @@ describe('TournamentSide', () => {
                 name: 'SIDE NAME',
             };
 
-            await renderComponent({ season }, {
+            await renderComponent({season}, {
                 side: side,
                 winner: null,
                 readOnly: true,
-            }, [ team ]);
+            }, [team]);
 
             expect(context.container.querySelector('button')).toBeFalsy();
         });
@@ -409,11 +409,11 @@ describe('TournamentSide', () => {
                 teamId: team.id,
                 name: 'SIDE NAME',
             };
-            await renderComponent({ season, tournamentData: {} }, {
+            await renderComponent({season, tournamentData: {}}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             await doClick(findButton(context.container, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
@@ -435,11 +435,11 @@ describe('TournamentSide', () => {
                 teamId: team.id,
                 name: 'SIDE NAME',
             };
-            await renderComponent({ season, tournamentData: {} }, {
+            await renderComponent({season, tournamentData: {}}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
 
             await doClick(findButton(context.container, '✏️'));
             const dialog = context.container.querySelector('.modal-dialog');
@@ -455,11 +455,11 @@ describe('TournamentSide', () => {
                 teamId: team.id,
                 name: 'SIDE NAME',
             };
-            await renderComponent({ season, tournamentData: {} }, {
+            await renderComponent({season, tournamentData: {}}, {
                 side: side,
                 winner: null,
                 readOnly: false,
-            }, [ team ]);
+            }, [team]);
             window.confirm = () => true;
 
             await doClick(findButton(context.container, '✏️'));

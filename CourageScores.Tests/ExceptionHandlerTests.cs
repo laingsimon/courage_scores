@@ -19,9 +19,13 @@ public class ExceptionHandlerTests
         Path = "some/path",
         RouteValues = new RouteValueDictionary
         {
-            { "controller", "TestController" },
-            { "action", "TestAction" },
-        }
+            {
+                "controller", "TestController"
+            },
+            {
+                "action", "TestAction"
+            },
+        },
     };
 
     private HttpContext _context = null!;
@@ -36,7 +40,19 @@ public class ExceptionHandlerTests
             {
                 Method = "POST",
                 ContentLength = 10,
-                Body = new MemoryStream(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }),
+                Body = new MemoryStream(new byte[]
+                {
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                }),
                 ContentType = "application/json",
                 Path = new PathString("/path"),
                 QueryString = new QueryString("?query"),
@@ -47,7 +63,7 @@ public class ExceptionHandlerTests
             Response =
             {
                 Body = new MemoryStream(),
-            }
+            },
         };
         var serviceProvider = new Mock<IServiceProvider>();
         _errorDetailService = new Mock<IErrorDetailService>();

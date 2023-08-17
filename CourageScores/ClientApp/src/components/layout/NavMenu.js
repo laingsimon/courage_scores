@@ -6,11 +6,12 @@ import {any, isEmpty} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export function NavMenu() {
-    const { settings } = useDependencies();
-    const { menu } = useBranding();
-    const { account, clearError, divisions, appLoading, seasons } = useApp();
+    const {settings} = useDependencies();
+    const {menu} = useBranding();
+    const {account, clearError, divisions, appLoading, seasons} = useApp();
     const [collapsed, setCollapsed] = useState(true);
     const [navMenuError, setNavMenuError] = useState(null);
     const [currentLink, setCurrentLink] = useState(document.location.href);
@@ -104,9 +105,7 @@ export function NavMenu() {
                                 </NavLink>
                             </li>))}
                         {renderItems('afterDivisions')}
-                        {appLoading ? (<li className="nav-item"><NavLink><span
-                            className="spinner-border spinner-border-sm margin-right" role="status"
-                            aria-hidden="true"></span></NavLink></li>) : null}
+                        {appLoading ? (<li className="nav-item"><NavLink><LoadingSpinnerSmall/></NavLink></li>) : null}
                         {!appLoading && account && account.access && hasAdminAccess(account.access)
                             ? (<li className="nav-item">
                                 <NavLink tag={Link} onClick={navigate} className={getClassName('/admin')} to={`/admin`}>

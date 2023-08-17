@@ -13,12 +13,12 @@ import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
 export const NEW_PLAYER = 'NEW_PLAYER';
 
-export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck }) {
-    const { account, onError } = useApp();
-    const { homePlayers, awayPlayers, readOnly, disabled, division, season, home, away } = useLeagueFixture();
-    const { matchOptions, otherMatches, setCreatePlayerFor } = useMatchType();
-    const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
-    const [ saygOpen, setSaygOpen ] = useState(false);
+export function MatchPlayerSelection({match, onMatchChanged, onMatchOptionsChanged, on180, onHiCheck}) {
+    const {account, onError} = useApp();
+    const {homePlayers, awayPlayers, readOnly, disabled, division, season, home, away} = useLeagueFixture();
+    const {matchOptions, otherMatches, setCreatePlayerFor} = useMatchType();
+    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState(false);
+    const [saygOpen, setSaygOpen] = useState(false);
 
     function player(index, side) {
         const matchPlayers = match[side + 'Players'];
@@ -115,7 +115,7 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
 
     function renderMatchSettingsDialog() {
         return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
-            <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} />
+            <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged}/>
         </Dialog>);
     }
 
@@ -144,9 +144,10 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
         const away = match.awayPlayers.reduce((current, next) => current ? current + ' & ' + next.name : next.name, '');
         const singlePlayerMatch = match.homePlayers.length === 1 && match.awayPlayers.length === 1;
 
-        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(false)} className="text-start">
+        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
+                        onClose={() => setSaygOpen(false)} className="text-start">
             <ScoreAsYouGo
-                data={match.sayg || { legs: {} }}
+                data={match.sayg || {legs: {}}}
                 home={home}
                 away={away}
                 onChange={propChanged(match, onMatchChanged, 'sayg')}
@@ -156,14 +157,14 @@ export function MatchPlayerSelection({ match, onMatchChanged, onMatchOptionsChan
                 homeScore={match.homeScore}
                 awayScore={match.awayScore}
                 on180={singlePlayerMatch && on180 && !readOnly ? add180 : null}
-                onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null} />
+                onHiCheck={singlePlayerMatch && onHiCheck && !readOnly ? addHiCheck : null}/>
         </Dialog>)
     }
 
     function canOpenSayg() {
         return any(match.homePlayers || [])
             && any(match.awayPlayers || [])
-            && (match.sayg || (account || { access: {} }).access.recordScoresAsYouGo);
+            && (match.sayg || (account || {access: {}}).access.recordScoresAsYouGo);
     }
 
     try {

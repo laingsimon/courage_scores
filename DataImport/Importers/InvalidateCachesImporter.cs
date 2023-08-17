@@ -25,8 +25,8 @@ public class InvalidateCachesImporter : IImporter
                 CacheControl = new CacheControlHeaderValue
                 {
                     NoCache = true,
-                }
-            }
+                },
+            },
         };
     }
 

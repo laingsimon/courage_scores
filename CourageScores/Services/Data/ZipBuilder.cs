@@ -31,9 +31,6 @@ public class ZipBuilder : IZipBuilder
 
     public Task AddFile(string fileName, string content)
     {
-        return Task.Run(() =>
-        {
-            _zip.AddEntry(fileName, content);
-        });
+        return Task.Run(() => { _zip.AddEntry(fileName, content); });
     }
 }

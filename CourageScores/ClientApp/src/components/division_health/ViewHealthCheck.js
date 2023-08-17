@@ -1,7 +1,19 @@
 import {useApp} from "../../AppContainer";
 
-export function ViewHealthCheck({ result }) {
-    const { onError } = useApp();
+export function ViewHealthCheck({result}) {
+    const {onError} = useApp();
+
+    function renderError(error, index) {
+        return (<div key={index} className="text-secondary-50 text-nowrap">❌ {error}</div>);
+    }
+
+    function renderWarning(warning, index) {
+        return (<div key={index} className="text-secondary-50 text-nowrap">⚠ {warning}</div>);
+    }
+
+    function renderMessage(message, index) {
+        return (<div key={index} className="text-secondary-50 text-nowrap">{message}</div>);
+    }
 
     try {
         return (<div datatype="view-health-check">
@@ -14,17 +26,17 @@ export function ViewHealthCheck({ result }) {
                             {checkResult.success ? '✔' : '❌'} {check}
                         </div>
                         <div className="ps-4">
-                            {checkResult.errors.map((error, index) => (<div key={index} className="text-secondary-50 text-nowrap">❌ {error}</div>))}
-                            {checkResult.warnings.map((warning, index) => (<div key={index} className="text-secondary-50 text-nowrap">⚠ {warning}</div>))}
-                            {checkResult.messages.map((message, index) => (<div key={index} className="text-secondary-50 text-nowrap">{message}</div>))}
+                            {checkResult.errors.map(renderError)}
+                            {checkResult.warnings.map(renderWarning)}
+                            {checkResult.messages.map(renderMessage)}
                         </div>
                     </li>)
                 })}
             </ol>
             <div>
-                {result.errors.map((error, index) => (<div key={index} className="text-secondary text-nowrap">❌ {error}</div>))}
-                {result.warnings.map((warning, index) => (<div key={index} className="text-secondary text-nowrap">⚠ {warning}</div>))}
-                {result.messages.map((message, index) => (<div key={index} className="text-secondary text-nowrap">{message}</div>))}
+                {result.errors.map(renderError)}
+                {result.warnings.map(renderWarning)}
+                {result.messages.map(renderMessage)}
             </div>
         </div>);
     } catch (e) {

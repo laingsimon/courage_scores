@@ -14,7 +14,7 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class DataServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private DataService _dataService = null!;
     private Mock<Database> _database = null!;
     private Mock<IUserService> _userService = null!;
@@ -58,7 +58,7 @@ public class DataServiceTests
             {
                 ExportData = true,
                 ImportData = true,
-            }
+            },
         };
         _importMetaData = new ExportMetaData
         {
@@ -148,7 +148,10 @@ public class DataServiceTests
     public async Task ExportData_WhenTablesReturned_ExportsEachTable()
     {
         var table = new Mock<ITableAccessor>();
-        _tables = new[] { table.Object };
+        _tables = new[]
+        {
+            table.Object,
+        };
 
         await _dataService.ExportData(_exportRequest, _token);
 
@@ -159,7 +162,12 @@ public class DataServiceTests
     [Test]
     public async Task ExportData_WhenZipCreated_SetsZipInResult()
     {
-        var zipBytes = new byte[] { 0, 1, 2 };
+        var zipBytes = new byte[]
+        {
+            0,
+            1,
+            2,
+        };
         _zipBuilder.Setup(z => z.CreateZip()).ReturnsAsync(zipBytes);
 
         var result = await _dataService.ExportData(_exportRequest, _token);
@@ -243,7 +251,10 @@ public class DataServiceTests
     {
         _importZip.Setup(z => z.HasFile(ExportMetaData.FileName)).Returns(true);
         _importRequest.PurgeData = true;
-        _importMetaData.RequestedTables.Add("TABLE 1", new List<Guid>(new[] { Guid.Empty }));
+        _importMetaData.RequestedTables.Add("TABLE 1", new List<Guid>(new[]
+        {
+            Guid.Empty,
+        }));
 
         var result = await _dataService.ImportData(_importRequest, _token);
 
@@ -314,7 +325,10 @@ public class DataServiceTests
         var result = await _dataService.BackupData(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Invalid request token",
+        }));
     }
 
     [TestCase("")]
@@ -330,7 +344,10 @@ public class DataServiceTests
         var result = await _dataService.BackupData(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Missing identity" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Missing identity",
+        }));
     }
 
     [TestCase("incorrect")]
@@ -347,7 +364,10 @@ public class DataServiceTests
         var result = await _dataService.BackupData(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Invalid request token",
+        }));
     }
 
     [Test]
@@ -407,7 +427,10 @@ public class DataServiceTests
         var result = await _dataService.RestoreData(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Invalid request token",
+        }));
     }
 
     [TestCase("")]
@@ -423,7 +446,10 @@ public class DataServiceTests
         var result = await _dataService.RestoreData(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Missing identity" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Missing identity",
+        }));
     }
 
     [TestCase("incorrect")]
@@ -440,7 +466,10 @@ public class DataServiceTests
         var result = await _dataService.RestoreData(request, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "Invalid request token" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "Invalid request token",
+        }));
     }
 
     [Test]
@@ -456,7 +485,10 @@ public class DataServiceTests
 
         var result = await _dataService.RestoreData(request, _token);
 
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "No zip file provided" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "No zip file provided",
+        }));
         Assert.That(result.Success, Is.False);
     }
 

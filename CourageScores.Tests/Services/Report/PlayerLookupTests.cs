@@ -32,10 +32,13 @@ public class PlayerLookupTests
                 {
                     HomePlayers =
                     {
-                        new GamePlayer { Id = playerId }
-                    }
-                }
-            }
+                        new GamePlayer
+                        {
+                            Id = playerId,
+                        },
+                    },
+                },
+            },
         };
         var lookup = new PlayerLookup();
 
@@ -49,8 +52,16 @@ public class PlayerLookupTests
     [Test]
     public async Task VisitGame_GivenPlayedFixture_AddsPlayers()
     {
-        var homeTeam = new GameTeam { Name = "Home team", Id = Guid.NewGuid() };
-        var awayTeam = new GameTeam { Name = "Away team", Id = Guid.NewGuid() };
+        var homeTeam = new GameTeam
+        {
+            Name = "Home team",
+            Id = Guid.NewGuid(),
+        };
+        var awayTeam = new GameTeam
+        {
+            Name = "Away team",
+            Id = Guid.NewGuid(),
+        };
         var homePlayerId = Guid.NewGuid();
         var awayPlayerId = Guid.NewGuid();
         var game = new CosmosGame
@@ -67,7 +78,7 @@ public class PlayerLookupTests
                         {
                             Id = homePlayerId,
                             Name = "Home player",
-                        }
+                        },
                     },
                     AwayPlayers =
                     {
@@ -75,10 +86,10 @@ public class PlayerLookupTests
                         {
                             Id = awayPlayerId,
                             Name = "Away player",
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         };
         var lookup = new PlayerLookup();
 
@@ -138,8 +149,14 @@ public class PlayerLookupTests
             {
                 new GameMatch
                 {
-                    HomePlayers = {homePlayer},
-                    AwayPlayers = {awayPlayer},
+                    HomePlayers =
+                    {
+                        homePlayer,
+                    },
+                    AwayPlayers =
+                    {
+                        awayPlayer,
+                    },
                 },
             },
         };
@@ -183,8 +200,14 @@ public class PlayerLookupTests
             {
                 new GameMatch
                 {
-                    HomePlayers = { homePlayer },
-                    AwayPlayers = { awayPlayer },
+                    HomePlayers =
+                    {
+                        homePlayer,
+                    },
+                    AwayPlayers =
+                    {
+                        awayPlayer,
+                    },
                 },
             },
         };

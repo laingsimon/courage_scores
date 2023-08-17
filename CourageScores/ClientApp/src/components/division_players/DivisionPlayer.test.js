@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doChange} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {DivisionPlayer} from "./DivisionPlayer";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -16,12 +16,12 @@ describe('DivisionPlayer', () => {
     let apiResponse;
     const playerApi = {
         delete: async (seasonId, teamId, playerId) => {
-            deletedPlayer = { seasonId, teamId, playerId };
-            return apiResponse || { success: true };
+            deletedPlayer = {seasonId, teamId, playerId};
+            return apiResponse || {success: true};
         },
         update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
-            updatedPlayer = { seasonId, teamId, playerId, playerDetails, lastUpdated };
-            return apiResponse || { success: true };
+            updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
+            return apiResponse || {success: true};
         }
     }
 
@@ -40,7 +40,7 @@ describe('DivisionPlayer', () => {
             {
                 playerApi
             },
-            { name: 'Courage Scores' },
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -94,7 +94,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -110,17 +110,17 @@ describe('DivisionPlayer', () => {
                     '5',
                     '6',
                     '7',
-                    '8' ]);
+                    '8']);
             });
 
             it('captaincy marker', async () => {
-                const captain = Object.assign({ }, player);
+                const captain = Object.assign({}, player);
                 captain.captain = true;
                 await renderComponent({
                         player: captain,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -135,7 +135,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: true
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -150,7 +150,7 @@ describe('DivisionPlayer', () => {
                     '5',
                     '6',
                     '7',
-                    '8' ]);
+                    '8']);
             });
 
             it('no action buttons', async () => {
@@ -158,7 +158,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -172,7 +172,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -188,7 +188,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -200,13 +200,13 @@ describe('DivisionPlayer', () => {
             });
 
             it('team name only if no team id', async () => {
-                const noTeamPlayer = Object.assign({ }, player);
+                const noTeamPlayer = Object.assign({}, player);
                 noTeamPlayer.teamId = EMPTY_ID;
                 await renderComponent({
                         player: noTeamPlayer,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
 
                 expect(reportedError).toBeNull();
@@ -251,7 +251,10 @@ describe('DivisionPlayer', () => {
         };
         let confirm;
         let response = false;
-        window.confirm = (message) => { confirm = message; return response };
+        window.confirm = (message) => {
+            confirm = message;
+            return response
+        };
 
         beforeEach(() => {
             confirm = null;
@@ -263,7 +266,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 expect(nameCell.textContent).toContain('NAME');
@@ -280,7 +283,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -296,7 +299,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = false;
@@ -314,7 +317,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 response = true;
@@ -332,7 +335,7 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
@@ -353,13 +356,13 @@ describe('DivisionPlayer', () => {
                         player,
                         hideVenue: false
                     },
-                    { id: division.id, season, name: division.name },
+                    {id: division.id, season, name: division.name},
                     account);
                 const nameCell = context.container.querySelector('td:nth-child(2)');
                 await doClick(findButton(nameCell, '✏️'));
                 const dialog = nameCell.querySelector('.modal-dialog');
                 await doChange(dialog, 'input[name="name"]', 'NEW NAME', context.user);
-                apiResponse = { success: false };
+                apiResponse = {success: false};
 
                 await doClick(findButton(dialog, 'Save player'));
 

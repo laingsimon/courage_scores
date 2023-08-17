@@ -21,18 +21,18 @@ namespace CourageScores.Tests.Services.Division;
 [TestFixture]
 public class DivisionServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private readonly List<TeamDto> _allTeams = new();
     private readonly List<FixtureDateNoteDto> _someNotes = new();
     private readonly List<CosmosGame> _someGames = new();
     private readonly List<TournamentGame> _someTournaments = new();
     private DivisionService _service = null!;
-    private Mock<IGenericDataService<CourageScores.Models.Cosmos.Division,DivisionDto>> _genericService = null!;
+    private Mock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>> _genericService = null!;
     private Mock<ITeamService> _teamService = null!;
-    private Mock<IGenericDataService<CosmosSeason,SeasonDto>> _genericSeasonService = null!;
+    private Mock<IGenericDataService<CosmosSeason, SeasonDto>> _genericSeasonService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentGameRepository = null!;
-    private Mock<IGenericDataService<FixtureDateNote,FixtureDateNoteDto>> _noteService = null!;
+    private Mock<IGenericDataService<FixtureDateNote, FixtureDateNoteDto>> _noteService = null!;
     private Mock<ISystemClock> _clock = null!;
     private Mock<IDivisionDataDtoFactory> _divisionDataDtoFactory = null!;
     private Mock<IUserService> _userService = null!;
@@ -96,7 +96,10 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenDivisionIdFilterWhenDivisionNotFound_ReturnsDivisionNotFound()
     {
         var notFound = new DivisionDataDto();
-        var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = Guid.NewGuid(),
+        };
         _divisionDataDtoFactory.Setup(f => f.DivisionNotFound(filter.DivisionId.Value, null)).Returns(notFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(() => null);
 
@@ -109,8 +112,14 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenDivisionIdFilterWhenDivisionDeleted_ReturnsDivisionNotFound()
     {
         var notFound = new DivisionDataDto();
-        var division = new DivisionDto { Deleted = new DateTime(2001, 02, 03) };
-        var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
+        var division = new DivisionDto
+        {
+            Deleted = new DateTime(2001, 02, 03),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = Guid.NewGuid(),
+        };
         _divisionDataDtoFactory.Setup(f => f.DivisionNotFound(filter.DivisionId.Value, division)).Returns(notFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
 
@@ -123,9 +132,21 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenSeasonIdFilterWhenSeasonNotFound_ReturnsSeasonNotFound()
     {
         var seasonNotFound = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid(), SeasonId = Guid.NewGuid() };
-        var otherSeason = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = Guid.NewGuid(),
+            SeasonId = Guid.NewGuid(),
+        };
+        var otherSeason = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(seasonNotFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(otherSeason));
@@ -140,8 +161,14 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenNoSeasonIdFilterAndNoSeasons_ReturnsSeasonNotFound()
     {
         var seasonNotFound = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = Guid.NewGuid(),
+        };
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(seasonNotFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable<SeasonDto>());
@@ -156,13 +183,19 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenNoSeasonIdFilterWhenNoActiveSeasons_ReturnsSeasonNotFound()
     {
         var seasonNotFound = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = Guid.NewGuid(),
+        };
         var otherSeason = new SeasonDto
         {
             Id = Guid.NewGuid(),
             StartDate = new DateTime(2001, 01, 01),
-            EndDate = new DateTime(2001, 05, 01)
+            EndDate = new DateTime(2001, 05, 01),
         };
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(seasonNotFound);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
@@ -179,11 +212,32 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenNoSeasonIdFilterWhenTwoActiveSeasons_UsesSeasonWithGreatestEndDate()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = Guid.NewGuid() };
-        var firstSeason = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var secondSeason = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 06, 01) };
-        var thirdSeason = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 04, 01), EndDate = new DateTime(2001, 07, 01) };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = Guid.NewGuid(),
+        };
+        var firstSeason = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var secondSeason = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 06, 01),
+        };
+        var thirdSeason = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 04, 01),
+            EndDate = new DateTime(2001, 07, 01),
+        };
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(firstSeason, secondSeason, thirdSeason));
@@ -200,20 +254,48 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTeamsOnly()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = division.Id };
-        var firstSeason = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = division.Id,
+        };
+        var firstSeason = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
         var team = new TeamDto
         {
             Id = Guid.NewGuid(),
-            Seasons = { new TeamSeasonDto { SeasonId = firstSeason.Id, DivisionId = division.Id } }
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = firstSeason.Id,
+                    DivisionId = division.Id,
+                },
+            },
         };
         var otherDivisionTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
-            Seasons = { new TeamSeasonDto { SeasonId = firstSeason.Id, DivisionId = Guid.NewGuid() } }
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = firstSeason.Id,
+                    DivisionId = Guid.NewGuid(),
+                },
+            },
         };
-        _allTeams.AddRange(new[] { team, otherDivisionTeam });
+        _allTeams.AddRange(new[]
+        {
+            team, otherDivisionTeam,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(firstSeason));
@@ -223,27 +305,58 @@ public class DivisionServiceTests
 
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.TeamsInSeasonAndDivision, Is.EquivalentTo(new[] { team }));
+        Assert.That(_divisionDataContext!.TeamsInSeasonAndDivision, Is.EquivalentTo(new[]
+        {
+            team,
+        }));
     }
 
     [Test]
     public async Task? GetDivisionData_GivenNoDivisionIdFilter_IncludesAllTeams()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var filter = new DivisionDataFilter { SeasonId = season.Id };
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+        };
         var team = new TeamDto
         {
             Id = Guid.NewGuid(),
-            Seasons = { new TeamSeasonDto { SeasonId = season.Id, DivisionId = division.Id } }
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                },
+            },
         };
         var otherDivisionTeam = new TeamDto
         {
             Id = Guid.NewGuid(),
-            Seasons = { new TeamSeasonDto { SeasonId = season.Id, DivisionId = division.Id } }
+            Seasons =
+            {
+                new TeamSeasonDto
+                {
+                    SeasonId = season.Id,
+                    DivisionId = division.Id,
+                },
+            },
         };
-        _allTeams.AddRange(new[] { team, otherDivisionTeam });
+        _allTeams.AddRange(new[]
+        {
+            team, otherDivisionTeam,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
         _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
@@ -259,13 +372,41 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingNotesOnly()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = division.Id };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var note = new FixtureDateNoteDto { Id = Guid.NewGuid(), DivisionId = division.Id };
-        var otherDivisionNote = new FixtureDateNoteDto { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid() };
-        var allDivisionsNote = new FixtureDateNoteDto { Id = Guid.NewGuid(), DivisionId = null };
-        _someNotes.AddRange(new[] { note, otherDivisionNote, allDivisionsNote });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = division.Id,
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var note = new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+        };
+        var otherDivisionNote = new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+        };
+        var allDivisionsNote = new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = null,
+        };
+        _someNotes.AddRange(new[]
+        {
+            note,
+            otherDivisionNote,
+            allDivisionsNote,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
@@ -276,20 +417,51 @@ public class DivisionServiceTests
         _noteService.Verify(s => s.GetWhere($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.Notes.Values.SelectMany(n => n), Is.EquivalentTo(new[] { note, allDivisionsNote }));
+        Assert.That(_divisionDataContext!.Notes.Values.SelectMany(n => n), Is.EquivalentTo(new[]
+        {
+            note, allDivisionsNote,
+        }));
     }
 
     [Test]
     public async Task? GetDivisionData_GivenNoDivisionIdFilter_IncludesAllNotes()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var filter = new DivisionDataFilter { SeasonId = season.Id };
-        var note = new FixtureDateNoteDto { Id = Guid.NewGuid(), DivisionId = division.Id };
-        var otherDivisionNote = new FixtureDateNoteDto { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid() };
-        var allDivisionsNote = new FixtureDateNoteDto { Id = Guid.NewGuid(), DivisionId = null };
-        _someNotes.AddRange(new[] { note, otherDivisionNote, allDivisionsNote });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+        };
+        var note = new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+        };
+        var otherDivisionNote = new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+        };
+        var allDivisionsNote = new FixtureDateNoteDto
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = null,
+        };
+        _someNotes.AddRange(new[]
+        {
+            note,
+            otherDivisionNote,
+            allDivisionsNote,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
         _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
@@ -306,12 +478,36 @@ public class DivisionServiceTests
     public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingGamesWithinSeason()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = division.Id };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var givenDivisionGameInSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 02, 01) };
-        var givenDivisionGameOutOfSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 06, 01) };
-        _someGames.AddRange(new[] { givenDivisionGameInSeason, givenDivisionGameOutOfSeason });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = division.Id,
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var givenDivisionGameInSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 02, 01),
+        };
+        var givenDivisionGameOutOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 06, 01),
+        };
+        _someGames.AddRange(new[]
+        {
+            givenDivisionGameInSeason, givenDivisionGameOutOfSeason,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
@@ -322,21 +518,61 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.DivisionId = '{division.Id}' or t.IsKnockout = true", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[]
+        {
+            givenDivisionGameInSeason,
+        }));
     }
 
     [Test]
     public async Task? GetDivisionData_GivenNoDivisionIdFilter_IncludesAllGamesWithinSeason()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var filter = new DivisionDataFilter { SeasonId = season.Id };
-        var givenDivisionGameInSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 02, 01) };
-        var givenDivisionGameOutOfSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 06, 01) };
-        var otherDivisionGameInSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid(), Date = new DateTime(2001, 02, 01) };
-        var otherDivisionGameOutOfSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid(), Date = new DateTime(2001, 06, 01) };
-        _someGames.AddRange(new[] { givenDivisionGameInSeason, givenDivisionGameOutOfSeason, otherDivisionGameInSeason, otherDivisionGameOutOfSeason });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+        };
+        var givenDivisionGameInSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 02, 01),
+        };
+        var givenDivisionGameOutOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 06, 01),
+        };
+        var otherDivisionGameInSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Date = new DateTime(2001, 02, 01),
+        };
+        var otherDivisionGameOutOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Date = new DateTime(2001, 06, 01),
+        };
+        _someGames.AddRange(new[]
+        {
+            givenDivisionGameInSeason,
+            givenDivisionGameOutOfSeason,
+            otherDivisionGameInSeason,
+            otherDivisionGameOutOfSeason,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
         _clock.Setup(c => c.UtcNow).Returns(new DateTimeOffset(2001, 03, 01, 0, 0, 0, TimeSpan.Zero));
@@ -346,19 +582,44 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), null, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[]
+        {
+            givenDivisionGameInSeason, otherDivisionGameInSeason,
+        }));
     }
 
     [Test]
     public async Task? GetDivisionData_GivenDivisionIdFilter_IncludesMatchingTournamentsWithinSeason()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var filter = new DivisionDataFilter { DivisionId = division.Id };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var inSeasonTournament = new TournamentGame { Id = Guid.NewGuid(), Date = new DateTime(2001, 02, 01) };
-        var outOfSeasonTournament = new TournamentGame { Id = Guid.NewGuid(), Date = new DateTime(2001, 06, 01) };
-        _someTournaments.AddRange(new[] { inSeasonTournament, outOfSeasonTournament });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var filter = new DivisionDataFilter
+        {
+            DivisionId = division.Id,
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var inSeasonTournament = new TournamentGame
+        {
+            Id = Guid.NewGuid(),
+            Date = new DateTime(2001, 02, 01),
+        };
+        var outOfSeasonTournament = new TournamentGame
+        {
+            Id = Guid.NewGuid(),
+            Date = new DateTime(2001, 06, 01),
+        };
+        _someTournaments.AddRange(new[]
+        {
+            inSeasonTournament, outOfSeasonTournament,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericService.Setup(s => s.Get(filter.DivisionId.Value, _token)).ReturnsAsync(division);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
@@ -369,19 +630,47 @@ public class DivisionServiceTests
         _tournamentGameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllTournamentGames(division.Id), Is.EquivalentTo(new[] { inSeasonTournament }));
+        Assert.That(_divisionDataContext!.AllTournamentGames(division.Id), Is.EquivalentTo(new[]
+        {
+            inSeasonTournament,
+        }));
     }
 
     [Test]
     public async Task GetDivisionData_WhenLoggedInAndCannotManageGames_GetsFixturesForFilterDivisionOnly()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var filter = new DivisionDataFilter { SeasonId = season.Id, DivisionId = division.Id };
-        var givenDivisionGameInSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 02, 01) };
-        var givenDivisionGameOutOfSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 06, 01) };
-        _someGames.AddRange(new[] { givenDivisionGameInSeason, givenDivisionGameOutOfSeason });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+            DivisionId = division.Id,
+        };
+        var givenDivisionGameInSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 02, 01),
+        };
+        var givenDivisionGameOutOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 06, 01),
+        };
+        _someGames.AddRange(new[]
+        {
+            givenDivisionGameInSeason, givenDivisionGameOutOfSeason,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
         _genericService.Setup(s => s.Get(division.Id, _token)).ReturnsAsync(division);
@@ -391,7 +680,7 @@ public class DivisionServiceTests
             Access = new AccessDto
             {
                 ManageGames = false,
-            }
+            },
         };
 
         await _service.GetDivisionData(filter, _token);
@@ -399,21 +688,62 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.DivisionId = '{filter.DivisionId}' or t.IsKnockout = true", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[]
+        {
+            givenDivisionGameInSeason,
+        }));
     }
 
     [Test]
     public async Task GetDivisionData_WhenLoggedInAndCanManageGames_GetsFixturesForAllDivisions()
     {
         var data = new DivisionDataDto();
-        var division = new DivisionDto { Id = Guid.NewGuid() };
-        var season = new SeasonDto { Id = Guid.NewGuid(), StartDate = new DateTime(2001, 01, 01), EndDate = new DateTime(2001, 05, 01) };
-        var filter = new DivisionDataFilter { SeasonId = season.Id, DivisionId = division.Id };
-        var givenDivisionGameInSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 02, 01) };
-        var givenDivisionGameOutOfSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = division.Id, Date = new DateTime(2001, 06, 01) };
-        var otherDivisionGameInSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid(), Date = new DateTime(2001, 02, 01) };
-        var otherDivisionGameOutOfSeason = new CosmosGame { Id = Guid.NewGuid(), DivisionId = Guid.NewGuid(), Date = new DateTime(2001, 06, 01) };
-        _someGames.AddRange(new[] { givenDivisionGameInSeason, givenDivisionGameOutOfSeason, otherDivisionGameInSeason, otherDivisionGameOutOfSeason });
+        var division = new DivisionDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var season = new SeasonDto
+        {
+            Id = Guid.NewGuid(),
+            StartDate = new DateTime(2001, 01, 01),
+            EndDate = new DateTime(2001, 05, 01),
+        };
+        var filter = new DivisionDataFilter
+        {
+            SeasonId = season.Id,
+            DivisionId = division.Id,
+        };
+        var givenDivisionGameInSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 02, 01),
+        };
+        var givenDivisionGameOutOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = division.Id,
+            Date = new DateTime(2001, 06, 01),
+        };
+        var otherDivisionGameInSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Date = new DateTime(2001, 02, 01),
+        };
+        var otherDivisionGameOutOfSeason = new CosmosGame
+        {
+            Id = Guid.NewGuid(),
+            DivisionId = Guid.NewGuid(),
+            Date = new DateTime(2001, 06, 01),
+        };
+        _someGames.AddRange(new[]
+        {
+            givenDivisionGameInSeason,
+            givenDivisionGameOutOfSeason,
+            otherDivisionGameInSeason,
+            otherDivisionGameOutOfSeason,
+        });
         _divisionDataDtoFactory.Setup(f => f.SeasonNotFound(division, It.IsAny<List<SeasonDto>>(), _token)).ReturnsAsync(data);
         _genericSeasonService.Setup(s => s.GetAll(_token)).Returns(TestUtilities.AsyncEnumerable(season));
         _genericService.Setup(s => s.Get(division.Id, _token)).ReturnsAsync(division);
@@ -423,7 +753,7 @@ public class DivisionServiceTests
             Access = new AccessDto
             {
                 ManageGames = true,
-            }
+            },
         };
 
         await _service.GetDivisionData(filter, _token);
@@ -431,6 +761,9 @@ public class DivisionServiceTests
         _gameRepository.Verify(s => s.GetSome($"t.SeasonId = '{season.Id}'", _token));
         _divisionDataDtoFactory.Verify(f => f.CreateDivisionDataDto(It.IsAny<DivisionDataContext>(), division, _token));
         Assert.That(_divisionDataContext, Is.Not.Null);
-        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[] { givenDivisionGameInSeason, otherDivisionGameInSeason }));
+        Assert.That(_divisionDataContext!.AllGames(null), Is.EquivalentTo(new[]
+        {
+            givenDivisionGameInSeason, otherDivisionGameInSeason,
+        }));
     }
 }

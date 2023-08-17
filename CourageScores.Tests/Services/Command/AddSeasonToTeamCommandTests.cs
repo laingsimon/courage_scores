@@ -16,7 +16,7 @@ public class AddSeasonToTeamCommandTests
 {
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<ISeasonService> _seasonService = null!;
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private AddSeasonToTeamCommand _command = null!;
     private CosmosTeam _team = null!;
     private SeasonDto _season = null!;
@@ -53,7 +53,10 @@ public class AddSeasonToTeamCommandTests
         var result = await _command.ForSeason(_season.Id).ForDivision(_division.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Cannot edit a team that has been deleted" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Cannot edit a team that has been deleted",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -66,7 +69,10 @@ public class AddSeasonToTeamCommandTests
         var result = await _command.ForSeason(_season.Id).ForDivision(_division.Id).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Errors, Is.EqualTo(new[] { "Season not found" }));
+        Assert.That(result.Errors, Is.EqualTo(new[]
+        {
+            "Season not found",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -80,7 +86,10 @@ public class AddSeasonToTeamCommandTests
 
         _seasonService.Verify(s => s.Get(_season.Id, _token), Times.Never);
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season added to the TEAM team" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season added to the TEAM team",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
     }
@@ -93,8 +102,12 @@ public class AddSeasonToTeamCommandTests
             SeasonId = Guid.NewGuid(),
             Players =
             {
-                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
-            }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "other player",
+                },
+            },
         };
         var teamSeason = new TeamSeason
         {
@@ -111,7 +124,10 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season already exists, 1 players copied" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season already exists, 1 players copied",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_division.Id));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_season.Id));
         _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token));
@@ -125,8 +141,12 @@ public class AddSeasonToTeamCommandTests
             SeasonId = Guid.NewGuid(),
             Players =
             {
-                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
-            }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "other player",
+                },
+            },
         };
         var teamSeason = new TeamSeason
         {
@@ -155,16 +175,24 @@ public class AddSeasonToTeamCommandTests
             SeasonId = Guid.NewGuid(),
             Players =
             {
-                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
-            }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "other player",
+                },
+            },
         };
         var teamSeason = new TeamSeason
         {
             SeasonId = _season.Id,
             Players =
             {
-                new TeamPlayer { Id = Guid.NewGuid(), Name = "existing player" }
-            }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "existing player",
+                },
+            },
         };
         _team.Seasons.Add(teamSeason);
         _team.Seasons.Add(otherSeason);
@@ -177,7 +205,10 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season already exists" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season already exists",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
         _auditingHelper.Verify(h => h.SetUpdated(teamSeason, _token));
@@ -191,15 +222,23 @@ public class AddSeasonToTeamCommandTests
             SeasonId = Guid.NewGuid(),
             Players =
             {
-                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
-            }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "other player",
+                },
+            },
         };
         var teamSeason = new TeamSeason
         {
             SeasonId = _season.Id,
             Players =
             {
-                new TeamPlayer { Id = Guid.NewGuid(), Name = "existing player" }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "existing player",
+                },
             },
             Deleted = new DateTime(2001, 02, 03),
         };
@@ -225,8 +264,12 @@ public class AddSeasonToTeamCommandTests
             SeasonId = Guid.NewGuid(),
             Players =
             {
-                new TeamPlayer {Id = Guid.NewGuid(), Name = "other player"}
-            }
+                new TeamPlayer
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "other player",
+                },
+            },
         };
         _team.Seasons.Add(otherSeason);
         _seasonService.Setup(s => s.Get(_season.Id, _token)).ReturnsAsync(_season);
@@ -238,7 +281,10 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season added to the TEAM team, 1 players copied" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season added to the TEAM team, 1 players copied",
+        }));
         var newTeamSeason = _team.Seasons.SingleOrDefault(s => s.SeasonId == _season.Id);
         Assert.That(newTeamSeason, Is.Not.Null);
         Assert.That(newTeamSeason!.Players, Is.Not.Empty);
@@ -259,7 +305,10 @@ public class AddSeasonToTeamCommandTests
             .ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season added to the TEAM team" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season added to the TEAM team",
+        }));
         var newTeamSeason = _team.Seasons.SingleOrDefault(s => s.SeasonId == _season.Id);
         Assert.That(newTeamSeason, Is.Not.Null);
         Assert.That(newTeamSeason!.Players, Is.Empty);

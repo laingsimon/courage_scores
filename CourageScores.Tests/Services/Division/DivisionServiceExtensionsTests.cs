@@ -10,10 +10,24 @@ public class DivisionServiceExtensionsTests
     [Test]
     public void ApplyPlayerRanks_WhenCalled_SetsRanksCorrectly()
     {
-        var playerA = new DivisionPlayerDto { Name = "a" };
-        var playerB = new DivisionPlayerDto { Name = "b" };
-        var playerC = new DivisionPlayerDto { Name = "c" };
-        var players = new List<DivisionPlayerDto> { playerA, playerB, playerC };
+        var playerA = new DivisionPlayerDto
+        {
+            Name = "a",
+        };
+        var playerB = new DivisionPlayerDto
+        {
+            Name = "b",
+        };
+        var playerC = new DivisionPlayerDto
+        {
+            Name = "c",
+        };
+        var players = new List<DivisionPlayerDto>
+        {
+            playerA,
+            playerB,
+            playerC,
+        };
 
         // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
         players.OrderBy(p => p.Name).ApplyRanks().ToList();
@@ -26,10 +40,24 @@ public class DivisionServiceExtensionsTests
     [Test]
     public void ApplyPlayerRanks_WhenCalled_ReturnsAllPlayersInCorrectOrder()
     {
-        var playerA = new DivisionPlayerDto { Name = "a" };
-        var playerB = new DivisionPlayerDto { Name = "b" };
-        var playerC = new DivisionPlayerDto { Name = "c" };
-        var players = new List<DivisionPlayerDto> { playerA, playerB, playerC };
+        var playerA = new DivisionPlayerDto
+        {
+            Name = "a",
+        };
+        var playerB = new DivisionPlayerDto
+        {
+            Name = "b",
+        };
+        var playerC = new DivisionPlayerDto
+        {
+            Name = "c",
+        };
+        var players = new List<DivisionPlayerDto>
+        {
+            playerA,
+            playerB,
+            playerC,
+        };
 
         var result = players.OrderBy(p => p.Name).ApplyRanks().ToList();
 

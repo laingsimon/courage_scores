@@ -10,9 +10,9 @@ namespace CourageScores.Services.Data;
 public class CosmosTableService : ICosmosTableService
 {
     private readonly Database _database;
-    private readonly IUserService _userService;
     private readonly IJsonSerializerService _serializer;
     private readonly ICosmosTableNameResolver _tableNameResolver;
+    private readonly IUserService _userService;
 
     public CosmosTableService(Database database, IUserService userService, IJsonSerializerService serializer, ICosmosTableNameResolver tableNameResolver)
     {
@@ -91,7 +91,7 @@ public class CosmosTableService : ICosmosTableService
             return false;
         }
 
-        var instance = (IPermissionedEntity) Activator.CreateInstance(dataType)!;
+        var instance = (IPermissionedEntity)Activator.CreateInstance(dataType)!;
         return instance.CanCreate(user) && instance.CanEdit(user) && instance.CanDelete(user);
     }
 }

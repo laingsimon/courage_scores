@@ -2,13 +2,22 @@ import {useApp} from "../../../../AppContainer";
 import {round2dp} from "../../../../helpers/rendering";
 import {
     countMatch100,
-    countMatch140, countMatch180,
+    countMatch140,
+    countMatch180,
     matchTons,
     playerOverallAverage
 } from "../../../../helpers/superleague";
 
-export function SummaryDataRow({ matchNo, saygData, showWinner, hostScore, opponentScore, hostPlayerName, opponentPlayerName }) {
-    const { onError } = useApp();
+export function SummaryDataRow({
+                                   matchNo,
+                                   saygData,
+                                   showWinner,
+                                   hostScore,
+                                   opponentScore,
+                                   hostPlayerName,
+                                   opponentPlayerName
+                               }) {
+    const {onError} = useApp();
 
     try {
         return (<tr>

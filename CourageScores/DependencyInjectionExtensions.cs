@@ -67,7 +67,7 @@ public static class DependencyInjectionExtensions
             Converters =
             {
                 new StringEnumConverter(),
-            }
+            },
         });
         services.AddSingleton<IJsonSerializerService, JsonSerializerService>();
 
@@ -194,9 +194,9 @@ public static class DependencyInjectionExtensions
     }
 
     private static void AddAdapter<TModel, TDto, TAdapter>(IServiceCollection services)
-        where TModel: AuditedEntity
-        where TDto: AuditedDto
-        where TAdapter: class, IAdapter<TModel, TDto>
+        where TModel : AuditedEntity
+        where TDto : AuditedDto
+        where TAdapter : class, IAdapter<TModel, TDto>
     {
         services.AddScoped<IAdapter<TModel, TDto>, TAdapter>();
     }

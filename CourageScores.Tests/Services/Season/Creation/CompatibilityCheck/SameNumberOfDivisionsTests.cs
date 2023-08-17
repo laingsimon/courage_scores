@@ -11,9 +11,9 @@ namespace CourageScores.Tests.Services.Season.Creation.CompatibilityCheck;
 [TestFixture]
 public class SameNumberOfDivisionsTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly SeasonDto _season = new SeasonDto();
-    private readonly SameNumberOfDivisions _check = new SameNumberOfDivisions();
+    private readonly CancellationToken _token = new();
+    private readonly SeasonDto _season = new();
+    private readonly SameNumberOfDivisions _check = new();
 
     [Test]
     public async Task Check_GivenMatchingNumberOfDivisions_ReturnsTemplateCompatible()
@@ -25,12 +25,15 @@ public class SameNumberOfDivisionsTests
             {
                 new DivisionTemplateDto(),
                 new DivisionTemplateDto(),
-            }
+            },
         };
         var division1 = new DivisionDataDto();
         var division2 = new DivisionDataDto();
 
-        var result = await _check.Check(template, TemplateMatchContext(new[] { division1, division2 }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(new[]
+        {
+            division1, division2,
+        }), _token);
 
         Assert.That(result.Success, Is.True);
     }
@@ -45,14 +48,20 @@ public class SameNumberOfDivisionsTests
             {
                 new DivisionTemplateDto(),
                 new DivisionTemplateDto(),
-            }
+            },
         };
         var division = new DivisionDataDto();
 
-        var result = await _check.Check(template, TemplateMatchContext(new[] { division }), _token);
+        var result = await _check.Check(template, TemplateMatchContext(new[]
+        {
+            division,
+        }), _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Template has 2 divisions, season has 1" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Template has 2 divisions, season has 1",
+        }));
     }
 
     private TemplateMatchContext TemplateMatchContext(IEnumerable<DivisionDataDto> divisions)

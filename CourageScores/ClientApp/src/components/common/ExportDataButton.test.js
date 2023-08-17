@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../helpers/tests";
+import {cleanUp, doClick, noop, renderApp} from "../../helpers/tests";
 import React from "react";
 import {ExportDataButton} from "./ExportDataButton";
 
@@ -13,7 +13,7 @@ describe('ExportDataButton', () => {
     const dataApi = {
         export: (request) => {
             exportRequest = request;
-            return apiResult || { success: false };
+            return apiResult || {success: false};
         },
     };
 
@@ -26,7 +26,7 @@ describe('ExportDataButton', () => {
         exportRequest = null;
         apiResult = null;
         context = await renderApp(
-            { dataApi },
+            {dataApi},
             null,
             {
                 onError: (err) => {
@@ -52,7 +52,7 @@ describe('ExportDataButton', () => {
 
     describe('when logged in, not permitted to export', () => {
         const account = {
-            access: { exportData: false },
+            access: {exportData: false},
         };
 
         it('renders nothing', async () => {
@@ -64,7 +64,7 @@ describe('ExportDataButton', () => {
 
     describe('when logged in, permitted to export', () => {
         const account = {
-            access: { exportData: true },
+            access: {exportData: true},
         };
 
         it('when nothing to export, does not render button', async () => {
@@ -76,8 +76,8 @@ describe('ExportDataButton', () => {
         it('when something to export, renders button', async () => {
             await renderComponent({
                 tables: {
-                    tournamentGame: [ 'id1' ],
-                    recordedScoreAsYouGo: [ 'id2', 'id3' ],
+                    tournamentGame: ['id1'],
+                    recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
 
@@ -89,12 +89,12 @@ describe('ExportDataButton', () => {
         it('when clicked, tries to export data', async () => {
             await renderComponent({
                 tables: {
-                    tournamentGame: [ 'id1' ],
-                    recordedScoreAsYouGo: [ 'id2', 'id3' ],
+                    tournamentGame: ['id1'],
+                    recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
             const button = context.container.querySelector('button');
-            window.alert = () => {};
+            window.alert = noop;
 
             await doClick(button);
 
@@ -102,8 +102,8 @@ describe('ExportDataButton', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ 'id1' ],
-                    recordedScoreAsYouGo: [ 'id2', 'id3' ],
+                    tournamentGame: ['id1'],
+                    recordedScoreAsYouGo: ['id2', 'id3'],
                 },
             });
         });
@@ -111,8 +111,8 @@ describe('ExportDataButton', () => {
         it('when clicked, handles error during export', async () => {
             await renderComponent({
                 tables: {
-                    tournamentGame: [ 'id1' ],
-                    recordedScoreAsYouGo: [ 'id2', 'id3' ],
+                    tournamentGame: ['id1'],
+                    recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
             const button = context.container.querySelector('button');
@@ -128,8 +128,8 @@ describe('ExportDataButton', () => {
         it('when clicked, allows download of content', async () => {
             await renderComponent({
                 tables: {
-                    tournamentGame: [ 'id1' ],
-                    recordedScoreAsYouGo: [ 'id2', 'id3' ],
+                    tournamentGame: ['id1'],
+                    recordedScoreAsYouGo: ['id2', 'id3'],
                 }
             }, account);
             const button = context.container.querySelector('button');
@@ -140,7 +140,9 @@ describe('ExportDataButton', () => {
                 },
             };
             let openedWindow;
-            window.open = (url) => { openedWindow = url; }
+            window.open = (url) => {
+                openedWindow = url;
+            }
 
             await doClick(button);
 

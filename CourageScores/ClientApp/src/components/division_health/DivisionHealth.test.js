@@ -18,7 +18,9 @@ describe('DivisionHealth', () => {
     }
 
     beforeEach(() => {
-        apiResponse = (id) => { return { id: id, checks: { }, success: true, errors: [], warnings: [], messages: [] } };
+        apiResponse = (id) => {
+            return {id: id, checks: {}, success: true, errors: [], warnings: [], messages: []}
+        };
     });
 
     afterEach(() => {
@@ -28,8 +30,8 @@ describe('DivisionHealth', () => {
     async function renderComponent(divisionDataProps) {
         reportedError = null;
         context = await renderApp(
-            { seasonApi },
-            { },
+            {seasonApi},
+            {},
             {
                 onError: (err) => {
                     reportedError = {
@@ -39,7 +41,7 @@ describe('DivisionHealth', () => {
                 },
             },
             (<DivisionDataContainer {...divisionDataProps}>
-                <DivisionHealth />
+                <DivisionHealth/>
             </DivisionDataContainer>));
     }
 
@@ -98,7 +100,7 @@ describe('DivisionHealth', () => {
         apiResponse = () => {
             return {
                 success: true,
-                errors: [ 'some error' ],
+                errors: ['some error'],
                 warnings: [],
                 messages: [],
                 checks: {},
@@ -120,7 +122,7 @@ describe('DivisionHealth', () => {
             return {
                 success: true,
                 errors: [],
-                warnings: [ 'warning' ],
+                warnings: ['warning'],
                 messages: [],
                 checks: {},
             };
@@ -142,7 +144,7 @@ describe('DivisionHealth', () => {
                 success: true,
                 errors: [],
                 warnings: [],
-                messages: [ 'message' ],
+                messages: ['message'],
                 checks: {},
             };
         };

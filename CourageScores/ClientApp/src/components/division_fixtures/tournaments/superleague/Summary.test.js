@@ -38,18 +38,18 @@ describe('Summary', () => {
 
     function createLeg(homeWinner, awayWinner) {
         const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 100, bust: false, noOfDarts: 3},
+            {score: 110, bust: false, noOfDarts: 3},
+            {score: 120, bust: false, noOfDarts: 3},
+            {score: 81, bust: false, noOfDarts: 3},
         ];
         const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
         ];
 
         return {
@@ -67,7 +67,7 @@ describe('Summary', () => {
         it('when no sayg matches', async () => {
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ ],
+                saygMatches: [],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -80,8 +80,8 @@ describe('Summary', () => {
         it('correct row headings', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                     scoreA: 1,
                     scoreB: 2,
                 },
@@ -95,7 +95,7 @@ describe('Summary', () => {
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -114,8 +114,8 @@ describe('Summary', () => {
         it('sayg matches', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                     scoreA: 1,
                     scoreB: 2,
                 },
@@ -129,7 +129,7 @@ describe('Summary', () => {
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -147,8 +147,8 @@ describe('Summary', () => {
         it('total row', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                     scoreA: 1,
                     scoreB: 2,
                 },
@@ -162,7 +162,7 @@ describe('Summary', () => {
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -181,8 +181,8 @@ describe('Summary', () => {
         it('rounded average', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                     scoreA: 1,
                     scoreB: 2,
                 },
@@ -196,7 +196,7 @@ describe('Summary', () => {
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',
@@ -216,8 +216,8 @@ describe('Summary', () => {
         it('darts for windows average', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                     scoreA: 1,
                     scoreB: 2,
                 },
@@ -232,7 +232,7 @@ describe('Summary', () => {
 
             await renderComponent({
                 showWinner: false,
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
                 noOfLegs: 3,
                 host: 'HOST',
                 opponent: 'OPPONENT',

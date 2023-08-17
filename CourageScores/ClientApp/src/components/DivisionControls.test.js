@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {DivisionControls} from "./DivisionControls";
 import {createTemporaryId} from "../helpers/projection";
@@ -23,7 +23,7 @@ describe('DivisionControls', () => {
     let updatedDivision;
     const seasonApi = {
         update: (data, lastUpdated) => {
-            updatedSeason = { data, lastUpdated };
+            updatedSeason = {data, lastUpdated};
             return {
                 success: true
             }
@@ -31,7 +31,7 @@ describe('DivisionControls', () => {
     };
     const divisionApi = {
         update: (data, lastUpdated) => {
-            updatedDivision = { data, lastUpdated };
+            updatedDivision = {data, lastUpdated};
             return {
                 success: true
             }
@@ -54,8 +54,8 @@ describe('DivisionControls', () => {
         updatedSeason = null;
         updatedDivision = null;
         context = await renderApp(
-            { seasonApi, divisionApi },
-            { name: 'Courage Scores' },
+            {seasonApi, divisionApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -68,12 +68,14 @@ describe('DivisionControls', () => {
                 seasons,
                 reloadSeasons: () => {
                     reloadSeasonsCalled = true;
-                    return seasons; },
+                    return seasons;
+                },
                 reloadDivisions: () => {
                     reloadDivisionsCalled = true;
-                    return divisions; }
+                    return divisions;
+                }
             },
-            (<DivisionControls {...props} onDivisionOrSeasonChanged={divisionOrSeasonChanged} />),
+            (<DivisionControls {...props} onDivisionOrSeasonChanged={divisionOrSeasonChanged}/>),
             route,
             currentPath);
     }
@@ -143,17 +145,17 @@ describe('DivisionControls', () => {
             startDate: getDate(-1),
             endDate: getDate(2),
             name: 'Season 1',
-            divisions: [ division1, division2 ],
+            divisions: [division1, division2],
         };
         const season2 = {
             id: createTemporaryId(),
             startDate: getDate(2),
             endDate: getDate(4),
             name: 'Season 2',
-            divisions: [ division1 ],
+            divisions: [division1],
         };
-        const seasons = [ season1, season2 ];
-        const divisions = [ division1, division2 ];
+        const seasons = [season1, season2];
+        const divisions = [division1, division2];
 
         describe('when in season', () => {
             it('shows current season', async () => {
@@ -179,7 +181,7 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
-                    'Season 1 ' + seasonDates(season1) ]);
+                    'Season 1 ' + seasonDates(season1)]);
             });
 
             it('shows current division', async () => {
@@ -204,7 +206,7 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 1',
-                    'Division 2' ]);
+                    'Division 2']);
             });
         });
 
@@ -232,7 +234,7 @@ describe('DivisionControls', () => {
                 expect(reportedError).toBeNull();
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 2 ' + seasonDates(season2),
-                    'Season 1 ' + seasonDates(season1) ]);
+                    'Season 1 ' + seasonDates(season1)]);
             });
 
             it('shows all divisions', async () => {
@@ -255,7 +257,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions);
 
                 expect(reportedError).toBeNull();
-                expect(getOptions(getDivisionButtonGroup())).toEqual([ ]);
+                expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
     });
@@ -280,17 +282,17 @@ describe('DivisionControls', () => {
             startDate: getDate(-1),
             endDate: getDate(2),
             name: 'Season 3',
-            divisions: [ division3, division4 ],
+            divisions: [division3, division4],
         };
         const season4 = {
             id: createTemporaryId(),
             startDate: getDate(2),
             endDate: getDate(4),
             name: 'Season 4',
-            divisions: [ division3 ],
+            divisions: [division3],
         };
-        const seasons = [ season3, season4 ];
-        const divisions = [ division3, division4 ];
+        const seasons = [season3, season4];
+        const divisions = [division3, division4];
 
         describe('when in season', () => {
             it('shows current season', async () => {
@@ -318,7 +320,7 @@ describe('DivisionControls', () => {
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
-                    '➕ New season' ]);
+                    '➕ New season']);
             });
 
             it('shows current division', async () => {
@@ -344,7 +346,7 @@ describe('DivisionControls', () => {
                 expect(getOptions(getDivisionButtonGroup())).toEqual([
                     'Division 3',
                     'Division 4',
-                    '➕ New division' ]);
+                    '➕ New division']);
             });
         });
 
@@ -373,7 +375,7 @@ describe('DivisionControls', () => {
                 expect(getOptions(getSeasonButtonGroup())).toEqual([
                     'Season 4 ' + seasonDates(season4),
                     'Season 3 ' + seasonDates(season3),
-                    '➕ New season' ]);
+                    '➕ New season']);
             });
 
             it('shows all divisions', async () => {
@@ -396,7 +398,7 @@ describe('DivisionControls', () => {
                 }, account, seasons, divisions);
 
                 expect(reportedError).toBeNull();
-                expect(getOptions(getDivisionButtonGroup())).toEqual([ ]);
+                expect(getOptions(getDivisionButtonGroup())).toEqual([]);
             });
         });
     });
@@ -415,17 +417,17 @@ describe('DivisionControls', () => {
             startDate: getDate(-1),
             endDate: getDate(2),
             name: 'Season 5',
-            divisions: [ division5, division6 ],
+            divisions: [division5, division6],
         };
         const season6 = {
             id: createTemporaryId(),
             startDate: getDate(2),
             endDate: getDate(4),
             name: 'Season 6',
-            divisions: [ division5 ],
+            divisions: [division5],
         };
-        const seasons = [ season5, season6 ];
-        const divisions = [ division5, division6 ];
+        const seasons = [season5, season6];
+        const divisions = [division5, division6];
 
         describe('common', () => {
             const account = null;

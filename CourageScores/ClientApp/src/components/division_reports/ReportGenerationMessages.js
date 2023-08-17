@@ -1,7 +1,7 @@
 import {isEmpty} from "../../helpers/collections";
 import React from "react";
 
-export function ReportGenerationMessages({ messages }) {
+export function ReportGenerationMessages({messages}) {
     if (isEmpty(messages)) {
         return null;
     }

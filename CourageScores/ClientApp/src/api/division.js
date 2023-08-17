@@ -24,7 +24,7 @@ class DivisionApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Division`, Object.assign({ lastUpdated }, details));
+        return this.http.put(`/api/Division`, Object.assign({lastUpdated}, details));
     }
 
     delete(id) {
@@ -32,4 +32,4 @@ class DivisionApi {
     }
 }
 
-export { DivisionApi };
+export {DivisionApi};

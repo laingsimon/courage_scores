@@ -13,14 +13,14 @@ import {AdminContainer} from "./AdminContainer";
 import {Templates} from "./Templates";
 
 export function AdminHome() {
-    const { mode } = useParams();
-    const { dataApi, accountApi } = useDependencies();
-    const { account, appLoading, onError } = useApp();
+    const {mode} = useParams();
+    const {dataApi, accountApi} = useDependencies();
+    const {account, appLoading, onError} = useApp();
     const effectiveTab = mode || 'user';
     const access = (account ? account.access : null) || {};
-    const [ dataTables, setDataTables ] = useState(null);
-    const [ accounts, setAccounts ] = useState(null);
-    const [ adminLoading, setAdminLoading ] = useState(true);
+    const [dataTables, setDataTables] = useState(null);
+    const [accounts, setAccounts] = useState(null);
+    const [adminLoading, setAdminLoading] = useState(true);
 
     async function loadTables() {
         try {
@@ -38,11 +38,11 @@ export function AdminHome() {
     }
 
     useEffect(() => {
-        // noinspection JSIgnoredPromiseFromCall
-        loadTables();
-    },
-    // eslint-disable-next-line
-    [])
+            // noinspection JSIgnoredPromiseFromCall
+            loadTables();
+        },
+        // eslint-disable-next-line
+        [])
 
     try {
         return (<div>
@@ -69,7 +69,7 @@ export function AdminHome() {
                              to={`/admin/templates`}>Templates</NavLink>
                 </li>) : null}
             </ul>) : null}
-            {!appLoading && adminLoading ? <Loading /> : (<AdminContainer tables={dataTables} accounts={accounts}>
+            {!appLoading && adminLoading ? <Loading/> : (<AdminContainer tables={dataTables} accounts={accounts}>
                 {!account && !appLoading ? (<NotPermitted/>) : null}
                 {!appLoading && access.manageAccess && effectiveTab === 'user' ? (<UserAdmin/>) : null}
                 {!appLoading && access.importData && effectiveTab === 'import' ? (<ImportData/>) : null}

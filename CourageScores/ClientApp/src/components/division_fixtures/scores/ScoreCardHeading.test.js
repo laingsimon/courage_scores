@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
@@ -27,8 +27,8 @@ describe('ScoreCardHeading', () => {
         updatedFixtureData = null;
         updatedSubmission = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -46,7 +46,7 @@ describe('ScoreCardHeading', () => {
                     winner={winner}
                     submission={submission}
                     setSubmission={setSubmission}
-                    setFixtureData={setFixtureData} />
+                    setFixtureData={setFixtureData}/>
             </LeagueFixtureContainer>),
             null,
             null,

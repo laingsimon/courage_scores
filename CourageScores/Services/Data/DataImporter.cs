@@ -11,11 +11,11 @@ public class DataImporter : IDataImporter
 {
     private const string DryRunTableSuffix = "_import";
 
+    private readonly IReadOnlyCollection<TableDto> _currentTables;
     private readonly Database _database;
+    private readonly ScopedCacheManagementFlags _flags;
     private readonly ImportDataRequestDto _request;
     private readonly ImportDataResultDto _result;
-    private readonly IReadOnlyCollection<TableDto> _currentTables;
-    private readonly ScopedCacheManagementFlags _flags;
 
     public DataImporter(
         Database database,
@@ -58,9 +58,12 @@ public class DataImporter : IDataImporter
             }
 
             var files = zip.EnumerateFiles(table.Name).ToArray();
-            yield return $"{(_request.DryRun ? "DRY RUN: " : "")}Importing data into {tableName} ({files.Length} record/s)";
+            yield return
+                $"{(_request.DryRun ? "DRY RUN: " : "")}Importing data into {tableName} ({files.Length} record/s)";
 
-            Container container = await _database.CreateContainerIfNotExistsAsync(tableName, table.PartitionKey, cancellationToken: token);
+            Container container =
+                await _database.CreateContainerIfNotExistsAsync(tableName, table.PartitionKey,
+                    cancellationToken: token);
             await foreach (var message in ImportRecordsForTable(container, table, files, zip, token))
             {
                 yield return message;

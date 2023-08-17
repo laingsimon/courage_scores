@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Services.Season.Creation;
 [TestFixture]
 public class TemplateMatchContextTests
 {
-    private readonly SeasonDto _season = new SeasonDto();
+    private readonly SeasonDto _season = new();
 
     [Test]
     public void GetSeasonSharedAddresses_GivenNoDivisions_ReturnsEmpty()
@@ -25,8 +25,14 @@ public class TemplateMatchContextTests
     [Test]
     public void GetSeasonSharedAddresses_GivenTeams_ReturnsEmpty()
     {
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
-        var context = new TemplateMatchContext(_season, new[] { division }, new Dictionary<Guid, TeamDto[]>());
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division,
+        }, new Dictionary<Guid, TeamDto[]>());
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -36,14 +42,31 @@ public class TemplateMatchContextTests
     [Test]
     public void GetSeasonSharedAddresses_GivenAllTeamsWithDifferentAddresses_ReturnsEmpty()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>
         {
-            { division.Id, new[] { team1, team2 } }
+            {
+                division.Id, new[]
+                {
+                    team1, team2,
+                }
+            },
         };
-        var context = new TemplateMatchContext(_season, new[] { division }, teams);
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division,
+        }, teams);
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -53,15 +76,37 @@ public class TemplateMatchContextTests
     [Test]
     public void GetSeasonSharedAddresses_GivenSomeTeamsWithSharedAddressesInADivision_ReturnsEmpty()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "A" };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "A",
+        };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>
         {
-            { division.Id, new[] { team1, team2, team3 } }
+            {
+                division.Id, new[]
+                {
+                    team1,
+                    team2,
+                    team3,
+                }
+            },
         };
-        var context = new TemplateMatchContext(_season, new[] { division }, teams);
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division,
+        }, teams);
 
         var result = context.GetSeasonSharedAddresses();
 
@@ -71,70 +116,211 @@ public class TemplateMatchContextTests
     [Test]
     public void GetSeasonSharedAddresses_GivenSomeTeamsWithSharedAddressesAcrossDivisions_ReturnsSharedAddresses()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "A" };
-        var team4 = new TeamDto { Address = "C" };
-        var team5 = new TeamDto { Address = "B" };
-        var team6 = new TeamDto { Address = "C" };
-        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
-        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team4 = new TeamDto
+        {
+            Address = "C",
+        };
+        var team5 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team6 = new TeamDto
+        {
+            Address = "C",
+        };
+        var division1 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division2 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>
         {
-            { division1.Id, new[] { team1, team2, team3 } },
-            { division2.Id, new[] { team4, team5, team6 } },
+            {
+                division1.Id, new[]
+                {
+                    team1,
+                    team2,
+                    team3,
+                }
+            },
+            {
+                division2.Id, new[]
+                {
+                    team4,
+                    team5,
+                    team6,
+                }
+            },
         };
-        var context = new TemplateMatchContext(_season, new[] { division1, division2 }, teams);
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division1, division2,
+        }, teams);
 
         var result = context.GetSeasonSharedAddresses();
 
-        Assert.That(result, Is.EquivalentTo(new[] { new[] { "B", "B" } }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            new[]
+            {
+                "B", "B",
+            },
+        }));
     }
 
     [Test]
     public void GetSeasonSharedAddresses_GivenSomeTeamsWithSharedAddressesAcrossDivisionsIncludingWhitespace_ReturnsSharedAddresses()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B " };
-        var team3 = new TeamDto { Address = "A " };
-        var team4 = new TeamDto { Address = "C" };
-        var team5 = new TeamDto { Address = "B" };
-        var team6 = new TeamDto { Address = "C " };
-        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
-        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B ",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "A ",
+        };
+        var team4 = new TeamDto
+        {
+            Address = "C",
+        };
+        var team5 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team6 = new TeamDto
+        {
+            Address = "C ",
+        };
+        var division1 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division2 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>
         {
-            { division1.Id, new[] { team1, team2, team3 } },
-            { division2.Id, new[] { team4, team5, team6 } },
+            {
+                division1.Id, new[]
+                {
+                    team1,
+                    team2,
+                    team3,
+                }
+            },
+            {
+                division2.Id, new[]
+                {
+                    team4,
+                    team5,
+                    team6,
+                }
+            },
         };
-        var context = new TemplateMatchContext(_season, new[] { division1, division2 }, teams);
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division1, division2,
+        }, teams);
 
         var result = context.GetSeasonSharedAddresses();
 
-        Assert.That(result, Is.EquivalentTo(new[] { new[] { "B", "B" } }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            new[]
+            {
+                "B", "B",
+            },
+        }));
     }
 
     [Test]
     public void GetSeasonSharedAddresses_GivenSomeTeamsWithSharedAddressesAcrossDivisionsInDifferentCase_ReturnsSharedAddresses()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "a" };
-        var team4 = new TeamDto { Address = "C" };
-        var team5 = new TeamDto { Address = "b" };
-        var team6 = new TeamDto { Address = "c" };
-        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
-        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "a",
+        };
+        var team4 = new TeamDto
+        {
+            Address = "C",
+        };
+        var team5 = new TeamDto
+        {
+            Address = "b",
+        };
+        var team6 = new TeamDto
+        {
+            Address = "c",
+        };
+        var division1 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division2 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>
         {
-            { division1.Id, new[] { team1, team2, team3 } },
-            { division2.Id, new[] { team4, team5, team6 } },
+            {
+                division1.Id, new[]
+                {
+                    team1,
+                    team2,
+                    team3,
+                }
+            },
+            {
+                division2.Id, new[]
+                {
+                    team4,
+                    team5,
+                    team6,
+                }
+            },
         };
-        var context = new TemplateMatchContext(_season, new[] { division1, division2 }, teams);
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division1, division2,
+        }, teams);
 
         var result = context.GetSeasonSharedAddresses();
 
-        Assert.That(result, Is.EquivalentTo(new[] { new[] { "B", "b" } }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            new[]
+            {
+                "B", "b",
+            },
+        }));
     }
 
     [Test]
@@ -154,8 +340,8 @@ public class TemplateMatchContextTests
         {
             Divisions =
             {
-                new DivisionTemplateDto()
-            }
+                new DivisionTemplateDto(),
+            },
         };
         var context = new TemplateMatchContext(_season, Array.Empty<DivisionDataDto>(), new Dictionary<Guid, TeamDto[]>());
 
@@ -167,8 +353,14 @@ public class TemplateMatchContextTests
     [Test]
     public void GetDivisionMappings_GivenTemplateDivisions_ReturnsEmpty()
     {
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
-        var context = new TemplateMatchContext(_season, new[] { division }, new Dictionary<Guid, TeamDto[]>());
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division,
+        }, new Dictionary<Guid, TeamDto[]>());
 
         var result = context.GetDivisionMappings(new TemplateDto());
 
@@ -182,11 +374,17 @@ public class TemplateMatchContextTests
         {
             Divisions =
             {
-                new DivisionTemplateDto()
-            }
+                new DivisionTemplateDto(),
+            },
         };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
-        var context = new TemplateMatchContext(_season, new[] { division }, new Dictionary<Guid, TeamDto[]>());
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var context = new TemplateMatchContext(_season, new[]
+        {
+            division,
+        }, new Dictionary<Guid, TeamDto[]>());
 
         var result = context.GetDivisionMappings(template).ToArray();
 
@@ -210,12 +408,26 @@ public class TemplateMatchContextTests
     [Test]
     public void SharedAddressesFromSeason_GivenUniqueAddressesForEachTeam_ReturnsEmpty()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "C" };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "C",
+        };
         var seasonDivision = new DivisionDataDto();
         var templateDivision = new DivisionTemplateDto();
-        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[] { team1, team2, team3 });
+        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[]
+        {
+            team1,
+            team2,
+            team3,
+        });
 
         var result = mapping.SharedAddressesFromSeason;
 
@@ -225,45 +437,105 @@ public class TemplateMatchContextTests
     [Test]
     public void SharedAddressesFromSeason_GivenSomeSharedAddresses_ReturnsTeamsWithSharedAddress()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "A" };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "A",
+        };
         var seasonDivision = new DivisionDataDto();
         var templateDivision = new DivisionTemplateDto();
-        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[] { team1, team2, team3 });
+        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[]
+        {
+            team1,
+            team2,
+            team3,
+        });
 
         var result = mapping.SharedAddressesFromSeason;
 
-        Assert.That(result, Is.EquivalentTo(new[] { new[] { team1, team3 } }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            new[]
+            {
+                team1, team3,
+            },
+        }));
     }
 
     [Test]
     public void SharedAddressesFromSeason_GivenSomeSharedAddressesIncludingWhitespace_ReturnsTeamsWithSharedAddress()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "A " };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "A ",
+        };
         var seasonDivision = new DivisionDataDto();
         var templateDivision = new DivisionTemplateDto();
-        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[] { team1, team2, team3 });
+        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[]
+        {
+            team1,
+            team2,
+            team3,
+        });
 
         var result = mapping.SharedAddressesFromSeason;
 
-        Assert.That(result, Is.EquivalentTo(new[] { new[] { team1, team3 } }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            new[]
+            {
+                team1, team3,
+            },
+        }));
     }
 
     [Test]
     public void SharedAddressesFromSeason_GivenSomeSharedAddressesDifferentCase_ReturnsTeamsWithSharedAddress()
     {
-        var team1 = new TeamDto { Address = "A" };
-        var team2 = new TeamDto { Address = "B" };
-        var team3 = new TeamDto { Address = "a" };
+        var team1 = new TeamDto
+        {
+            Address = "A",
+        };
+        var team2 = new TeamDto
+        {
+            Address = "B",
+        };
+        var team3 = new TeamDto
+        {
+            Address = "a",
+        };
         var seasonDivision = new DivisionDataDto();
         var templateDivision = new DivisionTemplateDto();
-        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[] { team1, team2, team3 });
+        var mapping = new TemplateMatchContext.DivisionSharedAddressMapping(seasonDivision, templateDivision, new[]
+        {
+            team1,
+            team2,
+            team3,
+        });
 
         var result = mapping.SharedAddressesFromSeason;
 
-        Assert.That(result, Is.EquivalentTo(new[] { new[] { team1, team3 } }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            new[]
+            {
+                team1, team3,
+            },
+        }));
     }
 }

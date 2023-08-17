@@ -13,7 +13,7 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class ZipBuilderFactoryTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private readonly DateTimeOffset _utcNow = DateTimeOffset.UtcNow;
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
     private Mock<ISystemClock> _clock = null!;
@@ -36,7 +36,10 @@ public class ZipBuilderFactoryTests
     [Test]
     public async Task Create_GivenPassword_CreatesZipFileWithPassword()
     {
-        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto { Password = "a password" }, _token);
+        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
+        {
+            Password = "a password",
+        }, _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
@@ -46,7 +49,10 @@ public class ZipBuilderFactoryTests
     [TestCase(null)]
     public async Task Create_GivenNoPassword_CreatesZipFileWithPassword(string password)
     {
-        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto { Password = password }, _token);
+        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
+        {
+            Password = password,
+        }, _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, password);
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
@@ -55,7 +61,10 @@ public class ZipBuilderFactoryTests
     [Test]
     public async Task Create_WhenLoggedIn_SerialisesMetaDataWithUserName()
     {
-        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto { Password = "a password" }, _token);
+        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
+        {
+            Password = "a password",
+        }, _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Creator, Is.EqualTo("USER"));
@@ -77,7 +86,10 @@ public class ZipBuilderFactoryTests
     {
         _httpContext.Request.Host = new HostString("hostname");
 
-        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto { Password = "a password" }, _token);
+        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
+        {
+            Password = "a password",
+        }, _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Hostname, Is.EqualTo("hostname"));
@@ -86,7 +98,10 @@ public class ZipBuilderFactoryTests
     [Test]
     public async Task Create_WhenLoggedIn_SerialisesMetaDataWithDateTime()
     {
-        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto { Password = "a password" }, _token);
+        var zipBuilder = await _factory.Create("USER", new ExportDataRequestDto
+        {
+            Password = "a password",
+        }, _token);
 
         var metaData = await AssertZipCanBeRead(zipBuilder, "a password");
         Assert.That(metaData.Created, Is.EqualTo(_utcNow.UtcDateTime));
@@ -99,7 +114,15 @@ public class ZipBuilderFactoryTests
         {
             Password = "a password",
 #pragma warning disable CS0618
-            Tables = { { "TABLE 1", new List<Guid>(new[] { Guid.Empty }) } }
+            Tables =
+            {
+                {
+                    "TABLE 1", new List<Guid>(new[]
+                    {
+                        Guid.Empty,
+                    })
+                },
+            },
 #pragma warning restore CS0618
         };
         var zipBuilder = await _factory.Create("USER", request, _token);

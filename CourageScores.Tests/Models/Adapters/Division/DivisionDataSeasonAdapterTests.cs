@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionDataSeasonAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionDataSeasonAdapter _adapter = new DivisionDataSeasonAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly DivisionDataSeasonAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenSeasonDto_SetsPropertiesCorrectly()
@@ -34,7 +34,10 @@ public class DivisionDataSeasonAdapterTests
         Assert.That(result.Name, Is.EqualTo(model.Name));
         Assert.That(result.StartDate, Is.EqualTo(model.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(model.EndDate));
-        Assert.That(result.Divisions, Is.EqualTo(new[] { division }));
+        Assert.That(result.Divisions, Is.EqualTo(new[]
+        {
+            division,
+        }));
         Assert.That(result.Updated, Is.EqualTo(model.Updated));
     }
 }

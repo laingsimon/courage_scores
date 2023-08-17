@@ -1,4 +1,4 @@
-export function MatchDartCount({ homeCount, awayCount, singlePlayer }) {
+export function MatchDartCount({homeCount, awayCount, singlePlayer}) {
     if (homeCount + awayCount === 0) {
         return null
     }

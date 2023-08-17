@@ -1,26 +1,25 @@
 // noinspection JSUnresolvedReference
 
-import React from "react";
-import { propChanged, handleChange } from './events';
+import {handleChange, propChanged} from './events';
 
 describe('events', () => {
     describe('propChanged', () => {
         it('updates single property when named', () => {
             let newValue;
 
-            const func = propChanged({ name: 'Simon', age: 40 }, v => newValue = v, 'name');
+            const func = propChanged({name: 'Simon', age: 40}, v => newValue = v, 'name');
             func('Laing');
 
-            expect(newValue).toEqual({ name: 'Laing', age: 40 });
+            expect(newValue).toEqual({name: 'Laing', age: 40});
         });
 
         it('allows property to be provided at update time', () => {
             let newValue;
 
-            const func = propChanged({ name: 'Simon', age: 40 }, v => newValue = v);
+            const func = propChanged({name: 'Simon', age: 40}, v => newValue = v);
             func('name', 'Laing');
 
-            expect(newValue).toEqual({ name: 'Laing', age: 40 });
+            expect(newValue).toEqual({name: 'Laing', age: 40});
         });
     });
 
@@ -42,7 +41,9 @@ describe('events', () => {
 
         it('should return event-handler that supports checkboxes', async () => {
             let handled = null;
-            const eventHandler = handleChange((name, value) => { handled = { name, value }; });
+            const eventHandler = handleChange((name, value) => {
+                handled = {name, value};
+            });
             const event = {
                 target: {
                     name: 'foo',
@@ -59,7 +60,9 @@ describe('events', () => {
 
         it('should return event-handler that supports inputs', async () => {
             let handled = null;
-            const eventHandler = handleChange((name, value) => { handled = { name, value }; });
+            const eventHandler = handleChange((name, value) => {
+                handled = {name, value};
+            });
             const event = {
                 target: {
                     name: 'foo',

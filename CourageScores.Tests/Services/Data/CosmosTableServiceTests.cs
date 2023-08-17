@@ -13,7 +13,7 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class CosmosTableServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<Database> _database = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IJsonSerializerService> _jsonSerializer = null!;
@@ -42,7 +42,7 @@ public class CosmosTableServiceTests
             {
                 ExportData = true,
                 ImportData = true,
-            }
+            },
         };
         _database
             .Setup(d => d.GetContainerQueryStreamIterator((string?)null, null, null))
@@ -63,7 +63,12 @@ public class CosmosTableServiceTests
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
 
-        Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
+        Assert.That(tableAccessors.Select(a => a.TableName), Is.EquivalentTo(new[]
+        {
+            "game",
+            "tournamentgame",
+            "team",
+        }));
     }
 
     [TestCase(true, nameof(Game))]
@@ -79,13 +84,21 @@ public class CosmosTableServiceTests
         var request = new ExportDataRequestDto
         {
 #pragma warning disable CS0618
-            Tables = { { requestTable, new List<Guid>() } }
+            Tables =
+            {
+                {
+                    requestTable, new List<Guid>()
+                },
+            },
 #pragma warning restore CS0618
         };
 
         var tableAccessors = await _service.GetTables(request, _token).ToList();
 
-        Assert.That(tableAccessors.Select(a => a.TableName), Is.EqualTo(new[] { "game" }));
+        Assert.That(tableAccessors.Select(a => a.TableName), Is.EqualTo(new[]
+        {
+            "game",
+        }));
     }
 
     [Test]
@@ -94,7 +107,12 @@ public class CosmosTableServiceTests
         _user = null;
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
+        {
+            "game",
+            "tournamentgame",
+            "team",
+        }));
     }
 
     [Test]
@@ -102,8 +120,18 @@ public class CosmosTableServiceTests
     {
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
-        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[] { "game_dev", "tournamentgame_dev", "team_dev" }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
+        {
+            "game",
+            "tournamentgame",
+            "team",
+        }));
+        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[]
+        {
+            "game_dev",
+            "tournamentgame_dev",
+            "team_dev",
+        }));
     }
 
     [Test]
@@ -111,8 +139,18 @@ public class CosmosTableServiceTests
     {
         var tables = await _service.GetTables(_token).ToList();
 
-        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[] { "game", "tournamentgame", "team" }));
-        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[] { "game_dev", "tournamentgame_dev", "team_dev" }));
+        Assert.That(tables.Select(a => a.Name), Is.EquivalentTo(new[]
+        {
+            "game",
+            "tournamentgame",
+            "team",
+        }));
+        Assert.That(tables.Select(a => a.EnvironmentalName), Is.EquivalentTo(new[]
+        {
+            "game_dev",
+            "tournamentgame_dev",
+            "team_dev",
+        }));
         Assert.That(tables.Select(a => a.PartitionKey), Has.All.EqualTo("/id"));
         Assert.That(tables.Select(a => a.DataType), Has.All.Not.Null);
     }
@@ -204,7 +242,7 @@ public class CosmosTableServiceTests
 
             return Task.FromResult(new ResponseMessage
             {
-                Content = stream
+                Content = stream,
             });
         }
 
@@ -217,7 +255,10 @@ public class CosmosTableServiceTests
                     Id = t,
                     PartitionKey = new ContainerItemJson.PartitionKeyPaths
                     {
-                        Paths = { "/id" }
+                        Paths =
+                        {
+                            "/id",
+                        },
                     },
                 }).ToList(),
             };

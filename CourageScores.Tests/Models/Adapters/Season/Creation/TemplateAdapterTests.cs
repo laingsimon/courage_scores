@@ -10,11 +10,11 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class TemplateAdapterTests
 {
-    private static readonly List<string> SharedAddress = new List<string>();
-    private static readonly List<TeamPlaceholderDto> SharedAddressDto = new List<TeamPlaceholderDto>();
-    private static readonly DivisionTemplate DivisionTemplate = new DivisionTemplate();
-    private static readonly DivisionTemplateDto DivisionTemplateDto = new DivisionTemplateDto();
-    private readonly CancellationToken _token = new CancellationToken();
+    private static readonly List<string> SharedAddress = new();
+    private static readonly List<TeamPlaceholderDto> SharedAddressDto = new();
+    private static readonly DivisionTemplate DivisionTemplate = new();
+    private static readonly DivisionTemplateDto DivisionTemplateDto = new();
+    private readonly CancellationToken _token = new();
     private TemplateAdapter _adapter = null!;
     private ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter = null!;
     private ISimpleAdapter<DivisionTemplate, DivisionTemplateDto> _divisionTemplateAdapter = null!;
@@ -36,7 +36,7 @@ public class TemplateAdapterTests
         {
             SharedAddresses =
             {
-                SharedAddressDto
+                SharedAddressDto,
             },
             Id = Guid.NewGuid(),
             Name = "Template name",
@@ -49,10 +49,16 @@ public class TemplateAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.SharedAddresses, Is.EqualTo(new[] { SharedAddress }));
+        Assert.That(result.SharedAddresses, Is.EqualTo(new[]
+        {
+            SharedAddress,
+        }));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.Divisions, Is.EqualTo(new[] { DivisionTemplate }));
+        Assert.That(result.Divisions, Is.EqualTo(new[]
+        {
+            DivisionTemplate,
+        }));
         Assert.That(result.TemplateHealth, Is.SameAs(dto.TemplateHealth));
     }
 
@@ -77,7 +83,7 @@ public class TemplateAdapterTests
         {
             SharedAddresses =
             {
-                SharedAddress
+                SharedAddress,
             },
             Id = Guid.NewGuid(),
             Name = "Template name",
@@ -90,10 +96,16 @@ public class TemplateAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.SharedAddresses, Is.EqualTo(new[] { SharedAddressDto }));
+        Assert.That(result.SharedAddresses, Is.EqualTo(new[]
+        {
+            SharedAddressDto,
+        }));
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.Divisions, Is.EqualTo(new[] { DivisionTemplateDto }));
+        Assert.That(result.Divisions, Is.EqualTo(new[]
+        {
+            DivisionTemplateDto,
+        }));
         Assert.That(result.TemplateHealth, Is.SameAs(model.TemplateHealth));
     }
 }

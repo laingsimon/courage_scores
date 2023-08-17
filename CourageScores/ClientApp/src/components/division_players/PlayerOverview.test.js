@@ -18,8 +18,8 @@ describe('PlayerOverview', () => {
     async function renderComponent(playerId, divisionData) {
         reportedError = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -29,7 +29,7 @@ describe('PlayerOverview', () => {
                 }
             },
             (<DivisionDataContainer {...divisionData}>
-                <PlayerOverview playerId={playerId} />
+                <PlayerOverview playerId={playerId}/>
             </DivisionDataContainer>));
     }
 
@@ -62,15 +62,15 @@ describe('PlayerOverview', () => {
             winPercentage: 6,
             oneEighties: 7,
             over100Checkouts: 8,
-            fixtures: { }
+            fixtures: {}
         };
 
         it('player and team details', async () => {
             await renderComponent(
                 player.id,
                 {
-                    teams: [ team ],
-                    players: [ player ],
+                    teams: [team],
+                    players: [player],
                     fixtures: [],
                     id: division.id,
                     name: division.name,
@@ -91,9 +91,9 @@ describe('PlayerOverview', () => {
             await renderComponent(
                 createTemporaryId(),
                 {
-                    teams: [ team ],
-                    players: [ player ],
-                    fixtures: [ ],
+                    teams: [team],
+                    players: [player],
+                    fixtures: [],
                     id: division.id,
                     name: division.name,
                     season,
@@ -107,9 +107,9 @@ describe('PlayerOverview', () => {
             await renderComponent(
                 player.id,
                 {
-                    teams: [ team ],
-                    players: [ player ],
-                    fixtures: [ ],
+                    teams: [team],
+                    players: [player],
+                    fixtures: [],
                     id: division.id,
                     name: division.name,
                     season,
@@ -119,7 +119,7 @@ describe('PlayerOverview', () => {
             const table = context.container.querySelector('table.table');
             expect(table).toBeTruthy();
             const headings = Array.from(table.querySelectorAll('thead tr th')).map(th => th.textContent);
-            expect(headings).toEqual(['Date','Home','','vs','','Away']);
+            expect(headings).toEqual(['Date', 'Home', '', 'vs', '', 'Away']);
         });
 
         it('league fixture', async () => {
@@ -136,17 +136,17 @@ describe('PlayerOverview', () => {
             };
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
-                fixtures: [ fixture ],
+                fixtures: [fixture],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({ }, player);
+            const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
                 {
-                    teams: [ team ],
-                    players: [ playerWithLeagueFixture ],
-                    fixtures: [ fixtureDate ],
+                    teams: [team],
+                    players: [playerWithLeagueFixture],
+                    fixtures: [fixtureDate],
                     id: division.id,
                     name: division.name,
                     season,
@@ -190,17 +190,17 @@ describe('PlayerOverview', () => {
             };
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
-                fixtures: [ fixture ],
+                fixtures: [fixture],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({ }, player);
+            const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
                 {
-                    teams: [ team ],
-                    players: [ playerWithLeagueFixture ],
-                    fixtures: [ fixtureDate ],
+                    teams: [team],
+                    players: [playerWithLeagueFixture],
+                    fixtures: [fixtureDate],
                     id: division.id,
                     name: division.name,
                     season,
@@ -245,17 +245,17 @@ describe('PlayerOverview', () => {
             };
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
-                fixtures: [ fixture ],
+                fixtures: [fixture],
                 tournamentFixtures: []
             };
-            const playerWithLeagueFixture = Object.assign({ }, player);
+            const playerWithLeagueFixture = Object.assign({}, player);
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
             await renderComponent(
                 playerWithLeagueFixture.id,
                 {
-                    teams: [ team ],
-                    players: [ playerWithLeagueFixture ],
-                    fixtures: [ fixtureDate ],
+                    teams: [team],
+                    players: [playerWithLeagueFixture],
+                    fixtures: [fixtureDate],
                     id: division.id,
                     name: division.name,
                     season,
@@ -289,7 +289,7 @@ describe('PlayerOverview', () => {
             const tournamentFixture = {
                 id: createTemporaryId(),
                 proposed: false,
-                players: [ player.id ],
+                players: [player.id],
                 type: 'TYPE',
                 address: 'ADDRESS',
                 winningSide: null,
@@ -297,14 +297,14 @@ describe('PlayerOverview', () => {
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
                 fixtures: [],
-                tournamentFixtures: [ tournamentFixture ]
+                tournamentFixtures: [tournamentFixture]
             };
             await renderComponent(
                 player.id,
                 {
-                    teams: [ team ],
-                    players: [ player ],
-                    fixtures: [ fixtureDate ],
+                    teams: [team],
+                    players: [player],
+                    fixtures: [fixtureDate],
                     id: division.id,
                     name: division.name,
                     season,
@@ -330,7 +330,7 @@ describe('PlayerOverview', () => {
             const tournamentFixture = {
                 id: createTemporaryId(),
                 proposed: false,
-                players: [ player.id ],
+                players: [player.id],
                 type: 'TYPE',
                 address: 'ADDRESS',
                 winningSide: {
@@ -340,14 +340,14 @@ describe('PlayerOverview', () => {
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
                 fixtures: [],
-                tournamentFixtures: [ tournamentFixture ]
+                tournamentFixtures: [tournamentFixture]
             };
             await renderComponent(
                 player.id,
                 {
-                    teams: [ team ],
-                    players: [ player ],
-                    fixtures: [ fixtureDate ],
+                    teams: [team],
+                    players: [player],
+                    fixtures: [fixtureDate],
                     id: division.id,
                     name: division.name,
                     season,
@@ -373,7 +373,7 @@ describe('PlayerOverview', () => {
             const tournamentFixture = {
                 id: createTemporaryId(),
                 proposed: true,
-                players: [ player.id ],
+                players: [player.id],
                 type: 'TYPE',
                 address: 'ADDRESS',
                 winningSide: {
@@ -383,14 +383,14 @@ describe('PlayerOverview', () => {
             const fixtureDate = {
                 date: '2023-05-06T00:00:00',
                 fixtures: [],
-                tournamentFixtures: [ tournamentFixture ]
+                tournamentFixtures: [tournamentFixture]
             };
             await renderComponent(
                 player.id,
                 {
-                    teams: [ team ],
-                    players: [ player ],
-                    fixtures: [ fixtureDate ],
+                    teams: [team],
+                    players: [player],
+                    fixtures: [fixtureDate],
                     id: division.id,
                     name: division.name,
                     season,

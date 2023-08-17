@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doSelectOption, doClick, findButton, doChange} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
@@ -24,8 +24,8 @@ describe('EditTournament', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     if (err.message) {
@@ -62,7 +62,7 @@ describe('EditTournament', () => {
                     name: 'SIDE 1',
                     players: [],
                     teamId: null,
-                },{
+                }, {
                     id: createTemporaryId(),
                     name: 'ANOTHER SIDE',
                     players: [],
@@ -87,7 +87,7 @@ describe('EditTournament', () => {
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
             const sideNames = Array.from(sides.querySelectorAll('div')).map(side => side.textContent);
-            expect(sideNames).toEqual([ 'ANOTHER SIDE', 'SIDE 1' ]);
+            expect(sideNames).toEqual(['ANOTHER SIDE', 'SIDE 1']);
         });
 
         it('rounds, when 2 or more sides', async () => {
@@ -100,7 +100,7 @@ describe('EditTournament', () => {
                     name: 'SIDE 1',
                     players: [],
                     teamId: null,
-                },{
+                }, {
                     id: createTemporaryId(),
                     name: 'ANOTHER SIDE',
                     players: [],
@@ -169,7 +169,7 @@ describe('EditTournament', () => {
                     name: 'SIDE 1',
                     players: [],
                     teamId: null,
-                },{
+                }, {
                     id: createTemporaryId(),
                     name: 'ANOTHER SIDE',
                     players: [],
@@ -241,12 +241,12 @@ describe('EditTournament', () => {
             };
             const tournamentData = {
                 round: {
-                    matches: [ {
+                    matches: [{
                         sideA: side1,
                         sideB: anotherSide,
                         scoreA: 1,
                         scoreB: 2,
-                    } ]
+                    }]
                 },
                 divisionId: null,
                 seasonId: season.id,
@@ -289,19 +289,19 @@ describe('EditTournament', () => {
             };
             const tournamentData = {
                 round: {
-                    matches: [ {
+                    matches: [{
                         sideA: side1,
                         sideB: anotherSide,
                         scoreA: 2,
                         scoreB: 2,
-                    } ],
+                    }],
                     nextRound: {
-                        matches: [ {
+                        matches: [{
                             sideA: side1,
                             sideB: anotherSide,
                             scoreA: 2,
                             scoreB: 1,
-                        } ],
+                        }],
                         nextRound: null
                     }
                 },
@@ -345,10 +345,10 @@ describe('EditTournament', () => {
         const team1 = {
             id: createTemporaryId(),
             name: 'TEAM 1',
-            seasons: [ {
+            seasons: [{
                 seasonId: season.id,
                 players: [],
-            } ],
+            }],
         };
 
         it('can add a side', async () => {
@@ -362,7 +362,7 @@ describe('EditTournament', () => {
                 round: null,
                 divisionId: null,
                 seasonId: season.id,
-                sides: [ existingSide ],
+                sides: [existingSide],
                 oneEighties: [],
                 over100Checkouts: [],
             };
@@ -375,7 +375,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -405,7 +405,7 @@ describe('EditTournament', () => {
                 round: null,
                 divisionId: null,
                 seasonId: season.id,
-                sides: [ existingSide ],
+                sides: [existingSide],
                 oneEighties: [],
                 over100Checkouts: [],
             };
@@ -418,7 +418,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -461,7 +461,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -499,7 +499,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -543,7 +543,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -573,7 +573,7 @@ describe('EditTournament', () => {
             const tournamentData = {
                 round: {
                     matches: [{
-                        sideA: { id: side.id, name: 'SIDE 1', teamId: team1.id },
+                        sideA: {id: side.id, name: 'SIDE 1', teamId: team1.id},
                         sideB: null,
                         scoreA: null,
                         scoreB: null,
@@ -594,7 +594,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -608,7 +608,7 @@ describe('EditTournament', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData.round.matches[0]).toEqual({
-                sideA: { id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: [] },
+                sideA: {id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: []},
                 sideB: null,
                 scoreA: null,
                 scoreB: null,
@@ -626,7 +626,7 @@ describe('EditTournament', () => {
                 round: {
                     matches: [{
                         sideA: null,
-                        sideB: { id: side.id, name: 'SIDE 1', teamId: team1.id },
+                        sideB: {id: side.id, name: 'SIDE 1', teamId: team1.id},
                         scoreA: null,
                         scoreB: null,
                     }],
@@ -646,7 +646,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -661,7 +661,7 @@ describe('EditTournament', () => {
             expect(reportedError).toBeNull();
             expect(updatedData.round.matches[0]).toEqual({
                 sideA: null,
-                sideB: { id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: [] },
+                sideB: {id: side.id, name: 'NEW SIDE 1', teamId: team1.id, players: []},
                 scoreA: null,
                 scoreB: null,
             });
@@ -678,7 +678,7 @@ describe('EditTournament', () => {
                 round: {
                     matches: [{
                         sideA: null,
-                        sideB: { id: side.id, name: 'SIDE 1', teamId: team1.id },
+                        sideB: {id: side.id, name: 'SIDE 1', teamId: team1.id},
                         scoreA: null,
                         scoreB: null,
                     }],
@@ -698,7 +698,7 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const sides = context.container.querySelector('div > div > div:nth-child(2)');
@@ -751,12 +751,12 @@ describe('EditTournament', () => {
                 disabled: false,
                 saving: false,
                 canSave: true
-            }, account, [ team1 ]);
+            }, account, [team1]);
 
             const rounds = context.container.querySelector('div > div > div.mt-3:nth-child(3)');
             const round1SideA = rounds.querySelector('table tbody tr:first-child td:nth-child(1)');
             const sideOptions = Array.from(round1SideA.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(sideOptions.map(o => o.textContent)).toEqual([ 'SIDE 1' ]);
+            expect(sideOptions.map(o => o.textContent)).toEqual(['SIDE 1']);
         });
     });
 });

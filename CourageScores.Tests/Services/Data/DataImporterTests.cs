@@ -13,7 +13,7 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class DataImporterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<Database> _database = null!;
     private Mock<IZipFileReader> _zip = null!;
     private Mock<Container> _container = null!;
@@ -42,12 +42,12 @@ public class DataImporterTests
         _container = new Mock<Container>();
         _currentTables = new List<TableDto>
         {
-            new TableDto
+            new()
             {
                 Name = "TABLE",
                 EnvironmentalName = "TABLE_dev",
-                PartitionKey = "/id"
-            }
+                PartitionKey = "/id",
+            },
         };
         _upsertResult = new MockItemResponse<JObject>(statusCode: HttpStatusCode.Created);
         _importer = new DataImporter(_database.Object, _request, _result, _currentTables, _flags);
@@ -69,7 +69,7 @@ public class DataImporterTests
     {
         var tablesToImport = new[]
         {
-            "TABLE1"
+            "TABLE1",
         };
 
         var result = await _importer.ImportData(tablesToImport, _zip.Object, _token).ToList();
@@ -83,7 +83,7 @@ public class DataImporterTests
     {
         var tablesToImport = new[]
         {
-            tableToImport
+            tableToImport,
         };
 
         var result = await _importer.ImportData(tablesToImport, _zip.Object, _token).ToList();
@@ -216,7 +216,7 @@ public class DataImporterTests
         _request.DryRun = dryRun;
         var tablesToImport = new[]
         {
-            "TABLE1"
+            "TABLE1",
         };
 
         var result = await _importer.PurgeData(tablesToImport, _token).ToList();
@@ -234,7 +234,7 @@ public class DataImporterTests
         _database.Setup(d => d.GetContainer("TABLE_dev")).Returns(_container.Object);
         var tablesToImport = new[]
         {
-            tableToImport
+            tableToImport,
         };
 
         var result = await _importer.PurgeData(tablesToImport, _token).ToList();
@@ -252,7 +252,7 @@ public class DataImporterTests
         _database.Setup(d => d.GetContainer("TABLE_dev")).Returns(_container.Object);
         var tablesToImport = new[]
         {
-            tableToImport
+            tableToImport,
         };
 
         var result = await _importer.PurgeData(tablesToImport, _token).ToList();

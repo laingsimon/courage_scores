@@ -16,10 +16,17 @@ namespace CourageScores.Tests.Services;
 [TestFixture]
 public class CachingDataServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private TeamDto? _dto = new TeamDto();
-    private readonly List<TeamDto> _someDtos = new() { new TeamDto() };
-    private readonly List<TeamDto> _allDtos = new() { new TeamDto(), new TeamDto() };
+    private readonly CancellationToken _token = new();
+    private TeamDto? _dto = new();
+    private readonly List<TeamDto> _someDtos = new()
+    {
+        new TeamDto(),
+    };
+    private readonly List<TeamDto> _allDtos = new()
+    {
+        new TeamDto(),
+        new TeamDto(),
+    };
     private CachingDataService<CosmosTeam, TeamDto> _service = null!;
     private Mock<IGenericDataService<CosmosTeam, TeamDto>> _underlyingService = null!;
     private IMemoryCache _cache = null!;
@@ -69,7 +76,7 @@ public class CachingDataServiceTests
         var id = Guid.NewGuid();
         _user = new UserDto
         {
-            Access = new AccessDto()
+            Access = new AccessDto(),
         };
 
         var result = await _service.Get(id, _token);
@@ -114,7 +121,7 @@ public class CachingDataServiceTests
     {
         _user = new UserDto
         {
-            Access = new AccessDto()
+            Access = new AccessDto(),
         };
 
         var result = await _service.GetAll(_token).ToList();
@@ -157,7 +164,7 @@ public class CachingDataServiceTests
     {
         _user = new UserDto
         {
-            Access = new AccessDto()
+            Access = new AccessDto(),
         };
 
         var result = await _service.GetWhere("where", _token).ToList();

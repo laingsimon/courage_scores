@@ -16,7 +16,7 @@ namespace CourageScores.Tests.Services.Season;
 [TestFixture]
 public class SeasonServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<IGenericRepository<CosmosSeason>> _repository = null!;
     private IAdapter<CosmosSeason, SeasonDto> _adapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
@@ -35,7 +35,7 @@ public class SeasonServiceTests
             Access = new AccessDto
             {
                 ManageGames = true,
-            }
+            },
         };
         _season = new CosmosSeason
         {

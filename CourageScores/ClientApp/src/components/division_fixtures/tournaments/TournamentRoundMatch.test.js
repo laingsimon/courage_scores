@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange, doSelectOption} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
-import {toMap, any} from "../../../helpers/collections";
+import {any, toMap} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {TournamentContainer} from "./TournamentContainer";
 
@@ -21,7 +21,7 @@ describe('TournamentRoundMatch', () => {
     let updatedPatch;
     const tournamentApi = {
         addSayg: async (tournamentId, matchId, matchOptions) => {
-            createdSaygSessions.push({ tournamentId, matchId, matchOptions });
+            createdSaygSessions.push({tournamentId, matchId, matchOptions});
             const responseData = addSaygLookup.filter(l => l.match.id === matchId)[0];
 
             if (!responseData) {
@@ -43,7 +43,7 @@ describe('TournamentRoundMatch', () => {
         get: async (id) => {
             return saygApiData[id];
         },
-        upsert: async(data) => {
+        upsert: async (data) => {
             updatedSaygData = data;
             return {
                 success: true,
@@ -57,7 +57,7 @@ describe('TournamentRoundMatch', () => {
     });
 
     function onHiCheck(player, notes) {
-        hiChecks.push({ player, notes });
+        hiChecks.push({player, notes});
     }
 
     function on180(player) {
@@ -82,8 +82,8 @@ describe('TournamentRoundMatch', () => {
         updatedPatch = null;
         createdSaygSessions = [];
         context = await renderApp(
-            { tournamentApi, saygApi },
-            { name: 'Courage Scores' },
+            {tournamentApi, saygApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     if (err.message) {
@@ -96,16 +96,16 @@ describe('TournamentRoundMatch', () => {
                     }
                 },
                 account,
-                reportClientSideException: () => {},
+                reportClientSideException: noop,
             },
-            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}}>
+            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={noop}>
                 <TournamentRoundMatch
                     {...props}
                     onChange={updated => updatedRound = updated}
                     onMatchOptionsChanged={updated => updatedMatchOptions = updated}
                     onHiCheck={onHiCheck}
                     on180={on180}
-                    patchData={(patch) => updatedPatch = patch} />
+                    patchData={(patch) => updatedPatch = patch}/>
             </TournamentContainer>),
             null,
             null,
@@ -176,15 +176,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -204,15 +204,15 @@ describe('TournamentRoundMatch', () => {
                     sideA: sideA,
                     sideB: sideB,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -234,15 +234,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 3,
                     scoreB: 2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -263,15 +263,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 3,
                     scoreB: 0,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -290,15 +290,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 2,
                     scoreB: 3,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: true,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -319,15 +319,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 0,
                     scoreB: 3,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -346,15 +346,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -376,15 +376,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -397,7 +397,7 @@ describe('TournamentRoundMatch', () => {
             it('can open sayg if it exists', async () => {
                 const saygData = {
                     id: createTemporaryId(),
-                    legs: { }
+                    legs: {}
                 };
                 const match = {
                     sideA: sideA,
@@ -406,15 +406,15 @@ describe('TournamentRoundMatch', () => {
                     scoreB: 2,
                     saygId: saygData.id,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: true,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -444,18 +444,18 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                returnFromExceptSelected['sideA'] = [ sideC, sideD ];
-                returnFromExceptSelected['sideB'] = [ sideD, sideE ];
+                returnFromExceptSelected['sideA'] = [sideC, sideD];
+                returnFromExceptSelected['sideB'] = [sideD, sideE];
 
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                    sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -463,11 +463,11 @@ describe('TournamentRoundMatch', () => {
                 expect(reportedError).toBeNull();
                 const cells = Array.from(context.container.querySelectorAll('tr td'));
                 expect(cells.length).toEqual(6);
-                assertDropdown(cells[0], 'SIDE A', [ 'SIDE A', 'SIDE B', 'SIDE E' ]);
+                assertDropdown(cells[0], 'SIDE A', ['SIDE A', 'SIDE B', 'SIDE E']);
                 assertScore(cells[1], '1');
                 expect(cells[2].textContent).toEqual('vs');
                 assertScore(cells[3], '2');
-                assertDropdown(cells[4], 'SIDE B', [ 'SIDE A', 'SIDE B', 'SIDE C' ]);
+                assertDropdown(cells[4], 'SIDE B', ['SIDE A', 'SIDE B', 'SIDE C']);
             });
 
             it('can open match options', async () => {
@@ -477,15 +477,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -502,15 +502,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 1,
                     scoreB: 2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId(), singleRound: true } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId(), singleRound: true}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -524,12 +524,12 @@ describe('TournamentRoundMatch', () => {
                 const singlesSideA = {
                     id: createTemporaryId(),
                     name: 'A',
-                    players: [ { id: createTemporaryId(), name: 'A player' }],
+                    players: [{id: createTemporaryId(), name: 'A player'}],
                 };
                 const singlesSideB = {
                     id: createTemporaryId(),
                     name: 'B',
-                    players: [ { id: createTemporaryId(), name: 'B player' }],
+                    players: [{id: createTemporaryId(), name: 'B player'}],
                 };
                 const match = {
                     sideA: singlesSideA,
@@ -537,15 +537,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 0,
                     scoreB: 0,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ singlesSideA, singlesSideB ]),
+                    sideMap: toMap([singlesSideA, singlesSideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -559,12 +559,18 @@ describe('TournamentRoundMatch', () => {
                 const pairsSideA = {
                     id: createTemporaryId(),
                     name: 'A',
-                    players: [ { id: createTemporaryId(), name: 'A player 1' }, { id: createTemporaryId(), name: 'A player 2' } ],
+                    players: [{id: createTemporaryId(), name: 'A player 1'}, {
+                        id: createTemporaryId(),
+                        name: 'A player 2'
+                    }],
                 };
                 const pairsSideB = {
                     id: createTemporaryId(),
                     name: 'B',
-                    players: [ { id: createTemporaryId(), name: 'B player 1' }, { id: createTemporaryId(), name: 'B player 2' } ],
+                    players: [{id: createTemporaryId(), name: 'B player 1'}, {
+                        id: createTemporaryId(),
+                        name: 'B player 2'
+                    }],
                 };
                 const match = {
                     sideA: pairsSideA,
@@ -572,15 +578,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 0,
                     scoreB: 0,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ pairsSideA, pairsSideB ]),
+                    sideMap: toMap([pairsSideA, pairsSideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -594,13 +600,13 @@ describe('TournamentRoundMatch', () => {
                 const teamSideA = {
                     id: createTemporaryId(),
                     name: 'A',
-                    players: [ ],
+                    players: [],
                     teamId: createTemporaryId(),
                 };
                 const teamSideB = {
                     id: createTemporaryId(),
                     name: 'B',
-                    players: [ ],
+                    players: [],
                     teamId: createTemporaryId(),
                 };
                 const match = {
@@ -609,15 +615,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 0,
                     scoreB: 0,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ teamSideA, teamSideB ]),
+                    sideMap: toMap([teamSideA, teamSideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -634,15 +640,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 3,
                     scoreB: 0,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -661,15 +667,15 @@ describe('TournamentRoundMatch', () => {
                     scoreA: 0,
                     scoreB: 3,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     readOnly: false,
                     match: match,
                     hasNextRound: false,
-                    sideMap: toMap([ sideA, sideB ]),
+                    sideMap: toMap([sideA, sideB]),
                     exceptSelected: exceptSelected,
                     matchIndex: 0,
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                     matchOptions: {},
                 }, account);
@@ -705,12 +711,12 @@ describe('TournamentRoundMatch', () => {
         const sideC = {
             id: createTemporaryId(),
             name: 'SIDE C',
-            players: [ playerSideA, playerSideB ],
+            players: [playerSideA, playerSideB],
         };
         const sideD = {
             id: createTemporaryId(),
             name: 'SIDE D',
-            players: [ playerSideA, playerSideB ],
+            players: [playerSideA, playerSideB],
         };
         const sideE = {
             id: createTemporaryId(),
@@ -733,7 +739,7 @@ describe('TournamentRoundMatch', () => {
 
         beforeEach(() => {
             returnFromExceptSelected = {};
-            console.log = () => {};
+            console.log = noop;
         });
 
         it('can open sayg', async () => {
@@ -748,26 +754,26 @@ describe('TournamentRoundMatch', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
             }
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions,
             }, account);
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             addSaygLookup.push({
                 match: match,
                 success: true,
                 result: {
                     id: createTemporaryId(),
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                 },
                 saygId: saygData.id,
@@ -798,33 +804,33 @@ describe('TournamentRoundMatch', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
             }
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions,
             }, account);
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             addSaygLookup.push({
                 match: match,
                 success: true,
                 result: {
                     id: createTemporaryId(),
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                 },
                 saygId: saygData.id,
             });
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            tournamentApiResponse = { success: false, errors: [ 'SOME ERROR'] };
+            tournamentApiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(cells[0], '📊'));
 
@@ -845,33 +851,33 @@ describe('TournamentRoundMatch', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
             }
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions,
             }, account);
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             addSaygLookup.push({
                 match: match,
                 success: true,
                 result: {
                     id: createTemporaryId(),
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                 },
                 saygId: saygData.id,
             });
             saygApiData[saygData.id] = saygData;
             const cells = Array.from(context.container.querySelectorAll('tr td'));
-            tournamentApiResponse = { success: false, errors: [ 'SOME ERROR'] };
+            tournamentApiResponse = {success: false, errors: ['SOME ERROR']};
             await doClick(findButton(cells[0], '📊'));
             expect(context.container.textContent).toContain('Could not create sayg session');
 
@@ -891,26 +897,26 @@ describe('TournamentRoundMatch', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
             }
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions,
             }, account);
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             addSaygLookup.push({
                 match: match,
                 success: true,
                 result: {
                     id: createTemporaryId(),
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                 },
                 saygId: saygData.id,
@@ -939,26 +945,26 @@ describe('TournamentRoundMatch', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
             }
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions,
             }, account);
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             addSaygLookup.push({
                 match: match,
                 success: true,
                 result: {
                     id: createTemporaryId(),
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                 },
                 saygId: saygData.id,
@@ -983,26 +989,26 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 0,
                 scoreB: 0,
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             addSaygLookup.push({
                 match: match,
                 success: true,
                 result: {
                     id: createTemporaryId(),
                     round: {
-                        matches: [ match ]
+                        matches: [match]
                     },
                 },
                 saygId: saygData.id,
@@ -1019,7 +1025,7 @@ describe('TournamentRoundMatch', () => {
         });
 
         it('can open existing sayg', async () => {
-            const saygData = { legs: { 0: { startingScore: 501 } }, id: createTemporaryId(), };
+            const saygData = {legs: {0: {startingScore: 501}}, id: createTemporaryId(),};
             const match = {
                 sideA: sideA,
                 sideB: sideB,
@@ -1027,15 +1033,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 2,
                 saygId: saygData.id,
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1058,20 +1064,20 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
             saygApiData[match.saygId] = {
-                legs: { 0: { startingScore: 501, home: { throws: [], score: 0 }, away: { throws: [], score: 0 } } },
+                legs: {0: {startingScore: 501, home: {throws: [], score: 0}, away: {throws: [], score: 0}}},
                 yourName: 'SIDE A',
                 opponentName: 'SIDE B',
             };
@@ -1084,8 +1090,8 @@ describe('TournamentRoundMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedSaygData.legs[0].playerSequence).toEqual([
-                { text: 'SIDE A', value: 'home' },
-                { text: 'SIDE B', value: 'away' },
+                {text: 'SIDE A', value: 'home'},
+                {text: 'SIDE B', value: 'away'},
             ]);
         });
 
@@ -1097,15 +1103,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1113,12 +1119,12 @@ describe('TournamentRoundMatch', () => {
                 legs: {
                     0: {
                         playerSequence: [
-                            { text: 'SIDE A', value: 'home' },
-                            { text: 'SIDE B', value: 'away' },
+                            {text: 'SIDE A', value: 'home'},
+                            {text: 'SIDE B', value: 'away'},
                         ],
                         currentThrow: 'home',
-                        home: { throws: [], score: 0, startingScore: 501, },
-                        away: { throws: [], score: 0, startingScore: 501, },
+                        home: {throws: [], score: 0, startingScore: 501,},
+                        away: {throws: [], score: 0, startingScore: 501,},
                         homeScore: 0,
                         awayScore: 0,
                         startingScore: 501,
@@ -1145,15 +1151,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1161,12 +1167,12 @@ describe('TournamentRoundMatch', () => {
                 legs: {
                     0: {
                         playerSequence: [
-                            { text: 'SIDE A', value: 'home' },
-                            { text: 'SIDE B', value: 'away' },
+                            {text: 'SIDE A', value: 'home'},
+                            {text: 'SIDE B', value: 'away'},
                         ],
                         currentThrow: 'home',
-                        home: { throws: [], score: 0, startingScore: 501, },
-                        away: { throws: [], score: 0, startingScore: 501, },
+                        home: {throws: [], score: 0, startingScore: 501,},
+                        away: {throws: [], score: 0, startingScore: 501,},
                         homeScore: 0,
                         awayScore: 0,
                         startingScore: 501,
@@ -1193,15 +1199,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideC, sideD ]),
+                sideMap: toMap([sideC, sideD]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1209,12 +1215,12 @@ describe('TournamentRoundMatch', () => {
                 legs: {
                     0: {
                         playerSequence: [
-                            { text: 'SIDE C', value: 'home' },
-                            { text: 'SIDE D', value: 'away' },
+                            {text: 'SIDE C', value: 'home'},
+                            {text: 'SIDE D', value: 'away'},
                         ],
                         currentThrow: 'home',
-                        home: { throws: [], score: 0, startingScore: 501, },
-                        away: { throws: [], score: 0, startingScore: 501, },
+                        home: {throws: [], score: 0, startingScore: 501,},
+                        away: {throws: [], score: 0, startingScore: 501,},
                         homeScore: 0,
                         awayScore: 0,
                         startingScore: 501,
@@ -1241,15 +1247,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1257,12 +1263,12 @@ describe('TournamentRoundMatch', () => {
                 legs: {
                     0: {
                         playerSequence: [
-                            { text: 'SIDE B', value: 'away' },
-                            { text: 'SIDE A', value: 'home' },
+                            {text: 'SIDE B', value: 'away'},
+                            {text: 'SIDE A', value: 'home'},
                         ],
                         currentThrow: 'away',
-                        home: { throws: [ {} ], score: 200, startingScore: 501, },
-                        away: { throws: [ {} ], score: 350, startingScore: 501, },
+                        home: {throws: [{}], score: 200, startingScore: 501,},
+                        away: {throws: [{}], score: 350, startingScore: 501,},
                         homeScore: 200,
                         awayScore: 350,
                         startingScore: 501,
@@ -1292,15 +1298,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: true,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1308,12 +1314,12 @@ describe('TournamentRoundMatch', () => {
                 legs: {
                     0: {
                         playerSequence: [
-                            { text: 'SIDE B', value: 'away' },
-                            { text: 'SIDE A', value: 'home' },
+                            {text: 'SIDE B', value: 'away'},
+                            {text: 'SIDE A', value: 'home'},
                         ],
                         currentThrow: 'away',
-                        home: { throws: [ {} ], score: 200, startingScore: 501, },
-                        away: { throws: [ {} ], score: 350, startingScore: 501, },
+                        home: {throws: [{}], score: 200, startingScore: 501,},
+                        away: {throws: [{}], score: 350, startingScore: 501,},
                         homeScore: 200,
                         awayScore: 350,
                         startingScore: 501,
@@ -1340,15 +1346,15 @@ describe('TournamentRoundMatch', () => {
                 scoreB: 0,
                 saygId: createTemporaryId(),
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideC, sideD ]),
+                sideMap: toMap([sideC, sideD]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1356,12 +1362,12 @@ describe('TournamentRoundMatch', () => {
                 legs: {
                     0: {
                         playerSequence: [
-                            { text: 'SIDE C', value: 'away' },
-                            { text: 'SIDE D', value: 'home' },
+                            {text: 'SIDE C', value: 'away'},
+                            {text: 'SIDE D', value: 'home'},
                         ],
                         currentThrow: 'away',
-                        home: { throws: [ {} ], score: 200, startingScore: 501, },
-                        away: { throws: [ {} ], score: 350, startingScore: 501, },
+                        home: {throws: [{}], score: 200, startingScore: 501,},
+                        away: {throws: [{}], score: 350, startingScore: 501,},
                         homeScore: 200,
                         awayScore: 350,
                         startingScore: 501,
@@ -1387,15 +1393,15 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1416,15 +1422,15 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB ]),
+                sideMap: toMap([sideA, sideB]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1444,17 +1450,17 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            returnFromExceptSelected['sideA'] = [ sideC, sideD ];
-            returnFromExceptSelected['sideB'] = [ sideD, sideE ];
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            returnFromExceptSelected['sideA'] = [sideC, sideD];
+            returnFromExceptSelected['sideB'] = [sideD, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1464,7 +1470,7 @@ describe('TournamentRoundMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
-                matches: [ Object.assign({}, match, { scoreA: '5' }) ],
+                matches: [Object.assign({}, match, {scoreA: '5'})],
             });
         });
 
@@ -1475,17 +1481,17 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            returnFromExceptSelected['sideA'] = [ sideB, sideD ];
-            returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            returnFromExceptSelected['sideA'] = [sideB, sideD];
+            returnFromExceptSelected['sideB'] = [sideA, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1495,7 +1501,7 @@ describe('TournamentRoundMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
-                matches: [ Object.assign({}, match, { sideA: sideC }) ],
+                matches: [Object.assign({}, match, {sideA: sideC})],
             });
         });
 
@@ -1506,17 +1512,17 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            returnFromExceptSelected['sideA'] = [ sideC, sideD ];
-            returnFromExceptSelected['sideB'] = [ sideD, sideE ];
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            returnFromExceptSelected['sideA'] = [sideC, sideD];
+            returnFromExceptSelected['sideB'] = [sideD, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1526,7 +1532,7 @@ describe('TournamentRoundMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
-                matches: [ Object.assign({}, match, { scoreB: '5' }) ],
+                matches: [Object.assign({}, match, {scoreB: '5'})],
             });
         });
 
@@ -1537,17 +1543,17 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            returnFromExceptSelected['sideA'] = [ sideB, sideD ];
-            returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            returnFromExceptSelected['sideA'] = [sideB, sideD];
+            returnFromExceptSelected['sideB'] = [sideA, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
@@ -1557,7 +1563,7 @@ describe('TournamentRoundMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedRound).toEqual({
-                matches: [ Object.assign({}, match, { sideB: sideC }) ],
+                matches: [Object.assign({}, match, {sideB: sideC})],
             });
         });
 
@@ -1568,30 +1574,33 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            returnFromExceptSelected['sideA'] = [ sideB, sideD ];
-            returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            returnFromExceptSelected['sideA'] = [sideB, sideD];
+            returnFromExceptSelected['sideB'] = [sideA, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             let confirm;
-            window.confirm = (message) => { confirm = message; return true; };
+            window.confirm = (message) => {
+                confirm = message;
+                return true;
+            };
 
             await doClick(findButton(cells[5], '🗑'));
 
             expect(reportedError).toBeNull();
             expect(confirm).toEqual('Are you sure you want to remove this match?');
             expect(updatedRound).toEqual({
-                matches: [ ],
+                matches: [],
             });
         });
 
@@ -1602,23 +1611,26 @@ describe('TournamentRoundMatch', () => {
                 scoreA: 1,
                 scoreB: 2,
             };
-            returnFromExceptSelected['sideA'] = [ sideB, sideD ];
-            returnFromExceptSelected['sideB'] = [ sideA, sideE ];
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            returnFromExceptSelected['sideA'] = [sideB, sideD];
+            returnFromExceptSelected['sideB'] = [sideA, sideE];
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 readOnly: false,
                 match: match,
                 hasNextRound: false,
-                sideMap: toMap([ sideA, sideB, sideC, sideD, sideE ]),
+                sideMap: toMap([sideA, sideB, sideC, sideD, sideE]),
                 exceptSelected: exceptSelected,
                 matchIndex: 0,
                 round: {
-                    matches: [ match ]
+                    matches: [match]
                 },
                 matchOptions: {},
             }, account);
             const cells = Array.from(context.container.querySelectorAll('tr td'));
             let confirm;
-            window.confirm = (message) => { confirm = message; return false; };
+            window.confirm = (message) => {
+                confirm = message;
+                return false;
+            };
 
             await doClick(findButton(cells[5], '🗑'));
 

@@ -6,12 +6,22 @@ import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
 import {useTournament} from "./TournamentContainer";
 
-export function TournamentRound({ round, onChange, sides, readOnly, depth, onHiCheck, on180, patchData, allowNextRound }) {
-    const [ newMatch, setNewMatch ] = useState({});
+export function TournamentRound({
+                                    round,
+                                    onChange,
+                                    sides,
+                                    readOnly,
+                                    depth,
+                                    onHiCheck,
+                                    on180,
+                                    patchData,
+                                    allowNextRound
+                                }) {
+    const [newMatch, setNewMatch] = useState({});
     // noinspection JSUnresolvedVariable
     const allMatchesHaveAScore = round.matches && all(round.matches, current => hasScore(current.scoreA) && hasScore(current.scoreB));
     const sideMap = toMap(sides);
-    const { tournamentData, setWarnBeforeSave } = useTournament();
+    const {tournamentData, setWarnBeforeSave} = useTournament();
     const matchOptionDefaults = {
         startingScore: 501,
         numberOfLegs: tournamentData.bestOf || 5,
@@ -32,8 +42,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
 
         if (matchIndex === undefined) {
             allowedSideId = newMatch[property] ? newMatch[property].id : null;
-        }
-        else if (round.matches && round.matches[matchIndex] && round.matches[matchIndex][property]) {
+        } else if (round.matches && round.matches[matchIndex] && round.matches[matchIndex][property]) {
             allowedSideId = round.matches[matchIndex][property].id;
         }
 
@@ -91,9 +100,9 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
             const scoreB = Number.parseInt(match.scoreB);
 
             if (scoreA > scoreB) {
-                return [ match.sideA ];
+                return [match.sideA];
             } else if (scoreB > scoreA) {
-                return [ match.sideB ];
+                return [match.sideB];
             }
 
             return [];
@@ -105,7 +114,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
     }
 
     async function nestedRoundPatch(patch, nestInRound) {
-        await patchData(nestInRound ? { nextRound: patch } : patch, nestInRound);
+        await patchData(nestInRound ? {nextRound: patch} : patch, nestInRound);
     }
 
     async function onMatchOptionsChanged(newMatchOptions, matchIndex) {
@@ -126,50 +135,56 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
 
     return (<div className="mt-3">
         {changeRoundName && !readOnly
-            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)} value={round.name === null ? getRoundNameFromSides(round, sides.length, depth) : round.name} onBlur={() => setChangeRoundName(false)} />)
-            : (<strong title="Click to change" onClick={() => setChangeRoundName(true)}>{getRoundNameFromSides(round, sides.length, depth)}</strong>)}
-        <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}><tbody>
-        {(round.matches || []).map((match, matchIndex) => {
-            return (<TournamentRoundMatch
-                key={matchIndex}
-                hasNextRound={hasNextRound}
-                match={match}
-                round={round}
-                readOnly={readOnly}
-                sideMap={sideMap}
-                exceptSelected={exceptSelected}
-                matchIndex={matchIndex}
-                onChange={onChange}
-                matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
-                onMatchOptionsChanged={async (newMatchOptions) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
-                on180={on180}
-                onHiCheck={onHiCheck}
-                patchData={thisRoundPatch} />);
-        })}
-        {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
-            <td>
-                <BootstrapDropdown value={newMatch.sideA ? newMatch.sideA.id : null}
-                   onChange={(side) => setNewSide(side, 'sideA')}
-                   options={sides.filter(s => exceptSelected(s, undefined, 'sideA')).map(sideSelection)}
-                   className="margin-right" />
-            </td>
-            <td></td>
-            <td>vs</td>
-            <td></td>
-            <td>
-                <BootstrapDropdown value={newMatch.sideB ? newMatch.sideB.id : null}
-                   onChange={(side) => setNewSide(side, 'sideB')}
-                   options={sides.filter(s => exceptSelected(s, undefined, 'sideB')).map(sideSelection)}
-                   className="margin-right" />
-            </td>
-            <td>
-                <button disabled={readOnly} className="btn btn-primary btn-sm" onClick={addMatch}>➕</button>
-            </td>
-        </tr>)}
-        </tbody></table>
+            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)}
+                      value={round.name === null ? getRoundNameFromSides(round, sides.length, depth) : round.name}
+                      onBlur={() => setChangeRoundName(false)}/>)
+            : (<strong title="Click to change"
+                       onClick={() => setChangeRoundName(true)}>{getRoundNameFromSides(round, sides.length, depth)}</strong>)}
+        <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}>
+            <tbody>
+            {(round.matches || []).map((match, matchIndex) => {
+                return (<TournamentRoundMatch
+                    key={matchIndex}
+                    hasNextRound={hasNextRound}
+                    match={match}
+                    round={round}
+                    readOnly={readOnly}
+                    sideMap={sideMap}
+                    exceptSelected={exceptSelected}
+                    matchIndex={matchIndex}
+                    onChange={onChange}
+                    matchOptions={elementAt(round.matchOptions || [], matchIndex) || matchOptionDefaults}
+                    onMatchOptionsChanged={async (newMatchOptions) => await onMatchOptionsChanged(newMatchOptions, matchIndex)}
+                    on180={on180}
+                    onHiCheck={onHiCheck}
+                    patchData={thisRoundPatch}/>);
+            })}
+            {readOnly || allSidesSelected || hasNextRound ? null : (<tr className="bg-yellow p-1">
+                <td>
+                    <BootstrapDropdown value={newMatch.sideA ? newMatch.sideA.id : null}
+                                       onChange={(side) => setNewSide(side, 'sideA')}
+                                       options={sides.filter(s => exceptSelected(s, undefined, 'sideA')).map(sideSelection)}
+                                       className="margin-right"/>
+                </td>
+                <td></td>
+                <td>vs</td>
+                <td></td>
+                <td>
+                    <BootstrapDropdown value={newMatch.sideB ? newMatch.sideB.id : null}
+                                       onChange={(side) => setNewSide(side, 'sideB')}
+                                       options={sides.filter(s => exceptSelected(s, undefined, 'sideB')).map(sideSelection)}
+                                       className="margin-right"/>
+                </td>
+                <td>
+                    <button disabled={readOnly} className="btn btn-primary btn-sm" onClick={addMatch}>➕</button>
+                </td>
+            </tr>)}
+            </tbody>
+        </table>
         {allowNextRound && (hasNextRound || (allMatchesHaveAScore && any(round.matches) && sidesForTheNextRound().length > 1))
             ? (<TournamentRound round={round.nextRound || {}} onChange={subRoundChange} readOnly={readOnly}
-                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck} patchData={nestedRoundPatch} allowNextRound={allowNextRound} />)
+                                depth={(depth + 1)} sides={sidesForTheNextRound()} on180={on180} onHiCheck={onHiCheck}
+                                patchData={nestedRoundPatch} allowNextRound={allowNextRound}/>)
             : null}
     </div>);
 }

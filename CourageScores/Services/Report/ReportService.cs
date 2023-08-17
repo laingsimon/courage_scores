@@ -11,12 +11,12 @@ namespace CourageScores.Services.Report;
 
 public class ReportService : IReportService
 {
-    private readonly IUserService _userService;
-    private readonly ISeasonService _seasonService;
+    private readonly ISystemClock _clock;
     private readonly IDivisionService _divisionService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly ISeasonService _seasonService;
     private readonly IGenericRepository<TournamentGame> _tournamentRepository;
-    private readonly ISystemClock _clock;
+    private readonly IUserService _userService;
 
     public ReportService(
         IUserService userService,
@@ -105,7 +105,10 @@ public class ReportService : IReportService
         {
             DivisionId = request.DivisionId,
             SeasonId = request.SeasonId,
-            Messages = { reason },
+            Messages =
+            {
+                reason,
+            },
             Created = _clock.UtcNow.UtcDateTime,
         };
     }

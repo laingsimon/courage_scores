@@ -39,18 +39,18 @@ describe('MatchReport', () => {
 
     function createLeg(homeWinner, awayWinner) {
         const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 100, bust: false, noOfDarts: 3},
+            {score: 110, bust: false, noOfDarts: 3},
+            {score: 120, bust: false, noOfDarts: 3},
+            {score: 81, bust: false, noOfDarts: 3},
         ];
         const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
         ];
 
         return {
@@ -103,9 +103,9 @@ describe('MatchReport', () => {
             expect(reportedError).toBeNull();
             const rows = Array.from(context.container.querySelectorAll('thead tr'));
             expect(rows.length).toEqual(3);
-            expect(getRowContent(rows[0], 'th')).toEqual([ 'HOSTvOPPONENT']);
+            expect(getRowContent(rows[0], 'th')).toEqual(['HOSTvOPPONENT']);
             expect(rows[0].querySelector('th').colSpan).toEqual(23);
-            expect(getRowContent(rows[1], 'th')).toEqual([ '', 'Scores', '', '', 'Scores', '' ]);
+            expect(getRowContent(rows[1], 'th')).toEqual(['', 'Scores', '', '', 'Scores', '']);
             expect(rows[1].querySelectorAll('th')[1].colSpan).toEqual(4);
             expect(rows[1].querySelectorAll('th')[4].colSpan).toEqual(4);
             expect(getRowContent(rows[2], 'th')).toEqual([
@@ -118,8 +118,8 @@ describe('MatchReport', () => {
         it('sayg matches', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -140,7 +140,7 @@ describe('MatchReport', () => {
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
             });
 
             expect(reportedError).toBeNull();
@@ -155,8 +155,8 @@ describe('MatchReport', () => {
         it('legs won', async () => {
             const saygMatch = {
                 match: {
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -177,7 +177,7 @@ describe('MatchReport', () => {
                 gender: 'GENDER',
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ],
+                saygMatches: [saygMatch],
             });
 
             expect(reportedError).toBeNull();

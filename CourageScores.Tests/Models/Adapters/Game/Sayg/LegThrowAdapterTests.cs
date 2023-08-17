@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class LegThrowAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly LegThrowAdapter _adapter = new LegThrowAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly LegThrowAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()

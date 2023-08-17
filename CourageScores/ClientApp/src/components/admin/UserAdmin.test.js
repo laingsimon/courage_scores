@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, noop, renderApp} from "../../helpers/tests";
 import React from "react";
 import {UserAdmin} from "./UserAdmin";
 import {AdminContainer} from "./AdminContainer";
@@ -15,7 +15,7 @@ describe('UserAdmin', () => {
     const accountApi = {
         update: (update) => {
             updatedAccess = update;
-            return apiResponse || { success: true };
+            return apiResponse || {success: true};
         }
     };
 
@@ -29,8 +29,8 @@ describe('UserAdmin', () => {
         updatedAccess = null;
         apiResponse = null;
         context = await renderApp(
-            { accountApi },
-            { name: 'Courage Scores' },
+            {accountApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -39,11 +39,13 @@ describe('UserAdmin', () => {
                     };
                 },
                 account,
-                reloadAccount: () => { accountReloaded = true; },
-                reportClientSideException: () => {},
+                reloadAccount: () => {
+                    accountReloaded = true;
+                },
+                reportClientSideException: noop,
             },
             (<AdminContainer accounts={accounts}>
-                <UserAdmin />
+                <UserAdmin/>
             </AdminContainer>));
     }
 
@@ -59,7 +61,7 @@ describe('UserAdmin', () => {
             name: 'Test 1',
         };
 
-        await renderComponent( [ account ], account);
+        await renderComponent([account], account);
 
         expect(reportedError).toBeNull();
         expect(context.container.textContent).toContain('Manage access');
@@ -71,7 +73,7 @@ describe('UserAdmin', () => {
             emailAddress: 'a@b.com',
             name: 'Test 1',
         };
-        await renderComponent( [ account ], account);
+        await renderComponent([account], account);
 
         await doClick(context.container, 'input[id="showEmailAddress"]');
 
@@ -91,7 +93,7 @@ describe('UserAdmin', () => {
             emailAddress: 'c@d.com',
             name: 'Test 1',
         };
-        await renderComponent( [ account, otherAccount ], account);
+        await renderComponent([account, otherAccount], account);
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Test 1');
 
@@ -115,7 +117,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        await renderComponent( [ account, otherAccount ], account);
+        await renderComponent([account, otherAccount], account);
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
 
@@ -139,7 +141,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        await renderComponent( [ account, otherAccount ], account);
+        await renderComponent([account, otherAccount], account);
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
         await doClick(getAccess('manageGames'));
 
@@ -170,10 +172,10 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        await renderComponent( [ account, otherAccount ], account);
+        await renderComponent([account, otherAccount], account);
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
         await doClick(getAccess('manageGames'));
-        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        apiResponse = {success: false, errors: ['SOME ERROR']};
 
         await doClick(findButton(context.container, 'Set access'));
 
@@ -197,10 +199,10 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        await renderComponent( [ account, otherAccount ], account);
+        await renderComponent([account, otherAccount], account);
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Other user');
         await doClick(getAccess('manageGames'));
-        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        apiResponse = {success: false, errors: ['SOME ERROR']};
         await doClick(findButton(context.container, 'Set access'));
         expect(context.container.textContent).toContain('Could not save access');
 
@@ -224,7 +226,7 @@ describe('UserAdmin', () => {
                 manageAccess: true,
             }
         };
-        await renderComponent( [ account, otherAccount ], account);
+        await renderComponent([account, otherAccount], account);
         await doClick(getAccess('manageGames'));
 
         await doClick(findButton(context.container, 'Set access'));

@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddErrorCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private AddErrorCommand _command = null!;
     private ErrorDetailDto _update = null!;
     private ErrorDetail _error = null!;
@@ -38,7 +38,10 @@ public class AddErrorCommandTests
     {
         _update.Message = "new message";
         _update.Source = SourceSystem.Api;
-        _update.Stack = new[] {"frame1"};
+        _update.Stack = new[]
+        {
+            "frame1",
+        };
         _update.Type = "type";
         _update.UserAgent = "user agent";
         _update.UserName = "update-user-name";

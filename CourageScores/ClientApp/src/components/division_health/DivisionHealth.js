@@ -7,11 +7,11 @@ import {ViewHealthCheck} from "./ViewHealthCheck";
 import {isEmpty} from "../../helpers/collections";
 
 export function DivisionHealth() {
-    const [ result, setResult ] = useState(null);
-    const [ loading, setLoading ] = useState(false);
-    const { onError } = useApp();
-    const { seasonApi } = useDependencies();
-    const { season } = useDivisionData();
+    const [result, setResult] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const {onError} = useApp();
+    const {seasonApi} = useDependencies();
+    const {season} = useDivisionData();
     const healthy = result && result.success && isEmpty(result.errors) && isEmpty(result.warnings);
 
     async function loadHealthCheck() {
@@ -34,17 +34,17 @@ export function DivisionHealth() {
     }
 
     useEffect(() => {
-        /* istanbul ignore next */
-        if (loading) {
             /* istanbul ignore next */
-            return;
-        }
+            if (loading) {
+                /* istanbul ignore next */
+                return;
+            }
 
-        // noinspection JSIgnoredPromiseFromCall
-        loadHealthCheck();
-    },
-    // eslint-disable-next-line
-    []);
+            // noinspection JSIgnoredPromiseFromCall
+            loadHealthCheck();
+        },
+        // eslint-disable-next-line
+        []);
 
     try {
         return (<div datatype="health">

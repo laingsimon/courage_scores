@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import {createContext, useContext} from "react";
+
 const DivisionDataContext = createContext({});
 
 export function useDivisionData() {
@@ -6,7 +7,7 @@ export function useDivisionData() {
 }
 
 /* istanbul ignore next */
-export function DivisionDataContainer({ children, ...data }) {
+export function DivisionDataContainer({children, ...data}) {
     return (<DivisionDataContext.Provider value={data}>
         {children}
     </DivisionDataContext.Provider>)

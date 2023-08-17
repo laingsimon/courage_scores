@@ -10,7 +10,7 @@ public class CachingSeasonService : CachingDataService<Models.Cosmos.Season.Seas
 
     public CachingSeasonService(ISeasonService seasonService, IMemoryCache memoryCache, IUserService userService,
         IHttpContextAccessor accessor)
-        :base(seasonService, memoryCache, userService, accessor)
+        : base(seasonService, memoryCache, userService, accessor)
     {
         _seasonService = seasonService;
     }

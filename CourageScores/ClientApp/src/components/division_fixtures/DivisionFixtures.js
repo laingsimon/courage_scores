@@ -11,19 +11,19 @@ import {changeFilter, getFixtureDateFilters, getFixtureFilters, initFilter} from
 import {Dialog} from "../common/Dialog";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
 
-export function DivisionFixtures({ setNewFixtures }) {
-    const { id: divisionId, season, fixtures, onReloadDivision } = useDivisionData();
+export function DivisionFixtures({setNewFixtures}) {
+    const {id: divisionId, season, fixtures, onReloadDivision} = useDivisionData();
     const navigate = useNavigate();
     const location = useLocation();
-    const { account, onError, controls, teams } = useApp();
+    const {account, onError, controls, teams} = useApp();
     const isAdmin = account && account.access && account.access.manageGames;
-    const [ newDate, setNewDate ] = useState('');
-    const [ newDateDialogOpen, setNewDateDialogOpen ] = useState(false);
-    const [ isKnockout, setIsKnockout ] = useState(false);
-    const [ filter, setFilter ] = useState(initFilter(location));
-    const [ editNote, setEditNote ] = useState(null);
-    const [ showPlayers, setShowPlayers ] = useState(getPlayersToShow());
-    const [ createFixturesDialogOpen, setCreateFixturesDialogOpen ] = useState(false);
+    const [newDate, setNewDate] = useState('');
+    const [newDateDialogOpen, setNewDateDialogOpen] = useState(false);
+    const [isKnockout, setIsKnockout] = useState(false);
+    const [filter, setFilter] = useState(initFilter(location));
+    const [editNote, setEditNote] = useState(null);
+    const [showPlayers, setShowPlayers] = useState(getPlayersToShow());
+    const [createFixturesDialogOpen, setCreateFixturesDialogOpen] = useState(false);
 
     function getPlayersToShow() {
         if (location.hash !== '#show-who-is-playing') {
@@ -108,7 +108,7 @@ export function DivisionFixtures({ setNewFixtures }) {
                 setNewDate('');
                 setEditNote(null);
                 await onReloadDivision();
-            } }/>);
+            }}/>);
     }
 
     function scrollFixtureDateIntoView(date) {
@@ -169,11 +169,19 @@ export function DivisionFixtures({ setNewFixtures }) {
 
     function applyFixtureFilters(fixtureDate, fixtureFilters) {
         const filteredFixtureDate = Object.assign({}, fixtureDate);
-        filteredFixtureDate.tournamentFixtures = fixtureDate.tournamentFixtures.filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: null, tournamentFixture: f }));
+        filteredFixtureDate.tournamentFixtures = fixtureDate.tournamentFixtures.filter(f => fixtureFilters.apply({
+            date: fixtureDate.date,
+            fixture: null,
+            tournamentFixture: f
+        }));
         const hasFixtures = any(fixtureDate.fixtures, f => f.id !== f.homeTeam.id);
         filteredFixtureDate.fixtures = (!isAdmin && !hasFixtures)
             ? []
-            : fixtureDate.fixtures.filter(f => fixtureFilters.apply({ date: fixtureDate.date, fixture: f, tournamentFixture: null }));
+            : fixtureDate.fixtures.filter(f => fixtureFilters.apply({
+                date: fixtureDate.date,
+                fixture: f,
+                tournamentFixture: null
+            }));
 
         return filteredFixtureDate;
     }
@@ -187,7 +195,11 @@ export function DivisionFixtures({ setNewFixtures }) {
             .filter(fd => fixtureDateFilters.apply(fd)) // for any post-fixture filtering, e.g. notes=only-with-fixtures
             .map(renderFixtureDate);
         return (<div className="content-background p-3">
-            {controls ? (<FilterFixtures setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)} filter={filter}/>) : null}
+            {controls
+                ? (<FilterFixtures
+                    setFilter={(newFilter) => changeFilter(newFilter, setFilter, navigate, location)}
+                    filter={filter}/>)
+                : null}
             {isAdmin && newDateDialogOpen ? renderNewDateDialog() : null}
             <div>
                 {resultsToRender}
@@ -196,10 +208,15 @@ export function DivisionFixtures({ setNewFixtures }) {
                 {isEmpty(fixtures) ? (<div>No fixtures, yet</div>) : null}
                 {editNote ? renderEditNote() : null}
             </div>
-            {isAdmin && createFixturesDialogOpen ? (<CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)} />) : null}
+            {isAdmin && createFixturesDialogOpen ? (
+                <CreateSeasonDialog seasonId={season.id} onClose={() => setCreateFixturesDialogOpen(false)}/>) : null}
             {isAdmin ? (<div className="mt-3">
-                <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>➕ Add date</button>
-                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>🗓️ Create fixtures</button>
+                <button className="btn btn-primary margin-right" onClick={() => setNewDateDialogOpen(true)}>
+                    ➕ Add date
+                </button>
+                <button className="btn btn-primary margin-right" onClick={() => setCreateFixturesDialogOpen(true)}>
+                    🗓️ Create fixtures
+                </button>
             </div>) : null}
         </div>);
     } catch (exc) {

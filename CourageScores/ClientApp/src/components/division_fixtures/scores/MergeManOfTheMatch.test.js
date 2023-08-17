@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
 
@@ -18,8 +18,8 @@ describe('MergeManOfTheMatch', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -31,7 +31,7 @@ describe('MergeManOfTheMatch', () => {
             (<MergeManOfTheMatch
                 data={data}
                 allPlayers={allPlayers}
-                setData={(data) => updatedData = data} />),
+                setData={(data) => updatedData = data}/>),
             null,
             null,
             'tbody');
@@ -39,19 +39,19 @@ describe('MergeManOfTheMatch', () => {
 
     describe('renders', () => {
         const playerId = createTemporaryId();
-        const allPlayers = [ {
+        const allPlayers = [{
             id: playerId,
             name: 'MOM',
-        } ];
+        }];
 
         it('when home merged', async () => {
             const data = {
                 home: {
                     manOfTheMatch: playerId,
                 },
-                away: { },
+                away: {},
                 homeSubmission: {
-                    home: { },
+                    home: {},
                     away: {},
                 },
                 awaySubmission: {
@@ -68,7 +68,7 @@ describe('MergeManOfTheMatch', () => {
 
         it('when away merged', async () => {
             const data = {
-                home: { },
+                home: {},
                 away: {
                     manOfTheMatch: playerId,
                 },
@@ -90,8 +90,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when nothing to merge for home', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -110,8 +110,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when nothing to merge for away', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -130,8 +130,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when home unmerged', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {
                         manOfTheMatch: playerId
@@ -152,8 +152,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('when away unmerged', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},
@@ -175,15 +175,15 @@ describe('MergeManOfTheMatch', () => {
 
     describe('interactivity', () => {
         const playerId = createTemporaryId();
-        const allPlayers = [ {
+        const allPlayers = [{
             id: playerId,
             name: 'MOM',
-        } ];
+        }];
 
         it('can change home man of match', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {
                         manOfTheMatch: playerId
@@ -206,8 +206,8 @@ describe('MergeManOfTheMatch', () => {
 
         it('can change away man of match', async () => {
             const data = {
-                home: { },
-                away: { },
+                home: {},
+                away: {},
                 homeSubmission: {
                     home: {},
                     away: {},

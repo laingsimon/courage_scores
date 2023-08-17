@@ -9,9 +9,9 @@ namespace CourageScores.Services.Command;
 
 public class AddOrUpdateSeasonTemplateCommand : AddOrUpdateCommand<Template, EditTemplateDto>
 {
-    private readonly IAdapter<Template, TemplateDto> _templateAdapter;
-    private readonly IHealthCheckService _healthCheckService;
     private readonly ISimpleOnewayAdapter<Template, SeasonHealthDto> _healthCheckAdapter;
+    private readonly IHealthCheckService _healthCheckService;
+    private readonly IAdapter<Template, TemplateDto> _templateAdapter;
 
     public AddOrUpdateSeasonTemplateCommand(
         IAdapter<Template, TemplateDto> templateAdapter,
@@ -40,14 +40,20 @@ public class AddOrUpdateSeasonTemplateCommand : AddOrUpdateCommand<Template, Edi
         {
             template.TemplateHealth = new SeasonHealthCheckResultDto
             {
-                Errors = { exc.Message },
+                Errors =
+                {
+                    exc.Message,
+                },
             };
         }
 
         return new ActionResult<Template>
         {
             Success = true,
-            Messages = { "Template updated" },
+            Messages =
+            {
+                "Template updated",
+            },
         };
     }
 }

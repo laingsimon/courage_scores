@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
 import {createTemporaryId} from "../helpers/projection";
@@ -26,7 +26,7 @@ describe('EditSeason', () => {
     let deletedId;
     const seasonApi = {
         update: (data, lastUpdated) => {
-            updatedSeason = { data, lastUpdated };
+            updatedSeason = {data, lastUpdated};
             return apiResponse;
         },
         delete: (id) => {
@@ -40,8 +40,13 @@ describe('EditSeason', () => {
     });
 
     async function renderComponent(props, seasons, divisions) {
-        window.alert = (message) => { alert = message };
-        window.confirm = (message) => { confirm = message; return confirmResponse };
+        window.alert = (message) => {
+            alert = message
+        };
+        window.confirm = (message) => {
+            confirm = message;
+            return confirmResponse
+        };
         alert = null;
         confirm = null;
         reportedError = null;
@@ -55,8 +60,8 @@ describe('EditSeason', () => {
             success: true,
         };
         context = await renderApp(
-            { seasonApi },
-            { name: 'Courage Scores' },
+            {seasonApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -69,9 +74,9 @@ describe('EditSeason', () => {
             },
             (<EditSeason
                 {...props}
-                onClose={() => closed = true }
-                onSave={() => saved = true }
-                setSaveError={(err) => saveError = err }
+                onClose={() => closed = true}
+                onSave={() => saved = true}
+                setSaveError={(err) => saveError = err}
             />));
     }
 
@@ -83,7 +88,7 @@ describe('EditSeason', () => {
         id: createTemporaryId(),
         name: 'DIVISION 2',
     };
-    const divisions = [ division1, division2 ];
+    const divisions = [division1, division2];
 
     it('updates season name', async () => {
         const season = {
@@ -91,7 +96,7 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         let updatedData;
         await renderComponent({
@@ -99,7 +104,7 @@ describe('EditSeason', () => {
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doChange(context.container, 'input[name="name"]', 'NEW SEASON NAME', context.user);
@@ -115,7 +120,7 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         let updatedData;
         await renderComponent({
@@ -123,7 +128,7 @@ describe('EditSeason', () => {
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doChange(context.container, 'input[name="startDate"]', '2023-06-01', context.user);
@@ -143,7 +148,7 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         let updatedData;
         await renderComponent({
@@ -151,7 +156,7 @@ describe('EditSeason', () => {
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
@@ -161,7 +166,7 @@ describe('EditSeason', () => {
 
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.divisionIds).toEqual([ division1.id, division2.id ]);
+        expect(updatedData.divisionIds).toEqual([division1.id, division2.id]);
     });
 
     it('can unselect a division', async () => {
@@ -170,7 +175,7 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         let updatedData;
         await renderComponent({
@@ -178,7 +183,7 @@ describe('EditSeason', () => {
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         const divisionOptions = Array.from(context.container.querySelectorAll('.list-group-item'));
@@ -188,7 +193,7 @@ describe('EditSeason', () => {
 
         expect(reportedError).toBeNull();
         expect(updatedData.id).toEqual(season.id);
-        expect(updatedData.divisionIds).toEqual([ ]);
+        expect(updatedData.divisionIds).toEqual([]);
     });
 
     it('updates copy teams from when no id', async () => {
@@ -196,7 +201,7 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         const otherSeason = {
             id: createTemporaryId(),
@@ -208,7 +213,7 @@ describe('EditSeason', () => {
             onUpdateData: (update) => {
                 updatedData = update;
             }
-        }, [ otherSeason ], divisions);
+        }, [otherSeason], divisions);
         expect(reportedError).toBeNull();
 
         await doSelectOption(context.container.querySelector('.dropdown-menu'), 'OTHER SEASON');
@@ -223,11 +228,11 @@ describe('EditSeason', () => {
             name: '',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
 
         await doClick(findButton(context.container, 'Update season'));
 
@@ -241,11 +246,11 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doClick(findButton(context.container, 'Update season'));
@@ -262,11 +267,11 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         apiResponse = {
             success: false
@@ -284,11 +289,11 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
 
         await doClick(findButton(context.container, 'Delete season'));
@@ -303,11 +308,11 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         confirmResponse = true;
 
@@ -323,11 +328,11 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         confirmResponse = true;
         apiResponse = {
@@ -347,11 +352,11 @@ describe('EditSeason', () => {
             name: 'SEASON',
             startDate: '2023-01-01T00:00:00',
             endDate: '2023-05-01T00:00:00',
-            divisionIds: [ division1.id ],
+            divisionIds: [division1.id],
         }
         await renderComponent({
             data: season,
-        }, [ season ], divisions);
+        }, [season], divisions);
         expect(reportedError).toBeNull();
         confirmResponse = true;
 

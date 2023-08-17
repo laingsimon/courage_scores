@@ -3,8 +3,9 @@ import React from "react";
 import {distinct, sortBy} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 
-export function ManOfTheMatchInput({ fixtureData, access, saving, setFixtureData }) {
-    const { account, onError } = useApp();
+export function ManOfTheMatchInput({fixtureData, access, saving, setFixtureData}) {
+    const {account, onError} = useApp();
+
     function manOfTheMatchChanged(player, team) {
         try {
             const newFixtureData = Object.assign({}, fixtureData);

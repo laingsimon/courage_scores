@@ -25,7 +25,7 @@ public class AddOrUpdateTeamCommandTests
     private Mock<AddOrUpdateGameCommand> _addOrUpdateGameCommand = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
     private Mock<ISeasonService> _seasonService = null!;
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private readonly Guid _divisionId = Guid.NewGuid();
     private readonly Guid _seasonId = Guid.NewGuid();
     private readonly IJsonSerializerService _serializer = new JsonSerializerService(new JsonSerializer());
@@ -49,8 +49,8 @@ public class AddOrUpdateTeamCommandTests
                 {
                     SeasonId = _seasonId,
                     DivisionId = _divisionId,
-                }
-            }
+                },
+            },
         };
         _games = new List<GameDto>();
         _cacheFlags = new ScopedCacheManagementFlags();
@@ -61,7 +61,10 @@ public class AddOrUpdateTeamCommandTests
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
             Success = true,
-            Messages = { "Success" },
+            Messages =
+            {
+                "Success",
+            },
             Result = _addedTeamSeason,
         };
 
@@ -86,8 +89,8 @@ public class AddOrUpdateTeamCommandTests
             .Setup(c => c.ApplyUpdate(_team, _token))
             .ReturnsAsync((CosmosTeam team, CancellationToken _) =>
             {
-                 team.Seasons.Add(_addedTeamSeason);
-                 return _addSeasonToTeamActionResult;
+                team.Seasons.Add(_addedTeamSeason);
+                return _addSeasonToTeamActionResult;
             });
         _commandFactory
             .Setup(f => f.GetCommand<AddOrUpdateGameCommand>())
@@ -168,13 +171,19 @@ public class AddOrUpdateTeamCommandTests
         _addSeasonToTeamActionResult = new ActionResult<TeamSeason>
         {
             Success = false,
-            Messages = { "Some error" },
+            Messages =
+            {
+                "Some error",
+            },
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Some error" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Some error",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -184,8 +193,14 @@ public class AddOrUpdateTeamCommandTests
     {
         var game = new GameDto
         {
-            Home = new GameTeamDto { Id = _team.Id },
-            Away = new GameTeamDto { Id = Guid.NewGuid() },
+            Home = new GameTeamDto
+            {
+                Id = _team.Id,
+            },
+            Away = new GameTeamDto
+            {
+                Id = Guid.NewGuid(),
+            },
             Id = Guid.NewGuid(),
         };
         _games.Add(game);
@@ -214,8 +229,14 @@ public class AddOrUpdateTeamCommandTests
     {
         var game = new GameDto
         {
-            Home = new GameTeamDto { Id = _team.Id },
-            Away = new GameTeamDto { Id = Guid.NewGuid() },
+            Home = new GameTeamDto
+            {
+                Id = _team.Id,
+            },
+            Away = new GameTeamDto
+            {
+                Id = Guid.NewGuid(),
+            },
             Id = Guid.NewGuid(),
         };
         _games.Add(game);
@@ -241,8 +262,14 @@ public class AddOrUpdateTeamCommandTests
     {
         var game = new GameDto
         {
-            Home = new GameTeamDto { Id = Guid.NewGuid() },
-            Away = new GameTeamDto { Id = _team.Id },
+            Home = new GameTeamDto
+            {
+                Id = Guid.NewGuid(),
+            },
+            Away = new GameTeamDto
+            {
+                Id = _team.Id,
+            },
             Id = Guid.NewGuid(),
         };
         _games.Add(game);
@@ -270,25 +297,61 @@ public class AddOrUpdateTeamCommandTests
     [TestCase("THE LAMB")]
     public async Task ApplyUpdates_WhenHomeAddressIsUpdatedToSameAsAnotherFixtureHomeAddressOnSameDate_ReturnsFalse(string updateAddress)
     {
-        var lambAOpponent = new TeamDto { Name = "Lamb A Opp", Id = Guid.NewGuid() };
-        var lambBOpponent = new TeamDto { Name = "Lamb B Opp", Id = Guid.NewGuid() };
-        var lambA = new TeamDto { Name = "Lamb A", Id = _team.Id };
-        var lambB = new TeamDto { Name = "Lamb B", Id = Guid.NewGuid(), Address = "The Lamb" };
+        var lambAOpponent = new TeamDto
+        {
+            Name = "Lamb A Opp",
+            Id = Guid.NewGuid(),
+        };
+        var lambBOpponent = new TeamDto
+        {
+            Name = "Lamb B Opp",
+            Id = Guid.NewGuid(),
+        };
+        var lambA = new TeamDto
+        {
+            Name = "Lamb A",
+            Id = _team.Id,
+        };
+        var lambB = new TeamDto
+        {
+            Name = "Lamb B",
+            Id = Guid.NewGuid(),
+            Address = "The Lamb",
+        };
         var lambAHome = new GameDto
         {
-            Home = new GameTeamDto { Id = _team.Id, Name = lambA.Name },
-            Away = new GameTeamDto { Id = lambAOpponent.Id, Name = "lambA opponent" },
+            Home = new GameTeamDto
+            {
+                Id = _team.Id,
+                Name = lambA.Name,
+            },
+            Away = new GameTeamDto
+            {
+                Id = lambAOpponent.Id,
+                Name = "lambA opponent",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
         var lambBHome = new GameDto
         {
-            Home = new GameTeamDto { Id = lambB.Id, Name = lambB.Name },
-            Away = new GameTeamDto { Id = lambBOpponent.Id, Name = "lambB opponent" },
+            Home = new GameTeamDto
+            {
+                Id = lambB.Id,
+                Name = lambB.Name,
+            },
+            Away = new GameTeamDto
+            {
+                Id = lambBOpponent.Id,
+                Name = "lambB opponent",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
-        _games.AddRange(new[] { lambAHome, lambBHome });
+        _games.AddRange(new[]
+        {
+            lambAHome, lambBHome,
+        });
         var update = new EditTeamDto
         {
             DivisionId = _divisionId,
@@ -307,7 +370,10 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -316,26 +382,59 @@ public class AddOrUpdateTeamCommandTests
     [TestCase("THE LAMB")]
     public async Task ApplyUpdates_WhenAddressIsUpdatedToSameAsAnotherFixtureAddress_ReturnsFalse(string updateAddress)
     {
-        var anotherTeam = new TeamDto { Name = "Another team", Id = Guid.NewGuid() };
-        var lambA = new TeamDto { Name = "Lamb A", Id = Guid.NewGuid(), Address = "Some address" };
-        var lambB = new TeamDto { Name = "Lamb B", Id = Guid.NewGuid(), Address = "Some address" };
+        var anotherTeam = new TeamDto
+        {
+            Name = "Another team",
+            Id = Guid.NewGuid(),
+        };
+        var lambA = new TeamDto
+        {
+            Name = "Lamb A",
+            Id = Guid.NewGuid(),
+            Address = "Some address",
+        };
+        var lambB = new TeamDto
+        {
+            Name = "Lamb B",
+            Id = Guid.NewGuid(),
+            Address = "Some address",
+        };
         var lambAHome = new GameDto
         {
             Address = "The Lamb",
-            Home = new GameTeamDto { Id = lambA.Id, Name = lambA.Name },
-            Away = new GameTeamDto { Id = anotherTeam.Id, Name = "lambA opponent" },
+            Home = new GameTeamDto
+            {
+                Id = lambA.Id,
+                Name = lambA.Name,
+            },
+            Away = new GameTeamDto
+            {
+                Id = anotherTeam.Id,
+                Name = "lambA opponent",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
         var lambBHome = new GameDto
         {
             Address = "The Lamb",
-            Home = new GameTeamDto { Id = lambB.Id, Name = lambB.Name },
-            Away = new GameTeamDto { Id = anotherTeam.Id, Name = "lambB opponent" },
+            Home = new GameTeamDto
+            {
+                Id = lambB.Id,
+                Name = lambB.Name,
+            },
+            Away = new GameTeamDto
+            {
+                Id = anotherTeam.Id,
+                Name = "lambB opponent",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
-        _games.AddRange(new[] { lambAHome, lambBHome });
+        _games.AddRange(new[]
+        {
+            lambAHome, lambBHome,
+        });
         var update = new EditTeamDto
         {
             DivisionId = _divisionId,
@@ -353,7 +452,10 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            $"Unable to update address, {updateAddress} is in use for multiple games on the same dates, see 03 Feb 2001: Lamb A vs lambA opponent, Lamb B vs lambB opponent",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -361,17 +463,32 @@ public class AddOrUpdateTeamCommandTests
     [Test]
     public async Task ApplyUpdates_WhenGameExistsAndDivisionIsChanged_ReturnsFalse()
     {
-        var anotherTeam = new TeamDto { Name = "Another team", Id = Guid.NewGuid() };
+        var anotherTeam = new TeamDto
+        {
+            Name = "Another team",
+            Id = Guid.NewGuid(),
+        };
         var lambAHome = new GameDto
         {
             Address = "The Lamb",
-            Home = new GameTeamDto { Id = _team.Id, Name = _team.Name },
-            Away = new GameTeamDto { Id = anotherTeam.Id, Name = "lambA opponent" },
+            Home = new GameTeamDto
+            {
+                Id = _team.Id,
+                Name = _team.Name,
+            },
+            Away = new GameTeamDto
+            {
+                Id = anotherTeam.Id,
+                Name = "lambA opponent",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
             DivisionId = _divisionId,
         };
-        _games.AddRange(new[] { lambAHome });
+        _games.AddRange(new[]
+        {
+            lambAHome,
+        });
         var update = new EditTeamDto
         {
             DivisionId = _divisionId,
@@ -386,7 +503,10 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Unable to change division when games exist, delete these 1 game/s first" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Unable to change division when games exist, delete these 1 game/s first",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -402,8 +522,15 @@ public class AddOrUpdateTeamCommandTests
         };
         var game = new GameDto
         {
-            Home = new GameTeamDto { Id = otherTeam.Id, Name = "other team" },
-            Away = new GameTeamDto { Id = _team.Id },
+            Home = new GameTeamDto
+            {
+                Id = otherTeam.Id,
+                Name = "other team",
+            },
+            Away = new GameTeamDto
+            {
+                Id = _team.Id,
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
@@ -423,7 +550,10 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Team updated",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
@@ -440,8 +570,15 @@ public class AddOrUpdateTeamCommandTests
         };
         var game = new GameDto
         {
-            Home = new GameTeamDto { Id = _team.Id },
-            Away = new GameTeamDto { Id = awayTeam.Id, Name = "away team" },
+            Home = new GameTeamDto
+            {
+                Id = _team.Id,
+            },
+            Away = new GameTeamDto
+            {
+                Id = awayTeam.Id,
+                Name = "away team",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
@@ -461,7 +598,10 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Team updated",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }
@@ -472,8 +612,15 @@ public class AddOrUpdateTeamCommandTests
         var awayTeamId = Guid.NewGuid();
         var game = new GameDto
         {
-            Home = new GameTeamDto { Id = _team.Id },
-            Away = new GameTeamDto { Id = awayTeamId, Name = "away team" },
+            Home = new GameTeamDto
+            {
+                Id = _team.Id,
+            },
+            Away = new GameTeamDto
+            {
+                Id = awayTeamId,
+                Name = "away team",
+            },
             Id = Guid.NewGuid(),
             Date = new DateTime(2001, 02, 03),
         };
@@ -493,7 +640,10 @@ public class AddOrUpdateTeamCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_team, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Team updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Team updated",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.EqualTo(_divisionId));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.EqualTo(_seasonId));
     }

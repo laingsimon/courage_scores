@@ -16,4 +16,4 @@ class SaygApi {
     }
 }
 
-export { SaygApi };
+export {SaygApi};

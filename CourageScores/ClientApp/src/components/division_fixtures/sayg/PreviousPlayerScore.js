@@ -1,6 +1,6 @@
 import {round2dp} from "../../../helpers/rendering";
 
-export function PreviousPlayerScore({ home, away, leg, undoLastThrow }) {
+export function PreviousPlayerScore({home, away, leg, undoLastThrow}) {
     const opponent = opposite(leg.currentThrow);
     const accumulator = leg[opponent];
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
@@ -27,17 +27,20 @@ export function PreviousPlayerScore({ home, away, leg, undoLastThrow }) {
 
     return (<div className="text-secondary-50 text-center">
         <p className="my-0">
-            <strong>{playerLookup[opponent]} </strong> requires <strong className="text-dark">{leg.startingScore - accumulator.score}</strong>
+            <strong>{playerLookup[opponent]} </strong> requires <strong className="text-dark">
+            {leg.startingScore - accumulator.score}
+        </strong>
         </p>
         <p className="my-0" onClick={changeScore} title="Click to change score">
             thrown <strong>{accumulator.noOfDarts}</strong> darts
-            {accumulator.noOfDarts ? (<span>, average: <strong>{round2dp(accumulator.score / (accumulator.noOfDarts / 3))}</strong>
-                </span>) : null}
+            {accumulator.noOfDarts
+                ? (<span>, average: <strong>{round2dp(accumulator.score / (accumulator.noOfDarts / 3))}</strong></span>)
+                : null}
         </p>
         <p className="my-0" onClick={changeScore} title="Click to change score">
             Last score: <strong className="text-dark">{lastThrow.score}</strong>
             {accumulator.bust ? (<strong> 💥 </strong>) : null}
         </p>
-        <hr />
+        <hr/>
     </div>);
 }

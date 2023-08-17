@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 
@@ -18,8 +18,8 @@ describe('MergeHiCheckAnd180s', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -31,7 +31,7 @@ describe('MergeHiCheckAnd180s', () => {
             (<MergeHiCheckAnd180s
                 data={data}
                 fixtureData={fixtureData}
-                setFixtureData={(data) => updatedData = data} />),
+                setFixtureData={(data) => updatedData = data}/>),
             null,
             null,
             'tbody');
@@ -68,7 +68,7 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(homeSubmission).toBeTruthy();
                 expect(homeSubmission.textContent).toContain('from HOME');
                 const oneEighties = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
-                expect(oneEighties).toEqual([ 'NAME' ]);
+                expect(oneEighties).toEqual(['NAME']);
             });
 
             it('when away submissions not merged', async () => {
@@ -100,7 +100,7 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(awaySubmission).toBeTruthy();
                 expect(awaySubmission.textContent).toContain('from AWAY');
                 const oneEighties = Array.from(awaySubmission.querySelectorAll('ol > li')).map(li => li.textContent);
-                expect(oneEighties).toEqual([ 'NAME' ]);
+                expect(oneEighties).toEqual(['NAME']);
             });
 
             it('when home and away submissions not present', async () => {
@@ -327,7 +327,7 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(homeSubmission).toBeTruthy();
                 expect(homeSubmission.textContent).toContain('from HOME');
                 const hiChecks = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
-                expect(hiChecks).toEqual([ 'NAME (120)' ]);
+                expect(hiChecks).toEqual(['NAME (120)']);
             });
 
             it('when away submissions not merged', async () => {
@@ -360,7 +360,7 @@ describe('MergeHiCheckAnd180s', () => {
                 expect(homeSubmission).toBeTruthy();
                 expect(homeSubmission.textContent).toContain('from AWAY');
                 const hiChecks = Array.from(homeSubmission.querySelectorAll('ol > li')).map(li => li.textContent);
-                expect(hiChecks).toEqual([ 'NAME (120)' ]);
+                expect(hiChecks).toEqual(['NAME (120)']);
             });
 
             it('when home and away submissions not present', async () => {

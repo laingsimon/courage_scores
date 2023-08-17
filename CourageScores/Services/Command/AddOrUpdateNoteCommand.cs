@@ -27,7 +27,10 @@ public class AddOrUpdateNoteCommand : AddOrUpdateCommand<FixtureDateNote, EditFi
         return Task.FromResult(new ActionResult<FixtureDateNote>
         {
             Success = true,
-            Messages = { "Note updated" },
+            Messages =
+            {
+                "Note updated",
+            },
         });
     }
 

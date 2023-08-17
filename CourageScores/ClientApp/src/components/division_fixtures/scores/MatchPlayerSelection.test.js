@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import {MatchPlayerSelection, NEW_PLAYER} from "./MatchPlayerSelection";
 import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
@@ -25,7 +25,7 @@ describe('MatchPlayerSelection', () => {
         additional180 = player;
     }
     const onHiCheck = (notablePlayer, score) => {
-        additionalHiCheck = { notablePlayer, score };
+        additionalHiCheck = {notablePlayer, score};
     }
     const setCreatePlayerFor = (opts) => {
         createPlayerFor = opts;
@@ -43,8 +43,8 @@ describe('MatchPlayerSelection', () => {
         additionalHiCheck = null;
         createPlayerFor = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -105,10 +105,10 @@ describe('MatchPlayerSelection', () => {
             id: createTemporaryId(),
             name: 'DIVISION',
         };
-        const account = { access: { } };
-        const homePlayer = { id: createTemporaryId(), name: 'HOME' };
-        const awayPlayer = { id: createTemporaryId(), name: 'AWAY' };
-        const newPlayer = { id: NEW_PLAYER, name: 'Add a player...' };
+        const account = {access: {}};
+        const homePlayer = {id: createTemporaryId(), name: 'HOME'};
+        const awayPlayer = {id: createTemporaryId(), name: 'AWAY'};
+        const newPlayer = {id: NEW_PLAYER, name: 'Add a player...'};
         const defaultMatchType = {
             otherMatches: [],
             matchOptions: {
@@ -121,8 +121,8 @@ describe('MatchPlayerSelection', () => {
             readOnly: false,
             season: season,
             division: division,
-            homePlayers: [ homePlayer, newPlayer ],
-            awayPlayers: [ awayPlayer, newPlayer ],
+            homePlayers: [homePlayer, newPlayer],
+            awayPlayers: [awayPlayer, newPlayer],
         };
 
         it('when no players selected', async () => {
@@ -130,8 +130,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
 
@@ -150,8 +150,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
                 otherMatches: [],
                 matchOptions: {
@@ -177,8 +177,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 3,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
 
@@ -201,8 +201,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 3,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
 
@@ -225,8 +225,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
 
@@ -245,13 +245,13 @@ describe('MatchPlayerSelection', () => {
         });
 
         it('possible home players', async () => {
-            const anotherHomePlayer = { id: createTemporaryId(), name: 'ANOTHER HOME' };
+            const anotherHomePlayer = {id: createTemporaryId(), name: 'ANOTHER HOME'};
             const props = {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const containerProps = {
@@ -259,26 +259,26 @@ describe('MatchPlayerSelection', () => {
                 readOnly: false,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer, anotherHomePlayer ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer, anotherHomePlayer],
+                awayPlayers: [awayPlayer],
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            assertSelectablePlayers(cells[0], [ 'HOME', 'ANOTHER HOME' ]);
-            assertSelectablePlayers(cells[4], [ 'AWAY' ]);
+            assertSelectablePlayers(cells[0], ['HOME', 'ANOTHER HOME']);
+            assertSelectablePlayers(cells[4], ['AWAY']);
         });
 
         it('possible away players', async () => {
-            const anotherAwayPlayer = { id: createTemporaryId(), name: 'ANOTHER AWAY' };
+            const anotherAwayPlayer = {id: createTemporaryId(), name: 'ANOTHER AWAY'};
             const props = {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const containerProps = {
@@ -286,26 +286,26 @@ describe('MatchPlayerSelection', () => {
                 readOnly: false,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer, anotherAwayPlayer],
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            assertSelectablePlayers(cells[0], [ 'HOME' ]);
-            assertSelectablePlayers(cells[4], [ 'AWAY', 'ANOTHER AWAY' ]);
+            assertSelectablePlayers(cells[0], ['HOME']);
+            assertSelectablePlayers(cells[4], ['AWAY', 'ANOTHER AWAY']);
         });
 
         it('when home players are selected for other matches', async () => {
-            const anotherHomePlayer = { id: createTemporaryId(), name: 'ANOTHER HOME' };
+            const anotherHomePlayer = {id: createTemporaryId(), name: 'ANOTHER HOME'};
             const props = {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const containerProps = {
@@ -313,19 +313,19 @@ describe('MatchPlayerSelection', () => {
                 readOnly: false,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer, anotherHomePlayer ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer, anotherHomePlayer],
+                awayPlayers: [awayPlayer],
             };
             const matchTypeProps = {
-                otherMatches: [ {
+                otherMatches: [{
                     homeScore: 2,
                     awayScore: 2,
-                    homePlayers: [ anotherHomePlayer ],
+                    homePlayers: [anotherHomePlayer],
                     awayPlayers: [],
                     matchOptions: {
                         playerCount: 1,
                     }
-                } ],
+                }],
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
@@ -336,18 +336,18 @@ describe('MatchPlayerSelection', () => {
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            assertSelectablePlayers(cells[0], [ 'HOME' ]);
-            assertSelectablePlayers(cells[4], [ 'AWAY' ]);
+            assertSelectablePlayers(cells[0], ['HOME']);
+            assertSelectablePlayers(cells[4], ['AWAY']);
         });
 
         it('when away players are selected for other matches', async () => {
-            const anotherAwayPlayer = { id: createTemporaryId(), name: 'ANOTHER AWAY' };
+            const anotherAwayPlayer = {id: createTemporaryId(), name: 'ANOTHER AWAY'};
             const props = {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const containerProps = {
@@ -355,19 +355,19 @@ describe('MatchPlayerSelection', () => {
                 readOnly: false,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer, anotherAwayPlayer ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer, anotherAwayPlayer],
             };
             const matchTypeProps = {
-                otherMatches: [ {
+                otherMatches: [{
                     homeScore: 2,
                     awayScore: 2,
-                    homePlayers: [ ],
-                    awayPlayers: [ anotherAwayPlayer ],
+                    homePlayers: [],
+                    awayPlayers: [anotherAwayPlayer],
                     matchOptions: {
                         playerCount: 1,
                     }
-                } ],
+                }],
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
@@ -378,8 +378,8 @@ describe('MatchPlayerSelection', () => {
 
             expect(reportedError).toBeFalsy();
             const cells = Array.from(context.container.querySelectorAll('td'));
-            assertSelectablePlayers(cells[0], [ 'HOME' ]);
-            assertSelectablePlayers(cells[4], [ 'AWAY' ]);
+            assertSelectablePlayers(cells[0], ['HOME']);
+            assertSelectablePlayers(cells[4], ['AWAY']);
         });
 
         it('when permitted to record scores as you go', async () => {
@@ -387,8 +387,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const account = {
@@ -409,8 +409,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const account = {
@@ -436,10 +436,10 @@ describe('MatchPlayerSelection', () => {
             id: createTemporaryId(),
             name: 'DIVISION',
         };
-        const account = { access: { managePlayers: true } };
-        const homePlayer = { id: createTemporaryId(), name: 'HOME' };
-        const awayPlayer = { id: createTemporaryId(), name: 'AWAY' };
-        const newPlayer = { id: NEW_PLAYER, name: 'Add a player...' };
+        const account = {access: {managePlayers: true}};
+        const homePlayer = {id: createTemporaryId(), name: 'HOME'};
+        const awayPlayer = {id: createTemporaryId(), name: 'AWAY'};
+        const newPlayer = {id: NEW_PLAYER, name: 'Add a player...'};
         const defaultMatchType = {
             otherMatches: [],
             matchOptions: {
@@ -452,8 +452,8 @@ describe('MatchPlayerSelection', () => {
             readOnly: false,
             season: season,
             division: division,
-            homePlayers: [ homePlayer, newPlayer ],
-            awayPlayers: [ awayPlayer, newPlayer ],
+            homePlayers: [homePlayer, newPlayer],
+            awayPlayers: [awayPlayer, newPlayer],
         };
 
         it('can set home player', async () => {
@@ -461,8 +461,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -474,8 +474,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ homePlayer ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([homePlayer]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(null);
             expect(updatedMatch.awayScore).toEqual(null);
         });
@@ -485,8 +485,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -509,8 +509,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -522,8 +522,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(null);
             expect(updatedMatch.awayScore).toEqual(null);
         });
@@ -533,8 +533,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -546,8 +546,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ awayPlayer ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([awayPlayer]);
             expect(updatedMatch.homeScore).toEqual(null);
             expect(updatedMatch.awayScore).toEqual(null);
         });
@@ -557,8 +557,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -581,8 +581,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [],
+                    awayPlayers: [awayPlayer],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -594,8 +594,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(null);
             expect(updatedMatch.awayScore).toEqual(null);
         });
@@ -605,8 +605,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -618,8 +618,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(3);
             expect(updatedMatch.awayScore).toEqual(null);
         });
@@ -629,8 +629,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -642,8 +642,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(null);
             expect(updatedMatch.awayScore).toEqual(3);
         });
@@ -653,8 +653,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -666,8 +666,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(5);
             expect(updatedMatch.awayScore).toEqual(null);
         });
@@ -677,8 +677,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -690,8 +690,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(null);
             expect(updatedMatch.awayScore).toEqual(5);
         });
@@ -701,8 +701,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: 3,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -714,8 +714,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(3);
             expect(updatedMatch.awayScore).toEqual(2);
         });
@@ -725,8 +725,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 3,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             await renderComponent(account, props, defaultContainerProps, defaultMatchType);
@@ -738,8 +738,8 @@ describe('MatchPlayerSelection', () => {
             expect(reportedError).toBeNull();
             expect(createPlayerFor).toBeNull();
             expect(updatedMatch).not.toBeNull();
-            expect(updatedMatch.homePlayers).toEqual([ ]);
-            expect(updatedMatch.awayPlayers).toEqual([ ]);
+            expect(updatedMatch.homePlayers).toEqual([]);
+            expect(updatedMatch.awayPlayers).toEqual([]);
             expect(updatedMatch.homeScore).toEqual(2);
             expect(updatedMatch.awayScore).toEqual(3);
         });
@@ -749,12 +749,12 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const matchTypeProps = {
-                otherMatches: [ ],
+                otherMatches: [],
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
@@ -783,12 +783,12 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const matchTypeProps = {
-                otherMatches: [ ],
+                otherMatches: [],
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
@@ -817,12 +817,12 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const matchTypeProps = {
-                otherMatches: [ ],
+                otherMatches: [],
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
@@ -851,12 +851,12 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const matchTypeProps = {
-                otherMatches: [ ],
+                otherMatches: [],
                 matchOptions: {
                     playerCount: 1,
                     numberOfLegs: 5,
@@ -881,8 +881,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             const containerProps = {
@@ -890,8 +890,8 @@ describe('MatchPlayerSelection', () => {
                 readOnly: true,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
+                homePlayers: [homePlayer, newPlayer],
+                awayPlayers: [awayPlayer, newPlayer],
             };
             await renderComponent(account, props, containerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
@@ -913,8 +913,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             const containerProps = {
@@ -922,8 +922,8 @@ describe('MatchPlayerSelection', () => {
                 readOnly: true,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
+                homePlayers: [homePlayer, newPlayer],
+                awayPlayers: [awayPlayer, newPlayer],
             };
             await renderComponent(account, props, containerProps, defaultMatchType);
             expect(reportedError).toBeFalsy();
@@ -945,8 +945,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             const containerProps = {
@@ -954,10 +954,10 @@ describe('MatchPlayerSelection', () => {
                 readOnly: false,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                home: { name: 'HOME_TEAM' },
-                away: { name: 'AWAY_TEAM' },
+                homePlayers: [homePlayer, newPlayer],
+                awayPlayers: [awayPlayer, newPlayer],
+                home: {name: 'HOME_TEAM'},
+                away: {name: 'AWAY_TEAM'},
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);
@@ -975,8 +975,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: null,
                     awayScore: null,
-                    homePlayers: [ ],
-                    awayPlayers: [ ],
+                    homePlayers: [],
+                    awayPlayers: [],
                 },
             };
             const containerProps = {
@@ -984,10 +984,10 @@ describe('MatchPlayerSelection', () => {
                 readOnly: false,
                 season: season,
                 division: division,
-                homePlayers: [ homePlayer, newPlayer ],
-                awayPlayers: [ awayPlayer, newPlayer ],
-                home: { name: 'HOME_TEAM' },
-                away: { name: 'AWAY_TEAM' },
+                homePlayers: [homePlayer, newPlayer],
+                awayPlayers: [awayPlayer, newPlayer],
+                home: {name: 'HOME_TEAM'},
+                away: {name: 'AWAY_TEAM'},
             };
 
             await renderComponent(account, props, containerProps, defaultMatchType);
@@ -1004,8 +1004,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const account = {
@@ -1028,14 +1028,14 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 0,
                     awayScore: 0,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                     sayg: {
                         legs: {
                             0: {
-                                playerSequence: [ { value: 'home', text: 'HOME' }, { value: 'away', text: 'AWAY' }],
-                                home: { throws: [], score: 0 },
-                                away: { throws: [], score: 0 },
+                                playerSequence: [{value: 'home', text: 'HOME'}, {value: 'away', text: 'AWAY'}],
+                                home: {throws: [], score: 0},
+                                away: {throws: [], score: 0},
                                 currentThrow: 'home',
                                 startingScore: 501,
                             }
@@ -1068,14 +1068,14 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 0,
                     awayScore: 0,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                     sayg: {
                         legs: {
                             0: {
-                                playerSequence: [ { value: 'home', text: 'HOME' }, { value: 'away', text: 'AWAY' }],
-                                home: { throws: [], score: 0 },
-                                away: { throws: [], score: 0 },
+                                playerSequence: [{value: 'home', text: 'HOME'}, {value: 'away', text: 'AWAY'}],
+                                home: {throws: [], score: 0},
+                                away: {throws: [], score: 0},
                                 currentThrow: 'away',
                                 startingScore: 501,
                             }
@@ -1108,14 +1108,14 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 0,
                     awayScore: 0,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                     sayg: {
                         legs: {
                             0: {
-                                playerSequence: [ { value: 'home', text: 'HOME' }, { value: 'away', text: 'AWAY' }],
-                                home: { throws: [ {} ], score: 400 },
-                                away: { throws: [ {} ], score: 0 },
+                                playerSequence: [{value: 'home', text: 'HOME'}, {value: 'away', text: 'AWAY'}],
+                                home: {throws: [{}], score: 400},
+                                away: {throws: [{}], score: 0},
                                 currentThrow: 'home',
                                 startingScore: 501,
                             }
@@ -1154,14 +1154,14 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 0,
                     awayScore: 0,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                     sayg: {
                         legs: {
                             0: {
-                                playerSequence: [ { value: 'home', text: 'HOME' }, { value: 'away', text: 'AWAY' }],
-                                home: { throws: [ {} ], score: 0 },
-                                away: { throws: [ {} ], score: 400 },
+                                playerSequence: [{value: 'home', text: 'HOME'}, {value: 'away', text: 'AWAY'}],
+                                home: {throws: [{}], score: 0},
+                                away: {throws: [{}], score: 400},
                                 currentThrow: 'away',
                                 startingScore: 501,
                             }
@@ -1200,8 +1200,8 @@ describe('MatchPlayerSelection', () => {
                 match: {
                     homeScore: 1,
                     awayScore: 1,
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ],
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer],
                 },
             };
             const account = {

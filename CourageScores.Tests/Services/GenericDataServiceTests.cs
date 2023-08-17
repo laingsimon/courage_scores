@@ -84,7 +84,10 @@ public class GenericDataServiceTests
         }
 
         Assert.That(returnedItems, Is.Not.Empty);
-        Assert.That(returnedItems, Is.EquivalentTo(new[] { dto }));
+        Assert.That(returnedItems, Is.EquivalentTo(new[]
+        {
+            dto,
+        }));
         _adapter.Verify(a => a.Adapt(model, _token));
     }
 
@@ -95,12 +98,15 @@ public class GenericDataServiceTests
         var command = new Mock<IUpdateCommand<Model, object>>();
         var user = new UserDto
         {
-            Name = Model.CreatePermitted
+            Name = Model.CreatePermitted,
         };
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = { "some message" },
+            Messages =
+            {
+                "some message",
+            },
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
@@ -126,7 +132,10 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -144,7 +153,10 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not logged in",
+        }));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -159,7 +171,10 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = { "some message" }
+            Messages =
+            {
+                "some message",
+            },
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => null);
         _repository.Setup(r => r.Get(id, _token)).ReturnsAsync(() => null);
@@ -187,7 +202,10 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -202,7 +220,10 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = false,
-            Errors = { "some message" },
+            Errors =
+            {
+                "some message",
+            },
         };
         var user = new UserDto
         {
@@ -221,7 +242,10 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Result, Is.Null);
-        Assert.That(result.Errors, Is.EquivalentTo(new[] { "some message" }));
+        Assert.That(result.Errors, Is.EquivalentTo(new[]
+        {
+            "some message",
+        }));
     }
 
     [Test]
@@ -235,7 +259,10 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = { "some message" },
+            Messages =
+            {
+                "some message",
+            },
         };
         var user = new UserDto
         {
@@ -254,7 +281,10 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(updatedDto));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "some message" }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[]
+        {
+            "some message",
+        }));
     }
 
     [Test]
@@ -269,7 +299,10 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Model not found" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Model not found",
+        }));
         Assert.That(result.Result, Is.Null);
     }
 
@@ -285,7 +318,10 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not logged in" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not logged in",
+        }));
         Assert.That(result.Result, Is.Null);
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -303,7 +339,10 @@ public class GenericDataServiceTests
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
         Assert.That(result.Result, Is.Null);
         _repository.Verify(r => r.Upsert(It.IsAny<Model>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -329,7 +368,10 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "Model deleted" }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[]
+        {
+            "Model deleted",
+        }));
     }
 
     [Test]
@@ -342,7 +384,10 @@ public class GenericDataServiceTests
         var command = new Mock<IUpdateCommand<Model, object>>();
         var commandResult = new ActionResult<object>
         {
-            Messages = { "some message" },
+            Messages =
+            {
+                "some message",
+            },
             Delete = true,
             Success = true,
         };
@@ -363,7 +408,10 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Result, Is.Null);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
         Assert.That(model.Deleted, Is.Null);
         Assert.That(model.Remover, Is.Null);
     }
@@ -379,7 +427,10 @@ public class GenericDataServiceTests
         var commandResult = new ActionResult<object>
         {
             Success = true,
-            Messages = { "some message" },
+            Messages =
+            {
+                "some message",
+            },
             Delete = true,
         };
         var user = new UserDto
@@ -400,7 +451,10 @@ public class GenericDataServiceTests
         Assert.That(result, Is.Not.Null);
         Assert.That(result.Success, Is.True);
         Assert.That(result.Result, Is.SameAs(deletedDto));
-        Assert.That(result.Messages, Is.EquivalentTo(new[] { "some message" }));
+        Assert.That(result.Messages, Is.EquivalentTo(new[]
+        {
+            "some message",
+        }));
     }
 
 #pragma warning disable CS1998

@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {PlayLeg} from "./PlayLeg";
 
@@ -21,15 +21,23 @@ describe('PlayLeg', () => {
         hiCheck = null;
         legComplete = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
-            { },
+            {},
+            {name: 'Courage Scores'},
+            {},
             <PlayLeg
                 {...props}
-                onChange={(newLeg) => { changedLeg = newLeg; }}
-                onLegComplete={(side) => { legComplete = side; }}
-                on180={(side) => { oneEighty = side; }}
-                onHiCheck={(side, score) => { hiCheck = { side, score }; }} />);
+                onChange={(newLeg) => {
+                    changedLeg = newLeg;
+                }}
+                onLegComplete={(side) => {
+                    legComplete = side;
+                }}
+                on180={(side) => {
+                    oneEighty = side;
+                }}
+                onHiCheck={(side, score) => {
+                    hiCheck = {side, score};
+                }}/>);
     }
 
     it('renders no-leg if no leg provided', async () => {
@@ -156,12 +164,12 @@ describe('PlayLeg', () => {
                 currentThrow: 'home',
                 isLastLeg: false,
                 home: {
-                    throws: [{ score: 50, noOfDarts: 3 }],
+                    throws: [{score: 50, noOfDarts: 3}],
                     score: 50,
                     noOfDarts: 3,
                 },
                 away: {
-                    throws: [{ score: 100, noOfDarts: 3 }],
+                    throws: [{score: 100, noOfDarts: 3}],
                     score: 100,
                     noOfDarts: 3,
                 },
@@ -181,7 +189,7 @@ describe('PlayLeg', () => {
         expect(changedLeg).toEqual({
             currentThrow: 'away',
             home: {
-                throws: [ { score: 50, noOfDarts: 3 } ],
+                throws: [{score: 50, noOfDarts: 3}],
                 score: 50,
                 noOfDarts: 3,
             },
@@ -191,7 +199,7 @@ describe('PlayLeg', () => {
                 noOfDarts: 0,
             },
             isLastLeg: false,
-            playerSequence: [ 'home', 'away' ],
+            playerSequence: ['home', 'away'],
             startingScore: 501,
         });
     });
@@ -213,7 +221,7 @@ describe('PlayLeg', () => {
         await doClick(findButton(context.container, '🎯HOME'));
 
         expect(changedLeg).toEqual({
-            playerSequence: [ { text: 'HOME', value: 'home' }, { text: 'AWAY', value: 'away' } ],
+            playerSequence: [{text: 'HOME', value: 'home'}, {text: 'AWAY', value: 'away'}],
             currentThrow: 'home',
             isLastLeg: false,
         });
@@ -236,7 +244,7 @@ describe('PlayLeg', () => {
         await doClick(findButton(context.container, '🎯AWAY'));
 
         expect(changedLeg).toEqual({
-            playerSequence: [ { text: 'AWAY', value: 'away' }, { text: 'HOME', value: 'home' } ],
+            playerSequence: [{text: 'AWAY', value: 'away'}, {text: 'HOME', value: 'home'}],
             currentThrow: 'away',
             isLastLeg: true,
         });

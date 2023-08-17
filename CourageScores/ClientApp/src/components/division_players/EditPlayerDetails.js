@@ -1,16 +1,28 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {sortBy} from "../../helpers/collections";
 import {handleChange} from "../../helpers/events";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team, gameId, newTeamId, divisionId, newDivisionId, player }) {
-    const [ saving, setSaving ] = useState(false);
-    const [ saveError, setSaveError ] = useState(null);
-    const { playerApi } = useDependencies();
-    const { teams, divisions, onError } = useApp();
+export function EditPlayerDetails({
+                                      onSaved,
+                                      onChange,
+                                      onCancel,
+                                      seasonId,
+                                      team,
+                                      gameId,
+                                      newTeamId,
+                                      divisionId,
+                                      newDivisionId,
+                                      player
+                                  }) {
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState(null);
+    const {playerApi} = useDependencies();
+    const {teams, divisions, onError} = useApp();
 
     async function saveChanges() {
         /* istanbul ignore next */
@@ -65,7 +77,9 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
         return teams
             .filter(teamSeasonForSameDivision)
             .sort(sortBy('name'))
-            .map(t => { return { value: t.id, text: t.name } });
+            .map(t => {
+                return {value: t.id, text: t.name}
+            });
     }
 
     function teamSeasonForSameDivision(team) {
@@ -85,7 +99,7 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <BootstrapDropdown
                     onChange={value => onChange('teamId', value)}
                     value={player.teamId || (team ? team.id : '')}
-                    options={[{ value: '', text: 'Select team' }].concat(getTeamOptions())} />
+                    options={[{value: '', text: 'Select team'}].concat(getTeamOptions())}/>
             </div>
         );
     }
@@ -98,12 +112,14 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <BootstrapDropdown
                     onChange={value => onChange('newTeamId', value)}
                     value={newTeamId || team.id}
-                    options={getTeamOptions()} />
+                    options={getTeamOptions()}/>
 
                 <BootstrapDropdown
                     onChange={value => onChange('newDivisionId', value)}
                     value={newDivisionId || divisionId}
-                    options={divisions.map(division => { return { value: division.id, text: division.name }; })} />
+                    options={divisions.map(division => {
+                        return {value: division.id, text: division.name};
+                    })}/>
             </div>
         );
     }
@@ -122,12 +138,14 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <span className="input-group-text">Email address (optional)</span>
             </div>
             <input disabled={saving} type="text" className="form-control"
-                   name="emailAddress" value={player.emailAddress || ''} placeholder="Email address hidden, enter address to update" onChange={handleChange(onChange)}/>
+                   name="emailAddress" value={player.emailAddress || ''}
+                   placeholder="Email address hidden, enter address to update" onChange={handleChange(onChange)}/>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch margin-right">
                 <input disabled={saving} type="checkbox"
-                   name="captain" id="captain" checked={player.captain || false} onChange={handleChange(onChange)} className="form-check-input" />
+                       name="captain" id="captain" checked={player.captain || false} onChange={handleChange(onChange)}
+                       className="form-check-input"/>
                 <label className="form-check-label" htmlFor="captain">Captain</label>
             </div>
         </div>
@@ -136,10 +154,13 @@ export function EditPlayerDetails({ onSaved, onChange, onCancel, seasonId, team,
                 <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
             </div>
             <button className="btn btn-primary" onClick={saveChanges}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {saving
+                    ? (<LoadingSpinnerSmall/>)
+                    : null}
                 {player.id ? 'Save player' : 'Add player'}
             </button>
         </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save player details" />) : null}
+        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+                                    title="Could not save player details"/>) : null}
     </div>)
 }

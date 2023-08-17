@@ -7,20 +7,21 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, beforeReloadDivision }) {
+export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, beforeReloadDivision}) {
     const bye = {
         text: 'Bye',
         value: '',
     };
-    const { account, teams: allTeams, onError } = useApp();
-    const { id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision } = useDivisionData();
+    const {account, teams: allTeams, onError} = useApp();
+    const {id: divisionId, name: divisionName, fixtures, season, teams, onReloadDivision} = useDivisionData();
     const isAdmin = account && account.access && account.access.manageGames;
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const [clipCellRegion, setClipCellRegion] = useState(true);
-    const { gameApi } = useDependencies();
+    const {gameApi} = useDependencies();
     const awayTeamId = fixture.awayTeam ? fixture.awayTeam.id : '';
 
     async function doReloadDivision() {
@@ -103,9 +104,9 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
             newFixture.originalAwayTeamId = newFixture.originalAwayTeamId || (newFixture.awayTeam ? newFixture.awayTeam.id : 'unset');
             const team = teams.filter(t => t.id === teamId)[0];
             newFixture.awayTeam = teamId
-                ? { id: teamId, name: team ? team.name : '<unknown>' }
+                ? {id: teamId, name: team ? team.name : '<unknown>'}
                 : null;
-            fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id).concat([ newFixture ]).sort(sortBy('homeTeam.name'));
+            fixtureDate.fixtures = fixtureDate.fixtures.filter(f => f.id !== fixture.id).concat([newFixture]).sort(sortBy('homeTeam.name'));
 
             return currentFixtureDates;
         });
@@ -125,7 +126,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
 
                 return {
                     value: t.id,
-                    text: otherFixtureSameDate ? `🚫 ${t.name} (${unavailableReason})`: t.name,
+                    text: otherFixtureSameDate ? `🚫 ${t.name} (${unavailableReason})` : t.name,
                     disabled: !!otherFixtureSameDate
                 };
             });
@@ -167,16 +168,19 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
     function renderAwayTeam() {
         if (!isAdmin || fixture.homeScore || fixture.awayScore) {
             return (fixture.awayTeam
-               ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                   ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
-                   : null
-               : 'Bye');
+                ? awayTeamId && (fixture.id !== fixture.homeTeam.id)
+                    ? (<EmbedAwareLink to={`/score/${fixture.id}`}
+                                       className="margin-right">{fixture.awayTeam.name}</EmbedAwareLink>)
+                    : null
+                : 'Bye');
         }
 
         if (any(fixture.fixturesUsingAddress)) {
             return (<div>
                 {fixture.fixturesUsingAddress.map((otherFixture, index) => {
-                    return (<div key={index}>🚫 <EmbedAwareLink to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using this venue</EmbedAwareLink></div>)
+                    return (<div key={index}>🚫 <EmbedAwareLink
+                        to={`/score/${otherFixture.id}`}><strong>{otherFixture.home.name}</strong> vs <strong>{otherFixture.away.name}</strong> using
+                        this venue</EmbedAwareLink></div>)
                 })}
             </div>);
         }
@@ -250,23 +254,33 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
         return (<tr className={(deleting ? 'text-decoration-line-through' : '')}>
             <td>
                 {awayTeamId && (fixture.id !== fixture.homeTeam.id)
-                    ? (<EmbedAwareLink to={`/score/${fixture.id}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
-                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                    ? (<EmbedAwareLink to={`/score/${fixture.id}`}
+                                       className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)
+                    : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                                       className="margin-right">{fixture.homeTeam.name}</EmbedAwareLink>)}
             </td>
-            <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.homeScore}</td>
+            <td className="narrow-column text-primary fw-bolder">{fixture.postponed
+                ? (<span className="text-danger">P</span>)
+                : fixture.homeScore}
+            </td>
             <td className="narrow-column">vs</td>
-            <td className="narrow-column text-primary fw-bolder">{fixture.postponed ? (<span className="text-danger">P</span>) : fixture.awayScore}</td>
+            <td className="narrow-column text-primary fw-bolder">{fixture.postponed
+                ? (<span className="text-danger">P</span>)
+                : fixture.awayScore}
+            </td>
             <td style={{overflow: (clipCellRegion ? 'clip' : 'initial')}}>
                 {renderAwayTeam()}
             </td>
             {isAdmin ? (<td className="medium-column">
                 {fixture.originalAwayTeamId && awayTeamId !== fixture.originalAwayTeamId && awayTeamId
-                    ? (<button disabled={readOnly} onClick={saveTeamChange} className="btn btn-sm btn-primary margin-right">{saving ? (
-                        <span className="spinner-border spinner-border-sm" role="status"
-                              aria-hidden="true"></span>) : '💾'}</button>)
+                    ? (<button disabled={readOnly} onClick={saveTeamChange}
+                               className="btn btn-sm btn-primary margin-right">{saving
+                        ? (<LoadingSpinnerSmall/>)
+                        : '💾'}</button>)
                     : null}
                 {fixture.id !== fixture.homeTeam.id && awayTeamId && !saving && !deleting ? (
-                    <button disabled={readOnly} className="btn btn-sm btn-danger" onClick={deleteGame}>🗑</button>) : null}
+                    <button disabled={readOnly} className="btn btn-sm btn-danger"
+                            onClick={deleteGame}>🗑</button>) : null}
                 {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                             title="Could not save fixture details"/>) : null}
             </td>) : null}

@@ -7,8 +7,8 @@ namespace CourageScores.Services.Command;
 
 public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentGame>
 {
-    private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter;
     private readonly IAdapter<NotableTournamentPlayer, NotableTournamentPlayerDto> _hiCheckPlayerAdapter;
+    private readonly IAdapter<TournamentPlayer, TournamentPlayerDto> _oneEightyPlayerAdapter;
     private PatchTournamentDto? _patch;
 
     public PatchTournamentCommand(
@@ -63,7 +63,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = false,
-            Warnings = { "No tournament data to update" },
+            Warnings =
+            {
+                "No tournament data to update",
+            },
             Result = model,
         };
     }
@@ -74,7 +77,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = true,
-            Messages = { "180 added" },
+            Messages =
+            {
+                "180 added",
+            },
             Result = model,
         };
     }
@@ -85,7 +91,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentGame>
         {
             Success = true,
-            Messages = { "hi-check added" },
+            Messages =
+            {
+                "hi-check added",
+            },
             Result = model,
         };
     }
@@ -97,7 +106,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentRound>
             {
                 Success = false,
-                Errors = { "Round doesn't exist" },
+                Errors =
+                {
+                    "Round doesn't exist",
+                },
             };
         }
 
@@ -127,7 +139,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentRound>
         {
             Success = false,
-            Warnings = { "No round details to update" },
+            Warnings =
+            {
+                "No round details to update",
+            },
             Result = currentRound,
         };
     }
@@ -142,7 +157,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Errors = { "Match not found" },
+                Errors =
+                {
+                    "Match not found",
+                },
             };
         }
 
@@ -151,7 +169,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
             return new ActionResult<TournamentMatch>
             {
                 Success = false,
-                Warnings = { "No match details to update" },
+                Warnings =
+                {
+                    "No match details to update",
+                },
             };
         }
 
@@ -160,7 +181,10 @@ public class PatchTournamentCommand : IUpdateCommand<TournamentGame, TournamentG
         return new ActionResult<TournamentMatch>
         {
             Success = true,
-            Messages = { "Match updated" },
+            Messages =
+            {
+                "Match updated",
+            },
             Result = match,
         };
     }

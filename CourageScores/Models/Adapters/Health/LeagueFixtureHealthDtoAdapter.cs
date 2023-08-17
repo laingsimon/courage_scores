@@ -7,7 +7,12 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<LeagueFixtureH
 {
     public Task<LeagueFixtureHealthDto?> Adapt(FixtureDateMapping model, CancellationToken token)
     {
-        if (model.Fixture.IsKnockout || (model.Fixture.Id == model.Fixture.HomeTeam.Id && model.Fixture.AwayTeam == null))
+        if (model.Fixture.IsKnockout)
+        {
+            return Task.FromResult<LeagueFixtureHealthDto?>(null);
+        }
+
+        if (model.Fixture.Id == model.Fixture.HomeTeam.Id && model.Fixture.AwayTeam == null)
         {
             return Task.FromResult<LeagueFixtureHealthDto?>(null);
         }
@@ -27,13 +32,13 @@ public class LeagueFixtureHealthDtoAdapter : ISimpleOnewayAdapter<LeagueFixtureH
 
     public class FixtureDateMapping
     {
-        public DateTime Date { get; }
-        public DivisionFixtureDto Fixture { get; }
-
         public FixtureDateMapping(DateTime date, DivisionFixtureDto fixture)
         {
             Date = date;
             Fixture = fixture;
         }
+
+        public DateTime Date { get; }
+        public DivisionFixtureDto Fixture { get; }
     }
 }

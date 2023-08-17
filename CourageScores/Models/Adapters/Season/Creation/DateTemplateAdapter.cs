@@ -8,7 +8,7 @@ public class DateTemplateAdapter : ISimpleAdapter<DateTemplate, DateTemplateDto>
 {
     private readonly ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> _fixtureTemplateAdapter;
 
-    public DateTemplateAdapter(ISimpleAdapter<FixtureTemplate,FixtureTemplateDto> fixtureTemplateAdapter)
+    public DateTemplateAdapter(ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> fixtureTemplateAdapter)
     {
         _fixtureTemplateAdapter = fixtureTemplateAdapter;
     }

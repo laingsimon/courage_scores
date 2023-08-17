@@ -9,26 +9,6 @@ namespace CourageScores.Models.Dtos.Game;
 public class GameDto : AuditedDto, IEditGameDto
 {
     /// <summary>
-    /// The id of the division
-    /// </summary>
-    public Guid DivisionId { get; set; }
-
-    /// <summary>
-    /// The id of the season in which the game is being played
-    /// </summary>
-    public Guid SeasonId { get; set; }
-
-    /// <summary>
-    /// The date (and time)
-    /// </summary>
-    public DateTime Date { get; set; }
-
-    /// <summary>
-    /// The venue, which may not be the home-team's address (e.g. for knockouts, finals, etc.)
-    /// </summary>
-    public string Address { get; set; } = null!;
-
-    /// <summary>
     /// Who played from the home team
     /// </summary>
     public GameTeamDto Home { get; set; } = null!;
@@ -42,16 +22,6 @@ public class GameDto : AuditedDto, IEditGameDto
     /// The matches that were played
     /// </summary>
     public List<GameMatchDto> Matches { get; set; } = new();
-
-    /// <summary>
-    /// Whether the game has been postponed
-    /// </summary>
-    public bool Postponed { get; set; }
-
-    /// <summary>
-    /// Is this a knockout game?
-    /// </summary>
-    public bool IsKnockout { get; set; }
 
     /// <summary>
     /// The scores as reported by the home team
@@ -82,6 +52,36 @@ public class GameDto : AuditedDto, IEditGameDto
     /// Options for each match in the game
     /// </summary>
     public List<GameMatchOptionDto?> MatchOptions { get; set; } = new();
+
+    /// <summary>
+    /// The id of the division
+    /// </summary>
+    public Guid DivisionId { get; set; }
+
+    /// <summary>
+    /// The id of the season in which the game is being played
+    /// </summary>
+    public Guid SeasonId { get; set; }
+
+    /// <summary>
+    /// The date (and time)
+    /// </summary>
+    public DateTime Date { get; set; }
+
+    /// <summary>
+    /// The venue, which may not be the home-team's address (e.g. for knockouts, finals, etc.)
+    /// </summary>
+    public string Address { get; set; } = null!;
+
+    /// <summary>
+    /// Whether the game has been postponed
+    /// </summary>
+    public bool Postponed { get; set; }
+
+    /// <summary>
+    /// Is this a knockout game?
+    /// </summary>
+    public bool IsKnockout { get; set; }
 
     public bool AccoladesCount { get; set; }
 }

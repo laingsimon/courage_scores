@@ -2,12 +2,16 @@
 
 import {
     changeFilter,
-    getDateFilter, getFixtureFilters, getTeamFilter, getTypeFilter, initFilter,
+    getDateFilter,
+    getFixtureDateFilters,
+    getFixtureFilters,
+    getNotesFilter,
+    getTeamFilter,
+    getTypeFilter,
+    initFilter,
     isLastFixtureBeforeToday,
     isNextFixtureAfterToday,
-    optionallyInvertFilter,
-    getFixtureDateFilters,
-    getNotesFilter
+    optionallyInvertFilter
 } from "./filters";
 
 describe('filters', () => {
@@ -121,12 +125,12 @@ describe('filters', () => {
 
     describe('optionallyInvertFilter', () => {
         it('returns filter if empty', () => {
-            const context = { id: 1 };
-            const fixtures = [{ id: 2 }];
-            const stubFilter = { id: 3 };
+            const context = {id: 1};
+            const fixtures = [{id: 2}];
+            const stubFilter = {id: 3};
             let call;
             const getFilter = (filter, context, fixtures) => {
-                call = { filter, context, fixtures };
+                call = {filter, context, fixtures};
                 return stubFilter;
             };
 
@@ -140,12 +144,12 @@ describe('filters', () => {
         });
 
         it('returns filter if it does not start with not(', () => {
-            const context = { id: 1 };
-            const fixtures = [{ id: 2 }];
-            const stubFilter = { id: 3 };
+            const context = {id: 1};
+            const fixtures = [{id: 2}];
+            const stubFilter = {id: 3};
             let call;
             const getFilter = (filter, context, fixtures) => {
-                call = { filter, context, fixtures };
+                call = {filter, context, fixtures};
                 return stubFilter;
             };
 
@@ -159,11 +163,11 @@ describe('filters', () => {
         });
 
         it('returns null filter if no filter created and filter start with not(', () => {
-            const context = { id: 1 };
-            const fixtures = [{ id: 2 }];
+            const context = {id: 1};
+            const fixtures = [{id: 2}];
             let call;
             const getFilter = (filter, context, fixtures) => {
-                call = { filter, context, fixtures };
+                call = {filter, context, fixtures};
                 return null;
             };
 
@@ -177,14 +181,15 @@ describe('filters', () => {
         });
 
         it('returns inverted filter if filter created and filter start with not(', () => {
-            const context = { id: 1 };
-            const fixtures = [{ id: 2 }];
+            const context = {id: 1};
+            const fixtures = [{id: 2}];
             const stubFilter = {
                 id: 3,
-                apply: () => true };
+                apply: () => true
+            };
             let call;
             const getFilter = (filter, context, fixtures) => {
-                call = { filter, context, fixtures };
+                call = {filter, context, fixtures};
                 return stubFilter;
             };
 
@@ -203,18 +208,18 @@ describe('filters', () => {
             const filter = getDateFilter('past', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: past })).toEqual(true);
-            expect(filter.apply({ date: today })).toEqual(false);
-            expect(filter.apply({ date: future })).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(true);
+            expect(filter.apply({date: today})).toEqual(false);
+            expect(filter.apply({date: future})).toEqual(false);
         });
 
         it('when future', () => {
             const filter = getDateFilter('future', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: past })).toEqual(false);
-            expect(filter.apply({ date: today })).toEqual(false);
-            expect(filter.apply({ date: future })).toEqual(true);
+            expect(filter.apply({date: past})).toEqual(false);
+            expect(filter.apply({date: today})).toEqual(false);
+            expect(filter.apply({date: future})).toEqual(true);
         });
 
         it('when last+next', () => {
@@ -225,49 +230,49 @@ describe('filters', () => {
             const filter = getDateFilter('last+next', context, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: date(-2) })).toEqual(false);
-            expect(filter.apply({ date: past })).toEqual(true);
-            expect(filter.apply({ date: today })).toEqual(true);
-            expect(filter.apply({ date: future })).toEqual(true);
-            expect(filter.apply({ date: date(2) })).toEqual(false);
+            expect(filter.apply({date: date(-2)})).toEqual(false);
+            expect(filter.apply({date: past})).toEqual(true);
+            expect(filter.apply({date: today})).toEqual(true);
+            expect(filter.apply({date: future})).toEqual(true);
+            expect(filter.apply({date: date(2)})).toEqual(false);
         });
 
         it('when matches date yyyy-MM format', () => {
             const filter = getDateFilter('2023-02', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(false);
+            expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-02-02T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-03-03T00:00:00'})).toEqual(false);
         });
 
         it('when matches date yyyy-MM,yyyy-MM format', () => {
             const filter = getDateFilter('2023-02,2023-03', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: '2023-01-01T00:00:00' })).toEqual(false);
-            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-04-04T00:00:00' })).toEqual(false);
+            expect(filter.apply({date: '2023-01-01T00:00:00'})).toEqual(false);
+            expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-02-02T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-03-03T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-04-04T00:00:00'})).toEqual(false);
         });
 
         it('when matches date yyyy-MM-dd format', () => {
             const filter = getDateFilter('2023-02-01', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(false);
-            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(false);
+            expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-02-02T00:00:00'})).toEqual(false);
+            expect(filter.apply({date: '2023-03-03T00:00:00'})).toEqual(false);
         });
 
         it('when matches date yyyy-MM-dd,yyyy-MM-dd format', () => {
             const filter = getDateFilter('2023-02-01,2023-03-03', {}, []);
 
             expect(filter).not.toBeNull();
-            expect(filter.apply({ date: '2023-02-01T00:00:00' })).toEqual(true);
-            expect(filter.apply({ date: '2023-02-02T00:00:00' })).toEqual(false);
-            expect(filter.apply({ date: '2023-03-03T00:00:00' })).toEqual(true);
+            expect(filter.apply({date: '2023-02-01T00:00:00'})).toEqual(true);
+            expect(filter.apply({date: '2023-02-02T00:00:00'})).toEqual(false);
+            expect(filter.apply({date: '2023-03-03T00:00:00'})).toEqual(true);
         });
 
         it('otherwise returns null filter', () => {
@@ -361,12 +366,12 @@ describe('filters', () => {
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 fixture: {
-                    homeTeam: { id: 'abcd' },
+                    homeTeam: {id: 'abcd'},
                 },
             })).toEqual(true);
             expect(filter.apply({
                 fixture: {
-                    awayTeam: { id: 'abcd' },
+                    awayTeam: {id: 'abcd'},
                 },
             })).toEqual(true);
             expect(filter.apply({
@@ -384,12 +389,12 @@ describe('filters', () => {
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 fixture: {
-                    homeTeam: { id: 'abcd', name: 'name' },
+                    homeTeam: {id: 'abcd', name: 'name'},
                 },
             })).toEqual(true);
             expect(filter.apply({
                 fixture: {
-                    awayTeam: { id: 'abcd', name: 'name' },
+                    awayTeam: {id: 'abcd', name: 'name'},
                 },
             })).toEqual(true);
             expect(filter.apply({
@@ -408,12 +413,12 @@ describe('filters', () => {
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 fixture: {
-                    homeTeam: { id: 'abcd', name: 'name' },
+                    homeTeam: {id: 'abcd', name: 'name'},
                 },
             })).toEqual(true);
             expect(filter.apply({
                 fixture: {
-                    awayTeam: { id: 'abcd', name: 'name' },
+                    awayTeam: {id: 'abcd', name: 'name'},
                 },
             })).toEqual(true);
             expect(filter.apply({
@@ -432,7 +437,7 @@ describe('filters', () => {
             const filter = getNotesFilter('only-with-fixtures');
 
             expect(filter.apply({
-                notes: [ {} ],
+                notes: [{}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
@@ -442,7 +447,7 @@ describe('filters', () => {
             const filter = getNotesFilter('');
 
             expect(filter.apply({
-                notes: [ {} ],
+                notes: [{}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -452,7 +457,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd');
 
             expect(filter.apply({
-                notes: [ { note: 'abcd' } ],
+                notes: [{note: 'abcd'}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -462,7 +467,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd;efgh');
 
             expect(filter.apply({
-                notes: [ { note: 'another note' }, { note: 'efgh' } ],
+                notes: [{note: 'another note'}, {note: 'efgh'}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -472,7 +477,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd;efgh');
 
             expect(filter.apply({
-                notes: [ { note: 'EFGH' } ],
+                notes: [{note: 'EFGH'}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -482,7 +487,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd;efgh');
 
             expect(filter.apply({
-                notes: [ { note: 'ijkl' } ],
+                notes: [{note: 'ijkl'}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
@@ -498,7 +503,7 @@ describe('filters', () => {
         });
 
         it('returns filter when expression is not empty', () => {
-            const filter = getFixtureFilters({ type: 'league' });
+            const filter = getFixtureFilters({type: 'league'});
 
             expect(filter).not.toBeNull();
         });
@@ -533,7 +538,7 @@ describe('filters', () => {
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                notes: [ {} ],
+                notes: [{}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -545,24 +550,24 @@ describe('filters', () => {
             expect(filter).not.toBeNull();
             expect(filter.apply({
                 notes: [],
-                fixtures: [ {} ],
-                tournamentFixtures: [ {} ],
+                fixtures: [{}],
+                tournamentFixtures: [{}],
             })).toEqual(true);
         });
 
         it('returns negative when notes but no fixtures or tournaments', () => {
-            const filter = getFixtureDateFilters({ notes: 'only-with-fixtures'}, {}, []);
+            const filter = getFixtureDateFilters({notes: 'only-with-fixtures'}, {}, []);
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                notes: [ {} ],
+                notes: [{}],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);
         });
 
         it('returns filter for dates', () => {
-            const filter = getFixtureDateFilters({ date: 'past' }, {}, []);
+            const filter = getFixtureDateFilters({date: 'past'}, {}, []);
 
             expect(filter).not.toBeNull();
         });
@@ -570,52 +575,56 @@ describe('filters', () => {
 
     describe('initFilter', () => {
         it('inits date filter', () => {
-            const filter = initFilter({ search: '?date=past' });
+            const filter = initFilter({search: '?date=past'});
 
-            expect(filter).toEqual({ date: 'past' });
+            expect(filter).toEqual({date: 'past'});
         });
 
         it('inits type filter', () => {
-            const filter = initFilter({ search: '?type=league' });
+            const filter = initFilter({search: '?type=league'});
 
-            expect(filter).toEqual({ type: 'league' });
+            expect(filter).toEqual({type: 'league'});
         });
 
         it('inits team filter', () => {
-            const filter = initFilter({ search: '?team=abcd' });
+            const filter = initFilter({search: '?team=abcd'});
 
-            expect(filter).toEqual({ team: 'abcd' });
+            expect(filter).toEqual({team: 'abcd'});
         });
 
         it('inits notes filter', () => {
-            const filter = initFilter({ search: '?notes=abcd' });
+            const filter = initFilter({search: '?notes=abcd'});
 
-            expect(filter).toEqual({ notes: 'abcd' });
+            expect(filter).toEqual({notes: 'abcd'});
         });
 
         it('accepts no filter expressions', () => {
-            expect(initFilter({ search: '?' })).toEqual({ });
-            expect(initFilter({ search: '' })).toEqual({ });
+            expect(initFilter({search: '?'})).toEqual({});
+            expect(initFilter({search: ''})).toEqual({});
         });
 
         it('inits multiple filters', () => {
-            const filter = initFilter({ search: '?team=abcd&date=past&type=league' });
+            const filter = initFilter({search: '?team=abcd&date=past&type=league'});
 
-            expect(filter).toEqual({ team: 'abcd', date: 'past', type: 'league' });
+            expect(filter).toEqual({team: 'abcd', date: 'past', type: 'league'});
         });
     });
 
     describe('changeFilter', () => {
         let updatedFilter;
         let navigated;
-        const setFilter = (filter) => { updatedFilter = filter };
-        const navigate = (params) => { navigated = params };
-        const location = { pathname: 'path', hash: '#hash' };
+        const setFilter = (filter) => {
+            updatedFilter = filter
+        };
+        const navigate = (params) => {
+            navigated = params
+        };
+        const location = {pathname: 'path', hash: '#hash'};
 
         it('sets new filter', () => {
             updatedFilter = null;
             navigated = null;
-            const filter = { new: true };
+            const filter = {new: true};
 
             changeFilter(filter, setFilter, navigate, location);
 
@@ -626,7 +635,7 @@ describe('filters', () => {
         it('removes unset filters from search', () => {
             updatedFilter = null;
             navigated = null;
-            const filter = { type: '', date: 'past' };
+            const filter = {type: '', date: 'past'};
 
             changeFilter(filter, setFilter, navigate, location);
 
@@ -640,7 +649,7 @@ describe('filters', () => {
         it('navigates with new search params', () => {
             updatedFilter = null;
             navigated = null;
-            const filter = { type: 'league', date: 'past' };
+            const filter = {type: 'league', date: 'past'};
 
             changeFilter(filter, setFilter, navigate, location);
 

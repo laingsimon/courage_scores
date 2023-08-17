@@ -34,7 +34,7 @@ public class ScoresImporter : IImporter
             fixtureCount++;
 
             var result = await ImportFixture(accessFixture.ToArray(), context, fixtureCount, token);
-            totalSuccess = (result != ImportResult.Error) && totalSuccess;
+            totalSuccess = result != ImportResult.Error && totalSuccess;
         }
 
         if (context.Errors.Count != initialErrorCount)
@@ -317,10 +317,22 @@ public class ScoresImporter : IImporter
     {
         public bool Equals(GamePlayer? x, GamePlayer? y)
         {
-            if (ReferenceEquals(x, y)) return true;
-            if (ReferenceEquals(x, null)) return false;
-            if (ReferenceEquals(y, null)) return false;
-            if (x.GetType() != y.GetType()) return false;
+            if (ReferenceEquals(x, y))
+            {
+                return true;
+            }
+            if (ReferenceEquals(x, null))
+            {
+                return false;
+            }
+            if (ReferenceEquals(y, null))
+            {
+                return false;
+            }
+            if (x.GetType() != y.GetType())
+            {
+                return false;
+            }
             return x.Name == y.Name;
         }
 

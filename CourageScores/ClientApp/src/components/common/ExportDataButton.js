@@ -2,11 +2,12 @@ import {useApp} from "../../AppContainer";
 import {any} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import React, {useState} from "react";
+import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 
-export function ExportDataButton({ tables }) {
-    const { account, onError } = useApp();
-    const { dataApi } = useDependencies();
-    const [ exporting, setExporting ] = useState(false);
+export function ExportDataButton({tables}) {
+    const {account, onError} = useApp();
+    const {dataApi} = useDependencies();
+    const [exporting, setExporting] = useState(false);
 
     if (!account || !account.access || !account.access.exportData) {
         return null;
@@ -47,7 +48,7 @@ export function ExportDataButton({ tables }) {
 
     return (<button className="btn btn-sm btn-outline-primary" onClick={doExport}>
         {exporting
-            ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+            ? (<LoadingSpinnerSmall/>)
             : '🛒'}
     </button>);
 }

@@ -8,27 +8,13 @@ namespace CourageScores.Models.Adapters;
 
 public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorDetailAdapter
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISystemClock _clock;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public ErrorDetailAdapter(IHttpContextAccessor httpContextAccessor, ISystemClock clock)
     {
         _httpContextAccessor = httpContextAccessor;
         _clock = clock;
-    }
-
-    public Task<ErrorDetailDto> Adapt(IExceptionHandlerPathFeature errorDetails, CancellationToken token)
-    {
-        return Task.FromResult(new ErrorDetailDto
-        {
-            Source = SourceSystem.Api,
-            Time = _clock.UtcNow.UtcDateTime,
-            UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
-            Stack = errorDetails.Error.StackTrace?.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries),
-            Type = errorDetails.Error.GetType().Name,
-            Message = errorDetails.Error.Message,
-            Url = _httpContextAccessor.HttpContext?.Request.GetEncodedUrl(),
-        });
     }
 
     public Task<ErrorDetail> Adapt(ErrorDetailDto dto, CancellationToken token)
@@ -61,5 +47,22 @@ public class ErrorDetailAdapter : IAdapter<ErrorDetail, ErrorDetailDto>, IErrorD
             UserAgent = model.UserAgent,
             Url = model.Url,
         }.AddAuditProperties(model));
+    }
+
+    public Task<ErrorDetailDto> Adapt(IExceptionHandlerPathFeature errorDetails, CancellationToken token)
+    {
+        return Task.FromResult(new ErrorDetailDto
+        {
+            Source = SourceSystem.Api,
+            Time = _clock.UtcNow.UtcDateTime,
+            UserAgent = _httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString(),
+            Stack = errorDetails.Error.StackTrace?.Split(new[]
+            {
+                '\r', '\n',
+            }, StringSplitOptions.RemoveEmptyEntries),
+            Type = errorDetails.Error.GetType().Name,
+            Message = errorDetails.Error.Message,
+            Url = _httpContextAccessor.HttpContext?.Request.GetEncodedUrl(),
+        });
     }
 }

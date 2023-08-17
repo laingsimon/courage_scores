@@ -16,8 +16,8 @@ describe('DivisionHealth', () => {
     async function renderComponent(result) {
         reportedError = null;
         context = await renderApp(
-            { },
-            { },
+            {},
+            {},
             {
                 onError: (err) => {
                     reportedError = {
@@ -26,7 +26,7 @@ describe('DivisionHealth', () => {
                     };
                 },
             },
-            (<ViewHealthCheck result={result} />));
+            (<ViewHealthCheck result={result}/>));
     }
 
     it('should render successful check', async () => {
@@ -82,7 +82,7 @@ describe('DivisionHealth', () => {
             checks: {
                 'some description': {
                     success: true,
-                    errors: [ 'some error' ],
+                    errors: ['some error'],
                     warnings: [],
                     messages: [],
                 }
@@ -105,7 +105,7 @@ describe('DivisionHealth', () => {
                 'some description': {
                     success: true,
                     errors: [],
-                    warnings: [ 'some warning' ],
+                    warnings: ['some warning'],
                     messages: [],
                 }
             },
@@ -128,7 +128,7 @@ describe('DivisionHealth', () => {
                     success: true,
                     errors: [],
                     warnings: [],
-                    messages: [ 'some message' ],
+                    messages: ['some message'],
                 }
             },
         });

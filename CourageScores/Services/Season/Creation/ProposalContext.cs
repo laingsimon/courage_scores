@@ -8,15 +8,16 @@ namespace CourageScores.Services.Season.Creation;
 [ExcludeFromCodeCoverage]
 public class ProposalContext
 {
-    public TemplateMatchContext MatchContext { get; }
-    public TemplateDto Template { get; }
-    public ActionResultDto<ProposalResultDto> Result { get; }
-    public Dictionary<string, TeamDto> PlaceholderMapping => Result.Result!.PlaceholderMappings;
-
-    public ProposalContext(TemplateMatchContext matchContext, TemplateDto template, ActionResultDto<ProposalResultDto> result)
+    public ProposalContext(TemplateMatchContext matchContext, TemplateDto template,
+        ActionResultDto<ProposalResultDto> result)
     {
         MatchContext = matchContext;
         Template = template;
         Result = result;
     }
+
+    public TemplateMatchContext MatchContext { get; }
+    public TemplateDto Template { get; }
+    public ActionResultDto<ProposalResultDto> Result { get; }
+    public Dictionary<string, TeamDto> PlaceholderMapping => Result.Result!.PlaceholderMappings;
 }

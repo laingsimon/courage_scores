@@ -8,14 +8,14 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class TournamentRoundAdapterTests
 {
-    private static readonly TournamentSide Side = new TournamentSide();
-    private static readonly TournamentSideDto SideDto = new TournamentSideDto();
-    private static readonly TournamentMatch Match = new TournamentMatch();
-    private static readonly TournamentMatchDto MatchDto = new TournamentMatchDto();
-    private static readonly GameMatchOption MatchOption = new GameMatchOption();
-    private static readonly GameMatchOptionDto MatchOptionDto = new GameMatchOptionDto();
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly TournamentRoundAdapter _adapter = new TournamentRoundAdapter(
+    private static readonly TournamentSide Side = new();
+    private static readonly TournamentSideDto SideDto = new();
+    private static readonly TournamentMatch Match = new();
+    private static readonly TournamentMatchDto MatchDto = new();
+    private static readonly GameMatchOption MatchOption = new();
+    private static readonly GameMatchOptionDto MatchOptionDto = new();
+    private readonly CancellationToken _token = new();
+    private readonly TournamentRoundAdapter _adapter = new(
         new MockAdapter<TournamentMatch, TournamentMatchDto>(Match, MatchDto),
         new MockAdapter<TournamentSide, TournamentSideDto>(Side, SideDto),
         new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(MatchOption, MatchOptionDto));
@@ -26,24 +26,39 @@ public class TournamentRoundAdapterTests
         var model = new TournamentRound
         {
             Id = Guid.NewGuid(),
-            Matches = { Match },
-            Sides = { Side },
+            Matches =
+            {
+                Match,
+            },
+            Sides =
+            {
+                Side,
+            },
             NextRound = null,
             Name = "name",
             MatchOptions =
             {
-                MatchOption
-            }
+                MatchOption,
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.Matches, Is.EqualTo(new[] { MatchDto }));
-        Assert.That(result.Sides, Is.EqualTo(new[] { SideDto }));
+        Assert.That(result.Matches, Is.EqualTo(new[]
+        {
+            MatchDto,
+        }));
+        Assert.That(result.Sides, Is.EqualTo(new[]
+        {
+            SideDto,
+        }));
         Assert.That(result.NextRound, Is.Null);
         Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOptionDto }));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[]
+        {
+            MatchOptionDto,
+        }));
     }
 
     [Test]
@@ -56,21 +71,30 @@ public class TournamentRoundAdapterTests
         var model = new TournamentRound
         {
             Id = Guid.NewGuid(),
-            Matches = { Match },
-            Sides = { Side },
+            Matches =
+            {
+                Match,
+            },
+            Sides =
+            {
+                Side,
+            },
             NextRound = nextRound,
             Name = "name",
             MatchOptions =
             {
-                MatchOption
-            }
+                MatchOption,
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOptionDto }));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[]
+        {
+            MatchOptionDto,
+        }));
     }
 
     [Test]
@@ -79,24 +103,39 @@ public class TournamentRoundAdapterTests
         var dto = new TournamentRoundDto
         {
             Id = Guid.NewGuid(),
-            Matches = { MatchDto },
-            Sides = { SideDto },
+            Matches =
+            {
+                MatchDto,
+            },
+            Sides =
+            {
+                SideDto,
+            },
             NextRound = null,
             Name = "name",
             MatchOptions =
             {
-                MatchOptionDto
-            }
+                MatchOptionDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
-        Assert.That(result.Matches, Is.EqualTo(new[] { Match }));
-        Assert.That(result.Sides, Is.EqualTo(new[] { Side }));
+        Assert.That(result.Matches, Is.EqualTo(new[]
+        {
+            Match,
+        }));
+        Assert.That(result.Sides, Is.EqualTo(new[]
+        {
+            Side,
+        }));
         Assert.That(result.NextRound, Is.Null);
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOption }));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[]
+        {
+            MatchOption,
+        }));
     }
 
     [Test]
@@ -109,21 +148,30 @@ public class TournamentRoundAdapterTests
         var dto = new TournamentRoundDto
         {
             Id = Guid.NewGuid(),
-            Matches = { MatchDto },
-            Sides = { SideDto },
+            Matches =
+            {
+                MatchDto,
+            },
+            Sides =
+            {
+                SideDto,
+            },
             NextRound = nextRound,
             Name = "name",
             MatchOptions =
             {
                 MatchOptionDto,
-            }
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.NextRound, Is.Not.Null);
         Assert.That(result.NextRound!.Id, Is.EqualTo(nextRound.Id));
-        Assert.That(result.MatchOptions, Is.EqualTo(new[] { MatchOption }));
+        Assert.That(result.MatchOptions, Is.EqualTo(new[]
+        {
+            MatchOption,
+        }));
     }
 
     [Test]

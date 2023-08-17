@@ -26,7 +26,7 @@ class DataApi {
             method: 'POST',
             mode: 'cors',
             body: data,
-            headers: { },
+            headers: {},
             credentials: 'include'
         });
 
@@ -38,4 +38,4 @@ class DataApi {
     }
 }
 
-export { DataApi };
+export {DataApi};

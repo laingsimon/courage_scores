@@ -8,13 +8,13 @@ namespace CourageScores.Services.Data;
 
 public class DataService : IDataService
 {
-    private readonly Database _database;
-    private readonly IUserService _userService;
-    private readonly IZipFileReaderFactory _zipFileReaderFactory;
-    private readonly IDataImporterFactory _dataImporterFactory;
-    private readonly ICosmosTableService _cosmosTableService;
-    private readonly IZipBuilderFactory _zipBuilderFactory;
     private readonly IConfiguration _configuration;
+    private readonly ICosmosTableService _cosmosTableService;
+    private readonly Database _database;
+    private readonly IDataImporterFactory _dataImporterFactory;
+    private readonly IUserService _userService;
+    private readonly IZipBuilderFactory _zipBuilderFactory;
+    private readonly IZipFileReaderFactory _zipFileReaderFactory;
 
     public DataService(
         Database database,
@@ -113,7 +113,7 @@ public class DataService : IDataService
         {
             Errors =
             {
-                reason
+                reason,
             },
             Success = false,
         };

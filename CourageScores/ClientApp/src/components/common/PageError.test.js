@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {PageError} from "./PageError";
 
@@ -27,8 +27,8 @@ describe('PageError', () => {
         reportedClientSideException = [];
         appError = error;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -40,7 +40,7 @@ describe('PageError', () => {
                 reportClientSideException,
                 clearError
             },
-            (<PageError error={appError} />));
+            (<PageError error={appError}/>));
 
         // don't allow onError to be called - would call infinite-loop/recursion
         expect(reportedError).toBeNull();

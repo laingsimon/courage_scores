@@ -22,7 +22,10 @@ public class ActionResultAdapter : IActionResultAdapter
         return Task.FromResult(new ActionResultDto<T>
         {
             Success = false,
-            Warnings = { warning },
+            Warnings =
+            {
+                warning,
+            },
         });
     }
 }

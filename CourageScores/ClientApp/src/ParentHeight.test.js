@@ -10,7 +10,7 @@ describe('ParentHeight', () => {
 
     window.setInterval = (func, freq) => {
         const handle = nextHandle++;
-        intervalCreated = { func, freq, handle };
+        intervalCreated = {func, freq, handle};
         return handle;
     };
 
@@ -25,39 +25,39 @@ describe('ParentHeight', () => {
     };
 
     beforeEach(() => {
-       intervalCreated = null;
-       intervalCleared = null;
-       postedMessage = null;
+        intervalCreated = null;
+        intervalCleared = null;
+        postedMessage = null;
     });
 
-   describe('setupInterval', () => {
-       it('should setup interval', () => {
+    describe('setupInterval', () => {
+        it('should setup interval', () => {
             const sut = new ParentHeight(100, () => 100, () => parentMock);
 
             sut.setupInterval(200);
 
             expect(intervalCreated).not.toBeNull();
             expect(intervalCreated.freq).toEqual(200);
-       });
+        });
 
-       it('should not setup interval if no parent', () => {
-           const sut = new ParentHeight(100, () => 100, () => null);
+        it('should not setup interval if no parent', () => {
+            const sut = new ParentHeight(100, () => 100, () => null);
 
-           sut.setupInterval(200);
+            sut.setupInterval(200);
 
-           expect(intervalCreated).toBeNull();
-       });
+            expect(intervalCreated).toBeNull();
+        });
 
-       it('should not setup interval if already setup', () => {
-           const sut = new ParentHeight(100, () => 100, () => parentMock);
-           sut.setupInterval(200);
+        it('should not setup interval if already setup', () => {
+            const sut = new ParentHeight(100, () => 100, () => parentMock);
+            sut.setupInterval(200);
 
-           sut.setupInterval(250);
+            sut.setupInterval(250);
 
-           expect(intervalCreated).not.toBeNull();
-           expect(intervalCreated.freq).toEqual(200);
-       });
-   });
+            expect(intervalCreated).not.toBeNull();
+            expect(intervalCreated.freq).toEqual(200);
+        });
+    });
 
     describe('cancelInterval', () => {
         it('should not clear interval if not setup', () => {

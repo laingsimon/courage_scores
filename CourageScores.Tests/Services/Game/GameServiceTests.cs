@@ -12,10 +12,10 @@ namespace CourageScores.Tests.Services.Game;
 [TestFixture]
 public class GameServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private GameDto? _game;
     private Mock<IUserService> _userService = null!;
-    private Mock<IGenericDataService<CosmosGame,GameDto>> _underlyingService = null!;
+    private Mock<IGenericDataService<CosmosGame, GameDto>> _underlyingService = null!;
     private UserDto? _user;
     private GameService _service = null!;
 
@@ -50,7 +50,7 @@ public class GameServiceTests
             Access = new AccessDto
             {
                 ManageScores = false,
-            }
+            },
         };
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => _user);
         _underlyingService.Setup(s => s.Get(It.IsAny<Guid>(), _token)).ReturnsAsync(() => _game);
@@ -126,8 +126,14 @@ public class GameServiceTests
     [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForHomeTeam_ShouldReturnHomeTeamSubmission()
     {
-        _game!.HomeSubmission = new GameDto { Matches = new List<GameMatchDto>() };
-        _game!.AwaySubmission = new GameDto { Matches = new List<GameMatchDto>() };
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Home.Id;
 
@@ -140,8 +146,14 @@ public class GameServiceTests
     [Test]
     public async Task Get_WhenResultsUnpublishedUserCanInputResultsForAwayTeam_ShouldReturnHomeTeamSubmission()
     {
-        _game!.HomeSubmission = new GameDto { Matches = new List<GameMatchDto>() };
-        _game!.AwaySubmission = new GameDto { Matches = new List<GameMatchDto>() };
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Away.Id;
 
@@ -209,8 +221,14 @@ public class GameServiceTests
     [Test]
     public async Task GetAll_WhenResultsUnpublishedUserCanInputResultsForHomeTeam_ShouldReturnHomeTeamSubmission()
     {
-        _game!.HomeSubmission = new GameDto { Matches = new List<GameMatchDto>() };
-        _game!.AwaySubmission = new GameDto { Matches = new List<GameMatchDto>() };
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Home.Id;
 
@@ -223,8 +241,14 @@ public class GameServiceTests
     [Test]
     public async Task GetAll_WhenResultsUnpublishedUserCanInputResultsForAwayTeam_ShouldReturnHomeTeamSubmission()
     {
-        _game!.HomeSubmission = new GameDto { Matches = new List<GameMatchDto>() };
-        _game!.AwaySubmission = new GameDto { Matches = new List<GameMatchDto>() };
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Away.Id;
 
@@ -292,8 +316,14 @@ public class GameServiceTests
     [Test]
     public async Task GetWhere_WhenResultsUnpublishedUserCanInputResultsForHomeTeam_ShouldReturnHomeTeamSubmission()
     {
-        _game!.HomeSubmission = new GameDto { Matches = new List<GameMatchDto>() };
-        _game!.AwaySubmission = new GameDto { Matches = new List<GameMatchDto>() };
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Home.Id;
 
@@ -306,8 +336,14 @@ public class GameServiceTests
     [Test]
     public async Task GetWhere_WhenResultsUnpublishedUserCanInputResultsForAwayTeam_ShouldReturnHomeTeamSubmission()
     {
-        _game!.HomeSubmission = new GameDto { Matches = new List<GameMatchDto>() };
-        _game!.AwaySubmission = new GameDto { Matches = new List<GameMatchDto>() };
+        _game!.HomeSubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
+        _game!.AwaySubmission = new GameDto
+        {
+            Matches = new List<GameMatchDto>(),
+        };
         _user!.Access!.InputResults = true;
         _user.TeamId = _game.Away.Id;
 

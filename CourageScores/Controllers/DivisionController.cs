@@ -11,8 +11,8 @@ namespace CourageScores.Controllers;
 [ExcludeFromCodeCoverage]
 public class DivisionController : Controller
 {
-    private readonly CachingDivisionService _divisionService;
     private readonly ICommandFactory _commandFactory;
+    private readonly CachingDivisionService _divisionService;
 
     public DivisionController(CachingDivisionService divisionService, ICommandFactory commandFactory)
     {

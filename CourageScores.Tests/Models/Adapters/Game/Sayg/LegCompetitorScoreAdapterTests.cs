@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class LegCompetitorScoreAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private LegCompetitorScoreAdapter _adapter = null!;
     private LegThrow _legThrow = null!;
     private LegThrowDto _legThrowDto = null!;
@@ -33,7 +33,10 @@ public class LegCompetitorScoreAdapterTests
             startingScore,
             new LegCompetitorScore
             {
-                Throws = { _legThrow }
+                Throws =
+                {
+                    _legThrow,
+                },
             });
 
         var result = await _adapter.Adapt(context, _token);
@@ -52,7 +55,10 @@ public class LegCompetitorScoreAdapterTests
             startingScore,
             new LegCompetitorScore
             {
-                Throws = { _legThrow }
+                Throws =
+                {
+                    _legThrow,
+                },
             });
 
         var result = await _adapter.Adapt(context, _token);
@@ -67,12 +73,18 @@ public class LegCompetitorScoreAdapterTests
             501,
             new LegCompetitorScore
             {
-                Throws = { _legThrow }
+                Throws =
+                {
+                    _legThrow,
+                },
             });
 
         var result = await _adapter.Adapt(context, _token);
 
-        Assert.That(result.Throws, Is.EqualTo(new[] { _legThrowDto }));
+        Assert.That(result.Throws, Is.EqualTo(new[]
+        {
+            _legThrowDto,
+        }));
     }
 
     [Test]
@@ -83,7 +95,10 @@ public class LegCompetitorScoreAdapterTests
             501,
             new LegCompetitorScore
             {
-                Throws = { _legThrow }
+                Throws =
+                {
+                    _legThrow,
+                },
             });
 
         var result = await _adapter.Adapt(context, _token);
@@ -99,13 +114,16 @@ public class LegCompetitorScoreAdapterTests
             Bust = true,
             Throws =
             {
-                _legThrowDto
-            }
+                _legThrowDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Score.Bust, Is.True);
-        Assert.That(result.Score.Throws, Is.EqualTo(new[] { _legThrow }));
+        Assert.That(result.Score.Throws, Is.EqualTo(new[]
+        {
+            _legThrow,
+        }));
     }
 }

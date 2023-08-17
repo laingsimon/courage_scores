@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateDivisionCommandTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private ScopedCacheManagementFlags _cacheFlags = null!;
     private AddOrUpdateDivisionCommand _command = null!;
     private EditDivisionDto _update = null!;

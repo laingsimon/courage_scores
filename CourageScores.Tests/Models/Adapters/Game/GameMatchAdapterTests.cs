@@ -10,19 +10,29 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class GameMatchAdapterTests
 {
-    private static readonly GamePlayer HomePlayer = new GamePlayer();
-    private static readonly GamePlayerDto HomePlayerDto = new GamePlayerDto();
-    private static readonly GamePlayer AwayPlayer = new GamePlayer();
-    private static readonly GamePlayerDto AwayPlayerDto = new GamePlayerDto();
-    private static readonly GamePlayer OneEightyPlayer = new GamePlayer();
-    private static readonly GamePlayerDto OneEightyPlayerDto = new GamePlayerDto();
-    private static readonly ScoreAsYouGo ScoreAsYouGo = new ScoreAsYouGo();
-    private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new ScoreAsYouGoDto();
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly GameMatchAdapter _adapter = new GameMatchAdapter(
+    private static readonly GamePlayer HomePlayer = new();
+    private static readonly GamePlayerDto HomePlayerDto = new();
+    private static readonly GamePlayer AwayPlayer = new();
+    private static readonly GamePlayerDto AwayPlayerDto = new();
+    private static readonly GamePlayer OneEightyPlayer = new();
+    private static readonly GamePlayerDto OneEightyPlayerDto = new();
+    private static readonly ScoreAsYouGo ScoreAsYouGo = new();
+    private static readonly ScoreAsYouGoDto ScoreAsYouGoDto = new();
+    private readonly CancellationToken _token = new();
+    private readonly GameMatchAdapter _adapter = new(
         new MockAdapter<GamePlayer, GamePlayerDto>(
-            new[] { HomePlayer, AwayPlayer, OneEightyPlayer },
-            new[] { HomePlayerDto, AwayPlayerDto, OneEightyPlayerDto }),
+            new[]
+            {
+                HomePlayer,
+                AwayPlayer,
+                OneEightyPlayer,
+            },
+            new[]
+            {
+                HomePlayerDto,
+                AwayPlayerDto,
+                OneEightyPlayerDto,
+            }),
         new MockSimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto>(ScoreAsYouGo, ScoreAsYouGoDto));
 
     [Test]
@@ -33,8 +43,14 @@ public class GameMatchAdapterTests
             HomeScore = 1,
             AwayScore = 2,
             Id = Guid.NewGuid(),
-            AwayPlayers = { AwayPlayer },
-            HomePlayers = { HomePlayer },
+            AwayPlayers =
+            {
+                AwayPlayer,
+            },
+            HomePlayers =
+            {
+                HomePlayer,
+            },
             Sayg = ScoreAsYouGo,
         };
 
@@ -43,8 +59,14 @@ public class GameMatchAdapterTests
         Assert.That(result.HomeScore, Is.EqualTo(model.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(model.AwayScore));
         Assert.That(result.Id, Is.EqualTo(model.Id));
-        Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayerDto }));
-        Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayerDto }));
+        Assert.That(result.HomePlayers, Is.EqualTo(new[]
+        {
+            HomePlayerDto,
+        }));
+        Assert.That(result.AwayPlayers, Is.EqualTo(new[]
+        {
+            AwayPlayerDto,
+        }));
         Assert.That(result.Sayg, Is.EqualTo(ScoreAsYouGoDto));
     }
 
@@ -70,8 +92,14 @@ public class GameMatchAdapterTests
             HomeScore = 1,
             AwayScore = 2,
             Id = Guid.NewGuid(),
-            AwayPlayers = { AwayPlayerDto },
-            HomePlayers = { HomePlayerDto },
+            AwayPlayers =
+            {
+                AwayPlayerDto,
+            },
+            HomePlayers =
+            {
+                HomePlayerDto,
+            },
             Sayg = ScoreAsYouGoDto,
         };
 
@@ -80,8 +108,14 @@ public class GameMatchAdapterTests
         Assert.That(result.HomeScore, Is.EqualTo(dto.HomeScore));
         Assert.That(result.AwayScore, Is.EqualTo(dto.AwayScore));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
-        Assert.That(result.HomePlayers, Is.EqualTo(new[] { HomePlayer }));
-        Assert.That(result.AwayPlayers, Is.EqualTo(new[] { AwayPlayer }));
+        Assert.That(result.HomePlayers, Is.EqualTo(new[]
+        {
+            HomePlayer,
+        }));
+        Assert.That(result.AwayPlayers, Is.EqualTo(new[]
+        {
+            AwayPlayer,
+        }));
         Assert.That(result.Sayg, Is.EqualTo(ScoreAsYouGo));
     }
 

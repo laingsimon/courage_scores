@@ -11,14 +11,14 @@ namespace CourageScores.Services.Command;
 
 public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
 {
-    private readonly IUserService _userService;
-    private readonly ISeasonService _seasonService;
-    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
-    private readonly ITeamService _teamService;
-    private readonly ICommandFactory _commandFactory;
     private readonly IAuditingHelper _auditingHelper;
-    private Guid? _playerId;
+    private readonly ICommandFactory _commandFactory;
+    private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
+    private readonly ISeasonService _seasonService;
+    private readonly ITeamService _teamService;
+    private readonly IUserService _userService;
     private EditTeamPlayerDto? _player;
+    private Guid? _playerId;
     private Guid? _seasonId;
 
     public UpdatePlayerCommand(
@@ -77,7 +77,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Errors = { "Cannot edit a team that has been deleted" },
+                Errors =
+                {
+                    "Cannot edit a team that has been deleted",
+                },
             };
         }
 
@@ -87,16 +90,24 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Errors = { "Player cannot be updated, not logged in" },
+                Errors =
+                {
+                    "Player cannot be updated, not logged in",
+                },
             };
         }
 
-        if (!(user.Access?.ManageTeams == true || (user.Access?.InputResults == true && user.TeamId == model.Id)))
+        var canManageTeams = user.Access?.ManageTeams == true;
+        var canInputResultsForTeam = user.Access?.InputResults == true && user.TeamId == model.Id;
+        if (!canManageTeams && !canInputResultsForTeam)
         {
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Errors = { "Player cannot be updated, not permitted" },
+                Errors =
+                {
+                    "Player cannot be updated, not permitted",
+                },
             };
         }
 
@@ -106,7 +117,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Errors = { "Season could not be found" },
+                Errors =
+                {
+                    "Season could not be found",
+                },
             };
         }
 
@@ -116,7 +130,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Warnings = { $"Team {model.Name} is not registered to the {season.Name} season" },
+                Warnings =
+                {
+                    $"Team {model.Name} is not registered to the {season.Name} season",
+                },
             };
         }
 
@@ -126,7 +143,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Warnings = { $"Team does not have a player with this id for the {season.Name} season" },
+                Warnings =
+                {
+                    $"Team does not have a player with this id for the {season.Name} season",
+                },
             };
         }
 
@@ -135,9 +155,12 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
             return new ActionResult<TeamPlayer>
             {
                 Success = false,
-                Warnings = { _player.LastUpdated == null
-                    ? $"Unable to update {nameof(TeamPlayer)}, data integrity token is missing"
-                    : $"Unable to update {nameof(TeamPlayer)}, {player.Editor} updated it before you at {player.Updated:d MMM yyyy HH:mm:ss}" },
+                Warnings =
+                {
+                    _player.LastUpdated == null
+                        ? $"Unable to update {nameof(TeamPlayer)}, data integrity token is missing"
+                        : $"Unable to update {nameof(TeamPlayer)}, {player.Editor} updated it before you at {player.Updated:d MMM yyyy HH:mm:ss}",
+                },
             };
         }
 
@@ -150,7 +173,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
-                    Warnings = { "Cannot move a player once they've played in some games" },
+                    Warnings =
+                    {
+                        "Cannot move a player once they've played in some games",
+                    },
                 };
             }
 
@@ -166,7 +192,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
                 return new ActionResult<TeamPlayer>
                 {
                     Success = false,
-                    Errors = addResult.Errors.Concat(new[] { "Could not move the player to other team" }).ToList(),
+                    Errors = addResult.Errors.Concat(new[]
+                    {
+                        "Could not move the player to other team",
+                    }).ToList(),
                     Warnings = addResult.Warnings,
                     Messages = addResult.Messages,
                 };
@@ -191,7 +220,10 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
         return new ActionResult<TeamPlayer>
         {
             Success = true,
-            Messages = { $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated" },
+            Messages =
+            {
+                $"Player {player.Name} updated in the {season.Name} season, {updatedGames} game/s updated",
+            },
             Result = player,
         };
     }

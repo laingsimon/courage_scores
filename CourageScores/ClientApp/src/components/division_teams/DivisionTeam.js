@@ -7,12 +7,12 @@ import {useDivisionData} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
-export function DivisionTeam({ team }) {
-    const { id: divisionId, season, onReloadDivision, name: divisionName } = useDivisionData();
-    const { account, onError } = useApp();
-    const [ teamDetails, setTeamDetails ] = useState(Object.assign({ newDivisionId: divisionId }, team));
-    const [ editTeam, setEditTeam ] = useState(false);
-    const [ addTeamToSeason, setAddTeamToSeason ] = useState(false);
+export function DivisionTeam({team}) {
+    const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
+    const {account, onError} = useApp();
+    const [teamDetails, setTeamDetails] = useState(Object.assign({newDivisionId: divisionId}, team));
+    const [editTeam, setEditTeam] = useState(false);
+    const [addTeamToSeason, setAddTeamToSeason] = useState(false);
     const isAdmin = account && account.access && account.access.manageTeams;
 
     async function teamDetailSaved() {
@@ -58,7 +58,9 @@ export function DivisionTeam({ team }) {
                                     className="btn btn-sm btn-primary margin-right d-print-none">✏️</button>) : null}
                 {isAdmin ? (<button onClick={() => setAddTeamToSeason(true)}
                                     className="btn btn-sm btn-primary margin-right d-print-none">➕</button>) : null}
-                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{team.name}</EmbedAwareLink>
+                <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
+                    {team.name}
+                </EmbedAwareLink>
                 {editTeam && isAdmin ? renderEditTeam() : null}
                 {addTeamToSeason && isAdmin ? renderAddTeamToSeason() : null}
             </td>

@@ -6,7 +6,7 @@ namespace CourageScores.Services.Status;
 public class ApplicationMetrics
 {
     public DateTimeOffset Started { get; set; }
-    
+
     public TimeSpan UpTime => DateTimeOffset.UtcNow.Subtract(Started);
 
     public static ApplicationMetrics Create()

@@ -5,12 +5,13 @@ import {BootstrapDropdown} from "./common/BootstrapDropdown";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
+import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
 
-export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }) {
-    const [ saving, setSaving ] = useState(false);
-    const [ deleting, setDeleting ] = useState(false);
-    const { seasonApi } = useDependencies();
-    const { seasons, divisions, onError } = useApp();
+export function EditSeason({onClose, onSave, setSaveError, data, onUpdateData}) {
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const {seasonApi} = useDependencies();
+    const {seasons, divisions, onError} = useApp();
     const navigate = useNavigate();
 
     async function saveSeason() {
@@ -88,28 +89,35 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
-            <input readOnly={saving} name="name" onChange={valueChanged(data, onUpdateData)} value={data.name || ''} className="form-control margin-right" />
+            <input readOnly={saving} name="name" onChange={valueChanged(data, onUpdateData)} value={data.name || ''}
+                   className="form-control margin-right"/>
         </div>
         <div className="input-group mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">From</span>
             </div>
-            <input readOnly={saving} name="startDate" onChange={valueChanged(data, onUpdateData)} value={(data.startDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
+            <input readOnly={saving} name="startDate" onChange={valueChanged(data, onUpdateData)}
+                   value={(data.startDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
             <div className="input-group-prepend">
                 <span className="input-group-text">To</span>
             </div>
-            <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)} value={(data.endDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
+            <input readOnly={saving} name="endDate" onChange={valueChanged(data, onUpdateData)}
+                   value={(data.endDate || '').substring(0, 10)} type="date" className="form-control margin-right"/>
         </div>
         {data.id ? null : (<div className="input-group margin-right mb-3">
             <div className="input-group-prepend">
                 <span className="input-group-text">Use teams from season</span>
             </div>
-            <BootstrapDropdown value={data.copyTeamsFromSeasonId} options={seasons.map(s => { return { text: s.name, value: s.id }; })} onChange={propChanged(data, onUpdateData, 'copyTeamsFromSeasonId')} />
+            <BootstrapDropdown value={data.copyTeamsFromSeasonId} options={seasons.map(s => {
+                return {text: s.name, value: s.id};
+            })} onChange={propChanged(data, onUpdateData, 'copyTeamsFromSeasonId')}/>
         </div>)}
         <div>
             <h6>Divisions</h6>
             <ul className="list-group mb-3">
-                {divisions.sort(sortBy('name')).map(d => (<li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`} onClick={async () => await toggleDivision(d.id)}>{d.name}</li>))}
+                {divisions.sort(sortBy('name')).map(d => (
+                    <li key={d.id} className={`list-group-item ${isDivisionSelected(d.id) ? 'active' : ''}`}
+                        onClick={async () => await toggleDivision(d.id)}>{d.name}</li>))}
             </ul>
         </div>
         <div className="modal-footer px-0 pb-0">
@@ -117,11 +125,11 @@ export function EditSeason({ onClose, onSave, setSaveError, data, onUpdateData }
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
             </div>
             {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteSeason}>
-                {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {deleting ? (<LoadingSpinnerSmall/>) : null}
                 Delete season
             </button>) : null}
             <button className="btn btn-primary" onClick={saveSeason}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {saving ? (<LoadingSpinnerSmall/>) : null}
                 {data.id ? 'Update season' : 'Create season'}
             </button>
         </div>

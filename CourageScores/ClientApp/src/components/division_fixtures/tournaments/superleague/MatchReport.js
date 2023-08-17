@@ -3,8 +3,8 @@ import {legsWon} from "../../../../helpers/superleague";
 import {repeat} from "../../../../helpers/projection";
 import {MatchReportRow} from "./MatchReportRow";
 
-export function MatchReport({ division, showWinner, noOfThrows, noOfLegs, gender, host, opponent, saygMatches }) {
-    const { onError } = useApp();
+export function MatchReport({division, showWinner, noOfThrows, noOfLegs, gender, host, opponent, saygMatches}) {
+    const {onError} = useApp();
 
     try {
         return (<div className="page-break-after">
@@ -13,7 +13,7 @@ export function MatchReport({ division, showWinner, noOfThrows, noOfLegs, gender
             <table className="table">
                 <thead>
                 <tr>
-                    <th colSpan={15+((noOfThrows + 1) * 2)} className="text-center">
+                    <th colSpan={15 + ((noOfThrows + 1) * 2)} className="text-center">
                         <span className="pe-5 fs-5">{host}</span>
                         <span className="mx-5 fs-5">v</span>
                         <span className="ps-5 fs-5">{opponent}</span>

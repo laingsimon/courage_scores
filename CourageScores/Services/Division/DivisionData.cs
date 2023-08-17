@@ -10,7 +10,7 @@ public class DivisionData
     /// <summary>
     /// PlayerId -> Score map
     /// </summary>
-    public Dictionary<Guid, PlayerScore> Players { get; } = new ();
+    public Dictionary<Guid, PlayerScore> Players { get; } = new();
 
     /// <summary>
     /// TeamId -> score map
@@ -25,7 +25,7 @@ public class DivisionData
     /// <summary>
     /// A list of all known data errors
     /// </summary>
-    public HashSet<string> DataErrors { get; } = new HashSet<string>();
+    public HashSet<string> DataErrors { get; } = new();
 
     public class PlayerPlayScore
     {
@@ -47,10 +47,11 @@ public class DivisionData
 
         public int OneEighties { get; set; }
         public int HiCheckout { get; set; }
+
         public double PlayerWinPercentage => GetScores(1).MatchesPlayed == 0
             ? 0
             // ReSharper disable once ArrangeRedundantParentheses
-            : Math.Round(((double)GetScores(1).MatchesWon / GetScores(1).MatchesPlayed) * 100, 2);
+            : Math.Round(((double)GetScores(1).MatchesWon/GetScores(1).MatchesPlayed)*100, 2);
 
         public Dictionary<int, PlayerPlayScore> PlayerPlayCount { get; } = new();
 
@@ -87,20 +88,20 @@ public class DivisionData
         public int CalculatePoints()
         {
             // ReSharper disable ArrangeRedundantParentheses
-            return (FixturesWon * 2) + (FixturesDrawn * 1);
+            return (FixturesWon*2) + (FixturesDrawn*1);
             // ReSharper restore ArrangeRedundantParentheses
         }
     }
 
     public class TeamPlayerTuple
     {
-        public TeamPlayerDto Player { get; }
-        public TeamDto Team { get; }
-
         public TeamPlayerTuple(TeamPlayerDto player, TeamDto team)
         {
             Player = player;
             Team = team;
         }
+
+        public TeamPlayerDto Player { get; }
+        public TeamDto Team { get; }
     }
 }

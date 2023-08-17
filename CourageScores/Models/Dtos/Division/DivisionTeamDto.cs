@@ -20,7 +20,7 @@ public class DivisionTeamDto : IRankedDto
     public int WinRate { get; set; }
     public int LossRate { get; set; }
 
-    public int Rank { get; set; }
-
     public DateTime? Updated { get; set; }
+
+    public int Rank { get; set; }
 }

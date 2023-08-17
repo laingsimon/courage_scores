@@ -16,7 +16,7 @@ public class AuditingHelper : IAuditingHelper
     }
 
     public async Task SetDeleted<T>(T model, CancellationToken token)
-        where T: AuditedEntity
+        where T : AuditedEntity
     {
         var user = await _userService.GetUser(token);
         if (user != null)
@@ -28,7 +28,7 @@ public class AuditingHelper : IAuditingHelper
     }
 
     public async Task SetUpdated<T>(T model, CancellationToken token)
-        where T: AuditedEntity
+        where T : AuditedEntity
     {
         var user = await _userService.GetUser(token);
         if (user != null)

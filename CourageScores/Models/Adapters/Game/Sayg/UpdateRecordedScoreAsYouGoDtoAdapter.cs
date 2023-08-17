@@ -6,13 +6,13 @@ namespace CourageScores.Models.Adapters.Game.Sayg;
 
 public class UpdateRecordedScoreAsYouGoDtoAdapter : IUpdateRecordedScoreAsYouGoDtoAdapter
 {
-    private readonly ITeamService _teamService;
-
-    private static readonly GameMatchOption DefaultMatchOptions = new GameMatchOption
+    private static readonly GameMatchOption DefaultMatchOptions = new()
     {
         StartingScore = 501,
         NumberOfLegs = 3,
     };
+
+    private readonly ITeamService _teamService;
 
     public UpdateRecordedScoreAsYouGoDtoAdapter(ITeamService teamService)
     {

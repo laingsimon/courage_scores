@@ -15,7 +15,7 @@ namespace CourageScores.Tests.Services.Error;
 [TestFixture]
 public class ErrorDetailServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private ErrorDetailService _service = null!;
     private Mock<IGenericDataService<ErrorDetail, ErrorDetailDto>> _genericService = null!;
     private Mock<IUserService> _userService = null!;
@@ -34,7 +34,7 @@ public class ErrorDetailServiceTests
             Access = new AccessDto
             {
                 ViewExceptions = true,
-            }
+            },
         };
         _error = new ErrorDetail
         {
@@ -117,7 +117,10 @@ public class ErrorDetailServiceTests
         var result = await _service.GetSince(new DateTime(2001, 02, 03), _token).ToList();
 
         _genericService.Verify(s => s.GetWhere("t.Time >= '2001-02-03T00:00:00'", _token));
-        Assert.That(result, Is.EqualTo(new[] { _errorDto }));
+        Assert.That(result, Is.EqualTo(new[]
+        {
+            _errorDto,
+        }));
     }
 
     [TestCase(false, false)]

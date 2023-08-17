@@ -10,7 +10,7 @@ public class DivisionTemplateAdapter : ISimpleAdapter<DivisionTemplate, Division
     private readonly ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> _sharedAddressAdapter;
 
     public DivisionTemplateAdapter(
-        ISimpleAdapter<DateTemplate,DateTemplateDto> dateTemplateAdapter,
+        ISimpleAdapter<DateTemplate, DateTemplateDto> dateTemplateAdapter,
         ISimpleAdapter<List<string>, List<TeamPlaceholderDto>> sharedAddressAdapter)
     {
         _dateTemplateAdapter = dateTemplateAdapter;

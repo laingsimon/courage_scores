@@ -1,6 +1,7 @@
 class Settings {
-    _apiHost;
     _invalidCacheOnNextRequest;
+
+    _apiHost;
 
     get apiHost() {
         if (!this._apiHost) {
@@ -26,4 +27,4 @@ class Settings {
     }
 }
 
-export { Settings };
+export {Settings};

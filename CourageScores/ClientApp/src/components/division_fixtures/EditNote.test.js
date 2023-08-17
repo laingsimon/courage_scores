@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doChange, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {EditNote} from "./EditNote";
@@ -18,20 +18,22 @@ describe('EditNote', () => {
     const noteApi = {
         create: async (note) => {
             createdNote = note;
-            return saveResult || { success: true };
+            return saveResult || {success: true};
         },
         upsert: async (id, note, lastUpdated) => {
-            savedNote = { id, note, lastUpdated };
-            return saveResult || { success: true };
+            savedNote = {id, note, lastUpdated};
+            return saveResult || {success: true};
         },
     }
 
     function onNoteChanged(note) {
         changedNote = note;
     }
+
     function onClose() {
         closed = true;
     }
+
     function onSaved() {
         saved = true;
     }
@@ -48,8 +50,8 @@ describe('EditNote', () => {
         closed = false;
         saved = false;
         context = await renderApp(
-            { noteApi },
-            { name: 'Courage Scores' },
+            {noteApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -60,7 +62,7 @@ describe('EditNote', () => {
                 divisions,
                 seasons
             },
-            (<EditNote note={note} onNoteChanged={onNoteChanged} onClose={onClose} onSaved={onSaved} />));
+            (<EditNote note={note} onNoteChanged={onNoteChanged} onClose={onClose} onSaved={onSaved}/>));
     }
 
     describe('renders', () => {
@@ -261,7 +263,7 @@ describe('EditNote', () => {
                 note: 'Some note',
                 seasonId: season.id,
                 divisionId: null,
-            }, divisions, [ season, anotherSeason ]);
+            }, divisions, [season, anotherSeason]);
             const seasonGroup = context.container.querySelector('.modal-body > div > div:nth-child(4)');
 
             await doChange(seasonGroup, 'select', anotherSeason.id, context.user);
@@ -281,7 +283,7 @@ describe('EditNote', () => {
                 note: 'Some note',
                 seasonId: season.id,
                 divisionId: null,
-            }, [ division, anotherDivision ], seasons);
+            }, [division, anotherDivision], seasons);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
 
             await doChange(divisionGroup, 'select', anotherDivision.id, context.user);

@@ -17,6 +17,13 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
         AddPlayers(game.Away, game.Matches.SelectMany(m => m.AwayPlayers));
     }
 
+    public Task<PlayerDetails> GetPlayer(Guid playerId)
+    {
+        return Task.FromResult(_playerLookup.TryGetValue(playerId, out var player)
+            ? player
+            : new PlayerDetails());
+    }
+
     private void AddPlayers(GameTeam team, IEnumerable<GamePlayer> players)
     {
         foreach (var player in players)
@@ -30,12 +37,5 @@ public class PlayerLookup : IPlayerLookup, IGameVisitor
                     TeamName = team.Name,
                 });
         }
-    }
-
-    public Task<PlayerDetails> GetPlayer(Guid playerId)
-    {
-        return Task.FromResult(_playerLookup.TryGetValue(playerId, out var player)
-            ? player
-            : new PlayerDetails());
     }
 }
