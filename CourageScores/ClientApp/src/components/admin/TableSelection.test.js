@@ -30,18 +30,23 @@ describe('TableSelection', () => {
             (<TableSelection {...props} onTableChange={(value) => tableChanged = value}/>));
     }
 
-    it('sorts table by name', async () => {
-        const tableA = {
-            name: 'A',
-            canImport: true,
-            canExport: true,
-        };
-        const tableB = {
-            name: 'B',
-            canImport: true,
-            canExport: true,
-        };
+    const tableA = {
+        name: 'A',
+        canImport: true,
+        canExport: true,
+    };
+    const tableB = {
+        name: 'B',
+        canImport: true,
+        canExport: true,
+    };
+    const tableC = {
+        name: 'C',
+        canImport: false,
+        canExport: false,
+    };
 
+    it('sorts table by name', async () => {
         await renderComponent({
             allTables: [tableB, tableA],
             selected: [tableA.name],
@@ -55,17 +60,6 @@ describe('TableSelection', () => {
     });
 
     it('renders selected tables', async () => {
-        const tableA = {
-            name: 'A',
-            canImport: true,
-            canExport: true,
-        };
-        const tableB = {
-            name: 'B',
-            canImport: true,
-            canExport: true,
-        };
-
         await renderComponent({
             allTables: [tableB, tableA],
             selected: [tableA.name],
@@ -90,16 +84,6 @@ describe('TableSelection', () => {
     });
 
     it('can select table', async () => {
-        const tableA = {
-            name: 'A',
-            canImport: true,
-            canExport: true,
-        };
-        const tableB = {
-            name: 'B',
-            canImport: true,
-            canExport: true,
-        };
         await renderComponent({
             allTables: [tableB, tableA],
             selected: [],
@@ -114,16 +98,6 @@ describe('TableSelection', () => {
     });
 
     it('can deselect table', async () => {
-        const tableA = {
-            name: 'A',
-            canImport: true,
-            canExport: true,
-        };
-        const tableB = {
-            name: 'B',
-            canImport: true,
-            canExport: true,
-        };
         await renderComponent({
             allTables: [tableB, tableA],
             selected: [tableA.name, tableB.name],
@@ -138,13 +112,8 @@ describe('TableSelection', () => {
     });
 
     it('cannot select table that cannot be imported', async () => {
-        const tableA = {
-            name: 'A',
-            canImport: false,
-            canExport: false,
-        };
         await renderComponent({
-            allTables: [tableA],
+            allTables: [tableC],
             selected: [],
             requireCanExport: false,
             requireCanImport: true,
@@ -157,13 +126,8 @@ describe('TableSelection', () => {
     });
 
     it('cannot select table that cannot be exported', async () => {
-        const tableA = {
-            name: 'A',
-            canImport: false,
-            canExport: false,
-        };
         await renderComponent({
-            allTables: [tableA],
+            allTables: [tableC],
             selected: [],
             requireCanExport: true,
             requireCanImport: false,
