@@ -8,12 +8,13 @@ import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EMPTY_ID} from "../../helpers/projection";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function DivisionPlayer({ player, hideVenue }) {
-    const { account, reloadTeams } = useApp();
-    const { id: divisionId, season, onReloadDivision, name: divisionName } = useDivisionData();
-    const [ playerDetails, setPlayerDetails ] = useState(Object.assign({}, player));
-    const [ editPlayer, setEditPlayer ] = useState(false);
+export function DivisionPlayer({player, hideVenue}) {
+    const {account, reloadTeams} = useApp();
+    const {id: divisionId, season, onReloadDivision, name: divisionName} = useDivisionData();
+    const [playerDetails, setPlayerDetails] = useState(Object.assign({}, player));
+    const [editPlayer, setEditPlayer] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [saveError, setSaveError] = useState(null);
     const isAdmin = account && account.access && account.access.managePlayers;
@@ -21,7 +22,7 @@ export function DivisionPlayer({ player, hideVenue }) {
         id: player.teamId,
         name: player.team
     };
-    const { playerApi } = useDependencies();
+    const {playerApi} = useDependencies();
 
     useEffect(() => {
         setPlayerDetails(Object.assign({}, player));
@@ -76,11 +77,22 @@ export function DivisionPlayer({ player, hideVenue }) {
     return (<tr>
         <td>{player.rank}</td>
         <td>
-            {isAdmin ? (<button disabled={deleting} onClick={() => setEditPlayer(true)} className="btn btn-sm btn-primary margin-right">✏️</button>) : null}
-            {isAdmin ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
-                {deleting ? (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>) : '🗑️'}
-            </button>) : null}
-            {deleting ? (<s>{player.name}</s>) : (<EmbedAwareLink to={`/division/${divisionName}/player:${player.name}@${player.team}/${season.name}`}>{player.captain ? (<span>🤴 </span>) : null}{player.name}</EmbedAwareLink>)}
+            {isAdmin
+                ? (<button disabled={deleting} onClick={() => setEditPlayer(true)}
+                           className="btn btn-sm btn-primary margin-right">✏️</button>)
+                : null}
+            {isAdmin
+                ? (<button disabled={deleting} onClick={deletePlayer} className="btn btn-sm btn-danger margin-right">
+                    {deleting
+                        ? (<LoadingSpinnerSmall/>)
+                        : '🗑️'}</button>)
+                : null}
+            {deleting
+                ? (<s>{player.name}</s>)
+                : (<EmbedAwareLink to={`/division/${divisionName}/player:${player.name}@${player.team}/${season.name}`}>
+                    {player.captain ? (<span>🤴 </span>) : null}
+                    {player.name}
+                </EmbedAwareLink>)}
             {editPlayer && isAdmin ? renderEditPlayer() : null}
             {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
                                         title="Could not delete player"/>) : null}
@@ -90,7 +102,9 @@ export function DivisionPlayer({ player, hideVenue }) {
             : (<td>
                 {team.id === EMPTY_ID
                     ? (<span className="text-warning">{player.team}</span>)
-                    : (<EmbedAwareLink disabled={deleting} to={`/division/${divisionName}/team:${team.name}/${season.name}`} className="margin-right">
+                    : (<EmbedAwareLink disabled={deleting}
+                                       to={`/division/${divisionName}/team:${team.name}/${season.name}`}
+                                       className="margin-right">
                         {deleting ? (<s>{player.team}</s>) : player.team}
                     </EmbedAwareLink>)}
             </td>)}

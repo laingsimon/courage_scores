@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {FixtureDateNote} from "./FixtureDateNote";
@@ -17,7 +17,7 @@ describe('FixtureDateNote', () => {
     const noteApi = {
         delete: async (id) => {
             deletedNoteId = id;
-            return deleteResult || { success: true };
+            return deleteResult || {success: true};
         }
     }
 
@@ -35,8 +35,8 @@ describe('FixtureDateNote', () => {
         deletedNoteId = null;
         divisionReloaded = false;
         context = await renderApp(
-            { noteApi },
-            { name: 'Courage Scores' },
+            {noteApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -47,7 +47,7 @@ describe('FixtureDateNote', () => {
                 account
             },
             (<DivisionDataContainer onReloadDivision={() => divisionReloaded = true}>
-                <FixtureDateNote note={note} preventDelete={preventDelete} setEditNote={setEditNote} />
+                <FixtureDateNote note={note} preventDelete={preventDelete} setEditNote={setEditNote}/>
             </DivisionDataContainer>));
     }
 
@@ -173,7 +173,7 @@ describe('FixtureDateNote', () => {
             let alert;
             window.confirm = () => true;
             window.alert = (message) => alert = message;
-            deleteResult = { success: false };
+            deleteResult = {success: false};
 
             await doClick(context.container.querySelector('button.btn-close'));
 

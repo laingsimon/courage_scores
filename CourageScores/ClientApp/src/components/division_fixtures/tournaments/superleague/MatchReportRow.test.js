@@ -41,18 +41,18 @@ describe('MatchReportRow', () => {
 
     function createLeg(homeWinner, awayWinner) {
         const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 100, bust: false, noOfDarts: 3},
+            {score: 110, bust: false, noOfDarts: 3},
+            {score: 120, bust: false, noOfDarts: 3},
+            {score: 81, bust: false, noOfDarts: 3},
         ];
         const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
         ];
 
         return {
@@ -86,7 +86,7 @@ describe('MatchReportRow', () => {
         it('when no sayg legs', async () => {
             await renderComponent({
                 matchIndex: 1,
-                saygData: { legs: null },
+                saygData: {legs: null},
                 noOfThrows: 3,
                 noOfLegs: 3,
                 showWinner: false,
@@ -226,8 +226,8 @@ describe('MatchReportRow', () => {
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 4 && index < 8);
             const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 14 && index < 18);
-            expect(hostScoreCells.map(td => td.className.trim())).toEqual([ 'text-danger', 'text-danger', 'text-danger', 'text-danger' ]);
-            expect(opponentScoreCells.map(td => td.className.trim())).toEqual([ '', '', '', '' ]);
+            expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
+            expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['', '', '', '']);
         });
 
         it('highlights 180 scores', async () => {
@@ -253,8 +253,8 @@ describe('MatchReportRow', () => {
             const rows = Array.from(context.container.querySelectorAll('tr'));
             const hostScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 4 && index < 8);
             const opponentScoreCells = Array.from(rows[0].querySelectorAll('td')).filter((td, index) => index >= 14 && index < 18);
-            expect(hostScoreCells.map(td => td.className.trim())).toEqual([ 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold' ]);
-            expect(opponentScoreCells.map(td => td.className.trim())).toEqual([ 'text-danger', 'text-danger', 'text-danger', 'text-danger' ]);
+            expect(hostScoreCells.map(td => td.className.trim())).toEqual(['text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold', 'text-danger fw-bold']);
+            expect(opponentScoreCells.map(td => td.className.trim())).toEqual(['text-danger', 'text-danger', 'text-danger', 'text-danger']);
         });
     });
 });

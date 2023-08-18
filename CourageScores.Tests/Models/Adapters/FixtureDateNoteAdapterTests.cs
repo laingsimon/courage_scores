@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class FixtureDateNoteAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly FixtureDateNoteAdapter _adapter = new FixtureDateNoteAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly FixtureDateNoteAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenModel_SetsPropertiesCorrectly()

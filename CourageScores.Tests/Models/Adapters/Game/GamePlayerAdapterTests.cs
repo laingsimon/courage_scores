@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class GamePlayerAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly GamePlayerAdapter _adapter = new GamePlayerAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly GamePlayerAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()

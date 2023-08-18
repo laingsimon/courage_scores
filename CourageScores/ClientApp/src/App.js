@@ -11,27 +11,27 @@ import {Tournament} from "./components/division_fixtures/tournaments/Tournament"
 import {Practice} from "./components/Practice";
 import {AppContainer} from "./AppContainer";
 import {About} from "./components/About";
-import {mapForLogging, mapError} from "./helpers/errors";
+import {mapError, mapForLogging} from "./helpers/errors";
 import {getBuild} from "./helpers/build";
 
-export function App({ embed, controls, testRoute }) {
-    const { divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight } = useDependencies();
-    const [ account, setAccount ] = useState(null);
-    const [ divisions, setDivisions ] = useState(toMap([]));
-    const [ seasons, setSeasons ] = useState(toMap([]));
-    const [ teams, setTeams ] = useState(toMap([]));
-    const [ appLoading, setAppLoading ] = useState(null);
-    const [ error, setError ] = useState(null);
+export function App({embed, controls, testRoute}) {
+    const {divisionApi, accountApi, seasonApi, teamApi, errorApi, settings, parentHeight} = useDependencies();
+    const [account, setAccount] = useState(null);
+    const [divisions, setDivisions] = useState(toMap([]));
+    const [seasons, setSeasons] = useState(toMap([]));
+    const [teams, setTeams] = useState(toMap([]));
+    const [appLoading, setAppLoading] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        // should only fire on componentDidMount
-        document.body.className = embed ? 'embed' : 'darts-background';
+            // should only fire on componentDidMount
+            document.body.className = embed ? 'embed' : 'darts-background';
 
-        // noinspection JSIgnoredPromiseFromCall
-        reloadAll();
-    },
-    // eslint-disable-next-line
-    []);
+            // noinspection JSIgnoredPromiseFromCall
+            reloadAll();
+        },
+        // eslint-disable-next-line
+        []);
 
     useEffect(() => {
         // should only fire once (on page load)
@@ -117,16 +117,16 @@ export function App({ embed, controls, testRoute }) {
         return (<AppContainer {...appData}>
             <Layout>
                 <Routes>
-                    <Route exact path='/' element={<Home />} />
-                    <Route path='/division/:divisionId' element={<Division />} />
-                    <Route path='/division/:divisionId/:mode' element={<Division />} />
-                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division />} />
-                    <Route path='/score/:fixtureId' element={<Score />} />
-                    <Route path='/admin' element={<AdminHome />} />
-                    <Route path='/admin/:mode' element={<AdminHome />} />
-                    <Route path='/tournament/:tournamentId' element={<Tournament />} />
-                    <Route path='/practice' element={<Practice />} />
-                    <Route path='/about' element={<About />} />
+                    <Route exact path='/' element={<Home/>}/>
+                    <Route path='/division/:divisionId' element={<Division/>}/>
+                    <Route path='/division/:divisionId/:mode' element={<Division/>}/>
+                    <Route path='/division/:divisionId/:mode/:seasonId' element={<Division/>}/>
+                    <Route path='/score/:fixtureId' element={<Score/>}/>
+                    <Route path='/admin' element={<AdminHome/>}/>
+                    <Route path='/admin/:mode' element={<AdminHome/>}/>
+                    <Route path='/tournament/:tournamentId' element={<Tournament/>}/>
+                    <Route path='/practice' element={<Practice/>}/>
+                    <Route path='/about' element={<About/>}/>
                     {testRoute}
                 </Routes>
             </Layout>

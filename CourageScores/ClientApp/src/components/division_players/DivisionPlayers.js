@@ -5,22 +5,24 @@ import {sortBy} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 
-export function DivisionPlayers({ hideVenue, hideHeading, players }) {
-    const { account } = useApp();
+export function DivisionPlayers({hideVenue, hideHeading, players}) {
+    const {account} = useApp();
     const isAdmin = account && account.access && account.access.managePlayers;
-    const { players: divisionDataPlayers } = useDivisionData();
+    const {players: divisionDataPlayers} = useDivisionData();
     const playersToShow = players || divisionDataPlayers;
 
     return (<div className="content-background p-3 overflow-x-auto">
-        <PrintDivisionHeading />
+        <PrintDivisionHeading/>
         <div className="clear-float">
-            {hideHeading ? null : (<p className="d-print-none">Only players that have played a singles match will appear here</p>)}
+            {hideHeading
+                ? null
+                : (<p className="d-print-none">Only players that have played a singles match will appear here</p>)}
             <table className="table">
                 <thead>
                 <tr>
                     <th>Rank</th>
                     <th>Player</th>
-                    {hideVenue ? null :(<th>Venue</th>)}
+                    {hideVenue ? null : (<th>Venue</th>)}
                     <th>Played</th>
                     <th>Won</th>
                     <th>Lost</th>
@@ -37,7 +39,7 @@ export function DivisionPlayers({ hideVenue, hideHeading, players }) {
                     .map(player => (<DivisionPlayer
                         key={player.id}
                         player={player}
-                        hideVenue={hideVenue} />))}
+                        hideVenue={hideVenue}/>))}
                 </tbody>
             </table>
         </div>

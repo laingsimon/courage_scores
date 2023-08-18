@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, doSelectOption, renderApp} from "../../../helpers/tests";
+import {cleanUp, doSelectOption, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
 
@@ -21,8 +21,8 @@ describe('ManOfTheMatchInput', () => {
         reportedError = null;
         updatedFixtureData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -36,7 +36,7 @@ describe('ManOfTheMatchInput', () => {
                 saving={saving}
                 access={access}
                 fixtureData={fixtureData}
-                setFixtureData={setFixtureData} />),
+                setFixtureData={setFixtureData}/>),
             null,
             null,
             'tbody');
@@ -64,8 +64,8 @@ describe('ManOfTheMatchInput', () => {
         it('when no matches', async () => {
             const fixtureData = {
                 matches: [],
-                home: { },
-                away: { },
+                home: {},
+                away: {},
             };
 
             await renderComponent(false, null, fixtureData, '');
@@ -75,12 +75,12 @@ describe('ManOfTheMatchInput', () => {
 
         it('when no selected players', async () => {
             const fixtureData = {
-                matches: [ {
+                matches: [{
                     homePlayers: [],
                     awayPlayers: []
-                } ],
-                home: { },
-                away: { },
+                }],
+                home: {},
+                away: {},
             };
 
             await renderComponent(false, null, fixtureData, '');
@@ -97,10 +97,10 @@ describe('ManOfTheMatchInput', () => {
                 id: createTemporaryId(), name: 'AWAY player',
             };
             const fixtureData = {
-                matches: [ {
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ]
-                } ],
+                matches: [{
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer]
+                }],
                 home: {
                     id: createTemporaryId(),
                     name: 'HOME',
@@ -125,10 +125,10 @@ describe('ManOfTheMatchInput', () => {
                 id: createTemporaryId(), name: 'AWAY player',
             };
             const fixtureData = {
-                matches: [ {
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ]
-                } ],
+                matches: [{
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer]
+                }],
                 home: {
                     id: createTemporaryId(),
                     name: 'HOME',
@@ -154,10 +154,10 @@ describe('ManOfTheMatchInput', () => {
                 id: createTemporaryId(), name: 'AWAY player',
             };
             const fixtureData = {
-                matches: [ {
-                    homePlayers: [ homePlayer ],
-                    awayPlayers: [ awayPlayer ]
-                } ],
+                matches: [{
+                    homePlayers: [homePlayer],
+                    awayPlayers: [awayPlayer]
+                }],
                 home: {
                     id: createTemporaryId(),
                     name: 'HOME',
@@ -177,14 +177,14 @@ describe('ManOfTheMatchInput', () => {
     });
 
     describe('when logged in', () => {
-        let account = { };
+        let account = {};
 
         describe('renders', () => {
             it('when no matches', async () => {
                 const fixtureData = {
                     matches: [],
-                    home: { },
-                    away: { },
+                    home: {},
+                    away: {},
                 };
 
                 await renderComponent(false, account, fixtureData, 'admin');
@@ -198,12 +198,12 @@ describe('ManOfTheMatchInput', () => {
 
             it('when no selected players', async () => {
                 const fixtureData = {
-                    matches: [ {
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: []
-                    } ],
-                    home: { },
-                    away: { },
+                    }],
+                    home: {},
+                    away: {},
                 };
 
                 await renderComponent(false, account, fixtureData, 'admin');
@@ -223,10 +223,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',
@@ -242,8 +242,8 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], [ 'AWAY player', 'HOME player' ], ' ', null);
-                assertPlayers(cells[2], [ 'AWAY player', 'HOME player' ], ' ', null);
+                assertPlayers(cells[0], ['AWAY player', 'HOME player'], ' ', null);
+                assertPlayers(cells[2], ['AWAY player', 'HOME player'], ' ', null);
             });
 
             it('when home man-of-the-match', async () => {
@@ -254,10 +254,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',
@@ -274,7 +274,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[0], [ 'AWAY player', 'HOME player' ], 'HOME player', 'HOME player');
+                assertPlayers(cells[0], ['AWAY player', 'HOME player'], 'HOME player', 'HOME player');
             });
 
             it('when away man-of-the-match', async () => {
@@ -285,10 +285,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',
@@ -305,7 +305,7 @@ describe('ManOfTheMatchInput', () => {
                 expect(reportedError).toBeFalsy();
                 const cells = context.container.querySelectorAll('td');
                 expect(cells.length).toEqual(3);
-                assertPlayers(cells[2], [ 'AWAY player', 'HOME player' ], 'AWAY player', 'AWAY player');
+                assertPlayers(cells[2], ['AWAY player', 'HOME player'], 'AWAY player', 'AWAY player');
             });
         });
 
@@ -318,10 +318,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',
@@ -349,10 +349,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',
@@ -382,10 +382,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',
@@ -414,10 +414,10 @@ describe('ManOfTheMatchInput', () => {
                     id: createTemporaryId(), name: 'AWAY player',
                 };
                 const fixtureData = {
-                    matches: [ {
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ]
-                    } ],
+                    matches: [{
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer]
+                    }],
                     home: {
                         id: createTemporaryId(),
                         name: 'HOME',

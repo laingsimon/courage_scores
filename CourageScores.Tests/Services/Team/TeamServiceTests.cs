@@ -7,7 +7,6 @@ using CourageScores.Services.Identity;
 using CourageScores.Services.Team;
 using Moq;
 using NUnit.Framework;
-
 using CosmosTeam = CourageScores.Models.Cosmos.Team.Team;
 
 namespace CourageScores.Tests.Services.Team;
@@ -15,7 +14,7 @@ namespace CourageScores.Tests.Services.Team;
 [TestFixture]
 public class TeamServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<IAdapter<CosmosTeam, TeamDto>> _adapter = null!;
     private TeamService _service = null!;
     private Mock<IGenericRepository<CosmosTeam>> _repository = null!;
@@ -48,7 +47,11 @@ public class TeamServiceTests
             .ReturnsAsync((CosmosTeam t, CancellationToken _) => new TeamDto
             {
                 Id = t.Id,
-                Seasons = t.Seasons.Select(ts => new TeamSeasonDto { Id = ts.Id, SeasonId = ts.SeasonId }).ToList(),
+                Seasons = t.Seasons.Select(ts => new TeamSeasonDto
+                {
+                    Id = ts.Id,
+                    SeasonId = ts.SeasonId,
+                }).ToList(),
             });
     }
 
@@ -61,21 +64,39 @@ public class TeamServiceTests
             Id = Guid.NewGuid(),
             Seasons =
             {
-                new TeamSeason { SeasonId = seasonId },
-                new TeamSeason { SeasonId = Guid.NewGuid() },
+                new TeamSeason
+                {
+                    SeasonId = seasonId,
+                },
+                new TeamSeason
+                {
+                    SeasonId = Guid.NewGuid(),
+                },
             },
         };
         var teamNotInSeason = new CosmosTeam
         {
             Id = Guid.NewGuid(),
-            Seasons = { new TeamSeason { SeasonId = Guid.NewGuid() }, },
+            Seasons =
+            {
+                new TeamSeason
+                {
+                    SeasonId = Guid.NewGuid(),
+                },
+            },
         };
-        _allTeams.AddRange(new[] { teamInSeason, teamNotInSeason });
+        _allTeams.AddRange(new[]
+        {
+            teamInSeason, teamNotInSeason,
+        });
 
         var teams = await _service.GetTeamsForSeason(seasonId, _token).ToList();
 
         _repository.Verify(r => r.GetAll(_token));
-        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo(new[] { teamInSeason.Id }));
+        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo(new[]
+        {
+            teamInSeason.Id,
+        }));
         Assert.That(teams.SelectMany(t => t.Seasons.Select(s => s.SeasonId)), Has.All.EqualTo(seasonId));
     }
 
@@ -89,8 +110,16 @@ public class TeamServiceTests
             Id = Guid.NewGuid(),
             Seasons =
             {
-                new TeamSeason { SeasonId = seasonId, DivisionId = divisionId },
-                new TeamSeason { SeasonId = Guid.NewGuid(), DivisionId = divisionId },
+                new TeamSeason
+                {
+                    SeasonId = seasonId,
+                    DivisionId = divisionId,
+                },
+                new TeamSeason
+                {
+                    SeasonId = Guid.NewGuid(),
+                    DivisionId = divisionId,
+                },
             },
         };
         var teamInDivisionNotSeason = new CosmosTeam
@@ -98,15 +127,25 @@ public class TeamServiceTests
             Id = Guid.NewGuid(),
             Seasons =
             {
-                new TeamSeason { SeasonId = Guid.NewGuid(), DivisionId = divisionId },
+                new TeamSeason
+                {
+                    SeasonId = Guid.NewGuid(),
+                    DivisionId = divisionId,
+                },
             },
         };
-        _someTeams.AddRange(new[] { teamInDivisionNotSeason, teamInSeasonAndDivision });
+        _someTeams.AddRange(new[]
+        {
+            teamInDivisionNotSeason, teamInSeasonAndDivision,
+        });
 
         var teams = await _service.GetTeamsForSeason(divisionId, seasonId, _token).ToList();
 
         _repository.Verify(r => r.GetSome($"t.DivisionId = '{divisionId}'", _token));
-        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo(new[] { teamInSeasonAndDivision.Id }));
+        Assert.That(teams.Select(t => t.Id), Is.EquivalentTo(new[]
+        {
+            teamInSeasonAndDivision.Id,
+        }));
         Assert.That(teams.SelectMany(t => t.Seasons.Select(s => s.SeasonId)), Has.All.EqualTo(seasonId));
     }
 }

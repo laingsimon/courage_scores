@@ -8,7 +8,7 @@ class SeasonApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Season`, Object.assign({ lastUpdated }, season));
+        return this.http.put(`/api/Season`, Object.assign({lastUpdated}, season));
     }
 
     delete(id) {
@@ -24,4 +24,4 @@ class SeasonApi {
     }
 }
 
-export { SeasonApi };
+export {SeasonApi};

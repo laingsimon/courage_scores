@@ -9,7 +9,7 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class FixtureTemplateAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private FixtureTemplateAdapter _adapter = null!;
 
     [SetUp]

@@ -7,9 +7,9 @@ namespace CourageScores.Services.Status;
 
 public class StatusService : IStatusService
 {
-    private readonly ISeasonService _seasonService;
-    private readonly IMemoryCache _memoryCache;
     private readonly ApplicationMetrics _applicationMetrics;
+    private readonly IMemoryCache _memoryCache;
+    private readonly ISeasonService _seasonService;
 
     public StatusService(ISeasonService seasonService, IMemoryCache memoryCache, ApplicationMetrics applicationMetrics)
     {

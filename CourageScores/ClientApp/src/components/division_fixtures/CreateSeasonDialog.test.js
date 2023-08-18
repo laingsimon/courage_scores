@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doSelectOption, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
@@ -19,11 +19,11 @@ describe('CreateSeasonDialog', () => {
 
     const templateApi = {
         getCompatibility: (seasonId) => {
-            return compatibilityResponses[seasonId] || { success: false };
+            return compatibilityResponses[seasonId] || {success: false};
         },
         propose: (request) => {
             proposalRequest = request;
-            return apiResponse || { success: false, errors: [], warnings: [], messages: [] };
+            return apiResponse || {success: false, errors: [], warnings: [], messages: []};
         },
     };
     const gameApi = {
@@ -31,7 +31,7 @@ describe('CreateSeasonDialog', () => {
             updatedFixtures.push(fixture);
             return updateFixtureApiResponse
                 ? await updateFixtureApiResponse(fixture)
-                : { success: true };
+                : {success: true};
         }
     };
 
@@ -56,8 +56,8 @@ describe('CreateSeasonDialog', () => {
 
     async function renderComponent(appProps, divisionDataProps, props) {
         context = await renderApp(
-            { templateApi, gameApi },
-            { name: 'Courage Scores' },
+            {templateApi, gameApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -71,7 +71,7 @@ describe('CreateSeasonDialog', () => {
                 ...appProps
             },
             (<DivisionDataContainer {...divisionDataProps}>
-                <CreateSeasonDialog {...props} onClose={onClose} />
+                <CreateSeasonDialog {...props} onClose={onClose}/>
             </DivisionDataContainer>));
     }
 
@@ -116,7 +116,7 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 const menu = context.container.querySelector('.dropdown-menu');
                 const items = Array.from(menu.querySelectorAll('.dropdown-item'));
-                expect(items.map(i => i.textContent)).toEqual([ 'TEMPLATE' ]);
+                expect(items.map(i => i.textContent)).toEqual(['TEMPLATE']);
             });
 
             it('incompatible template in dropdown', async () => {
@@ -141,7 +141,7 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 const menu = context.container.querySelector('.dropdown-menu');
                 const items = Array.from(menu.querySelectorAll('.dropdown-item'));
-                expect(items.map(i => i.textContent)).toEqual([ '🚫 TEMPLATE' ]);
+                expect(items.map(i => i.textContent)).toEqual(['🚫 TEMPLATE']);
             });
 
             it('cannot navigate back', async () => {
@@ -210,9 +210,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: false,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -227,9 +227,9 @@ describe('CreateSeasonDialog', () => {
 
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('h4').textContent).toEqual('⚠ There was an issue proposing fixtures');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual([ 'ERROR' ]);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual([ 'WARNING' ]);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual([ 'MESSAGE' ]);
+                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
+                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
+                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
                 expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeFalsy();
             });
 
@@ -264,9 +264,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -281,9 +281,9 @@ describe('CreateSeasonDialog', () => {
 
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('h4').textContent).toEqual('✔ Fixtures have been proposed');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual([ 'ERROR' ]);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual([ 'WARNING' ]);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual([ 'MESSAGE' ]);
+                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
+                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
+                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
                 expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
             });
         });
@@ -322,16 +322,20 @@ describe('CreateSeasonDialog', () => {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                     }]
-                }, { id: divisionId, setDivisionData: (d) => { divisionDataSetTo = d; } }, {
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -396,16 +400,20 @@ describe('CreateSeasonDialog', () => {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                     }]
-                }, { id: divisionId, setDivisionData: (d) => { divisionDataSetTo = d; } }, {
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -426,7 +434,7 @@ describe('CreateSeasonDialog', () => {
                                     id: '1.2',
                                     proposal: false, // excluded as not a proposal
                                     awayTeam: {},
-                                } ],
+                                }],
                             }]
                         }, {
                             id: anotherDivisionId,
@@ -476,9 +484,9 @@ describe('CreateSeasonDialog', () => {
                             name: 'TEMPLATE',
                             templateHealth: {},
                         },
-                        errors: [ 'ERROR' ],
-                        warnings: [ 'WARNING' ],
-                        messages: [ 'MESSAGE' ],
+                        errors: ['ERROR'],
+                        warnings: ['WARNING'],
+                        messages: ['MESSAGE'],
                     }]
                 };
                 await renderComponent({
@@ -491,9 +499,9 @@ describe('CreateSeasonDialog', () => {
 
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('h4').textContent).toEqual('🚫 Incompatible with this season');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual([ 'ERROR' ]);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual([ 'WARNING' ]);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual([ 'MESSAGE' ]);
+                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
+                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
+                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
                 expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeFalsy();
             });
 
@@ -513,9 +521,9 @@ describe('CreateSeasonDialog', () => {
                                 messages: [],
                             },
                         },
-                        errors: [ 'ERROR' ],
-                        warnings: [ 'WARNING' ],
-                        messages: [ 'MESSAGE' ],
+                        errors: ['ERROR'],
+                        warnings: ['WARNING'],
+                        messages: ['MESSAGE'],
                     }]
                 };
                 await renderComponent({
@@ -528,9 +536,9 @@ describe('CreateSeasonDialog', () => {
 
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('h4').textContent).toEqual('✔ Compatible with this season');
-                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual([ 'ERROR' ]);
-                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual([ 'WARNING' ]);
-                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual([ 'MESSAGE' ]);
+                expect(Array.from(context.container.querySelectorAll('li.text-danger')).map(li => li.textContent)).toEqual(['ERROR']);
+                expect(Array.from(context.container.querySelectorAll('li:not(.text-secondary):not(.text-danger)')).map(li => li.textContent)).toEqual(['WARNING']);
+                expect(Array.from(context.container.querySelectorAll('li.text-secondary')).map(li => li.textContent)).toEqual(['MESSAGE']);
                 expect(context.container.querySelector('div[datatype="view-health-check"]')).toBeTruthy();
             });
 
@@ -603,9 +611,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -651,16 +659,19 @@ describe('CreateSeasonDialog', () => {
                 };
                 await renderComponent({
                     divisions: []
-                }, { setDivisionData: () => {} }, {
+                }, {
+                    setDivisionData: () => {
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -706,16 +717,20 @@ describe('CreateSeasonDialog', () => {
                 };
                 await renderComponent({
                     divisions: []
-                }, { id: divisionId, setDivisionData: (d) => { divisionDataSetTo = d; } }, {
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -777,16 +792,20 @@ describe('CreateSeasonDialog', () => {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                     }]
-                }, { id: divisionId, setDivisionData: (d) => { divisionDataSetTo = d; } }, {
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -850,16 +869,20 @@ describe('CreateSeasonDialog', () => {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                     }]
-                }, { id: divisionId, setDivisionData: (d) => { divisionDataSetTo = d; } }, {
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -922,16 +945,20 @@ describe('CreateSeasonDialog', () => {
                         id: anotherDivisionId,
                         name: 'ANOTHER DIVISION',
                     }]
-                }, { id: divisionId, setDivisionData: (d) => { divisionDataSetTo = d; } }, {
+                }, {
+                    id: divisionId, setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEMPLATE');
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -998,8 +1025,12 @@ describe('CreateSeasonDialog', () => {
                     }]
                 }, {
                     id: divisionId,
-                    setDivisionData: (d) => { divisionDataSetTo = d; },
-                    onReloadDivision: () => { divisionReloaded = true; },
+                    setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    },
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                    },
                 }, {
                     seasonId: seasonId,
                 });
@@ -1007,9 +1038,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -1025,13 +1056,13 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '1.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 1.1 '},
-                                    awayTeam: { name: 'AWAY 1.1' },
+                                    homeTeam: {name: 'HOME 1.1 '},
+                                    awayTeam: {name: 'AWAY 1.1'},
                                 }, {
                                     id: '1.2',
                                     proposal: false, // excluded as not a proposal
                                     awayTeam: {},
-                                } ],
+                                }],
                             }]
                         }, {
                             id: anotherDivisionId,
@@ -1041,16 +1072,16 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '2.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.1 '},
-                                    awayTeam: { name: 'AWAY 2.1' },
+                                    homeTeam: {name: 'HOME 2.1 '},
+                                    awayTeam: {name: 'AWAY 2.1'},
                                 }, {
                                     id: createTemporaryId(),
                                     proposal: true, // excluded as awayTeam == undefined
                                 }, {
                                     id: '2.3',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.3 '},
-                                    awayTeam: { name: 'AWAY 2.3' },
+                                    homeTeam: {name: 'HOME 2.3 '},
+                                    awayTeam: {name: 'AWAY 2.3'},
                                 }],
                             }]
                         }],
@@ -1108,8 +1139,12 @@ describe('CreateSeasonDialog', () => {
                     }]
                 }, {
                     id: divisionId,
-                    setDivisionData: (d) => { divisionDataSetTo = d; },
-                    onReloadDivision: () => { divisionReloaded = true; },
+                    setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    },
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                    },
                 }, {
                     seasonId: seasonId,
                 });
@@ -1117,9 +1152,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -1135,13 +1170,13 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '1.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 1.1 '},
-                                    awayTeam: { name: 'AWAY 1.1' },
+                                    homeTeam: {name: 'HOME 1.1 '},
+                                    awayTeam: {name: 'AWAY 1.1'},
                                 }, {
                                     id: '1.2',
                                     proposal: false, // excluded as not a proposal
                                     awayTeam: {},
-                                } ],
+                                }],
                             }]
                         }, {
                             id: anotherDivisionId,
@@ -1151,16 +1186,16 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '2.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.1 '},
-                                    awayTeam: { name: 'AWAY 2.1' },
+                                    homeTeam: {name: 'HOME 2.1 '},
+                                    awayTeam: {name: 'AWAY 2.1'},
                                 }, {
                                     id: createTemporaryId(),
                                     proposal: true, // excluded as awayTeam == undefined
                                 }, {
                                     id: '2.3',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.3 '},
-                                    awayTeam: { name: 'AWAY 2.3' },
+                                    homeTeam: {name: 'HOME 2.3 '},
+                                    awayTeam: {name: 'AWAY 2.3'},
                                 }],
                             }]
                         }],
@@ -1171,10 +1206,12 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container.querySelector('div'), 'Save all fixtures'));
-                updateFixtureApiResponse = () => { return {
-                    success: false,
-                    errors: [ 'SOME ERROR' ],
-                }; };
+                updateFixtureApiResponse = () => {
+                    return {
+                        success: false,
+                        errors: ['SOME ERROR'],
+                    };
+                };
 
                 await doClick(findButton(context.container, 'Next'));
 
@@ -1223,8 +1260,12 @@ describe('CreateSeasonDialog', () => {
                     }]
                 }, {
                     id: divisionId,
-                    setDivisionData: (d) => { divisionDataSetTo = d; },
-                    onReloadDivision: () => { divisionReloaded = true; },
+                    setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    },
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                    },
                 }, {
                     seasonId: seasonId,
                 });
@@ -1232,9 +1273,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -1250,13 +1291,13 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '1.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 1.1 '},
-                                    awayTeam: { name: 'AWAY 1.1' },
+                                    homeTeam: {name: 'HOME 1.1 '},
+                                    awayTeam: {name: 'AWAY 1.1'},
                                 }, {
                                     id: '1.2',
                                     proposal: false, // excluded as not a proposal
                                     awayTeam: {},
-                                } ],
+                                }],
                             }]
                         }, {
                             id: anotherDivisionId,
@@ -1266,16 +1307,16 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '2.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.1 '},
-                                    awayTeam: { name: 'AWAY 2.1' },
+                                    homeTeam: {name: 'HOME 2.1 '},
+                                    awayTeam: {name: 'AWAY 2.1'},
                                 }, {
                                     id: createTemporaryId(),
                                     proposal: true, // excluded as awayTeam == undefined
                                 }, {
                                     id: '2.3',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.3 '},
-                                    awayTeam: { name: 'AWAY 2.3' },
+                                    homeTeam: {name: 'HOME 2.3 '},
+                                    awayTeam: {name: 'AWAY 2.3'},
                                 }],
                             }]
                         }],
@@ -1286,7 +1327,9 @@ describe('CreateSeasonDialog', () => {
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
                 await doClick(findButton(context.container.querySelector('div'), 'Save all fixtures'));
-                updateFixtureApiResponse = () => { throw new Error('SOME EXCEPTION'); };
+                updateFixtureApiResponse = () => {
+                    throw new Error('SOME EXCEPTION');
+                };
 
                 await doClick(findButton(context.container, 'Next'));
 
@@ -1335,8 +1378,12 @@ describe('CreateSeasonDialog', () => {
                     }]
                 }, {
                     id: divisionId,
-                    setDivisionData: (d) => { divisionDataSetTo = d; },
-                    onReloadDivision: () => { divisionReloaded = true; },
+                    setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    },
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                    },
                 }, {
                     seasonId: seasonId,
                 });
@@ -1344,9 +1391,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -1362,13 +1409,13 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '1.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 1.1 '},
-                                    awayTeam: { name: 'AWAY 1.1' },
+                                    homeTeam: {name: 'HOME 1.1 '},
+                                    awayTeam: {name: 'AWAY 1.1'},
                                 }, {
                                     id: '1.2',
                                     proposal: false, // excluded as not a proposal
                                     awayTeam: {},
-                                } ],
+                                }],
                             }]
                         }, {
                             id: anotherDivisionId,
@@ -1378,16 +1425,16 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '2.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.1 '},
-                                    awayTeam: { name: 'AWAY 2.1' },
+                                    homeTeam: {name: 'HOME 2.1 '},
+                                    awayTeam: {name: 'AWAY 2.1'},
                                 }, {
                                     id: createTemporaryId(),
                                     proposal: true, // excluded as awayTeam == undefined
                                 }, {
                                     id: '2.3',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.3 '},
-                                    awayTeam: { name: 'AWAY 2.3' },
+                                    homeTeam: {name: 'HOME 2.3 '},
+                                    awayTeam: {name: 'AWAY 2.3'},
                                 }],
                             }]
                         }],
@@ -1401,7 +1448,7 @@ describe('CreateSeasonDialog', () => {
                 updateFixtureApiResponse = () => {
                     // abort after first fixture
                     doClick(findButton(context.container, 'Back'));
-                    return { success: true };
+                    return {success: true};
                 };
 
                 await doClick(findButton(context.container, 'Next'));
@@ -1452,8 +1499,12 @@ describe('CreateSeasonDialog', () => {
                     }]
                 }, {
                     id: divisionId,
-                    setDivisionData: (d) => { divisionDataSetTo = d; },
-                    onReloadDivision: () => { divisionReloaded = true; },
+                    setDivisionData: (d) => {
+                        divisionDataSetTo = d;
+                    },
+                    onReloadDivision: () => {
+                        divisionReloaded = true;
+                    },
                 }, {
                     seasonId: seasonId,
                 });
@@ -1461,9 +1512,9 @@ describe('CreateSeasonDialog', () => {
                 expect(reportedError).toBeNull();
                 apiResponse = {
                     success: true,
-                    errors: [ 'ERROR' ],
-                    warnings: [ 'WARNING' ],
-                    messages: [ 'MESSAGE' ],
+                    errors: ['ERROR'],
+                    warnings: ['WARNING'],
+                    messages: ['MESSAGE'],
                     result: {
                         proposalHealth: {
                             checks: {},
@@ -1479,13 +1530,13 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '1.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 1.1 '},
-                                    awayTeam: { name: 'AWAY 1.1' },
+                                    homeTeam: {name: 'HOME 1.1 '},
+                                    awayTeam: {name: 'AWAY 1.1'},
                                 }, {
                                     id: '1.2',
                                     proposal: false, // excluded as not a proposal
                                     awayTeam: {},
-                                } ],
+                                }],
                             }]
                         }, {
                             id: anotherDivisionId,
@@ -1495,16 +1546,16 @@ describe('CreateSeasonDialog', () => {
                                 fixtures: [{
                                     id: '2.1',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.1 '},
-                                    awayTeam: { name: 'AWAY 2.1' },
+                                    homeTeam: {name: 'HOME 2.1 '},
+                                    awayTeam: {name: 'AWAY 2.1'},
                                 }, {
                                     id: createTemporaryId(),
                                     proposal: true, // excluded as awayTeam == undefined
                                 }, {
                                     id: '2.3',
                                     proposal: true,
-                                    homeTeam: { name: 'HOME 2.3 '},
-                                    awayTeam: { name: 'AWAY 2.3' },
+                                    homeTeam: {name: 'HOME 2.3 '},
+                                    awayTeam: {name: 'AWAY 2.3'},
                                 }],
                             }]
                         }],
@@ -1520,7 +1571,7 @@ describe('CreateSeasonDialog', () => {
                     if (abort) {
                         doClick(findButton(context.container, 'Back'));
                     }
-                    return { success: true };
+                    return {success: true};
                 };
                 await doClick(findButton(context.container, 'Next'));
                 expect(reportedError).toBeNull();
@@ -1564,7 +1615,11 @@ describe('CreateSeasonDialog', () => {
                 };
                 await renderComponent({
                     divisions: []
-                }, { setDivisionData: (d) => { divisionDataResetTo = d; } }, {
+                }, {
+                    setDivisionData: (d) => {
+                        divisionDataResetTo = d;
+                    }
+                }, {
                     seasonId: seasonId,
                 });
                 expect(reportedError).toBeNull();

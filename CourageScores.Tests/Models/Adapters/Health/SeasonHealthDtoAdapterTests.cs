@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Models.Adapters.Health;
 [TestFixture]
 public class SeasonHealthDtoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<ISimpleOnewayAdapter<DivisionDataDto, DivisionHealthDto>> _divisionAdapter = null!;
     private SeasonHealthDtoAdapter _adapter = null!;
 
@@ -34,7 +34,10 @@ public class SeasonHealthDtoAdapterTests
         };
         var division = new DivisionDataDto();
         var divisionDto = new DivisionHealthDto();
-        var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, new List<DivisionDataDto> { division });
+        var mapping = new SeasonHealthDtoAdapter.SeasonAndDivisions(season, new List<DivisionDataDto>
+        {
+            division,
+        });
         _divisionAdapter.Setup(a => a.Adapt(division, _token)).ReturnsAsync(divisionDto);
 
         var result = await _adapter.Adapt(mapping, _token);
@@ -43,6 +46,9 @@ public class SeasonHealthDtoAdapterTests
         Assert.That(result.Name, Is.EqualTo(season.Name));
         Assert.That(result.StartDate, Is.EqualTo(season.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(season.EndDate));
-        Assert.That(result.Divisions, Is.EqualTo(new[] { divisionDto }));
+        Assert.That(result.Divisions, Is.EqualTo(new[]
+        {
+            divisionDto,
+        }));
     }
 }

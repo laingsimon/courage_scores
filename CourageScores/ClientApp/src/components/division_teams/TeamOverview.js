@@ -8,16 +8,21 @@ import {useApp} from "../../AppContainer";
 import {useBranding} from "../../BrandingContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
 
-export function TeamOverview({ teamId }) {
-    const { name } = useBranding();
-    const { fixtures: divisionDataFixtures, players: divisionDataPlayers, season, name: divisionName } = useDivisionData();
-    const { teams } = useApp();
+export function TeamOverview({teamId}) {
+    const {name} = useBranding();
+    const {
+        fixtures: divisionDataFixtures,
+        players: divisionDataPlayers,
+        season,
+        name: divisionName
+    } = useDivisionData();
+    const {teams} = useApp();
     const team = teams.filter(t => t.id === teamId)[0];
     const fixtures = divisionDataFixtures.map(fixtureDate => {
-       return {
-           date: fixtureDate.date,
-           fixtures: fixtureDate.fixtures.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
-       };
+        return {
+            date: fixtureDate.date,
+            fixtures: fixtureDate.fixtures.filter(f => f.awayTeam && (f.awayTeam.id === teamId || f.homeTeam.id === teamId))
+        };
     }).filter(fixtureDate => any(fixtureDate.fixtures));
     const players = divisionDataPlayers.filter(p => p.teamId === teamId);
 
@@ -46,7 +51,8 @@ export function TeamOverview({ teamId }) {
                 <div className="mt-4">
                     {fixture.homeTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.homeTeam.name}</strong>)
-                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.homeTeam.name}</EmbedAwareLink>)}
+                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.homeTeam.name}/${season.name}`}
+                                           className="margin-right text-nowrap">{fixture.homeTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
             <td className="align-middle">{renderScore(fixture.homeScore, fixture.postponed)}</td>
@@ -56,7 +62,8 @@ export function TeamOverview({ teamId }) {
                 <div className="mt-4">
                     {fixture.awayTeam.id === teamId
                         ? (<strong className="margin-right text-nowrap">{fixture.awayTeam.name}</strong>)
-                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`} className="margin-right text-nowrap">{fixture.awayTeam.name}</EmbedAwareLink>)}
+                        : (<EmbedAwareLink to={`/division/${divisionName}/team:${fixture.awayTeam.name}/${season.name}`}
+                                           className="margin-right text-nowrap">{fixture.awayTeam.name}</EmbedAwareLink>)}
                 </div>
             </td>
         </tr>);
@@ -65,25 +72,26 @@ export function TeamOverview({ teamId }) {
     if (!team) {
         return <div className="content-background p-3">
             <h5 className="text-danger">⚠ Team could not be found</h5>
-            <EmbedAwareLink className="btn btn-primary" to={`/division/${divisionName}/teams/${season.name}`}>Teams</EmbedAwareLink>
+            <EmbedAwareLink className="btn btn-primary"
+                            to={`/division/${divisionName}/teams/${season.name}`}>Teams</EmbedAwareLink>
         </div>
     }
 
     return (<div className="content-background p-3">
-        <h3>{team.name} <ShareButton text={`${name}: ${team.name}`} /></h3>
+        <h3>{team.name} <ShareButton text={`${name}: ${team.name}`}/></h3>
         <p>Address: {team.address}</p>
 
         <div className="overflow-x-auto">
             <table className="table">
                 <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th className="text-end">Home</th>
-                        <th className="narrow-column"></th>
-                        <th className="narrow-column">vs</th>
-                        <th className="narrow-column"></th>
-                        <th>Away</th>
-                    </tr>
+                <tr>
+                    <th>Date</th>
+                    <th className="text-end">Home</th>
+                    <th className="narrow-column"></th>
+                    <th className="narrow-column">vs</th>
+                    <th className="narrow-column"></th>
+                    <th>Away</th>
+                </tr>
                 </thead>
                 <tbody>
                 {fixtures.map(renderFixtureAndDate)}
@@ -91,7 +99,7 @@ export function TeamOverview({ teamId }) {
             </table>
         </div>
         <div className="overflow-x-auto">
-            <DivisionPlayers players={players} hideVenue={true} />
+            <DivisionPlayers players={players} hideVenue={true}/>
         </div>
     </div>)
 }

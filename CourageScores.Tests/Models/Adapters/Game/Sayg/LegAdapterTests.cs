@@ -10,7 +10,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class LegAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private LegAdapter _adapter = null!;
     private LegCompetitorScoreDto _homeScoreDto = null!;
     private LegCompetitorScoreDto _awayScoreDto = null!;
@@ -18,7 +18,7 @@ public class LegAdapterTests
     private LegPlayerSequenceDto _legPlayerSequenceDto = null!;
     private LegCompetitorScore _homeScore = null!;
     private LegCompetitorScore _awayScore = null!;
-    private Mock<ISimpleAdapter<LegCompetitorScoreAdapterContext,LegCompetitorScoreDto>> _legCompetitorScoreAdapter = null!;
+    private Mock<ISimpleAdapter<LegCompetitorScoreAdapterContext, LegCompetitorScoreDto>> _legCompetitorScoreAdapter = null!;
 
     [SetUp]
     public void SetupEachTest()
@@ -95,7 +95,7 @@ public class LegAdapterTests
         {
             Home = _homeScore,
             Away = _awayScore,
-            CurrentThrow = currentThrow
+            CurrentThrow = currentThrow,
         };
 
         var result = await _adapter.Adapt(leg, _token);
@@ -159,13 +159,16 @@ public class LegAdapterTests
             Away = _awayScore,
             PlayerSequence =
             {
-                _legPlayerSequence
-            }
+                _legPlayerSequence,
+            },
         };
 
         var result = await _adapter.Adapt(leg, _token);
 
-        Assert.That(result.PlayerSequence, Is.EqualTo(new[] { _legPlayerSequenceDto }));
+        Assert.That(result.PlayerSequence, Is.EqualTo(new[]
+        {
+            _legPlayerSequenceDto,
+        }));
     }
 
     [Test]
@@ -260,12 +263,15 @@ public class LegAdapterTests
             Away = _awayScoreDto,
             PlayerSequence =
             {
-                _legPlayerSequenceDto
+                _legPlayerSequenceDto,
             },
         };
 
         var result = await _adapter.Adapt(leg, _token);
 
-        Assert.That(result.PlayerSequence, Is.EqualTo(new[] { _legPlayerSequence }));
+        Assert.That(result.PlayerSequence, Is.EqualTo(new[]
+        {
+            _legPlayerSequence,
+        }));
     }
 }

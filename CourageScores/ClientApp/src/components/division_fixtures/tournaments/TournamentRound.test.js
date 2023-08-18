@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {TournamentRound} from "./TournamentRound";
 import {createTemporaryId} from "../../../helpers/projection";
@@ -18,7 +18,7 @@ describe('TournamentRound', () => {
         addSayg: async () => {
             return {
                 success: true,
-                result: { /* tournament data */ }
+                result: { /* tournament data */}
             };
         }
     };
@@ -38,7 +38,7 @@ describe('TournamentRound', () => {
     }
 
     async function onHiCheck(player, note) {
-        hiCheck = { player, note };
+        hiCheck = {player, note};
     }
 
     async function on180(player) {
@@ -58,8 +58,8 @@ describe('TournamentRound', () => {
         updatedRound = null;
         warnBeforeSave = null;
         context = await renderApp(
-            { tournamentApi, saygApi },
-            { name: 'Courage Scores' },
+            {tournamentApi, saygApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     if (err.message) {
@@ -73,8 +73,11 @@ describe('TournamentRound', () => {
                 },
                 account
             },
-            (<TournamentContainer {...containerProps} setTournamentData={setTournamentData} saveTournament={() => {}} setWarnBeforeSave={msg => warnBeforeSave = msg}>
-                <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180} />
+            (<TournamentContainer {...containerProps}
+                                  setTournamentData={setTournamentData}
+                                  saveTournament={noop}
+                                  setWarnBeforeSave={msg => warnBeforeSave = msg}>
+                <TournamentRound {...props} onChange={onChange} onHiCheck={onHiCheck} on180={on180}/>
             </TournamentContainer>));
     }
 
@@ -124,13 +127,13 @@ describe('TournamentRound', () => {
 
         describe('renders', () => {
             it('when no matches', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ ],
-                        matchOptions: [ ],
+                        matches: [],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ ],
+                    sides: [],
                     readOnly,
                     depth: 1,
                 });
@@ -140,22 +143,22 @@ describe('TournamentRound', () => {
             });
 
             it('unplayed round', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: null,
                             scoreB: null,
                             sideA: side1,
                             sideB: side2,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -163,13 +166,13 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
-                assertMatch(table, 1, [ 'SIDE 1', '', 'vs', '', 'SIDE 2' ]);
+                assertMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2']);
             });
 
             it('played round', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -181,14 +184,14 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -196,15 +199,15 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
-                assertMatch(table, 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
-                assertMatch(table, 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
+                assertMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
+                assertMatch(table, 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
             });
 
             it('next round (when all sides have a score)', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -216,27 +219,27 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: {
-                            matches: [ {
+                            matches: [{
                                 id: createTemporaryId(),
                                 scoreA: null,
                                 scoreB: null,
                                 sideA: side2,
                                 sideB: side3,
-                            } ],
-                            matchOptions: [ {
+                            }],
+                            matchOptions: [{
                                 startingScore: 601,
                                 numberOfLegs: 7,
-                            } ],
+                            }],
                             nextRound: null,
                         },
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -244,9 +247,9 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
-                assertMatch(roundTables[0], 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
-                assertMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
-                assertMatch(roundTables[1], 1, [ 'SIDE 2', '', 'vs', '', 'SIDE 3' ]);
+                assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
+                assertMatch(roundTables[0], 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
+                assertMatch(roundTables[1], 1, ['SIDE 2', '', 'vs', '', 'SIDE 3']);
             });
         });
 
@@ -272,10 +275,10 @@ describe('TournamentRound', () => {
                 players: []
             };
 
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 allowNextRound: true,
                 round: {
-                    matches: [ {
+                    matches: [{
                         id: createTemporaryId(),
                         scoreA: 1,
                         scoreB: 2,
@@ -299,13 +302,13 @@ describe('TournamentRound', () => {
                         scoreB: 1,
                         sideA: side7,
                         sideB: side8,
-                    } ],
-                    matchOptions: [ {
+                    }],
+                    matchOptions: [{
                         startingScore: 601,
                         numberOfLegs: 7,
-                    } ],
+                    }],
                     nextRound: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 2,
                             scoreB: 1,
@@ -317,34 +320,34 @@ describe('TournamentRound', () => {
                             scoreB: 2,
                             sideA: side5,
                             sideB: side7,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: null,
                     },
                 },
-                sides: [ side1, side2, side3, side4, side5, side6, side7, side8 ],
+                sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                 readOnly,
                 depth: 1,
             });
 
             expect(reportedError).toBeNull();
-            expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual([ 'Quarter-Final', 'Semi-Final' ]);
+            expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final']);
             const roundTables = context.container.querySelectorAll('table');
-            assertMatch(roundTables[0], 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
-            assertMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
-            assertMatch(roundTables[0], 3, [ 'SIDE 5', '2', 'vs', '1', 'SIDE 6' ]);
-            assertMatch(roundTables[0], 4, [ 'SIDE 7', '2', 'vs', '1', 'SIDE 8' ]);
-            assertMatch(roundTables[1], 1, [ 'SIDE 2', '2', 'vs', '1', 'SIDE 3' ]);
-            assertMatch(roundTables[1], 2, [ 'SIDE 5', '1', 'vs', '2', 'SIDE 7' ]);
+            assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
+            assertMatch(roundTables[0], 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
+            assertMatch(roundTables[0], 3, ['SIDE 5', '2', 'vs', '1', 'SIDE 6']);
+            assertMatch(roundTables[0], 4, ['SIDE 7', '2', 'vs', '1', 'SIDE 8']);
+            assertMatch(roundTables[1], 1, ['SIDE 2', '2', 'vs', '1', 'SIDE 3']);
+            assertMatch(roundTables[1], 2, ['SIDE 5', '1', 'vs', '2', 'SIDE 7']);
         });
 
         it('no next round (when single round)', async () => {
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 round: {
-                    matches: [ {
+                    matches: [{
                         id: createTemporaryId(),
                         scoreA: 1,
                         scoreB: 2,
@@ -356,27 +359,27 @@ describe('TournamentRound', () => {
                         scoreB: 1,
                         sideA: side3,
                         sideB: side4,
-                    } ],
-                    matchOptions: [ {
+                    }],
+                    matchOptions: [{
                         startingScore: 601,
                         numberOfLegs: 7,
-                    } ],
+                    }],
                     nextRound: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: null,
                             scoreB: null,
                             sideA: side2,
                             sideB: side3,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: null,
                     },
                 },
-                sides: [ side1, side2, side3, side4 ],
+                sides: [side1, side2, side3, side4],
                 readOnly,
                 depth: 1,
             });
@@ -395,13 +398,13 @@ describe('TournamentRound', () => {
                 sideA: side1,
                 sideB: side2,
             };
-            await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+            await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 round: {
-                    matches: [ match ],
-                    matchOptions: [ ],
+                    matches: [match],
+                    matchOptions: [],
                     nextRound: null,
                 },
-                sides: [ side1, side2, side3, side4 ],
+                sides: [side1, side2, side3, side4],
                 readOnly,
                 depth: 1,
             });
@@ -438,13 +441,13 @@ describe('TournamentRound', () => {
 
         describe('renders', () => {
             it('when no matches', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ ],
-                        matchOptions: [ ],
+                        matches: [],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2 ],
+                    sides: [side1, side2],
                     readOnly,
                     depth: 1,
                 });
@@ -454,22 +457,22 @@ describe('TournamentRound', () => {
             });
 
             it('unplayed round', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: null,
                             scoreB: null,
                             sideA: side1,
                             sideB: side2,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -477,13 +480,13 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
-                assertEditableMatch(table, 1, [ 'SIDE 1', '', 'vs', '', 'SIDE 2', '🗑🛠' ]);
+                assertEditableMatch(table, 1, ['SIDE 1', '', 'vs', '', 'SIDE 2', '🗑🛠']);
             });
 
             it('played round', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -495,14 +498,14 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -510,15 +513,15 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const table = context.container.querySelector('table');
-                assertEditableMatch(table, 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2', '🗑🛠' ]);
-                assertEditableMatch(table, 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4', '🗑🛠' ]);
+                assertEditableMatch(table, 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2', '🗑🛠']);
+                assertEditableMatch(table, 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4', '🗑🛠']);
             });
 
             it('next round (when all sides have a score)', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -530,27 +533,27 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: {
-                            matches: [ {
+                            matches: [{
                                 id: createTemporaryId(),
                                 scoreA: null,
                                 scoreB: null,
                                 sideA: side2,
                                 sideB: side3,
-                            } ],
-                            matchOptions: [ {
+                            }],
+                            matchOptions: [{
                                 startingScore: 601,
                                 numberOfLegs: 7,
-                            } ],
+                            }],
                             nextRound: null,
                         },
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -558,10 +561,10 @@ describe('TournamentRound', () => {
                 expect(reportedError).toBeNull();
                 expect(context.container.querySelector('div > strong').textContent).toEqual('Semi-Final');
                 const roundTables = context.container.querySelectorAll('table');
-                assertEditableMatch(roundTables[0], 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
-                assertEditableMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
+                assertEditableMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
+                assertEditableMatch(roundTables[0], 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
                 expect(context.container.querySelector('div > table+div > strong').textContent).toEqual('Final');
-                assertEditableMatch(roundTables[1], 1, [ 'SIDE 2', '', 'vs', '', 'SIDE 3', '🗑🛠' ]);
+                assertEditableMatch(roundTables[1], 1, ['SIDE 2', '', 'vs', '', 'SIDE 3', '🗑🛠']);
             });
 
             it('final round (when all sides have a score)', async () => {
@@ -586,82 +589,82 @@ describe('TournamentRound', () => {
                     players: []
                 };
 
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
                     round: {
                         matches: [
                             {
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side5,
-                            sideB: side6,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side7,
-                            sideB: side8,
-                        } ],
-                        matchOptions: [ {
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        } ],
-                        nextRound: {
-                            matches: [
-                                {
-                                id: createTemporaryId(),
-                                scoreA: 2,
-                                scoreB: 1,
-                                sideA: side2,
-                                sideB: side3,
-                            }, {
                                 id: createTemporaryId(),
                                 scoreA: 1,
                                 scoreB: 2,
+                                sideA: side1,
+                                sideB: side2,
+                            }, {
+                                id: createTemporaryId(),
+                                scoreA: 2,
+                                scoreB: 1,
+                                sideA: side3,
+                                sideB: side4,
+                            }, {
+                                id: createTemporaryId(),
+                                scoreA: 2,
+                                scoreB: 1,
                                 sideA: side5,
-                                sideB: side7,
-                            } ],
-                            matchOptions: [ {
+                                sideB: side6,
+                            }, {
+                                id: createTemporaryId(),
+                                scoreA: 2,
+                                scoreB: 1,
+                                sideA: side7,
+                                sideB: side8,
+                            }],
+                        matchOptions: [{
+                            startingScore: 601,
+                            numberOfLegs: 7,
+                        }],
+                        nextRound: {
+                            matches: [
+                                {
+                                    id: createTemporaryId(),
+                                    scoreA: 2,
+                                    scoreB: 1,
+                                    sideA: side2,
+                                    sideB: side3,
+                                }, {
+                                    id: createTemporaryId(),
+                                    scoreA: 1,
+                                    scoreB: 2,
+                                    sideA: side5,
+                                    sideB: side7,
+                                }],
+                            matchOptions: [{
                                 startingScore: 601,
                                 numberOfLegs: 7,
-                            } ],
+                            }],
                             nextRound: null,
                         },
                     },
-                    sides: [ side1, side2, side3, side4, side5, side6, side7, side8 ],
+                    sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                     readOnly,
                     depth: 1,
                 });
 
                 expect(reportedError).toBeNull();
-                expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual([ 'Quarter-Final', 'Semi-Final', 'Final' ]);
+                expect(Array.from(context.container.querySelectorAll('div > strong')).map(s => s.textContent)).toEqual(['Quarter-Final', 'Semi-Final', 'Final']);
                 const roundTables = context.container.querySelectorAll('table');
-                assertMatch(roundTables[0], 1, [ 'SIDE 1', '1', 'vs', '2', 'SIDE 2' ]);
-                assertMatch(roundTables[0], 2, [ 'SIDE 3', '2', 'vs', '1', 'SIDE 4' ]);
-                assertMatch(roundTables[0], 3, [ 'SIDE 5', '2', 'vs', '1', 'SIDE 6' ]);
-                assertMatch(roundTables[0], 4, [ 'SIDE 7', '2', 'vs', '1', 'SIDE 8' ]);
-                assertEditableMatch(roundTables[1], 1, [ 'SIDE 2', '2', 'vs', '1', 'SIDE 3', '🗑🛠' ]);
-                assertEditableMatch(roundTables[1], 2, [ 'SIDE 5', '1', 'vs', '2', 'SIDE 7', '🗑🛠' ]);
-                assertEditableMatch(roundTables[2], 1, [ '', '', 'vs', '', '', '➕' ]); // can add a match to the final round
+                assertMatch(roundTables[0], 1, ['SIDE 1', '1', 'vs', '2', 'SIDE 2']);
+                assertMatch(roundTables[0], 2, ['SIDE 3', '2', 'vs', '1', 'SIDE 4']);
+                assertMatch(roundTables[0], 3, ['SIDE 5', '2', 'vs', '1', 'SIDE 6']);
+                assertMatch(roundTables[0], 4, ['SIDE 7', '2', 'vs', '1', 'SIDE 8']);
+                assertEditableMatch(roundTables[1], 1, ['SIDE 2', '2', 'vs', '1', 'SIDE 3', '🗑🛠']);
+                assertEditableMatch(roundTables[1], 2, ['SIDE 5', '1', 'vs', '2', 'SIDE 7', '🗑🛠']);
+                assertEditableMatch(roundTables[2], 1, ['', '', 'vs', '', '', '➕']); // can add a match to the final round
             });
 
             it('no next round (when single round)', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -673,27 +676,27 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: {
-                            matches: [ {
+                            matches: [{
                                 id: createTemporaryId(),
                                 scoreA: null,
                                 scoreB: null,
                                 sideA: side2,
                                 sideB: side3,
-                            } ],
-                            matchOptions: [ {
+                            }],
+                            matchOptions: [{
                                 startingScore: 601,
                                 numberOfLegs: 7,
-                            } ],
+                            }],
                             nextRound: null,
                         },
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -707,19 +710,19 @@ describe('TournamentRound', () => {
 
         describe('interactivity', () => {
             it('can delete match', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: null,
                             scoreB: null,
                             sideA: side1,
                             sideB: side2,
-                        } ],
-                        matchOptions: [ ],
+                        }],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -745,13 +748,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -762,7 +765,7 @@ describe('TournamentRound', () => {
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
-                    matches: [ match ],
+                    matches: [match],
                     matchOptions: [],
                     nextRound: null,
                     name: 'ROUND NAME',
@@ -777,13 +780,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -795,13 +798,13 @@ describe('TournamentRound', () => {
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
-                    matches: [ {
+                    matches: [{
                         id: match.id,
                         scoreA: '2',
                         scoreB: null,
                         sideA: side1,
                         sideB: side2,
-                    } ],
+                    }],
                     matchOptions: [],
                     nextRound: null,
                 });
@@ -815,13 +818,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -833,13 +836,13 @@ describe('TournamentRound', () => {
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
-                    matches: [ {
+                    matches: [{
                         id: match.id,
                         scoreA: null,
                         scoreB: '2',
                         sideA: side1,
                         sideB: side2,
-                    } ],
+                    }],
                     matchOptions: [],
                     nextRound: null,
                 });
@@ -853,13 +856,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId(), bestOf: 9 } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId(), bestOf: 9}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -881,13 +884,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -902,7 +905,7 @@ describe('TournamentRound', () => {
                 expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
                 expect(reportedError).toBeNull();
                 expect(updatedRound).not.toBeNull();
-                expect(updatedRound.matchOptions).toEqual([ {
+                expect(updatedRound.matchOptions).toEqual([{
                     startingScore: '123',
                     numberOfLegs: 5,
                 }]);
@@ -921,13 +924,13 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: false,
                     }
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
@@ -950,13 +953,13 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
@@ -977,13 +980,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -995,13 +998,13 @@ describe('TournamentRound', () => {
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
-                    matches: [ {
+                    matches: [{
                         id: match.id,
                         scoreA: null,
                         scoreB: null,
                         sideA: side3,
                         sideB: side2,
-                    } ],
+                    }],
                     matchOptions: [],
                     nextRound: null,
                 });
@@ -1015,13 +1018,13 @@ describe('TournamentRound', () => {
                     sideA: side1,
                     sideB: side2,
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1033,26 +1036,26 @@ describe('TournamentRound', () => {
 
                 expect(reportedError).toBeNull();
                 expect(updatedRound).toEqual({
-                    matches: [ {
+                    matches: [{
                         id: match.id,
                         scoreA: null,
                         scoreB: null,
                         sideA: side1,
                         sideB: side3,
-                    } ],
+                    }],
                     matchOptions: [],
                     nextRound: null,
                 });
             });
 
             it('cannot add match with only sideA', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ ],
-                        matchOptions: [ ],
+                        matches: [],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1069,13 +1072,13 @@ describe('TournamentRound', () => {
             });
 
             it('cannot add match with only sideB', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ ],
-                        matchOptions: [ ],
+                        matches: [],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1092,13 +1095,13 @@ describe('TournamentRound', () => {
             });
 
             it('can add match', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ ],
-                        matchOptions: [ ],
+                        matches: [],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1117,13 +1120,13 @@ describe('TournamentRound', () => {
             });
 
             it('sets up warning if side not added and tournament saved', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ ],
-                        matchOptions: [ ],
+                        matches: [],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1140,10 +1143,10 @@ describe('TournamentRound', () => {
             });
 
             it('can set sides in sub-round', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -1155,27 +1158,27 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: {
-                            matches: [ {
+                            matches: [{
                                 id: createTemporaryId(),
                                 scoreA: null,
                                 scoreB: null,
                                 sideA: side2,
                                 sideB: side3,
-                            } ],
-                            matchOptions: [ {
+                            }],
+                            matchOptions: [{
                                 startingScore: 601,
                                 numberOfLegs: 7,
-                            } ],
+                            }],
                             nextRound: null,
                         },
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1198,10 +1201,10 @@ describe('TournamentRound', () => {
             });
 
             it('does not show match selection after final', async () => {
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
                     round: {
-                        matches: [ {
+                        matches: [{
                             id: createTemporaryId(),
                             scoreA: 1,
                             scoreB: 2,
@@ -1213,27 +1216,27 @@ describe('TournamentRound', () => {
                             scoreB: 1,
                             sideA: side3,
                             sideB: side4,
-                        } ],
-                        matchOptions: [ {
+                        }],
+                        matchOptions: [{
                             startingScore: 601,
                             numberOfLegs: 7,
-                        } ],
+                        }],
                         nextRound: {
-                            matches: [ {
+                            matches: [{
                                 id: createTemporaryId(),
                                 scoreA: 1,
                                 scoreB: 2,
                                 sideA: side2,
                                 sideB: side3,
-                            } ],
-                            matchOptions: [ {
+                            }],
+                            matchOptions: [{
                                 startingScore: 601,
                                 numberOfLegs: 7,
-                            } ],
+                            }],
                             nextRound: null,
                         },
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 });
@@ -1256,15 +1259,15 @@ describe('TournamentRound', () => {
                     legs: {
                         '0': {
                             playerSequence: [
-                                { value: 'home', text: 'SIDE 1' },
-                                { value: 'away', text: 'SIDE 2' }
+                                {value: 'home', text: 'SIDE 1'},
+                                {value: 'away', text: 'SIDE 2'}
                             ],
                             home: {
-                                throws: [ { score: 0 } ],
+                                throws: [{score: 0}],
                                 score: 0,
                             },
                             away: {
-                                throws: [ { score: 0 } ],
+                                throws: [{score: 0}],
                                 score: 0,
                             },
                             isLastLeg: false,
@@ -1278,13 +1281,13 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
@@ -1314,15 +1317,15 @@ describe('TournamentRound', () => {
                     legs: {
                         '0': {
                             playerSequence: [
-                                { value: 'home', text: 'SIDE 1' },
-                                { value: 'away', text: 'SIDE 2' }
+                                {value: 'home', text: 'SIDE 1'},
+                                {value: 'away', text: 'SIDE 2'}
                             ],
                             home: {
-                                throws: [ { score: 0 } ],
+                                throws: [{score: 0}],
                                 score: 351,
                             },
                             away: {
-                                throws: [ { score: 0 } ],
+                                throws: [{score: 0}],
                                 score: 301,
                             },
                             isLastLeg: false,
@@ -1336,13 +1339,13 @@ describe('TournamentRound', () => {
                         recordScoresAsYouGo: true,
                     }
                 };
-                await renderComponent({ tournamentData: { id: createTemporaryId() } }, {
+                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     round: {
-                        matches: [ match ],
-                        matchOptions: [ ],
+                        matches: [match],
+                        matchOptions: [],
                         nextRound: null,
                     },
-                    sides: [ side1, side2, side3, side4 ],
+                    sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 }, permittedAccount);

@@ -13,7 +13,8 @@ public class UserRepository : IUserRepository
     public UserRepository(Database database, ICosmosTableNameResolver tableNameResolver)
     {
         _tableName = tableNameResolver.GetTableName<User>();
-        _container = new Lazy<Container>(() => database.CreateContainerIfNotExistsAsync(_tableName, "/emailAddress").Result);
+        _container = new Lazy<Container>(() =>
+            database.CreateContainerIfNotExistsAsync(_tableName, "/emailAddress").Result);
     }
 
     public async Task<User?> GetUser(string emailAddress)

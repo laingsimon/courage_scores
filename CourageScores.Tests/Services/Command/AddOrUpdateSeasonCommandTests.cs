@@ -20,7 +20,7 @@ public class AddOrUpdateSeasonCommandTests
     private Mock<ITeamService> _teamService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private AddOrUpdateSeasonCommand _command = null!;
     private CosmosSeason _season = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
@@ -45,7 +45,10 @@ public class AddOrUpdateSeasonCommandTests
             Name = "SEASON",
             StartDate = new DateTime(2001, 02, 03),
             EndDate = new DateTime(2002, 03, 04),
-            Divisions = { _division },
+            Divisions =
+            {
+                _division,
+            },
         };
         _cacheFlags = new ScopedCacheManagementFlags();
         _command = new AddOrUpdateSeasonCommand(_seasonService.Object, _teamService.Object, _commandFactory.Object, _cacheFlags, _divisionRepository.Object);
@@ -67,14 +70,20 @@ public class AddOrUpdateSeasonCommandTests
             Name = "NEW SEASON",
             StartDate = new DateTime(2021, 02, 03),
             EndDate = new DateTime(2022, 03, 04),
-            DivisionIds = { _division.Id },
+            DivisionIds =
+            {
+                _division.Id,
+            },
             LastUpdated = _season.Updated,
         };
 
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season updated",
+        }));
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
         Assert.That(_season.EndDate, Is.EqualTo(new DateTime(2022, 03, 04)));
@@ -98,7 +107,10 @@ public class AddOrUpdateSeasonCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season updated",
+        }));
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
         Assert.That(_season.EndDate, Is.EqualTo(new DateTime(2022, 03, 04)));
@@ -120,7 +132,10 @@ public class AddOrUpdateSeasonCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Season updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Season updated",
+        }));
         Assert.That(_season.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
@@ -146,7 +161,10 @@ public class AddOrUpdateSeasonCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Warnings, Is.EqualTo(new[] { "Could not find season to copy teams from" }));
+        Assert.That(result.Warnings, Is.EqualTo(new[]
+        {
+            "Could not find season to copy teams from",
+        }));
         Assert.That(_cacheFlags.EvictDivisionDataCacheForDivisionId, Is.Null);
         Assert.That(_cacheFlags.EvictDivisionDataCacheForSeasonId, Is.Null);
     }
@@ -172,7 +190,10 @@ public class AddOrUpdateSeasonCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Copied 0 of 0 team/s from other season" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Copied 0 of 0 team/s from other season",
+        }));
         Assert.That(_season.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));
@@ -203,14 +224,17 @@ public class AddOrUpdateSeasonCommandTests
                 {
                     SeasonId = otherSeason.Id,
                     DivisionId = _division.Id,
-                }
-            }
+                },
+            },
         };
         _seasonService.Setup(s => s.Get(otherSeason.Id, _token)).ReturnsAsync(otherSeason);
         _teamService.Setup(s => s.GetTeamsForSeason(otherSeason.Id, _token)).Returns(TestUtilities.AsyncEnumerable(otherSeasonTeam));
         _teamService
             .Setup(s => s.Upsert(otherSeasonTeam.Id, _addSeasonToTeamCommand.Object, _token))
-            .ReturnsAsync(new ActionResultDto<TeamDto> { Success = true });
+            .ReturnsAsync(new ActionResultDto<TeamDto>
+            {
+                Success = true,
+            });
 
         var result = await _command.WithData(update).ApplyUpdate(_season, _token);
 
@@ -221,7 +245,10 @@ public class AddOrUpdateSeasonCommandTests
         _addSeasonToTeamCommand.Verify(c => c.CopyPlayersFromSeasonId(otherSeason.Id));
         _addSeasonToTeamCommand.Verify(c => c.SkipSeasonExistenceCheck());
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Copied 1 of 1 team/s from other season" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Copied 1 of 1 team/s from other season",
+        }));
         Assert.That(_season.Id, Is.Not.EqualTo(Guid.Empty));
         Assert.That(_season.Name, Is.EqualTo("NEW SEASON"));
         Assert.That(_season.StartDate, Is.EqualTo(new DateTime(2021, 02, 03)));

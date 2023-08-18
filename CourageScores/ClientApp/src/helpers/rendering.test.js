@@ -1,7 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import React from "react";
-import { round2dp, renderDate } from './rendering';
+import {renderDate, round2dp} from './rendering';
 
 describe('rendering', () => {
     describe('round2dp', () => {

@@ -12,9 +12,14 @@ namespace CourageScores.Tests.Services.Data;
 [TestFixture]
 public class TableAccessorTests
 {
-    private static readonly JsonSerializer Serializer = new JsonSerializer();
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly TableAccessor _accessor = new TableAccessor(new TableDto { Name = "TABLE", EnvironmentalName = "TABLE_dev", PartitionKey = "/id"});
+    private static readonly JsonSerializer Serializer = new();
+    private readonly CancellationToken _token = new();
+    private readonly TableAccessor _accessor = new(new TableDto
+    {
+        Name = "TABLE",
+        EnvironmentalName = "TABLE_dev",
+        PartitionKey = "/id",
+    });
     private Mock<Database> _database = null!;
     private Mock<IZipBuilder> _builder = null!;
     private ExportDataResultDto _result = null!;
@@ -89,7 +94,10 @@ public class TableAccessorTests
         var otherId = Guid.NewGuid();
         _iterator = new MockFeedIterator<JObject>(Row(id: id), Row(id: otherId));
 #pragma warning disable CS0618
-        _request.Tables.Add("table", new List<Guid> { id });
+        _request.Tables.Add("table", new List<Guid>
+        {
+            id,
+        });
 #pragma warning restore CS0618
 
         await _accessor.ExportData(_database.Object, _result, _builder.Object, _request, _token);
@@ -152,7 +160,10 @@ public class TableAccessorTests
             Row(), Row(), Row(), Row())
         {
             BatchSize = 2,
-            BeforeRecord = () => { if (index++ > 0) { tokenSource.Cancel(); } },
+            BeforeRecord = () =>
+            {
+                if (index++ > 0) { tokenSource.Cancel(); }
+            },
         };
         _request.IncludeDeletedEntries = true;
 

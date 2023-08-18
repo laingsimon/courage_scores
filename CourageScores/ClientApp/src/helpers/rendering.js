@@ -11,5 +11,5 @@ export function round2dp(number) {
 export function renderDate(dateStr) {
     return new Date(dateStr).toLocaleDateString(
         'en-GB',
-        { month: "short", day: "numeric" });
+        {month: "short", day: "numeric"});
 }

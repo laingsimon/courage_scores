@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {toMap} from "../../helpers/collections";
@@ -20,15 +20,19 @@ describe('DivisionFixtureDate', () => {
     async function startAddNote(date) {
         startingToAddNote = date;
     }
+
     async function setShowPlayers(newShowPlayers) {
         showPlayers = newShowPlayers;
     }
+
     async function setEditNote() {
         editNote = true;
     }
+
     async function setNewFixtures(updatedFixtures) {
         newFixtures = updatedFixtures;
     }
+
     async function onTournamentChanged() {
         tournamentChanged = true;
     }
@@ -45,8 +49,8 @@ describe('DivisionFixtureDate', () => {
         tournamentChanged = null;
         reportedError = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -65,7 +69,7 @@ describe('DivisionFixtureDate', () => {
                     setEditNote={setEditNote}
                     setShowPlayers={setShowPlayers}
                     setNewFixtures={setNewFixtures}
-                    onTournamentChanged={onTournamentChanged} />
+                    onTournamentChanged={onTournamentChanged}/>
             </DivisionDataContainer>));
     }
 
@@ -105,9 +109,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -141,9 +145,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -186,9 +190,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, name: division.name }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id, name: division.name}, account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -212,9 +216,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -244,9 +248,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -272,9 +276,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -300,9 +304,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const component = context.container.querySelector('div');
@@ -323,9 +327,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const component = context.container.querySelector('div');
@@ -346,9 +350,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const component = context.container.querySelector('div');
@@ -379,10 +383,10 @@ describe('DivisionFixtureDate', () => {
             await renderComponent(
                 {
                     date: fixtureDate,
-                    renderContext: { },
-                    showPlayers: { '2023-05-06T00:00:00': true },
+                    renderContext: {},
+                    showPlayers: {'2023-05-06T00:00:00': true},
                 },
-                { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, players: [] },
+                {fixtures: [fixtureDate], teams: [team], season, id: division.id, players: []},
                 account);
 
             expect(reportedError).toBeNull();
@@ -415,9 +419,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
@@ -447,15 +451,15 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
+                renderContext: {},
                 showPlayers: {
                     '2023-05-06T00:00:00': true
                 },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id, players: [] }, account);
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id, players: []}, account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
-            expect(showPlayers).toEqual({ });
+            expect(showPlayers).toEqual({});
         });
 
         it('does not show who is playing option when controls are disabled', async () => {
@@ -479,9 +483,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account, true);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account, true);
 
             expect(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]')).toBeFalsy();
         });
@@ -537,9 +541,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -558,21 +562,21 @@ describe('DivisionFixtureDate', () => {
                     id: team.id,
                     homeTeam: team,
                     awayTeam: null,
-                    fixturesUsingAddress: [ ],
+                    fixturesUsingAddress: [],
                 }, {
                     id: createTemporaryId(),
                     homeTeam: anotherTeam,
                     awayTeam: team,
-                    fixturesUsingAddress: [ ],
+                    fixturesUsingAddress: [],
                 }],
                 tournamentFixtures: [],
                 notes: [],
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -589,7 +593,7 @@ describe('DivisionFixtureDate', () => {
                     id: team.id,
                     homeTeam: team,
                     awayTeam: null,
-                    fixturesUsingAddress: [ ],
+                    fixturesUsingAddress: [],
                 }],
                 tournamentFixtures: [],
                 notes: [],
@@ -598,7 +602,7 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, { fixtures: [ fixtureDate ], teams: [ team, anotherTeam ], season, id: division.id }, account);
+            }, {fixtures: [fixtureDate], teams: [team, anotherTeam], season, id: division.id}, account);
             const table = context.container.querySelector('table');
             const expected = Object.assign({}, fixtureDate);
             const expectedAwayTeam = {
@@ -608,7 +612,7 @@ describe('DivisionFixtureDate', () => {
             expected.fixtures[0] = Object.assign(
                 {},
                 expected.fixtures[0],
-                { awayTeam: expectedAwayTeam, originalAwayTeamId: 'unset' });
+                {awayTeam: expectedAwayTeam, originalAwayTeamId: 'unset'});
 
             await doSelectOption(table.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
@@ -624,7 +628,7 @@ describe('DivisionFixtureDate', () => {
                     homeTeam: anotherTeam,
                     awayTeam: team,
                     isKnockout: false,
-                    fixturesUsingAddress: [ ],
+                    fixturesUsingAddress: [],
                 }],
                 tournamentFixtures: [],
                 notes: [],
@@ -634,7 +638,7 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
             const toggle = context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]');
             expect(toggle).toBeFalsy();
         });
@@ -650,7 +654,7 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]'));
 
@@ -697,7 +701,7 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]')).toBeTruthy();
@@ -710,7 +714,7 @@ describe('DivisionFixtureDate', () => {
                     id: team.id,
                     homeTeam: team,
                     awayTeam: null,
-                    fixturesUsingAddress: [ ],
+                    fixturesUsingAddress: [],
                 }],
                 tournamentFixtures: [],
                 notes: [],
@@ -719,7 +723,7 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account);
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
 
             await doClick(findButton(context.container, '📌 Add note'));
 
@@ -754,9 +758,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account, null, [ team, awayTeam ]);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account, null, [team, awayTeam]);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -794,9 +798,9 @@ describe('DivisionFixtureDate', () => {
             };
             await renderComponent({
                 date: fixtureDate,
-                renderContext: { },
-                showPlayers: { },
-            }, { fixtures: [ fixtureDate ], teams: [ team ], season, id: division.id }, account, null, [ team, awayTeam ]);
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account, null, [team, awayTeam]);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');

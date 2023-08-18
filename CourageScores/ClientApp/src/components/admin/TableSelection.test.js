@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../helpers/tests";
+import {cleanUp, doClick, renderApp} from "../../helpers/tests";
 import React from "react";
 import {TableSelection} from "./TableSelection";
 
@@ -17,8 +17,8 @@ describe('TableSelection', () => {
         reportedError = null;
         tableChanged = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -27,7 +27,7 @@ describe('TableSelection', () => {
                     };
                 }
             },
-            (<TableSelection {...props} onTableChange={(value) => tableChanged = value} />));
+            (<TableSelection {...props} onTableChange={(value) => tableChanged = value}/>));
     }
 
     it('sorts table by name', async () => {
@@ -43,10 +43,10 @@ describe('TableSelection', () => {
         };
 
         await renderComponent({
-            allTables: [ tableB, tableA ],
-            selected: [ tableA.name ],
-            requireCanExport : false,
-            requireCanImport : false,
+            allTables: [tableB, tableA],
+            selected: [tableA.name],
+            requireCanExport: false,
+            requireCanImport: false,
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
@@ -67,10 +67,10 @@ describe('TableSelection', () => {
         };
 
         await renderComponent({
-            allTables: [ tableB, tableA ],
-            selected: [ tableA.name ],
-            requireCanExport : false,
-            requireCanImport : false,
+            allTables: [tableB, tableA],
+            selected: [tableA.name],
+            requireCanExport: false,
+            requireCanImport: false,
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
@@ -80,9 +80,9 @@ describe('TableSelection', () => {
     it('renders tables loading', async () => {
         await renderComponent({
             allTables: null,
-            selected: [ ],
-            requireCanExport : false,
-            requireCanImport : false,
+            selected: [],
+            requireCanExport: false,
+            requireCanImport: false,
         });
 
         const items = Array.from(context.container.querySelectorAll('li'));
@@ -101,16 +101,16 @@ describe('TableSelection', () => {
             canExport: true,
         };
         await renderComponent({
-            allTables: [ tableB, tableA ],
-            selected: [ ],
-            requireCanExport : false,
-            requireCanImport : false,
+            allTables: [tableB, tableA],
+            selected: [],
+            requireCanExport: false,
+            requireCanImport: false,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 
         await doClick(items[0]);
 
-        expect(tableChanged).toEqual([ 'A' ]);
+        expect(tableChanged).toEqual(['A']);
     });
 
     it('can deselect table', async () => {
@@ -125,16 +125,16 @@ describe('TableSelection', () => {
             canExport: true,
         };
         await renderComponent({
-            allTables: [ tableB, tableA ],
-            selected: [ tableA.name, tableB.name ],
-            requireCanExport : false,
-            requireCanImport : false,
+            allTables: [tableB, tableA],
+            selected: [tableA.name, tableB.name],
+            requireCanExport: false,
+            requireCanImport: false,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 
         await doClick(items[0]);
 
-        expect(tableChanged).toEqual([ 'B' ]);
+        expect(tableChanged).toEqual(['B']);
     });
 
     it('cannot select table that cannot be imported', async () => {
@@ -144,10 +144,10 @@ describe('TableSelection', () => {
             canExport: false,
         };
         await renderComponent({
-            allTables: [ tableA ],
-            selected: [ ],
-            requireCanExport : false,
-            requireCanImport : true,
+            allTables: [tableA],
+            selected: [],
+            requireCanExport: false,
+            requireCanImport: true,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 
@@ -163,10 +163,10 @@ describe('TableSelection', () => {
             canExport: false,
         };
         await renderComponent({
-            allTables: [ tableA ],
-            selected: [ ],
-            requireCanExport : true,
-            requireCanImport : false,
+            allTables: [tableA],
+            selected: [],
+            requireCanExport: true,
+            requireCanImport: false,
         });
         const items = Array.from(context.container.querySelectorAll('li'));
 

@@ -2,6 +2,7 @@ import {all, any} from "./helpers/collections";
 
 export class Filter {
     _expression;
+
     constructor(expression) {
         if (!expression) {
             throw new Error('Expression not supplied');
@@ -17,6 +18,7 @@ export class Filter {
 
 export class AndFilter {
     _filters;
+
     constructor(filters) {
         if (!filters) {
             throw new Error('Filters not supplied');
@@ -31,6 +33,7 @@ export class AndFilter {
 
 export class OrFilter {
     _filters;
+
     constructor(filters) {
         if (!filters) {
             throw new Error('Filters not supplied');
@@ -46,6 +49,7 @@ export class OrFilter {
 
 export class NotFilter {
     _filter;
+
     constructor(filter) {
         if (!filter) {
             throw new Error('Filter not supplied');

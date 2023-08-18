@@ -11,20 +11,44 @@ namespace CourageScores.Tests.Services.Season.Creation;
 [TestFixture]
 public class FixtureDateAssignmentStrategyTests
 {
-    private static readonly TeamDto Team1 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 1" };
-    private static readonly TeamDto Team2 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 2" };
-    private static readonly TeamDto Team3 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 3" };
-    private static readonly TeamDto Team4 = new TeamDto { Id = Guid.NewGuid(), Name = "Team 4" };
-    private readonly IEqualityComparer<DivisionDataDto> _comparer = new DateAndTeamNameComparer();
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly Dictionary<string, TeamDto> _placeholderMappings = new Dictionary<string, TeamDto>
+    private static readonly TeamDto Team1 = new()
     {
-        { "A", Team1 },
-        { "B", Team2 },
-        { "C", Team3 },
-        { "D", Team4 },
+        Id = Guid.NewGuid(),
+        Name = "Team 1",
     };
-    private readonly FixtureDateAssignmentStrategy _strategy = new FixtureDateAssignmentStrategy();
+    private static readonly TeamDto Team2 = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "Team 2",
+    };
+    private static readonly TeamDto Team3 = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "Team 3",
+    };
+    private static readonly TeamDto Team4 = new()
+    {
+        Id = Guid.NewGuid(),
+        Name = "Team 4",
+    };
+    private readonly IEqualityComparer<DivisionDataDto> _comparer = new DateAndTeamNameComparer();
+    private readonly CancellationToken _token = new();
+    private readonly Dictionary<string, TeamDto> _placeholderMappings = new()
+    {
+        {
+            "A", Team1
+        },
+        {
+            "B", Team2
+        },
+        {
+            "C", Team3
+        },
+        {
+            "D", Team4
+        },
+    };
+    private readonly FixtureDateAssignmentStrategy _strategy = new();
     private SeasonDto _season = null!;
 
     [SetUp]
@@ -41,11 +65,20 @@ public class FixtureDateAssignmentStrategyTests
     {
         var template = new TemplateDto
         {
-            Divisions = { new DivisionTemplateDto() }
+            Divisions =
+            {
+                new DivisionTemplateDto(),
+            },
         };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -74,16 +107,25 @@ public class FixtureDateAssignmentStrategyTests
                 TemplateDivision(
                     TemplateDate(TemplateFixture("J", "B"))
                 ),
-            }
+            },
         };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.False);
-        Assert.That(context.Result.Errors, Is.EquivalentTo(new[] { "Could not find home team for fixture - J" }));
+        Assert.That(context.Result.Errors, Is.EquivalentTo(new[]
+        {
+            "Could not find home team for fixture - J",
+        }));
     }
 
     [Test]
@@ -96,16 +138,25 @@ public class FixtureDateAssignmentStrategyTests
                 TemplateDivision(
                     TemplateDate(TemplateFixture("A", "J"))
                 ),
-            }
+            },
         };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
         Assert.That(result, Is.False);
-        Assert.That(context.Result.Errors, Is.EquivalentTo(new[] { "Could not find away team for fixture - J" }));
+        Assert.That(context.Result.Errors, Is.EquivalentTo(new[]
+        {
+            "Could not find away team for fixture - J",
+        }));
     }
 
     [Test]
@@ -119,11 +170,17 @@ public class FixtureDateAssignmentStrategyTests
                     TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
                     TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))
                 ),
-            }
+            },
         };
-        var division = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -147,7 +204,7 @@ public class FixtureDateAssignmentStrategyTests
                     TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
                     TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))
                 ),
-            }
+            },
         };
         var division = new DivisionDataDto
         {
@@ -157,12 +214,18 @@ public class FixtureDateAssignmentStrategyTests
                 new DivisionFixtureDateDto
                 {
                     Date = new DateTime(2001, 01, 08),
-                    Notes = { new FixtureDateNoteDto() }
-                }
-            }
+                    Notes =
+                    {
+                        new FixtureDateNoteDto(),
+                    },
+                },
+            },
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -175,7 +238,10 @@ public class FixtureDateAssignmentStrategyTests
                 new DivisionFixtureDateDto
                 {
                     Date = new DateTime(2001, 01, 08),
-                    Notes = { new FixtureDateNoteDto() }
+                    Notes =
+                    {
+                        new FixtureDateNoteDto(),
+                    },
                 },
                 OutputDate(new DateTime(2001, 01, 15), OutputFixture(Team2, Team3), OutputFixture(Team4, Team1)))).Using(_comparer));
     }
@@ -195,12 +261,21 @@ public class FixtureDateAssignmentStrategyTests
                     TemplateDate(TemplateFixture("C", "D")),
                     TemplateDate(TemplateFixture("D", "C"))
                 ),
-            }
+            },
         };
-        var division1 = new DivisionDataDto { Id = Guid.NewGuid() };
-        var division2 = new DivisionDataDto { Id = Guid.NewGuid() };
+        var division1 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
+        var division2 = new DivisionDataDto
+        {
+            Id = Guid.NewGuid(),
+        };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division1, division2 }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division1, division2,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -229,7 +304,7 @@ public class FixtureDateAssignmentStrategyTests
                     TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
                     TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))
                 ),
-            }
+            },
         };
         var division = new DivisionDataDto
         {
@@ -239,12 +314,21 @@ public class FixtureDateAssignmentStrategyTests
                 new DivisionFixtureDateDto
                 {
                     Date = new DateTime(2001, 01, 08),
-                    Fixtures = { new DivisionFixtureDto { IsKnockout = true } }
-                }
-            }
+                    Fixtures =
+                    {
+                        new DivisionFixtureDto
+                        {
+                            IsKnockout = true,
+                        },
+                    },
+                },
+            },
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -257,7 +341,13 @@ public class FixtureDateAssignmentStrategyTests
                 new DivisionFixtureDateDto
                 {
                     Date = new DateTime(2001, 01, 08),
-                    Fixtures = { new DivisionFixtureDto { IsKnockout = true } }
+                    Fixtures =
+                    {
+                        new DivisionFixtureDto
+                        {
+                            IsKnockout = true,
+                        },
+                    },
                 },
                 OutputDate(new DateTime(2001, 01, 15), OutputFixture(Team2, Team3), OutputFixture(Team4, Team1)))).Using(_comparer));
     }
@@ -273,7 +363,7 @@ public class FixtureDateAssignmentStrategyTests
                     TemplateDate(TemplateFixture("A", "B"), TemplateFixture("C", "D")),
                     TemplateDate(TemplateFixture("B", "C"), TemplateFixture("D", "A"))
                 ),
-            }
+            },
         };
         var division = new DivisionDataDto
         {
@@ -283,12 +373,18 @@ public class FixtureDateAssignmentStrategyTests
                 new DivisionFixtureDateDto
                 {
                     Date = new DateTime(2001, 01, 08),
-                    TournamentFixtures = { new DivisionTournamentFixtureDetailsDto() }
-                }
-            }
+                    TournamentFixtures =
+                    {
+                        new DivisionTournamentFixtureDetailsDto(),
+                    },
+                },
+            },
         };
         var teams = new Dictionary<Guid, TeamDto[]>();
-        var context = ProposalContext(new[] { division }, template, teams);
+        var context = ProposalContext(new[]
+        {
+            division,
+        }, template, teams);
 
         var result = await _strategy.AssignDates(context, _token);
 
@@ -301,7 +397,10 @@ public class FixtureDateAssignmentStrategyTests
                 new DivisionFixtureDateDto
                 {
                     Date = new DateTime(2001, 01, 08),
-                    TournamentFixtures = { new DivisionTournamentFixtureDetailsDto() }
+                    TournamentFixtures =
+                    {
+                        new DivisionTournamentFixtureDetailsDto(),
+                    },
                 },
                 OutputDate(new DateTime(2001, 01, 15), OutputFixture(Team2, Team3), OutputFixture(Team4, Team1)))).Using(_comparer));
     }
@@ -350,8 +449,16 @@ public class FixtureDateAssignmentStrategyTests
     {
         return new DivisionFixtureDto
         {
-            HomeTeam = new DivisionFixtureTeamDto { Name = home.Name },
-            AwayTeam = away != null ? new DivisionFixtureTeamDto { Name = away.Name } : null,
+            HomeTeam = new DivisionFixtureTeamDto
+            {
+                Name = home.Name,
+            },
+            AwayTeam = away != null
+                ? new DivisionFixtureTeamDto
+                {
+                    Name = away.Name,
+                }
+                : null,
         };
     }
 
@@ -423,7 +530,7 @@ public class FixtureDateAssignmentStrategyTests
                     continue;
                 }
 
-                if ((tuple.First.AwayTeam == null && tuple.Second.AwayTeam != null) || (tuple.First.AwayTeam != null && tuple.Second.AwayTeam == null))
+                if (tuple.First.AwayTeam == null && tuple.Second.AwayTeam != null || tuple.First.AwayTeam != null && tuple.Second.AwayTeam == null)
                 {
                     return false;
                 }

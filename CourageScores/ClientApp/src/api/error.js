@@ -16,4 +16,4 @@ class ErrorApi {
     }
 }
 
-export { ErrorApi };
+export {ErrorApi};

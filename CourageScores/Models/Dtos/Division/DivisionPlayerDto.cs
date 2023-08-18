@@ -7,7 +7,6 @@ public class DivisionPlayerDto : IRankedDto
 {
     public Guid Id { get; set; }
     public Guid TeamId { get; set; }
-    public int Rank { get; set; }
     public string Name { get; set; } = null!;
     public string Team { get; set; } = null!;
     public int Points { get; set; }
@@ -22,4 +21,5 @@ public class DivisionPlayerDto : IRankedDto
     public PlayerPerformanceDto Triples { get; set; } = new();
 
     public DateTime? Updated { get; set; }
+    public int Rank { get; set; }
 }

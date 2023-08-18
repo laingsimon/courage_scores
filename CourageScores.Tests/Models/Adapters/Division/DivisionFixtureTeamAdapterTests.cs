@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionFixtureTeamAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionFixtureTeamAdapter _adapter = new DivisionFixtureTeamAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly DivisionFixtureTeamAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenGameTeamAndNoAddress_SetsPropertiesCorrectly()

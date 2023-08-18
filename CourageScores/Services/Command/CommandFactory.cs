@@ -13,7 +13,7 @@ public class CommandFactory : ICommandFactory
 
     [ExcludeFromCodeCoverage]
     public TCommand GetCommand<TCommand>()
-        where TCommand: class, IUpdateCommand
+        where TCommand : class, IUpdateCommand
     {
         var command = _serviceProvider.GetService<TCommand>();
         return command ?? throw new InvalidOperationException($"Unable to retrieve command for {typeof(TCommand).Name}");

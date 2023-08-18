@@ -13,7 +13,10 @@ public class TeamsAreNotPlayingAgainstThemselves : ISeasonHealthCheck
     {
         return (await divisions.SelectAsync(division => RunDivisionCheck(division, token)).ToList())
             .Aggregate(
-                new HealthCheckResultDto { Success = true },
+                new HealthCheckResultDto
+                {
+                    Success = true,
+                },
                 (prev, current) => prev.MergeWith(current));
     }
 
@@ -21,7 +24,10 @@ public class TeamsAreNotPlayingAgainstThemselves : ISeasonHealthCheck
     {
         return (await division.Teams.SelectAsync(team => RunTeamCheck(division, team, token)).ToList())
             .Aggregate(
-                new HealthCheckResultDto { Success = true },
+                new HealthCheckResultDto
+                {
+                    Success = true,
+                },
                 (prev, current) => prev.MergeWith(current));
     }
 

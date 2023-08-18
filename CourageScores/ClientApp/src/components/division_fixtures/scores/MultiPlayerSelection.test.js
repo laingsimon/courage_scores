@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doClick, renderApp, doChange, findButton} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {createTemporaryId} from "../../../helpers/projection";
 
@@ -11,10 +11,10 @@ describe('MultiPlayerSelection', () => {
     let addedPlayer;
     let removedPlayer;
     const onAddPlayer = (player, notes) => {
-        addedPlayer = { player, notes };
+        addedPlayer = {player, notes};
     }
     const onRemovePlayer = (id, index) => {
-        removedPlayer = { id, index };
+        removedPlayer = {id, index};
     }
 
     afterEach(() => {
@@ -26,8 +26,8 @@ describe('MultiPlayerSelection', () => {
         addedPlayer = null;
         removedPlayer = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -113,7 +113,7 @@ describe('MultiPlayerSelection', () => {
 
             expect(reportedError).toBeNull();
             const selectedPlayers = getSelectedPlayers();
-            expect(selectedPlayers.length).toEqual(1+1);
+            expect(selectedPlayers.length).toEqual(1 + 1);
             const selectedPlayer = selectedPlayers[0];
             const removePlayerButton = selectedPlayer.querySelector('button');
             expect(removePlayerButton).toBeTruthy();
@@ -134,7 +134,7 @@ describe('MultiPlayerSelection', () => {
 
             expect(reportedError).toBeNull();
             const selectedPlayers = getSelectedPlayers();
-            expect(selectedPlayers.length).toEqual(1+1);
+            expect(selectedPlayers.length).toEqual(1 + 1);
             const selectedPlayer = selectedPlayers[0];
             const removePlayerButton = selectedPlayer.querySelector('button');
             expect(removePlayerButton).toBeTruthy();
@@ -205,7 +205,7 @@ describe('MultiPlayerSelection', () => {
                 season: season,
             }, [{
                 name: 'TEAM_NAME',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id,
                     players: [player],
                 }]
@@ -228,7 +228,7 @@ describe('MultiPlayerSelection', () => {
                 division: division,
                 season: season,
             }, [{
-                seasons: [ {
+                seasons: [{
                     seasonId: createTemporaryId(),
                 }]
             }]);
@@ -250,7 +250,7 @@ describe('MultiPlayerSelection', () => {
                 division: division,
                 season: season,
             }, [{
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id,
                     players: [],
                 }]

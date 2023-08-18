@@ -3,8 +3,8 @@ import {elementAt} from "./collections";
 /* istanbul ignore next */
 export function getMatchDefaults() {
     return {
-        homePlayers:[],
-        awayPlayers:[]
+        homePlayers: [],
+        awayPlayers: []
     };
 }
 

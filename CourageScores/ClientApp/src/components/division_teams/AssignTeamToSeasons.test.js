@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -18,18 +18,19 @@ describe('AssignTeamToSeasons', () => {
 
     const teamApi = {
         add: async (teamId, seasonId, copyFromSeasonId) => {
-            apiAdded.push({ teamId, seasonId, copyFromSeasonId });
-            return apiResponse || { success: true };
+            apiAdded.push({teamId, seasonId, copyFromSeasonId});
+            return apiResponse || {success: true};
         },
         delete: async (teamId, seasonId) => {
-            apiDeleted.push({ teamId, seasonId });
-            return apiResponse || { success: true };
+            apiDeleted.push({teamId, seasonId});
+            return apiResponse || {success: true};
         }
     };
 
     async function onReloadDivision() {
         divisionReloaded = true;
     }
+
     async function onClose() {
         closed = true;
     }
@@ -46,8 +47,8 @@ describe('AssignTeamToSeasons', () => {
         apiAdded = [];
         apiDeleted = [];
         context = await renderApp(
-            { teamApi },
-            { name: 'Courage Scores' },
+            {teamApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = err;
@@ -59,7 +60,7 @@ describe('AssignTeamToSeasons', () => {
                 seasons
             },
             (<DivisionDataContainer season={currentSeason} onReloadDivision={onReloadDivision}>
-                <AssignTeamToSeasons teamOverview={teamOverview} onClose={onClose} />
+                <AssignTeamToSeasons teamOverview={teamOverview} onClose={onClose}/>
             </DivisionDataContainer>));
     }
 
@@ -86,9 +87,9 @@ describe('AssignTeamToSeasons', () => {
             const team = {
                 id: createTemporaryId(),
                 name: 'TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id
-                } ],
+                }],
             }
             const otherSeason = {
                 id: createTemporaryId(),
@@ -101,7 +102,7 @@ describe('AssignTeamToSeasons', () => {
             expect(context.container.textContent).toContain('Associate TEAM with the following seasons');
             const seasons = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(seasons.length).toEqual(2);
-            expect(seasons.map(s => s.textContent)).toEqual([ 'PREVIOUS SEASON', 'SEASON' ]);
+            expect(seasons.map(s => s.textContent)).toEqual(['PREVIOUS SEASON', 'SEASON']);
             expect(seasons[0].className).not.toContain('active');
             expect(seasons[1].className).toContain('active');
         });
@@ -110,7 +111,7 @@ describe('AssignTeamToSeasons', () => {
             const team = {
                 id: createTemporaryId(),
                 name: 'TEAM',
-                seasons: [ ],
+                seasons: [],
             }
             await renderComponent(team, [team], [season], season);
 
@@ -133,9 +134,9 @@ describe('AssignTeamToSeasons', () => {
             const team = {
                 id: createTemporaryId(),
                 name: 'TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id
-                } ],
+                }],
             }
             const otherSeason = {
                 id: createTemporaryId(),
@@ -147,20 +148,20 @@ describe('AssignTeamToSeasons', () => {
             await doClick(context.container, '.list-group .list-group-item.active');
 
             const items = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(items.map(i => i.className)).toEqual([ 'list-group-item', 'list-group-item bg-danger' ]);
+            expect(items.map(i => i.className)).toEqual(['list-group-item', 'list-group-item bg-danger']);
             await doClick(findButton(context.container, 'Apply changes'));
             expect(reportedError).toBeNull();
             expect(apiAdded).toEqual([]);
-            expect(apiDeleted).toEqual([ { teamId: team.id, seasonId: season.id }]);
+            expect(apiDeleted).toEqual([{teamId: team.id, seasonId: season.id}]);
         });
 
         it('can assign an unselected season', async () => {
             const team = {
                 id: createTemporaryId(),
                 name: 'TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id
-                } ],
+                }],
             }
             const otherSeason = {
                 id: createTemporaryId(),
@@ -172,20 +173,20 @@ describe('AssignTeamToSeasons', () => {
             await doClick(context.container, '.list-group .list-group-item:not(.active)');
 
             const items = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(items.map(i => i.className)).toEqual([ 'list-group-item bg-success', 'list-group-item active' ]);
+            expect(items.map(i => i.className)).toEqual(['list-group-item bg-success', 'list-group-item active']);
             await doClick(findButton(context.container, 'Apply changes'));
             expect(reportedError).toBeNull();
-            expect(apiAdded).toEqual([ { teamId: team.id, seasonId: otherSeason.id, copyFromSeasonId: season.id }]);
-            expect(apiDeleted).toEqual([ ]);
+            expect(apiAdded).toEqual([{teamId: team.id, seasonId: otherSeason.id, copyFromSeasonId: season.id}]);
+            expect(apiDeleted).toEqual([]);
         });
 
         it('can close', async () => {
             const team = {
                 id: createTemporaryId(),
                 name: 'TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id
-                } ],
+                }],
             }
             const otherSeason = {
                 id: createTemporaryId(),

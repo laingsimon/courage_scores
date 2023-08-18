@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class NotablePlayerAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly NotablePlayerAdapter _adapter = new NotablePlayerAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly NotablePlayerAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()
@@ -18,7 +18,7 @@ public class NotablePlayerAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "Simon",
-            Notes = "123"
+            Notes = "123",
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -35,7 +35,7 @@ public class NotablePlayerAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "Simon",
-            Notes = "123"
+            Notes = "123",
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -51,7 +51,7 @@ public class NotablePlayerAdapterTests
         var dto = new NotablePlayerDto
         {
             Name = "Simon   ",
-            Notes = "123  "
+            Notes = "123  ",
         };
 
         var result = await _adapter.Adapt(dto, _token);

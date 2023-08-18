@@ -9,11 +9,11 @@ namespace CourageScores.Services.Division;
 
 public class CachingDivisionService : ICachingDivisionService
 {
+    private static readonly HashSet<CacheKey> CacheKeys = new();
+    private readonly IHttpContextAccessor _accessor;
     private readonly IDivisionService _divisionService;
     private readonly IMemoryCache _memoryCache;
     private readonly IUserService _userService;
-    private readonly IHttpContextAccessor _accessor;
-    private static readonly HashSet<CacheKey> CacheKeys = new HashSet<CacheKey>();
 
     public CachingDivisionService(IDivisionService divisionService, IMemoryCache memoryCache, IUserService userService, IHttpContextAccessor accessor)
     {
@@ -33,14 +33,18 @@ public class CachingDivisionService : ICachingDivisionService
         if (divisionId != null)
         {
             // invalidate caches where division id matches, any season id
-            var keys = CacheKeys.Where(key => key.Filter.DivisionId == divisionId.Value || (divisionId == Guid.Empty && key.Filter.DivisionId != null)).ToArray();
+            var keys = CacheKeys.Where(key =>
+                key.Filter.DivisionId == divisionId.Value ||
+                divisionId == Guid.Empty && key.Filter.DivisionId != null).ToArray();
             InvalidateCaches(keys);
         }
 
         if (seasonId != null)
         {
             // invalidate caches where season id matches, any division id
-            var keys = CacheKeys.Where(key => key.Filter.SeasonId == seasonId.Value || (seasonId == Guid.Empty && key.Filter.SeasonId != null)).ToArray();
+            var keys = CacheKeys.Where(key =>
+                    key.Filter.SeasonId == seasonId.Value || seasonId == Guid.Empty && key.Filter.SeasonId != null)
+                .ToArray();
             InvalidateCaches(keys);
         }
 
@@ -63,26 +67,13 @@ public class CachingDivisionService : ICachingDivisionService
 
     public async Task<DivisionDto?> Get(Guid id, CancellationToken token)
     {
-        var key = new CacheKey(new DivisionDataFilter { DivisionId = id }, "Get");
+        var key = new CacheKey(new DivisionDataFilter
+        {
+            DivisionId = id,
+        }, "Get");
         InvalidateCacheIfCacheControlHeaderPresent(key);
         CacheKeys.Add(key);
         return await _memoryCache.GetOrCreateAsync(key, _ => _divisionService.Get(id, token));
-    }
-
-    private void InvalidateCacheIfCacheControlHeaderPresent(CacheKey key)
-    {
-        if (!CacheKeys.Contains(key))
-        {
-            return;
-        }
-
-        var request = _accessor.HttpContext?.Request;
-        var noCacheHeaderPresent = request?.Headers.CacheControl.Contains("no-cache");
-        if (noCacheHeaderPresent == true)
-        {
-            CacheKeys.Remove(key);
-            _memoryCache.Remove(key);
-        }
     }
 
     public async IAsyncEnumerable<DivisionDto> GetAll([EnumeratorCancellation] CancellationToken token)
@@ -94,21 +85,6 @@ public class CachingDivisionService : ICachingDivisionService
         foreach (var division in await _memoryCache.GetOrCreateAsync(key, async _ => await _divisionService.GetAll(token).ToList()))
         {
             yield return division;
-        }
-    }
-
-    private void InvalidateCaches(Guid divisionId, string? type)
-    {
-        var cacheKeys = CacheKeys.Where(k => (k.Filter.DivisionId == divisionId || k.Filter.DivisionId == null) && (k.Type == type || type == null)).ToArray();
-        InvalidateCaches(cacheKeys);
-    }
-
-    private void InvalidateCaches(IReadOnlyCollection<CacheKey> keys)
-    {
-        foreach (var key in keys)
-        {
-            _memoryCache.Remove(key);
-            CacheKeys.Remove(key);
         }
     }
 
@@ -141,29 +117,77 @@ public class CachingDivisionService : ICachingDivisionService
         }
     }
 
+    private void InvalidateCacheIfCacheControlHeaderPresent(CacheKey key)
+    {
+        if (!CacheKeys.Contains(key))
+        {
+            return;
+        }
+
+        var request = _accessor.HttpContext?.Request;
+        var noCacheHeaderPresent = request?.Headers.CacheControl.Contains("no-cache");
+        if (noCacheHeaderPresent == true)
+        {
+            CacheKeys.Remove(key);
+            _memoryCache.Remove(key);
+        }
+    }
+
+    private void InvalidateCaches(Guid divisionId, string? type)
+    {
+        var cacheKeys = CacheKeys.Where(k =>
+                (k.Filter.DivisionId == divisionId || k.Filter.DivisionId == null) && (k.Type == type || type == null))
+            .ToArray();
+        InvalidateCaches(cacheKeys);
+    }
+
+    private void InvalidateCaches(IReadOnlyCollection<CacheKey> keys)
+    {
+        foreach (var key in keys)
+        {
+            _memoryCache.Remove(key);
+            CacheKeys.Remove(key);
+        }
+    }
+
     private class CacheKey : IEquatable<CacheKey>
     {
-        public DivisionDataFilter Filter { get; }
-        public string Type { get; }
-
         public CacheKey(DivisionDataFilter filter, string type)
         {
             Filter = filter;
             Type = type;
         }
 
+        public DivisionDataFilter Filter { get; }
+        public string Type { get; }
+
         public bool Equals(CacheKey? other)
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
             return Filter.Equals(other.Filter) && Type == other.Type;
         }
 
         public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (ReferenceEquals(null, obj))
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
+            }
+            if (obj.GetType() != GetType())
+            {
+                return false;
+            }
             return Equals((CacheKey)obj);
         }
 

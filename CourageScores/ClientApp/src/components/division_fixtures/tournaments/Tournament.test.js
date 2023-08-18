@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, noop, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {Tournament} from "./Tournament";
-import {toMap, any} from "../../../helpers/collections";
+import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 
 describe('Tournament', () => {
@@ -38,24 +38,24 @@ describe('Tournament', () => {
             throw new Error('Unexpected request for tournament data: ' + id);
         },
         update: async (data, lastUpdated) => {
-            updatedTournamentData.push({ data, lastUpdated });
-            return apiResponse || { success: true };
+            updatedTournamentData.push({data, lastUpdated});
+            return apiResponse || {success: true};
         },
         patch: async (id, data) => {
-            patchedTournamentData.push({ id, data });
-            return apiResponse || { success: true };
+            patchedTournamentData.push({id, data});
+            return apiResponse || {success: true};
         },
     };
     const playerApi = {
         create: async (divisionId, seasonId, teamId, playerDetails) => {
-            createdPlayer = { divisionId, seasonId, teamId, playerDetails };
-            return apiResponse || { success: true };
+            createdPlayer = {divisionId, seasonId, teamId, playerDetails};
+            return apiResponse || {success: true};
         }
     };
     const dataApi = {
         export: async (request) => {
             exportRequest = request;
-            return { success: true, result: { zip: 'content' }};
+            return {success: true, result: {zip: 'content'}};
         }
     };
     const saygApi = {
@@ -76,7 +76,7 @@ describe('Tournament', () => {
 
     function expectDivisionDataRequest(divisionId, seasonId, data) {
         if (!divisionDataLookup) {
-            divisionDataLookup = { };
+            divisionDataLookup = {};
         }
 
         const key = `${divisionId}_${seasonId}`;
@@ -84,9 +84,9 @@ describe('Tournament', () => {
     }
 
     afterEach(() => {
-        divisionDataLookup = { };
-        tournamentDataLookup = { };
-        saygDataLookup = { };
+        divisionDataLookup = {};
+        tournamentDataLookup = {};
+        saygDataLookup = {};
         cleanUp(context);
     });
 
@@ -106,7 +106,7 @@ describe('Tournament', () => {
                 dataApi,
                 saygApi,
             },
-            { name: 'Courage Scores' },
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     if (err.message) {
@@ -127,9 +127,9 @@ describe('Tournament', () => {
                     return scenario.teams;
                 },
                 divisions: scenario.divisions,
-                reportClientSideException: () => {},
+                reportClientSideException: noop,
             },
-            (<Tournament />),
+            (<Tournament/>),
             '/test/:tournamentId',
             '/test/' + tournamentId);
     }
@@ -140,7 +140,7 @@ describe('Tournament', () => {
         const update = updatedTournamentData.shift();
         expect(update.lastUpdated).toEqual(existingData.updated || '<updated> not defined in existing data');
         expect(update.data).toEqual(
-            Object.assign({ }, existingData, expectedChange));
+            Object.assign({}, existingData, expectedChange));
     }
 
     const division = {
@@ -152,7 +152,7 @@ describe('Tournament', () => {
         name: 'SEASON',
         startDate: '2023-01-02T00:00:00',
         endDate: '2023-05-02T00:00:00',
-        divisions: [ division ],
+        divisions: [division],
     };
 
     describe('renders', () => {
@@ -177,7 +177,7 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = { };
+                tournamentDataLookup = {};
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
@@ -185,7 +185,7 @@ describe('Tournament', () => {
                     account,
                     seasons: toMap([]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toEqual('No seasons found');
@@ -209,15 +209,15 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = { };
+                tournamentDataLookup = {};
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, true);
 
                 expect(reportedError).toBeNull();
@@ -228,14 +228,14 @@ describe('Tournament', () => {
 
             it('when tournament not found', async () => {
                 const id = createTemporaryId();
-                tournamentDataLookup = { };
+                tournamentDataLookup = {};
                 tournamentDataLookup[id] = null;
 
                 await renderComponent(id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toEqual('Tournament could not be found');
@@ -260,15 +260,15 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = { };
+                tournamentDataLookup = {};
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).not.toBeNull();
@@ -286,7 +286,7 @@ describe('Tournament', () => {
                     seasons: [{
                         seasonId: season.id,
                         divisionId: division.id,
-                        players: [ teamPlayer ],
+                        players: [teamPlayer],
                     }],
                 };
                 const tournamentData = {
@@ -306,15 +306,15 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = { };
+                tournamentDataLookup = {};
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
-                    teams: [ team ],
-                    divisions: [ division ],
+                    seasons: toMap([season]),
+                    teams: [team],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -334,7 +334,7 @@ describe('Tournament', () => {
                     seasons: [{
                         seasonId: season.id,
                         divisionId: division.id,
-                        players: [ teamPlayer ],
+                        players: [teamPlayer],
                     }],
                 };
                 const tournamentData = {
@@ -342,7 +342,7 @@ describe('Tournament', () => {
                     seasonId: season.id,
                     divisionId: division.id,
                     date: '2023-01-02T00:00:00',
-                    sides: [ {
+                    sides: [{
                         id: createTemporaryId(),
                         teamId: team.id,
                         players: []
@@ -358,15 +358,15 @@ describe('Tournament', () => {
                 const divisionData = {
                     fixtures: [],
                 };
-                tournamentDataLookup = { };
+                tournamentDataLookup = {};
                 tournamentDataLookup[tournamentData.id] = tournamentData;
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
-                    teams: [ team ],
-                    divisions: [ division ],
+                    seasons: toMap([season]),
+                    teams: [team],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -386,7 +386,7 @@ describe('Tournament', () => {
                     seasons: [{
                         seasonId: season.id,
                         divisionId: division.id,
-                        players: [ teamPlayer ],
+                        players: [teamPlayer],
                     }],
                 };
                 const tournamentData = {
@@ -394,16 +394,16 @@ describe('Tournament', () => {
                     seasonId: season.id,
                     divisionId: division.id,
                     date: '2023-01-02T00:00:00',
-                    sides: [ {
+                    sides: [{
                         id: createTemporaryId(),
                         name: 'SIDE 1',
-                        players: [ {
+                        players: [{
                             id: teamPlayer.id,
                             name: teamPlayer.name,
                             divisionId: division.id,
                         }],
                         teamId: team.id,
-                    } ],
+                    }],
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
@@ -421,9 +421,9 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
-                    teams: [ team ],
-                    divisions: [ division ],
+                    seasons: toMap([season]),
+                    teams: [team],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -467,7 +467,7 @@ describe('Tournament', () => {
                     account,
                     seasons: toMap([]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toEqual('No seasons found');
@@ -497,9 +497,9 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, true);
 
                 expect(reportedError).toBeNull();
@@ -532,9 +532,9 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -569,16 +569,16 @@ describe('Tournament', () => {
                     seasonId: season.id,
                     divisionId: division.id,
                     date: '2023-01-02T00:00:00',
-                    sides: [ {
+                    sides: [{
                         id: createTemporaryId(),
                         name: 'SIDE 1',
-                        players: [ {
+                        players: [{
                             id: createTemporaryId(),
                             name: 'PLAYER',
                             divisionId: division.id,
                         }],
                         teamId: null,
-                    } ],
+                    }],
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
@@ -596,9 +596,9 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -615,7 +615,7 @@ describe('Tournament', () => {
                     seasonId: season.id,
                     divisionId: division.id,
                     date: '2023-01-02T00:00:00',
-                    sides: [ ],
+                    sides: [],
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
@@ -637,9 +637,9 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -658,7 +658,7 @@ describe('Tournament', () => {
                     seasonId: season.id,
                     divisionId: division.id,
                     date: '2023-01-02T00:00:00',
-                    sides: [ ],
+                    sides: [],
                     address: 'ADDRESS',
                     type: 'TYPE',
                     notes: 'NOTES',
@@ -680,9 +680,9 @@ describe('Tournament', () => {
 
                 await renderComponent(tournamentData.id, {
                     account,
-                    seasons: toMap([ season ]),
+                    seasons: toMap([season]),
                     teams: [],
-                    divisions: [ division ],
+                    divisions: [division],
                 }, false);
 
                 expect(reportedError).toBeNull();
@@ -724,9 +724,9 @@ describe('Tournament', () => {
 
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
 
             await doClick(findButton(context.container, 'Add player'));
@@ -768,9 +768,9 @@ describe('Tournament', () => {
             };
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: toMap([team]),
-                divisions: [ division ],
+                divisions: [division],
             }, false);
             await doClick(findButton(context.container, 'Add player'));
             const addPlayerDialog = context.container.querySelector('.modal-dialog');
@@ -814,9 +814,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
             await doClick(findButton(context.container, 'Add player'));
 
@@ -851,9 +851,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
 
             const address = context.container.querySelector('.content-background > div:nth-child(2)');
@@ -909,9 +909,9 @@ describe('Tournament', () => {
 
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
 
             await doClick(findButton(context.container, 'Save'));
@@ -942,11 +942,11 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -977,11 +977,11 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
             await doClick(findButton(context.container, 'Save'));
             expect(context.container.textContent).toContain('Could not save tournament details');
 
@@ -996,7 +996,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: division.id,
                 date: '2023-01-02T00:00:00',
-                sides: [ {
+                sides: [{
                     id: createTemporaryId(),
                     name: 'SIDE 1',
                     players: [],
@@ -1004,7 +1004,7 @@ describe('Tournament', () => {
                     id: createTemporaryId(),
                     name: 'SIDE 2',
                     players: [],
-                } ],
+                }],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1021,9 +1021,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
             let alert;
             window.alert = (msg) => alert = msg;
@@ -1033,8 +1033,8 @@ describe('Tournament', () => {
             await doClick(findButton(context.container, 'Save'));
 
             expect(alert).toEqual('Add the (new) match before saving, otherwise it would be lost.\n' +
-            '\n' +
-            'Final: SIDE 1 vs SIDE 2');
+                '\n' +
+                'Final: SIDE 1 vs SIDE 2');
         });
 
         it('can save changes after match added', async () => {
@@ -1043,7 +1043,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: division.id,
                 date: '2023-01-02T00:00:00',
-                sides: [ {
+                sides: [{
                     id: createTemporaryId(),
                     name: 'SIDE 1',
                     players: [],
@@ -1051,7 +1051,7 @@ describe('Tournament', () => {
                     id: createTemporaryId(),
                     name: 'SIDE 2',
                     players: [],
-                } ],
+                }],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1068,9 +1068,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
-                seasons: toMap([ season ]),
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
             let alert;
             window.alert = (msg) => alert = msg;
@@ -1090,7 +1090,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: division.id,
                 date: '2023-01-02T00:00:00',
-                sides: [ ],
+                sides: [],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1106,12 +1106,12 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            window.open = () => {};
+            window.open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1119,9 +1119,9 @@ describe('Tournament', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ tournamentData.id ],
-                    division: [ tournamentData.divisionId ],
-                    season: [ tournamentData.seasonId ],
+                    tournamentGame: [tournamentData.id],
+                    division: [tournamentData.divisionId],
+                    season: [tournamentData.seasonId],
                 }
             });
             // NOTE: requestedScoreAsYouGo should NOT be present, to prevent export of ALL records
@@ -1130,11 +1130,11 @@ describe('Tournament', () => {
         it('can export tournament and sayg data with round', async () => {
             const saygId = createTemporaryId();
             const round = {
-                matches: [ {
+                matches: [{
                     saygId: saygId,
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                } ],
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
+                }],
                 nextRound: null,
             };
             const tournamentData = {
@@ -1142,7 +1142,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: division.id,
                 date: '2023-01-02T00:00:00',
-                sides: [ ],
+                sides: [],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1158,12 +1158,12 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            window.open = () => {};
+            window.open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1171,10 +1171,10 @@ describe('Tournament', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ tournamentData.id ],
-                    recordedScoreAsYouGo: [ saygId ],
-                    division: [ tournamentData.divisionId ],
-                    season: [ tournamentData.seasonId ],
+                    tournamentGame: [tournamentData.id],
+                    recordedScoreAsYouGo: [saygId],
+                    division: [tournamentData.divisionId],
+                    season: [tournamentData.seasonId],
                 }
             });
         });
@@ -1183,19 +1183,19 @@ describe('Tournament', () => {
             const saygId1 = createTemporaryId();
             const saygId2 = createTemporaryId();
             const subRound = {
-                matches: [ {
+                matches: [{
                     saygId: saygId2,
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                } ],
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
+                }],
                 nextRound: null,
             }
             const round = {
-                matches: [ {
+                matches: [{
                     saygId: saygId1,
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
-                } ],
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
+                }],
                 nextRound: subRound,
             };
             const tournamentData = {
@@ -1203,7 +1203,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: division.id,
                 date: '2023-01-02T00:00:00',
-                sides: [ ],
+                sides: [],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1219,12 +1219,12 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            window.open = () => {};
+            window.open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1232,10 +1232,10 @@ describe('Tournament', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ tournamentData.id ],
-                    recordedScoreAsYouGo: [ saygId1, saygId2 ],
-                    division: [ tournamentData.divisionId ],
-                    season: [ tournamentData.seasonId ],
+                    tournamentGame: [tournamentData.id],
+                    recordedScoreAsYouGo: [saygId1, saygId2],
+                    division: [tournamentData.divisionId],
+                    season: [tournamentData.seasonId],
                 }
             });
         });
@@ -1246,7 +1246,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ ],
+                sides: [],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1262,12 +1262,12 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            window.open = () => {};
+            window.open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1275,8 +1275,8 @@ describe('Tournament', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ tournamentData.id ],
-                    season: [ tournamentData.seasonId ],
+                    tournamentGame: [tournamentData.id],
+                    season: [tournamentData.seasonId],
                 }
             });
         });
@@ -1288,7 +1288,7 @@ describe('Tournament', () => {
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ { id: createTemporaryId(), teamId: teamId, players: [] }],
+                sides: [{id: createTemporaryId(), teamId: teamId, players: []}],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1304,12 +1304,12 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
                 teams: [],
-                divisions: [ division ],
+                divisions: [division],
             }, false);
-            window.open = () => {};
+            window.open = noop;
 
             await doClick(findButton(context.container, '🛒'));
 
@@ -1317,9 +1317,9 @@ describe('Tournament', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ tournamentData.id ],
-                    season: [ tournamentData.seasonId ],
-                    team: [ teamId ],
+                    tournamentGame: [tournamentData.id],
+                    season: [tournamentData.seasonId],
+                    team: [teamId],
                 }
             });
         });
@@ -1328,18 +1328,18 @@ describe('Tournament', () => {
             const playerId = createTemporaryId();
             const team = {
                 id: createTemporaryId(),
-                seasons: [ {
+                seasons: [{
                     id: createTemporaryId(),
                     seasonId: season.id,
-                    players: [ { id: playerId } ],
-                } ],
+                    players: [{id: playerId}],
+                }],
             };
             const tournamentData = {
                 id: createTemporaryId(),
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ { id: createTemporaryId(), teamId: null, players: [ { id: playerId }] }],
+                sides: [{id: createTemporaryId(), teamId: null, players: [{id: playerId}]}],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1355,12 +1355,12 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
-                teams: [ team ],
-                divisions: [ division ],
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
             }, false);
-            window.open = () => {};
+            window.open = noop;
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, '🛒'));
@@ -1369,9 +1369,9 @@ describe('Tournament', () => {
                 password: '',
                 includeDeletedEntries: false,
                 tables: {
-                    tournamentGame: [ tournamentData.id ],
-                    season: [ tournamentData.seasonId ],
-                    team: [ team.id ],
+                    tournamentGame: [tournamentData.id],
+                    season: [tournamentData.seasonId],
+                    team: [team.id],
                 }
             });
         });
@@ -1388,21 +1388,21 @@ describe('Tournament', () => {
             const side1 = {
                 id: createTemporaryId(),
                 name: 'SIDE 1',
-                players: [ side1Player ],
+                players: [side1Player],
             };
             const side2 = {
                 id: createTemporaryId(),
                 name: 'SIDE 2 (no show)',
                 noShow: true,
-                players: [ side2Player ],
+                players: [side2Player],
             };
             const team = {
                 id: createTemporaryId(),
-                seasons: [ {
+                seasons: [{
                     id: createTemporaryId(),
                     seasonId: season.id,
-                    players: [ side1Player, side2Player ],
-                } ],
+                    players: [side1Player, side2Player],
+                }],
             };
             const tournamentData = {
                 round: null,
@@ -1419,16 +1419,16 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
-                teams: [ team ],
-                divisions: [ division ],
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
             }, false);
 
             const accolades = context.container.querySelector('div > div > table:nth-child(4)');
             const oneEighties = accolades.querySelector('tbody tr:first-child td:nth-child(1)');
             const options = Array.from(oneEighties.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(options.map(o => o.textContent.trim())).toEqual([ '', 'SIDE 1 PLAYER' ]);
+            expect(options.map(o => o.textContent.trim())).toEqual(['', 'SIDE 1 PLAYER']);
         });
 
         it('excludes no-show sides from hi-check selection', async () => {
@@ -1443,21 +1443,21 @@ describe('Tournament', () => {
             const side1 = {
                 id: createTemporaryId(),
                 name: 'SIDE 1',
-                players: [ side1Player ],
+                players: [side1Player],
             };
             const side2 = {
                 id: createTemporaryId(),
                 name: 'SIDE 2 (no show)',
                 noShow: true,
-                players: [ side2Player ],
+                players: [side2Player],
             };
             const team = {
                 id: createTemporaryId(),
-                seasons: [ {
+                seasons: [{
                     id: createTemporaryId(),
                     seasonId: season.id,
-                    players: [ side1Player, side2Player ],
-                } ],
+                    players: [side1Player, side2Player],
+                }],
             };
             const tournamentData = {
                 round: null,
@@ -1474,32 +1474,32 @@ describe('Tournament', () => {
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
-                account: { access: Object.assign({ exportData: true }, account.access) },
-                seasons: toMap([ season ]),
-                teams: [ team ],
-                divisions: [ division ],
+                account: {access: Object.assign({exportData: true}, account.access)},
+                seasons: toMap([season]),
+                teams: [team],
+                divisions: [division],
             }, false);
 
             const accolades = context.container.querySelector('div > div > table:nth-child(4)');
             const hiChecks = accolades.querySelector('tbody tr:first-child td:nth-child(2)');
             const options = Array.from(hiChecks.querySelectorAll('.dropdown-menu .dropdown-item'));
-            expect(options.map(o => o.textContent.trim())).toEqual([ '', 'SIDE 1 PLAYER' ]);
+            expect(options.map(o => o.textContent.trim())).toEqual(['', 'SIDE 1 PLAYER']);
         });
 
         it('can patch data with sayg score for match', async () => {
-            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
-            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
+            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
             const sayg = {
                 id: createTemporaryId(),
                 legs: {
                     '0': {
                         startingScore: 501,
-                        home: { throws: [ { score: 100 } ], score: 451 },
-                        away: { throws: [ { score: 100 } ], score: 200 },
+                        home: {throws: [{score: 100}], score: 451},
+                        away: {throws: [{score: 100}], score: 200},
                         currentThrow: 'home',
                         playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
+                            {value: 'home', text: 'HOME'},
+                            {value: 'away', text: 'AWAY'},
                         ],
                     }
                 },
@@ -1509,19 +1509,19 @@ describe('Tournament', () => {
             const sideA = {
                 id: createTemporaryId(),
                 name: 'A',
-                players: [ playerA ],
+                players: [playerA],
             };
             const sideB = {
                 id: createTemporaryId(),
                 name: 'B',
-                players: [ playerB ],
+                players: [playerB],
             };
             const tournamentData = {
                 id: createTemporaryId(),
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1547,9 +1547,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([ season ]),
-                teams: [ ],
-                divisions: [ division ],
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
@@ -1574,19 +1574,19 @@ describe('Tournament', () => {
         });
 
         it('can patch data with sayg 180 for match', async () => {
-            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
-            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
+            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
             const sayg = {
                 id: createTemporaryId(),
                 legs: {
                     '0': {
                         startingScore: 501,
-                        home: { throws: [ { score: 100 } ], score: 100 },
-                        away: { throws: [ { score: 100 } ], score: 200 },
+                        home: {throws: [{score: 100}], score: 100},
+                        away: {throws: [{score: 100}], score: 200},
                         currentThrow: 'home',
                         playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
+                            {value: 'home', text: 'HOME'},
+                            {value: 'away', text: 'AWAY'},
                         ],
                     }
                 },
@@ -1596,19 +1596,19 @@ describe('Tournament', () => {
             const sideA = {
                 id: createTemporaryId(),
                 name: 'A',
-                players: [ playerA ],
+                players: [playerA],
             };
             const sideB = {
                 id: createTemporaryId(),
                 name: 'B',
-                players: [ playerB ],
+                players: [playerB],
             };
             const tournamentData = {
                 id: createTemporaryId(),
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1634,9 +1634,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([ season ]),
-                teams: [ ],
-                divisions: [ division ],
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
@@ -1654,19 +1654,19 @@ describe('Tournament', () => {
         });
 
         it('can patch data with sayg hi-check for match', async () => {
-            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
-            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
+            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
             const sayg = {
                 id: createTemporaryId(),
                 legs: {
                     '0': {
                         startingScore: 501,
-                        home: { throws: [ { score: 100 } ], score: 401 },
-                        away: { throws: [ { score: 100 } ], score: 200 },
+                        home: {throws: [{score: 100}], score: 401},
+                        away: {throws: [{score: 100}], score: 200},
                         currentThrow: 'home',
                         playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
+                            {value: 'home', text: 'HOME'},
+                            {value: 'away', text: 'AWAY'},
                         ],
                     }
                 },
@@ -1676,19 +1676,19 @@ describe('Tournament', () => {
             const sideA = {
                 id: createTemporaryId(),
                 name: 'A',
-                players: [ playerA ],
+                players: [playerA],
             };
             const sideB = {
                 id: createTemporaryId(),
                 name: 'B',
-                players: [ playerB ],
+                players: [playerB],
             };
             const tournamentData = {
                 id: createTemporaryId(),
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1714,9 +1714,9 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([ season ]),
-                teams: [ ],
-                divisions: [ division ],
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
@@ -1750,19 +1750,19 @@ describe('Tournament', () => {
         });
 
         it('can handle error during patch', async () => {
-            const playerA = { id: createTemporaryId(), name: 'PLAYER A' };
-            const playerB = { id: createTemporaryId(), name: 'PLAYER B' };
+            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
+            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
             const sayg = {
                 id: createTemporaryId(),
                 legs: {
                     '0': {
                         startingScore: 501,
-                        home: { throws: [ { score: 100 } ], score: 100 },
-                        away: { throws: [ { score: 100 } ], score: 200 },
+                        home: {throws: [{score: 100}], score: 100},
+                        away: {throws: [{score: 100}], score: 200},
                         currentThrow: 'home',
                         playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
+                            {value: 'home', text: 'HOME'},
+                            {value: 'away', text: 'AWAY'},
                         ],
                     }
                 },
@@ -1772,19 +1772,19 @@ describe('Tournament', () => {
             const sideA = {
                 id: createTemporaryId(),
                 name: 'A',
-                players: [ playerA ],
+                players: [playerA],
             };
             const sideB = {
                 id: createTemporaryId(),
                 name: 'B',
-                players: [ playerB ],
+                players: [playerB],
             };
             const tournamentData = {
                 id: createTemporaryId(),
                 seasonId: season.id,
                 divisionId: null,
                 date: '2023-01-02T00:00:00',
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 address: 'ADDRESS',
                 type: 'TYPE',
                 notes: 'NOTES',
@@ -1810,13 +1810,13 @@ describe('Tournament', () => {
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
-                seasons: toMap([ season ]),
-                teams: [ ],
-                divisions: [ division ],
+                seasons: toMap([season]),
+                teams: [],
+                divisions: [division],
             }, false);
             await doClick(findButton(context.container, '📊'));
             expect(reportedError).toBeNull();
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doChange(context.container, 'input[data-score-input="true"]', '180', context.user);
             await doClick(findButton(context.container, '📌📌📌'));

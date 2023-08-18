@@ -10,9 +10,9 @@ namespace CourageScores.Tests.Models.Adapters.Season;
 [TestFixture]
 public class SeasonAdapterTests
 {
-    private static readonly CourageScores.Models.Cosmos.Division Division = new CourageScores.Models.Cosmos.Division();
-    private static readonly DivisionDto DivisionDto = new DivisionDto();
-    private readonly CancellationToken _token = new CancellationToken();
+    private static readonly CourageScores.Models.Cosmos.Division Division = new();
+    private static readonly DivisionDto DivisionDto = new();
+    private readonly CancellationToken _token = new();
     private Mock<ISystemClock> _clock = null!;
     private SeasonAdapter _adapter = null!;
     private DateTimeOffset _now;
@@ -38,10 +38,10 @@ public class SeasonAdapterTests
             Name = "Season 1",
             Divisions =
             {
-                Division
+                Division,
             },
             StartDate = new DateTime(2001, 02, 03),
-            EndDate = new DateTime(2002, 03, 04)
+            EndDate = new DateTime(2002, 03, 04),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -51,7 +51,10 @@ public class SeasonAdapterTests
         Assert.That(result.StartDate, Is.EqualTo(model.StartDate));
         Assert.That(result.EndDate, Is.EqualTo(model.EndDate));
         Assert.That(result.IsCurrent, Is.True);
-        Assert.That(result.Divisions, Is.EqualTo(new[] { DivisionDto }));
+        Assert.That(result.Divisions, Is.EqualTo(new[]
+        {
+            DivisionDto,
+        }));
     }
 
     [Test]
@@ -64,10 +67,10 @@ public class SeasonAdapterTests
             Name = "Season 1",
             Divisions =
             {
-                Division
+                Division,
             },
             StartDate = new DateTime(2001, 02, 03),
-            EndDate = new DateTime(2002, 03, 04)
+            EndDate = new DateTime(2002, 03, 04),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -85,10 +88,10 @@ public class SeasonAdapterTests
             Name = "Season 1",
             Divisions =
             {
-                Division
+                Division,
             },
             StartDate = new DateTime(2001, 02, 03),
-            EndDate = new DateTime(2002, 03, 04)
+            EndDate = new DateTime(2002, 03, 04),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -106,10 +109,10 @@ public class SeasonAdapterTests
             Name = "Season 1",
             Divisions =
             {
-                Division
+                Division,
             },
             StartDate = new DateTime(2001, 02, 03),
-            EndDate = new DateTime(2002, 03, 04)
+            EndDate = new DateTime(2002, 03, 04),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -127,10 +130,10 @@ public class SeasonAdapterTests
             Name = "Season 1",
             Divisions =
             {
-                Division
+                Division,
             },
             StartDate = new DateTime(2001, 02, 03),
-            EndDate = new DateTime(2002, 03, 04)
+            EndDate = new DateTime(2002, 03, 04),
         };
 
         var result = await _adapter.Adapt(model, _token);
@@ -147,15 +150,18 @@ public class SeasonAdapterTests
             Name = "Season 1",
             Divisions =
             {
-                DivisionDto
-            }
+                DivisionDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.Divisions, Is.EqualTo(new[] { Division }));
+        Assert.That(result.Divisions, Is.EqualTo(new[]
+        {
+            Division,
+        }));
     }
 
     [Test]

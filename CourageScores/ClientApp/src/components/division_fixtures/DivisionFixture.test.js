@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, noop, renderApp} from "../../helpers/tests";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";
@@ -20,12 +20,12 @@ describe('DivisionFixture', () => {
 
     const gameApi = {
         update: async (fixture, lastUpdated) => {
-            savedFixture = { fixture, lastUpdated };
-            return apiResponse || { success: true };
+            savedFixture = {fixture, lastUpdated};
+            return apiResponse || {success: true};
         },
         delete: async (id) => {
             deletedFixture = id;
-            return apiResponse || { success: true };
+            return apiResponse || {success: true};
         }
     }
 
@@ -54,8 +54,8 @@ describe('DivisionFixture', () => {
         deletedFixture = null;
         apiResponse = null;
         context = await renderApp(
-            { gameApi },
-            { name: 'Courage Scores' },
+            {gameApi},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -65,13 +65,13 @@ describe('DivisionFixture', () => {
                 },
                 account,
                 teams,
-                reportClientSideException: () => {},
+                reportClientSideException: noop,
             },
             (<DivisionDataContainer {...divisionData} onReloadDivision={onReloadDivision}>
                 <DivisionFixture
                     {...props}
                     beforeReloadDivision={onBeforeReloadDivision}
-                    onUpdateFixtures={(data) => updatedFixtures = data} />
+                    onUpdateFixtures={(data) => updatedFixtures = data}/>
             </DivisionDataContainer>),
             null,
             null,
@@ -108,10 +108,10 @@ describe('DivisionFixture', () => {
                 },
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -139,10 +139,10 @@ describe('DivisionFixture', () => {
                 postponed: true
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -170,10 +170,10 @@ describe('DivisionFixture', () => {
                 isKnockout: true
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -196,10 +196,10 @@ describe('DivisionFixture', () => {
                 }
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, name: division.name, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ team ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, name: division.name, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
                 account,
-                toMap([ team ]));
+                toMap([team]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -254,13 +254,13 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [homeTeam, awayTeam]},
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -278,13 +278,13 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 postponed: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [homeTeam, awayTeam]},
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -302,13 +302,13 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [homeTeam, awayTeam]},
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -324,13 +324,19 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, name: division.name, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    name: division.name,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const cells = Array.from(context.container.querySelectorAll('td'));
@@ -352,13 +358,18 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeamAtHomeAddress ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeamAtHomeAddress]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeamAtHomeAddress ]));
+                toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -372,7 +383,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -381,10 +392,15 @@ describe('DivisionFixture', () => {
                 awayTeam: awayTeam,
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture, anotherFixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture, anotherFixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -396,7 +412,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: '2023-05-06T00:00:00',
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -406,16 +422,17 @@ describe('DivisionFixture', () => {
                 isKnockout: false,
             };
             await renderComponent(
-                { fixture, date: fixture.date, readOnly: false },
+                {fixture, date: fixture.date, readOnly: false},
                 {
                     id: division.id,
                     fixtures: [
-                        { date: fixture.date, fixtures: [ fixture ] },
-                        { date: anotherFixture.date, fixtures: [ anotherFixture ] } ],
+                        {date: fixture.date, fixtures: [fixture]},
+                        {date: anotherFixture.date, fixtures: [anotherFixture]}],
                     season,
-                    teams: [ homeTeam, awayTeam ] },
+                    teams: [homeTeam, awayTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -427,7 +444,7 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: '2023-05-06T00:00:00',
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -437,16 +454,17 @@ describe('DivisionFixture', () => {
                 isKnockout: true,
             };
             await renderComponent(
-                { fixture, date: fixture.date, readOnly: false },
+                {fixture, date: fixture.date, readOnly: false},
                 {
                     id: division.id,
                     fixtures: [
-                        { date: fixture.date, fixtures: [ fixture ] },
-                        { date: anotherFixture.date, fixtures: [ anotherFixture ] } ],
+                        {date: fixture.date, fixtures: [fixture]},
+                        {date: anotherFixture.date, fixtures: [anotherFixture]}],
                     season,
-                    teams: [ homeTeam, awayTeam ] },
+                    teams: [homeTeam, awayTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -460,7 +478,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             const anotherTeamAtHomeAddress = {
                 id: createTemporaryId(),
@@ -473,10 +491,15 @@ describe('DivisionFixture', () => {
                 }],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeamAtHomeAddress ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeamAtHomeAddress]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeamAtHomeAddress ]));
+                toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -490,7 +513,7 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -500,10 +523,15 @@ describe('DivisionFixture', () => {
                 isKnockout: true,
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture, anotherFixture ] } ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture, anotherFixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -517,13 +545,13 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [], season, teams: [homeTeam, awayTeam]},
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -549,13 +577,13 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ otherFixture ]
+                fixturesUsingAddress: [otherFixture]
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ ], season, teams: [ homeTeam, awayTeam ] },
+                {fixture, date, readOnly: false},
+                {id: division.id, fixtures: [], season, teams: [homeTeam, awayTeam]},
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -571,7 +599,7 @@ describe('DivisionFixture', () => {
                 date: '2023-05-06T00:00:00',
                 homeTeam: homeTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             const anotherFixture = {
                 id: createTemporaryId(),
@@ -581,16 +609,17 @@ describe('DivisionFixture', () => {
                 isKnockout: true,
             };
             await renderComponent(
-                { fixture, date: fixture.date, readOnly: false },
+                {fixture, date: fixture.date, readOnly: false},
                 {
                     id: division.id,
                     fixtures: [
-                        { date: fixture.date, fixtures: [ fixture ] },
-                        { date: anotherFixture.date, fixtures: [ anotherFixture ] } ],
+                        {date: fixture.date, fixtures: [fixture]},
+                        {date: anotherFixture.date, fixtures: [anotherFixture]}],
                     season,
-                    teams: [ homeTeam, awayTeam ] },
+                    teams: [homeTeam, awayTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam ]));
+                toMap([homeTeam, awayTeam]));
 
             expect(reportedError).toBeNull();
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -609,22 +638,27 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
-            expect(updatedFixtures([ { date, fixtures: [ fixture ] } ])).toEqual([{
+            expect(updatedFixtures([{date, fixtures: [fixture]}])).toEqual([{
                 date,
-                fixtures: [ {
+                fixtures: [{
                     id: fixture.id,
                     date,
                     homeTeam,
@@ -633,8 +667,8 @@ describe('DivisionFixture', () => {
                         name: anotherTeam.name,
                     },
                     originalAwayTeamId: 'unset',
-                    fixturesUsingAddress: [ ],
-                } ]
+                    fixturesUsingAddress: [],
+                }]
             }]);
         });
 
@@ -650,27 +684,27 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
+                {fixture, date, readOnly: false},
                 {
                     id: division.id,
-                    fixtures: [ { date, fixtures: [ fixture ], isKnockout: true } ],
+                    fixtures: [{date, fixtures: [fixture], isKnockout: true}],
                     season,
-                    teams: [ homeTeam, awayTeam, anotherTeam ]
+                    teams: [homeTeam, awayTeam, anotherTeam]
                 },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');
 
             expect(reportedError).toBeNull();
             expect(updatedFixtures).not.toBeNull();
-            expect(updatedFixtures([ { date, fixtures: [ fixture ], isKnockout: true } ])).toEqual([{
+            expect(updatedFixtures([{date, fixtures: [fixture], isKnockout: true}])).toEqual([{
                 date,
-                fixtures: [ {
+                fixtures: [{
                     date,
                     homeTeam,
                     awayTeam: {
@@ -679,8 +713,8 @@ describe('DivisionFixture', () => {
                     },
                     id: fixture.id,
                     originalAwayTeamId: 'unset',
-                    fixturesUsingAddress: [ ],
-                } ],
+                    fixturesUsingAddress: [],
+                }],
                 isKnockout: true,
             }]);
         });
@@ -699,13 +733,18 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 originalAwayTeamId: 'unset',
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
 
@@ -732,13 +771,18 @@ describe('DivisionFixture', () => {
                 awayTeam: awayTeam,
                 originalAwayTeamId: 'unset',
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
 
@@ -765,16 +809,21 @@ describe('DivisionFixture', () => {
                 awayTeam: awayTeam,
                 originalAwayTeamId: 'unset',
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('💾');
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(saveCell, '💾'));
 
@@ -799,17 +848,25 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let confirm;
-            window.confirm = (message) => { confirm = message; return true; }
+            window.confirm = (message) => {
+                confirm = message;
+                return true;
+            }
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -833,17 +890,25 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let prompted = false;
-            window.confirm = () => { prompted = true; return false; };
+            window.confirm = () => {
+                prompted = true;
+                return false;
+            };
 
             const button = findButton(saveCell, '🗑');
 
@@ -863,13 +928,18 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => false;
@@ -895,17 +965,22 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -930,17 +1005,22 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             window.confirm = () => true;
-            apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+            apiResponse = {success: false, errors: ['SOME ERROR']};
             await doClick(findButton(saveCell, '🗑'));
             expect(context.container.textContent).toContain('Could not save fixture details');
 
@@ -963,17 +1043,25 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 isKnockout: true,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: false },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: false},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
             expect(saveCell.textContent).toContain('🗑');
             let confirm;
-            window.confirm = (message) => { confirm = message; return true; }
+            window.confirm = (message) => {
+                confirm = message;
+                return true;
+            }
 
             await doClick(findButton(saveCell, '🗑'));
 
@@ -998,13 +1086,18 @@ describe('DivisionFixture', () => {
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
                 originalAwayTeamId: 'unset',
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
 
             const saveCell = context.container.querySelector('td:nth-child(6)');
             const deleteButton = findButton(saveCell, '💾');
@@ -1024,13 +1117,18 @@ describe('DivisionFixture', () => {
                 date: date,
                 homeTeam: homeTeam,
                 awayTeam: awayTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
 
             const saveCell = context.container.querySelector('td:nth-child(6)');
             const deleteButton = findButton(saveCell, '🗑');
@@ -1049,13 +1147,18 @@ describe('DivisionFixture', () => {
                 id: createTemporaryId(),
                 date: date,
                 homeTeam: homeTeam,
-                fixturesUsingAddress: [ ],
+                fixturesUsingAddress: [],
             };
             await renderComponent(
-                { fixture, date, readOnly: true },
-                { id: division.id, fixtures: [ { date, fixtures: [ fixture ] } ], season, teams: [ homeTeam, awayTeam, anotherTeam ] },
+                {fixture, date, readOnly: true},
+                {
+                    id: division.id,
+                    fixtures: [{date, fixtures: [fixture]}],
+                    season,
+                    teams: [homeTeam, awayTeam, anotherTeam]
+                },
                 account,
-                toMap([ homeTeam, awayTeam, anotherTeam ]));
+                toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
 
             await doSelectOption(awayCell.querySelector('.dropdown-menu'), 'ANOTHER TEAM');

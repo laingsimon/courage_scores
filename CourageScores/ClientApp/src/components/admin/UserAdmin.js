@@ -4,37 +4,37 @@ import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useAdmin} from "./AdminContainer";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export function UserAdmin() {
-    const { account, onError, reloadAccount } = useApp();
-    const { accountApi } = useDependencies();
-    const { accounts } = useAdmin();
-    const [ saving, setSaving ] = useState(false);
-    const [ userAccount, setUserAccount ] = useState(null);
-    const [ emailAddress, setEmailAddress ] = useState(account.emailAddress);
-    const [ loading, setLoading ] = useState(true);
-    const [ saveError, setSaveError ] = useState(null);
-    const [ showEmailAddress, setShowEmailAddress ] = useState(false);
+    const {account, onError, reloadAccount} = useApp();
+    const {accountApi} = useDependencies();
+    const {accounts} = useAdmin();
+    const [saving, setSaving] = useState(false);
+    const [userAccount, setUserAccount] = useState(null);
+    const [emailAddress, setEmailAddress] = useState(account.emailAddress);
+    const [loading, setLoading] = useState(true);
+    const [saveError, setSaveError] = useState(null);
+    const [showEmailAddress, setShowEmailAddress] = useState(false);
 
     useEffect(() => {
-        try {
-            if (!accounts) {
-                return;
-            }
+            try {
+                if (!accounts) {
+                    return;
+                }
 
-            if (emailAddress) {
-                showAccess(accounts, emailAddress);
+                if (emailAddress) {
+                    showAccess(accounts, emailAddress);
+                }
+            } catch (exc) {
+                /* istanbul ignore next */
+                onError(exc);
+            } finally {
+                setLoading(false);
             }
-        }
-        catch (exc) {
-            /* istanbul ignore next */
-            onError(exc);
-        } finally {
-            setLoading(false);
-        }
-    },
-    // eslint-disable-next-line
-    [ accounts ]);
+        },
+        // eslint-disable-next-line
+        [accounts]);
 
     function valueChanged(event) {
         try {
@@ -84,8 +84,7 @@ export function UserAdmin() {
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
-        }
-        finally {
+        } finally {
             setSaving(false);
         }
     }
@@ -121,7 +120,11 @@ export function UserAdmin() {
             ? 'fw-bold'
             : undefined;
 
-        return { value: acc.emailAddress, text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`, className: className };
+        return {
+            value: acc.emailAddress,
+            text: `${name}${showEmailAddress ? ' ' + acc.emailAddress : ''}`,
+            className: className
+        };
     }
 
     return (<div className="content-background p-3">
@@ -131,13 +134,16 @@ export function UserAdmin() {
                 <span className="input-group-text">Account</span>
             </div>
             {loading
-                ? (<div><span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span></div>)
+                ? (<div>
+                    <LoadingSpinnerSmall/>
+                </div>)
                 : <BootstrapDropdown
                     options={accounts ? accounts.map(toOption) : []}
                     onChange={changeAccount}
-                    value={emailAddress} className="margin-right" />}
+                    value={emailAddress} className="margin-right"/>}
             <div className="form-check form-switch margin-left mt-1">
-                <input className="form-check-input" type="checkbox" id="showEmailAddress" checked={showEmailAddress} onChange={event => setShowEmailAddress(event.target.checked)}/>
+                <input className="form-check-input" type="checkbox" id="showEmailAddress" checked={showEmailAddress}
+                       onChange={event => setShowEmailAddress(event.target.checked)}/>
                 <label className="form-check-label" htmlFor="showEmailAddress">Show email address</label>
             </div>
         </div>
@@ -161,10 +167,14 @@ export function UserAdmin() {
         {renderAccessOption('manageSeasonTemplates', 'Manage season templates')}
         <div>
             <button className="btn btn-primary" onClick={saveChanges} disabled={loading}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {saving
+                    ? (<LoadingSpinnerSmall/>)
+                    : null}
                 Set access
             </button>
         </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save access" />) : null}
+        {saveError
+            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save access"/>)
+            : null}
     </div>);
 }

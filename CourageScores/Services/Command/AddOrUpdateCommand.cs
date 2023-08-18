@@ -5,8 +5,8 @@ using CourageScores.Models.Dtos;
 namespace CourageScores.Services.Command;
 
 public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, TModel>
-    where TModel: AuditedEntity
-    where TDto: IIntegrityCheckDto
+    where TModel : AuditedEntity
+    where TDto : IIntegrityCheckDto
 {
     private TDto? _update;
 
@@ -23,7 +23,10 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             return new ActionResult<TModel>
             {
                 Success = false,
-                Errors = { $"Cannot update a {typeof(TModel).Name} that has already been deleted" },
+                Errors =
+                {
+                    $"Cannot update a {typeof(TModel).Name} that has already been deleted",
+                },
             };
         }
 
@@ -37,9 +40,12 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             return new ActionResult<TModel>
             {
                 Success = false,
-                Warnings = { _update.LastUpdated == null
-                    ? $"Unable to update {typeof(TModel).Name}, data integrity token is missing"
-                    : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}" }
+                Warnings =
+                {
+                    _update.LastUpdated == null
+                        ? $"Unable to update {typeof(TModel).Name}, data integrity token is missing"
+                        : $"Unable to update {typeof(TModel).Name}, {model.Editor} updated it before you at {model.Updated:d MMM yyyy HH:mm:ss}",
+                },
             };
         }
 
@@ -52,10 +58,15 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
             Warnings = result.Warnings,
             Messages = result.Messages.Any()
                 ? result.Messages
-                : new List<string> { $"{typeof(TModel).Name} {(create ? "created" : "updated")}" },
+                : new List<string>
+                {
+                    $"{typeof(TModel).Name} {(create ? "created" : "updated")}",
+                },
             Result = model,
         };
     }
+
+    public virtual bool RequiresLogin => true;
 
     protected abstract Task<ActionResult<TModel>> ApplyUpdates(TModel model, TDto update, CancellationToken token);
 
@@ -64,6 +75,4 @@ public abstract class AddOrUpdateCommand<TModel, TDto> : IUpdateCommand<TModel, 
         _update = update;
         return this;
     }
-
-    public virtual bool RequiresLogin => true;
 }

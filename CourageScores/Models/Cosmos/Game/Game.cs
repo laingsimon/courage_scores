@@ -87,27 +87,12 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
 
     public bool AccoladesCount { get; set; }
 
-    [ExcludeFromCodeCoverage]
-    public bool CanCreate(UserDto? user)
-    {
-        return user?.Access?.ManageGames == true;
-    }
-
-    [ExcludeFromCodeCoverage]
-    public bool CanEdit(UserDto? user)
-    {
-        return user?.Access?.ManageGames == true;
-    }
-
-    [ExcludeFromCodeCoverage]
-    public bool CanDelete(UserDto? user)
-    {
-        return user?.Access?.ManageGames == true;
-    }
-
     public void Accept(IVisitorScope scope, IGameVisitor visitor)
     {
-        scope = scope.With(new VisitorScope { Game = this });
+        scope = scope.With(new VisitorScope
+        {
+            Game = this,
+        });
 
         visitor.VisitGame(this);
 
@@ -151,35 +136,35 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
         }
     }
 
+    [ExcludeFromCodeCoverage]
+    public bool CanCreate(UserDto? user)
+    {
+        return user?.Access?.ManageGames == true;
+    }
+
+    [ExcludeFromCodeCoverage]
+    public bool CanEdit(UserDto? user)
+    {
+        return user?.Access?.ManageGames == true;
+    }
+
+    [ExcludeFromCodeCoverage]
+    public bool CanDelete(UserDto? user)
+    {
+        return user?.Access?.ManageGames == true;
+    }
+
     private class GameScoreVisitor : IGameVisitor, IGameVisitable
     {
-        private readonly GameTeam _home;
         private readonly GameTeam _away;
-        private int _homeScore;
+        private readonly GameTeam _home;
         private int _awayScore;
+        private int _homeScore;
 
         public GameScoreVisitor(GameTeam home, GameTeam away)
         {
             _home = home;
             _away = away;
-        }
-
-        public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team, int winningScore, int losingScore)
-        {
-            if (players.Count == 0)
-            {
-                return;
-            }
-
-            switch (team)
-            {
-                case TeamDesignation.Home:
-                    _homeScore++;
-                    break;
-                case TeamDesignation.Away:
-                    _awayScore++;
-                    break;
-            }
         }
 
         public void Accept(IVisitorScope scope, IGameVisitor visitor)
@@ -197,6 +182,25 @@ public class Game : AuditedEntity, IPermissionedEntity, IGameVisitable
             else if (_homeScore == _awayScore && _homeScore > 0)
             {
                 visitor.VisitGameDraw(scope, _home, _away);
+            }
+        }
+
+        public void VisitMatchWin(IVisitorScope scope, IReadOnlyCollection<GamePlayer> players, TeamDesignation team,
+            int winningScore, int losingScore)
+        {
+            if (players.Count == 0)
+            {
+                return;
+            }
+
+            switch (team)
+            {
+                case TeamDesignation.Home:
+                    _homeScore++;
+                    break;
+                case TeamDesignation.Away:
+                    _awayScore++;
+                    break;
             }
         }
     }

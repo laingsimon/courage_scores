@@ -16,8 +16,8 @@ describe('PrintDivisionHeading', () => {
     async function renderComponent(props, divisionData) {
         reportedError = null;
         context = await renderApp(
-            { },
-            { },
+            {},
+            {},
             {
                 onError: (err) => {
                     reportedError = {
@@ -35,7 +35,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no season', async () => {
             await renderComponent({
                 hideDivision: false
-            }, { season: null, name: 'DIVISION' });
+            }, {season: null, name: 'DIVISION'});
 
             expect(context.container.textContent).toEqual('');
         });
@@ -43,7 +43,7 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no division and division included', async () => {
             await renderComponent({
                 hideDivision: false
-            }, { season: { name: 'SEASON' }, name: null });
+            }, {season: {name: 'SEASON'}, name: null});
 
             expect(context.container.textContent).toEqual('');
         });
@@ -51,14 +51,14 @@ describe('PrintDivisionHeading', () => {
         it('renders nothing when no division and division excluded', async () => {
             await renderComponent({
                 hideDivision: true
-            }, { season: { name: 'SEASON' }, name: null });
+            }, {season: {name: 'SEASON'}, name: null});
 
             expect(context.container.textContent).toEqual('SEASON');
         });
     })
 
     describe('when season and division present', () => {
-        const divisionData = { season: { name: 'SEASON' }, name: 'DIVISION' };
+        const divisionData = {season: {name: 'SEASON'}, name: 'DIVISION'};
 
         it('shows division name', async () => {
             await renderComponent({

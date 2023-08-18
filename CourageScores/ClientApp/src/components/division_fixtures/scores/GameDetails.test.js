@@ -1,7 +1,7 @@
 // noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, doChange, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, renderApp} from "../../../helpers/tests";
 import {GameDetails} from "./GameDetails";
 
 describe('GameDetails', () => {
@@ -20,8 +20,8 @@ describe('GameDetails', () => {
         reportedError = null;
         updatedFixtureData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -35,7 +35,7 @@ describe('GameDetails', () => {
                 saving={saving}
                 access={access}
                 fixtureData={fixtureData}
-                setFixtureData={setFixtureData} />));
+                setFixtureData={setFixtureData}/>));
     }
 
     describe('when not logged in', () => {

@@ -3,12 +3,13 @@ import {valueChanged} from "../helpers/events";
 import {useDependencies} from "../IocContainer";
 import {useApp} from "../AppContainer";
 import {useNavigate} from "react-router-dom";
+import {LoadingSpinnerSmall} from "./common/LoadingSpinnerSmall";
 
-export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData }) {
-    const [ saving, setSaving ] = useState(false);
-    const [ deleting, setDeleting ] = useState(false);
-    const { divisionApi } = useDependencies();
-    const { onError } = useApp();
+export function EditDivision({onClose, onSave, setSaveError, data, onUpdateData}) {
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const {divisionApi} = useDependencies();
+    const {onError} = useApp();
     const navigate = useNavigate();
 
     async function saveDivision() {
@@ -70,18 +71,23 @@ export function EditDivision({ onClose, onSave, setSaveError, data, onUpdateData
             <div className="input-group-prepend">
                 <span className="input-group-text">Name</span>
             </div>
-            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name" className="form-control margin-right" />
+            <input readOnly={saving} value={data.name || ''} onChange={valueChanged(data, onUpdateData)} name="name"
+                   className="form-control margin-right"/>
         </div>
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onClose}>Close</button>
             </div>
             {data.id ? (<button className="btn btn-danger margin-right" onClick={deleteDivision}>
-                {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {deleting
+                    ? (<LoadingSpinnerSmall/>)
+                    : null}
                 Delete division
             </button>) : null}
             <button className="btn btn-primary" onClick={saveDivision}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {saving
+                    ? (<LoadingSpinnerSmall/>)
+                    : null}
                 {data.id ? 'Update division' : 'Create division'}
             </button>
         </div>

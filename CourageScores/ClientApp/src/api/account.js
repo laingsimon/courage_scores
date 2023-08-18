@@ -20,4 +20,4 @@ class AccountApi {
     }
 }
 
-export { AccountApi };
+export {AccountApi};

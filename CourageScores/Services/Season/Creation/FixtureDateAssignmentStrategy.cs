@@ -60,8 +60,14 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
             var fixtureDate = divisionToAddFixturesTo.Fixtures.FirstOrDefault(fd => fd.Date == currentDate);
             if (fixtureDate == null)
             {
-                fixtureDate = new DivisionFixtureDateDto { Date = currentDate };
-                divisionToAddFixturesTo.Fixtures = divisionToAddFixturesTo.Fixtures.Concat(new[] { fixtureDate }).OrderBy(f => f.Date).ToList();
+                fixtureDate = new DivisionFixtureDateDto
+                {
+                    Date = currentDate,
+                };
+                divisionToAddFixturesTo.Fixtures = divisionToAddFixturesTo.Fixtures.Concat(new[]
+                {
+                    fixtureDate,
+                }).OrderBy(f => f.Date).ToList();
             }
 
             success = await CreateFixturesForDate(context, fixturesToCreate, fixtureDate, token) && success;
@@ -106,9 +112,19 @@ public class FixtureDateAssignmentStrategy : IFixtureDateAssignmentStrategy
                 Id = homeTeam.Id,
                 Proposal = true,
                 HomeTeam =
-                    new DivisionFixtureTeamDto { Id = homeTeam.Id, Name = homeTeam.Name, Address = homeTeam.Address },
+                    new DivisionFixtureTeamDto
+                    {
+                        Id = homeTeam.Id,
+                        Name = homeTeam.Name,
+                        Address = homeTeam.Address,
+                    },
                 AwayTeam = awayTeam != null
-                    ? new DivisionFixtureTeamDto { Id = awayTeam.Id, Name = awayTeam.Name, Address = awayTeam.Address }
+                    ? new DivisionFixtureTeamDto
+                    {
+                        Id = awayTeam.Id,
+                        Name = awayTeam.Name,
+                        Address = awayTeam.Address,
+                    }
                     : null,
                 IsKnockout = false,
                 Postponed = false,

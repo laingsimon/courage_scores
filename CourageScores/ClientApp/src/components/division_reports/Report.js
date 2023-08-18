@@ -2,9 +2,9 @@ import {isEmpty} from "../../helpers/collections";
 import React from "react";
 import {NoRows} from "./NoRows";
 
-export function Report({ rows, valueHeading }) {
+export function Report({rows, valueHeading}) {
     if (isEmpty(rows)) {
-        return (<NoRows />);
+        return (<NoRows/>);
     }
 
     return (<div className="clear-float">

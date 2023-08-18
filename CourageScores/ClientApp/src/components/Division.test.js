@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp, noop} from "../helpers/tests";
 import {Division} from "./Division";
 import React from "react";
 import {any, toMap} from "../helpers/collections";
@@ -21,21 +21,21 @@ describe('Division', () => {
                 throw new Error(`DivisionData request not expected for ${key}`);
             }
 
-            dataRequested.push({ divisionId, seasonId });
+            dataRequested.push({divisionId, seasonId});
             return divisionDataMap[key];
         },
     };
     const seasonApi = {
         getHealth: async () => {
-            return { success: true, checks: {}, messages: [], warnings: [], errors: [] };
+            return {success: true, checks: {}, messages: [], warnings: [], errors: []};
         },
     };
     const gameApi = {
-        update: async (data) => {
-            return { success: true };
+        update: async () => {
+            return {success: true};
         },
-        delete: async (data) => {
-            return { success: true };
+        delete: async () => {
+            return {success: true};
         }
     }
 
@@ -51,8 +51,8 @@ describe('Division', () => {
     async function renderComponent(appProps, route, address) {
         reportedError = null;
         context = await renderApp(
-            { divisionApi, seasonApi, gameApi },
-            { name: 'Courage Scores' },
+            {divisionApi, seasonApi, gameApi},
+            {name: 'Courage Scores'},
             {
                 ...appProps,
                 onError: (err) => {
@@ -82,7 +82,7 @@ describe('Division', () => {
 
             await renderComponent({
                 divisions: [],
-                seasons: [{ id: createTemporaryId(), name: 'SEASON', divisions: [] }],
+                seasons: [{id: createTemporaryId(), name: 'SEASON', divisions: []}],
                 controls: true,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -102,7 +102,7 @@ describe('Division', () => {
 
             await renderComponent({
                 divisions: [],
-                seasons: [{ id: createTemporaryId(), name: 'SEASON', divisions: [] }],
+                seasons: [{id: createTemporaryId(), name: 'SEASON', divisions: []}],
                 controls: false,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -123,7 +123,7 @@ describe('Division', () => {
         const season = {
             id: createTemporaryId(),
             name: 'SEASON',
-            divisions: [ division ],
+            divisions: [division],
             startDate: '2023-01-01',
             endDate: '2023-06-01',
         };
@@ -138,14 +138,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
 
             it('renders teams table via division name', async () => {
@@ -157,14 +157,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
 
             it('renders teams table via division and season name', async () => {
@@ -176,14 +176,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/teams/${season.name}`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
 
             it('renders teams table via season id', async () => {
@@ -195,14 +195,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Venue', 'Played', 'Points', 'Won', 'Lost', 'Drawn', '+/-']);
             });
         });
 
@@ -219,7 +219,7 @@ describe('Division', () => {
                     name: division.name,
                     fixtures: [],
                     players: [],
-                    teams: [ team ],
+                    teams: [team],
                 };
 
                 await renderComponent({
@@ -240,7 +240,7 @@ describe('Division', () => {
                     name: division.name,
                     fixtures: [],
                     players: [],
-                    teams: [ team ],
+                    teams: [team],
                 };
 
                 await renderComponent({
@@ -261,7 +261,7 @@ describe('Division', () => {
                     name: division.name,
                     fixtures: [],
                     players: [],
-                    teams: [ team ],
+                    teams: [team],
                 };
 
                 await renderComponent({
@@ -282,7 +282,7 @@ describe('Division', () => {
                     name: division.name,
                     fixtures: [],
                     players: [],
-                    teams: [ team ],
+                    teams: [team],
                 };
 
                 await renderComponent({
@@ -385,14 +385,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/players`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
 
             it('renders players table via division name', async () => {
@@ -404,14 +404,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/players`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
 
             it('renders players table via division and season name', async () => {
@@ -423,14 +423,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.name}`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
 
             it('renders players table via season id', async () => {
@@ -442,14 +442,14 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.name}/players/${season.id}`);
 
                 expect(reportedError).toBeNull();
                 const table = context.container.querySelector('.content-background table.table');
                 const headings = Array.from(table.querySelectorAll('thead tr th'));
-                expect(headings.map(th => th.textContent)).toEqual([ 'Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check' ]);
+                expect(headings.map(th => th.textContent)).toEqual(['Rank', 'Player', 'Venue', 'Played', 'Won', 'Lost', 'Points', 'Win %', '180s', 'hi-check']);
             });
         });
 
@@ -472,14 +472,14 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    players: [ player ],
-                    teams: [ team ],
+                    players: [player],
+                    teams: [team],
                     fixtures: [],
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/player:${player.id}`);
 
                 expect(reportedError).toBeNull();
@@ -492,14 +492,14 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    players: [ player ],
-                    teams: [ team ],
+                    players: [player],
+                    teams: [team],
                     fixtures: [],
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@${team.name}`);
 
                 expect(reportedError).toBeNull();
@@ -512,14 +512,14 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    players: [ player ],
-                    teams: [ team ],
+                    players: [player],
+                    teams: [team],
                     fixtures: [],
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/player:${player.name}@UNKNOWN_TEAM`);
 
                 expect(reportedError).toBeNull();
@@ -532,14 +532,14 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    players: [ player ],
-                    teams: [ team ],
+                    players: [player],
+                    teams: [team],
                     fixtures: [],
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/player:UNKNOWN_PLAYER@${team.name}`);
 
                 expect(reportedError).toBeNull();
@@ -552,14 +552,14 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    players: [ player ],
-                    teams: [ team ],
+                    players: [player],
+                    teams: [team],
                     fixtures: [],
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/player:`);
 
                 expect(reportedError).toBeNull();
@@ -572,14 +572,14 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    players: [ player ],
-                    teams: [ team ],
+                    players: [player],
+                    teams: [team],
                     fixtures: [],
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/player:foo`);
 
                 expect(reportedError).toBeNull();
@@ -598,8 +598,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toBeNull();
@@ -616,8 +616,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runReports: false,
@@ -639,8 +639,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runReports: true,
@@ -663,8 +663,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runReports: false,
@@ -686,8 +686,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runReports: true,
@@ -711,8 +711,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toBeNull();
@@ -729,8 +729,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runHealthChecks: false,
@@ -752,8 +752,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runHealthChecks: true,
@@ -776,8 +776,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runHealthChecks: false,
@@ -799,8 +799,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             runHealthChecks: true,
@@ -827,9 +827,9 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
-                    account: { },
+                    divisions: [division],
+                    seasons: [season],
+                    account: {},
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toBeNull();
@@ -848,9 +848,9 @@ describe('Division', () => {
                     ],
                 };
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
-                    account: { },
+                    divisions: [division],
+                    seasons: [season],
+                    account: {},
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
                 const heading = context.container.querySelector('h3');
                 expect(heading.textContent).toEqual('⚠ Errors in division data');
@@ -872,8 +872,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toBeNull();
@@ -890,12 +890,12 @@ describe('Division', () => {
                     name: division.name,
                     teams: [],
                 };
-                console.log = () => {};
+                console.log = noop;
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
-                    account: { },
+                    divisions: [division],
+                    seasons: [season],
+                    account: {},
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toEqual(`Data for a different division returned, requested: ${division.id}`);
@@ -911,12 +911,12 @@ describe('Division', () => {
                     name: division.name,
                     teams: [],
                 };
-                console.log = () => {};
+                console.log = noop;
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
-                    account: { },
+                    divisions: [division],
+                    seasons: [season],
+                    account: {},
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/${season.id}`);
 
                 expect(reportedError).toEqual(`Data for a different season returned, requested: ${season.id}`);
@@ -931,8 +931,8 @@ describe('Division', () => {
                 };
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/unknown/teams`);
 
                 expect(reportedError).toBeNull();
@@ -942,8 +942,8 @@ describe('Division', () => {
 
             it('renders no data when season not found', async () => {
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode/:seasonId', `/division/${division.id}/teams/UNKNOWN`);
 
                 expect(reportedError).toBeNull();
@@ -953,8 +953,8 @@ describe('Division', () => {
 
             it('renders no data when no divisions', async () => {
                 await renderComponent({
-                    divisions: [ ],
-                    seasons: [ season ],
+                    divisions: [],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.name}/teams`);
 
                 expect(reportedError).toBeNull();
@@ -970,11 +970,11 @@ describe('Division', () => {
                         key2: 'some error2',
                     },
                 };
-                console.log = () => {};
+                console.log = noop;
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toEqual('Error accessing division: Code: 500 -- key1: some error1, key2: some error2');
@@ -984,11 +984,11 @@ describe('Division', () => {
                 divisionDataMap[division.id] = {
                     status: 500,
                 };
-                console.log = () => {};
+                console.log = noop;
 
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
                 expect(reportedError).toEqual('Error accessing division: Code: 500');
@@ -998,12 +998,12 @@ describe('Division', () => {
                 const homeTeam = {
                     id: createTemporaryId(),
                     name: 'HOME',
-                    seasons: [{ seasonId: season.id, players: [] }],
+                    seasons: [{seasonId: season.id, players: []}],
                 };
                 const awayTeam = {
                     id: createTemporaryId(),
                     name: 'AWAY',
-                    seasons: [{ seasonId: season.id, players: [] }],
+                    seasons: [{seasonId: season.id, players: []}],
                 };
                 const fixture = {
                     id: homeTeam.id,
@@ -1017,26 +1017,26 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    fixtures: [ {
+                    fixtures: [{
                         date: fixture.date,
-                        fixtures: [ fixture ],
+                        fixtures: [fixture],
                         tournamentFixtures: [],
                         notes: [],
                     }],
                     teams: [],
                 };
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             manageGames: true,
                         }
                     },
-                    teams: [ homeTeam, awayTeam ],
+                    teams: [homeTeam, awayTeam],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
                 expect(dataRequested).toEqual([
-                    { divisionId: division.id, seasonId: null },
+                    {divisionId: division.id, seasonId: null},
                 ]); // data loaded once
                 expect(reportedError).toBeNull();
                 const fixtureContainer = context.container.querySelector('div[data-fixture-date="2023-07-01"]').parentElement;
@@ -1046,8 +1046,8 @@ describe('Division', () => {
 
                 expect(reportedError).toBeNull();
                 expect(dataRequested).toEqual([
-                    { divisionId: division.id, seasonId: null },
-                    { divisionId: division.id, seasonId: null },
+                    {divisionId: division.id, seasonId: null},
+                    {divisionId: division.id, seasonId: null},
                 ]); // data loaded twice
             });
 
@@ -1055,12 +1055,12 @@ describe('Division', () => {
                 const homeTeam = {
                     id: createTemporaryId(),
                     name: 'HOME',
-                    seasons: [{ seasonId: season.id, players: [] }],
+                    seasons: [{seasonId: season.id, players: []}],
                 };
                 const awayTeam = {
                     id: createTemporaryId(),
                     name: 'AWAY',
-                    seasons: [{ seasonId: season.id, players: [] }],
+                    seasons: [{seasonId: season.id, players: []}],
                 };
                 const fixture = {
                     id: createTemporaryId(),
@@ -1074,26 +1074,26 @@ describe('Division', () => {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    fixtures: [ {
+                    fixtures: [{
                         date: fixture.date,
-                        fixtures: [ fixture ],
+                        fixtures: [fixture],
                         tournamentFixtures: [],
                         notes: [],
                     }],
                     teams: [],
                 };
                 await renderComponent({
-                    divisions: [ division ],
-                    seasons: [ season ],
+                    divisions: [division],
+                    seasons: [season],
                     account: {
                         access: {
                             manageGames: true,
                         }
                     },
-                    teams: [ homeTeam, awayTeam ],
+                    teams: [homeTeam, awayTeam],
                 }, '/division/:divisionId/:mode', `/division/${division.id}/fixtures`);
                 expect(dataRequested).toEqual([
-                    { divisionId: division.id, seasonId: null },
+                    {divisionId: division.id, seasonId: null},
                 ]); // data loaded once
                 expect(reportedError).toBeNull();
                 const fixtureContainer = context.container.querySelector('div[data-fixture-date="2023-07-01"]').parentElement;
@@ -1103,8 +1103,8 @@ describe('Division', () => {
 
                 expect(reportedError).toBeNull();
                 expect(dataRequested).toEqual([
-                    { divisionId: division.id, seasonId: null },
-                    { divisionId: division.id, seasonId: null },
+                    {divisionId: division.id, seasonId: null},
+                    {divisionId: division.id, seasonId: null},
                 ]); // data loaded twice
             });
         });
@@ -1118,7 +1118,7 @@ describe('Division', () => {
         const season = {
             id: createTemporaryId(),
             name: 'SEASON',
-            divisions: [ division ],
+            divisions: [division],
             startDate: '2023-01-01',
             endDate: '2023-06-01',
         };
@@ -1132,8 +1132,8 @@ describe('Division', () => {
             };
 
             await renderComponent({
-                divisions: [ division ],
-                seasons: [ season ],
+                divisions: [division],
+                seasons: [season],
                 controls: true,
             }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
@@ -1152,8 +1152,8 @@ describe('Division', () => {
             };
 
             await renderComponent({
-                divisions: [ division ],
-                seasons: [ season ],
+                divisions: [division],
+                seasons: [season],
                 controls: true,
             }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
@@ -1173,8 +1173,8 @@ describe('Division', () => {
             };
 
             await renderComponent({
-                divisions: [ division ],
-                seasons: [ season ],
+                divisions: [division],
+                seasons: [season],
                 controls: false,
             }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 
@@ -1191,8 +1191,8 @@ describe('Division', () => {
             };
 
             await renderComponent({
-                divisions: [ division ],
-                seasons: [ season ],
+                divisions: [division],
+                seasons: [season],
                 controls: false,
             }, '/division/:divisionId/:mode', `/division/${division.id}/teams`);
 

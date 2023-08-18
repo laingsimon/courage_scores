@@ -6,11 +6,11 @@ import {PageError} from "../common/PageError";
 import {useApp} from "../../AppContainer";
 import {Footer} from "./Footer";
 
-export function Layout({ children }) {
-    const { error, onError, embed } = useApp();
+export function Layout({children}) {
+    const {error, onError, embed} = useApp();
 
     function renderError() {
-        return (<PageError error={error} />)
+        return (<PageError error={error}/>)
     }
 
     if (embed) {
@@ -25,11 +25,11 @@ export function Layout({ children }) {
         return (
             <div>
                 <Heading/>
-                <NavMenu />
+                <NavMenu/>
                 {error ? renderError() : (<Container className="full-screen-print-mode">
                     {children}
                 </Container>)}
-                <Footer />
+                <Footer/>
             </div>
         );
     } catch (e) {

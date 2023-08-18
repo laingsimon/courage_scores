@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doSelectOption, doClick, findButton, doChange} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
@@ -42,8 +42,8 @@ describe('EditSide', () => {
         applied = false;
         deleted = false;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     if (err.message) {
@@ -58,7 +58,7 @@ describe('EditSide', () => {
                 teams: toMap(teams || []),
             },
             (<TournamentContainer {...containerProps}>
-                <EditSide side={side} onChange={onChange} onClose={onClose} onApply={onApply} onDelete={onDelete} />
+                <EditSide side={side} onChange={onChange} onClose={onClose} onApply={onApply} onDelete={onDelete}/>
             </TournamentContainer>));
     }
 
@@ -82,7 +82,7 @@ describe('EditSide', () => {
             sides: [{
                 id: createTemporaryId(),
                 name: 'ANOTHER SIDE',
-                players: [ anotherPlayer ],
+                players: [anotherPlayer],
             }]
         };
         const season = {
@@ -92,16 +92,15 @@ describe('EditSide', () => {
         const team = {
             id: createTemporaryId(),
             name: 'TEAM',
-            seasons: [ {
+            seasons: [{
                 seasonId: season.id,
-                players: [ player, anotherPlayer ],
+                players: [player, anotherPlayer],
                 divisionId: tournamentData.divisionId,
-            } ]
+            }]
         };
 
         it('new side', async () => {
-            const side = {
-            };
+            const side = {};
 
             await renderComponent({
                 tournamentData,
@@ -125,7 +124,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('input[name="name"]').value).toEqual('SIDE NAME');
@@ -143,13 +142,13 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doChange(context.container, 'input[name="playerFilter"]', 'ANOTHER', context.user);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toEqual([ 'ANOTHER PLAYER (🚫 Selected in another side)' ]);
+            expect(playerItems.map(li => li.textContent)).toEqual(['ANOTHER PLAYER (🚫 Selected in another side)']);
         });
 
         it('players with common name with their team name', async () => {
@@ -164,25 +163,25 @@ describe('EditSide', () => {
             const anotherTeam = {
                 id: createTemporaryId(),
                 name: 'ANOTHER TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id,
-                    players: [ playerWithSameNameInDifferentTeam ],
+                    players: [playerWithSameNameInDifferentTeam],
                     divisionId: tournamentData.divisionId,
-                } ]
+                }]
             };
 
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ team, anotherTeam ]);
+            }, side, [team, anotherTeam]);
 
             expect(context.container.querySelector('ol.list-group')).not.toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('ol.list-group li.list-group-item'));
             expect(playerItems.map(li => li.textContent)).toEqual([
                 'ANOTHER PLAYER (🚫 Selected in another side)',
                 'PLAYER [TEAM]',
-                'PLAYER [ANOTHER TEAM]' ]);
+                'PLAYER [ANOTHER TEAM]']);
         });
 
         it('side with teamId', async () => {
@@ -195,7 +194,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('input[name="name"]').value).toEqual('SIDE NAME');
@@ -215,7 +214,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('input[name="noShow"]').checked).toEqual(true);
@@ -231,7 +230,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('input[name="noShow"]').checked).toEqual(false);
@@ -241,13 +240,13 @@ describe('EditSide', () => {
             const teamNotInSeason = {
                 id: createTemporaryId(),
                 name: 'TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: createTemporaryId(),
-                    players: [ {
+                    players: [{
                         id: createTemporaryId(), name: 'NOT IN SEASON PLAYER'
-                    } ],
+                    }],
                     divisionId: tournamentData.divisionId,
-                } ]
+                }]
             }
             const side = {
                 name: 'SIDE NAME',
@@ -258,11 +257,11 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {}
-            }, side, [ teamNotInSeason ]);
+            }, side, [teamNotInSeason]);
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).not.toContain( 'NOT IN SEASON PLAYER');
+            expect(playerItems.map(li => li.textContent)).not.toContain('NOT IN SEASON PLAYER');
         });
 
         it('excludes players from another division when for a division', async () => {
@@ -272,25 +271,25 @@ describe('EditSide', () => {
             const otherDivisionTeam = {
                 id: createTemporaryId(),
                 name: 'OTHER DIVISION TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id,
-                    players: [ {
+                    players: [{
                         id: createTemporaryId(),
                         name: 'OTHER DIVISION PLAYER',
-                    } ],
+                    }],
                     divisionId: createTemporaryId(),
-                } ]
+                }]
             };
 
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player),
-            }, side, [ otherDivisionTeam, team ]);
+            }, side, [otherDivisionTeam, team]);
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).not.toContain( 'OTHER DIVISION PLAYER');
+            expect(playerItems.map(li => li.textContent)).not.toContain('OTHER DIVISION PLAYER');
         });
 
         it('includes players from another division when cross-divisional', async () => {
@@ -300,14 +299,14 @@ describe('EditSide', () => {
             const otherDivisionTeam = {
                 id: createTemporaryId(),
                 name: 'OTHER DIVISION TEAM',
-                seasons: [ {
+                seasons: [{
                     seasonId: season.id,
-                    players: [ {
+                    players: [{
                         id: createTemporaryId(),
                         name: 'OTHER DIVISION PLAYER',
-                    } ],
+                    }],
                     divisionId: createTemporaryId(),
-                } ]
+                }]
             };
             const crossDivisionalTournamentData = {
                 id: createTemporaryId(),
@@ -319,11 +318,11 @@ describe('EditSide', () => {
                 tournamentData: crossDivisionalTournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player),
-            }, side, [ otherDivisionTeam, team ]);
+            }, side, [otherDivisionTeam, team]);
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain( 'OTHER DIVISION PLAYER');
+            expect(playerItems.map(li => li.textContent)).toContain('OTHER DIVISION PLAYER');
         });
 
         it('warning about players that are selected in another tournament', async () => {
@@ -335,11 +334,11 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player),
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(playerItems.map(li => li.textContent)).toContain( 'PLAYER (⚠ Playing in another tournament)');
+            expect(playerItems.map(li => li.textContent)).toContain('PLAYER (⚠ Playing in another tournament)');
         });
 
         it('unselectable players when selected in another side', async () => {
@@ -351,7 +350,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -363,7 +362,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, tournamentData.sides[0], [ team ]);
+            }, tournamentData.sides[0], [team]);
 
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
@@ -381,7 +380,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('.btn-danger')).toBeTruthy();
@@ -397,7 +396,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('.btn-danger')).toBeFalsy();
@@ -418,7 +417,7 @@ describe('EditSide', () => {
             sides: [{
                 id: createTemporaryId(),
                 name: 'ANOTHER SIDE',
-                players: [ anotherPlayer ],
+                players: [anotherPlayer],
             }]
         };
         const season = {
@@ -428,11 +427,11 @@ describe('EditSide', () => {
         const team = {
             id: createTemporaryId(),
             name: 'TEAM',
-            seasons: [ {
+            seasons: [{
                 seasonId: season.id,
-                players: [ player, anotherPlayer ],
+                players: [player, anotherPlayer],
                 divisionId: tournamentData.divisionId,
-            } ]
+            }]
         };
 
         it('can change side name', async () => {
@@ -443,7 +442,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doChange(context.container, 'input[name="name"]', 'NEW NAME', context.user);
 
@@ -461,7 +460,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doClick(context.container, 'input[name="noShow"]');
 
@@ -473,13 +472,12 @@ describe('EditSide', () => {
         });
 
         it('can change team id', async () => {
-            const side = {
-            };
+            const side = {};
             await renderComponent({
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'TEAM');
 
@@ -499,7 +497,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doSelectOption(context.container.querySelector('.dropdown-menu'), 'Select team');
 
@@ -518,7 +516,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
@@ -541,7 +539,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
@@ -564,7 +562,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'PLAYER')[0]);
@@ -592,7 +590,7 @@ describe('EditSide', () => {
                 tournamentData: noSidesTournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
@@ -623,7 +621,7 @@ describe('EditSide', () => {
                 tournamentData: noSidesTournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
@@ -654,7 +652,7 @@ describe('EditSide', () => {
                 tournamentData: noSidesTournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             const players = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
 
             await doClick(players.filter(p => p.textContent === 'ANOTHER PLAYER')[0]);
@@ -675,7 +673,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             let confirm;
             window.confirm = (msg) => {
                 confirm = msg;
@@ -698,7 +696,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             let confirm;
             window.confirm = (msg) => {
                 confirm = msg;
@@ -722,7 +720,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             let alert;
             window.alert = (msg) => {
                 alert = msg;
@@ -744,7 +742,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             let alert;
             window.alert = (msg) => {
                 alert = msg;
@@ -767,7 +765,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doClick(findButton(context.container, 'Save'));
 
@@ -785,7 +783,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
 
             await doClick(findButton(context.container, 'Close'));
 
@@ -802,7 +800,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: alreadyPlaying(player),
-            }, side, [ team ]);
+            }, side, [team]);
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             const playerItem = playerItems.filter(li => li.textContent === 'PLAYER (⚠ Playing in another tournament)')[0];
@@ -826,7 +824,7 @@ describe('EditSide', () => {
                 tournamentData,
                 season,
                 alreadyPlaying: {},
-            }, side, [ team ]);
+            }, side, [team]);
             expect(reportedError).toBeNull();
             const playerItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             const playerItem = playerItems.filter(li => li.textContent === 'ANOTHER PLAYER (🚫 Selected in another side)')[0];

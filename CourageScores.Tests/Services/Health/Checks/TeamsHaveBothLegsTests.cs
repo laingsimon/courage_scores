@@ -9,8 +9,8 @@ namespace CourageScores.Tests.Services.Health.Checks;
 [TestFixture]
 public class TeamsHaveBothLegsTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly TeamsHaveBothLegs _check = new TeamsHaveBothLegs();
+    private readonly CancellationToken _token = new();
+    private readonly TeamsHaveBothLegs _check = new();
 
     [Test]
     public async Task RunCheck_WithNoLegsForTeam_ReturnsFail()
@@ -20,31 +20,53 @@ public class TeamsHaveBothLegsTests
             Name = "DIVISION",
             Teams =
             {
-                new DivisionTeamDto { Id = Guid.NewGuid(), Name = "HOME" },
-                new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" },
+                new DivisionTeamDto
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "HOME",
+                },
+                new DivisionTeamDto
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "AWAY",
+                },
             },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
         {
-            "DIVISION: Missing fixture for HOME vs AWAY",
-            "DIVISION: Missing fixture for AWAY vs HOME",
+            "DIVISION: Missing fixture for HOME vs AWAY", "DIVISION: Missing fixture for AWAY vs HOME",
         }));
     }
 
     [Test]
     public async Task RunCheck_WithOnlyHomeLegForTeam_ReturnsFail()
     {
-        var home = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "HOME" };
-        var away = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" };
+        var home = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME",
+        };
+        var away = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY",
+        };
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { home, away },
+            Teams =
+            {
+                home,
+                away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -61,13 +83,16 @@ public class TeamsHaveBothLegsTests
                             Date = new DateTime(2001, 02, 03),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
@@ -79,12 +104,24 @@ public class TeamsHaveBothLegsTests
     [Test]
     public async Task RunCheck_WithOnlyAwayLegForTeam_ReturnsFail()
     {
-        var home = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "HOME" };
-        var away = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" };
+        var home = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME",
+        };
+        var away = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY",
+        };
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { home, away },
+            Teams =
+            {
+                home,
+                away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -101,13 +138,16 @@ public class TeamsHaveBothLegsTests
                             Date = new DateTime(2001, 02, 10),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]
@@ -119,12 +159,24 @@ public class TeamsHaveBothLegsTests
     [Test]
     public async Task RunCheck_WithBothLegsForTeam_ReturnsSuccess()
     {
-        var home = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "HOME" };
-        var away = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" };
+        var home = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME",
+        };
+        var away = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY",
+        };
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { home, away },
+            Teams =
+            {
+                home,
+                away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -150,13 +202,16 @@ public class TeamsHaveBothLegsTests
                             Date = new DateTime(2001, 02, 10),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Warnings, Is.Empty);
@@ -165,12 +220,24 @@ public class TeamsHaveBothLegsTests
     [Test]
     public async Task RunCheck_WithMultipleLegsForTeam_ReturnsFail()
     {
-        var home = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "HOME" };
-        var away = new DivisionTeamDto { Id = Guid.NewGuid(), Name = "AWAY" };
+        var home = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "HOME",
+        };
+        var away = new DivisionTeamDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "AWAY",
+        };
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { home, away },
+            Teams =
+            {
+                home,
+                away,
+            },
             Dates =
             {
                 new DivisionDateHealthDto
@@ -205,13 +272,16 @@ public class TeamsHaveBothLegsTests
                             Date = new DateTime(2001, 02, 17),
                             Id = Guid.NewGuid(),
                         },
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Warnings, Is.EquivalentTo(new[]

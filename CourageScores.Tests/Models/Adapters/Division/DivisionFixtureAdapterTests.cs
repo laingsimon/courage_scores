@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionFixtureAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private DivisionFixtureAdapter _adapter = null!;
     private Mock<IDivisionFixtureTeamAdapter> _divisionFixtureTeamAdapter = null!;
     private TeamDto _homeTeam = null!;
@@ -34,8 +34,14 @@ public class DivisionFixtureAdapterTests
             Id = Guid.NewGuid(),
             Address = "away",
         };
-        _homeTeamDto = new DivisionFixtureTeamDto { Id = _homeTeam.Id };
-        _awayTeamDto = new DivisionFixtureTeamDto { Id = _awayTeam.Id };
+        _homeTeamDto = new DivisionFixtureTeamDto
+        {
+            Id = _homeTeam.Id,
+        };
+        _awayTeamDto = new DivisionFixtureTeamDto
+        {
+            Id = _awayTeam.Id,
+        };
 
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(It.Is<GameTeam>(t => t.Id == _homeTeam.Id), It.IsAny<string>(), _token))
@@ -62,8 +68,14 @@ public class DivisionFixtureAdapterTests
                     Deleted = null,
                     HomeScore = 2,
                     AwayScore = 1,
-                    HomePlayers = new List<GamePlayer> { new GamePlayer() },
-                    AwayPlayers = new List<GamePlayer> { new GamePlayer() },
+                    HomePlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
+                    AwayPlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
                 },
             },
             Home = new GameTeam
@@ -107,8 +119,14 @@ public class DivisionFixtureAdapterTests
                     Deleted = null,
                     HomeScore = 1,
                     AwayScore = 2,
-                    HomePlayers = new List<GamePlayer> { new GamePlayer() },
-                    AwayPlayers = new List<GamePlayer> { new GamePlayer() },
+                    HomePlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
+                    AwayPlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
                 },
             },
             Home = new GameTeam
@@ -152,16 +170,28 @@ public class DivisionFixtureAdapterTests
                     Deleted = null,
                     HomeScore = 2,
                     AwayScore = 1,
-                    HomePlayers = new List<GamePlayer> { new GamePlayer() },
-                    AwayPlayers = new List<GamePlayer> { new GamePlayer() },
+                    HomePlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
+                    AwayPlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
                 },
                 new GameMatch
                 {
                     Deleted = new DateTime(2001, 02, 03),
                     HomeScore = 2,
                     AwayScore = 1,
-                    HomePlayers = new List<GamePlayer> { new GamePlayer() },
-                    AwayPlayers = new List<GamePlayer> { new GamePlayer() },
+                    HomePlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
+                    AwayPlayers = new List<GamePlayer>
+                    {
+                        new(),
+                    },
                 },
             },
             Home = new GameTeam
@@ -352,14 +382,25 @@ public class DivisionFixtureAdapterTests
         {
             Id = Guid.NewGuid(),
             DivisionId = Guid.NewGuid(),
-            Home = new GameTeam { Id = Guid.NewGuid(), Name = "HOME", },
-            Away = new GameTeam { Id = Guid.NewGuid(), Name = "AWAY", },
+            Home = new GameTeam
+            {
+                Id = Guid.NewGuid(),
+                Name = "HOME",
+            },
+            Away = new GameTeam
+            {
+                Id = Guid.NewGuid(),
+                Name = "AWAY",
+            },
         };
         _divisionFixtureTeamAdapter
             .Setup(a => a.Adapt(team, _token))
             .ReturnsAsync(_homeTeamDto);
 
-        var result = await _adapter.ForUnselectedTeam(team, false, new[] { game }, _token);
+        var result = await _adapter.ForUnselectedTeam(team, false, new[]
+        {
+            game,
+        }, _token);
 
         Assert.That(result.Id, Is.EqualTo(team.Id));
         Assert.That(result.FixturesUsingAddress.Count, Is.EqualTo(1));

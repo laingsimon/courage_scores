@@ -13,16 +13,16 @@ namespace CourageScores.Services.Command;
 
 public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGame, EditTournamentGameDto>
 {
-    private readonly ISeasonService _seasonService;
-    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
-    private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
-    private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
     private readonly ICommandFactory _commandFactory;
-    private readonly IUpdateRecordedScoreAsYouGoDtoAdapter _updateRecordedScoreAsYouGoDtoAdapter;
-    private readonly ITournamentPlayerAdapter _tournamentPlayerAdapter;
     private readonly INotableTournamentPlayerAdapter _notableTournamentPlayerAdapter;
+    private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
+    private readonly ISeasonService _seasonService;
+    private readonly ITournamentPlayerAdapter _tournamentPlayerAdapter;
+    private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
+    private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
+    private readonly IUpdateRecordedScoreAsYouGoDtoAdapter _updateRecordedScoreAsYouGoDtoAdapter;
 
     public AddOrUpdateTournamentGameCommand(
         ISeasonService seasonService,
@@ -57,7 +57,10 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
             return new ActionResult<TournamentGame>
             {
                 Success = false,
-                Warnings = { "Unable to add or update game, no season exists" },
+                Warnings =
+                {
+                    "Unable to add or update game, no season exists",
+                },
             };
         }
 

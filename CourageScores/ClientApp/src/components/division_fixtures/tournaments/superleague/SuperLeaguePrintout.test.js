@@ -30,7 +30,7 @@ describe('SuperLeaguePrintout', () => {
     async function renderComponent(tournamentData, division) {
         reportedError = null;
         context = await renderApp(
-            { saygApi },
+            {saygApi},
             null,
             {
                 onError: (err) => {
@@ -45,24 +45,24 @@ describe('SuperLeaguePrintout', () => {
                 },
             },
             (<TournamentContainer tournamentData={tournamentData}>
-                <SuperLeaguePrintout division={division} />
+                <SuperLeaguePrintout division={division}/>
             </TournamentContainer>));
     }
 
     function createLeg(homeWinner, awayWinner) {
         const winningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 100, bust: false, noOfDarts: 3 },
-            { score: 110, bust: false, noOfDarts: 3 },
-            { score: 120, bust: false, noOfDarts: 3 },
-            { score: 81, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 100, bust: false, noOfDarts: 3},
+            {score: 110, bust: false, noOfDarts: 3},
+            {score: 120, bust: false, noOfDarts: 3},
+            {score: 81, bust: false, noOfDarts: 3},
         ];
         const notWinningThrows = [
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
-            { score: 90, bust: false, noOfDarts: 3 },
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
+            {score: 90, bust: false, noOfDarts: 3},
         ];
 
         return {
@@ -81,16 +81,16 @@ describe('SuperLeaguePrintout', () => {
             const match1 = {
                 id: createTemporaryId(),
                 saygId: createTemporaryId(),
-                sideA: { name: 'A' },
-                sideB: { name: 'B' },
+                sideA: {name: 'A'},
+                sideB: {name: 'B'},
                 scoreA: 1,
                 scoreB: 2,
             };
             const match2 = {
                 id: createTemporaryId(),
                 saygId: createTemporaryId(),
-                sideA: { name: 'C' },
-                sideB: { name: 'D' },
+                sideA: {name: 'C'},
+                sideB: {name: 'D'},
                 scoreA: 3,
                 scoreB: 4,
             };
@@ -108,14 +108,14 @@ describe('SuperLeaguePrintout', () => {
             };
             const tournamentData = {
                 round: {
-                    matches: [ match1, match2 ],
+                    matches: [match1, match2],
                 }
             };
             const division = {
                 id: createTemporaryId(),
                 name: 'DIVISION',
             };
-            saygApiResponseMap = { };
+            saygApiResponseMap = {};
             saygApiResponseMap[match1.saygId] = saygData1;
             saygApiResponseMap[match2.saygId] = saygData2;
 

@@ -12,7 +12,7 @@ class TournamentApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Tournament`, Object.assign({ lastUpdated }, tournament));
+        return this.http.put(`/api/Tournament`, Object.assign({lastUpdated}, tournament));
     }
 
     delete(id) {
@@ -24,8 +24,8 @@ class TournamentApi {
     }
 
     addSayg(id, matchId, matchOptions) {
-        return this.http.post(`/api/Tournament/${id}`, { matchId, matchOptions });
+        return this.http.post(`/api/Tournament/${id}`, {matchId, matchOptions});
     }
 }
 
-export { TournamentApi };
+export {TournamentApi};

@@ -16,7 +16,7 @@ class TeamApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Team`, Object.assign({ lastUpdated }, team));
+        return this.http.put(`/api/Team`, Object.assign({lastUpdated}, team));
     }
 
     delete(id, seasonId) {
@@ -36,4 +36,4 @@ class TeamApi {
     }
 }
 
-export { TeamApi };
+export {TeamApi};

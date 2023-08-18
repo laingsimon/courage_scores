@@ -10,11 +10,11 @@ namespace CourageScores.Services.Health;
 
 public class HealthCheckService : IHealthCheckService
 {
-    private readonly IUserService _userService;
-    private readonly ISeasonService _seasonService;
     private readonly IDivisionService _divisionService;
-    private readonly ISeasonHealthCheckFactory _seasonHealthCheckFactory;
     private readonly ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> _seasonAdapter;
+    private readonly ISeasonHealthCheckFactory _seasonHealthCheckFactory;
+    private readonly ISeasonService _seasonService;
+    private readonly IUserService _userService;
 
     public HealthCheckService(
         IUserService userService,
@@ -38,7 +38,10 @@ public class HealthCheckService : IHealthCheckService
         {
             return new SeasonHealthCheckResultDto
             {
-                Errors = { "Not permitted" },
+                Errors =
+                {
+                    "Not permitted",
+                },
             };
         }
 
@@ -47,13 +50,20 @@ public class HealthCheckService : IHealthCheckService
         {
             return new SeasonHealthCheckResultDto
             {
-                Errors = { "Season not found" },
+                Errors =
+                {
+                    "Season not found",
+                },
             };
         }
 
         var divisionalData = await season.Divisions
             .SelectAsync(d => _divisionService.GetDivisionData(
-                new DivisionDataFilter { DivisionId = d.Id, SeasonId = season.Id },
+                new DivisionDataFilter
+                {
+                    DivisionId = d.Id,
+                    SeasonId = season.Id,
+                },
                 token))
             .ToList();
 
@@ -72,14 +82,20 @@ public class HealthCheckService : IHealthCheckService
         {
             return new SeasonHealthCheckResultDto
             {
-                Warnings = { "No divisions" },
+                Warnings =
+                {
+                    "No divisions",
+                },
                 Success = true,
             };
         }
 
         var checks = _seasonHealthCheckFactory.GetHealthChecks();
         var context = new HealthCheckContext(season);
-        var result = new SeasonHealthCheckResultDto { Success = true };
+        var result = new SeasonHealthCheckResultDto
+        {
+            Success = true,
+        };
 
         foreach (var check in checks)
         {

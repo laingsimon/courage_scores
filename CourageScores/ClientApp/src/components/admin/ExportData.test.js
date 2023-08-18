@@ -2,7 +2,7 @@
 
 import {AdminContainer} from "./AdminContainer";
 import React from "react";
-import {renderApp, cleanUp, doClick, doChange, findButton} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
 import {ExportData} from "./ExportData";
 
 describe('ExportData', () => {
@@ -13,7 +13,7 @@ describe('ExportData', () => {
     const dataApi = {
         export: async (request) => {
             exportRequest = request;
-            return apiResponse || { success: true, result: { zip: '' } };
+            return apiResponse || {success: true, result: {zip: ''}};
         }
     };
 
@@ -26,10 +26,10 @@ describe('ExportData', () => {
         apiResponse = null;
         exportRequest = null;
         context = await renderApp(
-            { dataApi },
-            { name: 'Courage Scores' },
+            {dataApi},
+            {name: 'Courage Scores'},
             {
-                account: { },
+                account: {},
                 appLoading: false,
                 onError: (err) => {
                     reportedError = {
@@ -39,28 +39,28 @@ describe('ExportData', () => {
                 }
             },
             (<AdminContainer {...adminProps}>
-                <ExportData />
+                <ExportData/>
             </AdminContainer>));
     }
 
     it('renders tables', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
 
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
-        expect(tables.map(t => t.textContent)).toEqual([ 'Table 1', 'Table 2' ]);
+        expect(tables.map(t => t.textContent)).toEqual(['Table 1', 'Table 2']);
     });
 
     it('can select exportable table', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -77,8 +77,8 @@ describe('ExportData', () => {
     it('cannot select non-exportable table', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -95,8 +95,8 @@ describe('ExportData', () => {
     it('cannot export when no tables selected', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -117,8 +117,8 @@ describe('ExportData', () => {
     it('can export data with password', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -130,15 +130,15 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: 'pass',
-            tables: { 'Table 1': [] },
+            tables: {'Table 1': []},
         });
     });
 
     it('can export data without password', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -149,15 +149,15 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: true,
             password: '',
-            tables: { 'Table 1': [] },
+            tables: {'Table 1': []},
         });
     });
 
     it('can export data without deleted entries', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -169,15 +169,15 @@ describe('ExportData', () => {
         expect(exportRequest).toEqual({
             includeDeletedEntries: false,
             password: '',
-            tables: { 'Table 1': [] },
+            tables: {'Table 1': []},
         });
     });
 
     it('can download zip', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
@@ -197,12 +197,12 @@ describe('ExportData', () => {
     it('can handle error during export', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
-        apiResponse = { success: false };
+        apiResponse = {success: false};
 
         await doClick(findButton(context.container, 'Export data'));
 
@@ -214,12 +214,12 @@ describe('ExportData', () => {
     it('can close error report from export', async () => {
         await renderComponent({
             tables: [
-                { name: 'Table 1', canExport: true },
-                { name: 'Table 2', canExport: false }
+                {name: 'Table 1', canExport: true},
+                {name: 'Table 2', canExport: false}
             ]
         });
         expect(reportedError).toBeNull();
-        apiResponse = { success: false };
+        apiResponse = {success: false};
         await doClick(findButton(context.container, 'Export data'));
         expect(context.container.textContent).toContain('Could not export data');
 

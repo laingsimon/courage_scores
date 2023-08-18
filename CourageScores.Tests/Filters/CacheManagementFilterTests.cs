@@ -13,7 +13,7 @@ namespace CourageScores.Tests.Filters;
 [TestFixture]
 public class CacheManagementFilterTests
 {
-    private readonly ActionExecutedContext _context = new ActionExecutedContext(
+    private readonly ActionExecutedContext _context = new(
         new ActionContext(new DefaultHttpContext(), new RouteData(), new ActionDescriptor()),
         new List<IFilterMetadata>(),
         new Mock<Controller>().Object);

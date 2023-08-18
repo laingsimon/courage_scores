@@ -8,11 +8,11 @@ namespace CourageScores.Tests.Models.Adapters.Team;
 [TestFixture]
 public class TeamSeasonAdapterTests
 {
-    private static readonly TeamPlayer TeamPlayer = new TeamPlayer();
-    private static readonly TeamPlayerDto TeamPlayerDto = new TeamPlayerDto();
-    private TeamSeasonAdapter _adapter = new TeamSeasonAdapter(
+    private static readonly TeamPlayer TeamPlayer = new();
+    private static readonly TeamPlayerDto TeamPlayerDto = new();
+    private TeamSeasonAdapter _adapter = new(
         new MockAdapter<TeamPlayer, TeamPlayerDto>(TeamPlayer, TeamPlayerDto));
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesSuccessfully()
@@ -22,7 +22,7 @@ public class TeamSeasonAdapterTests
             Id = Guid.NewGuid(),
             Players =
             {
-                TeamPlayer
+                TeamPlayer,
             },
             SeasonId = Guid.NewGuid(),
             DivisionId = Guid.NewGuid(),
@@ -33,7 +33,10 @@ public class TeamSeasonAdapterTests
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.SeasonId, Is.EqualTo(model.SeasonId));
         Assert.That(result.DivisionId, Is.EqualTo(model.DivisionId));
-        Assert.That(result.Players, Is.EqualTo(new[] { TeamPlayerDto }));
+        Assert.That(result.Players, Is.EqualTo(new[]
+        {
+            TeamPlayerDto,
+        }));
     }
 
     [Test]
@@ -44,7 +47,7 @@ public class TeamSeasonAdapterTests
             Id = Guid.NewGuid(),
             Players =
             {
-                TeamPlayerDto
+                TeamPlayerDto,
             },
             SeasonId = Guid.NewGuid(),
             DivisionId = Guid.NewGuid(),
@@ -55,6 +58,9 @@ public class TeamSeasonAdapterTests
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.SeasonId, Is.EqualTo(dto.SeasonId));
         Assert.That(result.DivisionId, Is.EqualTo(dto.DivisionId));
-        Assert.That(result.Players, Is.EqualTo(new[] { TeamPlayer }));
+        Assert.That(result.Players, Is.EqualTo(new[]
+        {
+            TeamPlayer,
+        }));
     }
 }

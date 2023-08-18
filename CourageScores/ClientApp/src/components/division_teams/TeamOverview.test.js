@@ -20,8 +20,8 @@ describe('TeamOverview', () => {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 account: account,
                 teams: teams,
@@ -31,7 +31,7 @@ describe('TeamOverview', () => {
                 error: null,
             },
             (<DivisionDataContainer {...divisionData}>
-                <TeamOverview teamId={teamId} />
+                <TeamOverview teamId={teamId}/>
             </DivisionDataContainer>));
     }
 
@@ -57,7 +57,7 @@ describe('TeamOverview', () => {
             id: teamId,
             name: 'A team',
             address: 'An address',
-            seasons: [ ]
+            seasons: []
         };
     }
 
@@ -81,7 +81,7 @@ describe('TeamOverview', () => {
     function createHomeAndAwayFixtureDates(team) {
         const homeFixtureDate = {
             date: '2001-02-03T04:05:06.000Z',
-            fixtures: [ {
+            fixtures: [{
                 id: createTemporaryId(),
                 homeTeam: {
                     id: team.id,
@@ -91,22 +91,22 @@ describe('TeamOverview', () => {
                     id: createTemporaryId(),
                     name: 'Another team'
                 },
-            } ]
+            }]
         };
         const byeFixtureDate = {
             date: '2001-02-04T04:05:06.000Z',
-            fixtures: [ {
+            fixtures: [{
                 id: createTemporaryId(),
                 homeTeam: {
                     id: team.id,
                     name: team.name
                 },
                 awayTeam: null,
-            } ]
+            }]
         };
         const awayFixtureDate = {
             date: '2001-02-05T04:05:06.000Z',
-            fixtures: [ {
+            fixtures: [{
                 id: createTemporaryId(),
                 homeTeam: {
                     id: createTemporaryId(),
@@ -116,10 +116,10 @@ describe('TeamOverview', () => {
                     id: team.id,
                     name: team.name
                 },
-            } ]
+            }]
         };
 
-        return [ homeFixtureDate, awayFixtureDate, byeFixtureDate ];
+        return [homeFixtureDate, awayFixtureDate, byeFixtureDate];
     }
 
     function assertFixtureRow(tr, date, homeTeamName, awayTeamName) {
@@ -141,7 +141,7 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const teamId = createTemporaryId();
-            const teams = [ createTeam(teamId) ];
+            const teams = [createTeam(teamId)];
 
             await renderComponent(divisionData, teams, teamId);
 
@@ -158,7 +158,7 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const teamId = createTemporaryId();
-            const teams = [ createTeam(teamId) ];
+            const teams = [createTeam(teamId)];
 
             await renderComponent(divisionData, teams, createTemporaryId());
 
@@ -172,7 +172,7 @@ describe('TeamOverview', () => {
             const team = createTeam(createTemporaryId());
             divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
 
-            await renderComponent(divisionData, [ team ], team.id);
+            await renderComponent(divisionData, [team], team.id);
 
             expect(reportedError).toBeNull();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
@@ -191,7 +191,7 @@ describe('TeamOverview', () => {
             divisionData.fixtures.push(...createHomeAndAwayFixtureDates(team));
             divisionData.fixtures[0].fixtures[0].postponed = true;
 
-            await renderComponent(divisionData, [ team ], team.id);
+            await renderComponent(divisionData, [team], team.id);
 
             expect(reportedError).toBeNull();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
@@ -212,7 +212,7 @@ describe('TeamOverview', () => {
             divisionData.fixtures[0].fixtures[0].homeScore = null;
             divisionData.fixtures[0].fixtures[0].awayScore = null;
 
-            await renderComponent(divisionData, [ team ], team.id);
+            await renderComponent(divisionData, [team], team.id);
 
             expect(reportedError).toBeNull();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
@@ -232,7 +232,7 @@ describe('TeamOverview', () => {
             const player = createPlayer(team);
             divisionData.players.push(player);
 
-            await renderComponent(divisionData, [ team ], team.id);
+            await renderComponent(divisionData, [team], team.id);
 
             expect(reportedError).toBeNull();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
@@ -249,7 +249,7 @@ describe('TeamOverview', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             const teamId = createTemporaryId();
-            const teams = [ createTeam(teamId) ];
+            const teams = [createTeam(teamId)];
 
             await renderComponent(divisionData, teams, teamId);
 
@@ -267,7 +267,7 @@ describe('TeamOverview', () => {
             const divisionData = createDivisionData(divisionId);
             const team = createTeam(createTemporaryId());
 
-            await renderComponent(divisionData, [ team ], team.id);
+            await renderComponent(divisionData, [team], team.id);
 
             expect(reportedError).toBeNull();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');
@@ -282,7 +282,7 @@ describe('TeamOverview', () => {
             const divisionData = createDivisionData(divisionId);
             const team = createTeam(createTemporaryId());
 
-            await renderComponent(divisionData, [ team ], team.id);
+            await renderComponent(divisionData, [team], team.id);
 
             expect(reportedError).toBeNull();
             const tableSections = context.container.querySelectorAll('.content-background > div.overflow-x-auto');

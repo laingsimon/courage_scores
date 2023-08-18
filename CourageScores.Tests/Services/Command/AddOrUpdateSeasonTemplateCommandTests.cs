@@ -14,23 +14,23 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateSeasonTemplateCommandTests
 {
-    private static readonly Template Template = new Template
+    private static readonly Template Template = new()
     {
         Name = "TEMPLATE",
         Divisions =
         {
-            new DivisionTemplate()
+            new DivisionTemplate(),
         },
         SharedAddresses =
         {
-            new List<string>()
+            new List<string>(),
         },
     };
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private AddOrUpdateSeasonTemplateCommand _command = null!;
     private MockAdapter<Template, TemplateDto> _adapter = null!;
     private Mock<IHealthCheckService> _healthCheckService = null!;
-    private Mock<ISimpleOnewayAdapter<Template,SeasonHealthDto>> _healthCheckAdapter = null!;
+    private Mock<ISimpleOnewayAdapter<Template, SeasonHealthDto>> _healthCheckAdapter = null!;
     private Template _template = null!;
     private SeasonHealthDto _healthCheckDto = null!;
     private SeasonHealthCheckResultDto _seasonHealthDto = null!;
@@ -66,7 +66,10 @@ public class AddOrUpdateSeasonTemplateCommandTests
         var result = await _command.WithData(update).ApplyUpdate(_template, _token);
 
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Messages, Is.EqualTo(new[] { "Template updated" }));
+        Assert.That(result.Messages, Is.EqualTo(new[]
+        {
+            "Template updated",
+        }));
         Assert.That(_template.Name, Is.EqualTo(Template.Name));
         Assert.That(_template.Divisions, Is.EqualTo(Template.Divisions));
         Assert.That(_template.SharedAddresses, Is.EqualTo(Template.SharedAddresses));
@@ -110,7 +113,10 @@ public class AddOrUpdateSeasonTemplateCommandTests
         _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
         Assert.That(result.Success, Is.True);
         Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
-        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[] { "Exception in adapter" }));
+        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[]
+        {
+            "Exception in adapter",
+        }));
     }
 
     [Test]
@@ -137,6 +143,9 @@ public class AddOrUpdateSeasonTemplateCommandTests
         _healthCheckAdapter.Verify(s => s.Adapt(throwingTemplate, _token));
         Assert.That(result.Success, Is.True);
         Assert.That(throwingTemplate.TemplateHealth, Is.Not.Null);
-        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[] { "Exception in service" }));
+        Assert.That(throwingTemplate.TemplateHealth!.Errors, Is.EquivalentTo(new[]
+        {
+            "Exception in service",
+        }));
     }
 }

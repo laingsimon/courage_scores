@@ -10,11 +10,25 @@ namespace CourageScores.Tests.Models.Adapters.Division;
 [TestFixture]
 public class DivisionPlayerAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionData.PlayerPlayScore _singles = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3, PlayerWinRate = 9, TeamWinRate = 10 };
+    private readonly CancellationToken _token = new();
+    private readonly DivisionData.PlayerPlayScore _singles = new()
+    {
+        MatchesPlayed = 1,
+        MatchesWon = 2,
+        MatchesLost = 3,
+        PlayerWinRate = 9,
+        TeamWinRate = 10,
+    };
     private readonly DivisionData.PlayerPlayScore _pairs = new();
     private readonly DivisionData.PlayerPlayScore _triples = new();
-    private readonly PlayerPerformanceDto _singlesDto = new() { MatchesPlayed = 1, MatchesWon = 2, MatchesLost = 3, WinRate = 9, TeamWinRate = 10 };
+    private readonly PlayerPerformanceDto _singlesDto = new()
+    {
+        MatchesPlayed = 1,
+        MatchesWon = 2,
+        MatchesLost = 3,
+        WinRate = 9,
+        TeamWinRate = 10,
+    };
     private readonly PlayerPerformanceDto _pairsDto = new();
     private readonly PlayerPerformanceDto _triplesDto = new();
     private DivisionPlayerAdapter _adapter = null!;
@@ -40,10 +54,16 @@ public class DivisionPlayerAdapterTests
             HiCheckout = 4,
             PlayerPlayCount =
             {
-                { 1, _singles },
-                { 2, _pairs },
-                { 3, _triples },
-            }
+                {
+                    1, _singles
+                },
+                {
+                    2, _pairs
+                },
+                {
+                    3, _triples
+                },
+            },
         };
         var team = new TeamDto
         {
@@ -88,10 +108,16 @@ public class DivisionPlayerAdapterTests
             HiCheckout = 4,
             PlayerPlayCount =
             {
-                { 1, _singles },
-                { 2, _pairs },
-                { 3, _triples },
-            }
+                {
+                    1, _singles
+                },
+                {
+                    2, _pairs
+                },
+                {
+                    3, _triples
+                },
+            },
         };
         var team = new TeamDto
         {
@@ -121,7 +147,7 @@ public class DivisionPlayerAdapterTests
         var team = new TeamDto
         {
             Id = Guid.NewGuid(),
-            Name = "Team"
+            Name = "Team",
         };
         var player = new TeamPlayerDto
         {
@@ -155,7 +181,7 @@ public class DivisionPlayerAdapterTests
         var team = new TeamDto
         {
             Id = Guid.NewGuid(),
-            Name = "Team  "
+            Name = "Team  ",
         };
         var player = new TeamPlayerDto
         {

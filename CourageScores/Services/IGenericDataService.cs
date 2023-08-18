@@ -9,7 +9,7 @@ public interface IGenericDataService<TModel, TDto>
     where TDto : AuditedDto
 {
     Task<TDto?> Get(Guid id, CancellationToken token);
-    
+
     IAsyncEnumerable<TDto> GetAll(CancellationToken token);
 
     IAsyncEnumerable<TDto> GetWhere(string query, CancellationToken token);

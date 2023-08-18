@@ -16,7 +16,7 @@ class NoteApi {
             throw new Error('lastUpdated must be provided when updating a record');
         }
 
-        return this.http.put(`/api/Note/${id}`, Object.assign({ lastUpdated }, note));
+        return this.http.put(`/api/Note/${id}`, Object.assign({lastUpdated}, note));
     }
 
     delete(id) {
@@ -24,4 +24,4 @@ class NoteApi {
     }
 }
 
-export { NoteApi };
+export {NoteApi};

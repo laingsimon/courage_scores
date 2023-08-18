@@ -8,10 +8,10 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class TournamentSideAdapterTests
 {
-    private static readonly TournamentPlayer Player = new TournamentPlayer();
-    private static readonly TournamentPlayerDto PlayerDto = new TournamentPlayerDto();
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly TournamentSideAdapter _adapter = new TournamentSideAdapter(
+    private static readonly TournamentPlayer Player = new();
+    private static readonly TournamentPlayerDto PlayerDto = new();
+    private readonly CancellationToken _token = new();
+    private readonly TournamentSideAdapter _adapter = new(
         new MockAdapter<TournamentPlayer, TournamentPlayerDto>(Player, PlayerDto));
 
     [Test]
@@ -21,7 +21,10 @@ public class TournamentSideAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "name",
-            Players = { Player },
+            Players =
+            {
+                Player,
+            },
             TeamId = Guid.NewGuid(),
             NoShow = true,
         };
@@ -30,7 +33,10 @@ public class TournamentSideAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Name, Is.EqualTo(model.Name));
-        Assert.That(result.Players, Is.EqualTo(new[] { PlayerDto }));
+        Assert.That(result.Players, Is.EqualTo(new[]
+        {
+            PlayerDto,
+        }));
         Assert.That(result.TeamId, Is.EqualTo(model.TeamId));
         Assert.That(result.NoShow, Is.True);
     }
@@ -42,7 +48,10 @@ public class TournamentSideAdapterTests
         {
             Id = Guid.NewGuid(),
             Name = "name",
-            Players = { PlayerDto },
+            Players =
+            {
+                PlayerDto,
+            },
             TeamId = Guid.NewGuid(),
             NoShow = true,
         };
@@ -51,7 +60,10 @@ public class TournamentSideAdapterTests
 
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Name, Is.EqualTo(dto.Name));
-        Assert.That(result.Players, Is.EqualTo(new[] { Player }));
+        Assert.That(result.Players, Is.EqualTo(new[]
+        {
+            Player,
+        }));
         Assert.That(result.TeamId, Is.EqualTo(dto.TeamId));
         Assert.That(result.NoShow, Is.True);
     }

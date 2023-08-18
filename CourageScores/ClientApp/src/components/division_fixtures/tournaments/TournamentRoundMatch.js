@@ -7,20 +7,35 @@ import {useDependencies} from "../../../IocContainer";
 import {useTournament} from "./TournamentContainer";
 import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
+import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
 
-export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, exceptSelected, matchIndex, onChange, round, matchOptions, onMatchOptionsChanged, onHiCheck, on180, patchData }) {
-    const { account, onError } = useApp();
-    const { tournamentApi } = useDependencies();
-    const { tournamentData, setTournamentData, saveTournament } = useTournament();
+export function TournamentRoundMatch({
+                                         readOnly,
+                                         match,
+                                         hasNextRound,
+                                         sideMap,
+                                         exceptSelected,
+                                         matchIndex,
+                                         onChange,
+                                         round,
+                                         matchOptions,
+                                         onMatchOptionsChanged,
+                                         onHiCheck,
+                                         on180,
+                                         patchData
+                                     }) {
+    const {account, onError} = useApp();
+    const {tournamentApi} = useDependencies();
+    const {tournamentData, setTournamentData, saveTournament} = useTournament();
     const scoreA = Number.parseInt(match.scoreA);
     const scoreB = Number.parseInt(match.scoreB);
     const scoreARecorded = hasScore(match.scoreA);
     const scoreBRecorded = hasScore(match.scoreB);
     const hasBothScores = scoreARecorded && scoreBRecorded;
-    const [ matchOptionsDialogOpen, setMatchOptionsDialogOpen ] = useState(false);
-    const [ saygOpen, setSaygOpen ] = useState(false);
-    const [ creatingSayg, setCreatingSayg ] = useState(false);
-    const [ saveError, setSaveError ] = useState(null);
+    const [matchOptionsDialogOpen, setMatchOptionsDialogOpen] = useState(false);
+    const [saygOpen, setSaygOpen] = useState(false);
+    const [creatingSayg, setCreatingSayg] = useState(false);
+    const [saveError, setSaveError] = useState(null);
 
     function sideSelection(side) {
         return {
@@ -77,16 +92,20 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
         }
     }
 
-    function renderMatchSettingsDialog(){
+    function renderMatchSettingsDialog() {
         return (<Dialog title="Edit match options" slim={true} onClose={() => setMatchOptionsDialogOpen(false)}>
-            <EditMatchOptions matchOptions={matchOptions} onMatchOptionsChanged={onMatchOptionsChanged} hideNumberOfPlayers={true} />
+            <EditMatchOptions
+                matchOptions={matchOptions}
+                onMatchOptionsChanged={onMatchOptionsChanged}
+                hideNumberOfPlayers={true}/>
         </Dialog>);
     }
 
     function renderSaygDialog() {
         const home = match.sideA.name;
         const away = match.sideB.name;
-        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`} onClose={() => setSaygOpen(null)} className="text-start">
+        return (<Dialog slim={true} title={`${home} vs ${away} - best of ${matchOptions.numberOfLegs}`}
+                        onClose={() => setSaygOpen(null)} className="text-start">
             <SaygLoadingContainer
                 id={match.saygId}
                 onHiCheck={recordHiCheck}
@@ -107,7 +126,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
     }
 
     function canOpenSayg() {
-        const isPermitted = (account || { access: {} }).access.recordScoresAsYouGo;
+        const isPermitted = (account || {access: {}}).access.recordScoresAsYouGo;
         const hasSaygData = !!match.saygId;
         const hasSidesSelected = match.sideA !== null && match.sideB !== null;
 
@@ -150,7 +169,7 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             }
 
             await patchData({
-                additionalOver100Checkout: Object.assign({}, side.players[0], { notes: score.toString() }),
+                additionalOver100Checkout: Object.assign({}, side.players[0], {notes: score.toString()}),
             });
         }
     }
@@ -221,52 +240,59 @@ export function TournamentRoundMatch({ readOnly, match, hasNextRound, sideMap, e
             {readOnly || hasNextRound
                 ? (match.sideA.name || sideMap[match.sideA.id].name)
                 : (<BootstrapDropdown
-                     readOnly={readOnly}
-                     value={match.sideA ? match.sideA.id : null}
-                     options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
-                     onChange={(side) => updateMatch('sideA', side)}
-                     slim={true}
-                     className="margin-right" />)}
+                    readOnly={readOnly}
+                    value={match.sideA ? match.sideA.id : null}
+                    options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideA')).map(sideSelection)}
+                    onChange={(side) => updateMatch('sideA', side)}
+                    slim={true}
+                    className="margin-right"/>)}
 
             {canOpenSayg()
                 ? (<button className="btn btn-sm float-start p-0" onClick={openSaygDialog}>
                     {creatingSayg
-                        ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>)
+                        ? (<LoadingSpinnerSmall/>)
                         : '📊'}
-                    </button>)
+                </button>)
                 : null}
             {saveError
-                ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not create sayg session"/>)
+                ? (<ErrorDisplay
+                    {...saveError}
+                    onClose={() => setSaveError(null)}
+                    title="Could not create sayg session"/>)
                 : null}
             {saygOpen ? renderSaygDialog() : null}
         </td>
         <td className={hasBothScores && scoreA > scoreB ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreA || (scoreARecorded ? '0' : '')
-                : (<input type="number" value={scoreARecorded ? (match.scoreA || '') : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')} />)}
+                : (<input type="number" value={scoreARecorded ? (match.scoreA || '') : ''}
+                          max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreA')}/>)}
         </td>
         <td className="narrow-column">vs</td>
         <td className={hasBothScores && scoreB > scoreA ? 'narrow-column bg-winner' : 'narrow-column'}>
             {readOnly || hasNextRound
                 ? scoreB || (scoreBRecorded ? '0' : '')
-                : (<input type="number" value={scoreBRecorded ? (match.scoreB || '') : ''} max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')} />)}
+                : (<input type="number" value={scoreBRecorded ? (match.scoreB || '') : ''}
+                          max={matchOptions.numberOfLegs} min="0" onChange={(event) => changeScore(event, 'scoreB')}/>)}
         </td>
         <td className={hasBothScores && scoreB > scoreA ? 'bg-winner' : ''}>
             {readOnly || hasNextRound
                 ? (match.sideB.name || sideMap[match.sideB.id].name)
                 : (<BootstrapDropdown
-                     readOnly={readOnly}
-                     value={match.sideB ? match.sideB.id : null}
-                     options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
-                     onChange={(side) => updateMatch('sideB', side)}
-                     slim={true}
-                     className="margin-right" />)}
+                    readOnly={readOnly}
+                    value={match.sideB ? match.sideB.id : null}
+                    options={sideMap.filter(s => exceptSelected(s, matchIndex, 'sideB')).map(sideSelection)}
+                    onChange={(side) => updateMatch('sideB', side)}
+                    slim={true}
+                    className="margin-right"/>)}
         </td>
         {readOnly || hasNextRound ? null : (<td className="text-end">
             {matchOptionsDialogOpen ? renderMatchSettingsDialog() : null}
 
             <button className="btn btn-danger btn-sm" onClick={() => removeMatch()}>🗑</button>
-            <button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`} className="btn btn-sm" onClick={() => setMatchOptionsDialogOpen(true)}>🛠</button>
+            <button title={`${matchOptions.numberOfLegs} leg/s. Starting score: ${matchOptions.startingScore}`}
+                    className="btn btn-sm" onClick={() => setMatchOptionsDialogOpen(true)}>🛠
+            </button>
         </td>)}
     </tr>);
 }

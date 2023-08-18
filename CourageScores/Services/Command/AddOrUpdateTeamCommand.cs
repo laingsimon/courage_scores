@@ -9,11 +9,11 @@ namespace CourageScores.Services.Command;
 
 public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team, EditTeamDto>
 {
-    private readonly ITeamService _teamService;
-    private readonly IGameService _gameService;
-    private readonly ICommandFactory _commandFactory;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly ICommandFactory _commandFactory;
+    private readonly IGameService _gameService;
     private readonly IJsonSerializerService _serializer;
+    private readonly ITeamService _teamService;
 
     public AddOrUpdateTeamCommand(
         ITeamService teamService,
@@ -88,7 +88,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Warnings = { $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}" },
+                Warnings =
+                {
+                    $"Unable to update address, {update.Address} is in use for multiple games on the same dates, see {string.Join("\n", detail)}",
+                },
             };
         }
 
@@ -98,7 +101,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
             return new ActionResult<Models.Cosmos.Team.Team>
             {
                 Success = false,
-                Warnings = { $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first" },
+                Warnings =
+                {
+                    $"Unable to change division when games exist, delete these {gamesToUpdate.Count} game/s first",
+                },
             };
         }
 
@@ -136,7 +142,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
         return new ActionResult<Models.Cosmos.Team.Team>
         {
             Success = true,
-            Messages = { "Team updated" },
+            Messages =
+            {
+                "Team updated",
+            },
         };
     }
 

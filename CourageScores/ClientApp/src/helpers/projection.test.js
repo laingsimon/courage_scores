@@ -1,6 +1,5 @@
 // noinspection JSUnresolvedReference
 
-import React from "react";
 import {createTemporaryId, isGuid, repeat} from './projection';
 
 describe('projection', () => {
@@ -23,13 +22,13 @@ describe('projection', () => {
         it('should return array of items', () => {
             const result = repeat(2, i => i);
 
-            expect(result).toEqual([ 0, 1 ]);
+            expect(result).toEqual([0, 1]);
         });
 
         it('should return array of index', () => {
             const result = repeat(2);
 
-            expect(result).toEqual([ 0, 1 ]);
+            expect(result).toEqual([0, 1]);
         });
     });
 

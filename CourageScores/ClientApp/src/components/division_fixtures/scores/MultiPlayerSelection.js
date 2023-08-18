@@ -4,11 +4,13 @@ import {any} from "../../../helpers/collections";
 import {useApp} from "../../../AppContainer";
 import {EmbedAwareLink} from "../../common/EmbedAwareLink";
 
-export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly,
-                                         showNotes, notesClassName, dropdownClassName, placeholder, season, division }) {
+export function MultiPlayerSelection({
+                                         onAddPlayer, players, disabled, allPlayers, onRemovePlayer, readOnly,
+                                         showNotes, notesClassName, dropdownClassName, placeholder, season, division
+                                     }) {
     const [player, setPlayer] = useState(null);
     const [notes, setNotes] = useState('');
-    const { onError, teams } = useApp();
+    const {onError, teams} = useApp();
 
     async function addPlayer() {
         if (!player) {
@@ -49,7 +51,8 @@ export function MultiPlayerSelection({ onAddPlayer, players, disabled, allPlayer
             const teamName = getTeamName(p.id);
             const playerLink = teamName ? `${p.name}@${teamName}` : p.id;
 
-            return (<EmbedAwareLink to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</EmbedAwareLink>);
+            return (<EmbedAwareLink
+                to={`/division/${division.name}/player:${playerLink}/${season.name}`}>{playerName(p)}</EmbedAwareLink>);
         }
 
         return playerName(p);

@@ -17,11 +17,18 @@ namespace CourageScores.Tests.Services.Division;
 [TestFixture]
 public class CachingDivisionServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private readonly DivisionDataDto _divisionData = new();
     private readonly DivisionDto? _divisionDto = new();
-    private readonly List<DivisionDto> _allDivisions = new() { new DivisionDto(), new DivisionDto() };
-    private readonly List<DivisionDto> _someDivisions = new() { new DivisionDto() };
+    private readonly List<DivisionDto> _allDivisions = new()
+    {
+        new DivisionDto(),
+        new DivisionDto(),
+    };
+    private readonly List<DivisionDto> _someDivisions = new()
+    {
+        new DivisionDto(),
+    };
     private CachingDivisionService _service = null!;
     private Mock<IDivisionService> _underlyingService = null!;
     private IMemoryCache _cache = null!;
@@ -65,12 +72,23 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetDivisionData_WhenLoggedIn_BypassesCache()
     {
-        _user = new UserDto { Access = new AccessDto() };
+        _user = new UserDto
+        {
+            Access = new AccessDto(),
+        };
         var divisionId = Guid.NewGuid();
         var seasonId = Guid.NewGuid();
-        var result1 = await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        var result1 = await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
 
-        var result2 = await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        var result2 = await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
 
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         Assert.That(result1, Is.SameAs(_divisionData));
@@ -82,9 +100,17 @@ public class CachingDivisionServiceTests
     {
         var divisionId = Guid.NewGuid();
         var seasonId = Guid.NewGuid();
-        var result1 = await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        var result1 = await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
 
-        var result2 = await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        var result2 = await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
 
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Once);
         Assert.That(result1, Is.SameAs(_divisionData));
@@ -96,10 +122,18 @@ public class CachingDivisionServiceTests
     {
         var divisionId = Guid.NewGuid();
         var seasonId = Guid.NewGuid();
-        var result1 = await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        var result1 = await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         _context!.Request.Headers.CacheControl = new StringValues("no-cache");
 
-        var result2 = await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        var result2 = await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
 
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         Assert.That(result2, Is.SameAs(result1));
@@ -109,7 +143,10 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task Get_WhenLoggedIn_ReturnsSecondRequestFromCache()
     {
-        _user = new UserDto { Access = new AccessDto() };
+        _user = new UserDto
+        {
+            Access = new AccessDto(),
+        };
         var divisionId = Guid.NewGuid();
         var result1 = await _service.Get(divisionId, _token);
 
@@ -150,7 +187,10 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetAll_WhenLoggedIn_ReturnsSecondRequestFromCache()
     {
-        _user = new UserDto { Access = new AccessDto() };
+        _user = new UserDto
+        {
+            Access = new AccessDto(),
+        };
         var result1 = await _service.GetAll(_token).ToList();
 
         var result2 = await _service.GetAll(_token).ToList();
@@ -188,7 +228,10 @@ public class CachingDivisionServiceTests
     [Test]
     public async Task GetWhere_WhenLoggedIn_BypassesCache()
     {
-        _user = new UserDto { Access = new AccessDto() };
+        _user = new UserDto
+        {
+            Access = new AccessDto(),
+        };
         var result1 = await _service.GetWhere("where", _token).ToList();
 
         var result2 = await _service.GetWhere("where", _token).ToList();
@@ -263,12 +306,20 @@ public class CachingDivisionServiceTests
     {
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
 
-        await _service.InvalidateCaches(divisionId: null, seasonId: null);
+        await _service.InvalidateCaches(null, null);
 
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(1));
         _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(1));
@@ -279,12 +330,20 @@ public class CachingDivisionServiceTests
     {
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
 
-        await _service.InvalidateCaches(divisionId: null, seasonId: seasonId);
+        await _service.InvalidateCaches(null, seasonId);
 
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(1));
@@ -296,14 +355,30 @@ public class CachingDivisionServiceTests
         var seasonId = Guid.NewGuid();
         var anotherSeasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = anotherSeasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = anotherSeasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
 
-        await _service.InvalidateCaches(divisionId: null, seasonId: ScopedCacheManagementFlags.EvictAll);
+        await _service.InvalidateCaches(null, ScopedCacheManagementFlags.EvictAll);
 
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = anotherSeasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = anotherSeasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == anotherSeasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
@@ -315,12 +390,20 @@ public class CachingDivisionServiceTests
     {
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
 
-        await _service.InvalidateCaches(divisionId: divisionId, seasonId: null);
+        await _service.InvalidateCaches(divisionId, null);
 
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(2));
@@ -332,15 +415,31 @@ public class CachingDivisionServiceTests
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
         var anotherDivisionId = Guid.NewGuid();
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = anotherDivisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = anotherDivisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         await _service.Get(anotherDivisionId, _token);
 
-        await _service.InvalidateCaches(divisionId: ScopedCacheManagementFlags.EvictAll, seasonId: null);
+        await _service.InvalidateCaches(ScopedCacheManagementFlags.EvictAll, null);
 
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = anotherDivisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = anotherDivisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         await _service.Get(anotherDivisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
@@ -354,12 +453,20 @@ public class CachingDivisionServiceTests
     {
         var seasonId = Guid.NewGuid();
         var divisionId = Guid.NewGuid();
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
 
-        await _service.InvalidateCaches(divisionId: divisionId, seasonId: seasonId);
+        await _service.InvalidateCaches(divisionId, seasonId);
 
-        await _service.GetDivisionData(new DivisionDataFilter { DivisionId = divisionId, SeasonId = seasonId }, _token);
+        await _service.GetDivisionData(new DivisionDataFilter
+        {
+            DivisionId = divisionId,
+            SeasonId = seasonId,
+        }, _token);
         await _service.Get(divisionId, _token);
         _underlyingService.Verify(s => s.GetDivisionData(It.Is<DivisionDataFilter>(f => f.SeasonId == seasonId && f.DivisionId == divisionId), _token), Times.Exactly(2));
         _underlyingService.Verify(s => s.Get(divisionId, _token), Times.Exactly(2));

@@ -1,7 +1,7 @@
 ﻿// noinspection JSUnresolvedFunction
 
 import React from "react";
-import {cleanUp, renderApp, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {MergeMatch} from "./MergeMatch";
 
@@ -18,8 +18,8 @@ describe('MergeMatch', () => {
         reportedError = null;
         updatedData = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -28,7 +28,7 @@ describe('MergeMatch', () => {
                     };
                 },
             },
-            (<MergeMatch {...props} setFixtureData={(data) => updatedData = data} />),
+            (<MergeMatch {...props} setFixtureData={(data) => updatedData = data}/>),
             null,
             null,
             'tbody');
@@ -39,20 +39,17 @@ describe('MergeMatch', () => {
             const match = {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers:[],
-                awayPlayers:[],
+                homePlayers: [],
+                awayPlayers: [],
             };
 
             await renderComponent({
                 readOnly: false,
-                matches: [ match ],
+                matches: [match],
                 matchIndex: 0,
-                homeSubmission: {
-                },
-                awaySubmission: {
-                },
-                fixtureData: {
-                }
+                homeSubmission: {},
+                awaySubmission: {},
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -60,33 +57,32 @@ describe('MergeMatch', () => {
         });
 
         it('when home and away submissions match', async () => {
-            const match = { };
+            const match = {};
             await renderComponent({
                 readOnly: false,
-                matches: [ match ],
+                matches: [match],
                 matchIndex: 0,
                 homeSubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
                 awaySubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -100,30 +96,29 @@ describe('MergeMatch', () => {
             const match = {};
             await renderComponent({
                 readOnly: true,
-                matches: [ match ],
+                matches: [match],
                 matchIndex: 0,
                 homeSubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
                 awaySubmission: {
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -137,22 +132,21 @@ describe('MergeMatch', () => {
         it('when nothing to merge for either home or away', async () => {
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ ]
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: []
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ ]
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: []
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -160,34 +154,33 @@ describe('MergeMatch', () => {
         });
 
         it('when home unmerged', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
+            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer],
+                    }]
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -198,35 +191,34 @@ describe('MergeMatch', () => {
             expect(homeSubmission.textContent).toContain('HOME PLAYER vs AWAY PLAYER');
         });
 
-        it('when home unmerged and readonly', async () =>{
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+        it('when home unmerged and readonly', async () => {
+            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
+            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
             await renderComponent({
                 readOnly: true,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer],
+                    }]
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -236,34 +228,33 @@ describe('MergeMatch', () => {
         });
 
         it('when away unmerged', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
+            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer],
+                    }]
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -274,35 +265,34 @@ describe('MergeMatch', () => {
             expect(awaySubmission.textContent).toContain('HOME PLAYER vs AWAY PLAYER');
         });
 
-        it('when away unmerged and readonly', async () =>{
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+        it('when away unmerged and readonly', async () => {
+            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
+            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
             await renderComponent({
                 readOnly: true,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer],
+                    }]
                 },
-                fixtureData: {
-                }
+                fixtureData: {}
             });
 
             expect(reportedError).toBeNull();
@@ -314,34 +304,34 @@ describe('MergeMatch', () => {
 
     describe('interactivity', () => {
         it('can merge home submission', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
+            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer],
+                    }]
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
                 fixtureData: {
-                    matches: [ {} ],
+                    matches: [{}],
                 }
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');
@@ -350,42 +340,42 @@ describe('MergeMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData.matches[0]).toEqual({
-                awayPlayers: [ awayPlayer ],
-                homePlayers: [ homePlayer ],
+                awayPlayers: [awayPlayer],
+                homePlayers: [homePlayer],
                 awayScore: 2,
                 homeScore: 1,
             });
         });
 
         it('can merge away submission', async () => {
-            const homePlayer = { id: createTemporaryId(),  name: 'HOME PLAYER' };
-            const awayPlayer = { id: createTemporaryId(), name: 'AWAY PLAYER' };
+            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
+            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
             await renderComponent({
                 readOnly: false,
-                matches: [ {} ],
+                matches: [{}],
                 matchIndex: 0,
                 homeSubmission: {
                     author: 'HOME CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homePlayers: [],
                         awayPlayers: [],
-                    } ]
+                    }]
                 },
                 awaySubmission: {
                     author: 'AWAY CAPTAIN',
-                    home: { name: 'HOME' },
-                    away: { name: 'AWAY' },
-                    matches: [ {
+                    home: {name: 'HOME'},
+                    away: {name: 'AWAY'},
+                    matches: [{
                         homeScore: 1,
                         awayScore: 2,
-                        homePlayers: [ homePlayer ],
-                        awayPlayers: [ awayPlayer ],
-                    } ]
+                        homePlayers: [homePlayer],
+                        awayPlayers: [awayPlayer],
+                    }]
                 },
                 fixtureData: {
-                    matches: [ {} ]
+                    matches: [{}]
                 }
             });
             const awaySubmission = context.container.querySelector('td:nth-child(3)');
@@ -394,8 +384,8 @@ describe('MergeMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData.matches[0]).toEqual({
-                awayPlayers: [ awayPlayer ],
-                homePlayers: [ homePlayer ],
+                awayPlayers: [awayPlayer],
+                homePlayers: [homePlayer],
                 awayScore: 2,
                 homeScore: 1,
             });

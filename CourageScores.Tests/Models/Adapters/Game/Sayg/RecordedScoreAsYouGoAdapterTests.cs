@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class RecordedScoreAsYouGoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private RecordedScoreAsYouGoAdapter _adapter = null!;
     private Leg _leg = null!;
     private LegDto _legDto = null!;
@@ -29,7 +29,9 @@ public class RecordedScoreAsYouGoAdapterTests
         {
             Legs =
             {
-                { 0, _leg }
+                {
+                    0, _leg
+                },
             },
             Id = Guid.NewGuid(),
             Deleted = new DateTime(2001, 02, 03),
@@ -44,7 +46,10 @@ public class RecordedScoreAsYouGoAdapterTests
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
+        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
+        {
+            0,
+        }));
         Assert.That(result.Legs[0], Is.EqualTo(_legDto));
         Assert.That(result.Id, Is.EqualTo(model.Id));
         Assert.That(result.Deleted, Is.EqualTo(model.Deleted));
@@ -64,7 +69,9 @@ public class RecordedScoreAsYouGoAdapterTests
         {
             Legs =
             {
-                { 0, _legDto }
+                {
+                    0, _legDto
+                },
             },
             Id = Guid.NewGuid(),
             Deleted = new DateTime(2001, 02, 03),
@@ -79,7 +86,10 @@ public class RecordedScoreAsYouGoAdapterTests
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
+        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
+        {
+            0,
+        }));
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
         Assert.That(result.Id, Is.EqualTo(dto.Id));
         Assert.That(result.Deleted, Is.EqualTo(dto.Deleted));

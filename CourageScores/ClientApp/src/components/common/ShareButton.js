@@ -1,11 +1,12 @@
 import {useLocation} from "react-router-dom";
 import React, {useState} from "react";
 import {useBranding} from "../../BrandingContainer";
+import {LoadingSpinnerSmall} from "./LoadingSpinnerSmall";
 
-export function ShareButton({ title, text, getHash, buttonText }) {
+export function ShareButton({title, text, getHash, buttonText}) {
     const location = useLocation();
-    const { name } = useBranding();
-    const [ gettingShareLink, setGettingShareLink ] = useState(false);
+    const {name} = useBranding();
+    const [gettingShareLink, setGettingShareLink] = useState(false);
 
     async function share() {
         try {
@@ -30,7 +31,7 @@ export function ShareButton({ title, text, getHash, buttonText }) {
     return (<button onClick={share} className="btn btn-sm btn-outline-primary d-print-none">
         {!buttonText && gettingShareLink ? null : (buttonText || '🔗')}
         {gettingShareLink
-            ? (<span className="spinner-border spinner-border-sm margin-left" role="status" aria-hidden="true"></span>)
+            ? (<LoadingSpinnerSmall/>)
             : null}
     </button>);
 }

@@ -9,12 +9,12 @@ namespace CourageScores.Models.Cosmos.Game;
 public class TournamentPlayer : AuditedEntity, IGamePlayer
 {
     /// <summary>
+    ///     The division in which the player plays
+    /// </summary>
+    public Guid DivisionId { get; set; }
+
+    /// <summary>
     /// The name of the player
     /// </summary>
     public string Name { get; set; } = null!;
-
-    /// <summary>
-    /// The division in which the player plays
-    /// </summary>
-    public Guid DivisionId { get; set; }
 }

@@ -5,15 +5,16 @@ import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
 import {EmbedAwareLink} from "../common/EmbedAwareLink";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function TournamentFixture({ tournament, onTournamentChanged, date, expanded }) {
-    const { id: divisionId, name: divisionName, season } = useDivisionData();
-    const { account, teams } = useApp();
-    const [ creating, setCreating ] = useState(false);
-    const [ deleting, setDeleting ] = useState(false);
-    const [ saveError, setSaveError ] = useState(null);
+export function TournamentFixture({tournament, onTournamentChanged, date, expanded}) {
+    const {id: divisionId, name: divisionName, season} = useDivisionData();
+    const {account, teams} = useApp();
+    const [creating, setCreating] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [saveError, setSaveError] = useState(null);
     const isAdmin = account && account.access && account.access.manageTournaments;
-    const { tournamentApi } = useDependencies();
+    const {tournamentApi} = useDependencies();
 
     async function createTournamentGame() {
         /* istanbul ignore next */
@@ -69,7 +70,9 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
     }
 
     function renderLinkToPlayer(player) {
-        return (<EmbedAwareLink key={player.id} to={`/division/${divisionName}/player:${player.name}/${season.name}`}>{player.name}</EmbedAwareLink>);
+        return (<EmbedAwareLink key={player.id} to={`/division/${divisionName}/player:${player.name}/${season.name}`}>
+            {player.name}
+        </EmbedAwareLink>);
     }
 
     function showTournamentSidesPlayers() {
@@ -79,13 +82,17 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
             {tournament.sides.map(side => {
                 if (side.teamId && side.players.length !== 1) {
                     return (<div key={side.id}>
-                        <EmbedAwareLink to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>{side.name}</EmbedAwareLink>
+                        <EmbedAwareLink to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>
+                            {side.name}
+                        </EmbedAwareLink>
                     </div>);
                 }
 
                 return (<div key={side.id}>
                     {any(side.players)
-                        ? (<label className="csv-nodes">{side.players.sort(sortBy('name')).map(renderLinkToPlayer)}</label>)
+                        ? (<label className="csv-nodes">
+                            {side.players.sort(sortBy('name')).map(renderLinkToPlayer)}
+                        </label>)
                         : null}
                 </div>);
             })}
@@ -98,7 +105,9 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
 
             if (team) {
                 return (<strong className="text-primary">
-                    <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>{winningSide.name}</EmbedAwareLink>
+                    <EmbedAwareLink to={`/division/${divisionName}/team:${team.name}/${season.name}`}>
+                        {winningSide.name}
+                    </EmbedAwareLink>
                 </strong>);
             }
         }
@@ -117,11 +126,15 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
                 Tournament at <strong>{tournament.address}</strong>
             </td>
             <td className="medium-column-width text-end">
-                {isAdmin && tournament.proposed ? (<button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
-                        {creating ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '➕'}
-                    </button>)
+                {isAdmin && tournament.proposed ? (
+                        <button className="btn btn-sm btn-primary text-nowrap" onClick={createTournamentGame}>
+                            {creating
+                                ? (<LoadingSpinnerSmall/>)
+                                : '➕'}
+                        </button>)
                     : null}
-                {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not create tournament" />) : null}
+                {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)}
+                                            title="Could not create tournament"/>) : null}
             </td>
         </tr>)
     }
@@ -140,9 +153,16 @@ export function TournamentFixture({ tournament, onTournamentChanged, date, expan
         </td>) : null}
         {isAdmin ? (<td className="medium-column-width text-end">
             <button className="btn btn-sm btn-danger" onClick={deleteTournamentGame}>
-                {deleting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : '🗑'}
+                {deleting
+                    ? (<LoadingSpinnerSmall/>)
+                    : '🗑'}
             </button>
-            {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not delete tournament" />) : null}
+            {saveError
+                ? (<ErrorDisplay
+                    {...saveError}
+                    onClose={() => setSaveError(null)}
+                    title="Could not delete tournament"/>)
+                : null}
         </td>) : null}
     </tr>);
 }

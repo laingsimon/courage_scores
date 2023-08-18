@@ -5,8 +5,8 @@ namespace CourageScores.Services.Data;
 
 public class ZipBuilderFactory : IZipBuilderFactory
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ISystemClock _clock;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IJsonSerializerService _serializer;
 
     public ZipBuilderFactory(

@@ -11,7 +11,7 @@ namespace CourageScores.Tests.Services.Status;
 [TestFixture]
 public class StatusServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private StatusService _service = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private IMemoryCache _memoryCache = null!;

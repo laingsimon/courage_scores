@@ -8,10 +8,6 @@ namespace CourageScores.Services.Division;
 public class DivisionDataContext
 {
     private readonly IReadOnlyCollection<TournamentGame> _tournamentGames;
-    public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
-    public SeasonDto Season { get; }
-    public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
-    public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
 
     public DivisionDataContext(
         IEnumerable<Models.Cosmos.Game.Game> games,
@@ -27,6 +23,11 @@ public class DivisionDataContext
         _tournamentGames = tournamentGames;
     }
 
+    public IReadOnlyCollection<TeamDto> TeamsInSeasonAndDivision { get; }
+    public SeasonDto Season { get; }
+    public Dictionary<DateTime, FixtureDateNoteDto[]> Notes { get; }
+    public Dictionary<DateTime, Models.Cosmos.Game.Game[]> GamesForDate { get; }
+
     public IEnumerable<Models.Cosmos.Game.Game> AllGames(Guid? divisionId)
     {
         return GamesForDate.SelectMany(pair => pair.Value).Where(g => divisionId == null || g.IsKnockout || g.DivisionId == divisionId);
@@ -40,6 +41,9 @@ public class DivisionDataContext
 
     public IEnumerable<DateTime> GetDates(Guid? divisionId)
     {
-        return GamesForDate.Keys.Union(AllTournamentGames(divisionId).Select(g => g.Date)).Union(Notes.Keys).OrderBy(d => d);
+        return GamesForDate.Keys
+            .Union(AllTournamentGames(divisionId).Select(g => g.Date))
+            .Union(Notes.Keys)
+            .OrderBy(d => d);
     }
 }

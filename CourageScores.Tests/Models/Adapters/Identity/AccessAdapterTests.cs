@@ -8,8 +8,8 @@ namespace CourageScores.Tests.Models.Adapters.Identity;
 [TestFixture]
 public class AccessAdapterTests
 {
-    private readonly AccessAdapter _adapter = new AccessAdapter();
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly AccessAdapter _adapter = new();
+    private readonly CancellationToken _token = new();
 
     [Test]
     public async Task Adapt_GivenModel_MapsAccessCorrectly()

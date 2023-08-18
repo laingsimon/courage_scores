@@ -55,7 +55,9 @@ public class TemplatedSeasonProposalStrategy : ISeasonProposalStrategy
             return result;
         }
 
-        var healthCheckInput = await _seasonHealthAdapter.Adapt(new SeasonHealthDtoAdapter.SeasonAndDivisions(context.MatchContext.SeasonDto, context.MatchContext.Divisions), token);
+        var healthCheckInput = await _seasonHealthAdapter.Adapt(
+            new SeasonHealthDtoAdapter.SeasonAndDivisions(context.MatchContext.SeasonDto, context.MatchContext.Divisions),
+            token);
         result.Result.ProposalHealth = await _healthCheckService.Check(healthCheckInput, token);
 
         return result;

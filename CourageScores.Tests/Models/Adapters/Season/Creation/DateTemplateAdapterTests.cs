@@ -9,9 +9,9 @@ namespace CourageScores.Tests.Models.Adapters.Season.Creation;
 [TestFixture]
 public class DateTemplateAdapterTests
 {
-    private static readonly FixtureTemplate FixtureTemplate = new FixtureTemplate();
-    private static readonly FixtureTemplateDto FixtureTemplateDto = new FixtureTemplateDto();
-    private readonly CancellationToken _token = new CancellationToken();
+    private static readonly FixtureTemplate FixtureTemplate = new();
+    private static readonly FixtureTemplateDto FixtureTemplateDto = new();
+    private readonly CancellationToken _token = new();
     private DateTemplateAdapter _adapter = null!;
     private ISimpleAdapter<FixtureTemplate, FixtureTemplateDto> _fixtureAdapter = null!;
 
@@ -29,13 +29,16 @@ public class DateTemplateAdapterTests
         {
             Fixtures =
             {
-                FixtureTemplateDto
-            }
+                FixtureTemplateDto,
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Fixtures, Is.EquivalentTo(new[] { FixtureTemplate }));
+        Assert.That(result.Fixtures, Is.EquivalentTo(new[]
+        {
+            FixtureTemplate,
+        }));
     }
 
     [Test]
@@ -45,12 +48,15 @@ public class DateTemplateAdapterTests
         {
             Fixtures =
             {
-                FixtureTemplate
-            }
+                FixtureTemplate,
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Fixtures, Is.EquivalentTo(new[] { FixtureTemplateDto }));
+        Assert.That(result.Fixtures, Is.EquivalentTo(new[]
+        {
+            FixtureTemplateDto,
+        }));
     }
 }

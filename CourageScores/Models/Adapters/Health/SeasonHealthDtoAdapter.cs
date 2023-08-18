@@ -28,13 +28,13 @@ public class SeasonHealthDtoAdapter : ISimpleOnewayAdapter<SeasonHealthDtoAdapte
 
     public class SeasonAndDivisions
     {
-        public SeasonDto Season { get; }
-        public List<DivisionDataDto> Divisions { get; }
-
         public SeasonAndDivisions(SeasonDto season, List<DivisionDataDto> divisions)
         {
             Season = season;
             Divisions = divisions;
         }
+
+        public SeasonDto Season { get; }
+        public List<DivisionDataDto> Divisions { get; }
     }
 }

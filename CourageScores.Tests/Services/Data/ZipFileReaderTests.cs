@@ -62,7 +62,10 @@ public class ZipFileReaderTests
 
         var result = reader.EnumerateFiles("folder1");
 
-        Assert.That(result, Is.EquivalentTo(new[] { "folder1/file1.ext", "folder1/file2.ext" }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            "folder1/file1.ext", "folder1/file2.ext",
+        }));
     }
 
     [Test]
@@ -73,7 +76,10 @@ public class ZipFileReaderTests
 
         var result = reader.EnumerateFiles("folder1");
 
-        Assert.That(result, Is.EquivalentTo(new[] { "folder1/file1.ext", "folder1/file2.ext" }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            "folder1/file1.ext", "folder1/file2.ext",
+        }));
     }
 
     [Test]
@@ -84,13 +90,19 @@ public class ZipFileReaderTests
 
         var result = reader.EnumerateFiles("folder1");
 
-        Assert.That(result, Is.EquivalentTo(new[] { "folder1/file1.ext", "folder1/file2.ext" }));
+        Assert.That(result, Is.EquivalentTo(new[]
+        {
+            "folder1/file1.ext", "folder1/file2.ext",
+        }));
     }
 
     private ZipFile CreateZip(params string[] filePaths)
     {
         var zip = new ZipFile();
-        var content = _serializer.SerialiseToString(new ExportMetaData { Creator = "USER" });
+        var content = _serializer.SerialiseToString(new ExportMetaData
+        {
+            Creator = "USER",
+        });
 
         foreach (var path in filePaths)
         {

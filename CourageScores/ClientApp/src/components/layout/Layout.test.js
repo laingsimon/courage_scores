@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp} from "../../helpers/tests";
+import {cleanUp, noop, renderApp} from "../../helpers/tests";
 import React from "react";
 import {Layout} from "./Layout";
 
@@ -15,8 +15,8 @@ describe('Layout', () => {
     async function renderComponent(error, embed) {
         reportedError = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -27,14 +27,14 @@ describe('Layout', () => {
                 error,
                 embed,
                 divisions: [],
-                reportClientSideException: () => { }
+                reportClientSideException: noop
             },
-            (<Layout />));
+            (<Layout/>));
     }
 
     describe('surround present', () => {
         it('when an error present', async () => {
-            await renderComponent({ message: 'some error', stack: 'stack' }, false);
+            await renderComponent({message: 'some error', stack: 'stack'}, false);
 
             expect(context.container.querySelector('.heading')).toBeTruthy();
             expect(context.container.querySelector('header')).toBeTruthy();
@@ -55,7 +55,7 @@ describe('Layout', () => {
 
     describe('when embedded', () => {
         it('when an error present', async () => {
-            await renderComponent({ message: 'some error', stack: 'stack' }, true);
+            await renderComponent({message: 'some error', stack: 'stack'}, true);
 
             expect(context.container.querySelector('.heading')).toBeFalsy();
             expect(context.container.querySelector('header')).toBeFalsy();

@@ -10,8 +10,8 @@ namespace CourageScores.Tests.Services.Health.Checks;
 public class ContiguousHomeOrAwayFixturesTests
 {
     private static readonly Guid TeamId = Guid.NewGuid();
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly ContiguousHomeOrAwayFixtures _check = new ContiguousHomeOrAwayFixtures();
+    private readonly CancellationToken _token = new();
+    private readonly ContiguousHomeOrAwayFixtures _check = new();
 
     [Test]
     public async Task RunCheck_WithNoDates_ReturnsSuccess()
@@ -19,11 +19,21 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -36,16 +46,26 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
                 FixtureDate(1, AwayFixture()), // 10-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -58,7 +78,14 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
@@ -69,14 +96,20 @@ public class ContiguousHomeOrAwayFixturesTests
                 },
                 FixtureDate(1, HomeFixture()), // 10-Feb 2001
                 FixtureDate(2, HomeFixture()), // 17-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing 3 fixtures in a row at home from 3 Feb 2001 - 17 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing 3 fixtures in a row at home from 3 Feb 2001 - 17 Feb 2001",
+        }));
         Assert.That(result.Success, Is.False);
     }
 
@@ -86,7 +119,14 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
@@ -96,11 +136,14 @@ public class ContiguousHomeOrAwayFixturesTests
                     Date = new DateTime(2001, 02, 05), // 5-Feb 2001
                 },
                 FixtureDate(1, HomeFixture()), // 10-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -113,17 +156,27 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
                 FixtureDate(1), // 10-Feb 2001
                 FixtureDate(2, AwayFixture()), // 17-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -136,16 +189,26 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
                 FixtureDate(1, HomeFixture()), // 10-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -158,16 +221,26 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, AwayFixture()), // 3-Feb 2001
                 FixtureDate(1, AwayFixture()), // 10-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Warnings, Is.Empty);
@@ -180,17 +253,27 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
                 FixtureDate(1, HomeFixture()), // 10-Feb 2001
                 FixtureDate(2, ByeFixture()), // 17-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
         Assert.That(result.Success, Is.True);
@@ -202,20 +285,33 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, HomeFixture()), // 3-Feb 2001
                 FixtureDate(1, HomeFixture()), // 10-Feb 2001
                 FixtureDate(2, HomeFixture()), // 17-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing 3 fixtures in a row at home from 3 Feb 2001 - 17 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing 3 fixtures in a row at home from 3 Feb 2001 - 17 Feb 2001",
+        }));
         Assert.That(result.Success, Is.False);
     }
 
@@ -225,20 +321,33 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, AwayFixture()), // 3-Feb 2001
                 FixtureDate(1, AwayFixture()), // 10-Feb 2001
                 FixtureDate(2, AwayFixture()), // 17-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb 2001 - 17 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb 2001 - 17 Feb 2001",
+        }));
         Assert.That(result.Success, Is.False);
     }
 
@@ -248,21 +357,34 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, AwayFixture()), // 3-Feb 2001
                 FixtureDate(1, AwayFixture()), // 10-Feb 2001
                 FixtureDate(2, AwayFixture()), // 17-Feb 2001
                 FixtureDate(3, AwayFixture()), // 24-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing 4 fixtures in a row at away from 3 Feb 2001 - 24 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing 4 fixtures in a row at away from 3 Feb 2001 - 24 Feb 2001",
+        }));
         Assert.That(result.Success, Is.False);
     }
 
@@ -272,21 +394,34 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, AwayFixture()), // 3-Feb 2001
                 FixtureDate(1, AwayFixture()), // 10-Feb 2001
                 FixtureDate(2, AwayFixture()), // 17-Feb 2001
                 FixtureDate(3, HomeFixture()), // 24-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb 2001 - 17 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb 2001 - 17 Feb 2001",
+        }));
         Assert.That(result.Success, Is.False);
     }
 
@@ -296,27 +431,40 @@ public class ContiguousHomeOrAwayFixturesTests
         var division = new DivisionHealthDto
         {
             Name = "DIVISION",
-            Teams = { new DivisionTeamDto { Id = TeamId, Name = "HOME" } },
+            Teams =
+            {
+                new DivisionTeamDto
+                {
+                    Id = TeamId,
+                    Name = "HOME",
+                },
+            },
             Dates =
             {
                 FixtureDate(0, AwayFixture()), // 3-Feb 2001
                 FixtureDate(1, AwayFixture()), // 10-Feb 2001
                 FixtureDate(2, AwayFixture()), // 17-Feb 2001
                 FixtureDate(3), // 24-Feb 2001
-            }
+            },
         };
         var context = new HealthCheckContext(new SeasonHealthDto());
 
-        var result = await _check.RunCheck(new[] { division }, context, _token);
+        var result = await _check.RunCheck(new[]
+        {
+            division,
+        }, context, _token);
 
         Assert.That(result.Errors, Is.Empty);
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb 2001 - 17 Feb 2001" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "DIVISION: HOME is playing 3 fixtures in a row at away from 3 Feb 2001 - 17 Feb 2001",
+        }));
         Assert.That(result.Success, Is.False);
     }
 
     private static DivisionDateHealthDto FixtureDate(int offsetWeeks, params Func<DateTime, LeagueFixtureHealthDto>[] fixtures)
     {
-        var date = new DateTime(2001, 02, 03).AddDays(offsetWeeks * 7);
+        var date = new DateTime(2001, 02, 03).AddDays(offsetWeeks*7);
 
         return new DivisionDateHealthDto
         {

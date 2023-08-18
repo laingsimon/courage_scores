@@ -1,10 +1,6 @@
 // noinspection JSUnresolvedReference
 
-import {
-    isInFuture,
-    isInPast,
-    isToday,
-} from "./dates";
+import {isInFuture, isInPast, isToday,} from "./dates";
 
 describe('dates', () => {
     const today = date(0);

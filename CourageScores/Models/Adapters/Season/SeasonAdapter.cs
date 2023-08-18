@@ -7,8 +7,8 @@ namespace CourageScores.Models.Adapters.Season;
 
 public class SeasonAdapter : IAdapter<Cosmos.Season.Season, SeasonDto>
 {
-    private readonly IAdapter<Cosmos.Division, DivisionDto> _divisionAdapter;
     private readonly ISystemClock _clock;
+    private readonly IAdapter<Cosmos.Division, DivisionDto> _divisionAdapter;
 
     public SeasonAdapter(IAdapter<Cosmos.Division, DivisionDto> divisionAdapter, ISystemClock clock)
     {

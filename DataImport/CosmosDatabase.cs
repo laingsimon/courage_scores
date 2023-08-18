@@ -89,7 +89,7 @@ public class CosmosDatabase
     }
 
     public async Task<ImportRecordResult> UpsertAsync<T>(T update, string tableName, string partitionKey, CancellationToken token)
-        where T: AuditedEntity
+        where T : AuditedEntity
     {
         if (update.Id == Guid.Empty)
         {

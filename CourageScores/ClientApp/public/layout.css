@@ -142,11 +142,11 @@ input[type="date"] {
     overflow-x: auto;
 }
 
-.no-list-indent{
+.no-list-indent {
     padding-left: 0px;
 }
 
-.no-list-indent ::marker{
+.no-list-indent ::marker {
     content: '';
 }
 

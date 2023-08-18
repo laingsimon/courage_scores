@@ -26,4 +26,3 @@ catch (Exception exc)
 {
     await Console.Error.WriteLineAsync(exc.ToString());
 }
-

@@ -37,12 +37,12 @@ describe('MatchLog', () => {
         return {
             home: {
                 throws: [
-                    { score: homeScore, bust: false, noOfDarts: 3 },
+                    {score: homeScore, bust: false, noOfDarts: 3},
                 ],
             },
             away: {
                 throws: [
-                    { score: awayScore, bust: false, noOfDarts: 3 },
+                    {score: awayScore, bust: false, noOfDarts: 3},
                 ],
             },
             startingScore: 501,
@@ -77,8 +77,8 @@ describe('MatchLog', () => {
             const saygMatch = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: null,
             };
@@ -88,7 +88,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ]
+                saygMatches: [saygMatch]
             });
 
             expect(reportedError).toBeNull();
@@ -99,10 +99,10 @@ describe('MatchLog', () => {
             const saygMatch = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
-                saygData: { legs: null },
+                saygData: {legs: null},
             };
 
             await renderComponent({
@@ -110,7 +110,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ]
+                saygMatches: [saygMatch]
             });
 
             expect(reportedError).toBeNull();
@@ -121,8 +121,8 @@ describe('MatchLog', () => {
             const saygMatch = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -136,7 +136,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ]
+                saygMatches: [saygMatch]
             });
 
             expect(reportedError).toBeNull();
@@ -144,17 +144,17 @@ describe('MatchLog', () => {
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             const hostHeadings = rowContent(rows[1], 'th');
-            expect(after(hostHeadings, 'GD')).toEqual([ '1', '2', '3', '4', '5', '6' ]);
+            expect(after(hostHeadings, 'GD')).toEqual(['1', '2', '3', '4', '5', '6']);
             const opponentHeadings = rowContent(rows[4], 'th');
-            expect(after(opponentHeadings, 'GD')).toEqual([ '1', '2', '3', '4', '5', '6' ]);
+            expect(after(opponentHeadings, 'GD')).toEqual(['1', '2', '3', '4', '5', '6']);
         });
 
         it('first match content for host', async () => {
             const saygMatch = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -170,7 +170,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ]
+                saygMatches: [saygMatch]
             });
 
             expect(reportedError).toBeNull();
@@ -178,19 +178,19 @@ describe('MatchLog', () => {
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
-            expect(rowContent(rows[0], 'th')).toEqual([ 'HOST', 'Dart average', '', '' ]);
-            expect(rowContent(rows[1], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
-            expect(rowContent(rows[2], 'td')).toEqual([ 'A', '1', '3', '', '401', '1', '0', '0', '1', '33.33', '33.33', '3', '100', '', '', '', '', '' ]);
-            expect(rowContent(rows[3], 'td')).toEqual([      '2', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '' ]);
-            expect(rowContent(rows[4], 'td')).toEqual([      '3', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '' ]);
+            expect(rowContent(rows[0], 'th')).toEqual(['HOST', 'Dart average', '', '']);
+            expect(rowContent(rows[1], 'th')).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6']);
+            expect(rowContent(rows[2], 'td')).toEqual(['A', '1', '3', '', '401', '1', '0', '0', '1', '33.33', '33.33', '3', '100', '', '', '', '', '']);
+            expect(rowContent(rows[3], 'td')).toEqual(['2', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '']);
+            expect(rowContent(rows[4], 'td')).toEqual(['3', '3', '', '401', '1', '0', '0', '1', '3', '100', '', '', '', '', '']);
         });
 
         it('first match content for opponent', async () => {
             const saygMatch = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -206,7 +206,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch ]
+                saygMatches: [saygMatch]
             });
 
             expect(reportedError).toBeNull();
@@ -214,19 +214,19 @@ describe('MatchLog', () => {
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(rows.length).toEqual(2 + 3 + 2 + 3);
-            expect(rowContent(rows[5], 'th')).toEqual([ 'OPPONENT', 'Dart average', '', '' ]);
-            expect(rowContent(rows[6], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
-            expect(rowContent(rows[7], 'td')).toEqual([ 'B', '1', '3', '', '451', '0', '0', '0', '0', '16.67', '16.67', '3', '50', '', '', '', '', '' ]);
-            expect(rowContent(rows[8], 'td')).toEqual([      '2', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '' ]);
-            expect(rowContent(rows[9], 'td')).toEqual([      '3', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '' ]);
+            expect(rowContent(rows[5], 'th')).toEqual(['OPPONENT', 'Dart average', '', '']);
+            expect(rowContent(rows[6], 'th')).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6']);
+            expect(rowContent(rows[7], 'td')).toEqual(['B', '1', '3', '', '451', '0', '0', '0', '0', '16.67', '16.67', '3', '50', '', '', '', '', '']);
+            expect(rowContent(rows[8], 'td')).toEqual(['2', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '']);
+            expect(rowContent(rows[9], 'td')).toEqual(['3', '3', '', '451', '0', '0', '0', '0', '3', '50', '', '', '', '', '']);
         });
 
         it('second match content for host', async () => {
             const saygMatch1 = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -237,8 +237,8 @@ describe('MatchLog', () => {
             const saygMatch2 = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'C' },
-                    sideB: { name: 'D' },
+                    sideA: {name: 'C'},
+                    sideB: {name: 'D'},
                 },
                 saygData: {
                     legs: {
@@ -252,7 +252,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch1, saygMatch2 ]
+                saygMatches: [saygMatch1, saygMatch2]
             });
 
             expect(reportedError).toBeNull();
@@ -262,21 +262,21 @@ describe('MatchLog', () => {
             const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
-            expect(rowContent(secondMatchRows[0], 'th')).toEqual([ 'HOST', 'Dart average', '', '' ]);
-            expect(rowContent(secondMatchRows[1], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
+            expect(rowContent(secondMatchRows[0], 'th')).toEqual(['HOST', 'Dart average', '', '']);
+            expect(rowContent(secondMatchRows[1], 'th')).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6']);
             const firstMatchPlayerAverage = 16.67;
             const secondMatchPlayerAverage = 33.33;
             const overallMatchPlayerAverage = firstMatchPlayerAverage + secondMatchPlayerAverage;
-            expect(rowContent(firstMatchRows[2], 'td')).toEqual([ 'A', '1', '3', '', '451', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '3', '50', '', '', '', '', '' ]);
-            expect(rowContent(secondMatchRows[2], 'td')).toEqual([ 'C', '1', '3', '', '401', '1', '0', '0', '1', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '3', '100', '', '', '', '', '' ]);
+            expect(rowContent(firstMatchRows[2], 'td')).toEqual(['A', '1', '3', '', '451', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '3', '50', '', '', '', '', '']);
+            expect(rowContent(secondMatchRows[2], 'td')).toEqual(['C', '1', '3', '', '401', '1', '0', '0', '1', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '3', '100', '', '', '', '', '']);
         });
 
         it('second match content for opponent', async () => {
             const saygMatch1 = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'A' },
-                    sideB: { name: 'B' },
+                    sideA: {name: 'A'},
+                    sideB: {name: 'B'},
                 },
                 saygData: {
                     legs: {
@@ -287,8 +287,8 @@ describe('MatchLog', () => {
             const saygMatch2 = {
                 match: {
                     id: createTemporaryId(),
-                    sideA: { name: 'C' },
-                    sideB: { name: 'D' },
+                    sideA: {name: 'C'},
+                    sideB: {name: 'D'},
                 },
                 saygData: {
                     legs: {
@@ -302,7 +302,7 @@ describe('MatchLog', () => {
                 noOfThrows: 5,
                 host: 'HOST',
                 opponent: 'OPPONENT',
-                saygMatches: [ saygMatch1, saygMatch2 ]
+                saygMatches: [saygMatch1, saygMatch2]
             });
 
             expect(reportedError).toBeNull();
@@ -312,13 +312,13 @@ describe('MatchLog', () => {
             const secondMatchRows = Array.from(secondMatchTable.querySelectorAll('tbody tr'));
             /* 2 heading rows, 3 data rows - repeated for home and away */
             expect(secondMatchRows.length).toEqual(2 + 1 + 2 + 1);
-            expect(rowContent(secondMatchRows[3], 'th')).toEqual([ 'OPPONENT', 'Dart average', '', '' ]);
-            expect(rowContent(secondMatchRows[4], 'th')).toEqual([ 'Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6' ]);
+            expect(rowContent(secondMatchRows[3], 'th')).toEqual(['OPPONENT', 'Dart average', '', '']);
+            expect(rowContent(secondMatchRows[4], 'th')).toEqual(['Player', 'L', 'AD', 'GS', 'SL', '100+', '140+', '180', 'T', 'Player', 'Team', 'GD', '1', '2', '3', '4', '5', '6']);
             const firstMatchPlayerAverage = 8.33;
             const secondMatchPlayerAverage = 16.67;
             const overallMatchPlayerAverage = firstMatchPlayerAverage + secondMatchPlayerAverage;
-            expect(rowContent(firstMatchRows[5], 'td')).toEqual([ 'B', '1', '3', '', '476', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '3', '25', '', '', '', '', '' ]);
-            expect(rowContent(secondMatchRows[5], 'td')).toEqual([ 'D', '1', '3', '', '451', '0', '0', '0', '0', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '3', '50', '', '', '', '', '' ]);
+            expect(rowContent(firstMatchRows[5], 'td')).toEqual(['B', '1', '3', '', '476', '0', '0', '0', '0', firstMatchPlayerAverage.toString(), firstMatchPlayerAverage.toString(), '3', '25', '', '', '', '', '']);
+            expect(rowContent(secondMatchRows[5], 'td')).toEqual(['D', '1', '3', '', '451', '0', '0', '0', '0', secondMatchPlayerAverage.toString(), overallMatchPlayerAverage.toString(), '3', '50', '', '', '', '', '']);
         });
     });
 });

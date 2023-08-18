@@ -10,14 +10,14 @@ import {useTournament} from "./TournamentContainer";
 import {EditSide} from "./EditSide";
 import {createTemporaryId} from "../../../helpers/projection";
 
-export function EditTournament({ canSave, disabled, saving, applyPatch }) {
-    const { account } = useApp();
-    const { tournamentData, setTournamentData, allPlayers, season, division } = useTournament();
+export function EditTournament({canSave, disabled, saving, applyPatch}) {
+    const {account} = useApp();
+    const {tournamentData, setTournamentData, allPlayers, season, division} = useTournament();
     const isAdmin = account && account.access && account.access.manageTournaments;
     const readOnly = !isAdmin || !canSave || disabled || saving;
     const hasStarted = tournamentData.round && tournamentData.round.matches && any(tournamentData.round.matches);
     const winningSideId = hasStarted ? getWinningSide(tournamentData.round) : null;
-    const [ newSide, setNewSide ] = useState(null);
+    const [newSide, setNewSide] = useState(null);
 
     function getWinningSide(round) {
         if (round && round.nextRound) {
@@ -86,7 +86,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
                 newTournamentData.sides.push(newSide);
                 setTournamentData(newTournamentData);
                 setNewSide(null);
-            }} />);
+            }}/>);
     }
 
     const canShowResults = any((tournamentData.round || {}).matches || [], match => match.scoreA || match.scoreB) || !readOnly;
@@ -100,8 +100,11 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
                     readOnly={readOnly}
                     side={side}
                     onChange={(newSide) => sideChanged(newSide, sideIndex)}
-                    onRemove={() => removeSide(side)} />); })}
-            {!readOnly && !hasStarted ? (<button className="btn btn-primary" onClick={() => setNewSide({})}>➕</button>) : null}
+                    onRemove={() => removeSide(side)}/>);
+            })}
+            {!readOnly && !hasStarted
+                ? (<button className="btn btn-primary" onClick={() => setNewSide({})}>➕</button>)
+                : null}
             {newSide && !readOnly && !hasStarted ? renderEditNewSide() : null}
         </div>
         {canShowResults ? (<TournamentRound
@@ -113,7 +116,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
             onHiCheck={add180(tournamentData, setTournamentData)}
             on180={add180(tournamentData, setTournamentData)}
             patchData={applyPatch}
-            allowNextRound={!tournamentData.singleRound} />) : null}
+            allowNextRound={!tournamentData.singleRound}/>) : null}
         {canShowResults ? (<table className="table">
             <tbody>
             <tr>
@@ -140,7 +143,7 @@ export function EditTournament({ canSave, disabled, saving, applyPatch }) {
                         players={tournamentData.over100Checkouts || []}
                         onRemovePlayer={removeHiCheck(tournamentData, setTournamentData)}
                         onAddPlayer={addHiCheck(tournamentData, setTournamentData)}
-                        showNotes={true} />
+                        showNotes={true}/>
                 </td>
             </tr>
             </tbody>

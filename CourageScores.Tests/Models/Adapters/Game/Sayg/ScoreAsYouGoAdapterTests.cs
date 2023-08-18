@@ -8,7 +8,7 @@ namespace CourageScores.Tests.Models.Adapters.Game.Sayg;
 [TestFixture]
 public class ScoreAsYouGoAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private ScoreAsYouGoAdapter _adapter = null!;
     private Leg _leg = null!;
     private LegDto _legDto = null!;
@@ -29,13 +29,18 @@ public class ScoreAsYouGoAdapterTests
         {
             Legs =
             {
-                { 0, _leg }
-            }
+                {
+                    0, _leg
+                },
+            },
         };
 
         var result = await _adapter.Adapt(model, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
+        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
+        {
+            0,
+        }));
         Assert.That(result.Legs[0], Is.EqualTo(_legDto));
     }
 
@@ -46,13 +51,18 @@ public class ScoreAsYouGoAdapterTests
         {
             Legs =
             {
-                { 0, _legDto }
-            }
+                {
+                    0, _legDto
+                },
+            },
         };
 
         var result = await _adapter.Adapt(dto, _token);
 
-        Assert.That(result.Legs.Keys, Is.EqualTo(new[] { 0 }));
+        Assert.That(result.Legs.Keys, Is.EqualTo(new[]
+        {
+            0,
+        }));
         Assert.That(result.Legs[0], Is.EqualTo(_leg));
     }
 }

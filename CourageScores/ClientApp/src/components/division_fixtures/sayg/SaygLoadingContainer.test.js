@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doChange, doClick, findButton} from "../../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {act} from "@testing-library/react";
 import React from "react";
 import {SaygLoadingContainer, useSayg} from "./SaygLoadingContainer";
@@ -30,7 +30,7 @@ describe('SaygLoadingContainer', () => {
             upsertedData = data;
             return apiResponse || {
                 success: true,
-                result: Object.assign({ id: createTemporaryId() }, data),
+                result: Object.assign({id: createTemporaryId()}, data),
             };
         },
     }
@@ -50,11 +50,11 @@ describe('SaygLoadingContainer', () => {
     }
 
     async function onHiCheck(player, score) {
-        hiCheck = { player, score };
+        hiCheck = {player, score};
     }
 
     async function onScoreChange(homeScore, awayScore) {
-        changedScore = { homeScore, awayScore };
+        changedScore = {homeScore, awayScore};
     }
 
     async function onSaved(data) {
@@ -73,15 +73,17 @@ describe('SaygLoadingContainer', () => {
         saved = null;
         loadError = null;
         context = await renderApp(
-            { saygApi },
-            { name: 'Courage Scores' },
-            { onError: (err) => {
+            {saygApi},
+            {name: 'Courage Scores'},
+            {
+                onError: (err) => {
                     reportedError = {
                         message: err.message,
                         stack: err.stack
                     };
                 },
-                reportClientSideException: () => {},
+                reportClientSideException: () => {
+                },
             },
             <SaygLoadingContainer
                 {...props}
@@ -89,7 +91,7 @@ describe('SaygLoadingContainer', () => {
                 onHiCheck={onHiCheck}
                 onScoreChange={onScoreChange}
                 onSaved={onSaved}
-                onLoadError={onLoadError} />);
+                onLoadError={onLoadError}/>);
     }
 
     it('gets sayg data for given id', async () => {
@@ -103,7 +105,7 @@ describe('SaygLoadingContainer', () => {
         };
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -120,7 +122,7 @@ describe('SaygLoadingContainer', () => {
     it('uses default data if given no id', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -151,7 +153,7 @@ describe('SaygLoadingContainer', () => {
         saygDataMap[id] = null;
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -166,7 +168,7 @@ describe('SaygLoadingContainer', () => {
         saygDataMap[id] = {};
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -188,7 +190,7 @@ describe('SaygLoadingContainer', () => {
         };
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: id,
             defaultData: null,
             autoSave: false,
@@ -201,7 +203,7 @@ describe('SaygLoadingContainer', () => {
     it('should be able to update sayg data', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 isDefault: true,
@@ -233,7 +235,7 @@ describe('SaygLoadingContainer', () => {
     it('should be able to save data and get id', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -258,7 +260,7 @@ describe('SaygLoadingContainer', () => {
     it('should handle error during upsert', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -269,7 +271,7 @@ describe('SaygLoadingContainer', () => {
             },
             autoSave: false,
         });
-        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        apiResponse = {success: false, errors: ['SOME ERROR']};
         let result;
 
         await act(async () => {
@@ -286,7 +288,7 @@ describe('SaygLoadingContainer', () => {
     it('should be able to close error details after upsert failure', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -297,7 +299,7 @@ describe('SaygLoadingContainer', () => {
             },
             autoSave: false,
         });
-        apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+        apiResponse = {success: false, errors: ['SOME ERROR']};
         await act(async () => {
             await loadedWithData.saveDataAndGetId();
         });
@@ -311,7 +313,7 @@ describe('SaygLoadingContainer', () => {
     it('should handle exception during upsert', async () => {
         let loadedWithData;
         await renderComponent({
-            children: (<TestComponent onLoaded={(data) => loadedWithData = data} />),
+            children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
             id: null,
             defaultData: {
                 legs: {
@@ -322,7 +324,7 @@ describe('SaygLoadingContainer', () => {
             },
             autoSave: false,
         });
-        apiResponse = { success: true, result: 'SOMETHING THAT WILL TRIGGER AN EXCEPTION' };
+        apiResponse = {success: true, result: 'SOMETHING THAT WILL TRIGGER AN EXCEPTION'};
         let result;
 
         await act(async () => {
@@ -347,8 +349,8 @@ describe('SaygLoadingContainer', () => {
                     '0': {
                         currentThrow: 'home',
                         playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
+                            {value: 'home', text: 'HOME'},
+                            {value: 'away', text: 'AWAY'},
                         ],
                         startingScore: 501,
                         home: {
@@ -357,7 +359,7 @@ describe('SaygLoadingContainer', () => {
                         },
                         away: {
                             score: 200,
-                            throws: [ {} ],
+                            throws: [{}],
                         }
                     }
                 },
@@ -370,7 +372,7 @@ describe('SaygLoadingContainer', () => {
 
         expect(upsertedData).not.toBeNull();
         expect(saved).not.toBeNull();
-        expect(changedScore).toEqual({ homeScore: 1, awayScore: 0 });
+        expect(changedScore).toEqual({homeScore: 1, awayScore: 0});
     });
 
     it('should save data when player sequence changes and auto save enabled', async () => {
@@ -392,7 +394,7 @@ describe('SaygLoadingContainer', () => {
                         },
                         away: {
                             score: 0,
-                            throws: [ ],
+                            throws: [],
                         }
                     }
                 },
@@ -425,7 +427,7 @@ describe('SaygLoadingContainer', () => {
                         },
                         away: {
                             score: 0,
-                            throws: [ ],
+                            throws: [],
                         }
                     }
                 },
@@ -451,8 +453,8 @@ describe('SaygLoadingContainer', () => {
                     '0': {
                         currentThrow: 'home',
                         playerSequence: [
-                            { value: 'home', text: 'HOME' },
-                            { value: 'away', text: 'AWAY' },
+                            {value: 'home', text: 'HOME'},
+                            {value: 'away', text: 'AWAY'},
                         ],
                         startingScore: 501,
                         home: {
@@ -461,7 +463,7 @@ describe('SaygLoadingContainer', () => {
                         },
                         away: {
                             score: 200,
-                            throws: [ {} ],
+                            throws: [{}],
                         }
                     }
                 },
@@ -474,13 +476,13 @@ describe('SaygLoadingContainer', () => {
 
         expect(upsertedData).toBeNull();
         expect(saved).toBeNull();
-        expect(changedScore).toEqual({ homeScore: 1, awayScore: 0 });
+        expect(changedScore).toEqual({homeScore: 1, awayScore: 0});
     });
 
-    function TestComponent({ onLoaded }) {
-        const { sayg, setSayg, saveDataAndGetId } = useSayg();
+    function TestComponent({onLoaded}) {
+        const {sayg, setSayg, saveDataAndGetId} = useSayg();
 
-        onLoaded({ sayg, setSayg, saveDataAndGetId });
+        onLoaded({sayg, setSayg, saveDataAndGetId});
 
         return (<div>Loaded</div>)
     }

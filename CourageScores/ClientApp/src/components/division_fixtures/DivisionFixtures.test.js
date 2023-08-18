@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, findButton, doClick, doChange, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {toMap} from "../../helpers/collections";
@@ -15,33 +15,29 @@ describe('DivisionFixtures', () => {
     let updatedNote;
     let createdNote;
     let overriddenDivisionData;
-    const seasonApi = {
-
-    };
-    const gameApi = {
-
-    };
+    const seasonApi = {};
+    const gameApi = {};
     const noteApi = {
         create: async (note) => {
             createdNote = note;
-            return { success: true };
+            return {success: true};
         },
         upsert: async (id, note, lastUpdated) => {
-            updatedNote = { id, note, lastUpdated };
-            return { success: true };
+            updatedNote = {id, note, lastUpdated};
+            return {success: true};
         },
     };
     const tournamentApi = {
         update: async () => {
-            return { success: true };
+            return {success: true};
         },
         create: async () => {
-            return { success: true };
+            return {success: true};
         }
     };
     const templateApi = {
         getCompatibility: () => {
-            return { success: false };
+            return {success: false};
         }
     };
 
@@ -57,8 +53,8 @@ describe('DivisionFixtures', () => {
         overriddenDivisionData = null;
         createdNote = null;
         context = await renderApp(
-            { seasonApi, gameApi, noteApi, tournamentApi, templateApi },
-            { name: 'Courage Scores' },
+            {seasonApi, gameApi, noteApi, tournamentApi, templateApi},
+            {name: 'Courage Scores'},
             {
                 account,
                 onError: (err) => {
@@ -72,8 +68,9 @@ describe('DivisionFixtures', () => {
                 controls: !excludeControls,
                 teams: toMap(teams || []),
             },
-            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData} setDivisionData={d => overriddenDivisionData = d}>
-                <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures} />
+            (<DivisionDataContainer onReloadDivision={onReloadDivision} {...divisionData}
+                                    setDivisionData={d => overriddenDivisionData = d}>
+                <DivisionFixtures setNewFixtures={(updatedFixtures) => newFixtures = updatedFixtures}/>
             </DivisionDataContainer>),
             route,
             path);
@@ -87,7 +84,7 @@ describe('DivisionFixtures', () => {
             endDate: '2022-08-25T00:00:00',
             divisions: []
         };
-        const team = { id: createTemporaryId(), name: 'A team' };
+        const team = {id: createTemporaryId(), name: 'A team'};
         return {
             dataErrors: [],
             fixtures: [],
@@ -95,7 +92,7 @@ describe('DivisionFixtures', () => {
             name: 'A division',
             players: [],
             season: season,
-            teams: [ team ]
+            teams: [team]
         };
     }
 
@@ -150,13 +147,13 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
+                fixtures: [],
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
                     note: 'Finals night!'
-                } ],
-                tournamentFixtures: [ ]
+                }],
+                tournamentFixtures: []
             });
 
             await renderComponent(divisionData, account);
@@ -174,16 +171,16 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: 1,
-                    homeTeam: { id: createTemporaryId(), name: 'home1' },
+                    homeTeam: {id: createTemporaryId(), name: 'home1'},
                     awayScore: 2,
-                    awayTeam: { id: createTemporaryId(), name: 'away1' },
+                    awayTeam: {id: createTemporaryId(), name: 'away1'},
                     isKnockout: false,
                     postponed: false,
-                } ],
-                notes: [ ],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -202,16 +199,16 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: 3,
-                    homeTeam: { id: createTemporaryId(), name: 'home2 - knockout' },
+                    homeTeam: {id: createTemporaryId(), name: 'home2 - knockout'},
                     awayScore: 4,
-                    awayTeam: { id: createTemporaryId(), name: 'away2 - knockout' },
+                    awayTeam: {id: createTemporaryId(), name: 'away2 - knockout'},
                     isKnockout: true,
                     postponed: false,
-                } ],
-                notes: [ ],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -230,16 +227,16 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: 0,
-                    homeTeam: { id: createTemporaryId(), name: 'home3' },
+                    homeTeam: {id: createTemporaryId(), name: 'home3'},
                     awayScore: 0,
-                    awayTeam: { id: createTemporaryId(), name: 'away3' },
+                    awayTeam: {id: createTemporaryId(), name: 'away3'},
                     isKnockout: false,
                     postponed: true,
-                } ],
-                notes: [ ],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -258,15 +255,15 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: null,
-                    homeTeam: { id: createTemporaryId(), name: 'home4 - bye' },
+                    homeTeam: {id: createTemporaryId(), name: 'home4 - bye'},
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
-                } ],
-                notes: [ ],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -285,9 +282,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'an address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -295,14 +292,14 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs',
                     winningSide: {
                         name: 'The winning side'
                     }
-                } ]
+                }]
             });
 
             await renderComponent(divisionData, account);
@@ -320,9 +317,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -330,7 +327,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -352,9 +349,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -362,7 +359,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         id: createTemporaryId(),
                         name: 'The winning side',
                         players: [{
@@ -386,9 +383,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -396,7 +393,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -415,9 +412,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -425,7 +422,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -443,9 +440,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -453,7 +450,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -470,9 +467,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -480,7 +477,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -497,9 +494,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -507,7 +504,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -535,13 +532,13 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
+                fixtures: [],
                 notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
                     note: 'Finals night!'
-                } ],
-                tournamentFixtures: [ ]
+                }],
+                tournamentFixtures: []
             });
 
             await renderComponent(divisionData, account);
@@ -559,16 +556,16 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: 1,
-                    homeTeam: { id: createTemporaryId(), name: 'home1', address: 'home1' },
+                    homeTeam: {id: createTemporaryId(), name: 'home1', address: 'home1'},
                     awayScore: 2,
-                    awayTeam: { id: createTemporaryId(), name: 'away1', address: 'away1' },
+                    awayTeam: {id: createTemporaryId(), name: 'away1', address: 'away1'},
                     isKnockout: false,
                     postponed: false,
-                } ],
-                notes: [ ],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -587,16 +584,16 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: 3,
-                    homeTeam: { id: createTemporaryId(), name: 'home2 - knockout', address: 'home2' },
+                    homeTeam: {id: createTemporaryId(), name: 'home2 - knockout', address: 'home2'},
                     awayScore: 4,
-                    awayTeam: { id: createTemporaryId(), name: 'away2 - knockout', address: 'away2' },
+                    awayTeam: {id: createTemporaryId(), name: 'away2 - knockout', address: 'away2'},
                     isKnockout: true,
                     postponed: false,
-                } ],
-                notes: [ ],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -615,17 +612,17 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: createTemporaryId(),
                     homeScore: 0,
-                    homeTeam: { id: createTemporaryId(), name: 'home3', address: 'home3' },
+                    homeTeam: {id: createTemporaryId(), name: 'home3', address: 'home3'},
                     awayScore: 0,
-                    awayTeam: { id: divisionData.teams[0].id, name: 'away3', address: 'away3' },
+                    awayTeam: {id: divisionData.teams[0].id, name: 'away3', address: 'away3'},
                     isKnockout: false,
                     postponed: true,
-                    fixturesUsingAddress: [ ],
-                } ],
-                notes: [ ],
+                    fixturesUsingAddress: [],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -645,16 +642,16 @@ describe('DivisionFixtures', () => {
             const teamId = createTemporaryId();
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: teamId,
                     homeScore: null,
-                    homeTeam: { id: teamId, name: 'home4 - bye', address: 'home4' },
+                    homeTeam: {id: teamId, name: 'home4 - bye', address: 'home4'},
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
-                    fixturesUsingAddress: [ ],
-                } ],
-                notes: [ ],
+                    fixturesUsingAddress: [],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
 
@@ -673,9 +670,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'an address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -683,14 +680,14 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs',
                     winningSide: {
                         name: 'The winning side'
                     }
-                } ]
+                }]
             });
 
             await renderComponent(divisionData, account);
@@ -708,9 +705,9 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
@@ -718,7 +715,7 @@ describe('DivisionFixtures', () => {
                     players: [],
                     proposed: false,
                     seasonId: divisionData.season.id,
-                    sides: [ {
+                    sides: [{
                         name: 'The winning side'
                     }],
                     type: 'Pairs'
@@ -740,17 +737,17 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ { id: createTemporaryId(), note: 'A note' } ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [{id: createTemporaryId(), note: 'A note'}],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
                     players: [],
                     proposed: true,
                     seasonId: divisionData.season.id,
-                    sides: [ ]
-                } ]
+                    sides: []
+                }]
             });
             await renderComponent(
                 {
@@ -776,16 +773,16 @@ describe('DivisionFixtures', () => {
             const teamId = createTemporaryId();
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ {
+                fixtures: [{
                     id: teamId,
                     homeScore: null,
-                    homeTeam: { id: teamId, name: 'home5 - bye', address: 'home5' },
+                    homeTeam: {id: teamId, name: 'home5 - bye', address: 'home5'},
                     awayScore: null,
                     isKnockout: false,
                     postponed: false,
-                    fixturesUsingAddress: [ ],
-                } ],
-                notes: [ ],
+                    fixturesUsingAddress: [],
+                }],
+                notes: [],
                 tournamentFixtures: []
             });
             await renderComponent(divisionData, account);
@@ -804,12 +801,12 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ {
+                fixtures: [],
+                notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
                     note: 'A note'
-                } ],
+                }],
                 tournamentFixtures: []
             });
             await renderComponent(divisionData, account);
@@ -828,12 +825,12 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ {
+                fixtures: [],
+                notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
                     note: 'A note'
-                } ],
+                }],
                 tournamentFixtures: []
             });
             await renderComponent(divisionData, account);
@@ -855,12 +852,12 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ {
+                fixtures: [],
+                notes: [{
                     id: createTemporaryId(),
                     date: '2022-10-13T00:00:00',
                     note: 'A note'
-                } ],
+                }],
                 tournamentFixtures: []
             });
             await renderComponent(divisionData, account);
@@ -921,17 +918,17 @@ describe('DivisionFixtures', () => {
             const divisionData = getInSeasonDivisionData(divisionId);
             divisionData.fixtures.push({
                 date: '2022-10-13T00:00:00',
-                fixtures: [ ],
-                notes: [ { id: createTemporaryId(), note: 'A note' } ],
-                tournamentFixtures: [ {
+                fixtures: [],
+                notes: [{id: createTemporaryId(), note: 'A note'}],
+                tournamentFixtures: [{
                     address: 'another address',
                     date: '2022-10-13T00:00:00',
                     id: createTemporaryId(),
                     players: [],
                     proposed: true,
                     seasonId: divisionData.season.id,
-                    sides: [ ]
-                } ]
+                    sides: []
+                }]
             });
             await renderComponent(divisionData, account);
             await doClick(findButton(context.container, '➕ Add date'));
@@ -951,17 +948,17 @@ describe('DivisionFixtures', () => {
                 id: createTemporaryId(),
                 name: 'TEAM',
                 address: 'ADDRESS',
-                seasons: [ {
+                seasons: [{
                     seasonId: divisionData.season.id,
                     divisionId: divisionData.id,
-                } ]
+                }]
             };
             const outOfSeasonTeam = {
                 id: createTemporaryId(),
                 name: 'OUT OF SEASON TEAM',
-                seasons: [ ]
+                seasons: []
             };
-            await renderComponent(divisionData, account, null, null, null, [ team, outOfSeasonTeam ]);
+            await renderComponent(divisionData, account, null, null, null, [team, outOfSeasonTeam]);
             await doClick(findButton(context.container, '➕ Add date'));
             const dialog = context.container.querySelector('.modal-dialog');
 
@@ -996,13 +993,13 @@ describe('DivisionFixtures', () => {
             divisionData.fixtures.push({
                 date: '2023-05-06T00:00:00',
                 isNew: true,
-                fixtures: [ {
+                fixtures: [{
                     date: '2023-05-06T00:00:00',
                     id: homeTeam.id,
                     homeTeam: homeTeam,
                     awayTeam: null,
                     fixturesUsingAddress: []
-                } ],
+                }],
                 tournamentFixtures: [],
                 notes: [],
             });

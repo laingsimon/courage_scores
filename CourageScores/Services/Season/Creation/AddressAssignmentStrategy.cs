@@ -56,12 +56,12 @@ public class AddressAssignmentStrategy : IAddressAssignmentStrategy
                 return false;
             }
 
-            success = (await ApplyTemplatePlaceholders(
+            success = await ApplyTemplatePlaceholders(
                 context,
                 divisionSharedAddresses,
                 templateDivisionSharedAddressPlaceholders,
                 divisionMapping.SeasonDivision.Name + ": ",
-                token)) && success;
+                token) && success;
         }
 
         return success;

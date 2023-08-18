@@ -19,8 +19,8 @@ describe('FilterFixtures', () => {
         reportedError = null;
         updatedFilter = null;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
+            {},
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -30,13 +30,13 @@ describe('FilterFixtures', () => {
                 }
             },
             (<DivisionDataContainer teams={teams}>
-                <FilterFixtures filter={filter} setFilter={(newFilter) => updatedFilter = newFilter} />
+                <FilterFixtures filter={filter} setFilter={(newFilter) => updatedFilter = newFilter}/>
             </DivisionDataContainer>));
     }
 
     describe('type', () => {
         it('when selected', async () => {
-            await renderComponent({ type: 'league' }, []);
+            await renderComponent({type: 'league'}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
             expect(dropDown).toBeTruthy();
@@ -45,7 +45,7 @@ describe('FilterFixtures', () => {
         });
 
         it('when unrecognised', async () => {
-            await renderComponent({ type: 'foo' }, []);
+            await renderComponent({type: 'foo'}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
             expect(dropDown).toBeTruthy();
@@ -53,7 +53,7 @@ describe('FilterFixtures', () => {
         });
 
         it('when unselected', async () => {
-            await renderComponent({ }, []);
+            await renderComponent({}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(1)');
             expect(dropDown).toBeTruthy();
@@ -64,7 +64,7 @@ describe('FilterFixtures', () => {
 
     describe('date', () => {
         it('when selected', async () => {
-            await renderComponent({ date: 'past' }, []);
+            await renderComponent({date: 'past'}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -75,7 +75,7 @@ describe('FilterFixtures', () => {
         it('when specific 3-part date', async () => {
             const date = '2023-01-01';
             const expectedDate = renderDate(date);
-            await renderComponent({ date }, []);
+            await renderComponent({date}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -84,7 +84,7 @@ describe('FilterFixtures', () => {
         });
 
         it('when unrecognised', async () => {
-            await renderComponent({ date: 'foo' }, []);
+            await renderComponent({date: 'foo'}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -93,7 +93,7 @@ describe('FilterFixtures', () => {
         });
 
         it('when unselected', async () => {
-            await renderComponent({ }, []);
+            await renderComponent({}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(2)');
             expect(dropDown).toBeTruthy();
@@ -108,7 +108,7 @@ describe('FilterFixtures', () => {
                 id: 'abcd',
                 name: 'TEAM'
             };
-            await renderComponent({ team: 'TEAM' }, [ team ]);
+            await renderComponent({team: 'TEAM'}, [team]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();
@@ -121,7 +121,7 @@ describe('FilterFixtures', () => {
                 id: 'abcd',
                 name: 'TEAM'
             };
-            await renderComponent({ team: '1234' }, [ team ]);
+            await renderComponent({team: '1234'}, [team]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();
@@ -129,7 +129,7 @@ describe('FilterFixtures', () => {
         });
 
         it('when unselected', async () => {
-            await renderComponent({ }, []);
+            await renderComponent({}, []);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
             expect(dropDown).toBeTruthy();

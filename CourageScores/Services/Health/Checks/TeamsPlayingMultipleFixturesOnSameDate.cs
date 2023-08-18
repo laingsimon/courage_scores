@@ -15,7 +15,10 @@ public class TeamsPlayingMultipleFixturesOnSameDate : ISeasonHealthCheck
         return (await divisions
                 .SelectAsync(CheckDivision).ToList())
             .Aggregate(
-                new HealthCheckResultDto { Success = true },
+                new HealthCheckResultDto
+                {
+                    Success = true,
+                },
                 (prev, current) => prev.MergeWith(current));
     }
 
@@ -23,13 +26,19 @@ public class TeamsPlayingMultipleFixturesOnSameDate : ISeasonHealthCheck
     {
         var teamResults = await division.Teams.OrderBy(t => t.Name).SelectAsync(t => CheckTeam(division, t)).ToList();
         return teamResults.Aggregate(
-            new HealthCheckResultDto { Success = true },
+            new HealthCheckResultDto
+            {
+                Success = true,
+            },
             (prev, current) => prev.MergeWith(current));
     }
 
     private static Task<HealthCheckResultDto> CheckTeam(DivisionHealthDto division, DivisionTeamDto team)
     {
-        var result = new HealthCheckResultDto { Success = true };
+        var result = new HealthCheckResultDto
+        {
+            Success = true,
+        };
 
         foreach (var date in division.Dates)
         {

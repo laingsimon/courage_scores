@@ -34,7 +34,7 @@ public class AuditingHelperTests
         var model = new Model();
         var user = new UserDto
         {
-            Name = "user"
+            Name = "user",
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => loggedIn ? user : null);
@@ -57,7 +57,7 @@ public class AuditingHelperTests
         };
         var user = new UserDto
         {
-            Name = "user"
+            Name = "user",
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => loggedIn ? user : null);
@@ -83,7 +83,7 @@ public class AuditingHelperTests
         };
         var user = new UserDto
         {
-            Name = "user"
+            Name = "user",
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
@@ -107,7 +107,7 @@ public class AuditingHelperTests
         };
         var user = new UserDto
         {
-            Name = "user"
+            Name = "user",
         };
         var now = new DateTimeOffset(2001, 02, 03, 04, 05, 06, TimeSpan.Zero);
         _userService.Setup(s => s.GetUser(_token)).ReturnsAsync(() => user);
@@ -139,6 +139,5 @@ public class AuditingHelperTests
 
     public class Model : AuditedEntity
     {
-
     }
 }

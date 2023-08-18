@@ -15,13 +15,13 @@ namespace CourageScores.Tests.Services.Season.Creation;
 [TestFixture]
 public class TemplatedSeasonProposalStrategyTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly SeasonDto _season = new SeasonDto();
-    private readonly TemplateDto _template = new TemplateDto();
+    private readonly CancellationToken _token = new();
+    private readonly SeasonDto _season = new();
+    private readonly TemplateDto _template = new();
     private Mock<IAddressAssignmentStrategy> _addressAssignmentStrategy = null!;
     private Mock<IFixtureDateAssignmentStrategy> _dateAssignmentStrategy = null!;
     private Mock<IHealthCheckService> _healthCheckService = null!;
-    private Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions,SeasonHealthDto>> _adapter = null!;
+    private Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>> _adapter = null!;
     private TemplatedSeasonProposalStrategy _strategy = null!;
     private TemplateMatchContext _matchContext = null!;
 
@@ -56,7 +56,10 @@ public class TemplatedSeasonProposalStrategyTests
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Season, Is.SameAs(_season));
         Assert.That(result.Result!.Template, Is.SameAs(_template));
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Could not assign all teams to placeholders in the template" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Could not assign all teams to placeholders in the template",
+        }));
     }
 
     [Test]
@@ -75,7 +78,10 @@ public class TemplatedSeasonProposalStrategyTests
         Assert.That(result.Result, Is.Not.Null);
         Assert.That(result.Result!.Season, Is.SameAs(_season));
         Assert.That(result.Result!.Template, Is.SameAs(_template));
-        Assert.That(result.Warnings, Is.EquivalentTo(new[] { "Could not create all fixtures/dates from the template" }));
+        Assert.That(result.Warnings, Is.EquivalentTo(new[]
+        {
+            "Could not create all fixtures/dates from the template",
+        }));
     }
 
     [Test]

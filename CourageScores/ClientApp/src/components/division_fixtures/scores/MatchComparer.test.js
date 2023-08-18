@@ -12,13 +12,13 @@ describe('MatchComparer', () => {
         });
 
         it('when x is null and y is not null', () => {
-            const result = matchEquals(null, { });
+            const result = matchEquals(null, {});
 
             expect(result).toEqual(false);
         });
 
         it('when x is not null and y is null', () => {
-            const result = matchEquals({ }, null);
+            const result = matchEquals({}, null);
 
             expect(result).toEqual(false);
         });
@@ -68,72 +68,72 @@ describe('MatchComparer', () => {
         });
 
         it('when homePlayers are different', () => {
-            const homePlayer = { id: createTemporaryId() };
-            const awayPlayer = { id: createTemporaryId() };
+            const homePlayer = {id: createTemporaryId()};
+            const awayPlayer = {id: createTemporaryId()};
             const result = matchEquals({
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer],
             }, {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ { id: createTemporaryId() } ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [{id: createTemporaryId()}],
+                awayPlayers: [awayPlayer],
             });
 
             expect(result).toEqual(false);
         });
 
         it('when homePlayers have different numbers', () => {
-            const homePlayer = { id: createTemporaryId() };
-            const awayPlayer = { id: createTemporaryId() };
+            const homePlayer = {id: createTemporaryId()};
+            const awayPlayer = {id: createTemporaryId()};
             const result = matchEquals({
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer],
             }, {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer, { id: createTemporaryId() } ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer, {id: createTemporaryId()}],
+                awayPlayers: [awayPlayer],
             });
 
             expect(result).toEqual(false);
         });
 
         it('when awayPlayers are different', () => {
-            const homePlayer = { id: createTemporaryId() };
-            const awayPlayer = { id: createTemporaryId() };
+            const homePlayer = {id: createTemporaryId()};
+            const awayPlayer = {id: createTemporaryId()};
             const result = matchEquals({
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer],
             }, {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ { id: createTemporaryId() } ],
+                homePlayers: [homePlayer],
+                awayPlayers: [{id: createTemporaryId()}],
             });
 
             expect(result).toEqual(false);
         });
 
         it('when awayPlayers have different numbers', () => {
-            const homePlayer = { id: createTemporaryId() };
-            const awayPlayer = { id: createTemporaryId() };
+            const homePlayer = {id: createTemporaryId()};
+            const awayPlayer = {id: createTemporaryId()};
             const result = matchEquals({
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer],
             }, {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ homePlayer ],
-                awayPlayers: [ awayPlayer, { id: createTemporaryId() } ],
+                homePlayers: [homePlayer],
+                awayPlayers: [awayPlayer, {id: createTemporaryId()}],
             });
 
             expect(result).toEqual(false);
@@ -145,13 +145,13 @@ describe('MatchComparer', () => {
             const result = matchEquals({
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ { id: homePlayerId } ],
-                awayPlayers: [ { id: awayPlayerId } ],
+                homePlayers: [{id: homePlayerId}],
+                awayPlayers: [{id: awayPlayerId}],
             }, {
                 homeScore: 1,
                 awayScore: 2,
-                homePlayers: [ { id: homePlayerId } ],
-                awayPlayers: [ { id: awayPlayerId } ],
+                homePlayers: [{id: homePlayerId}],
+                awayPlayers: [{id: awayPlayerId}],
             });
 
             expect(result).toEqual(true);

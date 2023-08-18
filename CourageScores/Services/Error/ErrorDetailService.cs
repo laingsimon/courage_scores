@@ -10,10 +10,10 @@ namespace CourageScores.Services.Error;
 
 public class ErrorDetailService : IErrorDetailService
 {
-    private readonly IGenericDataService<ErrorDetail, ErrorDetailDto> _genericDataService;
-    private readonly IUserService _userService;
     private readonly ICommandFactory _commandFactory;
     private readonly IErrorDetailAdapter _errorDetailAdapter;
+    private readonly IGenericDataService<ErrorDetail, ErrorDetailDto> _genericDataService;
+    private readonly IUserService _userService;
 
     public ErrorDetailService(
         IGenericDataService<ErrorDetail, ErrorDetailDto> genericDataService,
@@ -29,7 +29,7 @@ public class ErrorDetailService : IErrorDetailService
 
     public async Task<ErrorDetailDto?> Get(Guid id, CancellationToken token)
     {
-        if (!(await CanViewErrors(token)))
+        if (!await CanViewErrors(token))
         {
             return null;
         }
@@ -39,7 +39,7 @@ public class ErrorDetailService : IErrorDetailService
 
     public async IAsyncEnumerable<ErrorDetailDto> GetSince(DateTime since, [EnumeratorCancellation] CancellationToken token)
     {
-        if (!(await CanViewErrors(token)))
+        if (!await CanViewErrors(token))
         {
             yield break;
         }

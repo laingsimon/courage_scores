@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails} from "./EditTeamDetails";
@@ -16,17 +16,19 @@ describe('EditTeamDetails', () => {
 
     const teamApi = {
         update: async (team, lastUpdated) => {
-            updatedTeam = { team, lastUpdated };
-            return apiResponse || { success: true, result: team };
+            updatedTeam = {team, lastUpdated};
+            return apiResponse || {success: true, result: team};
         }
     };
 
     async function onSaved() {
         saved = true;
     }
+
     async function onChange(name, value) {
-        change = { name, value };
+        change = {name, value};
     }
+
     async function onCancel() {
         canceled = true;
     }
@@ -42,15 +44,15 @@ describe('EditTeamDetails', () => {
         change = null;
         canceled = false;
         context = await renderApp(
-            { teamApi },
-            { name: 'Courage Scores' },
+            {teamApi},
+            {name: 'Courage Scores'},
             {
                 divisions,
                 onError: (err) => {
                     reportedError = err;
                 },
             },
-            (<EditTeamDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel} />));
+            (<EditTeamDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel}/>));
     }
 
     describe('renders', () => {
@@ -68,7 +70,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
 
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
             expect(nameGroup).toBeTruthy();
@@ -92,7 +94,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
 
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
             expect(addressGroup).toBeTruthy();
@@ -116,7 +118,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             expect(divisionGroup).toBeTruthy();
@@ -144,7 +146,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             expect(divisionGroup).toBeTruthy();
@@ -170,7 +172,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
             const nameGroup = context.container.querySelector('div.input-group:nth-child(2)');
 
             await doChange(nameGroup, 'input', 'NEW', context.user);
@@ -194,7 +196,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division ]);
+            }, [division]);
             const addressGroup = context.container.querySelector('div.input-group:nth-child(3)');
 
             await doChange(addressGroup, 'input', 'NEW', context.user);
@@ -222,7 +224,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
 
             await doSelectOption(divisionGroup.querySelector('.dropdown-menu'), 'OTHER DIVISION');
@@ -250,7 +252,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             const divisionGroup = context.container.querySelector('div.input-group:nth-child(4)');
             const dropdown = divisionGroup.querySelector('button.dropdown-toggle');
@@ -280,9 +282,11 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division ]);
+            }, [division]);
             let alert;
-            window.alert = (message) => { alert = message };
+            window.alert = (message) => {
+                alert = message
+            };
 
             await doClick(findButton(context.container, 'Save team'));
 
@@ -317,7 +321,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             await doClick(findButton(context.container, 'Save team'));
 
@@ -356,7 +360,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division, otherDivision ]);
+            }, [division, otherDivision]);
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -395,8 +399,8 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division, otherDivision ]);
-            apiResponse = { success: false };
+            }, [division, otherDivision]);
+            apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -426,7 +430,7 @@ describe('EditTeamDetails', () => {
                 },
                 divisionId: team.divisionId,
                 seasonId: team.seasonId,
-            }, [ division ]);
+            }, [division]);
 
             await doClick(findButton(context.container, 'Cancel'));
 

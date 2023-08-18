@@ -22,20 +22,20 @@ public class ActionResultDto<TDto>
     /// <summary>
     /// Any debug messages from the action
     /// </summary>
-    public List<string> Trace { get; set; } = new List<string>();
+    public List<string> Trace { get; set; } = new();
 
     /// <summary>
     /// Any messages from the action
     /// </summary>
-    public List<string> Messages { get; set; } = new List<string>();
+    public List<string> Messages { get; set; } = new();
 
     /// <summary>
     /// Any errors from the action
     /// </summary>
-    public List<string> Errors { get; set; } = new List<string>();
+    public List<string> Errors { get; set; } = new();
 
     /// <summary>
     /// Any warnings from the action
     /// </summary>
-    public List<string> Warnings { get; set; } = new List<string>();
+    public List<string> Warnings { get; set; } = new();
 }

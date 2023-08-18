@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton} from "../../helpers/tests";
+import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {ShareButton} from "./ShareButton";
 
@@ -19,8 +19,8 @@ describe('ShareButton', () => {
         reportedError = null;
         shareData = null;
         context = await renderApp(
-            { },
-            { name },
+            {},
+            {name},
             {
                 onError: (err) => {
                     reportedError = {
@@ -106,8 +106,7 @@ describe('ShareButton', () => {
         });
 
         it('shares page with default title and text', async () => {
-            await renderComponent({
-            }, 'Courage Scores', '/test/#HASH');
+            await renderComponent({}, 'Courage Scores', '/test/#HASH');
 
             await doClick(findButton(context.container, '🔗'));
 

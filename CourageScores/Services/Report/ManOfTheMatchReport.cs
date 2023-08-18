@@ -5,8 +5,8 @@ namespace CourageScores.Services.Report;
 
 public class ManOfTheMatchReport : IReport
 {
-    private readonly int _topCount;
     private readonly Dictionary<Guid, int> _manOfTheMatchRecord = new();
+    private readonly int _topCount;
 
     public ManOfTheMatchReport(int topCount = 3)
     {

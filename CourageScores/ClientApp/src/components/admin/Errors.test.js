@@ -5,13 +5,13 @@ import {AdminContainer} from "./AdminContainer";
 import React from "react";
 import {Errors} from "./Errors";
 import {all} from "../../helpers/collections";
-import {doClick, doChange, renderApp, cleanUp, findButton} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
 
 describe('Errors', () => {
     let context;
     let reportedError;
     let errorToThrow = null;
-    const recentMap = { };
+    const recentMap = {};
     const errorApi = {
         getRecent: (since) => {
             if (errorToThrow) {
@@ -29,10 +29,10 @@ describe('Errors', () => {
         reportedError = null;
         errorToThrow = null;
         context = await renderApp(
-            { errorApi },
-            { name: 'Courage Scores' },
+            {errorApi},
+            {name: 'Courage Scores'},
             {
-                account: { },
+                account: {},
                 appLoading: false,
                 onError: (err) => {
                     reportedError = {
@@ -42,7 +42,7 @@ describe('Errors', () => {
                 }
             },
             (<AdminContainer>
-                <Errors />
+                <Errors/>
             </AdminContainer>));
     }
 
@@ -58,13 +58,13 @@ describe('Errors', () => {
 
     async function clickErrorItem(index) {
         const listItems = context.container.querySelectorAll(`.content-background .list-group li.list-group-item`);
-        const clickEvent = new MouseEvent('click', { bubbles: true });
+        const clickEvent = new MouseEvent('click', {bubbles: true});
         await act(async () => {
             listItems[index].dispatchEvent(clickEvent);
         });
     }
 
-    function assertDisplayedErrors({ time, url, type, stack }) {
+    function assertDisplayedErrors({time, url, type, stack}) {
         assertTitle(time);
         assertUrl(url);
         assertType(type);
@@ -124,7 +124,7 @@ describe('Errors', () => {
         return results;
     }
 
-    function assertListItem(li, { time, message, source }) {
+    function assertListItem(li, {time, message, source}) {
         expect(li.innerHTML).toContain(message);
         expect(li.innerHTML).toContain(new Date(time).toLocaleTimeString());
         expect(li.innerHTML).toContain(new Date(time).toLocaleDateString());
@@ -141,7 +141,7 @@ describe('Errors', () => {
     it('shows empty results when none found', async () => {
         await renderComponent();
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ ]);
+        await clickRefresh('2001-02-03', []);
 
         assertResults(0);
         expect(reportedError).toBeNull();
@@ -151,7 +151,7 @@ describe('Errors', () => {
         await renderComponent();
         errorToThrow = new Error('Some error');
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ ]);
+        await clickRefresh('2001-02-03', []);
 
         assertResults(0);
         expect(reportedError).not.toBeNull();
@@ -172,7 +172,7 @@ describe('Errors', () => {
         }
         await renderComponent();
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ apiError, uiError ]);
+        await clickRefresh('2001-02-03', [apiError, uiError]);
 
         const results = assertResults(2);
         const apiItem = results.filter(li => li.innerHTML.indexOf('message1') !== -1)[0];
@@ -197,7 +197,7 @@ describe('Errors', () => {
         }
         await renderComponent();
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ data ]);
+        await clickRefresh('2001-02-03', [data]);
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
@@ -213,7 +213,7 @@ describe('Errors', () => {
         }
         await renderComponent();
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ data ]);
+        await clickRefresh('2001-02-03', [data]);
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
@@ -235,7 +235,7 @@ describe('Errors', () => {
         }
         await renderComponent();
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ data ]);
+        await clickRefresh('2001-02-03', [data]);
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);
@@ -251,7 +251,7 @@ describe('Errors', () => {
         }
         await renderComponent();
         await setDate('2001-02-03');
-        await clickRefresh('2001-02-03', [ data ]);
+        await clickRefresh('2001-02-03', [data]);
         await clickErrorItem(0);
 
         assertDisplayedErrors(data);

@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, doChange, findButton} from "../../helpers/tests";
+import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
@@ -28,8 +28,8 @@ describe('DivisionTeams', () => {
         reportedError = null;
         divisionReloaded = false;
         context = await renderApp(
-            { teamApi },
-            { name: 'Courage Scores' },
+            {teamApi},
+            {name: 'Courage Scores'},
             {
                 account: account,
                 onError: (err) => {
@@ -41,7 +41,7 @@ describe('DivisionTeams', () => {
                 divisions: divisions || [],
             },
             (<DivisionDataContainer {...divisionData}>
-                <DivisionTeams />
+                <DivisionTeams/>
             </DivisionDataContainer>));
     }
 
@@ -55,7 +55,7 @@ describe('DivisionTeams', () => {
         };
         return {
             id: divisionId,
-            teams: [ {
+            teams: [{
                 id: createTemporaryId(),
                 name: 'A team 2',
                 played: 1,
@@ -75,8 +75,8 @@ describe('DivisionTeams', () => {
                 fixturesDrawn: 5,
                 difference: 6,
                 rank: 1
-            } ],
-            players: [ ],
+            }],
+            players: [],
             season: season
         };
     }
@@ -99,13 +99,13 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision });
+                {...divisionData, onReloadDivision: onReloadDivision});
 
             expect(reportedError).toBeNull();
             const teamsRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(teamsRows.length).toEqual(2);
-            assertTeam(teamsRows[0], [ 'A team 1', '1', '2', '3', '4', '5', '6' ]);
-            assertTeam(teamsRows[1], [ 'A team 2', '1', '2', '3', '4', '5', '6' ]);
+            assertTeam(teamsRows[0], ['A team 1', '1', '2', '3', '4', '5', '6']);
+            assertTeam(teamsRows[1], ['A team 2', '1', '2', '3', '4', '5', '6']);
         });
 
         it('does not render add team button', async () => {
@@ -113,7 +113,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision });
+                {...divisionData, onReloadDivision: onReloadDivision});
 
             expect(reportedError).toBeNull();
             const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
@@ -123,7 +123,7 @@ describe('DivisionTeams', () => {
 
     describe('when logged in', () => {
         beforeEach(() => {
-            account = { access: { manageTeams: true } };
+            account = {access: {manageTeams: true}};
         });
 
         it('renders teams', async () => {
@@ -131,13 +131,13 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision });
+                {...divisionData, onReloadDivision: onReloadDivision});
 
             expect(reportedError).toBeNull();
             const teamsRows = context.container.querySelectorAll('.content-background table.table tbody tr');
             expect(teamsRows.length).toEqual(2);
-            assertTeam(teamsRows[0], [ '✏️➕A team 1', '1', '2', '3', '4', '5', '6' ]);
-            assertTeam(teamsRows[1], [ '✏️➕A team 2', '1', '2', '3', '4', '5', '6' ]);
+            assertTeam(teamsRows[0], ['✏️➕A team 1', '1', '2', '3', '4', '5', '6']);
+            assertTeam(teamsRows[1], ['✏️➕A team 2', '1', '2', '3', '4', '5', '6']);
         });
 
         it('renders add team button', async () => {
@@ -145,7 +145,7 @@ describe('DivisionTeams', () => {
             const divisionData = createDivisionData(divisionId);
 
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision });
+                {...divisionData, onReloadDivision: onReloadDivision});
 
             expect(reportedError).toBeNull();
             const addTeamButton = context.container.querySelector('.content-background > div > div .btn-primary');
@@ -156,7 +156,7 @@ describe('DivisionTeams', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision });
+                {...divisionData, onReloadDivision: onReloadDivision});
 
             await doClick(findButton(context.container, 'Add team'));
 
@@ -170,7 +170,7 @@ describe('DivisionTeams', () => {
             const divisionId = createTemporaryId();
             const divisionData = createDivisionData(divisionId);
             await renderComponent(
-                { ...divisionData, onReloadDivision: onReloadDivision });
+                {...divisionData, onReloadDivision: onReloadDivision});
             await doClick(findButton(context.container, 'Add team'));
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog.textContent).toContain('Create a new team...');

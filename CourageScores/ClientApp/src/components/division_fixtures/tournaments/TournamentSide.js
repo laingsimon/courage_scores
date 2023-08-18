@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {EditSide} from "./EditSide";
 
-export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
-    const [ editSide, setEditSide ] = useState(null);
+export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
+    const [editSide, setEditSide] = useState(null);
 
-    function renderPlayers () {
+    function renderPlayers() {
         if (!side.players) {
             return null;
         }
@@ -35,10 +35,11 @@ export function TournamentSide({ side, onChange, winner, readOnly, onRemove }) {
                 }
                 setEditSide(null);
             }}
-            onDelete={onRemove} />);
+            onDelete={onRemove}/>);
     }
 
-    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`} style={{ flexBasis: '100px', flexGrow: 1, flexShrink: 1 }}>
+    return (<div className={`position-relative p-1 m-1 ${winner ? 'bg-winner' : 'bg-light'}`}
+                 style={{flexBasis: '100px', flexGrow: 1, flexShrink: 1}}>
         {renderSideName()}
         {renderPlayers()}
         {readOnly ? null : (<div className="position-absolute-bottom-right">

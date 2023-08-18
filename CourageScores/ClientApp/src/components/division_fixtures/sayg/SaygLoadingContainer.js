@@ -1,36 +1,45 @@
-import React, {useEffect, useState} from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 import {useDependencies} from "../../../IocContainer";
 import {useApp} from "../../../AppContainer";
 import {Loading} from "../../common/Loading";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
-
-import { createContext, useContext } from "react";
 import {isEmpty} from "../../../helpers/collections";
+
 const SaygContext = createContext({});
 
 export function useSayg() {
     return useContext(SaygContext);
 }
 
-export function SaygLoadingContainer({ children, id, defaultData, autoSave, on180, onHiCheck, onScoreChange, onSaved, onLoadError }) {
-    const [ sayg, setSayg ] = useState(defaultData);
-    const [ saveError, setSaveError ] = useState(null);
-    const [ loading, setLoading ] = useState(false);
-    const { saygApi } = useDependencies();
-    const { onError } = useApp();
+export function SaygLoadingContainer({
+                                         children,
+                                         id,
+                                         defaultData,
+                                         autoSave,
+                                         on180,
+                                         onHiCheck,
+                                         onScoreChange,
+                                         onSaved,
+                                         onLoadError
+                                     }) {
+    const [sayg, setSayg] = useState(defaultData);
+    const [saveError, setSaveError] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const {saygApi} = useDependencies();
+    const {onError} = useApp();
 
     useEffect(() => {
-        if (loading) {
-            return;
-        }
+            if (loading) {
+                return;
+            }
 
-        setLoading(true);
-        // noinspection JSIgnoredPromiseFromCall
-        loadData(id);
-    },
-    // eslint-disable-next-line
-    []);
+            setLoading(true);
+            // noinspection JSIgnoredPromiseFromCall
+            loadData(id);
+        },
+        // eslint-disable-next-line
+        []);
 
     async function loadData() {
         try {
@@ -104,7 +113,7 @@ export function SaygLoadingContainer({ children, id, defaultData, autoSave, on18
     }
 
     if (loading) {
-        return (<Loading />);
+        return (<Loading/>);
     }
 
     const saygProps = {

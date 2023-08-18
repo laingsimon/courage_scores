@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {handleChange} from "../../helpers/events";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
-export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seasonId, team }) {
-    const { divisions, onError } = useApp();
-    const { teamApi } = useDependencies();
-    const [ saving, setSaving ] = useState(false);
-    const [ saveError, setSaveError ] = useState(null);
-    const divisionOptions = divisions.map(division => { return { value: division.id, text: division.name }; });
+export function EditTeamDetails({divisionId, onSaved, onChange, onCancel, seasonId, team}) {
+    const {divisions, onError} = useApp();
+    const {teamApi} = useDependencies();
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState(null);
+    const divisionOptions = divisions.map(division => {
+        return {value: division.id, text: division.name};
+    });
 
     async function saveChanges() {
         if (!team.name) {
@@ -46,7 +49,7 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
             } else {
                 setSaveError(response);
             }
-        } catch(e) {
+        } catch (e) {
             /* istanbul ignore next */
             onError(e);
         } finally {
@@ -78,17 +81,21 @@ export function EditTeamDetails({ divisionId, onSaved, onChange, onCancel, seaso
                 disabled={saving || !team.id || !onChange}
                 options={divisionOptions}
                 value={team.newDivisionId}
-                onChange={(newDivisionId) => onChange ? onChange('newDivisionId', newDivisionId) : null} />
+                onChange={(newDivisionId) => onChange ? onChange('newDivisionId', newDivisionId) : null}/>
         </div>
         <div className="modal-footer px-0 pb-0">
             <div className="left-aligned">
                 <button className="btn btn-secondary" onClick={onCancel}>Cancel</button>
             </div>
             <button className="btn btn-primary" onClick={saveChanges}>
-                {saving ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {saving
+                    ? (<LoadingSpinnerSmall/>)
+                    : null}
                 {team.id ? 'Save team' : 'Add team'}
             </button>
         </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details" />) : null}
+        {saveError
+            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not save team details"/>)
+            : null}
     </div>)
 }

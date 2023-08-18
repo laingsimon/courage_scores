@@ -2,10 +2,20 @@ import {repeat} from "../../../../helpers/projection";
 import {sum} from "../../../../helpers/collections";
 import {round2dp} from "../../../../helpers/rendering";
 import {useApp} from "../../../../AppContainer";
-import {countLegThrowsBetween, legTons, isLegWinner} from "../../../../helpers/superleague";
+import {countLegThrowsBetween, isLegWinner, legTons} from "../../../../helpers/superleague";
 
-export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, playerOverallAverage, noOfLegs, showWinner, teamAverage }) {
-    const { onError } = useApp();
+export function MatchLogRow({
+                                leg,
+                                legNo,
+                                accumulatorName,
+                                player,
+                                noOfThrows,
+                                playerOverallAverage,
+                                noOfLegs,
+                                showWinner,
+                                teamAverage
+                            }) {
+    const {onError} = useApp();
     const accumulator = leg[accumulatorName];
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
     const winner = isLegWinner(leg, accumulatorName);
@@ -16,7 +26,9 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
 
     try {
         return (<tr className={winner && showWinner ? 'bg-winner' : ''}>
-            {legNo === 1 ? (<td rowSpan={noOfLegs} className="align-middle bg-white page-break-avoid">{player}</td>) : null}
+            {legNo === 1
+                ? (<td rowSpan={noOfLegs} className="align-middle bg-white page-break-avoid">{player}</td>)
+                : null}
             <td>{legNo}</td>
             <td>{sum(accumulator.throws, thr => thr.noOfDarts)}</td>
             <td>{winner && lastThrow ? lastThrow.score : null}</td>
@@ -27,16 +39,22 @@ export function MatchLogRow({ leg, legNo, accumulatorName, player, noOfThrows, p
             <td>{legTons(leg, accumulatorName)}</td>
             {legNo > 1
                 ? null
-                : (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">{round2dp(playerOverallAverage)}</td>)}
+                : (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">
+                    {round2dp(playerOverallAverage)}
+                </td>)}
             {legNo === 1
-                ? (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">{round2dp(teamAverage)}</td>)
+                ? (<td rowSpan={noOfLegs} className="align-middle bg-white fw-bold text-danger">
+                    {round2dp(teamAverage)}
+                </td>)
                 : null}
             <td>{lastThrow ? lastThrow.noOfDarts : null}</td>
             {repeat(noOfThrows + 1, i => {
                 const playerThrow = accumulator.throws[i] || {};
                 const score = playerThrow.bust ? 0 : playerThrow.score;
 
-                return (<td key={i} className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')}>{score}</td>)
+                return (<td key={i} className={(score >= 100 ? ' text-danger' : '') + (score >= 180 ? ' fw-bold' : '')}>
+                    {score}
+                </td>)
             })}
         </tr>);
     } catch (e) {

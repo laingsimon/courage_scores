@@ -36,7 +36,7 @@ export class ParentHeight {
 
         if (!this.lastHeight || this.lastHeight !== height) {
             this.lastHeight = height;
-            this.getParent().postMessage(msg,'*');
+            this.getParent().postMessage(msg, '*');
         }
     }
 }

@@ -16,7 +16,7 @@ describe('About', () => {
     async function renderComponent(build, branding) {
         reportedError = null;
         context = await renderApp(
-            { },
+            {},
             branding,
             {
                 onError: (err) => {
@@ -27,7 +27,7 @@ describe('About', () => {
                 },
                 build
             },
-            (<About />));
+            (<About/>));
     }
 
     function getRow(title) {
@@ -43,15 +43,15 @@ describe('About', () => {
 
     describe('with build information', () => {
         it('shows branch', async () => {
-           await renderComponent({
-               branch: 'BRANCH',
-               version: '0123456789abcdef',
-               date: '2023-04-05T06:07:08',
-           }, {});
+            await renderComponent({
+                branch: 'BRANCH',
+                version: '0123456789abcdef',
+                date: '2023-04-05T06:07:08',
+            }, {});
 
-           const branchRow = getRow('Branch');
-           const cell = branchRow.querySelector('td');
-           expect(cell.textContent).toEqual('BRANCH');
+            const branchRow = getRow('Branch');
+            const cell = branchRow.querySelector('td');
+            expect(cell.textContent).toEqual('BRANCH');
         });
 
         it('shows version', async () => {
@@ -113,7 +113,7 @@ describe('About', () => {
             await renderComponent({}, {
                 name: 'COURAGE SCORES',
                 website: 'https://couragescores',
-                custodians: [ 'Simon', 'Laing' ],
+                custodians: ['Simon', 'Laing'],
             });
 
             const custodians = Array.from(context.container.querySelectorAll('p')).filter(p => p.textContent.indexOf('Custodians') !== -1)[0];

@@ -9,8 +9,8 @@ namespace CourageScores;
 
 public class ExceptionHandler
 {
-    private readonly bool _includeErrorDetails;
     private readonly string _debugToken;
+    private readonly bool _includeErrorDetails;
 
     public ExceptionHandler(bool includeErrorDetails, string debugToken)
     {
@@ -44,7 +44,7 @@ public class ExceptionHandler
             content,
             new JsonSerializerOptions
             {
-                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             });
     }
 
@@ -97,7 +97,10 @@ public class ExceptionHandler
             Message = includeMessage ? exception.Message : null,
             StackTrace = includeStack
                 ? exception.StackTrace?
-                    .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Split(new[]
+                    {
+                        '\r', '\n',
+                    }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                     .TakeWhile(stackFrame => !stackFrame.Contains("at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker"))
                     .ToArray()
                 : null,

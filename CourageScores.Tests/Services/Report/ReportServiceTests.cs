@@ -18,7 +18,7 @@ namespace CourageScores.Tests.Services.Report;
 [TestFixture]
 public class ReportServiceTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private Mock<IUserService> _userService = null!;
     private Mock<ISeasonService> _seasonService = null!;
     private Mock<IDivisionService> _divisionService = null!;
@@ -76,7 +76,7 @@ public class ReportServiceTests
             Away = new GameTeam(),
             Matches =
             {
-                new GameMatch()
+                new GameMatch(),
             },
         };
         _tournament1 = new TournamentGame();
@@ -103,7 +103,10 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(reports.Messages, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
     }
 
     [Test]
@@ -119,7 +122,10 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[] { "Not permitted" }));
+        Assert.That(reports.Messages, Is.EquivalentTo(new[]
+        {
+            "Not permitted",
+        }));
     }
 
     [Test]
@@ -134,7 +140,10 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[] { "Season not found" }));
+        Assert.That(reports.Messages, Is.EquivalentTo(new[]
+        {
+            "Season not found",
+        }));
     }
 
     [Test]
@@ -149,7 +158,10 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Empty);
-        Assert.That(reports.Messages, Is.EquivalentTo(new[] { "Division not found" }));
+        Assert.That(reports.Messages, Is.EquivalentTo(new[]
+        {
+            "Division not found",
+        }));
     }
 
     [Test]

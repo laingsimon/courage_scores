@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick, findButton, doSelectOption} from "../../helpers/tests";
+import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../helpers/tests";
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails} from "./EditPlayerDetails";
@@ -16,21 +16,23 @@ describe('EditPlayerDetails', () => {
     let apiResponse;
     const playerApi = {
         create: async (divisionId, seasonId, teamId, playerDetails) => {
-            createdPlayer = { divisionId, seasonId, teamId, playerDetails };
-            return apiResponse || { success: true };
+            createdPlayer = {divisionId, seasonId, teamId, playerDetails};
+            return apiResponse || {success: true};
         },
         update: async (seasonId, teamId, playerId, playerDetails, lastUpdated) => {
-            updatedPlayer = { seasonId, teamId, playerId, playerDetails, lastUpdated };
-            return apiResponse || { success: true };
+            updatedPlayer = {seasonId, teamId, playerId, playerDetails, lastUpdated};
+            return apiResponse || {success: true};
         }
     }
 
     async function onSaved() {
         saved = true;
     }
+
     async function onChange(name, value) {
-        change = { name, value };
+        change = {name, value};
     }
+
     async function onCancel() {
         canceled = true;
     }
@@ -51,7 +53,7 @@ describe('EditPlayerDetails', () => {
             {
                 playerApi
             },
-            { name: 'Courage Scores' },
+            {name: 'Courage Scores'},
             {
                 onError: (err) => {
                     reportedError = {
@@ -62,7 +64,7 @@ describe('EditPlayerDetails', () => {
                 teams: teams || [],
                 divisions: divisions || []
             },
-            (<EditPlayerDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel} />));
+            (<EditPlayerDetails {...props} onSaved={onSaved} onChange={onChange} onCancel={onCancel}/>));
     }
 
     function findInput(name) {
@@ -94,10 +96,10 @@ describe('EditPlayerDetails', () => {
         const team = {
             id: createTemporaryId(),
             name: 'TEAM',
-            seasons: [ {
+            seasons: [{
                 seasonId: season.id,
                 divisionId: division.id,
-            } ],
+            }],
         };
 
         it('existing player details', async () => {
@@ -114,7 +116,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team ], [ division ]);
+            }, [team], [division]);
 
             expect(reportedError).toBeNull();
             expect(findInput('name').value).toEqual('NAME');
@@ -140,7 +142,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team ], [ division ]);
+            }, [team], [division]);
 
             expect(reportedError).toBeNull();
             expect(findInput('name').value).toEqual('NAME');
@@ -168,24 +170,29 @@ describe('EditPlayerDetails', () => {
         const team = {
             id: createTemporaryId(),
             name: 'TEAM',
-            seasons: [ {
+            seasons: [{
                 seasonId: season.id,
                 divisionId: division.id,
-            } ],
+            }],
         };
         const otherTeam = {
             id: createTemporaryId(),
             name: 'OTHER TEAM',
-            seasons: [ {
+            seasons: [{
                 seasonId: season.id,
                 divisionId: division.id,
-            } ],
+            }],
         };
         let confirm;
         let alert;
         let response = false;
-        window.confirm = (message) => { confirm = message; return response };
-        window.alert = (message) => { alert = message };
+        window.confirm = (message) => {
+            confirm = message;
+            return response
+        };
+        window.alert = (message) => {
+            alert = message
+        };
 
         beforeEach(() => {
             confirm = null;
@@ -206,7 +213,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
@@ -231,7 +238,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active')).toBeTruthy();
 
@@ -256,7 +263,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doClick(findInput('captain'));
@@ -280,7 +287,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doSelectOption(findNewDivisionDropdown().querySelector('.dropdown-menu'), 'OTHER DIVISION');
@@ -304,7 +311,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, 'Add player'));
@@ -326,7 +333,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, 'Add player'));
@@ -348,7 +355,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: null,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, 'Add player'));
@@ -377,7 +384,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, 'Save player'));
@@ -411,7 +418,7 @@ describe('EditPlayerDetails', () => {
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
 
             await doClick(findButton(context.container, 'Save player'));
@@ -443,9 +450,9 @@ describe('EditPlayerDetails', () => {
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
-            apiResponse = { success: false };
+            apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Save player'));
 
@@ -466,9 +473,9 @@ describe('EditPlayerDetails', () => {
                 newTeamId: otherTeam.id,
                 divisionId: division.id,
                 newDivisionId: null,
-            }, [ team, otherTeam ], [ division, otherDivision ]);
+            }, [team, otherTeam], [division, otherDivision]);
             expect(reportedError).toBeNull();
-            apiResponse = { success: false };
+            apiResponse = {success: false};
 
             await doClick(findButton(context.container, 'Cancel'));
 

@@ -119,7 +119,11 @@ public class DivisionDataGameVisitor : IGameVisitor
     {
         if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            score = new DivisionData.PlayerScore { Player = player, Team = FindTeamForPlayer(player) };
+            score = new DivisionData.PlayerScore
+            {
+                Player = player,
+                Team = FindTeamForPlayer(player),
+            };
             _divisionData.Players.Add(player.Id, score);
         }
 
@@ -144,7 +148,11 @@ public class DivisionDataGameVisitor : IGameVisitor
 
         if (!_divisionData.Players.TryGetValue(player.Id, out var score))
         {
-            score = new DivisionData.PlayerScore { Player = player, Team = FindTeamForPlayer(player) };
+            score = new DivisionData.PlayerScore
+            {
+                Player = player,
+                Team = FindTeamForPlayer(player),
+            };
             _divisionData.Players.Add(player.Id, score);
         }
 
@@ -288,9 +296,9 @@ public class DivisionDataGameVisitor : IGameVisitor
 
     private class PlayersToFixturesLookupVisitor : IGameVisitor
     {
-        private readonly Guid _id;
         private readonly DateTime _date;
         private readonly DivisionData _divisionData;
+        private readonly Guid _id;
 
         public PlayersToFixturesLookupVisitor(Guid id, DateTime date, DivisionData divisionData)
         {

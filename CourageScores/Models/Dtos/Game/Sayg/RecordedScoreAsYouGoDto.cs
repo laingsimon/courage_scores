@@ -6,11 +6,6 @@ namespace CourageScores.Models.Dtos.Game.Sayg;
 public class RecordedScoreAsYouGoDto : AuditedDto, IScoreAsYouGoDto
 {
     /// <summary>
-    /// The legs for the match
-    /// </summary>
-    public Dictionary<int, LegDto> Legs { get; set; } = new();
-
-    /// <summary>
     /// Your name
     /// </summary>
     public string YourName { get; set; } = null!;
@@ -41,4 +36,9 @@ public class RecordedScoreAsYouGoDto : AuditedDto, IScoreAsYouGoDto
     public int? AwayScore { get; set; }
 
     public Guid? TournamentMatchId { get; set; }
+
+    /// <summary>
+    ///     The legs for the match
+    /// </summary>
+    public Dictionary<int, LegDto> Legs { get; set; } = new();
 }

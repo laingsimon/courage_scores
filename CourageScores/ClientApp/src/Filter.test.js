@@ -1,6 +1,6 @@
 ﻿// noinspection JSUnresolvedFunction
 
-import {Filter, AndFilter, OrFilter, NotFilter, NullFilter} from "./Filter";
+import {AndFilter, Filter, NotFilter, NullFilter, OrFilter} from "./Filter";
 
 describe('Filter', () => {
     describe('Filter', () => {
@@ -33,7 +33,7 @@ describe('Filter', () => {
         it('returns true', () => {
             const filter1 = new Filter(x => x < 10);
             const filter2 = new Filter(x => x < 5);
-            const andFilter = new AndFilter([ filter1, filter2 ]);
+            const andFilter = new AndFilter([filter1, filter2]);
 
             const result = andFilter.apply(1);
 
@@ -43,7 +43,7 @@ describe('Filter', () => {
         it('returns false', () => {
             const filter1 = new Filter(x => x < 10);
             const filter2 = new Filter(x => x < 5);
-            const andFilter = new AndFilter([ filter1, filter2 ]);
+            const andFilter = new AndFilter([filter1, filter2]);
 
             const result = andFilter.apply(5);
 
@@ -67,7 +67,7 @@ describe('Filter', () => {
         it('returns true', () => {
             const filter1 = new Filter(x => x < 10);
             const filter2 = new Filter(x => x < 5);
-            const orFilter = new OrFilter([ filter1, filter2 ]);
+            const orFilter = new OrFilter([filter1, filter2]);
 
             const result = orFilter.apply(9);
 
@@ -77,7 +77,7 @@ describe('Filter', () => {
         it('returns false', () => {
             const filter1 = new Filter(x => x < 10);
             const filter2 = new Filter(x => x < 5);
-            const orFilter = new OrFilter([ filter1, filter2 ]);
+            const orFilter = new OrFilter([filter1, filter2]);
 
             const result = orFilter.apply(11);
 
@@ -121,7 +121,7 @@ describe('Filter', () => {
         it('returns true', () => {
             const filter = new NullFilter();
 
-            const result = filter.apply({ anything: true });
+            const result = filter.apply({anything: true});
 
             expect(result).toEqual(true);
         });

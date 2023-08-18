@@ -2,9 +2,9 @@ import React, {useState} from 'react';
 import {Dialog} from "./Dialog";
 import {useApp} from "../../AppContainer";
 
-export function ErrorDisplay({ errors, messages, warnings, onClose, title, Exception }) {
-    const [ errorReported, setErrorReported ] = useState(false);
-    const { reportClientSideException } = useApp();
+export function ErrorDisplay({errors, messages, warnings, onClose, title, Exception}) {
+    const [errorReported, setErrorReported] = useState(false);
+    const {reportClientSideException} = useApp();
 
     function renderValidationErrors(errors) {
         return (<ol className="text-danger">
@@ -23,7 +23,7 @@ export function ErrorDisplay({ errors, messages, warnings, onClose, title, Excep
             <h5>Server side error</h5>
             <p><strong>{type}</strong>: {message}</p>
             <pre>{stack ? stack.join('\n') : ''
-}</pre>
+            }</pre>
         </div>);
     }
 
@@ -45,11 +45,19 @@ export function ErrorDisplay({ errors, messages, warnings, onClose, title, Excep
 
     return (<Dialog onClose={onClose} title={title || 'There was an error'}>
         <div>
-             {Exception ? renderServerSideException(Exception) : null}
-             {errors && errors.length !== undefined ? errors.map((e, index) => (<p key={index + '_error'} className="text-danger">{e}</p>)) : null}
-             {errors && errors.length === undefined ? (renderValidationErrors(errors)): null}
-             {warnings ? warnings.map((w, index) => (<p key={index + '_warning'} className="text-warning">{w}</p>)) : null}
-             {messages ? messages.map((m, index) => (<p key={index + '_message'} className="text-primary">{m}</p>)) : null}
-       </div>
-       </Dialog>);
+            {Exception ? renderServerSideException(Exception) : null}
+            {errors && errors.length !== undefined
+                ? errors.map((e, index) => (<p key={index + '_error'} className="text-danger">{e}</p>))
+                : null}
+            {errors && errors.length === undefined
+                ? (renderValidationErrors(errors))
+                : null}
+            {warnings
+                ? warnings.map((w, index) => (<p key={index + '_warning'} className="text-warning">{w}</p>))
+                : null}
+            {messages
+                ? messages.map((m, index) => (<p key={index + '_message'} className="text-primary">{m}</p>))
+                : null}
+        </div>
+    </Dialog>);
 }

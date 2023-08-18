@@ -10,7 +10,10 @@ public class TeamPlaceholderDtoTests
     [Test]
     public void GivenAString_CanConvertToDto()
     {
-        var json = JsonSerializer.Serialize(new StringModel {Placeholder = "A"});
+        var json = JsonSerializer.Serialize(new StringModel
+        {
+            Placeholder = "A",
+        });
 
         var model = JsonSerializer.Deserialize<TestModel>(json);
 

@@ -7,8 +7,8 @@ namespace CourageScores.Tests.Models.Adapters;
 [TestFixture]
 public class DivisionAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
-    private readonly DivisionAdapter _adapter = new DivisionAdapter();
+    private readonly CancellationToken _token = new();
+    private readonly DivisionAdapter _adapter = new();
 
     [Test]
     public async Task Adapt_GivenModel_MapsPropertiesCorrectly()

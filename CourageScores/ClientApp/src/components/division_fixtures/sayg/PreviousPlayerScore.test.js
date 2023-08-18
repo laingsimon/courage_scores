@@ -1,6 +1,6 @@
 // noinspection JSUnresolvedFunction
 
-import {cleanUp, renderApp, doClick} from "../../../helpers/tests";
+import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
 
@@ -15,12 +15,12 @@ describe('PreviousPlayerScore', () => {
     async function renderComponent(props) {
         lastThrowUndone = false;
         context = await renderApp(
-            { },
-            { name: 'Courage Scores' },
-            { },
+            {},
+            {name: 'Courage Scores'},
+            {},
             <PreviousPlayerScore
                 {...props}
-                undoLastThrow={() => lastThrowUndone = true} />);
+                undoLastThrow={() => lastThrowUndone = true}/>);
     }
 
     it('renders nothing when no opponent score', async () => {
@@ -40,10 +40,10 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
-                    } ],
+                    }],
                     score: null,
                     noOfDarts: 6,
                     bust: false,
@@ -71,7 +71,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -106,7 +106,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -141,7 +141,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -159,7 +159,7 @@ describe('PreviousPlayerScore', () => {
         expect(opponentStatistics.textContent).toEqual('thrown 0 darts');
     });
 
-    it ('can undo last score from opponent statistics', async () => {
+    it('can undo last score from opponent statistics', async () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
@@ -176,7 +176,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -190,7 +190,10 @@ describe('PreviousPlayerScore', () => {
             },
         });
         let confirm;
-        window.confirm = (message) => { confirm = message; return true; };
+        window.confirm = (message) => {
+            confirm = message;
+            return true;
+        };
 
         await doClick(context.container.querySelector('p:nth-child(2)'));
 
@@ -198,7 +201,7 @@ describe('PreviousPlayerScore', () => {
         expect(lastThrowUndone).toEqual(true);
     });
 
-    it ('does not undo last score from opponent statistics', async () => {
+    it('does not undo last score from opponent statistics', async () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
@@ -215,7 +218,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -252,7 +255,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -287,7 +290,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -305,7 +308,7 @@ describe('PreviousPlayerScore', () => {
         expect(opponentLastThrow.textContent).toEqual('Last score: 150 💥 ');
     });
 
-    it ('can undo last score from opponent last throw', async () => {
+    it('can undo last score from opponent last throw', async () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
@@ -322,7 +325,7 @@ describe('PreviousPlayerScore', () => {
                     bust: false,
                 },
                 away: {
-                    throws: [ {
+                    throws: [{
                         score: 100,
                         noOfDarts: 3,
                     }, {
@@ -336,7 +339,10 @@ describe('PreviousPlayerScore', () => {
             },
         });
         let confirm;
-        window.confirm = (message) => { confirm = message; return true; };
+        window.confirm = (message) => {
+            confirm = message;
+            return true;
+        };
 
         await doClick(context.container.querySelector('p:nth-child(3)'));
 

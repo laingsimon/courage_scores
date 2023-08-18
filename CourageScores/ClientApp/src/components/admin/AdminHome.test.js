@@ -3,7 +3,7 @@
 import React from "react";
 import {AdminHome} from "./AdminHome";
 import {AdminContainer} from "./AdminContainer";
-import {renderApp,cleanUp} from "../../helpers/tests";
+import {cleanUp, renderApp} from "../../helpers/tests";
 
 describe('AdminHome', () => {
     let context;
@@ -28,11 +28,11 @@ describe('AdminHome', () => {
         };
 
         context = await renderApp(
-            { dataApi, accountApi },
-            { name: 'Courage Scores' },
-            { account, appLoading: false},
+            {dataApi, accountApi},
+            {name: 'Courage Scores'},
+            {account, appLoading: false},
             (<AdminContainer>
-                <AdminHome />
+                <AdminHome/>
             </AdminContainer>));
 
         const tab = context.container.querySelector(`.nav-tabs .nav-item a[href="${href}"]`);
@@ -48,11 +48,11 @@ describe('AdminHome', () => {
             access: access
         };
         context = await renderApp(
-            { dataApi: dataApi, accountApi: accountApi },
-            { name: 'Courage Scores' },
-            { appLoading: false, account: account },
+            {dataApi: dataApi, accountApi: accountApi},
+            {name: 'Courage Scores'},
+            {appLoading: false, account: account},
             (<AdminContainer>
-                <AdminHome />
+                <AdminHome/>
             </AdminContainer>),
             '/admin/:mode',
             address
@@ -64,11 +64,11 @@ describe('AdminHome', () => {
 
     it('shows loading when appLoading', async () => {
         context = await renderApp(
-            { dataApi: dataApi, accountApi: accountApi },
-            { name: 'Courage Scores' },
-            { appLoading: true },
+            {dataApi: dataApi, accountApi: accountApi},
+            {name: 'Courage Scores'},
+            {appLoading: true},
             (<AdminContainer>
-                <AdminHome />
+                <AdminHome/>
             </AdminContainer>));
 
         const loading = context.container.querySelector('.loading-background');
@@ -77,11 +77,11 @@ describe('AdminHome', () => {
 
     it('shows not permitted when finished loading', async () => {
         context = await renderApp(
-            { dataApi: dataApi, accountApi: accountApi },
-            { name: 'Courage Scores' },
-            { account: null, appLoading: false},
+            {dataApi: dataApi, accountApi: accountApi},
+            {name: 'Courage Scores'},
+            {account: null, appLoading: false},
             (<AdminContainer>
-                <AdminHome />
+                <AdminHome/>
             </AdminContainer>));
 
         const tabs = Array.from(context.container.querySelectorAll('.nav-tabs .nav-item'));

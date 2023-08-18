@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import {createContext, useContext} from "react";
+
 const AppContext = createContext({});
 
 export function useApp() {
@@ -6,7 +7,7 @@ export function useApp() {
 }
 
 /* istanbul ignore next */
-export function AppContainer({ children, ...data }) {
+export function AppContainer({children, ...data}) {
     return (<AppContext.Provider value={data}>
         {children}
     </AppContext.Provider>)

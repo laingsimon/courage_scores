@@ -6,28 +6,29 @@ import {useDependencies} from "../../IocContainer";
 import {useAdmin} from "./AdminContainer";
 import {any, toDictionary} from "../../helpers/collections";
 import {useApp} from "../../AppContainer";
+import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export function ExportData() {
-    const { dataApi } = useDependencies();
-    const { tables } = useAdmin();
-    const { onError } = useApp();
-    const [ exporting, setExporting ] = useState(false);
-    const [ exportRequest, setExportRequest ] = useState({
+    const {dataApi} = useDependencies();
+    const {tables} = useAdmin();
+    const {onError} = useApp();
+    const [exporting, setExporting] = useState(false);
+    const [exportRequest, setExportRequest] = useState({
         includeDeletedEntries: true,
         password: '',
         tables: {}
     });
-    const [ zipContent, setZipContent ] = useState(null);
-    const [ saveError, setSaveError ] = useState(null);
+    const [zipContent, setZipContent] = useState(null);
+    const [saveError, setSaveError] = useState(null);
 
     useEffect(() => {
-        const selected = tables.filter(t => t.canExport);
-        const newExportRequest = Object.assign({ }, exportRequest);
-        newExportRequest.tables = toDictionary(selected, t => t.name, _ => []);
-        setExportRequest(newExportRequest);
-    },
-    // eslint-disable-next-line
-    [ tables ]);
+            const selected = tables.filter(t => t.canExport);
+            const newExportRequest = Object.assign({}, exportRequest);
+            newExportRequest.tables = toDictionary(selected, t => t.name, _ => []);
+            setExportRequest(newExportRequest);
+        },
+        // eslint-disable-next-line
+        [tables]);
 
     async function startExport() {
         /* istanbul ignore next */
@@ -53,14 +54,13 @@ export function ExportData() {
         } catch (e) {
             /* istanbul ignore next */
             onError(e);
-        }
-        finally {
+        } finally {
             setExporting(false);
         }
     }
 
     async function tableChanged(newTables) {
-        const newExportRequest = Object.assign({ }, exportRequest);
+        const newExportRequest = Object.assign({}, exportRequest);
         newExportRequest.tables = toDictionary(newTables, t => t, _ => []);
         setExportRequest(newExportRequest);
     }
@@ -72,25 +72,32 @@ export function ExportData() {
                 <span className="input-group-text">Password</span>
             </div>
             <input disabled={exporting} type="password" className="form-control"
-                   name="password" value={exportRequest.password} onChange={valueChanged(exportRequest, setExportRequest)}/>
+                   name="password" value={exportRequest.password}
+                   onChange={valueChanged(exportRequest, setExportRequest)}/>
         </div>
         <div className="input-group mb-3">
             <div className="form-check form-switch input-group-prepend">
                 <input disabled={exporting} type="checkbox" className="form-check-input"
-                       name="includeDeletedEntries" id="includeDeletedEntries" checked={exportRequest.includeDeletedEntries} onChange={valueChanged(exportRequest, setExportRequest)}/>
+                       name="includeDeletedEntries" id="includeDeletedEntries"
+                       checked={exportRequest.includeDeletedEntries}
+                       onChange={valueChanged(exportRequest, setExportRequest)}/>
                 <label className="form-check-label" htmlFor="includeDeletedEntries">Include deleted entries</label>
             </div>
         </div>
-        <TableSelection allTables={tables} selected={Object.keys(exportRequest.tables)} onTableChange={tableChanged} requireCanExport={true} />
+        <TableSelection allTables={tables} selected={Object.keys(exportRequest.tables)} onTableChange={tableChanged}
+                        requireCanExport={true}/>
         <div>
             <button className="btn btn-primary margin-right" onClick={startExport} disabled={exporting}>
-                {exporting ? (<span className="spinner-border spinner-border-sm margin-right" role="status" aria-hidden="true"></span>) : null}
+                {exporting ? (<LoadingSpinnerSmall/>) : null}
                 Export data
             </button>
-            {zipContent && !exporting && !saveError ? (<a download="export.zip" href={'data:application/zip;base64,' + zipContent} className="btn btn-success">
-                Download zip file
-            </a>) : null}
+            {zipContent && !exporting && !saveError ? (
+                <a download="export.zip" href={'data:application/zip;base64,' + zipContent} className="btn btn-success">
+                    Download zip file
+                </a>) : null}
         </div>
-        {saveError ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not export data" />) : null}
+        {saveError
+            ? (<ErrorDisplay {...saveError} onClose={() => setSaveError(null)} title="Could not export data"/>)
+            : null}
     </div>);
 }

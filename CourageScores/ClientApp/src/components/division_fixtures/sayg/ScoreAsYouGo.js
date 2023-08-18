@@ -2,9 +2,11 @@ import {PlayLeg} from "./PlayLeg";
 import {MatchStatistics} from "./MatchStatistics";
 import {useApp} from "../../../AppContainer";
 
-export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
-                                 homeScore, on180, onHiCheck, singlePlayer }) {
-    const { onError } = useApp();
+export function ScoreAsYouGo({
+                                 data, home, away, onChange, onLegComplete, startingScore, numberOfLegs, awayScore,
+                                 homeScore, on180, onHiCheck, singlePlayer
+                             }) {
+    const {onError} = useApp();
 
     function getLeg(legIndex) {
         const leg = data.legs[legIndex];
@@ -18,9 +20,12 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
     function addLeg(legIndex) {
         const newData = Object.assign({}, data);
         newData.legs[legIndex] = {
-            playerSequence: singlePlayer ? [ { value: 'home', text: home }, { value: 'away', text: 'unused-single-player' } ] : null,
-            home: { throws: [], score: 0, noOfDarts: 0 },
-            away: { throws: [], score: 0, noOfDarts: 0 },
+            playerSequence: singlePlayer ? [{value: 'home', text: home}, {
+                value: 'away',
+                text: 'unused-single-player'
+            }] : null,
+            home: {throws: [], score: 0, noOfDarts: 0},
+            away: {throws: [], score: 0, noOfDarts: 0},
             startingScore: startingScore,
             isLastLeg: legIndex === numberOfLegs - 1,
             currentThrow: singlePlayer ? 'home' : null
@@ -78,7 +83,7 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
             homeScore={homeScore}
             home={home}
             away={away}
-            singlePlayer={singlePlayer} />
+            singlePlayer={singlePlayer}/>
     }
 
     const leg = getLeg(legIndex);
@@ -93,5 +98,5 @@ export function ScoreAsYouGo({ data, home, away, onChange, onLegComplete, starti
         onHiCheck={onHiCheck}
         homeScore={homeScore}
         awayScore={awayScore}
-        singlePlayer={singlePlayer} />);
+        singlePlayer={singlePlayer}/>);
 }

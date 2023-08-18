@@ -56,7 +56,10 @@ public class GameTests
     public void Accept_GivenSomeMatchesWithHomeScores_VisitsTeamsAsPlayed()
     {
         var visitor = new Mock<IGameVisitor>();
-        _game.Matches.Add(new GameMatch { HomeScore = 1 });
+        _game.Matches.Add(new GameMatch
+        {
+            HomeScore = 1,
+        });
 
         _game.Accept(_visitorScope.Object, visitor.Object);
 
@@ -68,7 +71,10 @@ public class GameTests
     public void Accept_GivenSomeMatchesWithAwayScores_VisitsTeamsAsPlayed()
     {
         var visitor = new Mock<IGameVisitor>();
-        _game.Matches.Add(new GameMatch { AwayScore = 1 });
+        _game.Matches.Add(new GameMatch
+        {
+            AwayScore = 1,
+        });
         _game.Accept(_visitorScope.Object, visitor.Object);
         visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Home, GameState.Played));
         visitor.Verify(v => v.VisitTeam(_visitorScope.Object, _game.Away, GameState.Played));
@@ -129,9 +135,15 @@ public class GameTests
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch
         {
-            HomePlayers = { new GamePlayer() },
+            HomePlayers =
+            {
+                new GamePlayer(),
+            },
             HomeScore = 1,
-            AwayPlayers = { new GamePlayer() },
+            AwayPlayers =
+            {
+                new GamePlayer(),
+            },
             AwayScore = 2,
         });
 
@@ -147,9 +159,15 @@ public class GameTests
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch
         {
-            HomePlayers = { new GamePlayer() },
+            HomePlayers =
+            {
+                new GamePlayer(),
+            },
             HomeScore = 2,
-            AwayPlayers = { new GamePlayer() },
+            AwayPlayers =
+            {
+                new GamePlayer(),
+            },
             AwayScore = 1,
         });
 
@@ -165,16 +183,28 @@ public class GameTests
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch
         {
-            HomePlayers = { new GamePlayer() },
+            HomePlayers =
+            {
+                new GamePlayer(),
+            },
             HomeScore = 3,
-            AwayPlayers = { new GamePlayer() },
+            AwayPlayers =
+            {
+                new GamePlayer(),
+            },
             AwayScore = 1,
         });
         _game.Matches.Add(new GameMatch
         {
-            HomePlayers = { new GamePlayer() },
+            HomePlayers =
+            {
+                new GamePlayer(),
+            },
             HomeScore = 0,
-            AwayPlayers = { new GamePlayer() },
+            AwayPlayers =
+            {
+                new GamePlayer(),
+            },
             AwayScore = 3,
         });
 
@@ -189,9 +219,15 @@ public class GameTests
         var visitor = new Mock<IGameVisitor>();
         _game.Matches.Add(new GameMatch
         {
-            HomePlayers = { new GamePlayer() },
+            HomePlayers =
+            {
+                new GamePlayer(),
+            },
             HomeScore = 0,
-            AwayPlayers = { new GamePlayer() },
+            AwayPlayers =
+            {
+                new GamePlayer(),
+            },
             AwayScore = 0,
         });
 

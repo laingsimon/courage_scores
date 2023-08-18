@@ -1,4 +1,5 @@
-import { createContext, useContext } from "react";
+import {createContext, useContext} from "react";
+
 const MatchTypeContext = createContext({});
 
 export function useMatchType() {
@@ -6,7 +7,7 @@ export function useMatchType() {
 }
 
 /* istanbul ignore next */
-export function MatchTypeContainer({ children, ...data }) {
+export function MatchTypeContainer({children, ...data}) {
     return (<MatchTypeContext.Provider value={data}>
         {children}
     </MatchTypeContext.Provider>)

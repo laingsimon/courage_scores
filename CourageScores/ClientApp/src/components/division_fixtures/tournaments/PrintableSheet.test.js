@@ -149,25 +149,33 @@ describe('PrintableSheet', () => {
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2 },
+                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
                     ],
                 },
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
             expect(rounds.length).toEqual(1);
             expect(rounds[0]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
+                    {
+                        sideAname: 'A',
+                        sideBname: 'B',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -176,17 +184,17 @@ describe('PrintableSheet', () => {
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideA, sideB: sideB, scoreA: 0, scoreB: 0 },
-                        { sideA: sideC, sideB: sideD, scoreA: 0, scoreB: 0 },
-                        { sideA: sideE, sideB: sideF, scoreA: 0, scoreB: 0 },
+                        {sideA: sideA, sideB: sideB, scoreA: 0, scoreB: 0},
+                        {sideA: sideC, sideB: sideD, scoreA: 0, scoreB: 0},
+                        {sideA: sideE, sideB: sideF, scoreA: 0, scoreB: 0},
                     ],
                 },
-                sides: [ sideA, sideB, sideC, sideD, sideE, sideF ],
+                sides: [sideA, sideB, sideC, sideD, sideE, sideF],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -196,9 +204,33 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
-                    { sideAname: 'C', sideBname: 'D', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
-                    { sideAname: 'E', sideBname: 'F', sideAwinner: false, sideBwinner: false, scoreA: '0', scoreB: '0', bye: false },
+                    {
+                        sideAname: 'A',
+                        sideBname: 'B',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '0',
+                        scoreB: '0',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'C',
+                        sideBname: 'D',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '0',
+                        scoreB: '0',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'E',
+                        sideBname: 'F',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '0',
+                        scoreB: '0',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -206,16 +238,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -224,22 +280,22 @@ describe('PrintableSheet', () => {
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2 },
-                        { sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1 },
+                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
+                        {sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1},
                     ],
                     nextRound: {
                         matches: [
-                            { sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1 },
+                            {sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1},
                         ],
                         nextRound: null,
                     }
                 },
-                sides: [ sideA, sideB, sideC, sideD ],
+                sides: [sideA, sideB, sideC, sideD],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -249,16 +305,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
-                    { sideAname: 'C', sideBname: 'D', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    {
+                        sideAname: 'A',
+                        sideBname: 'B',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'C',
+                        sideBname: 'D',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: 'B', sideBname: 'C', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    {
+                        sideAname: 'B',
+                        sideBname: 'C',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -267,27 +347,27 @@ describe('PrintableSheet', () => {
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2 },
-                        { sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1 },
+                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
+                        {sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1},
                     ],
                     nextRound: {
                         matches: [
-                            { sideA: sideE, sideB: sideB, scoreA: 2, scoreB: 1 },
+                            {sideA: sideE, sideB: sideB, scoreA: 2, scoreB: 1},
                         ],
                         nextRound: {
                             matches: [
-                                { sideA: sideC, sideB: sideE, scoreA: 2, scoreB: 1 },
+                                {sideA: sideC, sideB: sideE, scoreA: 2, scoreB: 1},
                             ],
                             nextRound: null,
                         },
                     }
                 },
-                sides: [ sideA, sideB, sideC, sideD, sideE ],
+                sides: [sideA, sideB, sideC, sideD, sideE],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -297,9 +377,33 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
-                    { sideAname: 'C', sideBname: 'D', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'E', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: 'A',
+                        sideBname: 'B',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'C',
+                        sideBname: 'D',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'E',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -307,16 +411,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'E', sideBname: 'B', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'C', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: 'E',
+                        sideBname: 'B',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'C',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: 'C', sideBname: 'E', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    {
+                        sideAname: 'C',
+                        sideBname: 'E',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -325,37 +453,37 @@ describe('PrintableSheet', () => {
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2 },
-                        { sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1 },
-                        { sideA: sideE, sideB: sideF, scoreA: 2, scoreB: 1 },
-                        { sideA: sideG, sideB: sideH, scoreA: 1, scoreB: 2 },
-                        { sideA: sideI, sideB: sideJ, scoreA: 1, scoreB: 2 },
-                        { sideA: sideK, sideB: sideL, scoreA: 1, scoreB: 2 },
+                        {sideA: sideA, sideB: sideB, scoreA: 1, scoreB: 2},
+                        {sideA: sideC, sideB: sideD, scoreA: 2, scoreB: 1},
+                        {sideA: sideE, sideB: sideF, scoreA: 2, scoreB: 1},
+                        {sideA: sideG, sideB: sideH, scoreA: 1, scoreB: 2},
+                        {sideA: sideI, sideB: sideJ, scoreA: 1, scoreB: 2},
+                        {sideA: sideK, sideB: sideL, scoreA: 1, scoreB: 2},
                     ],
                     nextRound: {
                         matches: [
-                            { sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1 },
-                            { sideA: sideE, sideB: sideH, scoreA: 2, scoreB: 1 },
+                            {sideA: sideB, sideB: sideC, scoreA: 2, scoreB: 1},
+                            {sideA: sideE, sideB: sideH, scoreA: 2, scoreB: 1},
                         ],
                         nextRound: {
                             matches: [
-                                { sideA: sideB, sideB: sideE, scoreA: 2, scoreB: 1 },
-                                { sideA: sideJ, sideB: sideL, scoreA: 2, scoreB: 1 },
+                                {sideA: sideB, sideB: sideE, scoreA: 2, scoreB: 1},
+                                {sideA: sideJ, sideB: sideL, scoreA: 2, scoreB: 1},
                             ],
                             nextRound: {
                                 matches: [
-                                    { sideA: sideB, sideB: sideJ, scoreA: 2, scoreB: 1 },
+                                    {sideA: sideB, sideB: sideJ, scoreA: 2, scoreB: 1},
                                 ]
                             },
                         },
                     }
                 },
-                sides: [ sideA, sideB, sideC, sideD, sideE, sideF, sideG, sideH, sideI, sideJ, sideK, sideL ],
+                sides: [sideA, sideB, sideC, sideD, sideE, sideF, sideG, sideH, sideI, sideJ, sideK, sideL],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -365,12 +493,60 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'A', sideBname: 'B', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
-                    { sideAname: 'C', sideBname: 'D', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'E', sideBname: 'F', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'G', sideBname: 'H', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
-                    { sideAname: 'I', sideBname: 'J', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
-                    { sideAname: 'K', sideBname: 'L', sideAwinner: false, sideBwinner: true, scoreA: '1', scoreB: '2', bye: false },
+                    {
+                        sideAname: 'A',
+                        sideBname: 'B',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'C',
+                        sideBname: 'D',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'E',
+                        sideBname: 'F',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'G',
+                        sideBname: 'H',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'I',
+                        sideBname: 'J',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'K',
+                        sideBname: 'L',
+                        sideAwinner: false,
+                        sideBwinner: true,
+                        scoreA: '1',
+                        scoreB: '2',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -378,10 +554,42 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'B', sideBname: 'C', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'E', sideBname: 'H', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'J', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
-                    { sideAname: 'L', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: 'B',
+                        sideBname: 'C',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'E',
+                        sideBname: 'H',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'J',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
+                    {
+                        sideAname: 'L',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
@@ -389,46 +597,70 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: 'B', sideBname: 'E', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
-                    { sideAname: 'J', sideBname: 'L', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    {
+                        sideAname: 'B',
+                        sideBname: 'E',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
+                    {
+                        sideAname: 'J',
+                        sideBname: 'L',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[3]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: 'B', sideBname: 'J', sideAwinner: true, sideBwinner: false, scoreA: '2', scoreB: '1', bye: false },
+                    {
+                        sideAname: 'B',
+                        sideBname: 'J',
+                        sideAwinner: true,
+                        sideBwinner: false,
+                        scoreA: '2',
+                        scoreB: '1',
+                        bye: false
+                    },
                 ],
             });
         });
 
         it('renders winner', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
-            const sideASinglePlayer = createSide('A', [ player1 ]);
-            const sideBSinglePlayer = createSide('B', [ player2 ]);
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const sideASinglePlayer = createSide('A', [player1]);
+            const sideBSinglePlayer = createSide('B', [player2]);
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideASinglePlayer, sideB: sideBSinglePlayer, scoreA: 1, scoreB: 2 },
+                        {sideA: sideASinglePlayer, sideB: sideBSinglePlayer, scoreA: 1, scoreB: 2},
                     ],
                 },
-                sides: [ sideASinglePlayer, sideBSinglePlayer ],
+                sides: [sideASinglePlayer, sideBSinglePlayer],
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player2 ],
+                    players: [player2],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
             const winner = getWinner();
@@ -437,31 +669,31 @@ describe('PrintableSheet', () => {
         });
 
         it('renders winner when cross-divisional', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
-            const sideASinglePlayer = createSide('A', [ player1 ]);
-            const sideBSinglePlayer = createSide('B', [ player2 ]);
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const sideASinglePlayer = createSide('A', [player1]);
+            const sideBSinglePlayer = createSide('B', [player2]);
             const tournamentData = {
                 round: {
                     matches: [
-                        { sideA: sideASinglePlayer, sideB: sideBSinglePlayer, scoreA: 1, scoreB: 2 },
+                        {sideA: sideASinglePlayer, sideB: sideBSinglePlayer, scoreA: 1, scoreB: 2},
                     ],
                 },
-                sides: [ sideASinglePlayer, sideBSinglePlayer ],
+                sides: [sideASinglePlayer, sideBSinglePlayer],
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player2 ],
+                    players: [player2],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
             const winner = getWinner();
@@ -470,29 +702,29 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing (singles)', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
             const tournamentData = {
                 round: null,
-                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
+                sides: [createSide('A', [player1]), createSide('B', [player2])],
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player1 ],
+                    players: [player1],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`, null ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI('PLAYER 1')}@TEAM/${season.name}`, null]);
         });
 
         it('renders who is playing (teams)', async () => {
@@ -502,7 +734,7 @@ describe('PrintableSheet', () => {
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ ],
+                    players: [],
                 }],
             };
             const sideA = createSide('A');
@@ -511,89 +743,89 @@ describe('PrintableSheet', () => {
             sideB.teamId = createTemporaryId();
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([ team ]);
-            const divisions = [ division ];
+            const teams = toMap([team]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
             expect(getWhoIsPlaying(linkHref)).toEqual([
                 `http://localhost/division/${division.name}/team:TEAM/${season.name}`,
-                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}` ]);
+                `http://localhost/division/${division.name}/team:${sideB.teamId}/${season.name}`]);
         });
 
         it('renders who is playing when cross-divisional', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: createTemporaryId(),
                     divisionId: division.id,
-                    players: [ ],
+                    players: [],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([ null, null ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
         it('renders who is playing when team not found', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
-            const sideASinglePlayer = createSide('A', [ player1 ]);
-            const sideBSinglePlayer = createSide('B', [ player2 ]);
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const sideASinglePlayer = createSide('A', [player1]);
+            const sideBSinglePlayer = createSide('B', [player2]);
             const tournamentData = {
                 round: null,
-                sides: [ sideASinglePlayer, sideBSinglePlayer ],
+                sides: [sideASinglePlayer, sideBSinglePlayer],
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: createTemporaryId(),
                     divisionId: division.id,
-                    players: [ player1, player2 ],
+                    players: [player1, player2],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([ null, null ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
+            expect(getWhoIsPlaying(linkHref)).toEqual([null, null]);
         });
 
         it('renders who is playing with no shows', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, Object.assign({}, sideC, { noShow: true }) ],
+                sides: [sideA, sideB, Object.assign({}, sideC, {noShow: true})],
                 oneEighties: [],
                 over100Checkouts: [],
             };
             const teams = toMap([]);
-            const divisions = [ division ];
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B', '-3 - C-' ]);
-            expect(getWhoIsPlaying(linkHref)).toEqual([ null, null, null ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B', '-3 - C-']);
+            expect(getWhoIsPlaying(linkHref)).toEqual([null, null, null]);
         });
 
         it('renders heading', async () => {
@@ -604,12 +836,12 @@ describe('PrintableSheet', () => {
                 address: 'ADDRESS',
                 date: '2023-06-01',
                 round: null,
-                sides: [ ],
+                sides: [],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('div[datatype="heading"]');
@@ -617,109 +849,109 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
             const tournamentData = {
                 round: null,
-                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
-                oneEighties: [ player1, player2, player1, player1 ],
-                over100Checkouts: [ ],
+                sides: [createSide('A', [player1]), createSide('B', [player2])],
+                oneEighties: [player1, player2, player1, player1],
+                over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player1 ],
+                    players: [player1],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getAccolades('180s', d => d.textContent)).toEqual([ 'PLAYER 1 x 3', 'PLAYER 2 x 1' ]);
+            expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
             expect(getAccolades('180s', linkHref))
-                .toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
+                .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
 
         it('renders 180s when cross-divisional', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2' };
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
             const tournamentData = {
                 round: null,
-                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
-                oneEighties: [ player1, player2, player1, player1 ],
-                over100Checkouts: [ ],
+                sides: [createSide('A', [player1]), createSide('B', [player2])],
+                oneEighties: [player1, player2, player1, player1],
+                over100Checkouts: [],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player1 ],
+                    players: [player1],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getAccolades('180s', d => d.textContent)).toEqual([ 'PLAYER 1 x 3', 'PLAYER 2 x 1' ]);
-            expect(getAccolades('180s', linkHref)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
+            expect(getAccolades('180s', d => d.textContent)).toEqual(['PLAYER 1 x 3', 'PLAYER 2 x 1']);
+            expect(getAccolades('180s', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
 
         it('renders hi checks', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1', notes: '100' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2', notes: '120' };
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1', notes: '100'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2', notes: '120'};
             const tournamentData = {
                 round: null,
-                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
+                sides: [createSide('A', [player1]), createSide('B', [player2])],
                 oneEighties: [],
-                over100Checkouts: [ player1, player2 ],
+                over100Checkouts: [player1, player2],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player1 ],
+                    players: [player1],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getAccolades('hi-checks', d => d.textContent)).toEqual([ 'PLAYER 1 (100)', 'PLAYER 2 (120)' ]);
+            expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
             expect(getAccolades('hi-checks', linkHref))
-                .toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
+                .toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
 
         it('renders hi checks when cross-divisional', async () => {
-            const player1 = { id: createTemporaryId(), name: 'PLAYER 1', notes: '100' };
-            const player2 = { id: createTemporaryId(), name: 'PLAYER 2', notes: '120' };
+            const player1 = {id: createTemporaryId(), name: 'PLAYER 1', notes: '100'};
+            const player2 = {id: createTemporaryId(), name: 'PLAYER 2', notes: '120'};
             const tournamentData = {
                 round: null,
-                sides: [ createSide('A', [ player1 ]), createSide('B', [ player2 ]) ],
+                sides: [createSide('A', [player1]), createSide('B', [player2])],
                 oneEighties: [],
-                over100Checkouts: [ player1, player2 ],
+                over100Checkouts: [player1, player2],
             };
-            const teams = toMap([ {
+            const teams = toMap([{
                 name: 'TEAM',
                 seasons: [{
                     seasonId: season.id,
                     divisionId: division.id,
-                    players: [ player1 ],
+                    players: [player1],
                 }],
-            } ]);
-            const divisions = [ division ];
+            }]);
+            const divisions = [division];
 
-            await renderComponent({ tournamentData, season, division: null }, { printOnly: false }, teams, divisions);
+            await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
 
             expect(reportedError).toBeNull();
-            expect(getAccolades('hi-checks', d => d.textContent)).toEqual([ 'PLAYER 1 (100)', 'PLAYER 2 (120)' ]);
-            expect(getAccolades('hi-checks', linkHref)).toEqual([ `http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null ]);
+            expect(getAccolades('hi-checks', d => d.textContent)).toEqual(['PLAYER 1 (100)', 'PLAYER 2 (120)']);
+            expect(getAccolades('hi-checks', linkHref)).toEqual([`http://localhost/division/${division.name}/player:${encodeURI(player1.name)}@TEAM/${season.name}`, null]);
         });
     });
 
@@ -744,22 +976,30 @@ describe('PrintableSheet', () => {
         it('renders tournament with 2 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
             expect(rounds.length).toEqual(1);
             expect(rounds[0]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    {  sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -767,12 +1007,12 @@ describe('PrintableSheet', () => {
         it('renders tournament with 3 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, sideC ],
+                sides: [sideA, sideB, sideC],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -782,16 +1022,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -799,12 +1063,12 @@ describe('PrintableSheet', () => {
         it('renders tournament with 4 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, sideC, sideD ],
+                sides: [sideA, sideB, sideC, sideD],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -814,16 +1078,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '',  sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -831,12 +1119,12 @@ describe('PrintableSheet', () => {
         it('renders tournament with 5 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, sideC, sideD, sideE ],
+                sides: [sideA, sideB, sideC, sideD, sideE],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -846,9 +1134,33 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '',  sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -856,16 +1168,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -873,12 +1209,12 @@ describe('PrintableSheet', () => {
         it('renders tournament with 6 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, sideC, sideD, sideE, sideF ],
+                sides: [sideA, sideB, sideC, sideD, sideE, sideF],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -888,9 +1224,33 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '',  sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -898,16 +1258,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -915,12 +1299,12 @@ describe('PrintableSheet', () => {
         it('renders tournament with 7 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, sideC, sideD, sideE, sideF, sideG ],
+                sides: [sideA, sideB, sideC, sideD, sideE, sideF, sideG],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -930,10 +1314,42 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '',  sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: null, sideAwinner: false, sideBwinner: null, scoreA: '', scoreB: null, bye: true },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: null,
+                        sideAwinner: false,
+                        sideBwinner: null,
+                        scoreA: '',
+                        scoreB: null,
+                        bye: true
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -941,16 +1357,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -958,12 +1398,12 @@ describe('PrintableSheet', () => {
         it('renders tournament with 8 sides', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB, sideC, sideD, sideE, sideF, sideG, sideH ],
+                sides: [sideA, sideB, sideC, sideD, sideE, sideF, sideG, sideH],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const rounds = getRounds();
@@ -973,10 +1413,42 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '',  sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[1]).toEqual({
@@ -984,16 +1456,40 @@ describe('PrintableSheet', () => {
                 hiChecks: null,
                 oneEighties: null,
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
             expect(rounds[2]).toEqual({
                 heading: 'Final',
-                hiChecks: { players: [] },
-                oneEighties: { players: [] },
+                hiChecks: {players: []},
+                oneEighties: {players: []},
                 matches: [
-                    { sideAname: '', sideBname: '', sideAwinner: false, sideBwinner: false, scoreA: '', scoreB: '', bye: false },
+                    {
+                        sideAname: '',
+                        sideBname: '',
+                        sideAwinner: false,
+                        sideBwinner: false,
+                        scoreA: '',
+                        scoreB: '',
+                        bye: false
+                    },
                 ],
             });
         });
@@ -1001,29 +1497,29 @@ describe('PrintableSheet', () => {
         it('renders who is playing', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
         });
 
         it('renders who is playing when cross-divisional', async () => {
             const tournamentData = {
                 round: null,
-                sides: [ sideA, sideB ],
+                sides: [sideA, sideB],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division: null }, { printOnly: false });
+            await renderComponent({tournamentData, season, division: null}, {printOnly: false});
 
             expect(reportedError).toBeNull();
-            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual([ '1 - A', '2 - B' ]);
+            expect(getWhoIsPlaying(whoIsPlayingText)).toEqual(['1 - A', '2 - B']);
         });
 
         it('renders heading', async () => {
@@ -1034,12 +1530,12 @@ describe('PrintableSheet', () => {
                 address: 'ADDRESS',
                 date: '2023-06-01',
                 round: null,
-                sides: [ ],
+                sides: [],
                 oneEighties: [],
                 over100Checkouts: [],
             };
 
-            await renderComponent({ tournamentData, season, division }, { printOnly: false });
+            await renderComponent({tournamentData, season, division}, {printOnly: false});
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('div[datatype="heading"]');

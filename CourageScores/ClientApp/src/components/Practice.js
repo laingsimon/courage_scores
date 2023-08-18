@@ -6,14 +6,14 @@ import {EditSaygPracticeOptions} from "./EditSaygPracticeOptions";
 import {Loading} from "./common/Loading";
 
 export function Practice() {
-    const { onError, account, appLoading } = useApp();
-    const [ dataError, setDataError ] = useState(null);
+    const {onError, account, appLoading} = useApp();
+    const [dataError, setDataError] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
     const hasHash = location.hash && location.hash !== '#';
 
     if (appLoading) {
-        return (<Loading />);
+        return (<Loading/>);
     }
 
     const defaultSaygData = {
@@ -32,6 +32,10 @@ export function Practice() {
         setDataError(null);
     }
 
+    async function noop() {
+        // do nothing
+    }
+
     try {
         if (dataError) {
             return (<div className="p-3 border-danger border-1 border" data-name="data-error">
@@ -43,19 +47,19 @@ export function Practice() {
 
         return (<div className="p-3 content-background">
             <SaygLoadingContainer
-                id={hasHash ?  location.hash.substring(1) : null}
-                on180={() => {}}
-                onHiCheck={() => {}}
+                id={hasHash ? location.hash.substring(1) : null}
+                on180={noop}
+                onHiCheck={noop}
                 defaultData={defaultSaygData}
                 autoSave={false}
-                onScoreChange={() => {}}
+                onScoreChange={noop}
                 onSaved={(data) => {
                     if (location.hash !== `#${data.id}`) {
                         navigate(`/practice#${data.id}`);
                     }
                 }}
                 onLoadError={setDataError}>
-                    <EditSaygPracticeOptions />
+                <EditSaygPracticeOptions/>
             </SaygLoadingContainer>
         </div>);
     } catch (e) {

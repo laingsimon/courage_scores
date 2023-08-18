@@ -12,7 +12,7 @@ namespace CourageScores.Tests.Models.Adapters.Game;
 [TestFixture]
 public class TournamentPlayerAdapterTests
 {
-    private readonly CancellationToken _token = new CancellationToken();
+    private readonly CancellationToken _token = new();
     private TournamentPlayerAdapter _adapter = null!;
     private Mock<ISystemClock> _systemClock = null!;
     private Mock<IUserService> _userService = null!;
@@ -90,7 +90,7 @@ public class TournamentPlayerAdapterTests
         };
         _user = new UserDto
         {
-            Name = "USER"
+            Name = "USER",
         };
 
         var result = await _adapter.Adapt(dto, _token);

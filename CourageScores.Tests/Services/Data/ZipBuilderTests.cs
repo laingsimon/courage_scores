@@ -16,7 +16,10 @@ public class ZipBuilderTests
         await zip.AddFile("table", "id", JObject.FromObject(new CourageScores.Models.Cosmos.Division()));
 
         var files = ZipFile.Read(new MemoryStream(await zip.CreateZip())).Entries.Select(e => e.FileName);
-        Assert.That(files, Is.EqualTo(new[] { "table/id.json"}));
+        Assert.That(files, Is.EqualTo(new[]
+        {
+            "table/id.json",
+        }));
     }
 
     [Test]

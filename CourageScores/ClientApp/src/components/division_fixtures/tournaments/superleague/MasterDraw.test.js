@@ -36,14 +36,14 @@ describe('MasterDraw', () => {
     describe('renders', () => {
         it('matches', async () => {
             const match1 = {
-                sideA: { name: 'A' },
-                sideB: { name: 'B' },
+                sideA: {name: 'A'},
+                sideB: {name: 'B'},
             };
             const match2 = {
-                sideA: { name: 'C' },
-                sideB: { name: 'D' },
+                sideA: {name: 'C'},
+                sideB: {name: 'D'},
             };
-            const matches = [ match1, match2 ];
+            const matches = [match1, match2];
 
             await renderComponent({
                 matches: matches,
@@ -58,8 +58,8 @@ describe('MasterDraw', () => {
             const table = context.container.querySelector('table.table');
             const rows = Array.from(table.querySelectorAll('tbody tr'));
             expect(rows.length).toEqual(2);
-            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual([ '1', 'A', 'v', 'B' ]);
-            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual([ '2', 'C', 'v', 'D' ]);
+            expect(Array.from(rows[0].querySelectorAll('td')).map(td => td.textContent)).toEqual(['1', 'A', 'v', 'B']);
+            expect(Array.from(rows[1].querySelectorAll('td')).map(td => td.textContent)).toEqual(['2', 'C', 'v', 'D']);
         });
 
         it('tournament properties', async () => {

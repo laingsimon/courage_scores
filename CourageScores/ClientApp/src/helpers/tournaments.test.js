@@ -1,11 +1,7 @@
 ﻿// noinspection JSUnresolvedReference
 
-import {
-    getRoundNameFromMatches,
-    getRoundNameFromSides,
-    hasScore
-} from "./tournaments";
-import { distinct } from "./collections";
+import {getRoundNameFromMatches, getRoundNameFromSides, hasScore} from "./tournaments";
+import {distinct} from "./collections";
 
 describe('tournaments', () => {
     describe('getRoundNameFromSides', () => {
@@ -63,13 +59,13 @@ describe('tournaments', () => {
                 getRoundNameFromSides(round, 10, 1),
             ];
 
-            expect(distinct(names)).toEqual([ 'Round: 1' ]);
+            expect(distinct(names)).toEqual(['Round: 1']);
         });
     });
 
     describe('getRoundNameFromMatches', () => {
         it('returns Final if 1 match', () => {
-            const name = getRoundNameFromMatches( 1, 1);
+            const name = getRoundNameFromMatches(1, 1);
 
             expect(name).toEqual('Final');
         });
@@ -84,7 +80,7 @@ describe('tournaments', () => {
             const name3 = getRoundNameFromMatches(3, 1);
             const name4 = getRoundNameFromMatches(4, 1);
 
-            expect(distinct([ name3, name4 ])).toEqual([ 'Quarter-Final' ]);
+            expect(distinct([name3, name4])).toEqual(['Quarter-Final']);
         });
 
         it('returns depth if unimportant number of matches', () => {
@@ -95,7 +91,7 @@ describe('tournaments', () => {
                 getRoundNameFromMatches(7, 1),
             ];
 
-            expect(distinct(names)).toEqual([ 'Round: 2' ]);
+            expect(distinct(names)).toEqual(['Round: 2']);
         });
     });
 

@@ -1,8 +1,8 @@
 import {useApp} from "../../../../AppContainer";
 import {renderDate} from "../../../../helpers/rendering";
 
-export function MasterDraw({ matches, host, opponent, gender, date, notes }) {
-    const { onError } = useApp();
+export function MasterDraw({matches, host, opponent, gender, date, notes}) {
+    const {onError} = useApp();
 
     try {
         return (<div className="page-break-after">

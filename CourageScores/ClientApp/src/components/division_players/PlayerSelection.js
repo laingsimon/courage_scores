@@ -1,7 +1,7 @@
 import React from 'react';
 import {BootstrapDropdown} from "../common/BootstrapDropdown";
 
-export function PlayerSelection({ players, disabled, selected, onChange, except, readOnly, className, placeholder }) {
+export function PlayerSelection({players, disabled, selected, onChange, except, readOnly, className, placeholder}) {
     const empty = {
         value: '',
         text: placeholder ? (<span>{placeholder}</span>) : (<span>&nbsp;</span>),
@@ -24,6 +24,8 @@ export function PlayerSelection({ players, disabled, selected, onChange, except,
             value={(selected || {}).id || ''}
             onChange={async (value) => onChange ? await onChange(this, findPlayer(value)) : null}
             options={[empty].concat(players.filter(p => (except || []).indexOf(p.id) === -1)
-                    .map(p => { return { value: p.id, text: p.name } })) } />
+                .map(p => {
+                    return {value: p.id, text: p.name}
+                }))}/>
     </span>);
 }

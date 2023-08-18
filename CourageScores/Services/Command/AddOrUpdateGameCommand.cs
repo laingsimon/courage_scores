@@ -11,10 +11,10 @@ namespace CourageScores.Services.Command;
 
 public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game, EditGameDto>
 {
-    private readonly ISeasonService _seasonService;
-    private readonly ICommandFactory _commandFactory;
-    private readonly ITeamService _teamService;
     private readonly ScopedCacheManagementFlags _cacheFlags;
+    private readonly ICommandFactory _commandFactory;
+    private readonly ISeasonService _seasonService;
+    private readonly ITeamService _teamService;
 
     public AddOrUpdateGameCommand(
         ISeasonService seasonService,
@@ -35,7 +35,10 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Errors = { "SeasonId must be provided" },
+                Errors =
+                {
+                    "SeasonId must be provided",
+                },
             };
         }
 
@@ -44,7 +47,10 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Warnings = { "Unable to update a game where the home team and away team are the same" },
+                Warnings =
+                {
+                    "Unable to update a game where the home team and away team are the same",
+                },
             };
         }
 
@@ -54,7 +60,10 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             return new ActionResult<Models.Cosmos.Game.Game>
             {
                 Success = false,
-                Errors = { "Unable to add or update game, season not found" },
+                Errors =
+                {
+                    "Unable to add or update game, season not found",
+                },
             };
         }
 
@@ -83,7 +92,10 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
         return new ActionResult<Models.Cosmos.Game.Game>
         {
             Success = true,
-            Messages = { "Game updated" },
+            Messages =
+            {
+                "Game updated",
+            },
         };
     }
 
@@ -126,7 +138,7 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
             Name = teamDto.Name,
             Remover = teamDto.Remover,
             Updated = teamDto.Updated!.Value,
-            ManOfTheMatch = null // changing the team resets the man of the match
+            ManOfTheMatch = null, // changing the team resets the man of the match
         };
     }
 }

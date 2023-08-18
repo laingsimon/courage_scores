@@ -2,7 +2,7 @@ import {round2dp} from "../../../helpers/rendering";
 import {stateChanged} from "../../../helpers/events";
 import React from "react";
 
-export function MatchAverage({ homeAverage, awayAverage, singlePlayer, oneDartAverage, setOneDartAverage }) {
+export function MatchAverage({homeAverage, awayAverage, singlePlayer, oneDartAverage, setOneDartAverage}) {
     if (!homeAverage && !awayAverage) {
         return null;
     }

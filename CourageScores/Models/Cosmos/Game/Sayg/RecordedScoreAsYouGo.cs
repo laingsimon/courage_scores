@@ -5,7 +5,6 @@ namespace CourageScores.Models.Cosmos.Game.Sayg;
 
 public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity, IScoreAsYouGo
 {
-    public Dictionary<int, Leg> Legs { get; set; } = new();
     public string YourName { get; set; } = null!;
     public string? OpponentName { get; set; }
     public int NumberOfLegs { get; set; }
@@ -31,4 +30,6 @@ public class RecordedScoreAsYouGo : AuditedEntity, IPermissionedEntity, IScoreAs
     {
         return true;
     }
+
+    public Dictionary<int, Leg> Legs { get; set; } = new();
 }
