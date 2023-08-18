@@ -4,6 +4,7 @@ import {cleanUp, renderApp} from "../helpers/tests";
 import React from "react";
 import {PrintDivisionHeading} from "./PrintDivisionHeading";
 import {DivisionDataContainer} from "./DivisionDataContainer";
+import {seasonBuilder} from "../helpers/builders";
 
 describe('PrintDivisionHeading', () => {
     let context;
@@ -41,24 +42,27 @@ describe('PrintDivisionHeading', () => {
         });
 
         it('renders nothing when no division and division included', async () => {
+            const season = seasonBuilder('SEASON').build();
             await renderComponent({
                 hideDivision: false
-            }, {season: {name: 'SEASON'}, name: null});
+            }, {season: season, name: null});
 
             expect(context.container.textContent).toEqual('');
         });
 
         it('renders nothing when no division and division excluded', async () => {
+            const season = seasonBuilder('SEASON').build();
             await renderComponent({
                 hideDivision: true
-            }, {season: {name: 'SEASON'}, name: null});
+            }, {season: season, name: null});
 
             expect(context.container.textContent).toEqual('SEASON');
         });
     })
 
     describe('when season and division present', () => {
-        const divisionData = {season: {name: 'SEASON'}, name: 'DIVISION'};
+        const season = seasonBuilder('SEASON').build();
+        const divisionData = {season: season, name: 'DIVISION'};
 
         it('shows division name', async () => {
             await renderComponent({

@@ -6,6 +6,12 @@ import React from "react";
 import {any, toMap} from "../helpers/collections";
 import {createTemporaryId} from "../helpers/projection";
 import {renderDate} from "../helpers/rendering";
+import {
+    divisionBuilder,
+    fixtureDateBuilder,
+    seasonBuilder,
+    teamBuilder
+} from "../helpers/builders";
 
 describe('Division', () => {
     let context;
@@ -84,7 +90,7 @@ describe('Division', () => {
         it('renders prompt for season', async () => {
             await renderComponent({
                 divisions: [],
-                seasons: [{id: createTemporaryId(), name: 'SEASON', divisions: []}],
+                seasons: [seasonBuilder('SEASON').build()],
                 controls: true,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -99,7 +105,7 @@ describe('Division', () => {
         it('renders prompt for season when no controls', async () => {
             await renderComponent({
                 divisions: [],
-                seasons: [{id: createTemporaryId(), name: 'SEASON', divisions: []}],
+                seasons: [seasonBuilder('SEASON').build()],
                 controls: false,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -113,21 +119,13 @@ describe('Division', () => {
     });
 
     describe('when in season', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            divisions: [division],
-            startDate: '2023-01-01',
-            endDate: '2023-06-01',
-        };
-        const team = {
-            id: createTemporaryId(),
-            name: 'TEAM_NAME',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .starting('2023-01-01')
+            .ending('2023-06-01')
+            .withDivision(division)
+            .build();
+        const team = teamBuilder('TEAM_NAME').build();
         const player = {
             id: createTemporaryId(),
             name: 'PLAYER_NAME',
@@ -643,10 +641,7 @@ describe('Division', () => {
 
             it('when a different season id is returned to requested', async () => {
                 divisionDataMap[division.id + ':' + season.id] = {
-                    season: {
-                        id: createTemporaryId(),
-                        name: 'ANOTHER SEASON',
-                    },
+                    season: seasonBuilder('ANOTHER SEASON').build(),
                     id: division.id, // different id to requested
                     name: division.name,
                     teams: [],
@@ -735,34 +730,19 @@ describe('Division', () => {
             });
 
             it('reloads division data when fixture created', async () => {
-                const homeTeam = {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const awayTeam = {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const fixture = {
-                    id: homeTeam.id,
-                    date: '2023-07-01',
-                    homeTeam: homeTeam,
-                    awayTeam: null,
-                    isKnockout: true,
-                    fixturesUsingAddress: [],
-                };
+                const homeTeam = teamBuilder('HOME')
+                    .forSeason(season, division)
+                    .build();
+                const awayTeam = teamBuilder('AWAY')
+                    .forSeason(season, division)
+                    .build();
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    fixtures: [{
-                        date: fixture.date,
-                        fixtures: [fixture],
-                        tournamentFixtures: [],
-                        notes: [],
-                    }],
+                    fixtures: [fixtureDateBuilder('2023-07-01')
+                        .withFixture(f => f.bye(homeTeam).knockout())
+                        .build()],
                     teams: [],
                 };
                 await renderComponent({
@@ -792,34 +772,19 @@ describe('Division', () => {
             });
 
             it('reloads division data when fixture deleted', async () => {
-                const homeTeam = {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const awayTeam = {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const fixture = {
-                    id: createTemporaryId(),
-                    date: '2023-07-01',
-                    homeTeam: homeTeam,
-                    awayTeam: awayTeam,
-                    isKnockout: true,
-                    fixturesUsingAddress: [],
-                };
+                const homeTeam = teamBuilder('HOME')
+                    .forSeason(season, division)
+                    .build();
+                const awayTeam = teamBuilder('AWAY')
+                    .forSeason(season, division)
+                    .build();
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    fixtures: [{
-                        date: fixture.date,
-                        fixtures: [fixture],
-                        tournamentFixtures: [],
-                        notes: [],
-                    }],
+                    fixtures: [fixtureDateBuilder('2023-07-01')
+                        .withFixture(f => f.playing(homeTeam, awayTeam).knockout())
+                        .build()],
                     teams: [],
                 };
                 await renderComponent({
@@ -851,17 +816,12 @@ describe('Division', () => {
     });
 
     describe('rendering options', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            divisions: [division],
-            startDate: '2023-01-01',
-            endDate: '2023-06-01',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .starting('2023-01-01')
+            .ending('2023-06-01')
+            .withDivision(division)
+            .build();
 
         beforeEach(() => {
             divisionDataMap[division.id] = {

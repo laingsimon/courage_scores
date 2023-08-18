@@ -2,20 +2,12 @@
 
 import {add180, addHiCheck, remove180, removeHiCheck} from "./Accolades";
 import {createTemporaryId} from "../../helpers/projection";
+import {playerBuilder} from "../../helpers/builders";
 
 describe('Accolades', () => {
-    const player1 = {
-        id: createTemporaryId(),
-        name: 'PLAYER 1',
-    };
-    const player2 = {
-        id: createTemporaryId(),
-        name: 'PLAYER 2',
-    };
-    const player3 = {
-        id: createTemporaryId(),
-        name: 'PLAYER 3',
-    };
+    const player1 = playerBuilder('PLAYER 1').build();
+    const player2 = playerBuilder('PLAYER 2').build();
+    const player3 = playerBuilder('PLAYER 3').build();
 
     describe('add180', () => {
         it('will add player to a null set', async () => {

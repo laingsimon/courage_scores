@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TeamOverview} from "./TeamOverview";
+import {fixtureDateBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('TeamOverview', () => {
     let context;
@@ -36,13 +37,10 @@ describe('TeamOverview', () => {
     }
 
     function createDivisionData(divisionId) {
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: []
-        };
+        const season = seasonBuilder('A season')
+            .starting('2022-02-03T00:00:00')
+            .ending('2022-08-25T00:00:00')
+            .build();
         return {
             id: divisionId,
             teams: [],
@@ -53,12 +51,9 @@ describe('TeamOverview', () => {
     }
 
     function createTeam(teamId) {
-        return {
-            id: teamId,
-            name: 'A team',
-            address: 'An address',
-            seasons: []
-        };
+        return teamBuilder('A team', teamId)
+            .address('An address')
+            .build();
     }
 
     function createPlayer(team) {
@@ -79,45 +74,17 @@ describe('TeamOverview', () => {
     }
 
     function createHomeAndAwayFixtureDates(team) {
-        const homeFixtureDate = {
-            date: '2001-02-03T04:05:06.000Z',
-            fixtures: [{
-                id: createTemporaryId(),
-                homeTeam: {
-                    id: team.id,
-                    name: team.name
-                },
-                awayTeam: {
-                    id: createTemporaryId(),
-                    name: 'Another team'
-                },
-            }]
-        };
-        const byeFixtureDate = {
-            date: '2001-02-04T04:05:06.000Z',
-            fixtures: [{
-                id: createTemporaryId(),
-                homeTeam: {
-                    id: team.id,
-                    name: team.name
-                },
-                awayTeam: null,
-            }]
-        };
-        const awayFixtureDate = {
-            date: '2001-02-05T04:05:06.000Z',
-            fixtures: [{
-                id: createTemporaryId(),
-                homeTeam: {
-                    id: createTemporaryId(),
-                    name: 'Another team'
-                },
-                awayTeam: {
-                    id: team.id,
-                    name: team.name
-                },
-            }]
-        };
+        const homeFixtureDate = fixtureDateBuilder('2001-02-03T04:05:06.000Z')
+            .withFixture(f => f.playing(team, teamBuilder('Another team')))
+            .build();
+
+        const byeFixtureDate = fixtureDateBuilder('2001-02-04T04:05:06.000Z')
+            .withFixture(f => f.bye(team))
+            .build();
+
+        const awayFixtureDate = fixtureDateBuilder('2001-02-05T04:05:06.000Z')
+            .withFixture(f => f.playing(teamBuilder('Another team'), team))
+            .build();
 
         return [homeFixtureDate, awayFixtureDate, byeFixtureDate];
     }

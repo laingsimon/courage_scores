@@ -1,10 +1,10 @@
 ﻿// noinspection JSUnresolvedFunction
 
 import {cleanUp, doClick, findButton, renderApp} from "../../helpers/tests";
-import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {FixtureDateNote} from "./FixtureDateNote";
 import {DivisionDataContainer} from "../DivisionDataContainer";
+import {noteBuilder} from "../../helpers/builders";
 
 describe('FixtureDateNote', () => {
     let context;
@@ -53,10 +53,7 @@ describe('FixtureDateNote', () => {
 
     describe('renders', () => {
         it('when logged out', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            });
+            await renderComponent(noteBuilder().note('**some markdown**').build());
 
             const markdown = context.container.querySelector('p');
             expect(markdown).toBeTruthy();
@@ -69,10 +66,11 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            await renderComponent({
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            }, true, account, setEditNote);
+            await renderComponent(
+                noteBuilder().note('**some markdown**').build(),
+                true,
+                account,
+                setEditNote);
 
             const buttons = Array.from(context.container.querySelectorAll('button'));
             expect(buttons.length).toEqual(1);
@@ -85,10 +83,11 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            await renderComponent({
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            }, false, account, setEditNote);
+            await renderComponent(
+                noteBuilder().note('**some markdown**').build(),
+                false,
+                account,
+                setEditNote);
 
             const buttons = Array.from(context.container.querySelectorAll('button'));
             expect(buttons.length).toEqual(2);
@@ -102,10 +101,11 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            await renderComponent({
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            }, true, account, null);
+            await renderComponent(
+                noteBuilder().note('**some markdown**').build(),
+                true,
+                account,
+                null);
 
             const buttons = Array.from(context.container.querySelectorAll('button'));
             expect(buttons.length).toEqual(0);
@@ -119,10 +119,7 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            const note = {
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            };
+            const note = noteBuilder().note('**some markdown**').build();
             await renderComponent(note, false, account, setEditNote);
             let confirm;
             window.confirm = (message) => {
@@ -142,10 +139,7 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            const note = {
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            };
+            const note = noteBuilder().note('**some markdown**').build();
             await renderComponent(note, false, account, setEditNote);
             let confirm;
             window.confirm = (message) => {
@@ -165,10 +159,7 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            const note = {
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            };
+            const note = noteBuilder().note('**some markdown**').build();
             await renderComponent(note, false, account, setEditNote);
             let alert;
             window.confirm = () => true;
@@ -186,10 +177,7 @@ describe('FixtureDateNote', () => {
                     manageNotes: true,
                 }
             };
-            const note = {
-                id: createTemporaryId(),
-                note: '**some markdown**',
-            };
+            const note = noteBuilder().note('**some markdown**').build();
             await renderComponent(note, false, account, setEditNote);
 
             await doClick(findButton(context.container, 'Edit'));

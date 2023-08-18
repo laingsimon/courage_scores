@@ -5,6 +5,13 @@ import React from "react";
 import {Tournament} from "./Tournament";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
+import {
+    divisionBuilder, playerBuilder, saygBuilder,
+    seasonBuilder,
+    sideBuilder,
+    teamBuilder,
+    tournamentBuilder
+} from "../../../helpers/builders";
 
 describe('Tournament', () => {
     let context;
@@ -143,37 +150,27 @@ describe('Tournament', () => {
             Object.assign({}, existingData, expectedChange));
     }
 
-    const division = {
-        id: createTemporaryId(),
-        name: 'DIVISION',
-    };
-    const season = {
-        id: createTemporaryId(),
-        name: 'SEASON',
-        startDate: '2023-01-02T00:00:00',
-        endDate: '2023-05-02T00:00:00',
-        divisions: [division],
-    };
+    const division = divisionBuilder('DIVISION').build();
+    const season = seasonBuilder('SEASON')
+        .starting('2023-01-02T00:00:00')
+        .ending('2023-05-02T00:00:00')
+        .withDivision(division)
+        .build();
 
     describe('renders', () => {
         describe('when logged out', () => {
             const account = null;
 
             it('error when no seasons', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -192,20 +189,15 @@ describe('Tournament', () => {
             });
 
             it('loading', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -243,20 +235,15 @@ describe('Tournament', () => {
             });
 
             it('when tournament season not found', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: createTemporaryId(), // non-existent season id
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(createTemporaryId()) // non-existent season id
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -276,33 +263,19 @@ describe('Tournament', () => {
             });
 
             it('tournament without any sides', async () => {
-                const teamPlayer = {
-                    id: createTemporaryId(),
-                    name: 'PLAYER',
-                };
-                const team = {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    seasons: [{
-                        seasonId: season.id,
-                        divisionId: division.id,
-                        players: [teamPlayer],
-                    }],
-                };
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const teamPlayer = playerBuilder('PLAYER').build();
+                const team = teamBuilder('TEAM')
+                    .forSeason(season, division, [ teamPlayer ])
+                    .build();
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -324,37 +297,20 @@ describe('Tournament', () => {
             });
 
             it('tournament with team sides only', async () => {
-                const teamPlayer = {
-                    id: createTemporaryId(),
-                    name: 'PLAYER',
-                };
-                const team = {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    seasons: [{
-                        seasonId: season.id,
-                        divisionId: division.id,
-                        players: [teamPlayer],
-                    }],
-                };
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [{
-                        id: createTemporaryId(),
-                        teamId: team.id,
-                        players: []
-                    }],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const teamPlayer = playerBuilder('PLAYER').build();
+                const team = teamBuilder('TEAM')
+                    .forSeason(season, division, [ teamPlayer ])
+                    .build();
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .withSide(s => s.teamId(team.id))
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -376,42 +332,23 @@ describe('Tournament', () => {
             });
 
             it('tournament with sides and players', async () => {
-                const teamPlayer = {
-                    id: createTemporaryId(),
-                    name: 'PLAYER',
-                };
-                const team = {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    seasons: [{
-                        seasonId: season.id,
-                        divisionId: division.id,
-                        players: [teamPlayer],
-                    }],
-                };
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [{
-                        id: createTemporaryId(),
-                        name: 'SIDE 1',
-                        players: [{
-                            id: teamPlayer.id,
-                            name: teamPlayer.name,
-                            divisionId: division.id,
-                        }],
-                        teamId: team.id,
-                    }],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const teamPlayer = playerBuilder('PLAYER').build();
+                const team = teamBuilder('TEAM')
+                    .forSeason(season, division, [ teamPlayer ])
+                    .build();
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .withSide(s => s
+                        .name('SIDE 1')
+                        .teamId(team.id)
+                        .withPlayer('PLAYER', teamPlayer.id, division.id))
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -442,20 +379,15 @@ describe('Tournament', () => {
             };
 
             it('error when no seasons', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -474,20 +406,15 @@ describe('Tournament', () => {
             });
 
             it('loading', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -509,20 +436,15 @@ describe('Tournament', () => {
             });
 
             it('tournament without any sides', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -564,29 +486,16 @@ describe('Tournament', () => {
             });
 
             it('tournament with sides and players', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [{
-                        id: createTemporaryId(),
-                        name: 'SIDE 1',
-                        players: [{
-                            id: createTemporaryId(),
-                            name: 'PLAYER',
-                            divisionId: division.id,
-                        }],
-                        teamId: null,
-                    }],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .withSide(s => s.name('SIDE 1').withPlayer('PLAYER', null, division.id))
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -610,24 +519,19 @@ describe('Tournament', () => {
             });
 
             it('super league options when single round', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                    host: 'HOST',
-                    opponent: 'OPPONENT',
-                    gender: 'men',
-                    singleRound: true,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .host('HOST')
+                    .opponent('OPPONENT')
+                    .gender('men')
+                    .singleRound()
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -653,24 +557,18 @@ describe('Tournament', () => {
             });
 
             it('no super league options when not single round', async () => {
-                const tournamentData = {
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    date: '2023-01-02T00:00:00',
-                    sides: [],
-                    address: 'ADDRESS',
-                    type: 'TYPE',
-                    notes: 'NOTES',
-                    accoladesCount: true,
-                    round: null,
-                    oneEighties: null,
-                    over100Checkouts: null,
-                    host: 'HOST',
-                    opponent: 'OPPONENT',
-                    gender: 'men',
-                    singleRound: false,
-                };
+                const tournamentData = tournamentBuilder()
+                    .forSeason(season)
+                    .forDivision(division)
+                    .date('2023-01-02T00:00:00')
+                    .address('ADDRESS')
+                    .type('TYPE')
+                    .notes('NOTES')
+                    .host('HOST')
+                    .opponent('OPPONENT')
+                    .gender('men')
+                    .accoladesCount()
+                    .build();
                 const divisionData = {
                     fixtures: [],
                 };
@@ -701,20 +599,15 @@ describe('Tournament', () => {
         };
 
         it('can open add player dialog', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -737,35 +630,22 @@ describe('Tournament', () => {
         });
 
         it('can add players', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
             tournamentDataLookup = {};
             tournamentDataLookup[tournamentData.id] = tournamentData;
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: tournamentData.seasonId,
-                    divisionId: divisionData.id,
-                    players: [],
-                }],
-            };
+            const team = teamBuilder('TEAM').forSeason(tournamentData.seasonId, divisionData.id).build()
             await renderComponent(tournamentData.id, {
                 account,
                 seasons: toMap([season]),
@@ -792,20 +672,15 @@ describe('Tournament', () => {
         });
 
         it('can cancel add player dialog', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -827,22 +702,17 @@ describe('Tournament', () => {
         });
 
         it('can update details', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-                updated: '2023-07-01T00:00:00',
-                singleRound: true,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .singleRound()
+                .updated('2023-07-01T00:00:00')
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -886,20 +756,15 @@ describe('Tournament', () => {
         });
 
         it('can save changes', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -920,20 +785,15 @@ describe('Tournament', () => {
         });
 
         it('handles error during save', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -955,20 +815,15 @@ describe('Tournament', () => {
         });
 
         it('can close error dialog after save failure', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -991,28 +846,17 @@ describe('Tournament', () => {
         });
 
         it('cannot save changes when match not added', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [{
-                    id: createTemporaryId(),
-                    name: 'SIDE 1',
-                    players: [],
-                }, {
-                    id: createTemporaryId(),
-                    name: 'SIDE 2',
-                    players: [],
-                }],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .withSide(s => s.name('SIDE 1'))
+                .withSide(s => s.name('SIDE 2'))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1038,28 +882,17 @@ describe('Tournament', () => {
         });
 
         it('can save changes after match added', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [{
-                    id: createTemporaryId(),
-                    name: 'SIDE 1',
-                    players: [],
-                }, {
-                    id: createTemporaryId(),
-                    name: 'SIDE 2',
-                    players: [],
-                }],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .withSide(s => s.name('SIDE 1'))
+                .withSide(s => s.name('SIDE 2'))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1085,20 +918,15 @@ describe('Tournament', () => {
         });
 
         it('can export tournament and sayg data with no round', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1129,28 +957,20 @@ describe('Tournament', () => {
 
         it('can export tournament and sayg data with round', async () => {
             const saygId = createTemporaryId();
-            const round = {
-                matches: [{
-                    saygId: saygId,
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                }],
-                nextRound: null,
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: round,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r
+                    .withMatch(m => m
+                        .saygId(saygId)
+                        .sideA('A')
+                        .sideB('B')))
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1182,36 +1002,25 @@ describe('Tournament', () => {
         it('can export tournament and sayg data with sub rounds', async () => {
             const saygId1 = createTemporaryId();
             const saygId2 = createTemporaryId();
-            const subRound = {
-                matches: [{
-                    saygId: saygId2,
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                }],
-                nextRound: null,
-            }
-            const round = {
-                matches: [{
-                    saygId: saygId1,
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                }],
-                nextRound: subRound,
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: division.id,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: round,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .forDivision(division)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r
+                    .withMatch(m => m
+                        .saygId(saygId1)
+                        .sideA('A')
+                        .sideB('B'))
+                    .round(r => r
+                        .withMatch(m => m
+                            .saygId(saygId2)
+                            .sideA('A')
+                            .sideB('B'))))
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1241,20 +1050,14 @@ describe('Tournament', () => {
         });
 
         it('can export tournament data for cross-divisional tournament', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1283,20 +1086,15 @@ describe('Tournament', () => {
 
         it('can export tournament data and team data for team sides', async () => {
             const teamId = createTemporaryId();
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [{id: createTemporaryId(), teamId: teamId, players: []}],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide(s => s.teamId(teamId))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1326,28 +1124,18 @@ describe('Tournament', () => {
 
         it('can export tournament data and team data for sides with players', async () => {
             const playerId = createTemporaryId();
-            const team = {
-                id: createTemporaryId(),
-                seasons: [{
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    players: [{id: playerId}],
-                }],
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [{id: createTemporaryId(), teamId: null, players: [{id: playerId}]}],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: null,
-                oneEighties: null,
-                over100Checkouts: null,
-            };
+            const team = teamBuilder('TEAM')
+                .forSeason(season, null, [playerBuilder('PLAYER', playerId).build()])
+                .build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide(s => s.withPlayer(undefined, playerId))
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1377,41 +1165,18 @@ describe('Tournament', () => {
         });
 
         it('excludes no-show sides from 180 selection', async () => {
-            const side1Player = {
-                id: createTemporaryId(),
-                name: 'SIDE 1 PLAYER',
-            };
-            const side2Player = {
-                id: createTemporaryId(),
-                name: 'SIDE 2 PLAYER',
-            };
-            const side1 = {
-                id: createTemporaryId(),
-                name: 'SIDE 1',
-                players: [side1Player],
-            };
-            const side2 = {
-                id: createTemporaryId(),
-                name: 'SIDE 2 (no show)',
-                noShow: true,
-                players: [side2Player],
-            };
-            const team = {
-                id: createTemporaryId(),
-                seasons: [{
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    players: [side1Player, side2Player],
-                }],
-            };
-            const tournamentData = {
-                round: null,
-                divisionId: null,
-                seasonId: season.id,
-                sides: [side1, side2],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const side1Player = playerBuilder('SIDE 1 PLAYER').build();
+            const side2Player = playerBuilder('SIDE 2 PLAYER').build();
+            const side1 = sideBuilder('SIDE 1').withPlayer(side1Player).build();
+            const side2 = sideBuilder('SIDE 2 (no show)').noShow().withPlayer(side2Player).build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, null, [ side1Player, side2Player ])
+                .build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .withSide(side1)
+                .withSide(side2)
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1432,41 +1197,18 @@ describe('Tournament', () => {
         });
 
         it('excludes no-show sides from hi-check selection', async () => {
-            const side1Player = {
-                id: createTemporaryId(),
-                name: 'SIDE 1 PLAYER',
-            };
-            const side2Player = {
-                id: createTemporaryId(),
-                name: 'SIDE 2 PLAYER',
-            };
-            const side1 = {
-                id: createTemporaryId(),
-                name: 'SIDE 1',
-                players: [side1Player],
-            };
-            const side2 = {
-                id: createTemporaryId(),
-                name: 'SIDE 2 (no show)',
-                noShow: true,
-                players: [side2Player],
-            };
-            const team = {
-                id: createTemporaryId(),
-                seasons: [{
-                    id: createTemporaryId(),
-                    seasonId: season.id,
-                    players: [side1Player, side2Player],
-                }],
-            };
-            const tournamentData = {
-                round: null,
-                divisionId: null,
-                seasonId: season.id,
-                sides: [side1, side2],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const side1Player = playerBuilder('SIDE 1 PLAYER').build();
+            const side2Player = playerBuilder('SIDE 2 PLAYER').build();
+            const side1 = sideBuilder('SIDE 1').withPlayer(side1Player).build();
+            const side2 = sideBuilder('SIDE 2 (no show)').noShow().withPlayer(side2Player).build();
+            const team = teamBuilder('TEAM')
+                .forSeason(season, null, [ side1Player, side2Player])
+                .build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .withSide(side1)
+                .withSide(side2)
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1487,56 +1229,34 @@ describe('Tournament', () => {
         });
 
         it('can patch data with sayg score for match', async () => {
-            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
-            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
-            const sayg = {
-                id: createTemporaryId(),
-                legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {throws: [{score: 100}], score: 451},
-                        away: {throws: [{score: 100}], score: 200},
-                        currentThrow: 'home',
-                        playerSequence: [
-                            {value: 'home', text: 'HOME'},
-                            {value: 'away', text: 'AWAY'},
-                        ],
-                    }
-                },
-                homeScore: 0,
-                awayScore: 0,
-            };
-            const sideA = {
-                id: createTemporaryId(),
-                name: 'A',
-                players: [playerA],
-            };
-            const sideB = {
-                id: createTemporaryId(),
-                name: 'B',
-                players: [playerB],
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [sideA, sideB],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: {
-                    matches: [{
-                        id: createTemporaryId(),
-                        saygId: sayg.id,
-                        sideA: sideA,
-                        sideB: sideB,
-                    }],
-                },
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const sayg = saygBuilder()
+                .withLeg('0', l => l
+                    .startingScore(501)
+                    .home(c => c.withThrow(100).score(451))
+                    .away(c => c.withThrow(100).score(200))
+                    .currentThrow('home')
+                    .playerSequence('home', 'away'))
+                .scores(0, 0)
+                .build();
+            const sideA = sideBuilder('A').withPlayer(playerA).build();
+            const sideB = sideBuilder('B').withPlayer(playerB).build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide(sideA)
+                .withSide(sideB)
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r
+                    .withMatch(m => m
+                        .saygId(sayg.id)
+                        .sideA(sideA)
+                        .sideB(sideB)))
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1574,56 +1294,34 @@ describe('Tournament', () => {
         });
 
         it('can patch data with sayg 180 for match', async () => {
-            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
-            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
-            const sayg = {
-                id: createTemporaryId(),
-                legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {throws: [{score: 100}], score: 100},
-                        away: {throws: [{score: 100}], score: 200},
-                        currentThrow: 'home',
-                        playerSequence: [
-                            {value: 'home', text: 'HOME'},
-                            {value: 'away', text: 'AWAY'},
-                        ],
-                    }
-                },
-                homeScore: 0,
-                awayScore: 0,
-            };
-            const sideA = {
-                id: createTemporaryId(),
-                name: 'A',
-                players: [playerA],
-            };
-            const sideB = {
-                id: createTemporaryId(),
-                name: 'B',
-                players: [playerB],
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [sideA, sideB],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: {
-                    matches: [{
-                        id: createTemporaryId(),
-                        saygId: sayg.id,
-                        sideA: sideA,
-                        sideB: sideB,
-                    }],
-                },
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const sayg = saygBuilder()
+                .withLeg('0', l => l
+                    .startingScore(501)
+                    .home(c => c.withThrow(100).score(100))
+                    .away(c => c.withThrow(100).score(200))
+                    .currentThrow('home')
+                    .playerSequence('home', 'away'))
+                .scores(0, 0)
+                .build();
+            const sideA = sideBuilder('A').withPlayer(playerA).build();
+            const sideB = sideBuilder('B').withPlayer(playerB).build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide(sideA)
+                .withSide(sideB)
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r
+                    .withMatch(m => m
+                        .saygId(sayg.id)
+                        .sideA(sideA)
+                        .sideB(sideB)))
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1654,56 +1352,34 @@ describe('Tournament', () => {
         });
 
         it('can patch data with sayg hi-check for match', async () => {
-            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
-            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
-            const sayg = {
-                id: createTemporaryId(),
-                legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {throws: [{score: 100}], score: 401},
-                        away: {throws: [{score: 100}], score: 200},
-                        currentThrow: 'home',
-                        playerSequence: [
-                            {value: 'home', text: 'HOME'},
-                            {value: 'away', text: 'AWAY'},
-                        ],
-                    }
-                },
-                homeScore: 0,
-                awayScore: 0,
-            };
-            const sideA = {
-                id: createTemporaryId(),
-                name: 'A',
-                players: [playerA],
-            };
-            const sideB = {
-                id: createTemporaryId(),
-                name: 'B',
-                players: [playerB],
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [sideA, sideB],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: {
-                    matches: [{
-                        id: createTemporaryId(),
-                        saygId: sayg.id,
-                        sideA: sideA,
-                        sideB: sideB,
-                    }],
-                },
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const sayg = saygBuilder()
+                .withLeg('0', l => l
+                    .startingScore(501)
+                    .home(c => c.withThrow(100).score(401))
+                    .away(c => c.withThrow(100).score(200))
+                    .currentThrow('home')
+                    .playerSequence('home', 'away'))
+                .scores(0, 0)
+                .build();
+            const sideA = sideBuilder('A').withPlayer(playerA).build();
+            const sideB = sideBuilder('B').withPlayer(playerB).build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide(sideA)
+                .withSide(sideB)
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r
+                    .withMatch(m => m
+                        .saygId(sayg.id)
+                        .sideA(sideA)
+                        .sideB(sideB)))
+                .build();
             const divisionData = {
                 fixtures: [],
             };
@@ -1750,56 +1426,34 @@ describe('Tournament', () => {
         });
 
         it('can handle error during patch', async () => {
-            const playerA = {id: createTemporaryId(), name: 'PLAYER A'};
-            const playerB = {id: createTemporaryId(), name: 'PLAYER B'};
-            const sayg = {
-                id: createTemporaryId(),
-                legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {throws: [{score: 100}], score: 100},
-                        away: {throws: [{score: 100}], score: 200},
-                        currentThrow: 'home',
-                        playerSequence: [
-                            {value: 'home', text: 'HOME'},
-                            {value: 'away', text: 'AWAY'},
-                        ],
-                    }
-                },
-                homeScore: 0,
-                awayScore: 0,
-            };
-            const sideA = {
-                id: createTemporaryId(),
-                name: 'A',
-                players: [playerA],
-            };
-            const sideB = {
-                id: createTemporaryId(),
-                name: 'B',
-                players: [playerB],
-            };
-            const tournamentData = {
-                id: createTemporaryId(),
-                seasonId: season.id,
-                divisionId: null,
-                date: '2023-01-02T00:00:00',
-                sides: [sideA, sideB],
-                address: 'ADDRESS',
-                type: 'TYPE',
-                notes: 'NOTES',
-                accoladesCount: true,
-                round: {
-                    matches: [{
-                        id: createTemporaryId(),
-                        saygId: sayg.id,
-                        sideA: sideA,
-                        sideB: sideB,
-                    }],
-                },
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const playerA = playerBuilder('PLAYER A').build();
+            const playerB = playerBuilder('PLAYER B').build();
+            const sayg = saygBuilder()
+                .withLeg('0', l => l
+                    .startingScore(501)
+                    .home(c => c.withThrow(100).score(100))
+                    .away(c => c.withThrow(100).score(200))
+                    .currentThrow('home')
+                    .playerSequence('home', 'away'))
+                .scores(0, 0)
+                .build();
+            const sideA = sideBuilder('A').withPlayer(playerA).build();
+            const sideB = sideBuilder('B').withPlayer(playerB).build();
+            const tournamentData = tournamentBuilder()
+                .forSeason(season)
+                .date('2023-01-02T00:00:00')
+                .withSide(sideA)
+                .withSide(sideB)
+                .address('ADDRESS')
+                .type('TYPE')
+                .notes('NOTES')
+                .accoladesCount()
+                .round(r => r
+                    .withMatch(m => m
+                        .saygId(sayg.id)
+                        .sideA(sideA)
+                        .sideB(sideB)))
+                .build();
             const divisionData = {
                 fixtures: [],
             };

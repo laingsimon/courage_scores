@@ -5,6 +5,7 @@ import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
 import {ScoreCardHeading} from "./ScoreCardHeading";
 import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
+import {divisionBuilder, fixtureBuilder, seasonBuilder} from "../../../helpers/builders";
 
 describe('ScoreCardHeading', () => {
     let context;
@@ -122,30 +123,17 @@ describe('ScoreCardHeading', () => {
         const account = null;
 
         describe('when no winner', () => {
-            const submissionData = {
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeSubmission: null,
-                awaySubmission: null,
-            };
+            const submissionData = fixtureBuilder()
+                .forSeason(createTemporaryId())
+                .forDivision(createTemporaryId())
+                .playing('HOME', 'AWAY')
+                .homeSubmission()
+                .awaySubmission()
+                .build();
             const winner = '';
             const fixtureData = {
-                division: {
-                    id: submissionData.divisionId,
-                    name: 'DIVISION',
-                },
-                season: {
-                    id: submissionData.seasonId,
-                    name: 'SEASON',
-                },
+                division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
             it('renders home team details', async () => {
@@ -166,30 +154,17 @@ describe('ScoreCardHeading', () => {
         });
 
         describe('when home winner', () => {
-            const submissionData = {
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeSubmission: null,
-                awaySubmission: null,
-            };
+            const submissionData = fixtureBuilder()
+                .forSeason(createTemporaryId())
+                .forDivision(createTemporaryId())
+                .playing('HOME', 'AWAY')
+                .homeSubmission()
+                .awaySubmission()
+                .build();
             const winner = 'home';
             const fixtureData = {
-                division: {
-                    id: submissionData.divisionId,
-                    name: 'DIVISION',
-                },
-                season: {
-                    id: submissionData.seasonId,
-                    name: 'SEASON',
-                },
+                division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
             it('renders home team details', async () => {
@@ -210,30 +185,17 @@ describe('ScoreCardHeading', () => {
         });
 
         describe('when away winner', () => {
-            const submissionData = {
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeSubmission: null,
-                awaySubmission: null,
-            };
+            const submissionData = fixtureBuilder()
+                .forSeason(createTemporaryId())
+                .forDivision(createTemporaryId())
+                .playing('HOME', 'AWAY')
+                .homeSubmission()
+                .awaySubmission()
+                .build();
             const winner = 'away';
             const fixtureData = {
-                division: {
-                    id: submissionData.divisionId,
-                    name: 'DIVISION',
-                },
-                season: {
-                    id: submissionData.seasonId,
-                    name: 'SEASON',
-                },
+                division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
             it('renders home team details', async () => {
@@ -262,29 +224,16 @@ describe('ScoreCardHeading', () => {
         const winner = '';
 
         describe('when no home or away submission', () => {
-            const submissionData = {
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeSubmission: null,
-                awaySubmission: null,
-            };
+            const submissionData = fixtureBuilder()
+                .forSeason(createTemporaryId())
+                .forDivision(createTemporaryId())
+                .playing('HOME', 'AWAY')
+                .homeSubmission()
+                .awaySubmission()
+                .build();
             const fixtureData = {
-                division: {
-                    id: submissionData.divisionId,
-                    name: 'DIVISION',
-                },
-                season: {
-                    id: submissionData.seasonId,
-                    name: 'SEASON',
-                },
+                division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
             it('does not show home submission toggle', async () => {
@@ -301,31 +250,16 @@ describe('ScoreCardHeading', () => {
         });
 
         describe('when a home submission', () => {
-            const submissionData = {
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeSubmission: {
-                    id: createTemporaryId(),
-                },
-                awaySubmission: null,
-            };
+            const submissionData = fixtureBuilder()
+                .forSeason(createTemporaryId())
+                .forDivision(createTemporaryId())
+                .playing('HOME', 'AWAY')
+                .homeSubmission(f => f)
+                .awaySubmission()
+                .build();
             const fixtureData = {
-                division: {
-                    id: submissionData.divisionId,
-                    name: 'DIVISION',
-                },
-                season: {
-                    id: submissionData.seasonId,
-                    name: 'SEASON',
-                },
+                division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
             it('shows home submission toggle', async () => {
@@ -348,31 +282,16 @@ describe('ScoreCardHeading', () => {
         });
 
         describe('when an away submission', () => {
-            const submissionData = {
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeSubmission: null,
-                awaySubmission: {
-                    id: createTemporaryId(),
-                },
-            };
+            const submissionData = fixtureBuilder()
+                .forSeason(createTemporaryId())
+                .forDivision(createTemporaryId())
+                .playing('HOME', 'AWAY')
+                .homeSubmission()
+                .awaySubmission(f => f)
+                .build();
             const fixtureData = {
-                division: {
-                    id: submissionData.divisionId,
-                    name: 'DIVISION',
-                },
-                season: {
-                    id: submissionData.seasonId,
-                    name: 'SEASON',
-                },
+                division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                season: seasonBuilder('SEASON', submissionData.seasonId).build(),
             };
 
             it('shows away submission toggle', async () => {
@@ -404,29 +323,16 @@ describe('ScoreCardHeading', () => {
 
         describe('for a different team', () => {
             describe('when no home or away submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    },
-                    homeSubmission: null,
-                    awaySubmission: null,
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission()
+                    .awaySubmission()
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -443,31 +349,16 @@ describe('ScoreCardHeading', () => {
             });
 
             describe('when a home submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    },
-                    homeSubmission: {
-                        id: createTemporaryId(),
-                    },
-                    awaySubmission: null,
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission(f => f)
+                    .awaySubmission()
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -484,31 +375,16 @@ describe('ScoreCardHeading', () => {
             });
 
             describe('when an away submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    },
-                    homeSubmission: null,
-                    awaySubmission: {
-                        id: createTemporaryId(),
-                    },
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission()
+                    .awaySubmission(f => f)
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -527,29 +403,16 @@ describe('ScoreCardHeading', () => {
 
         describe('for the home team', () => {
             describe('when no home or away submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: account.teamId,
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    },
-                    homeSubmission: null,
-                    awaySubmission: null,
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission()
+                    .awaySubmission()
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -566,31 +429,16 @@ describe('ScoreCardHeading', () => {
             });
 
             describe('when a home submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: account.teamId,
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    },
-                    homeSubmission: {
-                        id: account.teamId,
-                    },
-                    awaySubmission: null,
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission(f => f, account.teamId)
+                    .awaySubmission()
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('shows home submission toggle', async () => {
@@ -619,31 +467,16 @@ describe('ScoreCardHeading', () => {
             });
 
             describe('when an away submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: account.teamId,
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    },
-                    homeSubmission: null,
-                    awaySubmission: {
-                        id: createTemporaryId(),
-                    },
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission()
+                    .awaySubmission(f => f)
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -662,29 +495,16 @@ describe('ScoreCardHeading', () => {
 
         describe('for the away team', () => {
             describe('when no home or away submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: account.teamId,
-                        name: 'AWAY',
-                    },
-                    homeSubmission: null,
-                    awaySubmission: null,
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission()
+                    .awaySubmission()
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -701,31 +521,16 @@ describe('ScoreCardHeading', () => {
             });
 
             describe('when a home submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: account.teamId,
-                        name: 'AWAY',
-                    },
-                    homeSubmission: {
-                        id: createTemporaryId(),
-                    },
-                    awaySubmission: null,
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission(f => f)
+                    .awaySubmission()
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('does not show home submission toggle', async () => {
@@ -742,31 +547,16 @@ describe('ScoreCardHeading', () => {
             });
 
             describe('when an away submission', () => {
-                const submissionData = {
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: account.teamId,
-                        name: 'AWAY',
-                    },
-                    homeSubmission: null,
-                    awaySubmission: {
-                        id: account.teamId,
-                    },
-                };
+                const submissionData = fixtureBuilder()
+                    .forSeason(createTemporaryId())
+                    .forDivision(createTemporaryId())
+                    .playing('HOME', 'AWAY')
+                    .homeSubmission()
+                    .awaySubmission(f => f, account.teamId)
+                    .build();
                 const fixtureData = {
-                    division: {
-                        id: submissionData.divisionId,
-                        name: 'DIVISION',
-                    },
-                    season: {
-                        id: submissionData.seasonId,
-                        name: 'SEASON',
-                    },
+                    division: divisionBuilder('DIVISION', submissionData.divisionId).build(),
+                    season: seasonBuilder('SEASON', submissionData.seasonId).build(),
                 };
 
                 it('shows away submission toggle', async () => {

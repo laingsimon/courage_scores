@@ -5,6 +5,13 @@ import React from "react";
 import {SuperLeaguePrintout} from "./SuperLeaguePrintout";
 import {TournamentContainer} from "../TournamentContainer";
 import {createTemporaryId} from "../../../../helpers/projection";
+import {
+    divisionBuilder,
+    legBuilder,
+    saygBuilder,
+    tournamentBuilder,
+    tournamentMatchBuilder
+} from "../../../../helpers/builders";
 
 describe('SuperLeaguePrintout', () => {
     let context;
@@ -50,74 +57,54 @@ describe('SuperLeaguePrintout', () => {
     }
 
     function createLeg(homeWinner, awayWinner) {
-        const winningThrows = [
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 100, bust: false, noOfDarts: 3},
-            {score: 110, bust: false, noOfDarts: 3},
-            {score: 120, bust: false, noOfDarts: 3},
-            {score: 81, bust: false, noOfDarts: 3},
-        ];
-        const notWinningThrows = [
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-            {score: 90, bust: false, noOfDarts: 3},
-        ];
+        function winningThrows(c) {
+            return c
+                .withThrow(90, false, 3)
+                .withThrow(100, false, 3)
+                .withThrow(110, false, 3)
+                .withThrow(120, false, 3)
+                .withThrow(81, false, 3);
+        }
 
-        return {
-            home: {
-                throws: homeWinner ? winningThrows : notWinningThrows
-            },
-            away: {
-                throws: awayWinner ? winningThrows : notWinningThrows
-            },
-            startingScore: 501,
-        };
+        function notWinningThrows(c) {
+            return c
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3)
+                .withThrow(90, false, 3);
+        }
+
+        return legBuilder()
+            .home(c => homeWinner ? winningThrows(c) : notWinningThrows(c))
+            .away(c => awayWinner ? winningThrows(c) : notWinningThrows(c))
+            .startingScore(501)
+            .build();
     }
 
     describe('renders', () => {
         it('print out', async () => {
-            const match1 = {
-                id: createTemporaryId(),
-                saygId: createTemporaryId(),
-                sideA: {name: 'A'},
-                sideB: {name: 'B'},
-                scoreA: 1,
-                scoreB: 2,
-            };
-            const match2 = {
-                id: createTemporaryId(),
-                saygId: createTemporaryId(),
-                sideA: {name: 'C'},
-                sideB: {name: 'D'},
-                scoreA: 3,
-                scoreB: 4,
-            };
-            const saygData1 = {
-                legs: {
-                    '0': createLeg(true, false),
-                    '1': createLeg(true, false),
-                }
-            };
-            const saygData2 = {
-                legs: {
-                    '0': createLeg(false, true),
-                    '1': createLeg(false, true),
-                }
-            };
-            const tournamentData = {
-                round: {
-                    matches: [match1, match2],
-                }
-            };
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const saygData1 = saygBuilder()
+                .withLeg('0', createLeg(true, false))
+                .withLeg('1', createLeg(true, false))
+                .build();
+            const saygData2 = saygBuilder()
+                .withLeg('0', createLeg(false, true))
+                .withLeg('1', createLeg(false, true))
+                .build();
+            const tournamentData = tournamentBuilder()
+                .round(r => r
+                    .withMatch(m => m.saygId(saygData1.id)
+                        .sideA('A', 1)
+                        .sideB('B', 2))
+                    .withMatch(m => m.saygId(saygData2.id)
+                        .sideA('C', 3)
+                        .sideB('D', 4)))
+                .build();
+            const division = divisionBuilder('DIVISION').build();
             saygApiResponseMap = {};
-            saygApiResponseMap[match1.saygId] = saygData1;
-            saygApiResponseMap[match2.saygId] = saygData2;
+            saygApiResponseMap[saygData1.id] = saygData1;
+            saygApiResponseMap[saygData2.id] = saygData2;
 
             await renderComponent(tournamentData, division);
 

@@ -4,6 +4,7 @@ import {cleanUp, doClick, doSelectOption, findButton, renderApp} from "../../hel
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditPlayerDetails} from "./EditPlayerDetails";
+import {divisionBuilder, playerBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('EditPlayerDetails', () => {
     let context;
@@ -85,31 +86,17 @@ describe('EditPlayerDetails', () => {
     }
 
     describe('renders', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON'
-        };
-        const team = {
-            id: createTemporaryId(),
-            name: 'TEAM',
-            seasons: [{
-                seasonId: season.id,
-                divisionId: division.id,
-            }],
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
+        const team = teamBuilder('TEAM')
+            .forSeason(season, division)
+            .build();
 
         it('existing player details', async () => {
             await renderComponent({
-                player: {
-                    id: createTemporaryId(),
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -130,12 +117,7 @@ describe('EditPlayerDetails', () => {
 
         it('new player details', async () => {
             await renderComponent({
-                player: {
-                    id: null,
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -155,34 +137,17 @@ describe('EditPlayerDetails', () => {
     });
 
     describe('interactivity', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const otherDivision = {
-            id: createTemporaryId(),
-            name: 'OTHER DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON'
-        };
-        const team = {
-            id: createTemporaryId(),
-            name: 'TEAM',
-            seasons: [{
-                seasonId: season.id,
-                divisionId: division.id,
-            }],
-        };
-        const otherTeam = {
-            id: createTemporaryId(),
-            name: 'OTHER TEAM',
-            seasons: [{
-                seasonId: season.id,
-                divisionId: division.id,
-            }],
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const otherDivision = divisionBuilder('OTHER DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
+        const team = teamBuilder('TEAM')
+            .forSeason(season, division)
+            .build();
+        const otherTeam = teamBuilder('OTHER TEAM')
+            .forSeason(season, division)
+            .build();
         let confirm;
         let alert;
         let response = false;
@@ -201,12 +166,7 @@ describe('EditPlayerDetails', () => {
 
         it('can change team for new player', async () => {
             await renderComponent({
-                player: {
-                    id: null,
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -226,12 +186,7 @@ describe('EditPlayerDetails', () => {
 
         it('can change team for existing player', async () => {
             await renderComponent({
-                player: {
-                    id: createTemporaryId(),
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -251,12 +206,7 @@ describe('EditPlayerDetails', () => {
 
         it('can change captaincy', async () => {
             await renderComponent({
-                player: {
-                    id: createTemporaryId(),
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -275,12 +225,7 @@ describe('EditPlayerDetails', () => {
 
         it('can change division for existing player', async () => {
             await renderComponent({
-                player: {
-                    id: createTemporaryId(),
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -299,12 +244,7 @@ describe('EditPlayerDetails', () => {
 
         it('requires team to be selected', async () => {
             await renderComponent({
-                player: {
-                    id: null,
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: null,
                 gameId: null,
@@ -321,12 +261,7 @@ describe('EditPlayerDetails', () => {
 
         it('requires name to be entered', async () => {
             await renderComponent({
-                player: {
-                    id: null,
-                    name: '',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -343,12 +278,7 @@ describe('EditPlayerDetails', () => {
 
         it('creates new player', async () => {
             await renderComponent({
-                player: {
-                    id: null,
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -372,12 +302,7 @@ describe('EditPlayerDetails', () => {
         it('updates existing player', async () => {
             const playerId = createTemporaryId();
             await renderComponent({
-                player: {
-                    id: playerId,
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME', playerId).captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -406,12 +331,7 @@ describe('EditPlayerDetails', () => {
             const playerId = createTemporaryId();
             const gameId = createTemporaryId();
             await renderComponent({
-                player: {
-                    id: playerId,
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME', playerId).captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: gameId,
@@ -438,12 +358,7 @@ describe('EditPlayerDetails', () => {
 
         it('handles errors during save', async () => {
             await renderComponent({
-                player: {
-                    id: createTemporaryId(),
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,
@@ -461,12 +376,7 @@ describe('EditPlayerDetails', () => {
 
         it('can cancel editing', async () => {
             await renderComponent({
-                player: {
-                    id: createTemporaryId(),
-                    name: 'NAME',
-                    captain: true,
-                    emailAddress: 'EMAIL',
-                },
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
                 seasonId: season.id,
                 team: team,
                 gameId: null,

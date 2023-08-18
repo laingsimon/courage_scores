@@ -3,7 +3,7 @@
 import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../helpers/tests";
 import React from "react";
 import {EditSeason} from "./EditSeason";
-import {createTemporaryId} from "../helpers/projection";
+import {divisionBuilder, seasonBuilder} from "../helpers/builders";
 
 const mockedUsedNavigate = jest.fn();
 
@@ -80,22 +80,15 @@ describe('EditSeason', () => {
             />));
     }
 
-    const division1 = {
-        id: createTemporaryId(),
-        name: 'DIVISION 1',
-    };
-    const division2 = {
-        id: createTemporaryId(),
-        name: 'DIVISION 2',
-    };
+    const division1 = divisionBuilder('DIVISION 1').build();
+    const division2 = divisionBuilder('DIVISION 2').build();
+    const season = seasonBuilder('SEASON')
+        .starting('2023-01-01T00:00:00')
+        .ending('2023-05-01T00:00:00')
+        .withDivision(division1)
+        .withDivisionId(division1)
+        .build();
     const divisions = [division1, division2];
-    const season = {
-        id: createTemporaryId(),
-        name: 'SEASON',
-        startDate: '2023-01-01T00:00:00',
-        endDate: '2023-05-01T00:00:00',
-        divisionIds: [division1.id],
-    };
 
     it('updates season name', async () => {
         let updatedData;
@@ -178,10 +171,7 @@ describe('EditSeason', () => {
     it('updates copy teams from when no id', async () => {
         const seasonWithoutId = Object.assign({}, season);
         seasonWithoutId.id = null;
-        const otherSeason = {
-            id: createTemporaryId(),
-            name: 'OTHER SEASON',
-        };
+        const otherSeason = seasonBuilder('OTHER SEASON').build();
         let updatedData;
         await renderComponent({
             data: seasonWithoutId,

@@ -3,6 +3,7 @@
 import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
 import {MatchLogRow} from "./MatchLogRow";
+import {legBuilder} from "../../../../helpers/builders";
 
 describe('MatchLogRow', () => {
     let context;
@@ -36,34 +37,21 @@ describe('MatchLogRow', () => {
     }
 
     describe('renders', () => {
-        const homeWinningLeg = {
-            home: {
-                throws: [
-                    {score: 140, bust: false, noOfDarts: 3},
-                    {score: 60, bust: false, noOfDarts: 3},
-                    {score: 180, bust: false, noOfDarts: 3},
-                    {score: 20, bust: false, noOfDarts: 3},
-                    {score: 101, bust: false, noOfDarts: 2},
-                ],
-            },
-            away: {
-                throws: [],
-            },
-            startingScore: 501,
-        };
+        const homeWinningLeg = legBuilder()
+            .home(c => c
+                .withThrow(140, false, 3)
+                .withThrow(60, false, 3)
+                .withThrow(180, false, 3)
+                .withThrow(20, false, 3)
+                .withThrow(101, false, 2)
+                .noOfDarts(14))
+            .away(c => c.noOfDarts(1))
+            .startingScore(501)
+            .build();
 
         it('null when no darts thrown', async () => {
             await renderComponent({
-                leg: {
-                    home: {
-                        throws: [],
-                        noOfDarts: 0,
-                    },
-                    away: {
-                        throws: [],
-                        noOfDarts: 0,
-                    },
-                },
+                leg: legBuilder().home(c => c.noOfDarts(0)).away(c => c.noOfDarts(0)).build(),
                 legNo: 1,
                 accumulatorName: 'home',
                 player: 'PLAYER',

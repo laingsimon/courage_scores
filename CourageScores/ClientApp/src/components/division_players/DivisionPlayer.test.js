@@ -5,6 +5,7 @@ import React from "react";
 import {DivisionPlayer} from "./DivisionPlayer";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {createTemporaryId, EMPTY_ID} from "../../helpers/projection";
+import {divisionBuilder, seasonBuilder} from "../../helpers/builders";
 
 describe('DivisionPlayer', () => {
     let context;
@@ -63,14 +64,10 @@ describe('DivisionPlayer', () => {
 
     describe('when logged out', () => {
         const account = null;
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
         const player = {
             id: createTemporaryId(),
             rank: 1,
@@ -225,14 +222,10 @@ describe('DivisionPlayer', () => {
                 managePlayers: true,
             }
         };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
         const player = {
             id: createTemporaryId(),
             rank: 1,

@@ -3,7 +3,7 @@
 import {cleanUp, doClick, renderApp} from "../../helpers/tests";
 import React from "react";
 import {NavMenu} from "./NavMenu";
-import {createTemporaryId} from "../../helpers/projection";
+import {divisionBuilder, seasonBuilder} from "../../helpers/builders";
 
 describe('NavMenu', () => {
     let context;
@@ -55,22 +55,19 @@ describe('NavMenu', () => {
     }
 
     describe('when logged out', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const currentSeason = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            isCurrent: true,
-            divisions: [division]
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const currentSeason = seasonBuilder('SEASON')
+            .withDivision(division)
+            .isCurrent()
+            .withDivision(division)
+            .build();
+        const otherSeason = seasonBuilder('OTHER SEASON')
+            .withDivision(division)
+            .build();
         const settings = {
             apiHost: 'https://localhost',
         }
-        const seasons = [
-            currentSeason,
-            {id: createTemporaryId(), name: 'OTHER SEASON', isCurrent: false, divisions: [division]}];
+        const seasons = [currentSeason, otherSeason];
         const divisions = [division];
         const account = null;
 
@@ -301,26 +298,17 @@ describe('NavMenu', () => {
         });
 
         it('should render divisions only for the current season', async () => {
-            const division1 = {
-                id: createTemporaryId(),
-                name: 'DIVISION 1',
-            };
-            const division2 = {
-                id: createTemporaryId(),
-                name: 'DIVISION 2',
-            };
-            const onlyDivision1SeasonCurrent = {
-                id: createTemporaryId(),
-                name: 'SEASON - ONLY DIVISION 1',
-                divisions: [division1],
-                isCurrent: true,
-            };
-            const bothDivisionsSeasonsNotCurrent = {
-                id: createTemporaryId(),
-                name: 'SEASON - ONLY DIVISION 1',
-                divisions: [division1, division2],
-                isCurrent: false,
-            };
+            const division1 = divisionBuilder('DIVISION 1').build();
+            const division2 = divisionBuilder('DIVISION 2').build();
+
+            const onlyDivision1SeasonCurrent = seasonBuilder('SEASON - ONLY DIVISION 1')
+                .withDivision(division1)
+                .isCurrent()
+                .build();
+            const bothDivisionsSeasonsNotCurrent = seasonBuilder('SEASON - ONLY DIVISION 1')
+                .withDivision(division1)
+                .withDivision(division2)
+                .build();
 
             await renderComponent(
                 settings,
@@ -341,20 +329,12 @@ describe('NavMenu', () => {
         });
 
         it('should render all divisions when no active season', async () => {
-            const division1 = {
-                id: createTemporaryId(),
-                name: 'DIVISION 1',
-            };
-            const division2 = {
-                id: createTemporaryId(),
-                name: 'DIVISION 2',
-            };
-            const bothDivisionsSeasonsNotCurrent = {
-                id: createTemporaryId(),
-                name: 'SEASON - ONLY DIVISION 1',
-                divisions: [division1, division2],
-                isCurrent: false,
-            };
+            const division1 = divisionBuilder('DIVISION 1').build();
+            const division2 = divisionBuilder('DIVISION 2').build();
+            const bothDivisionsSeasonsNotCurrent = seasonBuilder('SEASON - ONLY DIVISION 1')
+                .withDivision(division1)
+                .withDivision(division2)
+                .build();
 
             await renderComponent(
                 settings,
@@ -376,22 +356,17 @@ describe('NavMenu', () => {
     });
 
     describe('when logged in', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const currentSeason = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            isCurrent: true,
-            divisions: [division]
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const currentSeason = seasonBuilder('SEASON')
+            .withDivision(division)
+            .isCurrent()
+            .build();
         const settings = {
             apiHost: 'https://localhost',
         }
         const seasons = [
             currentSeason,
-            {id: createTemporaryId(), name: 'OTHER SEASON', isCurrent: false, divisions: [division]}];
+            seasonBuilder('OTHER SEASON').withDivision(division).build()];
         const divisions = [division];
         const account = {
             access: {

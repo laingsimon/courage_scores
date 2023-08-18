@@ -3,6 +3,7 @@
 import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {MatchStatistics} from "./MatchStatistics";
+import {legBuilder} from "../../../helpers/builders";
 
 describe('MatchStatistics', () => {
     let context;
@@ -86,31 +87,12 @@ describe('MatchStatistics', () => {
     }
 
     it('renders 2 player statistics', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                throws: [{
-                    score: 123,
-                    noOfDarts: 3,
-                }],
-                score: 123,
-                noOfDarts: 3,
-                bust: false,
-            },
-            away: {
-                throws: [{
-                    score: 100,
-                    noOfDarts: 3,
-                }, {
-                    score: 150,
-                    noOfDarts: 3,
-                }],
-                score: 250,
-                noOfDarts: 6,
-                bust: false,
-            },
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+            .build();
         await renderComponent({
             legs: {0: leg},
             homeScore: 3,
@@ -133,21 +115,13 @@ describe('MatchStatistics', () => {
     });
 
     it('renders single player statistics', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            home: {
-                throws: [{
-                    score: 123,
-                    noOfDarts: 3,
-                }],
-                score: 123,
-                noOfDarts: 3,
-                bust: false,
-            },
-            away: {},
-            winner: 'home',
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+            .away({})
+            .winner('home')
+            .build();
         await renderComponent({
             legs: {0: leg},
             homeScore: 3,

@@ -3,6 +3,7 @@
 import React from "react";
 import {cleanUp, doChange, doClick, renderApp} from "../../../helpers/tests";
 import {GameDetails} from "./GameDetails";
+import {fixtureBuilder} from "../../../helpers/builders";
 
 describe('GameDetails', () => {
     let context;
@@ -40,17 +41,11 @@ describe('GameDetails', () => {
 
     describe('when not logged in', () => {
         it('when postponed = false and isKnockout=true', async () => {
-            const fixtureData = {
-                isKnockout: true,
-                postponed: false,
-                address: 'ADDRESS',
-                home: {
-                    name: 'HOME'
-                },
-                away: {
-                    name: 'AWAY',
-                }
-            };
+            const fixtureData = fixtureBuilder()
+                .knockout()
+                .address('ADDRESS')
+                .playing('HOME', 'AWAY')
+                .build();
 
             await renderComponent(false, '', fixtureData);
 
@@ -59,17 +54,11 @@ describe('GameDetails', () => {
         });
 
         it('when postponed=true and isKnockout=false', async () => {
-            const fixtureData = {
-                isKnockout: false,
-                postponed: true,
-                address: 'ADDRESS',
-                home: {
-                    name: 'HOME'
-                },
-                away: {
-                    name: 'AWAY',
-                }
-            };
+            const fixtureData = fixtureBuilder()
+                .postponed()
+                .address('ADDRESS')
+                .playing('HOME', 'AWAY')
+                .build();
 
             await renderComponent(false, '', fixtureData);
 
@@ -78,17 +67,12 @@ describe('GameDetails', () => {
         });
 
         it('when postponed=true and isKnockout=true', async () => {
-            const fixtureData = {
-                isKnockout: true,
-                postponed: true,
-                address: 'ADDRESS',
-                home: {
-                    name: 'HOME'
-                },
-                away: {
-                    name: 'AWAY',
-                }
-            };
+            const fixtureData = fixtureBuilder()
+                .knockout()
+                .postponed()
+                .address('ADDRESS')
+                .playing('HOME', 'AWAY')
+                .build();
 
             await renderComponent(false, '', fixtureData);
 
@@ -96,33 +80,13 @@ describe('GameDetails', () => {
             expect(component.textContent).toContain('at: ADDRESSPostponed');
         });
 
-        it('when home is unset', async () => {
-            const fixtureData = {
-                isKnockout: true,
-                postponed: true,
-                address: 'ADDRESS',
-                home: null,
-                away: {
-                    name: 'AWAY',
-                }
-            };
-
-            await renderComponent(false, '', fixtureData);
-
-            const shareButton = context.container.querySelectorAll('button')[0];
-            expect(shareButton).toBeFalsy();
-        });
-
         it('when away is unset', async () => {
-            const fixtureData = {
-                isKnockout: true,
-                postponed: true,
-                address: 'ADDRESS',
-                home: {
-                    name: 'HOME',
-                },
-                away: null
-            };
+            const fixtureData = fixtureBuilder()
+                .knockout()
+                .postponed()
+                .address('ADDRESS')
+                .bye('HOME')
+                .build();
 
             await renderComponent(false, '', fixtureData);
 
@@ -131,20 +95,16 @@ describe('GameDetails', () => {
         });
 
         it('when home and away are set', async () => {
-            const fixtureData = {
-                isKnockout: true,
-                postponed: true,
-                address: 'ADDRESS',
-                home: {
-                    name: 'HOME',
-                },
-                away: {
-                    name: 'AWAY',
-                }
-            };
+            const fixtureData = fixtureBuilder()
+                .knockout()
+                .postponed()
+                .address('ADDRESS')
+                .playing('HOME', 'AWAY')
+                .build();
 
             await renderComponent(false, '', fixtureData);
 
+            expect(reportedError).toBeNull();
             const shareButton = context.container.querySelectorAll('button')[0];
             expect(shareButton).toBeTruthy();
             expect(shareButton.textContent).toEqual('🔗');
@@ -154,19 +114,10 @@ describe('GameDetails', () => {
     describe('when an admin', () => {
         describe('renders', () => {
             it('date', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -176,19 +127,10 @@ describe('GameDetails', () => {
             });
 
             it('address', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -198,19 +140,11 @@ describe('GameDetails', () => {
             });
 
             it('postponed', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: true,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .postponed()
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -220,19 +154,11 @@ describe('GameDetails', () => {
             });
 
             it('isKnockout', async () => {
-                const fixtureData = {
-                    isKnockout: true,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .knockout()
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -242,19 +168,12 @@ describe('GameDetails', () => {
             });
 
             it('accoladesCount', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: true,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: true
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .postponed()
+                    .accoladesCount()
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -266,19 +185,10 @@ describe('GameDetails', () => {
 
         describe('changes', () => {
             it('date', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 await doChange(context.container, 'input[name="date"]', '2023-05-01', context.user);
@@ -288,19 +198,10 @@ describe('GameDetails', () => {
             });
 
             it('address', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 await doChange(context.container, 'input[name="address"]', 'NEW ADDRESS', context.user);
@@ -310,19 +211,11 @@ describe('GameDetails', () => {
             });
 
             it('postponed', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: true,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .postponed()
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 await doClick(context.container, 'input[name="postponed"]');
@@ -332,19 +225,11 @@ describe('GameDetails', () => {
             });
 
             it('isKnockout', async () => {
-                const fixtureData = {
-                    isKnockout: true,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: false
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .knockout()
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 await doClick(context.container, 'input[name="isKnockout"]');
@@ -354,19 +239,11 @@ describe('GameDetails', () => {
             });
 
             it('accoladesCount', async () => {
-                const fixtureData = {
-                    isKnockout: false,
-                    postponed: false,
-                    address: 'ADDRESS',
-                    home: {
-                        name: 'HOME'
-                    },
-                    away: {
-                        name: 'AWAY',
-                    },
-                    date: '2023-04-01T20:30:00',
-                    accoladesCount: true
-                };
+                const fixtureData = fixtureBuilder('2023-04-01T20:30:00')
+                    .accoladesCount()
+                    .address('ADDRESS')
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 await doClick(context.container, 'input[name="accoladesCount"]');

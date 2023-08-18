@@ -1,9 +1,9 @@
 // noinspection JSUnresolvedFunction
 
 import {cleanUp, doChange, doClick, findButton, renderApp} from "../../helpers/tests";
-import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {EditNote} from "./EditNote";
+import {divisionBuilder, noteBuilder, seasonBuilder} from "../../helpers/builders";
 
 describe('EditNote', () => {
     let context;
@@ -66,25 +66,19 @@ describe('EditNote', () => {
     }
 
     describe('renders', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
         const divisions = [division];
         const seasons = [season];
 
         it('when editing', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const header = context.container.querySelector('.modal-header');
             expect(header).toBeTruthy();
@@ -92,12 +86,14 @@ describe('EditNote', () => {
         });
 
         it('when creating', async () => {
-            await renderComponent({
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .noId()
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const header = context.container.querySelector('.modal-header');
             expect(header).toBeTruthy();
@@ -105,13 +101,13 @@ describe('EditNote', () => {
         });
 
         it('date', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const dateGroup = context.container.querySelector('.modal-body > div > div:nth-child(1)');
             expect(dateGroup).toBeTruthy();
@@ -122,13 +118,13 @@ describe('EditNote', () => {
         });
 
         it('note', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const noteGroup = context.container.querySelector('.modal-body > div > div:nth-child(2)');
             expect(noteGroup).toBeTruthy();
@@ -139,13 +135,13 @@ describe('EditNote', () => {
         });
 
         it('preview', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: '**Some** note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('**Some** note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const previewGroup = context.container.querySelector('.modal-body > div > div:nth-child(3)');
             expect(previewGroup).toBeTruthy();
@@ -154,13 +150,13 @@ describe('EditNote', () => {
         });
 
         it('season', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const seasonGroup = context.container.querySelector('.modal-body > div > div:nth-child(4)');
             expect(seasonGroup).toBeTruthy();
@@ -171,13 +167,14 @@ describe('EditNote', () => {
         });
 
         it('division', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: division.id,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .division(division)
+                    .build(),
+                divisions,
+                seasons);
 
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
             expect(divisionGroup).toBeTruthy();
@@ -188,13 +185,13 @@ describe('EditNote', () => {
         });
 
         it('all divisions', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
             expect(divisionGroup).toBeTruthy();
@@ -206,14 +203,8 @@ describe('EditNote', () => {
     });
 
     describe('interactivity', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        }
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
         const divisions = [division];
         const seasons = [season];
         let alert;
@@ -221,13 +212,13 @@ describe('EditNote', () => {
         window.alert = (message) => alert = message;
 
         it('can change date', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
             const dateGroup = context.container.querySelector('.modal-body > div > div:nth-child(1)');
 
             await doChange(dateGroup, 'input', '2023-06-06', context.user);
@@ -237,13 +228,13 @@ describe('EditNote', () => {
         });
 
         it('can change note', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
             const noteGroup = context.container.querySelector('.modal-body > div > div:nth-child(2)');
 
             await doChange(noteGroup, 'textarea', 'Another note', context.user);
@@ -253,17 +244,14 @@ describe('EditNote', () => {
         });
 
         it('can change season', async () => {
-            const anotherSeason = {
-                id: createTemporaryId(),
-                name: 'ANOTHER SEASON',
-            };
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, [season, anotherSeason]);
+            const anotherSeason = seasonBuilder('ANOTHER SEASON').build();
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                [season, anotherSeason]);
             const seasonGroup = context.container.querySelector('.modal-body > div > div:nth-child(4)');
 
             await doChange(seasonGroup, 'select', anotherSeason.id, context.user);
@@ -273,17 +261,14 @@ describe('EditNote', () => {
         });
 
         it('can change division', async () => {
-            const anotherDivision = {
-                id: createTemporaryId(),
-                name: 'ANOTHER DIVISION',
-            };
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, [division, anotherDivision], seasons);
+            const anotherDivision = divisionBuilder('ANOTHER DIVISION').build();
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                [division, anotherDivision],
+                seasons);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
 
             await doChange(divisionGroup, 'select', anotherDivision.id, context.user);
@@ -293,13 +278,13 @@ describe('EditNote', () => {
         });
 
         it('can change to all divisions', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
             const divisionGroup = context.container.querySelector('.modal-body > div > div:nth-child(5)');
 
             await doChange(divisionGroup, 'select', 'NULL', context.user);
@@ -309,13 +294,13 @@ describe('EditNote', () => {
         });
 
         it('cannot save when no note', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: '',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
             alert = null;
 
             await doClick(findButton(context.container, 'Save'));
@@ -325,13 +310,13 @@ describe('EditNote', () => {
         });
 
         it('cannot save when no date', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
             alert = null;
 
             await doClick(findButton(context.container, 'Save'));
@@ -341,13 +326,15 @@ describe('EditNote', () => {
         });
 
         it('can create note', async () => {
-            await renderComponent({
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-                updated: '2023-07-01T00:00:00',
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .noId()
+                    .note('Some note')
+                    .season(season)
+                    .updated('2023-07-01T00:00:00')
+                    .build(),
+                divisions,
+                seasons);
             alert = null;
 
             await doClick(findButton(context.container, 'Save'));
@@ -358,14 +345,14 @@ describe('EditNote', () => {
         });
 
         it('can update note', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-                updated: '2023-07-01T00:00:00',
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .updated('2023-07-01T00:00:00')
+                    .build(),
+                divisions,
+                seasons);
             alert = null;
 
             await doClick(findButton(context.container, 'Save'));
@@ -377,13 +364,13 @@ describe('EditNote', () => {
         });
 
         it('shows error if unable to save', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
             alert = null;
             saveResult = {
                 success: false,
@@ -397,13 +384,13 @@ describe('EditNote', () => {
         });
 
         it('can close dialog', async () => {
-            await renderComponent({
-                id: createTemporaryId(),
-                date: '2023-05-01T00:00:00',
-                note: 'Some note',
-                seasonId: season.id,
-                divisionId: null,
-            }, divisions, seasons);
+            await renderComponent(
+                noteBuilder('2023-05-01T00:00:00')
+                    .note('Some note')
+                    .season(season)
+                    .build(),
+                divisions,
+                seasons);
 
             await doClick(findButton(context.container, 'Close'));
 

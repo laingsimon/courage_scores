@@ -3,6 +3,7 @@
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {PlayLeg} from "./PlayLeg";
+import {legBuilder} from "../../../helpers/builders";
 
 describe('PlayLeg', () => {
     let context;
@@ -97,24 +98,13 @@ describe('PlayLeg', () => {
 
     it('renders previous player score', async () => {
         await renderComponent({
-            leg: {
-                playerSequence: ['home', 'away'],
-                currentThrow: 'home',
-                isLastLeg: false,
-                home: {
-                    throws: [{
-                        score: 50,
-                    }],
-                    score: 50,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                    }],
-                    score: 100,
-                },
-                startingScore: 501,
-            },
+            leg: legBuilder()
+                .playerSequence('home', 'away')
+                .currentThrow('home')
+                .home(c => c.withThrow(50).score(50))
+                .away(c => c.withThrow(100).score(100))
+                .startingScore(501)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             homeScore: 0,
@@ -128,24 +118,13 @@ describe('PlayLeg', () => {
 
     it('renders player input', async () => {
         await renderComponent({
-            leg: {
-                playerSequence: ['home', 'away'],
-                currentThrow: 'home',
-                isLastLeg: false,
-                home: {
-                    throws: [{
-                        score: 50,
-                    }],
-                    score: 50,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                    }],
-                    score: 100,
-                },
-                startingScore: 501,
-            },
+            leg: legBuilder()
+                .playerSequence('home', 'away')
+                .currentThrow('home')
+                .home(c => c.withThrow(50).score(50))
+                .away(c => c.withThrow(100).score(100))
+                .startingScore(501)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             homeScore: 0,
@@ -159,22 +138,13 @@ describe('PlayLeg', () => {
 
     it('can undo last throw', async () => {
         await renderComponent({
-            leg: {
-                playerSequence: ['home', 'away'],
-                currentThrow: 'home',
-                isLastLeg: false,
-                home: {
-                    throws: [{score: 50, noOfDarts: 3}],
-                    score: 50,
-                    noOfDarts: 3,
-                },
-                away: {
-                    throws: [{score: 100, noOfDarts: 3}],
-                    score: 100,
-                    noOfDarts: 3,
-                },
-                startingScore: 501,
-            },
+            leg: legBuilder()
+                .playerSequence('home', 'away')
+                .currentThrow('home')
+                .home(c => c.withThrow(50, false, 3).score(50).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).score(100).noOfDarts(3))
+                .startingScore(501)
+                .build(),
             home: 'HOME',
             away: 'AWAY',
             homeScore: 0,
@@ -189,17 +159,22 @@ describe('PlayLeg', () => {
         expect(changedLeg).toEqual({
             currentThrow: 'away',
             home: {
-                throws: [{score: 50, noOfDarts: 3}],
+                throws: [{score: 50, noOfDarts: 3, bust: false}],
                 score: 50,
                 noOfDarts: 3,
+                bust: false,
             },
             away: {
                 throws: [],
                 score: 0,
                 noOfDarts: 0,
+                bust: false,
             },
             isLastLeg: false,
-            playerSequence: ['home', 'away'],
+            playerSequence: [
+                { text: 'HOME', value: 'home' },
+                { text: 'AWAY', value: 'away' }
+            ],
             startingScore: 501,
         });
     });

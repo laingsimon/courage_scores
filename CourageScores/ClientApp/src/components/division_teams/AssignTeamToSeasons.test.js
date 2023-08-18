@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {AssignTeamToSeasons} from "./AssignTeamToSeasons";
+import {divisionBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('AssignTeamToSeasons', () => {
     let context;
@@ -65,18 +66,13 @@ describe('AssignTeamToSeasons', () => {
     }
 
     describe('component', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-05-01T00:00:00'
-        };
+        const season = seasonBuilder('SEASON')
+            .starting('2023-05-01T00:00:00')
+            .build();
+        const division = divisionBuilder('DIVISION').build();
 
         it('renders when team not found', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [],
-            }
+            const team = teamBuilder('TEAM').build();
             await renderComponent(team, [], [season], season);
 
             expect(reportedError).toBeNull();
@@ -84,18 +80,10 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('renders selected seasons', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id
-                }],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             expect(reportedError).toBeNull();
@@ -108,11 +96,7 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can change copy team from current season', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [],
-            }
+            const team = teamBuilder('TEAM').build();
             await renderComponent(team, [team], [season], season);
 
             await doClick(context.container, '.list-group .list-group-item'); // select the season
@@ -131,18 +115,10 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can unassign a selected season', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id
-                }],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             await doClick(context.container, '.list-group .list-group-item.active');
@@ -156,18 +132,10 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can assign an unselected season', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id
-                }],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             await doClick(context.container, '.list-group .list-group-item:not(.active)');
@@ -181,18 +149,10 @@ describe('AssignTeamToSeasons', () => {
         });
 
         it('can close', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id
-                }],
-            }
-            const otherSeason = {
-                id: createTemporaryId(),
-                name: 'PREVIOUS SEASON',
-                startDate: '2023-02-01T00:00:00'
-            };
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
             await renderComponent(team, [team], [season, otherSeason], season);
 
             await doClick(findButton(context.container, 'Close'));

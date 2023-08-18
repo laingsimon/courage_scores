@@ -4,6 +4,7 @@ import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from 
 import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {EditTeamDetails} from "./EditTeamDetails";
+import {divisionBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('EditTeamDetails', () => {
     let context;
@@ -57,17 +58,9 @@ describe('EditTeamDetails', () => {
 
     describe('renders', () => {
         it('name', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: null,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division]);
@@ -81,17 +74,9 @@ describe('EditTeamDetails', () => {
         });
 
         it('address', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: null,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division]);
@@ -105,17 +90,9 @@ describe('EditTeamDetails', () => {
         });
 
         it('division', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division]);
@@ -129,21 +106,10 @@ describe('EditTeamDetails', () => {
         });
 
         it('new division', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: otherDivision.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(otherDivision.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division, otherDivision]);
@@ -159,17 +125,9 @@ describe('EditTeamDetails', () => {
 
     describe('interactivity', () => {
         it('name can be changed', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division]);
@@ -183,17 +141,9 @@ describe('EditTeamDetails', () => {
         });
 
         it('address can be changed', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division]);
@@ -207,21 +157,10 @@ describe('EditTeamDetails', () => {
         });
 
         it('division can be changed', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
             await renderComponent({
-                team: {
-                    id: createTemporaryId(),
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division, otherDivision]);
@@ -235,21 +174,11 @@ describe('EditTeamDetails', () => {
         });
 
         it('division cannot be changed when new team', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
 
             await renderComponent({
-                team: {
-                    name: 'TEAM',
-                    address: 'ADDRESS',
-                    newDivisionId: division.id,
-                },
+                team: teamBuilder('TEAM').noId().address('ADDRESS').newDivisionId(division.id).build(),
                 divisionId: division.id,
                 seasonId: createTemporaryId(),
             }, [division, otherDivision]);
@@ -262,17 +191,12 @@ describe('EditTeamDetails', () => {
         });
 
         it('prevents save when no name', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const team = {
-                id: createTemporaryId(),
-                name: '',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const team = teamBuilder('')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .build();
             await renderComponent({
                 team: {
                     id: team.id,
@@ -295,22 +219,14 @@ describe('EditTeamDetails', () => {
         });
 
         it('can save team changes', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-                updated: '2023-07-01T00:00:00',
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .updated('2023-07-01T00:00:00')
+                .build();
             await renderComponent({
                 team: {
                     id: team.id,
@@ -338,20 +254,13 @@ describe('EditTeamDetails', () => {
         });
 
         it('can create team', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
-            const team = {
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .season(createTemporaryId())
+                .division(division)
+                .build();
             await renderComponent({
                 team: {
                     name: team.name,
@@ -377,20 +286,13 @@ describe('EditTeamDetails', () => {
         });
 
         it('shows an error if unable to save', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const otherDivision = {
-                id: createTemporaryId(),
-                name: 'OTHER DIVISION',
-            };
-            const team = {
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .build();
             await renderComponent({
                 team: {
                     name: team.name,
@@ -411,17 +313,12 @@ describe('EditTeamDetails', () => {
         });
 
         it('can cancel', async () => {
-            const division = {
-                id: createTemporaryId(),
-                name: 'DIVISION',
-            };
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                address: 'ADDRESS',
-                divisionId: division.id,
-                seasonId: createTemporaryId(),
-            }
+            const division = divisionBuilder('DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .season(createTemporaryId())
+                .division(division)
+                .build();
             await renderComponent({
                 team: {
                     name: team.name,

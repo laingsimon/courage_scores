@@ -6,6 +6,12 @@ import {DivisionDataContainer} from "../DivisionDataContainer";
 import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {PlayerOverview} from "./PlayerOverview";
+import {
+    divisionBuilder,
+    fixtureDateBuilder,
+    seasonBuilder,
+    teamBuilder
+} from "../../helpers/builders";
 
 describe('PlayerOverview', () => {
     let context;
@@ -34,18 +40,11 @@ describe('PlayerOverview', () => {
     }
 
     describe('renders', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const team = {
-            id: createTemporaryId(),
-            name: 'TEAM',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
+        const team = teamBuilder('TEAM').build();
 
         const player = {
             id: createTemporaryId(),
@@ -123,24 +122,12 @@ describe('PlayerOverview', () => {
         });
 
         it('league fixture', async () => {
-            const fixture = {
-                id: createTemporaryId(),
-                isKnockout: false,
-                homeTeam: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                awayTeam: team,
-                homeScore: 3,
-                awayScore: 1,
-            };
-            const fixtureDate = {
-                date: '2023-05-06T00:00:00',
-                fixtures: [fixture],
-                tournamentFixtures: []
-            };
+            const fixtureId = createTemporaryId();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture(f => f.playing(teamBuilder('HOME'), team).scores(3, 1), fixtureId)
+                .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
+            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
                 playerWithLeagueFixture.id,
                 {
@@ -168,33 +155,23 @@ describe('PlayerOverview', () => {
             ]);
             const linkToFixture = cells[0].querySelector('a');
             expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixture.id}`);
+            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
             const linkToHomeTeam = cells[1].querySelector('a');
             expect(linkToHomeTeam).toBeTruthy();
-            expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.homeTeam.name}/${season.name}`);
+            expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.name}/team:HOME/${season.name}`);
             const linkToAwayTeam = cells[5].querySelector('a');
             expect(linkToAwayTeam).toBeFalsy();
         });
 
         it('league knockout fixture', async () => {
-            const fixture = {
-                id: createTemporaryId(),
-                isKnockout: true,
-                homeTeam: team,
-                awayTeam: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeScore: 3,
-                awayScore: 1,
-            };
-            const fixtureDate = {
-                date: '2023-05-06T00:00:00',
-                fixtures: [fixture],
-                tournamentFixtures: []
-            };
+            const fixtureId = createTemporaryId();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture(f => f.playing(team, teamBuilder('AWAY'))
+                    .knockout()
+                    .scores(3, 1), fixtureId)
+                .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
+            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
                 playerWithLeagueFixture.id,
                 {
@@ -222,34 +199,23 @@ describe('PlayerOverview', () => {
             ]);
             const linkToFixture = cells[0].querySelector('a');
             expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixture.id}`);
+            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
             const linkToHomeTeam = cells[1].querySelector('a');
             expect(linkToHomeTeam).toBeFalsy();
             const linkToAwayTeam = cells[5].querySelector('a');
             expect(linkToAwayTeam).toBeTruthy();
-            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.awayTeam.name}/${season.name}`);
+            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:AWAY/${season.name}`);
         });
 
         it('postponed league fixture', async () => {
-            const fixture = {
-                id: createTemporaryId(),
-                isKnockout: false,
-                postponed: true,
-                homeTeam: team,
-                awayTeam: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                },
-                homeScore: 3,
-                awayScore: 1,
-            };
-            const fixtureDate = {
-                date: '2023-05-06T00:00:00',
-                fixtures: [fixture],
-                tournamentFixtures: []
-            };
+            const fixtureId = createTemporaryId();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture(f => f.playing(team, teamBuilder('AWAY'))
+                    .scores(3, 1)
+                    .postponed(), fixtureId)
+                .build();
             const playerWithLeagueFixture = Object.assign({}, player);
-            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixture.id;
+            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
                 playerWithLeagueFixture.id,
                 {
@@ -277,28 +243,21 @@ describe('PlayerOverview', () => {
             ]);
             const linkToFixture = cells[0].querySelector('a');
             expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixture.id}`);
+            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
             const linkToHomeTeam = cells[1].querySelector('a');
             expect(linkToHomeTeam).toBeFalsy();
             const linkToAwayTeam = cells[5].querySelector('a');
             expect(linkToAwayTeam).toBeTruthy();
-            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:${fixture.awayTeam.name}/${season.name}`);
+            expect(linkToAwayTeam.href).toEqual(`http://localhost/division/${division.name}/team:AWAY/${season.name}`);
         });
 
         it('unplayed tournament fixture', async () => {
-            const tournamentFixture = {
-                id: createTemporaryId(),
-                proposed: false,
-                players: [player.id],
-                type: 'TYPE',
-                address: 'ADDRESS',
-                winningSide: null,
-            };
-            const fixtureDate = {
-                date: '2023-05-06T00:00:00',
-                fixtures: [],
-                tournamentFixtures: [tournamentFixture]
-            };
+            const tournamentId = createTemporaryId();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withTournament(t => t.withPlayer(player)
+                    .type('TYPE')
+                    .address('ADDRESS'), tournamentId)
+                .build();
             await renderComponent(
                 player.id,
                 {
@@ -323,25 +282,17 @@ describe('PlayerOverview', () => {
             ]);
             const linkToFixture = cells[0].querySelector('a');
             expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentFixture.id}`);
+            expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
 
         it('tournament fixture with winner', async () => {
-            const tournamentFixture = {
-                id: createTemporaryId(),
-                proposed: false,
-                players: [player.id],
-                type: 'TYPE',
-                address: 'ADDRESS',
-                winningSide: {
-                    name: 'WINNER'
-                },
-            };
-            const fixtureDate = {
-                date: '2023-05-06T00:00:00',
-                fixtures: [],
-                tournamentFixtures: [tournamentFixture]
-            };
+            const tournamentId = createTemporaryId();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withTournament(t => t.withPlayer(player)
+                    .type('TYPE')
+                    .address('ADDRESS')
+                    .winner('WINNER'), tournamentId)
+                .build();
             await renderComponent(
                 player.id,
                 {
@@ -366,25 +317,17 @@ describe('PlayerOverview', () => {
             ]);
             const linkToFixture = cells[0].querySelector('a');
             expect(linkToFixture).toBeTruthy();
-            expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentFixture.id}`);
+            expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
 
         it('not proposed tournament fixtures', async () => {
-            const tournamentFixture = {
-                id: createTemporaryId(),
-                proposed: true,
-                players: [player.id],
-                type: 'TYPE',
-                address: 'ADDRESS',
-                winningSide: {
-                    name: 'WINNER'
-                },
-            };
-            const fixtureDate = {
-                date: '2023-05-06T00:00:00',
-                fixtures: [],
-                tournamentFixtures: [tournamentFixture]
-            };
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withTournament(t => t.withPlayer(player)
+                    .type('TYPE')
+                    .address('ADDRESS')
+                    .winner('WINNER')
+                    .proposed())
+                .build();
             await renderComponent(
                 player.id,
                 {

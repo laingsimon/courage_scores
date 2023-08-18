@@ -52,7 +52,7 @@ export function DivisionFixture({fixture, date, readOnly, onUpdateFixtures, befo
                 return false;
             }
 
-            return any(fixtureDate.fixtures, f => f.isKnockout === false && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
+            return any(fixtureDate.fixtures, f => !f.isKnockout && f.homeTeam.id === fixture.homeTeam.id && f.awayTeam && f.awayTeam.id === t.id);
         });
 
         return any(matching) ? matching[0].date : null;

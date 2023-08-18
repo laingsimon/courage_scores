@@ -3,13 +3,13 @@
 import {cleanUp, doClick, findButton, noop} from "./helpers/tests";
 import React from "react";
 import {App} from "./App";
-import {createTemporaryId} from "./helpers/projection";
 import {act} from "@testing-library/react";
 import {MemoryRouter, Route} from "react-router-dom";
 import {IocContainer} from "./IocContainer";
 import ReactDOM from "react-dom/client";
 import {useApp} from "./AppContainer";
 import {BrandingContainer} from "./BrandingContainer";
+import {divisionBuilder} from "./helpers/builders";
 
 describe('App', () => {
     let context;
@@ -209,13 +209,10 @@ describe('App', () => {
         });
 
         it('with divisions', async () => {
-            allDivisions = [{
-                id: createTemporaryId(),
-                name: 'Division One'
-            }, {
-                id: createTemporaryId(),
-                name: 'Division Two'
-            }];
+            allDivisions = [
+                divisionBuilder('Division One').build(),
+                divisionBuilder('Division Two').build()
+            ];
 
             await renderComponent(null);
 

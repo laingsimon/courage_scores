@@ -3,6 +3,7 @@
 import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {ScoreAsYouGo} from "./ScoreAsYouGo";
+import {legBuilder, saygBuilder} from "../../../helpers/builders";
 
 describe('ScoreAsYouGo', () => {
     let context;
@@ -133,9 +134,8 @@ describe('ScoreAsYouGo', () => {
     });
 
     it('can update leg', async () => {
-        const leg = {};
         await renderComponent({
-            data: {legs: {'0': leg}},
+            data: saygBuilder().withLeg('0', l => l).build(),
             home: 'HOME',
             away: 'AWAY',
             startingScore: 501,
@@ -148,9 +148,13 @@ describe('ScoreAsYouGo', () => {
         await doClick(findButton(context.container, '🎯HOME'));
 
         expect(changedLegs).toEqual([{
+            id: expect.any(String),
             legs: {
                 '0':
                     {
+                        isLastLeg: false,
+                        away: null,
+                        home: null,
                         currentThrow: 'home',
                         playerSequence: [
                             {text: 'HOME', value: 'home'},
@@ -162,25 +166,14 @@ describe('ScoreAsYouGo', () => {
     });
 
     it('can record home winner for 2 player match', async () => {
-        const leg = {
-            currentThrow: 'home',
-            playerSequence: [
-                {text: 'HOME', value: 'home'},
-                {text: 'AWAY', value: 'away'}
-            ],
-            home: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 400}],
-                score: 400,
-            },
-            away: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 50}],
-                score: 100,
-            },
-            startingScore: 501,
-            isLastLeg: true,
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .playerSequence('home', 'away')
+            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .startingScore(501)
+            .lastLeg()
+            .build();
         await renderComponent({
             data: {legs: {'0': leg}},
             home: 'HOME',
@@ -208,14 +201,15 @@ describe('ScoreAsYouGo', () => {
                         bust: false,
                         noOfDarts: 6,
                         throws: [
-                            {noOfDarts: 3, score: 400},
+                            {noOfDarts: 3, score: 400, bust: false},
                             {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
                     away: {
                         noOfDarts: 3,
-                        throws: [{noOfDarts: 3, score: 50}],
+                        bust: false,
+                        throws: [{noOfDarts: 3, score: 50, bust: false}],
                         score: 100,
                     },
                     startingScore: 501,
@@ -227,25 +221,13 @@ describe('ScoreAsYouGo', () => {
     });
 
     it('can record home winner for 2 player match, not last leg', async () => {
-        const leg = {
-            currentThrow: 'home',
-            playerSequence: [
-                {text: 'HOME', value: 'home'},
-                {text: 'AWAY', value: 'away'}
-            ],
-            home: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 400}],
-                score: 400,
-            },
-            away: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 50}],
-                score: 100,
-            },
-            startingScore: 501,
-            isLastLeg: false,
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .playerSequence('home', 'away')
+            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .startingScore(501)
+            .build();
         await renderComponent({
             data: {legs: {'0': leg}},
             home: 'HOME',
@@ -273,14 +255,15 @@ describe('ScoreAsYouGo', () => {
                         bust: false,
                         noOfDarts: 6,
                         throws: [
-                            {noOfDarts: 3, score: 400},
+                            {noOfDarts: 3, score: 400, bust: false},
                             {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
                     away: {
+                        bust: false,
                         noOfDarts: 3,
-                        throws: [{noOfDarts: 3, score: 50}],
+                        throws: [{noOfDarts: 3, score: 50, bust: false}],
                         score: 100,
                     },
                     startingScore: 501,
@@ -310,25 +293,13 @@ describe('ScoreAsYouGo', () => {
     });
 
     it('shows statistics if home player wins over half of legs', async () => {
-        const leg = {
-            currentThrow: 'home',
-            playerSequence: [
-                {text: 'HOME', value: 'home'},
-                {text: 'AWAY', value: 'away'}
-            ],
-            home: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 400}],
-                score: 400,
-            },
-            away: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 50}],
-                score: 100,
-            },
-            startingScore: 501,
-            isLastLeg: false,
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .playerSequence('home', 'away')
+            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away(c => c.noOfDarts(3).score(100).withThrow(50, false, 3))
+            .startingScore(501)
+            .build();
         await renderComponent({
             data: {
                 legs: {
@@ -357,21 +328,14 @@ describe('ScoreAsYouGo', () => {
     });
 
     it('can record winner for single player match', async () => {
-        const leg = {
-            currentThrow: 'home',
-            playerSequence: [
-                {text: 'HOME', value: 'home'},
-                {text: 'AWAY', value: 'away'}
-            ],
-            home: {
-                noOfDarts: 3,
-                throws: [{noOfDarts: 3, score: 400}],
-                score: 400,
-            },
-            away: {throws: []},
-            startingScore: 501,
-            isLastLeg: true,
-        };
+        const leg = legBuilder()
+            .currentThrow('home')
+            .playerSequence('home', 'away')
+            .home(c => c.noOfDarts(3).score(400).withThrow(400, false, 3))
+            .away(c => c)
+            .startingScore(501)
+            .lastLeg()
+            .build();
         await renderComponent({
             data: {legs: {'0': leg}},
             home: 'HOME',
@@ -398,12 +362,17 @@ describe('ScoreAsYouGo', () => {
                         bust: false,
                         noOfDarts: 6,
                         throws: [
-                            {noOfDarts: 3, score: 400},
+                            {noOfDarts: 3, score: 400, bust: false},
                             {noOfDarts: 3, score: 101, bust: false}
                         ],
                         score: 501,
                     },
-                    away: {throws: []},
+                    away: {
+                        throws: [],
+                        bust: false,
+                        noOfDarts: 0,
+                        score: 0
+                    },
                     startingScore: 501,
                     winner: 'home',
                     isLastLeg: true,
