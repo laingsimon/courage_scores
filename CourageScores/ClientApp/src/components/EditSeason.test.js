@@ -89,15 +89,15 @@ describe('EditSeason', () => {
         name: 'DIVISION 2',
     };
     const divisions = [division1, division2];
+    const season = {
+        id: createTemporaryId(),
+        name: 'SEASON',
+        startDate: '2023-01-01T00:00:00',
+        endDate: '2023-05-01T00:00:00',
+        divisionIds: [division1.id],
+    };
 
     it('updates season name', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         let updatedData;
         await renderComponent({
             data: season,
@@ -115,13 +115,6 @@ describe('EditSeason', () => {
     });
 
     it('updates season dates', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         let updatedData;
         await renderComponent({
             data: season,
@@ -143,13 +136,6 @@ describe('EditSeason', () => {
     });
 
     it('can select a division', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         let updatedData;
         await renderComponent({
             data: season,
@@ -170,13 +156,6 @@ describe('EditSeason', () => {
     });
 
     it('can unselect a division', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         let updatedData;
         await renderComponent({
             data: season,
@@ -197,19 +176,15 @@ describe('EditSeason', () => {
     });
 
     it('updates copy teams from when no id', async () => {
-        const season = {
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
+        const seasonWithoutId = Object.assign({}, season);
+        seasonWithoutId.id = null;
         const otherSeason = {
             id: createTemporaryId(),
             name: 'OTHER SEASON',
         };
         let updatedData;
         await renderComponent({
-            data: season,
+            data: seasonWithoutId,
             onUpdateData: (update) => {
                 updatedData = update;
             }
@@ -223,16 +198,11 @@ describe('EditSeason', () => {
     });
 
     it('prevents save when season name is empty', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: '',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
+        const seasonWithoutName = Object.assign({}, season);
+        seasonWithoutName.name = '';
         await renderComponent({
-            data: season,
-        }, [season], divisions);
+            data: seasonWithoutName,
+        }, [seasonWithoutName], divisions);
 
         await doClick(findButton(context.container, 'Update season'));
 
@@ -241,13 +211,6 @@ describe('EditSeason', () => {
     });
 
     it('saves season updates', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         await renderComponent({
             data: season,
         }, [season], divisions);
@@ -262,13 +225,6 @@ describe('EditSeason', () => {
     });
 
     it('reports saveError if an error during save', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         await renderComponent({
             data: season,
         }, [season], divisions);
@@ -284,13 +240,6 @@ describe('EditSeason', () => {
     });
 
     it('confirms if season should be deleted', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         await renderComponent({
             data: season,
         }, [season], divisions);
@@ -303,13 +252,6 @@ describe('EditSeason', () => {
     });
 
     it('deletes season', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         await renderComponent({
             data: season,
         }, [season], divisions);
@@ -323,13 +265,6 @@ describe('EditSeason', () => {
     });
 
     it('reports saveError if season cannot be deleted', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         await renderComponent({
             data: season,
         }, [season], divisions);
@@ -347,13 +282,6 @@ describe('EditSeason', () => {
     });
 
     it('navigates to home when season deleted', async () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            startDate: '2023-01-01T00:00:00',
-            endDate: '2023-05-01T00:00:00',
-            divisionIds: [division1.id],
-        }
         await renderComponent({
             data: season,
         }, [season], divisions);
