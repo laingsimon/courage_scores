@@ -4,6 +4,7 @@ import React from "react";
 import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
 import {createTemporaryId} from "../../../helpers/projection";
+import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
 
 describe('HiCheckAnd180s', () => {
     let context;
@@ -43,14 +44,10 @@ describe('HiCheckAnd180s', () => {
 
     describe('when logged out', () => {
         it('when no matches', async () => {
-            const fixtureData = {
-                matches: [],
-                resultsPublished: false,
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                oneEighties: [],
-                over100Checkouts: []
-            };
+            const fixtureData = fixtureBuilder()
+                .forDivision(createTemporaryId())
+                .forSeason(createTemporaryId())
+                .build();
 
             await renderComponent(false, 'readonly', fixtureData);
 
@@ -61,17 +58,11 @@ describe('HiCheckAnd180s', () => {
         });
 
         it('when no selected players', async () => {
-            const fixtureData = {
-                matches: [{
-                    homePlayers: null,
-                    awayPlayers: null
-                }],
-                resultsPublished: false,
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                oneEighties: [],
-                over100Checkouts: []
-            };
+            const fixtureData = fixtureBuilder()
+                .forDivision(createTemporaryId())
+                .forSeason(createTemporaryId())
+                .withMatch(m => m)
+                .build();
 
             await renderComponent(false, 'readonly', fixtureData);
 
@@ -82,17 +73,11 @@ describe('HiCheckAnd180s', () => {
         });
 
         it('when empty selected players', async () => {
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [],
-                    awayPlayers: []
-                }],
-                resultsPublished: false,
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                oneEighties: [],
-                over100Checkouts: []
-            };
+            const fixtureData = fixtureBuilder()
+                .forDivision(createTemporaryId())
+                .forSeason(createTemporaryId())
+                .withMatch(m => m.withHome().withAway())
+                .build();
 
             await renderComponent(false, 'readonly', fixtureData);
 
@@ -103,23 +88,13 @@ describe('HiCheckAnd180s', () => {
         });
 
         it('when no 180s or hi-checks', async () => {
-            const homePlayer = {
-                id: createTemporaryId(), name: 'HOME player',
-            };
-            const awayPlayer = {
-                id: createTemporaryId(), name: 'AWAY player',
-            };
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [homePlayer],
-                    awayPlayers: [awayPlayer]
-                }],
-                resultsPublished: false,
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                oneEighties: [],
-                over100Checkouts: []
-            };
+            const homePlayer = playerBuilder('HOME player').build();
+            const awayPlayer = playerBuilder('AWAY player').build();
+            const fixtureData = fixtureBuilder()
+                .forDivision(createTemporaryId())
+                .forSeason(createTemporaryId())
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .build();
 
             await renderComponent(false, 'readonly', fixtureData);
 
@@ -131,23 +106,14 @@ describe('HiCheckAnd180s', () => {
         });
 
         it('when some 180s', async () => {
-            const homePlayer = {
-                id: createTemporaryId(), name: 'HOME player',
-            };
-            const awayPlayer = {
-                id: createTemporaryId(), name: 'AWAY player',
-            };
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [homePlayer],
-                    awayPlayers: [awayPlayer]
-                }],
-                resultsPublished: false,
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                oneEighties: [{id: homePlayer.id, name: homePlayer.name}],
-                over100Checkouts: []
-            };
+            const homePlayer = playerBuilder('HOME player').build();
+            const awayPlayer = playerBuilder('AWAY player').build();
+            const fixtureData = fixtureBuilder()
+                .forDivision(createTemporaryId())
+                .forSeason(createTemporaryId())
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .with180(homePlayer)
+                .build();
 
             await renderComponent(false, 'readonly', fixtureData);
 
@@ -161,23 +127,14 @@ describe('HiCheckAnd180s', () => {
         });
 
         it('when some hi-checks', async () => {
-            const homePlayer = {
-                id: createTemporaryId(), name: 'HOME player',
-            };
-            const awayPlayer = {
-                id: createTemporaryId(), name: 'AWAY player',
-            };
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [homePlayer],
-                    awayPlayers: [awayPlayer]
-                }],
-                resultsPublished: false,
-                divisionId: createTemporaryId(),
-                seasonId: createTemporaryId(),
-                oneEighties: [],
-                over100Checkouts: [{id: homePlayer.id, name: homePlayer.name, notes: '100'}]
-            };
+            const homePlayer = playerBuilder('HOME player').build();
+            const awayPlayer = playerBuilder('AWAY player').build();
+            const fixtureData = fixtureBuilder()
+                .forDivision(createTemporaryId())
+                .forSeason(createTemporaryId())
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .withHiCheck(homePlayer, '100')
+                .build();
 
             await renderComponent(false, 'readonly', fixtureData);
 
@@ -194,14 +151,10 @@ describe('HiCheckAnd180s', () => {
     describe('when logged in', () => {
         describe('renders', () => {
             it('when no matches', async () => {
-                const fixtureData = {
-                    matches: [],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [],
-                    over100Checkouts: []
-                };
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -212,17 +165,11 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('when no selected players', async () => {
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: []
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [],
-                    over100Checkouts: []
-                };
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome().withAway())
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -233,23 +180,13 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('when no 180s or hi-checks', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [],
-                    over100Checkouts: []
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -267,23 +204,14 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('when some 180s', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [{id: homePlayer.id, name: homePlayer.name}],
-                    over100Checkouts: []
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .with180(homePlayer)
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -296,23 +224,14 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('when some hi-checks', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [],
-                    over100Checkouts: [{id: homePlayer.id, name: homePlayer.name, notes: '100'}]
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withHiCheck(homePlayer, '100')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
 
@@ -327,23 +246,14 @@ describe('HiCheckAnd180s', () => {
 
         describe('changes', () => {
             it('add a 180', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [{id: homePlayer.id, name: homePlayer.name}],
-                    over100Checkouts: []
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .with180(homePlayer)
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 const td180s = context.container.querySelectorAll('td')[0];
@@ -359,23 +269,14 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('remove a 180', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [{id: homePlayer.id, name: homePlayer.name}],
-                    over100Checkouts: []
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .with180(homePlayer)
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 const td180s = context.container.querySelectorAll('td')[0];
@@ -387,23 +288,14 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('add a hi-check', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [],
-                    over100Checkouts: [{id: homePlayer.id, name: homePlayer.name, notes: '100'}]
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withHiCheck(homePlayer, '100')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 const tdHiChecks = context.container.querySelectorAll('td')[2];
@@ -420,23 +312,14 @@ describe('HiCheckAnd180s', () => {
             });
 
             it('remove a hi-check', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    resultsPublished: false,
-                    divisionId: createTemporaryId(),
-                    seasonId: createTemporaryId(),
-                    oneEighties: [],
-                    over100Checkouts: [{id: homePlayer.id, name: homePlayer.name, notes: '100'}]
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .forDivision(createTemporaryId())
+                    .forSeason(createTemporaryId())
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .withHiCheck(homePlayer, '100')
+                    .build();
 
                 await renderComponent(false, 'admin', fixtureData);
                 const tdHiChecks = context.container.querySelectorAll('td')[2];

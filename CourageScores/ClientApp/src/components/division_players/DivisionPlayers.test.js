@@ -5,6 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionPlayers} from "./DivisionPlayers";
+import {seasonBuilder} from "../../helpers/builders";
 
 describe('DivisionPlayers', () => {
     let context;
@@ -39,13 +40,10 @@ describe('DivisionPlayers', () => {
     }
 
     function createDivisionData(divisionId) {
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: []
-        };
+        const season = seasonBuilder('A season')
+            .starting('2022-02-03T00:00:00')
+            .ending('2022-08-25T00:00:00')
+            .build();
         return {
             id: divisionId,
             players: [{

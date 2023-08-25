@@ -6,6 +6,14 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TournamentFixture} from "./TournamentFixture";
+import {
+    divisionBuilder,
+    playerBuilder,
+    seasonBuilder,
+    sideBuilder,
+    teamBuilder,
+    tournamentBuilder
+} from "../../helpers/builders";
 
 describe('TournamentFixture', () => {
     let context;
@@ -65,18 +73,9 @@ describe('TournamentFixture', () => {
     }
 
     describe('when logged out', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const player = {
-            id: createTemporaryId(),
-            name: 'PLAYER',
-        };
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
+        const player = playerBuilder('PLAYER').build();
         const account = null;
 
         function assertPlayerDisplayWithPlayerLinks(playersCell, ordinal, players) {
@@ -119,14 +118,11 @@ describe('TournamentFixture', () => {
         }
 
         it('renders unplayed tournament', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -139,18 +135,14 @@ describe('TournamentFixture', () => {
         });
 
         it('renders tournament won', async () => {
-            const side = {
-                id: createTemporaryId(),
-                name: 'WINNER',
-            };
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [side],
-                winningSide: side,
-                type: 'TYPE',
-            };
+            const sideId = createTemporaryId();
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .withSide(s => s.name('WINNER').id(sideId))
+                .winner('WINNER', sideId)
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -163,23 +155,15 @@ describe('TournamentFixture', () => {
         });
 
         it('renders tournament won by team', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-            };
-            const side = {
-                id: createTemporaryId(),
-                name: 'WINNER',
-                teamId: team.id,
-            };
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [side],
-                winningSide: side,
-                type: 'TYPE',
-            };
+            const team = teamBuilder('TEAM').build();
+            const sideId = createTemporaryId();
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .withSide(s => s.name('WINNER').id(sideId).teamId(team.id))
+                .winner('WINNER', sideId, team.id)
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, name: division.name, season, players: [player]},
@@ -192,28 +176,20 @@ describe('TournamentFixture', () => {
             expect(cellText).toEqual(['TYPE at ADDRESS', 'Winner: WINNER']);
             const linkToTeam = cells[1].querySelector('a');
             expect(linkToTeam).toBeTruthy();
-            expect(linkToTeam.textContent).toEqual(side.name);
+            expect(linkToTeam.textContent).toEqual('WINNER');
             expect(linkToTeam.href).toEqual(`http://localhost/division/${division.name}/team:${encodeURI(team.name)}/${season.name}`);
         });
 
         it('renders tournament won by team (when team not found)', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-            };
-            const side = {
-                id: createTemporaryId(),
-                name: 'WINNER',
-                teamId: team.id,
-            };
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [side],
-                winningSide: side,
-                type: 'TYPE',
-            };
+            const team = teamBuilder('TEAM').build();
+            const sideId = createTemporaryId();
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .withSide(s => s.name('WINNER').id(sideId).teamId(team.id))
+                .winner('WINNER', sideId)
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, name: division.name, season, players: [player]},
@@ -229,14 +205,12 @@ describe('TournamentFixture', () => {
         });
 
         it('does not render proposed tournaments', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: true,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .proposed()
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -247,74 +221,38 @@ describe('TournamentFixture', () => {
         });
 
         it('renders who is playing', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
-            const player3 = {id: createTemporaryId(), name: 'PLAYER 3'};
-            const player4 = {id: createTemporaryId(), name: 'PLAYER 4'};
-            const player5 = {id: createTemporaryId(), name: 'PLAYER 5'};
-            const player6 = {id: createTemporaryId(), name: 'PLAYER 6'};
-            const player7 = {id: createTemporaryId(), name: 'PLAYER 7'};
-            const side1 = {
-                id: createTemporaryId(),
-                name: 'SIDE 1',
-                players: [player1],
-            };
-            const side2 = {
-                id: createTemporaryId(),
-                name: 'SIDE 2',
-                players: [player2, player3],
-                teamId: createTemporaryId(),
-            };
-            const side3 = {
-                id: createTemporaryId(),
-                name: 'PLAYER 4, PLAYER 5',
-                players: [player4, player5],
-            };
-            const side4 = {
-                id: createTemporaryId(),
-                name: 'WITH DIFFERENT NAME TO PLAYER NAMES',
-                players: [player6, player7],
-            };
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [side1, side2, side3, side4],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const side1 = sideBuilder('SIDE 1').withPlayer('PLAYER 1').build();
+            const side2 = sideBuilder('SIDE 2').withPlayer('PLAYER 2').withPlayer('PLAYER 3').teamId(createTemporaryId()).build();
+            const side3 = sideBuilder('PLAYER 4, PLAYER 5').withPlayer('PLAYER 4').withPlayer('PLAYER 5').build();
+            const side4 = sideBuilder('WITH DIFFERENT NAME TO PLAYER NAMES').withPlayer('PLAYER 6').withPlayer('PLAYER 7').build();
+            const tournament = tournamentBuilder()
+                .address('ADDRESS')
+                .withSide(side1).withSide(side2).withSide(side3).withSide(side4)
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: true},
                 {
                     id: division.id,
                     name: division.name,
                     season,
-                    players: [player1, player2, player3, player4, player5, player6, player7]
+                    players: side1.players.concat(side2.players).concat(side3.players).concat(side4.players),
                 },
                 account);
 
             expect(reportedError).toBeNull();
             const playersCell = context.container.querySelector('td:first-child');
-            assertPlayerDisplayWithPlayerLinks(playersCell, 1, [player4, player5]);
-            assertSinglePlayerDisplay(playersCell, 2, side1.name, player1);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 1, side3.players);
+            assertSinglePlayerDisplay(playersCell, 2, side1.name, side1.players[0]);
             assertPlayerDisplayWithSideNameAndTeamLink(playersCell, 3, side2.name, side2.teamId, []);
-            assertPlayerDisplayWithPlayerLinks(playersCell, 4, [player6, player7]);
+            assertPlayerDisplayWithPlayerLinks(playersCell, 4, side4.players);
         });
     });
 
     describe('when logged in', () => {
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const player = {
-            id: createTemporaryId(),
-            name: 'PLAYER',
-        };
+        const season = seasonBuilder('SEASON').build();
+        const division = divisionBuilder('DIVISION').build();
+        const player = playerBuilder('PLAYER').build();
         const account = {
             access: {
                 manageTournaments: true,
@@ -322,14 +260,12 @@ describe('TournamentFixture', () => {
         };
 
         it('renders proposed tournament', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: true,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .proposed()
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -342,15 +278,13 @@ describe('TournamentFixture', () => {
         });
 
         it('can add tournament', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: true,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-                updated: '2023-07-01T00:00:00',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .proposed()
+                .address('ADDRESS')
+                .type('TYPE')
+                .updated('2023-07-01T00:00:00')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -370,15 +304,13 @@ describe('TournamentFixture', () => {
         });
 
         it('handles error during add tournament', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: true,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-                updated: '2023-07-01T00:00:00',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .proposed()
+                .address('ADDRESS')
+                .type('TYPE')
+                .updated('2023-07-01T00:00:00')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -396,15 +328,13 @@ describe('TournamentFixture', () => {
         });
 
         it('can close error dialog after creation failure', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: true,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-                updated: '2023-07-01T00:00:00',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .proposed()
+                .address('ADDRESS')
+                .type('TYPE')
+                .updated('2023-07-01T00:00:00')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -420,14 +350,11 @@ describe('TournamentFixture', () => {
         });
 
         it('can delete tournament', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -448,14 +375,11 @@ describe('TournamentFixture', () => {
         });
 
         it('does not delete tournament is confirmation rejected', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -476,14 +400,11 @@ describe('TournamentFixture', () => {
         });
 
         it('handles error during delete', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},
@@ -503,14 +424,11 @@ describe('TournamentFixture', () => {
         });
 
         it('can close error dialog after delete failure', async () => {
-            const tournament = {
-                id: createTemporaryId(),
-                proposed: false,
-                address: 'ADDRESS',
-                sides: [],
-                winningSide: null,
-                type: 'TYPE',
-            };
+            const tournament = tournamentBuilder()
+                .date('2023-05-06T00:00:00')
+                .address('ADDRESS')
+                .type('TYPE')
+                .build();
             await renderComponent(
                 {tournament, date: '2023-05-06T00:00:00', expanded: false},
                 {id: division.id, season, players: [player]},

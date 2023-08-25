@@ -3,6 +3,7 @@
 import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {PreviousPlayerScore} from "./PreviousPlayerScore";
+import {legBuilder} from "../../../helpers/builders";
 
 describe('PreviousPlayerScore', () => {
     let context;
@@ -27,28 +28,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }],
-                    score: null,
-                    noOfDarts: 6,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).noOfDarts(6))
+                .build(),
         });
 
         expect(context.container.innerHTML).toEqual('');
@@ -58,31 +43,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 6,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .build(),
         });
 
         const opponentScore = context.container.querySelector('p:nth-child(1)');
@@ -93,31 +59,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 6,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .build(),
         });
 
         const opponentStatistics = context.container.querySelector('p:nth-child(2)');
@@ -128,31 +75,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 0,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
+                .build(),
         });
 
         const opponentStatistics = context.container.querySelector('p:nth-child(2)');
@@ -163,31 +91,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 0,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
+                .build(),
         });
         let confirm;
         window.confirm = (message) => {
@@ -205,31 +114,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 0,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(0))
+                .build(),
         });
         window.confirm = () => false;
 
@@ -242,31 +132,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 6,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .build(),
         });
 
         const opponentLastThrow = context.container.querySelector('p:nth-child(3)');
@@ -277,31 +148,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 6,
-                    bust: true,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6).bust())
+                .build(),
         });
 
         const opponentLastThrow = context.container.querySelector('p:nth-child(3)');
@@ -312,31 +164,12 @@ describe('PreviousPlayerScore', () => {
         await renderComponent({
             home: 'HOME',
             away: 'AWAY',
-            leg: {
-                currentThrow: 'home',
-                startingScore: 501,
-                home: {
-                    throws: [{
-                        score: 123,
-                        noOfDarts: 3,
-                    }],
-                    score: 123,
-                    noOfDarts: 3,
-                    bust: false,
-                },
-                away: {
-                    throws: [{
-                        score: 100,
-                        noOfDarts: 3,
-                    }, {
-                        score: 150,
-                        noOfDarts: 3,
-                    }],
-                    score: 250,
-                    noOfDarts: 6,
-                    bust: false,
-                },
-            },
+            leg: legBuilder()
+                .currentThrow('home')
+                .startingScore(501)
+                .home(c => c.withThrow(123, false, 3).score(123).noOfDarts(3))
+                .away(c => c.withThrow(100, false, 3).withThrow(150, false, 3).score(250).noOfDarts(6))
+                .build(),
         });
         let confirm;
         window.confirm = (message) => {

@@ -282,7 +282,7 @@ describe('Practice', () => {
             await renderComponent(account, '');
             expect(reportedError).toBeNull();
             assertNoDataError();
-            apiResultFunc = (data) => {
+            apiResultFunc = () => {
                 throw new Error('some error');
             };
 

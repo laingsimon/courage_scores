@@ -5,6 +5,7 @@ import React from "react";
 import {TournamentRound} from "./TournamentRound";
 import {createTemporaryId} from "../../../helpers/projection";
 import {TournamentContainer} from "./TournamentContainer";
+import {tournamentMatchBuilder, roundBuilder, saygBuilder, sideBuilder} from "../../../helpers/builders";
 
 describe('TournamentRound', () => {
     let context;
@@ -103,36 +104,16 @@ describe('TournamentRound', () => {
     }
 
     describe('when logged out (readonly)', () => {
-        const side1 = {
-            id: createTemporaryId(),
-            name: 'SIDE 1',
-            players: []
-        };
-        const side2 = {
-            id: createTemporaryId(),
-            name: 'SIDE 2',
-            players: []
-        };
-        const side3 = {
-            id: createTemporaryId(),
-            name: 'SIDE 3',
-            players: []
-        };
-        const side4 = {
-            id: createTemporaryId(),
-            name: 'SIDE 4',
-            players: []
-        };
+        const side1 = sideBuilder('SIDE 1').build();
+        const side2 = sideBuilder('SIDE 2').build();
+        const side3 = sideBuilder('SIDE 3').build();
+        const side4 = sideBuilder('SIDE 4').build();
         const readOnly = true;
 
         describe('renders', () => {
             it('when no matches', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().build(),
                     sides: [],
                     readOnly,
                     depth: 1,
@@ -144,20 +125,10 @@ describe('TournamentRound', () => {
 
             it('unplayed round', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: null,
-                            scoreB: null,
-                            sideA: side1,
-                            sideB: side2,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: null,
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1).sideB(side2))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -171,26 +142,11 @@ describe('TournamentRound', () => {
 
             it('played round', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: null,
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -206,39 +162,15 @@ describe('TournamentRound', () => {
             it('next round (when all sides have a score)', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: {
-                            matches: [{
-                                id: createTemporaryId(),
-                                scoreA: null,
-                                scoreB: null,
-                                sideA: side2,
-                                sideB: side3,
-                            }],
-                            matchOptions: [{
-                                startingScore: 601,
-                                numberOfLegs: 7,
-                            }],
-                            nextRound: null,
-                        },
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .round(r => r
+                            .withMatch(m => m.sideA(side2).sideB(side3))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        )
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -254,80 +186,24 @@ describe('TournamentRound', () => {
         });
 
         it('final round (when all sides have a score)', async () => {
-            const side5 = {
-                id: createTemporaryId(),
-                name: 'SIDE 5',
-                players: []
-            };
-            const side6 = {
-                id: createTemporaryId(),
-                name: 'SIDE 6',
-                players: []
-            };
-            const side7 = {
-                id: createTemporaryId(),
-                name: 'SIDE 7',
-                players: []
-            };
-            const side8 = {
-                id: createTemporaryId(),
-                name: 'SIDE 8',
-                players: []
-            };
+            const side5 = sideBuilder('SIDE 5').build();
+            const side6 = sideBuilder('SIDE 6').build();
+            const side7 = sideBuilder('SIDE 7').build();
+            const side8 = sideBuilder('SIDE 8').build();
 
             await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                 allowNextRound: true,
-                round: {
-                    matches: [{
-                        id: createTemporaryId(),
-                        scoreA: 1,
-                        scoreB: 2,
-                        sideA: side1,
-                        sideB: side2,
-                    }, {
-                        id: createTemporaryId(),
-                        scoreA: 2,
-                        scoreB: 1,
-                        sideA: side3,
-                        sideB: side4,
-                    }, {
-                        id: createTemporaryId(),
-                        scoreA: 2,
-                        scoreB: 1,
-                        sideA: side5,
-                        sideB: side6,
-                    }, {
-                        id: createTemporaryId(),
-                        scoreA: 2,
-                        scoreB: 1,
-                        sideA: side7,
-                        sideB: side8,
-                    }],
-                    matchOptions: [{
-                        startingScore: 601,
-                        numberOfLegs: 7,
-                    }],
-                    nextRound: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side2,
-                            sideB: side3,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side5,
-                            sideB: side7,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: null,
-                    },
-                },
+                round: roundBuilder()
+                    .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                    .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                    .withMatch(m => m.sideA(side5, 2).sideB(side6, 1))
+                    .withMatch(m => m.sideA(side7, 2).sideB(side8, 1))
+                    .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                    .round(r => r
+                        .withMatch(m => m.sideA(side2, 2).sideB(side3, 1))
+                        .withMatch(m => m.sideA(side5, 1).sideB(side7, 2))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                    .build(),
                 sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                 readOnly,
                 depth: 1,
@@ -346,39 +222,14 @@ describe('TournamentRound', () => {
 
         it('no next round (when single round)', async () => {
             await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                round: {
-                    matches: [{
-                        id: createTemporaryId(),
-                        scoreA: 1,
-                        scoreB: 2,
-                        sideA: side1,
-                        sideB: side2,
-                    }, {
-                        id: createTemporaryId(),
-                        scoreA: 2,
-                        scoreB: 1,
-                        sideA: side3,
-                        sideB: side4,
-                    }],
-                    matchOptions: [{
-                        startingScore: 601,
-                        numberOfLegs: 7,
-                    }],
-                    nextRound: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: null,
-                            scoreB: null,
-                            sideA: side2,
-                            sideB: side3,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: null,
-                    },
-                },
+                round: roundBuilder()
+                    .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                    .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                    .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                    .round(r => r
+                        .withMatch(m => m.sideA(side2).sideB(side3))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                    .build(),
                 sides: [side1, side2, side3, side4],
                 readOnly,
                 depth: 1,
@@ -391,19 +242,9 @@ describe('TournamentRound', () => {
         });
 
         it('cannot change round name', async () => {
-            const match = {
-                id: createTemporaryId(),
-                scoreA: null,
-                scoreB: null,
-                sideA: side1,
-                sideB: side2,
-            };
+            const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
             await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                round: {
-                    matches: [match],
-                    matchOptions: [],
-                    nextRound: null,
-                },
+                round: roundBuilder().withMatch(match).build(),
                 sides: [side1, side2, side3, side4],
                 readOnly,
                 depth: 1,
@@ -417,36 +258,16 @@ describe('TournamentRound', () => {
     });
 
     describe('when logged in', () => {
-        const side1 = {
-            id: createTemporaryId(),
-            name: 'SIDE 1',
-            players: [{}]
-        };
-        const side2 = {
-            id: createTemporaryId(),
-            name: 'SIDE 2',
-            players: [{}]
-        };
-        const side3 = {
-            id: createTemporaryId(),
-            name: 'SIDE 3',
-            players: []
-        };
-        const side4 = {
-            id: createTemporaryId(),
-            name: 'SIDE 4',
-            players: []
-        };
+        const side1 = sideBuilder('SIDE 1').withPlayer('PLAYER').build();
+        const side2 = sideBuilder('SIDE 2').withPlayer('PLAYER').build();
+        const side3 = sideBuilder('SIDE 3').build();
+        const side4 = sideBuilder('SIDE 4').build();
         const readOnly = false;
 
         describe('renders', () => {
             it('when no matches', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().build(),
                     sides: [side1, side2],
                     readOnly,
                     depth: 1,
@@ -458,20 +279,10 @@ describe('TournamentRound', () => {
 
             it('unplayed round', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: null,
-                            scoreB: null,
-                            sideA: side1,
-                            sideB: side2,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: null,
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1).sideB(side2))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -485,26 +296,11 @@ describe('TournamentRound', () => {
 
             it('played round', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: null,
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -520,39 +316,14 @@ describe('TournamentRound', () => {
             it('next round (when all sides have a score)', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: {
-                            matches: [{
-                                id: createTemporaryId(),
-                                scoreA: null,
-                                scoreB: null,
-                                sideA: side2,
-                                sideB: side3,
-                            }],
-                            matchOptions: [{
-                                startingScore: 601,
-                                numberOfLegs: 7,
-                            }],
-                            nextRound: null,
-                        },
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .round(r => r
+                            .withMatch(m => m.sideA(side2).sideB(side3))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -568,82 +339,24 @@ describe('TournamentRound', () => {
             });
 
             it('final round (when all sides have a score)', async () => {
-                const side5 = {
-                    id: createTemporaryId(),
-                    name: 'SIDE 5',
-                    players: []
-                };
-                const side6 = {
-                    id: createTemporaryId(),
-                    name: 'SIDE 6',
-                    players: []
-                };
-                const side7 = {
-                    id: createTemporaryId(),
-                    name: 'SIDE 7',
-                    players: []
-                };
-                const side8 = {
-                    id: createTemporaryId(),
-                    name: 'SIDE 8',
-                    players: []
-                };
+                const side5 = sideBuilder('SIDE 5').build();
+                const side6 = sideBuilder('SIDE 6').build();
+                const side7 = sideBuilder('SIDE 7').build();
+                const side8 = sideBuilder('SIDE 8').build();
 
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
-                    round: {
-                        matches: [
-                            {
-                                id: createTemporaryId(),
-                                scoreA: 1,
-                                scoreB: 2,
-                                sideA: side1,
-                                sideB: side2,
-                            }, {
-                                id: createTemporaryId(),
-                                scoreA: 2,
-                                scoreB: 1,
-                                sideA: side3,
-                                sideB: side4,
-                            }, {
-                                id: createTemporaryId(),
-                                scoreA: 2,
-                                scoreB: 1,
-                                sideA: side5,
-                                sideB: side6,
-                            }, {
-                                id: createTemporaryId(),
-                                scoreA: 2,
-                                scoreB: 1,
-                                sideA: side7,
-                                sideB: side8,
-                            }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: {
-                            matches: [
-                                {
-                                    id: createTemporaryId(),
-                                    scoreA: 2,
-                                    scoreB: 1,
-                                    sideA: side2,
-                                    sideB: side3,
-                                }, {
-                                    id: createTemporaryId(),
-                                    scoreA: 1,
-                                    scoreB: 2,
-                                    sideA: side5,
-                                    sideB: side7,
-                                }],
-                            matchOptions: [{
-                                startingScore: 601,
-                                numberOfLegs: 7,
-                            }],
-                            nextRound: null,
-                        },
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatch(m => m.sideA(side5, 2).sideB(side6, 1))
+                        .withMatch(m => m.sideA(side7, 2).sideB(side8, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .round(r => r
+                            .withMatch(m => m.sideA(side2, 2).sideB(side3, 1))
+                            .withMatch(m => m.sideA(side5, 1).sideB(side7, 2))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .build(),
                     sides: [side1, side2, side3, side4, side5, side6, side7, side8],
                     readOnly,
                     depth: 1,
@@ -663,39 +376,14 @@ describe('TournamentRound', () => {
 
             it('no next round (when single round)', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: {
-                            matches: [{
-                                id: createTemporaryId(),
-                                scoreA: null,
-                                scoreB: null,
-                                sideA: side2,
-                                sideB: side3,
-                            }],
-                            matchOptions: [{
-                                startingScore: 601,
-                                numberOfLegs: 7,
-                            }],
-                            nextRound: null,
-                        },
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .round(r => r
+                            .withMatch(m => m.sideA(side2).sideB(side3))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -711,17 +399,9 @@ describe('TournamentRound', () => {
         describe('interactivity', () => {
             it('can delete match', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: null,
-                            scoreB: null,
-                            sideA: side1,
-                            sideB: side2,
-                        }],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1).sideB(side2))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -741,19 +421,9 @@ describe('TournamentRound', () => {
             });
 
             it('can change round name', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -773,19 +443,9 @@ describe('TournamentRound', () => {
             });
 
             it('can change sideA score', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -811,19 +471,9 @@ describe('TournamentRound', () => {
             });
 
             it('can change sideB score', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -849,19 +499,9 @@ describe('TournamentRound', () => {
             });
 
             it('defaults match options to bestOf', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId(), bestOf: 9}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -877,19 +517,9 @@ describe('TournamentRound', () => {
             });
 
             it('can change match options', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -912,24 +542,14 @@ describe('TournamentRound', () => {
             });
 
             it('cannot open sayg when not permitted', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 const permittedAccount = {
                     access: {
                         recordScoresAsYouGo: false,
                     }
                 };
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -941,24 +561,14 @@ describe('TournamentRound', () => {
             });
 
             it('can change open sayg', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 const permittedAccount = {
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -973,19 +583,9 @@ describe('TournamentRound', () => {
             });
 
             it('can change sideA', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1011,19 +611,9 @@ describe('TournamentRound', () => {
             });
 
             it('can change sideB', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                };
+                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(match).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1050,11 +640,7 @@ describe('TournamentRound', () => {
 
             it('cannot add match with only sideA', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1073,11 +659,7 @@ describe('TournamentRound', () => {
 
             it('cannot add match with only sideB', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1096,11 +678,7 @@ describe('TournamentRound', () => {
 
             it('can add match', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1121,11 +699,7 @@ describe('TournamentRound', () => {
 
             it('sets up warning if side not added and tournament saved', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1145,39 +719,14 @@ describe('TournamentRound', () => {
             it('can set sides in sub-round', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: {
-                            matches: [{
-                                id: createTemporaryId(),
-                                scoreA: null,
-                                scoreB: null,
-                                sideA: side2,
-                                sideB: side3,
-                            }],
-                            matchOptions: [{
-                                startingScore: 601,
-                                numberOfLegs: 7,
-                            }],
-                            nextRound: null,
-                        },
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .round(r => r
+                            .withMatch(m => m.sideA(side2).sideB(side3))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1203,39 +752,14 @@ describe('TournamentRound', () => {
             it('does not show match selection after final', async () => {
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
                     allowNextRound: true,
-                    round: {
-                        matches: [{
-                            id: createTemporaryId(),
-                            scoreA: 1,
-                            scoreB: 2,
-                            sideA: side1,
-                            sideB: side2,
-                        }, {
-                            id: createTemporaryId(),
-                            scoreA: 2,
-                            scoreB: 1,
-                            sideA: side3,
-                            sideB: side4,
-                        }],
-                        matchOptions: [{
-                            startingScore: 601,
-                            numberOfLegs: 7,
-                        }],
-                        nextRound: {
-                            matches: [{
-                                id: createTemporaryId(),
-                                scoreA: 1,
-                                scoreB: 2,
-                                sideA: side2,
-                                sideB: side3,
-                            }],
-                            matchOptions: [{
-                                startingScore: 601,
-                                numberOfLegs: 7,
-                            }],
-                            nextRound: null,
-                        },
-                    },
+                    round: roundBuilder()
+                        .withMatch(m => m.sideA(side1, 1).sideB(side2, 2))
+                        .withMatch(m => m.sideA(side3, 2).sideB(side4, 1))
+                        .withMatchOption(o => o.startingScore(601).numberOfLegs(7))
+                        .round(r => r
+                            .withMatch(m => m.sideA(side2, 1).sideB(side3, 2))
+                            .withMatchOption(o => o.startingScore(601).numberOfLegs(7)))
+                        .build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
@@ -1247,51 +771,26 @@ describe('TournamentRound', () => {
             });
 
             it('can record 180', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                    saygId: createTemporaryId(),
-                };
-                const saygData = {
-                    legs: {
-                        '0': {
-                            playerSequence: [
-                                {value: 'home', text: 'SIDE 1'},
-                                {value: 'away', text: 'SIDE 2'}
-                            ],
-                            home: {
-                                throws: [{score: 0}],
-                                score: 0,
-                            },
-                            away: {
-                                throws: [{score: 0}],
-                                score: 0,
-                            },
-                            isLastLeg: false,
-                            startingScore: 501,
-                            currentThrow: 'home',
-                        }
-                    }
-                };
+                const saygData = saygBuilder()
+                    .withLeg('0', l => l
+                        .playerSequence('home', 'away')
+                        .home(c => c.withThrow(0))
+                        .away(c => c.withThrow(0))
+                        .startingScore(501)
+                        .currentThrow('home'))
+                    .build();
                 const permittedAccount = {
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
-                saygApiData[match.saygId] = saygData;
+                saygApiData[saygData.id] = saygData;
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));
@@ -1305,51 +804,26 @@ describe('TournamentRound', () => {
             });
 
             it('can record hiCheck', async () => {
-                const match = {
-                    id: createTemporaryId(),
-                    scoreA: null,
-                    scoreB: null,
-                    sideA: side1,
-                    sideB: side2,
-                    saygId: createTemporaryId(),
-                };
-                const saygData = {
-                    legs: {
-                        '0': {
-                            playerSequence: [
-                                {value: 'home', text: 'SIDE 1'},
-                                {value: 'away', text: 'SIDE 2'}
-                            ],
-                            home: {
-                                throws: [{score: 0}],
-                                score: 351,
-                            },
-                            away: {
-                                throws: [{score: 0}],
-                                score: 301,
-                            },
-                            isLastLeg: false,
-                            startingScore: 501,
-                            currentThrow: 'home',
-                        }
-                    }
-                };
+                const saygData = saygBuilder()
+                    .withLeg('0', l => l
+                        .playerSequence('home', 'away')
+                        .home(c => c.withThrow(0).score(351))
+                        .away(c => c.withThrow(0).score(301))
+                        .startingScore(501)
+                        .currentThrow('home'))
+                    .build();
                 const permittedAccount = {
                     access: {
                         recordScoresAsYouGo: true,
                     }
                 };
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: {
-                        matches: [match],
-                        matchOptions: [],
-                        nextRound: null,
-                    },
+                    round: roundBuilder().withMatch(m => m.sideA(side1).sideB(side2).saygId(saygData.id)).build(),
                     sides: [side1, side2, side3, side4],
                     readOnly,
                     depth: 1,
                 }, permittedAccount);
-                saygApiData[match.saygId] = saygData;
+                saygApiData[saygData.id] = saygData;
                 expect(reportedError).toBeNull();
                 const matchRow = context.container.querySelector('table tr:nth-child(1)');
                 await doClick(findButton(matchRow, '📊'));

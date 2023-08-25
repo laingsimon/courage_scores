@@ -6,6 +6,7 @@ import React from "react";
 import {SaygLoadingContainer, useSayg} from "./SaygLoadingContainer";
 import {createTemporaryId} from "../../../helpers/projection";
 import {any} from "../../../helpers/collections";
+import {legBuilder, saygBuilder} from "../../../helpers/builders";
 
 describe('SaygLoadingContainer', () => {
     let context;
@@ -96,13 +97,9 @@ describe('SaygLoadingContainer', () => {
 
     it('gets sayg data for given id', async () => {
         const id = createTemporaryId();
-        saygDataMap[id] = {
-            legs: {
-                '0': {
-                    startingScore: 501,
-                }
-            },
-        };
+        saygDataMap[id] = saygBuilder(id)
+            .withLeg('0', l => l.startingScore(501))
+            .build();
         let loadedWithData;
         await renderComponent({
             children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
@@ -180,14 +177,10 @@ describe('SaygLoadingContainer', () => {
 
     it('sets lastUpdated in sayg data', async () => {
         const id = createTemporaryId();
-        saygDataMap[id] = {
-            legs: {
-                '0': {
-                    startingScore: 501,
-                }
-            },
-            updated: '2023-07-21',
-        };
+        saygDataMap[id] = saygBuilder(id)
+            .withLeg('0', l => l.startingScore(501))
+            .updated('2023-07-21')
+            .build();
         let loadedWithData;
         await renderComponent({
             children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
@@ -208,9 +201,7 @@ describe('SaygLoadingContainer', () => {
             defaultData: {
                 isDefault: true,
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -239,9 +230,7 @@ describe('SaygLoadingContainer', () => {
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -264,9 +253,7 @@ describe('SaygLoadingContainer', () => {
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -292,9 +279,7 @@ describe('SaygLoadingContainer', () => {
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -317,9 +302,7 @@ describe('SaygLoadingContainer', () => {
             id: null,
             defaultData: {
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                    }
+                    '0': legBuilder().startingScore(501).build()
                 },
             },
             autoSave: false,
@@ -346,22 +329,13 @@ describe('SaygLoadingContainer', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
                 legs: {
-                    '0': {
-                        currentThrow: 'home',
-                        playerSequence: [
-                            {value: 'home', text: 'HOME'},
-                            {value: 'away', text: 'AWAY'},
-                        ],
-                        startingScore: 501,
-                        home: {
-                            score: 451,
-                            throws: [],
-                        },
-                        away: {
-                            score: 200,
-                            throws: [{}],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .currentThrow('home')
+                        .playerSequence('home', 'away')
+                        .home(c => c.score(451))
+                        .away(c => c.score(200).withThrow(0))
+                        .build()
                 },
             },
             autoSave: true,
@@ -386,17 +360,11 @@ describe('SaygLoadingContainer', () => {
                 yourName: 'HOME',
                 opponentName: 'AWAY',
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {
-                            score: 0,
-                            throws: [],
-                        },
-                        away: {
-                            score: 0,
-                            throws: [],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .home(c => c.score(0))
+                        .away(c => c.score(0))
+                        .build()
                 },
             },
             autoSave: true,
@@ -419,17 +387,11 @@ describe('SaygLoadingContainer', () => {
                 yourName: 'HOME',
                 opponentName: 'AWAY',
                 legs: {
-                    '0': {
-                        startingScore: 501,
-                        home: {
-                            score: 0,
-                            throws: [],
-                        },
-                        away: {
-                            score: 0,
-                            throws: [],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .home(c => c.score(0))
+                        .away(c => c.score(0))
+                        .build()
                 },
             },
             autoSave: false,
@@ -450,22 +412,13 @@ describe('SaygLoadingContainer', () => {
                 startingScore: 501,
                 numberOfLegs: 3,
                 legs: {
-                    '0': {
-                        currentThrow: 'home',
-                        playerSequence: [
-                            {value: 'home', text: 'HOME'},
-                            {value: 'away', text: 'AWAY'},
-                        ],
-                        startingScore: 501,
-                        home: {
-                            score: 451,
-                            throws: [],
-                        },
-                        away: {
-                            score: 200,
-                            throws: [{}],
-                        }
-                    }
+                    '0': legBuilder()
+                        .startingScore(501)
+                        .playerSequence('home', 'away')
+                        .currentThrow('home')
+                        .home(c => c.score(451))
+                        .away(c => c.score(200).withThrow(0))
+                        .build()
                 },
             },
             autoSave: false,

@@ -5,6 +5,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import React from "react";
 import {CreateSeasonDialog} from "./CreateSeasonDialog";
 import {DivisionDataContainer} from "../DivisionDataContainer";
+import {divisionBuilder, fixtureDateBuilder} from "../../helpers/builders";
 
 describe('CreateSeasonDialog', () => {
     let context;
@@ -315,13 +316,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId, setDivisionData: (d) => {
                         divisionDataSetTo = d;
@@ -343,13 +341,10 @@ describe('CreateSeasonDialog', () => {
                             warnings: [],
                             messages: [],
                         },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                        }],
+                        divisions: [
+                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                        ],
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -393,13 +388,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId, setDivisionData: (d) => {
                         divisionDataSetTo = d;
@@ -424,36 +416,20 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '1.1',
-                                    proposal: true,
-                                    awayTeam: {},
-                                }, {
-                                    id: '1.2',
-                                    proposal: false, // excluded as not a proposal
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('home', 'away'), '1.1')
+                                    .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                    .build()]
                         }, {
                             id: anotherDivisionId,
                             name: 'ANOTHER DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '2.1',
-                                    proposal: true,
-                                    awayTeam: {},
-                                }, {
-                                    id: createTemporaryId(),
-                                    proposal: true, // excluded as awayTeam == undefined
-                                }, {
-                                    id: '2.3',
-                                    proposal: true,
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('home', 'away'), '2.1')
+                                    .withFixture(f => f.proposal().bye('anywhere')) // excluded as awayTeam == undefined
+                                    .withFixture(f => f.proposal().playing('home', 'away'), '2.3')
+                                    .build()]
                         }],
                     }
                 };
@@ -785,13 +761,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId, setDivisionData: (d) => {
                         divisionDataSetTo = d;
@@ -813,13 +786,10 @@ describe('CreateSeasonDialog', () => {
                             warnings: [],
                             messages: [],
                         },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                        }],
+                        divisions: [
+                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                        ],
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -862,13 +832,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId, setDivisionData: (d) => {
                         divisionDataSetTo = d;
@@ -890,13 +857,10 @@ describe('CreateSeasonDialog', () => {
                             warnings: [],
                             messages: [],
                         },
-                        divisions: [{
-                            id: divisionId,
-                            name: 'PROPOSED DIVISION',
-                        }, {
-                            id: anotherDivisionId,
-                            name: 'ANOTHER DIVISION',
-                        }],
+                        divisions: [
+                            divisionBuilder('PROPOSED DIVISION', divisionId).build(),
+                            divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                        ],
                     }
                 };
                 await doClick(findButton(context.container, 'Next'));
@@ -938,13 +902,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId, setDivisionData: (d) => {
                         divisionDataSetTo = d;
@@ -1016,13 +977,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId,
                     setDivisionData: (d) => {
@@ -1051,39 +1009,22 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '1.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 1.1 '},
-                                    awayTeam: {name: 'AWAY 1.1'},
-                                }, {
-                                    id: '1.2',
-                                    proposal: false, // excluded as not a proposal
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                    .withFixture(f => f.playing('home', 'away'), '1.2') // excluded as not a proposal
+                                    .build()
+                            ]
                         }, {
                             id: anotherDivisionId,
                             name: 'ANOTHER DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '2.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.1 '},
-                                    awayTeam: {name: 'AWAY 2.1'},
-                                }, {
-                                    id: createTemporaryId(),
-                                    proposal: true, // excluded as awayTeam == undefined
-                                }, {
-                                    id: '2.3',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.3 '},
-                                    awayTeam: {name: 'AWAY 2.3'},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                    .build()
+                            ]
                         }],
                     }
                 };
@@ -1130,13 +1071,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId,
                     setDivisionData: (d) => {
@@ -1165,39 +1103,22 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '1.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 1.1 '},
-                                    awayTeam: {name: 'AWAY 1.1'},
-                                }, {
-                                    id: '1.2',
-                                    proposal: false, // excluded as not a proposal
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                    .withFixture(f => f, '1.2')  // excluded as not a proposal
+                                    .build()
+                            ]
                         }, {
                             id: anotherDivisionId,
                             name: 'ANOTHER DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '2.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.1 '},
-                                    awayTeam: {name: 'AWAY 2.1'},
-                                }, {
-                                    id: createTemporaryId(),
-                                    proposal: true, // excluded as awayTeam == undefined
-                                }, {
-                                    id: '2.3',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.3 '},
-                                    awayTeam: {name: 'AWAY 2.3'},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                    .build()
+                            ]
                         }],
                     }
                 };
@@ -1251,13 +1172,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId,
                     setDivisionData: (d) => {
@@ -1286,39 +1204,22 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '1.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 1.1 '},
-                                    awayTeam: {name: 'AWAY 1.1'},
-                                }, {
-                                    id: '1.2',
-                                    proposal: false, // excluded as not a proposal
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                    .withFixture(f => f, '1.2') // excluded as not a proposal
+                                    .build()
+                            ]
                         }, {
                             id: anotherDivisionId,
                             name: 'ANOTHER DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '2.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.1 '},
-                                    awayTeam: {name: 'AWAY 2.1'},
-                                }, {
-                                    id: createTemporaryId(),
-                                    proposal: true, // excluded as awayTeam == undefined
-                                }, {
-                                    id: '2.3',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.3 '},
-                                    awayTeam: {name: 'AWAY 2.3'},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                    .withFixture(f => f, '2.2') // excluded as awayTeam == undefined
+                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                    .build()
+                            ]
                         }],
                     }
                 };
@@ -1369,13 +1270,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId,
                     setDivisionData: (d) => {
@@ -1404,39 +1302,22 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '1.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 1.1 '},
-                                    awayTeam: {name: 'AWAY 1.1'},
-                                }, {
-                                    id: '1.2',
-                                    proposal: false, // excluded as not a proposal
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                    .withFixture(f => f) // excluded as not a proposal
+                                    .build()
+                            ]
                         }, {
                             id: anotherDivisionId,
                             name: 'ANOTHER DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '2.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.1 '},
-                                    awayTeam: {name: 'AWAY 2.1'},
-                                }, {
-                                    id: createTemporaryId(),
-                                    proposal: true, // excluded as awayTeam == undefined
-                                }, {
-                                    id: '2.3',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.3 '},
-                                    awayTeam: {name: 'AWAY 2.3'},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                    .build()
+                            ]
                         }],
                     }
                 };
@@ -1490,13 +1371,10 @@ describe('CreateSeasonDialog', () => {
                     }],
                 };
                 await renderComponent({
-                    divisions: [{
-                        id: divisionId,
-                        name: 'DIVISION 1',
-                    }, {
-                        id: anotherDivisionId,
-                        name: 'ANOTHER DIVISION',
-                    }]
+                    divisions: [
+                        divisionBuilder('DIVISION 1', divisionId).build(),
+                        divisionBuilder('ANOTHER DIVISION', anotherDivisionId).build()
+                    ]
                 }, {
                     id: divisionId,
                     setDivisionData: (d) => {
@@ -1525,39 +1403,22 @@ describe('CreateSeasonDialog', () => {
                         divisions: [{
                             id: divisionId,
                             name: 'PROPOSED DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '1.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 1.1 '},
-                                    awayTeam: {name: 'AWAY 1.1'},
-                                }, {
-                                    id: '1.2',
-                                    proposal: false, // excluded as not a proposal
-                                    awayTeam: {},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 1.1 ', 'AWAY 1.1'), '1.1')
+                                    .withFixture(f => f, '1.2') // excluded as not a proposal
+                                    .build()
+                            ]
                         }, {
                             id: anotherDivisionId,
                             name: 'ANOTHER DIVISION',
-                            fixtures: [{
-                                date: '2023-01-01',
-                                fixtures: [{
-                                    id: '2.1',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.1 '},
-                                    awayTeam: {name: 'AWAY 2.1'},
-                                }, {
-                                    id: createTemporaryId(),
-                                    proposal: true, // excluded as awayTeam == undefined
-                                }, {
-                                    id: '2.3',
-                                    proposal: true,
-                                    homeTeam: {name: 'HOME 2.3 '},
-                                    awayTeam: {name: 'AWAY 2.3'},
-                                }],
-                            }]
+                            fixtures: [
+                                fixtureDateBuilder('2023-01-01')
+                                    .withFixture(f => f.proposal().playing('HOME 2.1 ', 'AWAY 2.1'), '2.1')
+                                    .withFixture(f => f.proposal()) // excluded as awayTeam == undefined
+                                    .withFixture(f => f.proposal().playing('HOME 2.3 ', 'AWAY 2.3'), '2.3')
+                                    .build()
+                            ]
                         }],
                     }
                 };

@@ -3,6 +3,7 @@
 import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {PlayerInput} from "./PlayerInput";
+import {legBuilder} from "../../../helpers/builders";
 
 describe('PlayerInput', () => {
     let context;
@@ -64,15 +65,11 @@ describe('PlayerInput', () => {
     }
 
     async function runScoreTest(homeScore, inputScore) {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: homeScore,
-                noOfDarts: 0
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(homeScore).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: homeScore,
@@ -87,19 +84,12 @@ describe('PlayerInput', () => {
     }
 
     it('Renders initial heading correctly - multi-player', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 0,
-                noOfDarts: 0
-            },
-            away: {
-                score: 0,
-                noOfDarts: 0
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(0).noOfDarts(0))
+            .away(c => c.score(0).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             away: away,
@@ -118,15 +108,11 @@ describe('PlayerInput', () => {
     });
 
     it('Renders initial heading correctly - single-player', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 0,
-                noOfDarts: 0
-            }
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(0).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -221,16 +207,11 @@ describe('PlayerInput', () => {
     });
 
     it('records 3 dart throw', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 100,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(100).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -245,7 +226,6 @@ describe('PlayerInput', () => {
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
-            winner: null,
             home: {
                 score: 150,
                 noOfDarts: 3,
@@ -256,20 +236,17 @@ describe('PlayerInput', () => {
                     score: 50,
                 }],
             },
+            isLastLeg: false,
+            away: null,
         }]);
     });
 
     it('records 2 dart throw', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 401,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(401).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -295,20 +272,17 @@ describe('PlayerInput', () => {
                     score: 100,
                 }],
             },
+            isLastLeg: false,
+            away: null,
         }]);
     });
 
     it('records 1 dart throw', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 451,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(451).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -334,20 +308,17 @@ describe('PlayerInput', () => {
                     score: 50,
                 }],
             },
+            isLastLeg: false,
+            away: null,
         }]);
     });
 
     it('records 3 dart bust', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 331,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(331).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -362,7 +333,6 @@ describe('PlayerInput', () => {
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
-            winner: null,
             home: {
                 score: 331,
                 noOfDarts: 3,
@@ -373,20 +343,17 @@ describe('PlayerInput', () => {
                     score: 180,
                 }],
             },
+            isLastLeg: false,
+            away: null,
         }]);
     });
 
     it('records 2 dart bust', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 391,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(391).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -401,7 +368,6 @@ describe('PlayerInput', () => {
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
-            winner: null,
             home: {
                 score: 391,
                 noOfDarts: 2,
@@ -412,20 +378,17 @@ describe('PlayerInput', () => {
                     score: 120,
                 }],
             },
+            isLastLeg: false,
+            away: null,
         }]);
     });
 
     it('records 1 dart bust', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 461,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(461).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -440,7 +403,6 @@ describe('PlayerInput', () => {
         expect(changedLegs).toEqual([{
             currentThrow: 'home',
             startingScore: 501,
-            winner: null,
             home: {
                 score: 461,
                 noOfDarts: 1,
@@ -451,20 +413,17 @@ describe('PlayerInput', () => {
                     score: 60,
                 }],
             },
+            isLastLeg: false,
+            away: null,
         }]);
     });
 
     it('prevents empty score via enter key press', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 461,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(461).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -480,16 +439,11 @@ describe('PlayerInput', () => {
     });
 
     it('prevents invalid score via enter key press', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 461,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(461).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,
@@ -505,16 +459,11 @@ describe('PlayerInput', () => {
     });
 
     it('accepts valid score via enter key press', async () => {
-        const leg = {
-            currentThrow: 'home',
-            startingScore: 501,
-            winner: null,
-            home: {
-                score: 461,
-                noOfDarts: 0,
-                throws: [],
-            },
-        }
+        const leg = legBuilder()
+            .currentThrow('home')
+            .startingScore(501)
+            .home(c => c.score(461).noOfDarts(0))
+            .build();
         await renderComponent({
             home: home,
             homeScore: 0,

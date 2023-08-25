@@ -5,6 +5,7 @@ import {renderDate} from "../../helpers/rendering";
 import React from "react";
 import {FilterFixtures} from "./FilterFixtures";
 import {DivisionDataContainer} from "../DivisionDataContainer";
+import {teamBuilder} from "../../helpers/builders";
 
 describe('FilterFixtures', () => {
     let context;
@@ -104,10 +105,7 @@ describe('FilterFixtures', () => {
 
     describe('team', () => {
         it('when selected', async () => {
-            const team = {
-                id: 'abcd',
-                name: 'TEAM'
-            };
+            const team = teamBuilder('TEAM').build();
             await renderComponent({team: 'TEAM'}, [team]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');
@@ -117,10 +115,7 @@ describe('FilterFixtures', () => {
         });
 
         it('when unrecognised', async () => {
-            const team = {
-                id: 'abcd',
-                name: 'TEAM'
-            };
+            const team = teamBuilder('TEAM').build();
             await renderComponent({team: '1234'}, [team]);
 
             const dropDown = context.container.querySelector('.btn-group:nth-child(3)');

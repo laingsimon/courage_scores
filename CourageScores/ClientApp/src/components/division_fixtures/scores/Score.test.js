@@ -5,6 +5,14 @@ import React from "react";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, repeat} from "../../../helpers/projection";
 import {Score} from "./Score";
+import {
+    divisionBuilder,
+    fixtureBuilder,
+    matchBuilder,
+    playerBuilder,
+    seasonBuilder,
+    teamBuilder
+} from "../../../helpers/builders";
 
 describe('Score', () => {
     let context;
@@ -88,41 +96,20 @@ describe('Score', () => {
     }
 
     function getDefaultAppData() {
-        const division = {
-            id: createTemporaryId(),
-            name: 'A division'
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'A season',
-            startDate: '2022-02-03T00:00:00',
-            endDate: '2022-08-25T00:00:00',
-            divisions: [division]
-        };
-        const homePlayer = {
-            id: createTemporaryId(),
-            name: 'Home player'
-        };
-        const awayPlayer = {
-            id: createTemporaryId(),
-            name: 'Away player'
-        };
-        const homeTeam = {
-            id: createTemporaryId(),
-            name: 'Home team',
-            seasons: [{
-                seasonId: season.id,
-                players: [homePlayer]
-            }]
-        };
-        const awayTeam = {
-            id: createTemporaryId(),
-            name: 'Away team',
-            seasons: [{
-                seasonId: season.id,
-                players: [awayPlayer]
-            }]
-        };
+        const division = divisionBuilder('A division').build();
+        const season = seasonBuilder('A season')
+            .starting('2022-02-03T00:00:00')
+            .ending('2022-08-25T00:00:00')
+            .withDivision(division)
+            .build();
+        const homePlayer = playerBuilder('Home player').build();
+        const awayPlayer = playerBuilder('Away player').build();
+        const homeTeam = teamBuilder('Home team')
+            .forSeason(season, division, [ homePlayer ])
+            .build();
+        const awayTeam = teamBuilder('Away team')
+            .forSeason(season, division, [ awayPlayer ])
+            .build();
 
         return {
             divisions: toMap([division]),
@@ -135,21 +122,11 @@ describe('Score', () => {
         const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
-        return {
-            home: {
-                id: homeTeam.id,
-                name: homeTeam.name
-            },
-            away: {
-                id: awayTeam.id,
-                name: awayTeam.name
-            },
-            seasonId: appData.seasons.filter(_ => true)[0].id,
-            divisionId: appData.divisions.filter(_ => true)[0].id,
-            matches: [],
-            matchOptions: [],
-            date: '2023-01-02T00:00:00'
-        };
+        return fixtureBuilder('2023-01-02T00:00:00')
+            .forSeason(appData.seasons.filter(_ => true)[0])
+            .forDivision(appData.divisions.filter(_ => true)[0])
+            .playing(homeTeam, awayTeam)
+            .build();
     }
 
     function getPlayedFixtureData(fixtureId, appData) {
@@ -157,59 +134,40 @@ describe('Score', () => {
         const awayTeam = appData.teams.filter(t => t.name === 'Away team')[0];
 
         function createMatch(homeScore, awayScore) {
-            return {
-                homePlayers: [{
-                    id: createTemporaryId(),
-                    name: 'Home player'
-                }],
-                awayPlayers: [{
-                    id: createTemporaryId(),
-                    name: 'Away player'
-                }],
-                homeScore: homeScore,
-                awayScore: awayScore,
-                id: createTemporaryId()
-            };
+            return matchBuilder()
+                .withHome('Home player')
+                .withAway('Away player')
+                .scores(homeScore, awayScore)
+                .build();
         }
 
         const firstDivision = appData.divisions.filter(_ => true)[0];
         const firstSeason = appData.seasons.filter(_ => true)[0];
 
-        return {
-            home: {
-                id: homeTeam ? homeTeam.id : createTemporaryId(),
-                name: homeTeam ? homeTeam.name : 'not found',
-                manOfTheMatch: createTemporaryId()
-            },
-            away: {
-                id: awayTeam ? awayTeam.id : createTemporaryId(),
-                name: awayTeam ? awayTeam.name : 'not found',
-                manOfTheMatch: createTemporaryId()
-            },
-            seasonId: firstSeason ? firstSeason.id : createTemporaryId(),
-            divisionId: firstDivision ? firstDivision.id : createTemporaryId(),
-            matches: [
-                createMatch(3, 2),
-                createMatch(3, 2),
-                createMatch(3, 2),
-                createMatch(3, 2),
-                createMatch(3, 2),
-                createMatch(3, 0),
-                createMatch(3, 0),
-                createMatch(3, 0)
-            ],
-            matchOptions: [],
-            date: '2023-01-02T00:00:00',
-            oneEighties: [{
-                id: createTemporaryId(),
-                name: 'Home player'
-            }],
-            over100Checkouts: [{
-                id: createTemporaryId(),
-                name: 'Away player',
-                notes: '140'
-            }]
-        };
+        return fixtureBuilder('2023-01-02T00:00:00')
+            .playing({
+                    id: homeTeam ? homeTeam.id : createTemporaryId(),
+                    name: homeTeam ? homeTeam.name : 'not found',
+                    manOfTheMatch: createTemporaryId()
+                },
+                {
+                    id: awayTeam ? awayTeam.id : createTemporaryId(),
+                    name: awayTeam ? awayTeam.name : 'not found',
+                    manOfTheMatch: createTemporaryId()
+                })
+            .forSeason(firstSeason ? firstSeason.id : createTemporaryId())
+            .forDivision(firstDivision ? firstDivision.id : createTemporaryId())
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 2))
+            .withMatch(createMatch(3, 0))
+            .withMatch(createMatch(3, 0))
+            .withMatch(createMatch(3, 0))
+            .with180('Home player')
+            .withHiCheck('Away player', '140')
+            .build();
     }
 
     function assertMatchRow(tr, ...expectedCellText) {
@@ -481,11 +439,7 @@ describe('Score', () => {
             const appData = getDefaultAppData();
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
-            const newHomeTeamPlayer = {
-                id: createTemporaryId(),
-                name: 'New name',
-                captain: true,
-            };
+            const newHomeTeamPlayer = playerBuilder('New name').captain().build();
             homeTeam.seasons[0].players.push(newHomeTeamPlayer);
             const firstSinglesMatch = fixtureDataMap[fixtureId].matches[0];
             firstSinglesMatch.homePlayers[0] = Object.assign(
@@ -677,10 +631,7 @@ describe('Score', () => {
             const fixtureId = createTemporaryId();
             const appData = getDefaultAppData();
             const homeTeam = appData.teams.filter(t => t.name === 'Home team')[0];
-            const anotherHomePlayer = {
-                id: createTemporaryId(),
-                name: 'Another player'
-            };
+            const anotherHomePlayer = playerBuilder('Another player').build();
             homeTeam.seasons[0].players.push(anotherHomePlayer);
             fixtureDataMap[fixtureId] = getPlayedFixtureData(fixtureId, appData);
             await renderComponent(fixtureId, appData, account);

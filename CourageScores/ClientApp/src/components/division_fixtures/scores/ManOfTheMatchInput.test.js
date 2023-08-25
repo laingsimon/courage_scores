@@ -2,8 +2,8 @@
 
 import React from "react";
 import {cleanUp, doSelectOption, renderApp} from "../../../helpers/tests";
-import {createTemporaryId} from "../../../helpers/projection";
 import {ManOfTheMatchInput} from "./ManOfTheMatchInput";
+import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
 
 describe('ManOfTheMatchInput', () => {
     let context;
@@ -62,11 +62,9 @@ describe('ManOfTheMatchInput', () => {
 
     describe('when logged out', () => {
         it('when no matches', async () => {
-            const fixtureData = {
-                matches: [],
-                home: {},
-                away: {},
-            };
+            const fixtureData = fixtureBuilder()
+                .playing('HOME', 'AWAY')
+                .build();
 
             await renderComponent(false, null, fixtureData, '');
 
@@ -74,14 +72,10 @@ describe('ManOfTheMatchInput', () => {
         });
 
         it('when no selected players', async () => {
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [],
-                    awayPlayers: []
-                }],
-                home: {},
-                away: {},
-            };
+            const fixtureData = fixtureBuilder()
+                .playing('HOME', 'AWAY')
+                .withMatch(m => m.withHome().withAway())
+                .build();
 
             await renderComponent(false, null, fixtureData, '');
 
@@ -90,26 +84,12 @@ describe('ManOfTheMatchInput', () => {
         });
 
         it('when no man-of-the-match', async () => {
-            const homePlayer = {
-                id: createTemporaryId(), name: 'HOME player',
-            };
-            const awayPlayer = {
-                id: createTemporaryId(), name: 'AWAY player',
-            };
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [homePlayer],
-                    awayPlayers: [awayPlayer]
-                }],
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                }
-            };
+            const homePlayer = playerBuilder('HOME player').build();
+            const awayPlayer = playerBuilder('AWAY player').build();
+            const fixtureData = fixtureBuilder()
+                .playing('HOME', 'AWAY')
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .build();
 
             await renderComponent(false, null, fixtureData, '');
 
@@ -118,27 +98,13 @@ describe('ManOfTheMatchInput', () => {
         });
 
         it('when home man-of-the-match', async () => {
-            const homePlayer = {
-                id: createTemporaryId(), name: 'HOME player',
-            };
-            const awayPlayer = {
-                id: createTemporaryId(), name: 'AWAY player',
-            };
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [homePlayer],
-                    awayPlayers: [awayPlayer]
-                }],
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                    manOfTheMatch: homePlayer.id,
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                }
-            };
+            const homePlayer = playerBuilder('HOME player').build();
+            const awayPlayer = playerBuilder('AWAY player').build();
+            const fixtureData = fixtureBuilder()
+                .playing('HOME', 'AWAY')
+                .manOfTheMatch(homePlayer, null)
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .build();
 
             await renderComponent(false, null, fixtureData, '');
 
@@ -147,27 +113,13 @@ describe('ManOfTheMatchInput', () => {
         });
 
         it('when away man-of-the-match', async () => {
-            const homePlayer = {
-                id: createTemporaryId(), name: 'HOME player',
-            };
-            const awayPlayer = {
-                id: createTemporaryId(), name: 'AWAY player',
-            };
-            const fixtureData = {
-                matches: [{
-                    homePlayers: [homePlayer],
-                    awayPlayers: [awayPlayer]
-                }],
-                home: {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                },
-                away: {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                    manOfTheMatch: awayPlayer.id,
-                }
-            };
+            const homePlayer = playerBuilder('HOME player').build();
+            const awayPlayer = playerBuilder('AWAY player').build();
+            const fixtureData = fixtureBuilder()
+                .playing('HOME', 'AWAY')
+                .manOfTheMatch(null, awayPlayer)
+                .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                .build();
 
             await renderComponent(false, null, fixtureData, '');
 
@@ -181,11 +133,9 @@ describe('ManOfTheMatchInput', () => {
 
         describe('renders', () => {
             it('when no matches', async () => {
-                const fixtureData = {
-                    matches: [],
-                    home: {},
-                    away: {},
-                };
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .build();
 
                 await renderComponent(false, account, fixtureData, 'admin');
 
@@ -197,14 +147,10 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('when no selected players', async () => {
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: []
-                    }],
-                    home: {},
-                    away: {},
-                };
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway())
+                    .build();
 
                 await renderComponent(false, account, fixtureData, 'admin');
 
@@ -216,26 +162,12 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('when no man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 await renderComponent(false, account, fixtureData, 'admin');
 
@@ -247,27 +179,13 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('when home man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                        manOfTheMatch: homePlayer.id,
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .manOfTheMatch(homePlayer, null)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 await renderComponent(false, account, fixtureData, 'admin');
 
@@ -278,27 +196,13 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('when away man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                        manOfTheMatch: awayPlayer.id,
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .manOfTheMatch(null, awayPlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 await renderComponent(false, account, fixtureData, 'admin');
 
@@ -311,26 +215,12 @@ describe('ManOfTheMatchInput', () => {
 
         describe('changes', () => {
             it('set home man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
                 expect(reportedError).toBeFalsy();
                 await renderComponent(false, account, fixtureData, 'admin');
                 const homeMOM = context.container.querySelectorAll('td')[0];
@@ -342,27 +232,13 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('unset home man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                        manOfTheMatch: homePlayer.id,
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .manOfTheMatch(homePlayer, null)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 expect(reportedError).toBeFalsy();
                 await renderComponent(false, account, fixtureData, 'admin');
@@ -375,26 +251,12 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('set away man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 expect(reportedError).toBeFalsy();
                 await renderComponent(false, account, fixtureData, 'admin');
@@ -407,27 +269,13 @@ describe('ManOfTheMatchInput', () => {
             });
 
             it('unset away man-of-the-match', async () => {
-                const homePlayer = {
-                    id: createTemporaryId(), name: 'HOME player',
-                };
-                const awayPlayer = {
-                    id: createTemporaryId(), name: 'AWAY player',
-                };
-                const fixtureData = {
-                    matches: [{
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer]
-                    }],
-                    home: {
-                        id: createTemporaryId(),
-                        name: 'HOME',
-                    },
-                    away: {
-                        id: createTemporaryId(),
-                        name: 'AWAY',
-                        manOfTheMatch: awayPlayer.id,
-                    }
-                };
+                const homePlayer = playerBuilder('HOME player').build();
+                const awayPlayer = playerBuilder('AWAY player').build();
+                const fixtureData = fixtureBuilder()
+                    .playing('HOME', 'AWAY')
+                    .manOfTheMatch(null, awayPlayer)
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
+                    .build();
 
                 expect(reportedError).toBeFalsy();
                 await renderComponent(false, account, fixtureData, 'admin');

@@ -3,7 +3,7 @@
 import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
 import {MatchLog} from "./MatchLog";
-import {createTemporaryId} from "../../../../helpers/projection";
+import {legBuilder, saygBuilder, tournamentMatchBuilder} from "../../../../helpers/builders";
 
 describe('MatchLog', () => {
     let context;
@@ -34,19 +34,11 @@ describe('MatchLog', () => {
     }
 
     function createLeg(homeScore, awayScore) {
-        return {
-            home: {
-                throws: [
-                    {score: homeScore, bust: false, noOfDarts: 3},
-                ],
-            },
-            away: {
-                throws: [
-                    {score: awayScore, bust: false, noOfDarts: 3},
-                ],
-            },
-            startingScore: 501,
-        };
+        return legBuilder()
+            .home(c => c.withThrow(homeScore, false, 3).noOfDarts(3))
+            .away(c => c.withThrow(awayScore, false, 3).noOfDarts(3))
+            .startingScore(501)
+            .build();
     }
 
     function rowContent(row, tagName) {
@@ -75,11 +67,7 @@ describe('MatchLog', () => {
     describe('renders', () => {
         it('when no sayg data', async () => {
             const saygMatch = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: null,
             };
 
@@ -97,11 +85,7 @@ describe('MatchLog', () => {
 
         it('when no sayg legs', async () => {
             const saygMatch = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
                 saygData: {legs: null},
             };
 
@@ -119,16 +103,10 @@ describe('MatchLog', () => {
 
         it('correct number of throw columns', async () => {
             const saygMatch = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(100, 50),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(100, 50))
+                    .build(),
             };
 
             await renderComponent({
@@ -151,18 +129,12 @@ describe('MatchLog', () => {
 
         it('first match content for host', async () => {
             const saygMatch = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(100, 50),
-                        '1': createLeg(100, 50),
-                        '2': createLeg(100, 50),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(100, 50))
+                    .withLeg('1', createLeg(100, 50))
+                    .withLeg('2', createLeg(100, 50))
+                    .build(),
             };
 
             await renderComponent({
@@ -187,18 +159,12 @@ describe('MatchLog', () => {
 
         it('first match content for opponent', async () => {
             const saygMatch = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(100, 50),
-                        '1': createLeg(100, 50),
-                        '2': createLeg(100, 50),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(100, 50))
+                    .withLeg('1', createLeg(100, 50))
+                    .withLeg('2', createLeg(100, 50))
+                    .build(),
             };
 
             await renderComponent({
@@ -223,28 +189,16 @@ describe('MatchLog', () => {
 
         it('second match content for host', async () => {
             const saygMatch1 = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(50, 25),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(50, 25))
+                    .build(),
             };
             const saygMatch2 = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'C'},
-                    sideB: {name: 'D'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(100, 50),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('C').sideB('D').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(100, 50))
+                    .build(),
             };
 
             await renderComponent({
@@ -273,28 +227,16 @@ describe('MatchLog', () => {
 
         it('second match content for opponent', async () => {
             const saygMatch1 = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'A'},
-                    sideB: {name: 'B'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(50, 25),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('A').sideB('B').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(50, 25))
+                    .build(),
             };
             const saygMatch2 = {
-                match: {
-                    id: createTemporaryId(),
-                    sideA: {name: 'C'},
-                    sideB: {name: 'D'},
-                },
-                saygData: {
-                    legs: {
-                        '0': createLeg(100, 50),
-                    }
-                },
+                match: tournamentMatchBuilder().sideA('C').sideB('D').build(),
+                saygData: saygBuilder()
+                    .withLeg('0', createLeg(100, 50))
+                    .build(),
             };
 
             await renderComponent({

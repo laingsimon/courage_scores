@@ -6,6 +6,12 @@ import React from "react";
 import {any, toMap} from "../helpers/collections";
 import {createTemporaryId} from "../helpers/projection";
 import {renderDate} from "../helpers/rendering";
+import {
+    divisionBuilder,
+    fixtureDateBuilder,
+    seasonBuilder,
+    teamBuilder
+} from "../helpers/builders";
 
 describe('Division', () => {
     let context;
@@ -74,15 +80,17 @@ describe('Division', () => {
     describe('when out of season', () => {
         const divisionId = createTemporaryId();
 
-        it('renders prompt for season', async () => {
+        beforeEach(() => {
             divisionDataMap[divisionId] = {
                 season: null,
                 id: divisionId,
             };
+        });
 
+        it('renders prompt for season', async () => {
             await renderComponent({
                 divisions: [],
-                seasons: [{id: createTemporaryId(), name: 'SEASON', divisions: []}],
+                seasons: [seasonBuilder('SEASON').build()],
                 controls: true,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -95,14 +103,9 @@ describe('Division', () => {
         });
 
         it('renders prompt for season when no controls', async () => {
-            divisionDataMap[divisionId] = {
-                season: null,
-                id: divisionId,
-            };
-
             await renderComponent({
                 divisions: [],
-                seasons: [{id: createTemporaryId(), name: 'SEASON', divisions: []}],
+                seasons: [seasonBuilder('SEASON').build()],
                 controls: false,
             }, '/division/:divisionId', `/division/${divisionId}`);
 
@@ -116,27 +119,38 @@ describe('Division', () => {
     });
 
     describe('when in season', () => {
-        const division = {
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .starting('2023-01-01')
+            .ending('2023-06-01')
+            .withDivision(division)
+            .build();
+        const team = teamBuilder('TEAM_NAME').build();
+        const player = {
             id: createTemporaryId(),
-            name: 'DIVISION',
+            name: 'PLAYER_NAME',
+            singles: {
+                matchesPlayed: 1,
+            },
+            teamId: team.id,
         };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            divisions: [division],
-            startDate: '2023-01-01',
-            endDate: '2023-06-01',
-        };
+
+        beforeEach(() => {
+            const divisionData = {
+                season: season,
+                id: division.id,
+                name: division.name,
+                fixtures: [],
+                players: [player],
+                teams: [team],
+            };
+
+            divisionDataMap[division.id] = divisionData;
+            divisionDataMap[division.id + ':' + season.id] = divisionData;
+        });
 
         describe('teams', () => {
             it('renders teams table via division id', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -149,13 +163,6 @@ describe('Division', () => {
             });
 
             it('renders teams table via division name', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -168,13 +175,6 @@ describe('Division', () => {
             });
 
             it('renders teams table via division and season name', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -187,13 +187,6 @@ describe('Division', () => {
             });
 
             it('renders teams table via season id', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -207,21 +200,7 @@ describe('Division', () => {
         });
 
         describe('team', () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM_NAME',
-            };
-
             it('renders team details when provided with team id', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    players: [],
-                    teams: [team],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -234,15 +213,6 @@ describe('Division', () => {
             });
 
             it('renders team details when provided with team name', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    players: [],
-                    teams: [team],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -255,15 +225,6 @@ describe('Division', () => {
             });
 
             it('renders team not found when provided no team name', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    players: [],
-                    teams: [team],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -276,15 +237,6 @@ describe('Division', () => {
             });
 
             it('renders team not found when provided with missing team', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    players: [],
-                    teams: [team],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -299,14 +251,6 @@ describe('Division', () => {
 
         describe('fixtures', () => {
             it('renders fixtures list via division id', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -318,14 +262,6 @@ describe('Division', () => {
             });
 
             it('renders fixtures list via division name', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -337,14 +273,6 @@ describe('Division', () => {
             });
 
             it('renders fixtures list via division and season name', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -356,14 +284,6 @@ describe('Division', () => {
             });
 
             it('renders fixtures list via division and season id', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [],
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -377,13 +297,6 @@ describe('Division', () => {
 
         describe('players', () => {
             it('renders players table via division id', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -396,13 +309,6 @@ describe('Division', () => {
             });
 
             it('renders players table via division name', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -415,13 +321,6 @@ describe('Division', () => {
             });
 
             it('renders players table via division and season name', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -434,13 +333,6 @@ describe('Division', () => {
             });
 
             it('renders players table via season id', async () => {
-                divisionDataMap[division.id + ':' + season.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: []
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -454,29 +346,7 @@ describe('Division', () => {
         });
 
         describe('player', () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM_NAME',
-            };
-            const player = {
-                id: createTemporaryId(),
-                name: 'PLAYER_NAME',
-                singles: {
-                    matchesPlayed: 1,
-                },
-                teamId: team.id,
-            };
-
             it('renders player details when provided with player id', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: [player],
-                    teams: [team],
-                    fixtures: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -488,15 +358,6 @@ describe('Division', () => {
             });
 
             it('renders player details when provided with player and team name', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: [player],
-                    teams: [team],
-                    fixtures: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -508,15 +369,6 @@ describe('Division', () => {
             });
 
             it('renders player not found when provided with missing team', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: [player],
-                    teams: [team],
-                    fixtures: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -528,15 +380,6 @@ describe('Division', () => {
             });
 
             it('renders player not found when provided with missing player', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: [player],
-                    teams: [team],
-                    fixtures: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -548,15 +391,6 @@ describe('Division', () => {
             });
 
             it('renders player not found when provided no player name', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: [player],
-                    teams: [team],
-                    fixtures: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -568,15 +402,6 @@ describe('Division', () => {
             });
 
             it('renders player not found when provided with malformed names', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    players: [player],
-                    teams: [team],
-                    fixtures: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -590,13 +415,6 @@ describe('Division', () => {
 
         describe('reports', () => {
             it('does not render tab when logged out', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -608,13 +426,6 @@ describe('Division', () => {
             });
 
             it('does not render tab when not permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -631,13 +442,6 @@ describe('Division', () => {
             });
 
             it('renders tab when permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -655,13 +459,6 @@ describe('Division', () => {
             });
 
             it('does not render reports content when not permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -678,13 +475,6 @@ describe('Division', () => {
             });
 
             it('renders reports content when permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -703,13 +493,6 @@ describe('Division', () => {
 
         describe('health', () => {
             it('does not health tab when logged out', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -721,13 +504,6 @@ describe('Division', () => {
             });
 
             it('does not render tab when not permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -744,13 +520,6 @@ describe('Division', () => {
             });
 
             it('renders tab when permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -768,13 +537,6 @@ describe('Division', () => {
             });
 
             it('does not render health content when not permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -791,13 +553,6 @@ describe('Division', () => {
             });
 
             it('renders health content when permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -815,7 +570,7 @@ describe('Division', () => {
         });
 
         describe('data errors', () => {
-            it('renders data errors when permitted', async () => {
+            beforeEach(() => {
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
@@ -825,7 +580,9 @@ describe('Division', () => {
                         'Some error'
                     ],
                 };
+            });
 
+            it('renders data errors when permitted', async () => {
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -838,15 +595,6 @@ describe('Division', () => {
             });
 
             it('can hide data errors', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                    dataErrors: [
-                        'Some error'
-                    ],
-                };
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -861,16 +609,6 @@ describe('Division', () => {
             });
 
             it('does not render data errors when not permitted', async () => {
-                divisionDataMap[division.id] = {
-                    season: season,
-                    id: division.id,
-                    name: division.name,
-                    teams: [],
-                    dataErrors: [
-                        'Some error'
-                    ],
-                };
-
                 await renderComponent({
                     divisions: [division],
                     seasons: [season],
@@ -903,10 +641,7 @@ describe('Division', () => {
 
             it('when a different season id is returned to requested', async () => {
                 divisionDataMap[division.id + ':' + season.id] = {
-                    season: {
-                        id: createTemporaryId(),
-                        name: 'ANOTHER SEASON',
-                    },
+                    season: seasonBuilder('ANOTHER SEASON').build(),
                     id: division.id, // different id to requested
                     name: division.name,
                     teams: [],
@@ -995,34 +730,19 @@ describe('Division', () => {
             });
 
             it('reloads division data when fixture created', async () => {
-                const homeTeam = {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const awayTeam = {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const fixture = {
-                    id: homeTeam.id,
-                    date: '2023-07-01',
-                    homeTeam: homeTeam,
-                    awayTeam: null,
-                    isKnockout: true,
-                    fixturesUsingAddress: [],
-                };
+                const homeTeam = teamBuilder('HOME')
+                    .forSeason(season, division)
+                    .build();
+                const awayTeam = teamBuilder('AWAY')
+                    .forSeason(season, division)
+                    .build();
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    fixtures: [{
-                        date: fixture.date,
-                        fixtures: [fixture],
-                        tournamentFixtures: [],
-                        notes: [],
-                    }],
+                    fixtures: [fixtureDateBuilder('2023-07-01')
+                        .withFixture(f => f.bye(homeTeam).knockout())
+                        .build()],
                     teams: [],
                 };
                 await renderComponent({
@@ -1052,34 +772,19 @@ describe('Division', () => {
             });
 
             it('reloads division data when fixture deleted', async () => {
-                const homeTeam = {
-                    id: createTemporaryId(),
-                    name: 'HOME',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const awayTeam = {
-                    id: createTemporaryId(),
-                    name: 'AWAY',
-                    seasons: [{seasonId: season.id, players: []}],
-                };
-                const fixture = {
-                    id: createTemporaryId(),
-                    date: '2023-07-01',
-                    homeTeam: homeTeam,
-                    awayTeam: awayTeam,
-                    isKnockout: true,
-                    fixturesUsingAddress: [],
-                };
+                const homeTeam = teamBuilder('HOME')
+                    .forSeason(season, division)
+                    .build();
+                const awayTeam = teamBuilder('AWAY')
+                    .forSeason(season, division)
+                    .build();
                 divisionDataMap[division.id] = {
                     season: season,
                     id: division.id,
                     name: division.name,
-                    fixtures: [{
-                        date: fixture.date,
-                        fixtures: [fixture],
-                        tournamentFixtures: [],
-                        notes: [],
-                    }],
+                    fixtures: [fixtureDateBuilder('2023-07-01')
+                        .withFixture(f => f.playing(homeTeam, awayTeam).knockout())
+                        .build()],
                     teams: [],
                 };
                 await renderComponent({
@@ -1111,26 +816,23 @@ describe('Division', () => {
     });
 
     describe('rendering options', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-            divisions: [division],
-            startDate: '2023-01-01',
-            endDate: '2023-06-01',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .starting('2023-01-01')
+            .ending('2023-06-01')
+            .withDivision(division)
+            .build();
 
-        it('does show division controls when not denied', async () => {
+        beforeEach(() => {
             divisionDataMap[division.id] = {
                 season: season,
                 id: division.id,
                 name: division.name,
                 teams: []
             };
+        });
 
+        it('does show division controls when not denied', async () => {
             await renderComponent({
                 divisions: [division],
                 seasons: [season],
@@ -1144,13 +846,6 @@ describe('Division', () => {
         });
 
         it('does show tabs when not denied', async () => {
-            divisionDataMap[division.id] = {
-                season: season,
-                id: division.id,
-                name: division.name,
-                teams: []
-            };
-
             await renderComponent({
                 divisions: [division],
                 seasons: [season],
@@ -1165,13 +860,6 @@ describe('Division', () => {
         });
 
         it('does not show division controls when instructed', async () => {
-            divisionDataMap[division.id] = {
-                season: season,
-                id: division.id,
-                name: division.name,
-                teams: []
-            };
-
             await renderComponent({
                 divisions: [division],
                 seasons: [season],
@@ -1183,13 +871,6 @@ describe('Division', () => {
         });
 
         it('does not show tabs when instructed', async () => {
-            divisionDataMap[division.id] = {
-                season: season,
-                id: division.id,
-                name: division.name,
-                teams: []
-            };
-
             await renderComponent({
                 divisions: [division],
                 seasons: [season],

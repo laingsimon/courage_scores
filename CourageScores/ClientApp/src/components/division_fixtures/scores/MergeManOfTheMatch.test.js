@@ -4,6 +4,7 @@ import React from "react";
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
+import {playerBuilder} from "../../../helpers/builders";
 
 describe('MergeManOfTheMatch', () => {
     let context;
@@ -39,10 +40,7 @@ describe('MergeManOfTheMatch', () => {
 
     describe('renders', () => {
         const playerId = createTemporaryId();
-        const allPlayers = [{
-            id: playerId,
-            name: 'MOM',
-        }];
+        const allPlayers = [playerBuilder('MOM', playerId).build()];
 
         it('when home merged', async () => {
             const data = {
@@ -175,10 +173,7 @@ describe('MergeManOfTheMatch', () => {
 
     describe('interactivity', () => {
         const playerId = createTemporaryId();
-        const allPlayers = [{
-            id: playerId,
-            name: 'MOM',
-        }];
+        const allPlayers = [playerBuilder('MOM', playerId).build()];
 
         it('can change home man of match', async () => {
             const data = {

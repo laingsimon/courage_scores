@@ -4,6 +4,7 @@ import React from "react";
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {createTemporaryId} from "../../../helpers/projection";
 import {MergeMatch} from "./MergeMatch";
+import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
 
 describe('MergeMatch', () => {
     let context;
@@ -58,30 +59,20 @@ describe('MergeMatch', () => {
 
         it('when home and away submissions match', async () => {
             const match = {};
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: false,
                 matches: [match],
                 matchIndex: 0,
-                homeSubmission: {
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
-                awaySubmission: {
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -94,30 +85,20 @@ describe('MergeMatch', () => {
 
         it('when home and away submissions match and readonly', async () => {
             const match = {};
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: true,
                 matches: [match],
                 matchIndex: 0,
-                homeSubmission: {
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
-                awaySubmission: {
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -130,22 +111,16 @@ describe('MergeMatch', () => {
         });
 
         it('when nothing to merge for either home or away', async () => {
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
+                .awaySubmission(s => s.author('AWAY CAPTAIN').playing('HOME', 'AWAY'))
+                .build();
             await renderComponent({
                 readOnly: false,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: []
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: []
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -154,32 +129,24 @@ describe('MergeMatch', () => {
         });
 
         it('when home unmerged', async () => {
-            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
-            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .build();
             await renderComponent({
                 readOnly: false,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer],
-                    }]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -192,32 +159,24 @@ describe('MergeMatch', () => {
         });
 
         it('when home unmerged and readonly', async () => {
-            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
-            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .build();
             await renderComponent({
                 readOnly: true,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer],
-                    }]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -228,32 +187,24 @@ describe('MergeMatch', () => {
         });
 
         it('when away unmerged', async () => {
-            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
-            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: false,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -266,32 +217,24 @@ describe('MergeMatch', () => {
         });
 
         it('when away unmerged and readonly', async () => {
-            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
-            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .build();
             await renderComponent({
                 readOnly: true,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {}
             });
 
@@ -304,34 +247,27 @@ describe('MergeMatch', () => {
 
     describe('interactivity', () => {
         it('can merge home submission', async () => {
-            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
-            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .withMatch(m => m)
+                .build();
             await renderComponent({
                 readOnly: false,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer],
-                    }]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {
-                    matches: [{}],
+                    matches: [{}]
                 }
             });
             const homeSubmission = context.container.querySelector('td:nth-child(1)');
@@ -348,32 +284,25 @@ describe('MergeMatch', () => {
         });
 
         it('can merge away submission', async () => {
-            const homePlayer = {id: createTemporaryId(), name: 'HOME PLAYER'};
-            const awayPlayer = {id: createTemporaryId(), name: 'AWAY PLAYER'};
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome().withAway()))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch(m => m)
+                .build();
             await renderComponent({
                 readOnly: false,
                 matches: [{}],
                 matchIndex: 0,
-                homeSubmission: {
-                    author: 'HOME CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homePlayers: [],
-                        awayPlayers: [],
-                    }]
-                },
-                awaySubmission: {
-                    author: 'AWAY CAPTAIN',
-                    home: {name: 'HOME'},
-                    away: {name: 'AWAY'},
-                    matches: [{
-                        homeScore: 1,
-                        awayScore: 2,
-                        homePlayers: [homePlayer],
-                        awayPlayers: [awayPlayer],
-                    }]
-                },
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
                 fixtureData: {
                     matches: [{}]
                 }

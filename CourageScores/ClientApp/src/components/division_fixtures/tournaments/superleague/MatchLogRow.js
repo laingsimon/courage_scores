@@ -20,7 +20,7 @@ export function MatchLogRow({
     const lastThrow = accumulator.throws[accumulator.throws.length - 1];
     const winner = isLegWinner(leg, accumulatorName);
 
-    if (accumulator.noOfDarts === 0) {
+    if (!accumulator.noOfDarts) {
         return null;
     }
 

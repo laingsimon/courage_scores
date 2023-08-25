@@ -7,6 +7,7 @@ import {PrintableSheet} from "./PrintableSheet";
 import {createTemporaryId} from "../../../helpers/projection";
 import {renderDate} from "../../../helpers/rendering";
 import {toMap} from "../../../helpers/collections";
+import {divisionBuilder, seasonBuilder, sideBuilder, teamBuilder, tournamentBuilder} from "../../../helpers/builders";
 
 describe('PrintableSheet', () => {
     let context;
@@ -41,11 +42,14 @@ describe('PrintableSheet', () => {
     }
 
     function createSide(name, players) {
-        return {
-            id: createTemporaryId(),
-            name: name,
-            players: (players || [])
+        if (players && players.length === 1) {
+            return sideBuilder(name)
+                .withPlayer(players[0])
+                .build();
         }
+
+        return sideBuilder(name)
+            .build();
     }
 
     function getRounds() {
@@ -136,14 +140,10 @@ describe('PrintableSheet', () => {
         const sideJ = createSide('J');
         const sideK = createSide('K');
         const sideL = createSide('L');
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
 
         it('renders tournament with one round', async () => {
             const tournamentData = {
@@ -728,15 +728,9 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing (teams)', async () => {
-            const team = {
-                id: createTemporaryId(),
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: season.id,
-                    divisionId: division.id,
-                    players: [],
-                }],
-            };
+            const team = teamBuilder('TEAM')
+                .forSeason(season, division)
+                .build();
             const sideA = createSide('A');
             sideA.teamId = team.id;
             const sideB = createSide('B');
@@ -766,14 +760,10 @@ describe('PrintableSheet', () => {
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([{
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: createTemporaryId(),
-                    divisionId: division.id,
-                    players: [],
-                }],
-            }]);
+            const teams = toMap([ teamBuilder('TEAM')
+                .forSeason(createTemporaryId(), division)
+                .build()
+            ]);
             const divisions = [division];
 
             await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
@@ -794,14 +784,10 @@ describe('PrintableSheet', () => {
                 oneEighties: [],
                 over100Checkouts: [],
             };
-            const teams = toMap([{
-                name: 'TEAM',
-                seasons: [{
-                    seasonId: createTemporaryId(),
-                    divisionId: division.id,
-                    players: [player1, player2],
-                }],
-            }]);
+            const teams = toMap([ teamBuilder('TEAM')
+                .forSeason(createTemporaryId(), division, [ player1, player2 ])
+                .build()
+            ]);
             const divisions = [division];
 
             await renderComponent({tournamentData, season, division: null}, {printOnly: false}, teams, divisions);
@@ -829,17 +815,12 @@ describe('PrintableSheet', () => {
         });
 
         it('renders heading', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                type: 'TYPE',
-                notes: 'NOTES',
-                address: 'ADDRESS',
-                date: '2023-06-01',
-                round: null,
-                sides: [],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .type('TYPE')
+                .notes('NOTES')
+                .address('ADDRESS')
+                .date('2023-06-01')
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 
@@ -964,14 +945,10 @@ describe('PrintableSheet', () => {
         const sideF = createSide('F');
         const sideG = createSide('G');
         const sideH = createSide('H');
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
 
         it('renders tournament with 2 sides', async () => {
             const tournamentData = {
@@ -1523,17 +1500,12 @@ describe('PrintableSheet', () => {
         });
 
         it('renders heading', async () => {
-            const tournamentData = {
-                id: createTemporaryId(),
-                type: 'TYPE',
-                notes: 'NOTES',
-                address: 'ADDRESS',
-                date: '2023-06-01',
-                round: null,
-                sides: [],
-                oneEighties: [],
-                over100Checkouts: [],
-            };
+            const tournamentData = tournamentBuilder()
+                .type('TYPE')
+                .notes('NOTES')
+                .address('ADDRESS')
+                .date('2023-06-01')
+                .build();
 
             await renderComponent({tournamentData, season, division}, {printOnly: false});
 

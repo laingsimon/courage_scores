@@ -4,6 +4,7 @@ import React from "react";
 import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
 import {createTemporaryId} from "../../../helpers/projection";
+import {divisionBuilder, playerBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
 
 describe('MultiPlayerSelection', () => {
     let context;
@@ -48,19 +49,11 @@ describe('MultiPlayerSelection', () => {
     }
 
     describe('renders', () => {
-        const division = {
-            id: createTemporaryId(),
-            name: 'DIVISION',
-        };
-        const season = {
-            id: createTemporaryId(),
-            name: 'SEASON',
-        };
-        const player = {
-            id: createTemporaryId(),
-            name: 'PLAYER',
-            notes: 'NOTES',
-        }
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON')
+            .withDivision(division)
+            .build();
+        const player = playerBuilder('PLAYER').notes('NOTES').build();
 
         it('readonly component', async () => {
             await renderComponent({
@@ -203,13 +196,7 @@ describe('MultiPlayerSelection', () => {
                 allPlayers: [player],
                 division: division,
                 season: season,
-            }, [{
-                name: 'TEAM_NAME',
-                seasons: [{
-                    seasonId: season.id,
-                    players: [player],
-                }]
-            }]);
+            }, [teamBuilder('TEAM_NAME').forSeason(season, division, [player]).build()]);
 
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];
@@ -313,11 +300,7 @@ describe('MultiPlayerSelection', () => {
     });
 
     describe('interactivity', () => {
-        const player = {
-            id: createTemporaryId(),
-            name: 'PLAYER',
-            notes: 'NOTES',
-        }
+        const player = playerBuilder('PLAYER').notes('NOTES').build();
         let alert;
         window.alert = (message) => {
             alert = message;

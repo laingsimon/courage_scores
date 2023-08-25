@@ -43,13 +43,15 @@ describe('ExportData', () => {
             </AdminContainer>));
     }
 
+    const props = {
+        tables: [
+            {name: 'Table 1', canExport: true},
+            {name: 'Table 2', canExport: false}
+        ]
+    };
+
     it('renders tables', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
 
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
@@ -57,12 +59,7 @@ describe('ExportData', () => {
     });
 
     it('can select exportable table', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table1 = tables.filter(t => t.textContent.indexOf('Table 1') !== -1)[0];
@@ -75,12 +72,7 @@ describe('ExportData', () => {
     });
 
     it('cannot select non-exportable table', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         const tables = Array.from(context.container.querySelectorAll('ul li'));
         const table2 = tables.filter(t => t.textContent.indexOf('Table 2') !== -1)[0];
@@ -93,12 +85,7 @@ describe('ExportData', () => {
     });
 
     it('cannot export when no tables selected', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         let alert;
         window.alert = (msg) => alert = msg;
@@ -115,12 +102,7 @@ describe('ExportData', () => {
     });
 
     it('can export data with password', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         await doChange(context.container, 'input[name="password"]', 'pass', context.user);
 
@@ -135,12 +117,7 @@ describe('ExportData', () => {
     });
 
     it('can export data without password', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
 
         await doClick(findButton(context.container, 'Export data'));
@@ -154,12 +131,7 @@ describe('ExportData', () => {
     });
 
     it('can export data without deleted entries', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         await doClick(context.container, 'input[name="includeDeletedEntries"]');
 
@@ -174,12 +146,7 @@ describe('ExportData', () => {
     });
 
     it('can download zip', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         apiResponse = {
             success: true,
@@ -195,12 +162,7 @@ describe('ExportData', () => {
     });
 
     it('can handle error during export', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         apiResponse = {success: false};
 
@@ -212,12 +174,7 @@ describe('ExportData', () => {
     });
 
     it('can close error report from export', async () => {
-        await renderComponent({
-            tables: [
-                {name: 'Table 1', canExport: true},
-                {name: 'Table 2', canExport: false}
-            ]
-        });
+        await renderComponent(props);
         expect(reportedError).toBeNull();
         apiResponse = {success: false};
         await doClick(findButton(context.container, 'Export data'));

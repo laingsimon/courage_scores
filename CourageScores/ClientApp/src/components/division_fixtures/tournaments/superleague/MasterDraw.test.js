@@ -4,6 +4,7 @@ import {cleanUp, renderApp} from "../../../../helpers/tests";
 import React from "react";
 import {MasterDraw} from "./MasterDraw";
 import {renderDate} from "../../../../helpers/rendering";
+import {tournamentMatchBuilder} from "../../../../helpers/builders";
 
 describe('MasterDraw', () => {
     let context;
@@ -35,14 +36,8 @@ describe('MasterDraw', () => {
 
     describe('renders', () => {
         it('matches', async () => {
-            const match1 = {
-                sideA: {name: 'A'},
-                sideB: {name: 'B'},
-            };
-            const match2 = {
-                sideA: {name: 'C'},
-                sideB: {name: 'D'},
-            };
+            const match1 = tournamentMatchBuilder().sideA('A').sideB('B').build();
+            const match2 = tournamentMatchBuilder().sideA('C').sideB('D').build();
             const matches = [match1, match2];
 
             await renderComponent({
