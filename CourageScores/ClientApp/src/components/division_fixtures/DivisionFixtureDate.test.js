@@ -401,6 +401,35 @@ describe('DivisionFixtureDate', () => {
             expect(row.textContent).toContain('TYPE at ADDRESS');
         });
 
+        it('renders existing league fixtures but no potential league fixtures when any tournaments exist', async () => {
+            const homeTeam = teamBuilder('HOME').build();
+            const awayTeam = teamBuilder('AWAY').build();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture(f => f.bye(team), team.id)
+                .withFixture(f => f.playing(homeTeam, awayTeam), homeTeam.id)
+                .withTournament(t => t
+                    .type('TYPE')
+                    .address('ADDRESS')
+                    .build())
+                .build();
+            await renderComponent({
+                date: fixtureDate,
+                renderContext: {},
+                showPlayers: {},
+            }, {fixtures: [fixtureDate], teams: [team, homeTeam, awayTeam], season, id: division.id}, account);
+
+            expect(reportedError).toBeNull();
+            const table = context.container.querySelector('table');
+            expect(table).toBeTruthy();
+            expect(table.querySelectorAll('tr').length).toEqual(2);
+            const rows = Array.from(table.querySelectorAll('tr'));
+            expect(rows.map(row => row.querySelector('td:nth-child(1)').textContent)).toEqual([ 'HOME', 'TYPE at ADDRESS' ]);
+            expect(rows.map(row => {
+                const activeItem = row.querySelector('td:nth-child(5) .dropdown-item.active');
+                return activeItem ? activeItem.textContent : null;
+            })).toEqual([ 'AWAY', null ]); // null because tournaments don't have a drop down to select away team
+        });
+
         it('renders without teams that are assigned to another fixture on the same date', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
                 .withFixture(f => f.bye(team), team.id)

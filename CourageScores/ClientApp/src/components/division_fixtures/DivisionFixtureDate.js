@@ -72,7 +72,7 @@ export function DivisionFixtureDate({
             return true; // a real fixture
         }
 
-        if (fixture.awayTeam !== null) {
+        if (fixture.awayTeam) {
             // an away team has been selected; assume it is valid
             return true;
         }
@@ -120,6 +120,7 @@ export function DivisionFixtureDate({
 
     const hasKnockoutFixture = any(date.fixtures, f => f.id !== f.homeTeam.id && f.isKnockout);
     const showQualifierToggle = isAdmin && ((!hasKnockoutFixture && !any(date.tournamentFixtures, f => !f.proposed) && !any(date.fixtures, f => f.id !== f.homeTeam.id)) || date.isNew);
+    const allowTournamentProposals = !any(date.fixtures, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout);
     return (<div key={date.date} className={`${getClassName()}${date.isNew ? ' alert-success pt-3 mb-3' : ''}`}>
         <div data-fixture-date={date.date} className="bg-light"></div>
         <h4>
@@ -155,7 +156,7 @@ export function DivisionFixtureDate({
                 fixture={f}
                 date={date.date}
                 onUpdateFixtures={onUpdateFixtures}/>))}
-            {any(date.fixtures, f => f.id !== f.homeTeam.id || f.awayTeam || f.isKnockout) || date.isKnockout ? null : date.tournamentFixtures.map(tournament => (
+            {date.tournamentFixtures.filter(t => !date.isKnockout || !t.proposal || (allowTournamentProposals && t.proposal)).map(tournament => (
                 <TournamentFixture
                     key={tournament.address + '-' + tournament.date}
                     tournament={tournament}
