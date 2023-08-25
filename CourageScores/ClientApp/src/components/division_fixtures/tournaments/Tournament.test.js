@@ -6,7 +6,7 @@ import {Tournament} from "./Tournament";
 import {any, toMap} from "../../../helpers/collections";
 import {createTemporaryId, EMPTY_ID} from "../../../helpers/projection";
 import {
-    divisionBuilder, playerBuilder, saygBuilder,
+    divisionBuilder, divisionDataBuilder, playerBuilder, saygBuilder,
     seasonBuilder,
     sideBuilder,
     teamBuilder,
@@ -161,6 +161,11 @@ describe('Tournament', () => {
         describe('when logged out', () => {
             const account = null;
 
+            beforeEach(() => {
+                tournamentDataLookup = {};
+                saygDataLookup = {};
+            });
+
             it('error when no seasons', async () => {
                 const tournamentData = tournamentBuilder()
                     .forSeason(season)
@@ -170,12 +175,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -197,12 +199,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -220,7 +219,6 @@ describe('Tournament', () => {
 
             it('when tournament not found', async () => {
                 const id = createTemporaryId();
-                tournamentDataLookup = {};
                 tournamentDataLookup[id] = null;
 
                 await renderComponent(id, {
@@ -235,20 +233,18 @@ describe('Tournament', () => {
             });
 
             it('when tournament season not found', async () => {
+                const missingSeason = seasonBuilder('MISSING').build();
                 const tournamentData = tournamentBuilder()
-                    .forSeason(createTemporaryId()) // non-existent season id
+                    .forSeason(missingSeason) // non-existent season id
                     .forDivision(division)
                     .date('2023-01-02T00:00:00')
                     .address('ADDRESS')
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -275,12 +271,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -310,12 +303,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -348,12 +338,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -378,6 +365,11 @@ describe('Tournament', () => {
                 }
             };
 
+            beforeEach(() => {
+                tournamentDataLookup = {};
+                saygDataLookup = {};
+            });
+
             it('error when no seasons', async () => {
                 const tournamentData = tournamentBuilder()
                     .forSeason(season)
@@ -387,12 +379,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -414,12 +403,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(tournamentData.divisionId, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -444,12 +430,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -495,12 +478,9 @@ describe('Tournament', () => {
                     .type('TYPE')
                     .notes('NOTES')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -531,12 +511,9 @@ describe('Tournament', () => {
                     .gender('men')
                     .singleRound()
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -568,12 +545,9 @@ describe('Tournament', () => {
                     .opponent('OPPONENT')
                     .gender('men')
                     .accoladesCount()
+                    .addTo(tournamentDataLookup)
                     .build();
-                const divisionData = {
-                    fixtures: [],
-                };
-                tournamentDataLookup = {};
-                tournamentDataLookup[tournamentData.id] = tournamentData;
+                const divisionData = divisionDataBuilder().build();
                 expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
                 await renderComponent(tournamentData.id, {
@@ -598,6 +572,11 @@ describe('Tournament', () => {
             }
         };
 
+        beforeEach(() => {
+            tournamentDataLookup = {};
+            saygDataLookup = {};
+        });
+
         it('can open add player dialog', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
@@ -607,12 +586,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
             await renderComponent(tournamentData.id, {
@@ -638,12 +614,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder(division).build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             const team = teamBuilder('TEAM').forSeason(tournamentData.seasonId, divisionData.id).build()
             await renderComponent(tournamentData.id, {
@@ -680,12 +653,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
@@ -712,12 +682,9 @@ describe('Tournament', () => {
                 .accoladesCount()
                 .singleRound()
                 .updated('2023-07-01T00:00:00')
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
@@ -764,12 +731,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
 
             await renderComponent(tournamentData.id, {
@@ -793,12 +757,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
@@ -823,12 +784,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
@@ -856,12 +814,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
@@ -892,12 +847,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account,
@@ -926,12 +878,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -970,12 +919,9 @@ describe('Tournament', () => {
                         .saygId(saygId)
                         .sideA('A')
                         .sideB('B')))
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1020,12 +966,9 @@ describe('Tournament', () => {
                             .saygId(saygId2)
                             .sideA('A')
                             .sideB('B'))))
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1057,12 +1000,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1085,21 +1025,18 @@ describe('Tournament', () => {
         });
 
         it('can export tournament data and team data for team sides', async () => {
-            const teamId = createTemporaryId();
+            const team = teamBuilder('TEAM').build();
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .date('2023-01-02T00:00:00')
-                .withSide(s => s.teamId(teamId))
+                .withSide(s => s.teamId(team.id))
                 .address('ADDRESS')
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1117,7 +1054,7 @@ describe('Tournament', () => {
                 tables: {
                     tournamentGame: [tournamentData.id],
                     season: [tournamentData.seasonId],
-                    team: [teamId],
+                    team: [team.id],
                 }
             });
         });
@@ -1135,12 +1072,9 @@ describe('Tournament', () => {
                 .type('TYPE')
                 .notes('NOTES')
                 .accoladesCount()
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1176,12 +1110,9 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(side2)
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1208,12 +1139,9 @@ describe('Tournament', () => {
                 .forSeason(season)
                 .withSide(side1)
                 .withSide(side2)
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: {access: Object.assign({exportData: true}, account.access)},
@@ -1239,6 +1167,7 @@ describe('Tournament', () => {
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
+                .addTo(saygDataLookup)
                 .build();
             const sideA = sideBuilder('A').withPlayer(playerA).build();
             const sideB = sideBuilder('B').withPlayer(playerB).build();
@@ -1256,14 +1185,9 @@ describe('Tournament', () => {
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB)))
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
-            saygDataLookup = {};
-            saygDataLookup[sayg.id] = sayg;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1304,6 +1228,7 @@ describe('Tournament', () => {
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
+                .addTo(saygDataLookup)
                 .build();
             const sideA = sideBuilder('A').withPlayer(playerA).build();
             const sideB = sideBuilder('B').withPlayer(playerB).build();
@@ -1321,14 +1246,9 @@ describe('Tournament', () => {
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB)))
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
-            saygDataLookup = {};
-            saygDataLookup[sayg.id] = sayg;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1362,6 +1282,7 @@ describe('Tournament', () => {
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
+                .addTo(saygDataLookup)
                 .build();
             const sideA = sideBuilder('A').withPlayer(playerA).build();
             const sideB = sideBuilder('B').withPlayer(playerB).build();
@@ -1379,14 +1300,9 @@ describe('Tournament', () => {
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB)))
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
-            saygDataLookup = {};
-            saygDataLookup[sayg.id] = sayg;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,
@@ -1436,6 +1352,7 @@ describe('Tournament', () => {
                     .currentThrow('home')
                     .playerSequence('home', 'away'))
                 .scores(0, 0)
+                .addTo(saygDataLookup)
                 .build();
             const sideA = sideBuilder('A').withPlayer(playerA).build();
             const sideB = sideBuilder('B').withPlayer(playerB).build();
@@ -1453,14 +1370,9 @@ describe('Tournament', () => {
                         .saygId(sayg.id)
                         .sideA(sideA)
                         .sideB(sideB)))
+                .addTo(tournamentDataLookup)
                 .build();
-            const divisionData = {
-                fixtures: [],
-            };
-            tournamentDataLookup = {};
-            tournamentDataLookup[tournamentData.id] = tournamentData;
-            saygDataLookup = {};
-            saygDataLookup[sayg.id] = sayg;
+            const divisionData = divisionDataBuilder().build();
             expectDivisionDataRequest(EMPTY_ID, tournamentData.seasonId, divisionData);
             await renderComponent(tournamentData.id, {
                 account: account,

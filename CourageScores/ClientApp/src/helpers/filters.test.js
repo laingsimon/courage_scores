@@ -13,6 +13,7 @@ import {
     isNextFixtureAfterToday,
     optionallyInvertFilter
 } from "./filters";
+import {divisionFixtureBuilder, fixtureDateBuilder, noteBuilder, teamBuilder, tournamentBuilder} from "./builders";
 
 describe('filters', () => {
     const today = date(0);
@@ -50,10 +51,7 @@ describe('filters', () => {
 
         it('sets lastFixtureDateBeforeToday if any fixture dates in past', () => {
             const context = {};
-            const fixtureDates = [{
-                date: past,
-                fixtures: []
-            }];
+            const fixtureDates = [fixtureDateBuilder(past).build()];
 
             const result = isLastFixtureBeforeToday(context, fixtureDates, past);
 
@@ -289,9 +287,7 @@ describe('filters', () => {
 
             expect(filter.apply({
                 tournamentFixture: null,
-                fixture: {
-                    isKnockout: false
-                },
+                fixture: divisionFixtureBuilder().build(),
             })).toEqual(true);
             expect(filter.apply({
                 tournamentFixture: null,
@@ -310,17 +306,13 @@ describe('filters', () => {
             const filter = getTypeFilter('qualifier');
 
             expect(filter.apply({
-                fixture: {
-                    isKnockout: true
-                },
+                fixture: divisionFixtureBuilder().knockout().build(),
             })).toEqual(true);
             expect(filter.apply({
                 note: {},
             })).toEqual(true);
             expect(filter.apply({
-                fixture: {
-                    isKnockout: false
-                },
+                fixture: divisionFixtureBuilder().build(),
             })).toEqual(false);
         });
 
@@ -328,20 +320,14 @@ describe('filters', () => {
             const filter = getTypeFilter('tournament');
 
             expect(filter.apply({
-                tournamentFixture: {
-                    proposed: false
-                },
+                tournamentFixture: tournamentBuilder().build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: {
-                    proposed: true
-                },
+                tournamentFixture: tournamentBuilder().proposed().build(),
                 note: {}
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: {
-                    proposed: true
-                },
+                tournamentFixture: tournamentBuilder().proposed().build(),
             })).toEqual(false);
         });
 
@@ -365,21 +351,17 @@ describe('filters', () => {
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                fixture: {
-                    homeTeam: {id: 'abcd'},
-                },
+                fixture: divisionFixtureBuilder()
+                    .bye('HOME', 'abcd')
+                    .build(),
             })).toEqual(true);
             expect(filter.apply({
-                fixture: {
-                    awayTeam: {id: 'abcd'},
-                },
+                fixture: divisionFixtureBuilder()
+                    .playing('HOME', teamBuilder('AWAY', 'abcd').build())
+                    .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: {
-                    sides: [{
-                        teamId: 'abcd',
-                    }]
-                },
+                tournamentFixture: tournamentBuilder().withSide(s => s.teamId('abcd')).build(),
             })).toEqual(true);
         });
 
@@ -388,22 +370,17 @@ describe('filters', () => {
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                fixture: {
-                    homeTeam: {id: 'abcd', name: 'name'},
-                },
+                fixture: divisionFixtureBuilder()
+                    .bye('name', 'abcd')
+                    .build(),
             })).toEqual(true);
             expect(filter.apply({
-                fixture: {
-                    awayTeam: {id: 'abcd', name: 'name'},
-                },
+                fixture: divisionFixtureBuilder()
+                    .playing('HOME', teamBuilder('name', 'abcd').build())
+                    .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: {
-                    sides: [{
-                        teamId: 'abcd',
-                        name: 'name',
-                    }]
-                },
+                tournamentFixture: tournamentBuilder().withSide(s => s.name('name').teamId('abcd')).build(),
             })).toEqual(true);
         });
 
@@ -412,22 +389,17 @@ describe('filters', () => {
 
             expect(filter).not.toBeNull();
             expect(filter.apply({
-                fixture: {
-                    homeTeam: {id: 'abcd', name: 'name'},
-                },
+                fixture: divisionFixtureBuilder()
+                    .bye('name', 'abcd')
+                    .build(),
             })).toEqual(true);
             expect(filter.apply({
-                fixture: {
-                    awayTeam: {id: 'abcd', name: 'name'},
-                },
+                fixture: divisionFixtureBuilder()
+                    .playing('HOME', teamBuilder('name', 'abcd').build())
+                    .build(),
             })).toEqual(true);
             expect(filter.apply({
-                tournamentFixture: {
-                    sides: [{
-                        teamId: 'abcd',
-                        name: 'name',
-                    }]
-                },
+                tournamentFixture: tournamentBuilder().withSide(s => s.name('name').teamId('abcd')).build(),
             })).toEqual(true);
         });
     });
@@ -457,7 +429,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd');
 
             expect(filter.apply({
-                notes: [{note: 'abcd'}],
+                notes: [noteBuilder().note('abcd').build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -467,7 +439,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd;efgh');
 
             expect(filter.apply({
-                notes: [{note: 'another note'}, {note: 'efgh'}],
+                notes: [noteBuilder().note('another note').build(), noteBuilder().note('efgh').build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -477,7 +449,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd;efgh');
 
             expect(filter.apply({
-                notes: [{note: 'EFGH'}],
+                notes: [noteBuilder().note('EFGH').build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(true);
@@ -487,7 +459,7 @@ describe('filters', () => {
             const filter = getNotesFilter('abcd;efgh');
 
             expect(filter.apply({
-                notes: [{note: 'ijkl'}],
+                notes: [noteBuilder().note('ijkl').build()],
                 fixtures: [],
                 tournamentFixtures: [],
             })).toEqual(false);

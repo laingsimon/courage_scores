@@ -2,7 +2,6 @@
 
 import React from "react";
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
-import {createTemporaryId} from "../../../helpers/projection";
 import {MergeHiCheckAnd180s} from "./MergeHiCheckAnd180s";
 import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
 

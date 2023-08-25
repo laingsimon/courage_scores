@@ -252,9 +252,10 @@ describe('TournamentSide', () => {
         });
 
         it('team (with missing team data) side', async () => {
+            const missingTeam = teamBuilder('MISSING').build();
             await renderComponent({season}, {
                 side: sideBuilder(team.name)
-                    .teamId(createTemporaryId())
+                    .teamId(missingTeam.id)
                     .noPlayers()
                     .build(),
                 winner: null,

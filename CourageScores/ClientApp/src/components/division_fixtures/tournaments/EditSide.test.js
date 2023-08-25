@@ -2,11 +2,17 @@
 
 import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
 import {EditSide} from "./EditSide";
 import {TournamentContainer} from "./TournamentContainer";
-import {playerBuilder, seasonBuilder, sideBuilder, teamBuilder, tournamentBuilder} from "../../../helpers/builders";
+import {
+    divisionBuilder,
+    playerBuilder,
+    seasonBuilder,
+    sideBuilder,
+    teamBuilder,
+    tournamentBuilder
+} from "../../../helpers/builders";
 
 describe('EditSide', () => {
     let context;
@@ -72,8 +78,9 @@ describe('EditSide', () => {
     describe('renders', () => {
         const player = playerBuilder('PLAYER').build();
         const anotherPlayer = playerBuilder('ANOTHER PLAYER').build();
+        const division = divisionBuilder('DIVISION').build();
         const tournamentData = tournamentBuilder()
-            .forDivision(createTemporaryId())
+            .forDivision(division)
             .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const season = seasonBuilder('SEASON').build();
@@ -204,7 +211,7 @@ describe('EditSide', () => {
         it('when team is not registered to season', async () => {
             const teamNotInSeason = teamBuilder('TEAM')
                 .forSeason(
-                    createTemporaryId(),
+                    seasonBuilder('ANOTHER SEASON').build(),
                     tournamentData.divisionId,
                     [playerBuilder('NOT IN SEASON PLAYER').build()])
                 .build();
@@ -228,7 +235,7 @@ describe('EditSide', () => {
             const otherDivisionTeam = teamBuilder('OTHER DIVISION TEAM')
                 .forSeason(
                     season,
-                    createTemporaryId(),
+                    divisionBuilder('ANOTHER DIVISION').build(),
                     [playerBuilder('OTHER DIVISION PLAYER').build()])
                 .build();
 
@@ -248,14 +255,10 @@ describe('EditSide', () => {
             const otherDivisionTeam = teamBuilder('OTHER DIVISION TEAM')
                 .forSeason(
                     season,
-                    createTemporaryId(),
+                    divisionBuilder('ANOTHER DIVISION').build(),
                     [playerBuilder('OTHER DIVISION PLAYER').build()])
                 .build();
-            const crossDivisionalTournamentData = {
-                id: createTemporaryId(),
-                divisionId: null,
-                sides: []
-            };
+            const crossDivisionalTournamentData = tournamentBuilder().build();
 
             await renderComponent({
                 tournamentData: crossDivisionalTournamentData,
@@ -342,7 +345,7 @@ describe('EditSide', () => {
         const player = playerBuilder('PLAYER').build();
         const anotherPlayer = playerBuilder('ANOTHER PLAYER').build();
         const tournamentData = tournamentBuilder()
-            .forDivision(createTemporaryId())
+            .forDivision(divisionBuilder('DIVISION').build())
             .withSide(s => s.name('ANOTHER SIDE').withPlayer(anotherPlayer))
             .build();
         const season = seasonBuilder('SEASON').build();

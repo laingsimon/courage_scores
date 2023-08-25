@@ -3,7 +3,6 @@
 import React from "react";
 import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helpers/tests";
 import {MultiPlayerSelection} from "./MultiPlayerSelection";
-import {createTemporaryId} from "../../../helpers/projection";
 import {divisionBuilder, playerBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
 
 describe('MultiPlayerSelection', () => {
@@ -208,17 +207,14 @@ describe('MultiPlayerSelection', () => {
         });
 
         it('disabled selected players link via id when team has no matching season', async () => {
+            const team = teamBuilder().forSeason(seasonBuilder('ANOTHER SEASON').build(), division).build();
             await renderComponent({
                 disabled: true,
                 players: [player],
                 allPlayers: [player],
                 division: division,
                 season: season,
-            }, [{
-                seasons: [{
-                    seasonId: createTemporaryId(),
-                }]
-            }]);
+            }, [team]);
 
             expect(reportedError).toBeNull();
             const selectedPlayer = getSelectedPlayers()[0];

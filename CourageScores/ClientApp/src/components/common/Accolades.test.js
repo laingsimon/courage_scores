@@ -1,7 +1,6 @@
 // noinspection JSUnresolvedReference
 
 import {add180, addHiCheck, remove180, removeHiCheck} from "./Accolades";
-import {createTemporaryId} from "../../helpers/projection";
 import {playerBuilder} from "../../helpers/builders";
 
 describe('Accolades', () => {

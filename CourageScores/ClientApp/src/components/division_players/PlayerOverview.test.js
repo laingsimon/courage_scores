@@ -7,7 +7,7 @@ import {createTemporaryId} from "../../helpers/projection";
 import {renderDate} from "../../helpers/rendering";
 import {PlayerOverview} from "./PlayerOverview";
 import {
-    divisionBuilder,
+    divisionBuilder, divisionDataBuilder,
     fixtureDateBuilder,
     seasonBuilder,
     teamBuilder
@@ -67,14 +67,11 @@ describe('PlayerOverview', () => {
         it('player and team details', async () => {
             await renderComponent(
                 player.id,
-                {
-                    teams: [team],
-                    players: [player],
-                    fixtures: [],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h3');
@@ -89,14 +86,11 @@ describe('PlayerOverview', () => {
         it('when player not found', async () => {
             await renderComponent(
                 createTemporaryId(),
-                {
-                    teams: [team],
-                    players: [player],
-                    fixtures: [],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             expect(context.container.textContent).toContain('⚠ Player could not be found');
@@ -105,14 +99,11 @@ describe('PlayerOverview', () => {
         it('table headings', async () => {
             await renderComponent(
                 player.id,
-                {
-                    teams: [team],
-                    players: [player],
-                    fixtures: [],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');
@@ -130,14 +121,12 @@ describe('PlayerOverview', () => {
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
                 playerWithLeagueFixture.id,
-                {
-                    teams: [team],
-                    players: [playerWithLeagueFixture],
-                    fixtures: [fixtureDate],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(playerWithLeagueFixture)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');
@@ -174,14 +163,12 @@ describe('PlayerOverview', () => {
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
                 playerWithLeagueFixture.id,
-                {
-                    teams: [team],
-                    players: [playerWithLeagueFixture],
-                    fixtures: [fixtureDate],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(playerWithLeagueFixture)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');
@@ -218,14 +205,12 @@ describe('PlayerOverview', () => {
             playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
             await renderComponent(
                 playerWithLeagueFixture.id,
-                {
-                    teams: [team],
-                    players: [playerWithLeagueFixture],
-                    fixtures: [fixtureDate],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(playerWithLeagueFixture)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');
@@ -260,14 +245,12 @@ describe('PlayerOverview', () => {
                 .build();
             await renderComponent(
                 player.id,
-                {
-                    teams: [team],
-                    players: [player],
-                    fixtures: [fixtureDate],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');
@@ -295,14 +278,12 @@ describe('PlayerOverview', () => {
                 .build();
             await renderComponent(
                 player.id,
-                {
-                    teams: [team],
-                    players: [player],
-                    fixtures: [fixtureDate],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');
@@ -330,14 +311,12 @@ describe('PlayerOverview', () => {
                 .build();
             await renderComponent(
                 player.id,
-                {
-                    teams: [team],
-                    players: [player],
-                    fixtures: [fixtureDate],
-                    id: division.id,
-                    name: division.name,
-                    season,
-                });
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(player)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table.table');

@@ -4,7 +4,6 @@ import {cleanUp, doChange, doClick, findButton, renderApp} from "../../../helper
 import {act} from "@testing-library/react";
 import React from "react";
 import {SaygLoadingContainer, useSayg} from "./SaygLoadingContainer";
-import {createTemporaryId} from "../../../helpers/projection";
 import {any} from "../../../helpers/collections";
 import {legBuilder, saygBuilder} from "../../../helpers/builders";
 
@@ -31,7 +30,7 @@ describe('SaygLoadingContainer', () => {
             upsertedData = data;
             return apiResponse || {
                 success: true,
-                result: Object.assign({id: createTemporaryId()}, data),
+                result: Object.assign({id: 'NEW_ID'}, data),
             };
         },
     }
@@ -96,21 +95,21 @@ describe('SaygLoadingContainer', () => {
     }
 
     it('gets sayg data for given id', async () => {
-        const id = createTemporaryId();
-        saygDataMap[id] = saygBuilder(id)
+        const saygData = saygBuilder()
             .withLeg('0', l => l.startingScore(501))
+            .addTo(saygDataMap)
             .build();
         let loadedWithData;
         await renderComponent({
             children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
-            id: id,
+            id: saygData.id,
             defaultData: null,
             autoSave: false,
         });
 
         expect(reportedError).toBeNull();
         expect(loadedWithData).toEqual({
-            sayg: saygDataMap[id],
+            sayg: saygDataMap[saygData.id],
             saveDataAndGetId: expect.any(Function),
             setSayg: expect.any(Function)
         });
@@ -146,7 +145,7 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('reports load error if no sayg data returned', async () => {
-        const id = createTemporaryId();
+        const id = 'NO_DATA_ID';
         saygDataMap[id] = null;
         let loadedWithData;
         await renderComponent({
@@ -161,7 +160,7 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('reports load error if no legs in returned sayg data', async () => {
-        const id = createTemporaryId();
+        const id = 'NO_LEGS_ID';
         saygDataMap[id] = {};
         let loadedWithData;
         await renderComponent({
@@ -176,15 +175,15 @@ describe('SaygLoadingContainer', () => {
     });
 
     it('sets lastUpdated in sayg data', async () => {
-        const id = createTemporaryId();
-        saygDataMap[id] = saygBuilder(id)
+        const saygData = saygBuilder()
             .withLeg('0', l => l.startingScore(501))
             .updated('2023-07-21')
+            .addTo(saygDataMap)
             .build();
         let loadedWithData;
         await renderComponent({
             children: (<TestComponent onLoaded={(data) => loadedWithData = data}/>),
-            id: id,
+            id: saygData.id,
             defaultData: null,
             autoSave: false,
         });

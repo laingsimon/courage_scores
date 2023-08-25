@@ -4,10 +4,16 @@ import {cleanUp, renderApp} from "../../../helpers/tests";
 import React from "react";
 import {TournamentContainer} from "./TournamentContainer";
 import {PrintableSheet} from "./PrintableSheet";
-import {createTemporaryId} from "../../../helpers/projection";
 import {renderDate} from "../../../helpers/rendering";
 import {toMap} from "../../../helpers/collections";
-import {divisionBuilder, seasonBuilder, sideBuilder, teamBuilder, tournamentBuilder} from "../../../helpers/builders";
+import {
+    divisionBuilder,
+    playerBuilder,
+    seasonBuilder,
+    sideBuilder,
+    teamBuilder,
+    tournamentBuilder
+} from "../../../helpers/builders";
 
 describe('PrintableSheet', () => {
     let context;
@@ -636,8 +642,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders winner', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
             const sideASinglePlayer = createSide('A', [player1]);
             const sideBSinglePlayer = createSide('B', [player2]);
             const tournamentData = {
@@ -669,8 +675,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders winner when cross-divisional', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
             const sideASinglePlayer = createSide('A', [player1]);
             const sideBSinglePlayer = createSide('B', [player2]);
             const tournamentData = {
@@ -702,8 +708,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing (singles)', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
             const tournamentData = {
                 round: null,
                 sides: [createSide('A', [player1]), createSide('B', [player2])],
@@ -731,10 +737,11 @@ describe('PrintableSheet', () => {
             const team = teamBuilder('TEAM')
                 .forSeason(season, division)
                 .build();
+            const anotherTeam = teamBuilder('ANOTHER TEAM').build();
             const sideA = createSide('A');
             sideA.teamId = team.id;
             const sideB = createSide('B');
-            sideB.teamId = createTemporaryId();
+            sideB.teamId = anotherTeam.id;
             const tournamentData = {
                 round: null,
                 sides: [sideA, sideB],
@@ -760,8 +767,9 @@ describe('PrintableSheet', () => {
                 oneEighties: [],
                 over100Checkouts: [],
             };
+            const season = seasonBuilder('SEASON').build();
             const teams = toMap([ teamBuilder('TEAM')
-                .forSeason(createTemporaryId(), division)
+                .forSeason(season, division)
                 .build()
             ]);
             const divisions = [division];
@@ -774,8 +782,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders who is playing when team not found', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
             const sideASinglePlayer = createSide('A', [player1]);
             const sideBSinglePlayer = createSide('B', [player2]);
             const tournamentData = {
@@ -784,8 +792,9 @@ describe('PrintableSheet', () => {
                 oneEighties: [],
                 over100Checkouts: [],
             };
+            const anotherSeason = seasonBuilder('SEASON').build();
             const teams = toMap([ teamBuilder('TEAM')
-                .forSeason(createTemporaryId(), division, [ player1, player2 ])
+                .forSeason(anotherSeason, division, [ player1, player2 ])
                 .build()
             ]);
             const divisions = [division];
@@ -830,8 +839,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
             const tournamentData = {
                 round: null,
                 sides: [createSide('A', [player1]), createSide('B', [player2])],
@@ -857,8 +866,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders 180s when cross-divisional', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2'};
+            const player1 = playerBuilder('PLAYER 1').build();
+            const player2 = playerBuilder('PLAYER 2').build();
             const tournamentData = {
                 round: null,
                 sides: [createSide('A', [player1]), createSide('B', [player2])],
@@ -883,8 +892,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1', notes: '100'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2', notes: '120'};
+            const player1 = playerBuilder('PLAYER 1').notes('100').build();
+            const player2 = playerBuilder('PLAYER 2').notes('120').build();
             const tournamentData = {
                 round: null,
                 sides: [createSide('A', [player1]), createSide('B', [player2])],
@@ -910,8 +919,8 @@ describe('PrintableSheet', () => {
         });
 
         it('renders hi checks when cross-divisional', async () => {
-            const player1 = {id: createTemporaryId(), name: 'PLAYER 1', notes: '100'};
-            const player2 = {id: createTemporaryId(), name: 'PLAYER 2', notes: '120'};
+            const player1 = playerBuilder('PLAYER 1').notes('100').build();
+            const player2 = playerBuilder('PLAYER 2').notes('120').build();
             const tournamentData = {
                 round: null,
                 sides: [createSide('A', [player1]), createSide('B', [player2])],
