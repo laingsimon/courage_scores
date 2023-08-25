@@ -122,11 +122,12 @@ describe('EditTournament', () => {
             expect(rounds).toBeFalsy();
         });
 
-        it('accolades, when 2 or more sides', async () => {
+        it('accolades, when 2 or more sides with scores', async () => {
             const tournamentData = tournamentBuilder()
                 .forSeason(season)
                 .withSide(s => s.name('SIDE 1'))
                 .withSide(s => s.name('ANOTHER SIDE'))
+                .round(r => r.withMatch(m => m.sideA('SIDE 1', 1).sideB('ANOTHER SIDE', 2)))
                 .build();
 
             await renderComponent({
@@ -143,7 +144,7 @@ describe('EditTournament', () => {
             const playing = context.container.querySelector('div > div > div:nth-child(1)');
             expect(playing.textContent).toEqual('Playing:');
             const accolades = context.container.querySelector('div > div > table');
-            expect(accolades).toBeFalsy(); // TODO: Should this be truthy?
+            expect(accolades).toBeTruthy();
         });
 
         it('no accolades, when less than 2 sides', async () => {
