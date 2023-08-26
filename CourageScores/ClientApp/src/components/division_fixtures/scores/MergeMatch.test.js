@@ -2,7 +2,6 @@
 
 import React from "react";
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
-import {createTemporaryId} from "../../../helpers/projection";
 import {MergeMatch} from "./MergeMatch";
 import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
 

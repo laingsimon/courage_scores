@@ -2,7 +2,7 @@
 
 import {matchEquals} from "./MatchComparer";
 import {createTemporaryId} from "../../../helpers/projection";
-import {matchBuilder} from "../../../helpers/builders";
+import {matchBuilder, playerBuilder} from "../../../helpers/builders";
 
 describe('MatchComparer', () => {
     describe('matchEquals', () => {
@@ -49,22 +49,22 @@ describe('MatchComparer', () => {
         });
 
         it('when homePlayers are different', () => {
-            const homePlayer = {id: createTemporaryId()};
-            const awayPlayer = {id: createTemporaryId()};
+            const homePlayer = playerBuilder('').build();
+            const awayPlayer = playerBuilder('').build();
 
             const result = matchEquals(
                 matchBuilder()
                     .withHome(homePlayer).withAway(awayPlayer).scores(1, 2).build(),
                 matchBuilder()
-                    .withHome({ id: createTemporaryId() }).withAway(awayPlayer).scores(1, 2).build()
+                    .withHome(playerBuilder('').build()).withAway(awayPlayer).scores(1, 2).build()
             );
 
             expect(result).toEqual(false);
         });
 
         it('when homePlayers have different numbers', () => {
-            const homePlayer = {id: createTemporaryId()};
-            const awayPlayer = {id: createTemporaryId()};
+            const homePlayer = playerBuilder('').build();
+            const awayPlayer = playerBuilder('').build();
 
             const result = matchEquals(
                 matchBuilder()
@@ -74,7 +74,7 @@ describe('MatchComparer', () => {
                     .build(),
                 matchBuilder()
                     .withHome(homePlayer)
-                    .withHome({ id: createTemporaryId() })
+                    .withHome(playerBuilder().build())
                     .withAway(awayPlayer)
                     .scores(1, 2)
                     .build()
@@ -84,8 +84,8 @@ describe('MatchComparer', () => {
         });
 
         it('when awayPlayers are different', () => {
-            const homePlayer = {id: createTemporaryId()};
-            const awayPlayer = {id: createTemporaryId()};
+            const homePlayer = playerBuilder('').build();
+            const awayPlayer = playerBuilder('').build();
 
             const result = matchEquals(
                 matchBuilder()
@@ -95,7 +95,7 @@ describe('MatchComparer', () => {
                     .build(),
                 matchBuilder()
                     .withHome(homePlayer)
-                    .withAway({ id: createTemporaryId() })
+                    .withAway(playerBuilder().build())
                     .scores(1, 2)
                     .build()
             );
@@ -104,8 +104,8 @@ describe('MatchComparer', () => {
         });
 
         it('when awayPlayers have different numbers', () => {
-            const homePlayer = {id: createTemporaryId()};
-            const awayPlayer = {id: createTemporaryId()};
+            const homePlayer = playerBuilder('').build();
+            const awayPlayer = playerBuilder('').build();
 
             const result = matchEquals(
                 matchBuilder()
@@ -116,7 +116,7 @@ describe('MatchComparer', () => {
                 matchBuilder()
                     .withHome(homePlayer)
                     .withAway(awayPlayer)
-                    .withAway({ id: createTemporaryId() })
+                    .withAway(playerBuilder().build())
                     .scores(1, 2)
                     .build()
             );
@@ -130,13 +130,13 @@ describe('MatchComparer', () => {
 
             const result = matchEquals(
                 matchBuilder()
-                    .withHome({ id: homePlayerId })
-                    .withAway({ id: awayPlayerId })
+                    .withHome(playerBuilder('', homePlayerId).build())
+                    .withAway(playerBuilder('', awayPlayerId).build())
                     .scores(1, 2)
                     .build(),
                 matchBuilder()
-                    .withHome({ id: homePlayerId })
-                    .withAway({ id: awayPlayerId })
+                    .withHome(playerBuilder('', homePlayerId).build())
+                    .withAway(playerBuilder('', awayPlayerId).build())
                     .scores(1, 2)
                     .build()
             );

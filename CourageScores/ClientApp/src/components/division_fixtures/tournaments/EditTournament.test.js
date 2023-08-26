@@ -2,11 +2,10 @@
 
 import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import React from "react";
-import {createTemporaryId} from "../../../helpers/projection";
 import {toMap} from "../../../helpers/collections";
 import {EditTournament} from "./EditTournament";
 import {TournamentContainer} from "./TournamentContainer";
-import {seasonBuilder, sideBuilder, teamBuilder, tournamentBuilder} from "../../../helpers/builders";
+import {seasonBuilder, sideBuilder, teamBuilder, tournamentBuilder, divisionBuilder} from "../../../helpers/builders";
 
 describe('EditTournament', () => {
     let context;
@@ -242,7 +241,8 @@ describe('EditTournament', () => {
             }
         };
         const season = seasonBuilder('SEASON').build();
-        const team1 = teamBuilder('TEAM 1').forSeason(season, createTemporaryId()).build();
+        const division = divisionBuilder('DIVISION').build();
+        const team1 = teamBuilder('TEAM 1').forSeason(season, division).build();
 
         it('can add a side', async () => {
             const existingSide = sideBuilder('SIDE 1').build();

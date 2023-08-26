@@ -7,7 +7,13 @@ import {toMap} from "../../helpers/collections";
 import React from "react";
 import {DivisionFixtureDate} from "./DivisionFixtureDate";
 import {DivisionDataContainer} from "../DivisionDataContainer";
-import {fixtureDateBuilder, teamBuilder, seasonBuilder, divisionBuilder} from "../../helpers/builders";
+import {
+    fixtureDateBuilder,
+    teamBuilder,
+    seasonBuilder,
+    divisionBuilder,
+    divisionDataBuilder
+} from "../../helpers/builders";
 
 describe('DivisionFixtureDate', () => {
     let context;
@@ -94,7 +100,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -116,7 +126,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -140,7 +154,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id, name: division.name}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -162,7 +180,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -187,7 +209,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -209,7 +235,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -231,7 +261,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const component = context.container.querySelector('div');
@@ -248,7 +282,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const component = context.container.querySelector('div');
@@ -265,7 +303,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const component = context.container.querySelector('div');
@@ -288,7 +330,11 @@ describe('DivisionFixtureDate', () => {
                     renderContext: {},
                     showPlayers: {'2023-05-06T00:00:00': true},
                 },
-                {fixtures: [fixtureDate], teams: [team], season, id: division.id, players: []},
+                divisionDataBuilder(division)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account);
 
             expect(reportedError).toBeNull();
@@ -312,7 +358,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
@@ -335,7 +385,11 @@ describe('DivisionFixtureDate', () => {
                 showPlayers: {
                     '2023-05-06T00:00:00': true
                 },
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id, players: []}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]'));
 
@@ -353,7 +407,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account, true);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account, true);
 
             expect(context.container.querySelector('input[type="checkbox"][id^="showPlayers_"]')).toBeFalsy();
         });
@@ -389,7 +447,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -416,7 +478,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team, homeTeam, awayTeam], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team).withTeam(homeTeam).withTeam(awayTeam)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -439,7 +505,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             const table = context.container.querySelector('table');
@@ -457,7 +527,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team, anotherTeam], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team).withTeam(anotherTeam)
+                .build(), account);
             const table = context.container.querySelector('table');
             const expected = Object.assign({}, fixtureDate);
             const expectedAwayTeam = {
@@ -484,7 +558,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             const toggle = context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]');
             expect(toggle).toBeFalsy();
@@ -497,7 +575,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             await doClick(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]'));
 
@@ -530,7 +612,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             expect(reportedError).toBeNull();
             expect(context.container.querySelector('input[type="checkbox"][id^="isKnockout_"]')).toBeTruthy();
@@ -544,7 +630,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account);
 
             await doClick(findButton(context.container, '📌 Add note'));
 
@@ -562,7 +652,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account, null, [team, awayTeam]);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account, null, [team, awayTeam]);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');
@@ -587,7 +681,11 @@ describe('DivisionFixtureDate', () => {
                 date: fixtureDate,
                 renderContext: {},
                 showPlayers: {},
-            }, {fixtures: [fixtureDate], teams: [team], season, id: division.id}, account, null, [team, awayTeam]);
+            }, divisionDataBuilder(division)
+                .withFixtureDate(fixtureDate)
+                .season(season)
+                .withTeam(team)
+                .build(), account, null, [team, awayTeam]);
 
             expect(reportedError).toBeNull();
             const heading = context.container.querySelector('h4');

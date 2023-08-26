@@ -12,6 +12,10 @@ export function teamBuilder(name, id) {
 
     const builder = {
         build: () => team,
+        addTo: (map) => {
+            map[team.id] = team;
+            return builder;
+        },
     };
 
     builder.forSeason = (seasonOrId, divisionOrId, players) => {
@@ -63,6 +67,10 @@ export function fixtureBuilder(date, id, omitSubmission) {
 
     const builder = {
         build: () => fixture,
+        addTo: (map) => {
+            map[fixture.id] = fixture;
+            return builder;
+        },
     };
 
     const teamFactory = (t, id) => {
@@ -236,6 +244,10 @@ export function divisionFixtureBuilder(date, id) {
 
     const builder = {
         build: () => fixture,
+        addTo: (map) => {
+            map[fixture.id] = fixture;
+            return builder;
+        },
     };
 
     const teamFactory = (t, id) => {
@@ -369,6 +381,10 @@ export function tournamentBuilder(id) {
 
     const builder = {
         build: () => tournament,
+        addTo: (map) => {
+            map[tournament.id] = tournament;
+            return builder;
+        },
     };
     builder.type = (type) => {
         tournament.type = type;
@@ -649,6 +665,10 @@ export function seasonBuilder(name, id) {
 
     const builder = {
         build: () => season,
+        addTo: (map) => {
+            map[season.id] = season;
+            return builder;
+        },
     };
     builder.withDivision = (divisionOrId) => {
         season.divisions.push(divisionOrId.id ? divisionOrId : {
@@ -688,6 +708,10 @@ export function divisionBuilder(name, id) {
     // noinspection UnnecessaryLocalVariableJS
     const builder = {
         build: () => division,
+        addTo: (map) => {
+            map[division.id] = division;
+            return builder;
+        },
     };
 
     return builder;
@@ -701,6 +725,10 @@ export function saygBuilder(id) {
 
     const builder = {
         build: () => sayg,
+        addTo: (map) => {
+            map[sayg.id] = sayg;
+            return builder;
+        },
     };
     builder.scores = (home, away) => {
         sayg.homeScore = home;
@@ -837,6 +865,10 @@ export function playerBuilder(name, id) {
 
     const builder = {
         build: () => player,
+        addTo: (map) => {
+            map[player.id] = player;
+            return builder;
+        },
     };
     builder.captain = () => {
         player.captain = true;
@@ -852,6 +884,86 @@ export function playerBuilder(name, id) {
     };
     builder.email = (email) => {
         player.emailAddress = email;
+        return builder;
+    };
+    builder.team = (team) => {
+        player.teamId = team.id ? team.id : team;
+        return builder;
+    };
+    builder.singles = (metricsFunc) => {
+        player.singles = metricsFunc(metricsBuilder());
+        return builder;
+    };
+
+    return builder;
+}
+
+export function metricsBuilder() {
+    const metrics = {
+    };
+
+    const builder = {
+        build: () => metrics,
+    };
+    builder.matchesPlayed = (count) => {
+        metrics.matchesPlayed = count;
+        return builder;
+    };
+
+    return builder;
+}
+
+export function divisionDataBuilder(divisionOrId) {
+    const divisionId = divisionOrId && divisionOrId.id
+        ? divisionOrId.id
+        : divisionOrId || createTemporaryId();
+    const divisionData = {
+        id: divisionId || createTemporaryId(),
+        name: divisionOrId && divisionOrId.name ? divisionOrId.name : null,
+        fixtures: [],
+        teams: [],
+        season: null,
+        dataErrors: [],
+        players: [],
+    };
+
+    const builder = {
+        build: () => divisionData,
+        addTo: (map) => {
+            map[divisionData.id] = divisionData;
+            return builder;
+        },
+    };
+    builder.withFixtureDate = (fixtureDateOrBuilderFunc, date) => {
+        const fixtureDate = fixtureDateOrBuilderFunc instanceof Function
+            ? fixtureDateOrBuilderFunc(fixtureDateBuilder(date))
+            : fixtureDateOrBuilderFunc;
+        divisionData.fixtures.push(fixtureDate.build ? fixtureDate.build() : fixtureDate);
+        return builder;
+    };
+    builder.season = (seasonOrBuilderFunc, name, id) => {
+        const season = seasonOrBuilderFunc instanceof Function
+            ? seasonOrBuilderFunc(seasonBuilder(name, id))
+            : seasonOrBuilderFunc;
+        divisionData.season = season.build ? season.build() : season;
+        return builder;
+    };
+    builder.name = (name) => {
+        divisionData.name = name;
+        return builder;
+    };
+    builder.withTeam = (teamOrBuilderFunc, name, id) => {
+        const team = teamOrBuilderFunc instanceof Function
+            ? teamOrBuilderFunc(teamBuilder(name, id))
+            : teamOrBuilderFunc;
+        divisionData.teams.push(team.build ? team.build() : team);
+        return builder;
+    };
+    builder.withPlayer = (playerOrBuilderFunc, name, id) => {
+        const player = playerOrBuilderFunc instanceof Function
+            ? playerOrBuilderFunc(playerBuilder(name, id))
+            : playerOrBuilderFunc;
+        divisionData.players.push(player.build ? player.build() : player);
         return builder;
     };
 

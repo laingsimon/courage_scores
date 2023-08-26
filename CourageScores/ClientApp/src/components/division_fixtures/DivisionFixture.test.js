@@ -10,7 +10,7 @@ import {
 } from "../../helpers/tests";
 import {
     divisionFixtureBuilder,
-    teamBuilder, seasonBuilder, divisionBuilder
+    teamBuilder, seasonBuilder, divisionBuilder, divisionDataBuilder
 } from "../../helpers/builders";
 import {renderDate} from "../../helpers/rendering";
 import {createTemporaryId} from "../../helpers/projection";
@@ -102,7 +102,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
                 toMap([team]));
 
@@ -124,7 +128,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
                 toMap([team]));
 
@@ -146,7 +154,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
                 toMap([team]));
 
@@ -167,7 +179,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, name: division.name, fixtures: [{date, fixtures: [fixture]}], season, teams: [team]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(team)
+                    .build(),
                 account,
                 toMap([team]));
 
@@ -207,7 +223,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [homeTeam, awayTeam]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -227,7 +247,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [homeTeam, awayTeam]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -247,7 +271,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [{date, fixtures: [fixture]}], season, teams: [homeTeam, awayTeam]},
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -266,13 +294,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    name: division.name,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -294,12 +320,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeamAtHomeAddress]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
@@ -319,12 +344,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture, anotherFixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -342,14 +366,12 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date: fixture.date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [
-                        {date: fixture.date, fixtures: [fixture]},
-                        {date: anotherFixture.date, fixtures: [anotherFixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -368,14 +390,12 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date: fixture.date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [
-                        {date: fixture.date, fixtures: [fixture]},
-                        {date: anotherFixture.date, fixtures: [anotherFixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -396,12 +416,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeamAtHomeAddress]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeamAtHomeAddress)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeamAtHomeAddress]));
 
@@ -422,12 +441,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture, anotherFixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture).withFixture(anotherFixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -444,7 +462,10 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [], season, teams: [homeTeam, awayTeam]},
+                divisionDataBuilder(division)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -463,7 +484,10 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {id: division.id, fixtures: [], season, teams: [homeTeam, awayTeam]},
+                divisionDataBuilder(division)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -486,14 +510,12 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date: fixture.date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [
-                        {date: fixture.date, fixtures: [fixture]},
-                        {date: anotherFixture.date, fixtures: [anotherFixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), fixture.date)
+                    .withFixtureDate(d => d.withFixture(anotherFixture), anotherFixture.date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam]));
 
@@ -512,12 +534,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -552,12 +573,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture], isKnockout: true}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture).knockout(), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');
@@ -594,12 +614,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -625,12 +644,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -656,12 +674,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -688,12 +705,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -723,12 +739,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: true},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -754,12 +769,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -784,12 +798,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -817,12 +830,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -848,12 +860,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: false},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const saveCell = context.container.querySelector('td:nth-child(6)');
@@ -884,12 +895,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: true},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
 
@@ -908,12 +918,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: true},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
 
@@ -932,12 +941,11 @@ describe('DivisionFixture', () => {
                 .build();
             await renderComponent(
                 {fixture, date, readOnly: true},
-                {
-                    id: division.id,
-                    fixtures: [{date, fixtures: [fixture]}],
-                    season,
-                    teams: [homeTeam, awayTeam, anotherTeam]
-                },
+                divisionDataBuilder(division)
+                    .withFixtureDate(d => d.withFixture(fixture), date)
+                    .season(season)
+                    .withTeam(homeTeam).withTeam(awayTeam).withTeam(anotherTeam)
+                    .build(),
                 account,
                 toMap([homeTeam, awayTeam, anotherTeam]));
             const awayCell = context.container.querySelector('td:nth-child(5)');

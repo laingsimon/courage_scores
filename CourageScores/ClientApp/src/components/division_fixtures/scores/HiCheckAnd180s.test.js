@@ -3,8 +3,7 @@
 import React from "react";
 import {cleanUp, doChange, doClick, doSelectOption, findButton, renderApp} from "../../../helpers/tests";
 import {HiCheckAnd180s} from "./HiCheckAnd180s";
-import {createTemporaryId} from "../../../helpers/projection";
-import {fixtureBuilder, playerBuilder} from "../../../helpers/builders";
+import {divisionBuilder, fixtureBuilder, playerBuilder, seasonBuilder} from "../../../helpers/builders";
 
 describe('HiCheckAnd180s', () => {
     let context;
@@ -43,10 +42,13 @@ describe('HiCheckAnd180s', () => {
     }
 
     describe('when logged out', () => {
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').build();
+
         it('when no matches', async () => {
             const fixtureData = fixtureBuilder()
-                .forDivision(createTemporaryId())
-                .forSeason(createTemporaryId())
+                .forDivision(division)
+                .forSeason(season)
                 .build();
 
             await renderComponent(false, 'readonly', fixtureData);
@@ -59,8 +61,8 @@ describe('HiCheckAnd180s', () => {
 
         it('when no selected players', async () => {
             const fixtureData = fixtureBuilder()
-                .forDivision(createTemporaryId())
-                .forSeason(createTemporaryId())
+                .forDivision(division)
+                .forSeason(season)
                 .withMatch(m => m)
                 .build();
 
@@ -74,8 +76,8 @@ describe('HiCheckAnd180s', () => {
 
         it('when empty selected players', async () => {
             const fixtureData = fixtureBuilder()
-                .forDivision(createTemporaryId())
-                .forSeason(createTemporaryId())
+                .forDivision(division)
+                .forSeason(season)
                 .withMatch(m => m.withHome().withAway())
                 .build();
 
@@ -91,8 +93,8 @@ describe('HiCheckAnd180s', () => {
             const homePlayer = playerBuilder('HOME player').build();
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
-                .forDivision(createTemporaryId())
-                .forSeason(createTemporaryId())
+                .forDivision(division)
+                .forSeason(season)
                 .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .build();
 
@@ -109,8 +111,8 @@ describe('HiCheckAnd180s', () => {
             const homePlayer = playerBuilder('HOME player').build();
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
-                .forDivision(createTemporaryId())
-                .forSeason(createTemporaryId())
+                .forDivision(division)
+                .forSeason(season)
                 .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .with180(homePlayer)
                 .build();
@@ -130,8 +132,8 @@ describe('HiCheckAnd180s', () => {
             const homePlayer = playerBuilder('HOME player').build();
             const awayPlayer = playerBuilder('AWAY player').build();
             const fixtureData = fixtureBuilder()
-                .forDivision(createTemporaryId())
-                .forSeason(createTemporaryId())
+                .forDivision(division)
+                .forSeason(season)
                 .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                 .withHiCheck(homePlayer, '100')
                 .build();
@@ -149,11 +151,14 @@ describe('HiCheckAnd180s', () => {
     });
 
     describe('when logged in', () => {
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').build();
+
         describe('renders', () => {
             it('when no matches', async () => {
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .build();
 
                 await renderComponent(false, 'admin', fixtureData);
@@ -166,8 +171,8 @@ describe('HiCheckAnd180s', () => {
 
             it('when no selected players', async () => {
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome().withAway())
                     .build();
 
@@ -183,8 +188,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .build();
 
@@ -207,8 +212,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
@@ -227,8 +232,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, '100')
                     .build();
@@ -249,8 +254,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
@@ -272,8 +277,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .with180(homePlayer)
                     .build();
@@ -291,8 +296,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, '100')
                     .build();
@@ -315,8 +320,8 @@ describe('HiCheckAnd180s', () => {
                 const homePlayer = playerBuilder('HOME player').build();
                 const awayPlayer = playerBuilder('AWAY player').build();
                 const fixtureData = fixtureBuilder()
-                    .forDivision(createTemporaryId())
-                    .forSeason(createTemporaryId())
+                    .forDivision(division)
+                    .forSeason(season)
                     .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer))
                     .withHiCheck(homePlayer, '100')
                     .build();

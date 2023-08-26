@@ -5,7 +5,7 @@ import React from "react";
 import {createTemporaryId} from "../../helpers/projection";
 import {DivisionDataContainer} from "../DivisionDataContainer";
 import {TeamOverview} from "./TeamOverview";
-import {fixtureDateBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
+import {divisionDataBuilder, fixtureDateBuilder, seasonBuilder, teamBuilder} from "../../helpers/builders";
 
 describe('TeamOverview', () => {
     let context;
@@ -41,13 +41,10 @@ describe('TeamOverview', () => {
             .starting('2022-02-03T00:00:00')
             .ending('2022-08-25T00:00:00')
             .build();
-        return {
-            id: divisionId,
-            teams: [],
-            players: [],
-            season: season,
-            fixtures: []
-        };
+
+        return divisionDataBuilder(divisionId)
+            .season(season)
+            .build();
     }
 
     function createTeam(teamId) {

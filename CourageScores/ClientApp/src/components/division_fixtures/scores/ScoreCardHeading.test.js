@@ -3,9 +3,8 @@
 import React from "react";
 import {cleanUp, doClick, renderApp} from "../../../helpers/tests";
 import {ScoreCardHeading} from "./ScoreCardHeading";
-import {createTemporaryId} from "../../../helpers/projection";
 import {LeagueFixtureContainer} from "./LeagueFixtureContainer";
-import {divisionBuilder, fixtureBuilder, seasonBuilder} from "../../../helpers/builders";
+import {divisionBuilder, fixtureBuilder, seasonBuilder, teamBuilder} from "../../../helpers/builders";
 
 describe('ScoreCardHeading', () => {
     let context;
@@ -121,11 +120,13 @@ describe('ScoreCardHeading', () => {
     describe('when not logged in', () => {
         const access = '';
         const account = null;
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').build();
 
         describe('when no winner', () => {
             const submissionData = fixtureBuilder()
-                .forSeason(createTemporaryId())
-                .forDivision(createTemporaryId())
+                .forSeason(season)
+                .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission()
@@ -155,8 +156,8 @@ describe('ScoreCardHeading', () => {
 
         describe('when home winner', () => {
             const submissionData = fixtureBuilder()
-                .forSeason(createTemporaryId())
-                .forDivision(createTemporaryId())
+                .forSeason(season)
+                .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission()
@@ -186,8 +187,8 @@ describe('ScoreCardHeading', () => {
 
         describe('when away winner', () => {
             const submissionData = fixtureBuilder()
-                .forSeason(createTemporaryId())
-                .forDivision(createTemporaryId())
+                .forSeason(season)
+                .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission()
@@ -218,15 +219,18 @@ describe('ScoreCardHeading', () => {
 
     describe('when an admin', () => {
         const access = 'admin';
+        const team = teamBuilder('TEAM').build();
         const account = {
-            teamId: createTemporaryId(),
+            teamId: team.id,
         };
         const winner = '';
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').build();
 
         describe('when no home or away submission', () => {
             const submissionData = fixtureBuilder()
-                .forSeason(createTemporaryId())
-                .forDivision(createTemporaryId())
+                .forSeason(season)
+                .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission()
@@ -251,8 +255,8 @@ describe('ScoreCardHeading', () => {
 
         describe('when a home submission', () => {
             const submissionData = fixtureBuilder()
-                .forSeason(createTemporaryId())
-                .forDivision(createTemporaryId())
+                .forSeason(season)
+                .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission(f => f)
                 .awaySubmission()
@@ -283,8 +287,8 @@ describe('ScoreCardHeading', () => {
 
         describe('when an away submission', () => {
             const submissionData = fixtureBuilder()
-                .forSeason(createTemporaryId())
-                .forDivision(createTemporaryId())
+                .forSeason(season)
+                .forDivision(division)
                 .playing('HOME', 'AWAY')
                 .homeSubmission()
                 .awaySubmission(f => f)
@@ -316,16 +320,19 @@ describe('ScoreCardHeading', () => {
 
     describe('when a clerk', () => {
         const access = 'clerk';
+        const team = teamBuilder('TEAM').build();
         const account = {
-            teamId: createTemporaryId(),
+            teamId: team.id,
         };
         const winner = '';
+        const division = divisionBuilder('DIVISION').build();
+        const season = seasonBuilder('SEASON').build();
 
         describe('for a different team', () => {
             describe('when no home or away submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .awaySubmission()
@@ -350,8 +357,8 @@ describe('ScoreCardHeading', () => {
 
             describe('when a home submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission(f => f)
                     .awaySubmission()
@@ -376,8 +383,8 @@ describe('ScoreCardHeading', () => {
 
             describe('when an away submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .awaySubmission(f => f)
@@ -404,8 +411,8 @@ describe('ScoreCardHeading', () => {
         describe('for the home team', () => {
             describe('when no home or away submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .awaySubmission()
@@ -430,8 +437,8 @@ describe('ScoreCardHeading', () => {
 
             describe('when a home submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission(f => f, account.teamId)
                     .awaySubmission()
@@ -468,8 +475,8 @@ describe('ScoreCardHeading', () => {
 
             describe('when an away submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .awaySubmission(f => f)
@@ -496,8 +503,8 @@ describe('ScoreCardHeading', () => {
         describe('for the away team', () => {
             describe('when no home or away submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .awaySubmission()
@@ -522,8 +529,8 @@ describe('ScoreCardHeading', () => {
 
             describe('when a home submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission(f => f)
                     .awaySubmission()
@@ -548,8 +555,8 @@ describe('ScoreCardHeading', () => {
 
             describe('when an away submission', () => {
                 const submissionData = fixtureBuilder()
-                    .forSeason(createTemporaryId())
-                    .forDivision(createTemporaryId())
+                    .forSeason(season)
+                    .forDivision(division)
                     .playing('HOME', 'AWAY')
                     .homeSubmission()
                     .awaySubmission(f => f, account.teamId)

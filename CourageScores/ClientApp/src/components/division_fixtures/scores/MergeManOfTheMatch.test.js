@@ -2,7 +2,6 @@
 
 import React from "react";
 import {cleanUp, doClick, findButton, renderApp} from "../../../helpers/tests";
-import {createTemporaryId} from "../../../helpers/projection";
 import {MergeManOfTheMatch} from "./MergeManOfTheMatch";
 import {playerBuilder} from "../../../helpers/builders";
 
@@ -39,13 +38,13 @@ describe('MergeManOfTheMatch', () => {
     }
 
     describe('renders', () => {
-        const playerId = createTemporaryId();
-        const allPlayers = [playerBuilder('MOM', playerId).build()];
+        const player = playerBuilder('MOM').build();
+        const allPlayers = [player];
 
         it('when home merged', async () => {
             const data = {
                 home: {
-                    manOfTheMatch: playerId,
+                    manOfTheMatch: player.id,
                 },
                 away: {},
                 homeSubmission: {
@@ -68,7 +67,7 @@ describe('MergeManOfTheMatch', () => {
             const data = {
                 home: {},
                 away: {
-                    manOfTheMatch: playerId,
+                    manOfTheMatch: player.id,
                 },
                 homeSubmission: {
                     home: {},
@@ -132,7 +131,7 @@ describe('MergeManOfTheMatch', () => {
                 away: {},
                 homeSubmission: {
                     home: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     },
                     away: {},
                 },
@@ -159,7 +158,7 @@ describe('MergeManOfTheMatch', () => {
                 awaySubmission: {
                     home: {},
                     away: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     }
                 },
             };
@@ -172,8 +171,8 @@ describe('MergeManOfTheMatch', () => {
     });
 
     describe('interactivity', () => {
-        const playerId = createTemporaryId();
-        const allPlayers = [playerBuilder('MOM', playerId).build()];
+        const player = playerBuilder('MOM').build();
+        const allPlayers = [player];
 
         it('can change home man of match', async () => {
             const data = {
@@ -181,7 +180,7 @@ describe('MergeManOfTheMatch', () => {
                 away: {},
                 homeSubmission: {
                     home: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     },
                     away: {},
                 },
@@ -196,7 +195,7 @@ describe('MergeManOfTheMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();
-            expect(updatedData.home.manOfTheMatch).toEqual(playerId);
+            expect(updatedData.home.manOfTheMatch).toEqual(player.id);
         });
 
         it('can change away man of match', async () => {
@@ -210,7 +209,7 @@ describe('MergeManOfTheMatch', () => {
                 awaySubmission: {
                     home: {},
                     away: {
-                        manOfTheMatch: playerId
+                        manOfTheMatch: player.id
                     }
                 },
             };
@@ -220,7 +219,7 @@ describe('MergeManOfTheMatch', () => {
 
             expect(reportedError).toBeNull();
             expect(updatedData).not.toBeNull();
-            expect(updatedData.away.manOfTheMatch).toEqual(playerId);
+            expect(updatedData.away.manOfTheMatch).toEqual(player.id);
         });
     })
 });
