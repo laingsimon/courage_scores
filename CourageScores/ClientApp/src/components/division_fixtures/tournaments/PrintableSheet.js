@@ -1,6 +1,6 @@
 import {useTournament} from "./TournamentContainer";
 import {repeat} from "../../../helpers/projection";
-import {any, sortBy} from "../../../helpers/collections";
+import {any, count, sortBy} from "../../../helpers/collections";
 import {renderDate} from "../../../helpers/rendering";
 import React, {useEffect, useState} from "react";
 import {useApp} from "../../../AppContainer";
@@ -128,7 +128,7 @@ export function PrintableSheet({printOnly}) {
                 to={`/division/${division.name}/team:${team ? team.name : side.teamId}/${season.name}`}>{side.name}</EmbedAwareLink>);
         }
 
-        const teamAndDivision = side && side.players && side.players.length === 1
+        const teamAndDivision = side && count(side.players || []) === 1
             ? findTeamAndDivisionForPlayer(side.players[0])
             : null;
         if (side && teamAndDivision && teamAndDivision.division) {

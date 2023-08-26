@@ -102,7 +102,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
     }
 
     async function togglePlayer(player) {
-        if (side.players && any(side.players, p => p.id === player.id)) {
+        if (any(side.players || [], p => p.id === player.id)) {
             await onRemovePlayer(player.id);
             return;
         }
@@ -182,7 +182,7 @@ export function EditSide({side, onChange, onClose, onApply, onDelete}) {
                 <div className="max-scroll-height overflow-auto height-250">
                     <ol className="list-group mb-3">
                         {filteredPlayers.sort(sortBy('name')).map(player => {
-                            const selected = side.players && any(side.players, p => p.id === player.id);
+                            const selected = any(side.players || [], p => p.id === player.id);
                             const playingInAnotherTournament = alreadyPlaying[player.id];
                             const selectedInAnotherSide = getOtherSidePlayerSelectedIn(player);
                             const hasSameNameAsAnotherPlayer = allPossiblePlayers.filter(p => p.name === player.name).length > 1;

@@ -511,12 +511,6 @@ export function sideBuilder(name, id) {
         side.players.push(player);
         return builder;
     };
-    builder.noPlayers = () => {
-        // TODO: #578 Remove this - players should never be null, simply empty.
-
-        side.players = null;
-        return builder;
-    };
 
     return builder;
 }

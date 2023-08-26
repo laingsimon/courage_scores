@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {ErrorDisplay} from "../common/ErrorDisplay";
-import {any, sortBy} from "../../helpers/collections";
+import {any, count, sortBy} from "../../helpers/collections";
 import {useDependencies} from "../../IocContainer";
 import {useApp} from "../../AppContainer";
 import {useDivisionData} from "../DivisionDataContainer";
@@ -80,7 +80,7 @@ export function TournamentFixture({tournament, onTournamentChanged, date, expand
 
         return (<div className="px-3">
             {tournament.sides.map(side => {
-                if (side.teamId && side.players.length !== 1) {
+                if (side.teamId && count(side.players) !== 1) {
                     return (<div key={side.id}>
                         <EmbedAwareLink to={`/division/${divisionName}/team:${side.teamId}/${season.name}`}>
                             {side.name}
