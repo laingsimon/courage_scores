@@ -1,21 +1,21 @@
 import React, {useState} from 'react';
 import {EditSide} from "./EditSide";
-import {count} from "../../../helpers/collections";
+import {count, isEmpty} from "../../../helpers/collections";
 
 export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
     const [editSide, setEditSide] = useState(null);
 
     function renderPlayers() {
-        if (!side.players) {
+        if (isEmpty(side.players || [])) {
             return null;
         }
 
-        if (count(side.players) === 1 && side.players[0].name === side.name) {
+        if (count(side.players || []) === 1 && side.players[0].name === side.name) {
             return null;
         }
 
         return (<ol className="no-list-indent">
-            {side.players.map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
+            {(side.players || []).map(p => (<li key={p.id} className={side.noShow ? 'text-decoration-line-through' : ''}>
                 {p.name}
             </li>))}
         </ol>);

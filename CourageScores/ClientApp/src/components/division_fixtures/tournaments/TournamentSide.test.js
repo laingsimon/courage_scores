@@ -160,7 +160,6 @@ describe('TournamentSide', () => {
             await renderComponent({season}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
-                    .noPlayers()
                     .build(),
                 winner: null,
                 readOnly: false,
@@ -177,7 +176,6 @@ describe('TournamentSide', () => {
             await renderComponent({season}, {
                 side: sideBuilder('SIDE NAME')
                     .teamId(team.id)
-                    .noPlayers()
                     .build(),
                 winner: null,
                 readOnly: false,
@@ -194,7 +192,6 @@ describe('TournamentSide', () => {
             const side = sideBuilder('SIDE NAME')
                 .teamId(team.id)
                 .noShow()
-                .noPlayers()
                 .build();
 
             await renderComponent({season}, {
@@ -215,7 +212,6 @@ describe('TournamentSide', () => {
             await renderComponent({season}, {
                 side: sideBuilder(team.name)
                     .teamId(team.id)
-                    .noPlayers()
                     .build(),
                 winner: null,
                 readOnly: false,
@@ -235,7 +231,6 @@ describe('TournamentSide', () => {
                 side: sideBuilder(team.name)
                     .teamId(team.id)
                     .noShow()
-                    .noPlayers()
                     .build(),
                 winner: null,
                 readOnly: false,
@@ -256,7 +251,6 @@ describe('TournamentSide', () => {
             await renderComponent({season}, {
                 side: sideBuilder(team.name)
                     .teamId(missingTeam.id)
-                    .noPlayers()
                     .build(),
                 winner: null,
                 readOnly: false,
