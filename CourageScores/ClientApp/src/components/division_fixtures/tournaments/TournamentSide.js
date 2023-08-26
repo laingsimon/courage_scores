@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {EditSide} from "./EditSide";
+import {count} from "../../../helpers/collections";
 
 export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
     const [editSide, setEditSide] = useState(null);
@@ -9,7 +10,7 @@ export function TournamentSide({side, onChange, winner, readOnly, onRemove}) {
             return null;
         }
 
-        if (side.players.length === 1 && side.players[0].name === side.name) {
+        if (count(side.players) === 1 && side.players[0].name === side.name) {
             return null;
         }
 

@@ -8,6 +8,7 @@ import {useTournament} from "./TournamentContainer";
 import {SaygLoadingContainer} from "../sayg/SaygLoadingContainer";
 import {ErrorDisplay} from "../../common/ErrorDisplay";
 import {LoadingSpinnerSmall} from "../../common/LoadingSpinnerSmall";
+import {count} from "../../../helpers/collections";
 
 export function TournamentRoundMatch({
                                          readOnly,
@@ -163,7 +164,7 @@ export function TournamentRoundMatch({
         }
 
         const side = sideName === 'home' ? match.sideA : match.sideB;
-        if (side.players.length === 1) {
+        if (count(side.players) === 1) {
             if (onHiCheck) {
                 await onHiCheck(side.players[0], score);
             }
@@ -180,7 +181,7 @@ export function TournamentRoundMatch({
         }
 
         const side = sideName === 'home' ? match.sideA : match.sideB;
-        if (side.players.length === 1) {
+        if (count(side.players) === 1) {
             if (on180) {
                 await on180(side.players[0]);
             }
