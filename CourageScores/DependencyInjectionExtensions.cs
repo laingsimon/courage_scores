@@ -123,6 +123,7 @@ public static class DependencyInjectionExtensions
         services.AddScoped<IFixtureDateAssignmentStrategy, FixtureDateAssignmentStrategy>();
 
         services.AddScoped<IStatusService, StatusService>();
+        services.AddScoped<IReportFactory, ReportFactory>();
     }
 
     private static void AddRepositories(IServiceCollection services)

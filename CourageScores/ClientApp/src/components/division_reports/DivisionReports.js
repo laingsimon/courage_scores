@@ -8,6 +8,7 @@ import {Report} from "./Report";
 import {ReportGenerationMessages} from "./ReportGenerationMessages";
 import {PrintDivisionHeading} from "../PrintDivisionHeading";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
+import {useApp} from "../../AppContainer";
 
 export function DivisionReports() {
     const {id: divisionId, season} = useDivisionData();
@@ -16,6 +17,7 @@ export function DivisionReports() {
     const [topCount, setTopCount] = useState(15);
     const [activeReport, setActiveReport] = useState(null);
     const {reportApi} = useDependencies();
+    const {onError} = useApp();
 
     async function getReports() {
         setGettingData(true);
@@ -28,14 +30,18 @@ export function DivisionReports() {
             };
             const result = await reportApi.getReport(request);
             setReportData(result);
-            if (any(result.reports)) {
+            if (result.reports && any(result.reports)) {
                 const selectedReportExists = any(result.reports, r => r.name === activeReport);
                 if (!selectedReportExists) {
                     setActiveReport(result.reports[0].name);
                 }
+            } else if (result.Exception) {
+                onError(result.Exception.Message);
             } else {
                 setActiveReport(null);
             }
+        } catch (e) {
+            onError(e);
         } finally {
             setGettingData(false);
         }

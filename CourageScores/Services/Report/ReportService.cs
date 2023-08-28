@@ -1,5 +1,4 @@
 using CourageScores.Models.Cosmos.Game;
-using CourageScores.Models.Dtos.Identity;
 using CourageScores.Models.Dtos.Report;
 using CourageScores.Repository;
 using CourageScores.Services.Division;
@@ -12,6 +11,7 @@ namespace CourageScores.Services.Report;
 public class ReportService : IReportService
 {
     private readonly ISystemClock _clock;
+    private readonly IReportFactory _reportFactory;
     private readonly IDivisionService _divisionService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
     private readonly ISeasonService _seasonService;
@@ -24,7 +24,8 @@ public class ReportService : IReportService
         IDivisionService divisionService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentRepository,
-        ISystemClock clock)
+        ISystemClock clock,
+        IReportFactory reportFactory)
     {
         _userService = userService;
         _seasonService = seasonService;
@@ -32,6 +33,7 @@ public class ReportService : IReportService
         _gameRepository = gameRepository;
         _tournamentRepository = tournamentRepository;
         _clock = clock;
+        _reportFactory = reportFactory;
     }
 
     public async Task<ReportCollectionDto> GetReports(ReportRequestDto request, CancellationToken token)
@@ -54,7 +56,7 @@ public class ReportService : IReportService
             return UnableToProduceReport("Division not found", request);
         }
 
-        var reportVisitors = GetReportVisitors(request, user).ToArray();
+        var reportVisitors = await _reportFactory.GetReports(request, token).ToList();
         var reportVisitor = new CompositeGameVisitor(reportVisitors, user.Access.ManageScores);
         var gameCount = 0;
         var playerLookup = new PlayerLookup();
@@ -85,18 +87,6 @@ public class ReportService : IReportService
             },
             Created = _clock.UtcNow.UtcDateTime,
         };
-    }
-
-    private static IEnumerable<IReport> GetReportVisitors(ReportRequestDto request, UserDto user)
-    {
-        if (user.Access!.ManageScores)
-        {
-            yield return new ManOfTheMatchReport(request.TopCount);
-        }
-
-        yield return new RequestedDivisionOnlyReport(new MostPlayedPlayerReport(topCount: request.TopCount), request.DivisionId);
-        yield return new RequestedDivisionOnlyReport(new MostOneEightiesReport(request.TopCount), request.DivisionId);
-        yield return new RequestedDivisionOnlyReport(new HighestCheckoutReport(request.TopCount), request.DivisionId);
     }
 
     private ReportCollectionDto UnableToProduceReport(string reason, ReportRequestDto request)
