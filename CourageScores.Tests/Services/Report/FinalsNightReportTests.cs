@@ -396,7 +396,7 @@ public class FinalsNightReportTests
                 new FixtureDateNoteDto { Note = "Knockout" },
             },
         });
-        _tournament.Round.NextRound = new TournamentRoundDto
+        _tournament.Round!.NextRound = new TournamentRoundDto
         {
             Matches =
             {
