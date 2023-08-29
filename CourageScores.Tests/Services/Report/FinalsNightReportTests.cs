@@ -424,6 +424,34 @@ public class FinalsNightReportTests
     }
 
     [Test]
+    public async Task GetReport_WhenKnockoutDateExistsWithNoRound_ReturnsKnockout()
+    {
+        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Type = "Knockout",
+                    Proposed = false,
+                },
+            },
+            Notes =
+            {
+                new FixtureDateNoteDto { Note = "Knockout" },
+            },
+        });
+        _tournament.Round = null;
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Knockout", "⚠️ Has not been played or has no winner");
+    }
+
+    [Test]
     public async Task GetReport_WhenKnockoutTournamentExistsWithDifferentCasedType_ReturnsKnockout()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
