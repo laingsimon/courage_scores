@@ -129,7 +129,14 @@ public class FinalsNightReport : CompositeReport
 
         if (dates.Length == 0)
         {
-            yield return Row(division.Name + ": " + dateNote, "⚠️ No date found with this note");
+            var dateExistsWithNote = division.Fixtures
+                .Any(fd => fd.Notes.Any(n => n.Note.Contains(dateNote, StringComparison.OrdinalIgnoreCase)));
+
+            yield return Row(
+                division.Name + ": " + dateNote,
+                dateExistsWithNote
+                    ? "⚠️ No tournaments exist on this date"
+                    : "⚠️ No date found with this note");
             yield break;
         }
 

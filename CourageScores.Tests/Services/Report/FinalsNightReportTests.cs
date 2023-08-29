@@ -163,7 +163,7 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1: Knockout", "⚠️ No date found with this note");
+        AssertReportRow(report, "Division 1: Knockout", "⚠️ No tournaments exist on this date");
     }
 
     [Test]
