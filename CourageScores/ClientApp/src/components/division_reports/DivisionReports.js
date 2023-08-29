@@ -41,6 +41,7 @@ export function DivisionReports() {
                 setActiveReport(null);
             }
         } catch (e) {
+            // istanbul ignore next
             onError(e);
         } finally {
             setGettingData(false);
