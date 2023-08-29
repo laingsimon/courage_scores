@@ -668,8 +668,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 most 180s", "PLAYER", 2);
-        AssertReportRow(report, "Division 2 most 180s", "PLAYER", 3);
+        AssertReportRow(report, "Division 1: Most 180s", "PLAYER", 2);
+        AssertReportRow(report, "Division 2: Most 180s", "PLAYER", 3);
     }
 
     [Test]
@@ -699,8 +699,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 most 180s", "PLAYER_1, PLAYER_2", 2);
-        AssertReportRow(report, "Division 2 most 180s", "PLAYER_3, PLAYER_4", 3);
+        AssertReportRow(report, "Division 1: Most 180s", "PLAYER_1, PLAYER_2", 2);
+        AssertReportRow(report, "Division 2: Most 180s", "PLAYER_3, PLAYER_4", 3);
     }
 
     [Test]
@@ -709,8 +709,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 most 180s", "");
-        AssertReportRow(report, "Division 2 most 180s", "");
+        AssertReportRow(report, "Division 1: Most 180s", "");
+        AssertReportRow(report, "Division 2: Most 180s", "");
     }
 
     [Test]
@@ -730,8 +730,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 most 180s", "");
-        AssertReportRow(report, "Division 2 most 180s", "");
+        AssertReportRow(report, "Division 1: Most 180s", "");
+        AssertReportRow(report, "Division 2: Most 180s", "");
     }
 
     [Test]
@@ -751,8 +751,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 highest checkout", "PLAYER", 101);
-        AssertReportRow(report, "Division 2 highest checkout", "PLAYER", 102);
+        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER", 101);
+        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER", 102);
     }
 
     [Test]
@@ -782,8 +782,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 highest checkout", "PLAYER_1, PLAYER_2", 101);
-        AssertReportRow(report, "Division 2 highest checkout", "PLAYER_3, PLAYER_4", 102);
+        AssertReportRow(report, "Division 1: Highest checkout", "PLAYER_1, PLAYER_2", 101);
+        AssertReportRow(report, "Division 2: Highest checkout", "PLAYER_3, PLAYER_4", 102);
     }
 
     [Test]
@@ -792,8 +792,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 highest checkout", "");
-        AssertReportRow(report, "Division 2 highest checkout", "");
+        AssertReportRow(report, "Division 1: Highest checkout", "");
+        AssertReportRow(report, "Division 2: Highest checkout", "");
     }
 
     [Test]
@@ -813,8 +813,8 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 highest checkout", "");
-        AssertReportRow(report, "Division 2 highest checkout", "");
+        AssertReportRow(report, "Division 1: Highest checkout", "");
+        AssertReportRow(report, "Division 2: Highest checkout", "");
     }
 
     [Test]
@@ -953,10 +953,10 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 runner up", "TEAM 2");
-        AssertReportRow(report, "Division 1 winner", "TEAM 1");
-        AssertReportRow(report, "Division 2 runner up", "TEAM 4");
-        AssertReportRow(report, "Division 2 winner", "TEAM 3");
+        AssertReportRow(report, "Division 1: runner up", "TEAM 2");
+        AssertReportRow(report, "Division 1: winner", "TEAM 1");
+        AssertReportRow(report, "Division 2: runner up", "TEAM 4");
+        AssertReportRow(report, "Division 2: winner", "TEAM 3");
     }
 
     [Test]
@@ -965,10 +965,10 @@ public class FinalsNightReportTests
         var report = await _report.GetReport(_playerLookup, _token);
 
         Assert.That(report, Is.Not.Null);
-        AssertReportRow(report, "Division 1 runner up", "⚠️ Not found");
-        AssertReportRow(report, "Division 1 winner", "⚠️ Not found");
-        AssertReportRow(report, "Division 2 runner up", "⚠️ Not found");
-        AssertReportRow(report, "Division 2 winner", "⚠️ Not found");
+        AssertReportRow(report, "Division 1: runner up", "⚠️ Not found");
+        AssertReportRow(report, "Division 1: winner", "⚠️ Not found");
+        AssertReportRow(report, "Division 2: runner up", "⚠️ Not found");
+        AssertReportRow(report, "Division 2: winner", "⚠️ Not found");
     }
 
     private static void AssertReportRow(ReportDto report, string playerName, string teamName, double? value = null)

@@ -64,7 +64,7 @@ public class FinalsNightReport : CompositeReport
         var playersWithHighestCheckout = division.Players.Where(p => p.Over100Checkouts == highestCheckout && highestCheckout > 0).ToArray();
 
         yield return Row(
-            $"{division.Name} highest checkout",
+            $"{division.Name}: Highest checkout",
             string.Join(", ", playersWithHighestCheckout.Select(p => p.Name)),
             highestCheckout > 0 ? highestCheckout : null);
     }
@@ -78,7 +78,7 @@ public class FinalsNightReport : CompositeReport
         var players = division.Players.Where(p => p.OneEighties == most180 && most180 > 0).ToArray();
 
         yield return Row(
-            $"{division.Name} most 180s",
+            $"{division.Name}: Most 180s",
             string.Join(", ", players.Select(p => p.Name)),
             most180 > 0 ? most180 : null);
     }
@@ -90,8 +90,8 @@ public class FinalsNightReport : CompositeReport
         var secondTeam = division.Teams.Skip(1).FirstOrDefault();
         var firstTeam = division.Teams.FirstOrDefault();
 
-        yield return Row($"{division.Name} runner up", secondTeam?.Name ?? "⚠️ Not found");
-        yield return Row($"{division.Name} winner", firstTeam?.Name ?? "⚠️ Not found");
+        yield return Row($"{division.Name}: runner up", secondTeam?.Name ?? "⚠️ Not found");
+        yield return Row($"{division.Name}: winner", firstTeam?.Name ?? "⚠️ Not found");
     }
 
     private static TournamentMatchDto? GetFinal(TournamentRoundDto? round)
