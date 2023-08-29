@@ -377,6 +377,53 @@ public class FinalsNightReportTests
     }
 
     [Test]
+    public async Task GetReport_WhenKnockoutDateExistsWithNestedWinner_ReturnsKnockout()
+    {
+        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Type = "Knockout",
+                    Proposed = false,
+                },
+            },
+            Notes =
+            {
+                new FixtureDateNoteDto { Note = "Knockout" },
+            },
+        });
+        _tournament.Round.NextRound = new TournamentRoundDto
+        {
+            Matches =
+            {
+                new TournamentMatchDto
+                {
+                    ScoreA = 1,
+                    ScoreB = 2,
+                    SideA = new TournamentSideDto
+                    {
+                        Name = "SIDE C",
+                    },
+                    SideB = new TournamentSideDto
+                    {
+                        Name = "SIDE D",
+                    },
+                },
+            },
+        };
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Knockout winner", "SIDE D");
+        AssertReportRow(report, "Knockout runner up", "SIDE C");
+    }
+
+    [Test]
     public async Task GetReport_WhenKnockoutTournamentExistsWithDifferentCasedType_ReturnsKnockout()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
