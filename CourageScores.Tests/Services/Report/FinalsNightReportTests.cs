@@ -211,6 +211,39 @@ public class FinalsNightReportTests
     }
 
     [Test]
+    public async Task GetReport_WhenMultipleTournamentsExistOnTheSameDate_ReturnsWarning()
+    {
+        _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
+        {
+            Date = new DateTime(2001, 02, 03),
+            TournamentFixtures =
+            {
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Type = "Knockout",
+                    Proposed = false,
+                },
+                new DivisionTournamentFixtureDetailsDto
+                {
+                    Id = _tournament.Id,
+                    Type = "Knockout",
+                    Proposed = false,
+                },
+            },
+            Notes =
+            {
+                new FixtureDateNoteDto { Note = "Knockout" },
+            },
+        });
+
+        var report = await _report.GetReport(_playerLookup, _token);
+
+        Assert.That(report, Is.Not.Null);
+        AssertReportRow(report, "Division 1: Knockout - Knockout", "⚠️ Multiple tournaments (2) found with this type");
+    }
+
+    [Test]
     public async Task GetReport_WhenKnockoutTournamentDoesNotExistWithKnockoutType_ReturnsWarning()
     {
         _divisionData1.Fixtures.Add(new DivisionFixtureDateDto
