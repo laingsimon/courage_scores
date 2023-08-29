@@ -1,8 +1,10 @@
-﻿using CourageScores.Models.Cosmos.Game;
+﻿using System.Diagnostics.CodeAnalysis;
+using CourageScores.Models.Cosmos.Game;
 using CourageScores.Models.Dtos.Report;
 
 namespace CourageScores.Services.Report;
 
+[ExcludeFromCodeCoverage]
 public abstract class CompositeReport : IReport
 {
     private readonly IReadOnlyCollection<IReport> _reports;
