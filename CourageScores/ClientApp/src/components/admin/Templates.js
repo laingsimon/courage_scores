@@ -80,6 +80,7 @@ export function Templates() {
 
         setEditing(jsonString);
         setValid(true);
+        setSelected(t);
     }
 
     function excludePropertiesFromEdit(key, value) {

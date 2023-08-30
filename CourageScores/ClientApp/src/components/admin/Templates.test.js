@@ -185,6 +185,8 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                description: 'DESCRIPTION',
+                someProperty: 'something',
                 updated: '2023-01-02',
                 created: '2023-01-01',
                 author: 'Simon',
@@ -207,12 +209,12 @@ describe('Templates', () => {
 
             expect(reportedError).toBeNull();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.className)).toEqual(['list-group-item d-flex justify-content-between align-items-center active']);
+            expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column active']);
             const textarea = context.container.querySelector('textarea');
             expect(textarea).toBeTruthy();
             const editableTemplate = {
-                name: template.name,
-            }
+                someProperty: 'something',
+            };
             expect(textarea.value).toEqual(JSON.stringify(editableTemplate, null, '  '));
         });
 
@@ -230,7 +232,7 @@ describe('Templates', () => {
 
             expect(reportedError).toBeNull();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
-            expect(templateItems.map(li => li.className)).toEqual(['list-group-item d-flex justify-content-between align-items-center']);
+            expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column']);
             expect(context.container.querySelector('textarea')).toBeFalsy();
         });
 
@@ -252,6 +254,7 @@ describe('Templates', () => {
                 id: template.id,
                 name: 'TEMPLATE',
                 lastUpdated: '2023-08-01',
+                updated: '2023-08-01',
             });
         });
 
