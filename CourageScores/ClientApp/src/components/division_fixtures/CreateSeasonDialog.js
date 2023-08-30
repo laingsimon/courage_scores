@@ -42,8 +42,8 @@ export function CreateSeasonDialog({seasonId, onClose}) {
 
     function getTemplateOption(compatibility) {
         let text = compatibility.success
-            ? compatibility.result.name
-            : <span>🚫 {compatibility.result.name}</span>
+            ? <div>{compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
+            : <div>🚫 {compatibility.result.name}<small className="ps-4 d-block">{compatibility.result.description}</small></div>
 
         return {
             value: compatibility.result.id,

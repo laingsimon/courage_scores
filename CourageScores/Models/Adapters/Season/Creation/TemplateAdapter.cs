@@ -26,6 +26,7 @@ public class TemplateAdapter : IAdapter<Template, TemplateDto>
             Divisions = await model.Divisions.SelectAsync(d => _divisionTemplateAdapter.Adapt(d, token)).ToList(),
             SharedAddresses = await model.SharedAddresses.SelectAsync(a => _sharedAddressAdapter.Adapt(a, token)).ToList(),
             TemplateHealth = model.TemplateHealth,
+            Description = model.Description?.Trim(),
         }.AddAuditProperties(model);
     }
 
@@ -38,6 +39,7 @@ public class TemplateAdapter : IAdapter<Template, TemplateDto>
             TemplateHealth = dto.TemplateHealth,
             Divisions = await dto.Divisions.SelectAsync(d => _divisionTemplateAdapter.Adapt(d, token)).ToList(),
             SharedAddresses = await dto.SharedAddresses.SelectAsync(a => _sharedAddressAdapter.Adapt(a, token)).ToList(),
+            Description = dto.Description?.Trim(),
         }.AddAuditProperties(dto);
     }
 }

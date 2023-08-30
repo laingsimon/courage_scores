@@ -3,7 +3,7 @@ import React, {useEffect, useState} from "react";
 import {useApp} from "../../AppContainer";
 import {ErrorDisplay} from "../common/ErrorDisplay";
 import {ViewHealthCheck} from "../division_health/ViewHealthCheck";
-import {stateChanged} from "../../helpers/events";
+import {stateChanged, valueChanged} from "../../helpers/events";
 import {LoadingSpinnerSmall} from "../common/LoadingSpinnerSmall";
 
 export function Templates() {
@@ -54,7 +54,7 @@ export function Templates() {
                 return;
             }
 
-            setSelected(t);
+            setSelected(Object.assign({}, t));
             setEditingTemplate(t);
         }
     }
@@ -80,6 +80,7 @@ export function Templates() {
 
         setEditing(jsonString);
         setValid(true);
+        setSelected(t);
     }
 
     function excludePropertiesFromEdit(key, value) {
@@ -92,6 +93,8 @@ export function Templates() {
             case 'deleted':
             case 'remover':
             case 'templateHealth':
+            case 'name':
+            case 'description':
                 return undefined;
             default:
                 return value;
@@ -109,10 +112,13 @@ export function Templates() {
     function renderTemplates() {
         return (<ul className="list-group mb-2">
             {templates.map(t => (<li key={t.id}
-                                     className={`list-group-item d-flex justify-content-between align-items-center${isSelected(t) ? ' active' : ''}`}
+                                     className={`list-group-item flex-column${isSelected(t) ? ' active' : ''}`}
                                      onClick={toggleSelected(t)}>
-                <label>{t.name}</label>
-                {renderBadge(t.templateHealth)}
+                <div className="d-flex w-100 justify-content-between">
+                    <label>{t.name}</label>
+                    {renderBadge(t.templateHealth)}
+                </div>
+                {t.description ? (<small className="mb-1">{t.description}</small>) : null}
             </li>))}
         </ul>);
     }
@@ -143,10 +149,10 @@ export function Templates() {
         setSaving(true);
 
         try {
-            const template = JSON.parse(editing);
+            const template = Object.assign(JSON.parse(editing), selected);
             if (selected) {
                 template.lastUpdated = selected.updated;
-                template.id = selected.id;
+                // template.id = selected.id;
             }
             const result = await templateApi.update(template);
             if (result.success) {
@@ -243,8 +249,19 @@ export function Templates() {
                 : renderTemplates()}
             {editing !== null ? <div>
                 <p>Template definition</p>
-                <textarea className="width-100 min-height-100" rows="15" value={editing}
-                          onChange={e => updateTemplate(e.target.value)}></textarea>
+                <div className="input-group mb-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Name</span>
+                    </div>
+                    <input name="name" className="form-control" value={selected.name} onChange={valueChanged(selected, setSelected)} />
+                </div>
+                <div className="input-group mb-3">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text">Description</span>
+                    </div>
+                    <input name="description" className="form-control" value={selected.description || ''} onChange={valueChanged(selected, setSelected)} />
+                </div>
+                <textarea className="width-100 min-height-100" rows="15" value={editing} onChange={e => updateTemplate(e.target.value)}></textarea>
                 <div>
                     <button className="btn btn-primary margin-right" onClick={saveTemplate} disabled={!valid}>
                         {saving

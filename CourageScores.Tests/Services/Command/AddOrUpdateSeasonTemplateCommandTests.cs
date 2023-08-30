@@ -14,19 +14,8 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateSeasonTemplateCommandTests
 {
-    private static readonly Template Template = new()
-    {
-        Name = "TEMPLATE",
-        Divisions =
-        {
-            new DivisionTemplate(),
-        },
-        SharedAddresses =
-        {
-            new List<string>(),
-        },
-    };
     private readonly CancellationToken _token = new();
+    private Template _requestedTemplateChanges = null!;
     private AddOrUpdateSeasonTemplateCommand _command = null!;
     private MockAdapter<Template, TemplateDto> _adapter = null!;
     private Mock<IHealthCheckService> _healthCheckService = null!;
@@ -38,10 +27,24 @@ public class AddOrUpdateSeasonTemplateCommandTests
     [SetUp]
     public void SetupEachTest()
     {
+        _requestedTemplateChanges = new Template
+        {
+            Name = "TEMPLATE",
+            Description = "DESCRIPTION",
+            Divisions =
+            {
+                new DivisionTemplate(),
+            },
+            SharedAddresses =
+            {
+                new List<string>(),
+            },
+        };
         _template = new Template
         {
             Id = Guid.NewGuid(),
             Name = "TEMPLATE",
+            Description = "DESCRIPTION",
             Updated = new DateTime(2001, 02, 03),
         };
         _healthCheckDto = new SeasonHealthDto();
@@ -61,7 +64,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         {
             LastUpdated = _template.Updated,
         };
-        _adapter.AddMapping(Template, update);
+        _adapter.AddMapping(_requestedTemplateChanges, update);
 
         var result = await _command.WithData(update).ApplyUpdate(_template, _token);
 
@@ -70,9 +73,26 @@ public class AddOrUpdateSeasonTemplateCommandTests
         {
             "Template updated",
         }));
-        Assert.That(_template.Name, Is.EqualTo(Template.Name));
-        Assert.That(_template.Divisions, Is.EqualTo(Template.Divisions));
-        Assert.That(_template.SharedAddresses, Is.EqualTo(Template.SharedAddresses));
+        Assert.That(_template.Name, Is.EqualTo(_requestedTemplateChanges.Name));
+        Assert.That(_template.Divisions, Is.EqualTo(_requestedTemplateChanges.Divisions));
+        Assert.That(_template.SharedAddresses, Is.EqualTo(_requestedTemplateChanges.SharedAddresses));
+        Assert.That(_template.Description, Is.EqualTo(_requestedTemplateChanges.Description));
+    }
+
+    [Test]
+    public async Task ApplyUpdate_GivenTemplate_HandlesNullDescription()
+    {
+        var update = new EditTemplateDto
+        {
+            LastUpdated = _template.Updated,
+        };
+        _adapter.AddMapping(_requestedTemplateChanges, update);
+        _requestedTemplateChanges.Description = null;
+
+        var result = await _command.WithData(update).ApplyUpdate(_template, _token);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(_template.Description, Is.Null);
     }
 
     [Test]
@@ -82,7 +102,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         {
             LastUpdated = _template.Updated,
         };
-        _adapter.AddMapping(Template, update);
+        _adapter.AddMapping(_requestedTemplateChanges, update);
 
         var result = await _command.WithData(update).ApplyUpdate(_template, _token);
 
@@ -103,7 +123,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         {
             LastUpdated = throwingTemplate.Updated,
         };
-        _adapter.AddMapping(Template, update);
+        _adapter.AddMapping(_requestedTemplateChanges, update);
         _healthCheckAdapter
             .Setup(a => a.Adapt(throwingTemplate, _token))
             .ThrowsAsync(new InvalidOperationException("Exception in adapter"));
@@ -130,7 +150,7 @@ public class AddOrUpdateSeasonTemplateCommandTests
         {
             LastUpdated = throwingTemplate.Updated,
         };
-        _adapter.AddMapping(Template, update);
+        _adapter.AddMapping(_requestedTemplateChanges, update);
         _healthCheckAdapter
             .Setup(a => a.Adapt(throwingTemplate, _token))
             .ReturnsAsync(_healthCheckDto);
