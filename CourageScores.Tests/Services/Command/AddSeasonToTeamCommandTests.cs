@@ -15,7 +15,7 @@ namespace CourageScores.Tests.Services.Command;
 public class AddSeasonToTeamCommandTests
 {
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private readonly CancellationToken _token = new();
     private AddSeasonToTeamCommand _command = null!;
     private CosmosTeam _team = null!;
@@ -28,7 +28,7 @@ public class AddSeasonToTeamCommandTests
     {
         _cacheFlags = new ScopedCacheManagementFlags();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _command = new AddSeasonToTeamCommand(_auditingHelper.Object, _seasonService.Object, _cacheFlags);
         _team = new CosmosTeam
         {

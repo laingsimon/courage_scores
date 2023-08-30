@@ -13,10 +13,10 @@ public class AddOrUpdateTeamCommand : AddOrUpdateCommand<Models.Cosmos.Team.Team
     private readonly ICommandFactory _commandFactory;
     private readonly IGameService _gameService;
     private readonly IJsonSerializerService _serializer;
-    private readonly ITeamService _teamService;
+    private readonly ICachingTeamService _teamService;
 
     public AddOrUpdateTeamCommand(
-        ITeamService teamService,
+        ICachingTeamService teamService,
         IGameService gameService,
         ICommandFactory commandFactory,
         ScopedCacheManagementFlags cacheFlags,

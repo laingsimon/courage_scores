@@ -14,7 +14,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
     private readonly IAuditingHelper _auditingHelper;
     private readonly ICommandFactory _commandFactory;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
     private readonly IUserService _userService;
     private EditTeamPlayerDto? _player;
@@ -23,7 +23,7 @@ public class UpdatePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamP
 
     public UpdatePlayerCommand(
         IUserService userService,
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         IAuditingHelper auditingHelper,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         ITeamService teamService,

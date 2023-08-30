@@ -20,11 +20,13 @@ public class ReportServiceTests
 {
     private readonly CancellationToken _token = new();
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ISystemClock> _clock = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentRepository = null!;
+    private Mock<IReportFactory> _reportFactory = null!;
+    private Mock<IReport> _report = null!;
     private ReportService _service = null!;
     private UserDto? _user;
     private SeasonDto _season = null!;
@@ -37,18 +39,21 @@ public class ReportServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _tournamentRepository = new Mock<IGenericRepository<TournamentGame>>();
         _clock = new Mock<ISystemClock>();
+        _reportFactory = new Mock<IReportFactory>();
+        _report = new Mock<IReport>();
         _service = new ReportService(
             _userService.Object,
             _seasonService.Object,
             _divisionService.Object,
             _gameRepository.Object,
             _tournamentRepository.Object,
-            _clock.Object);
+            _clock.Object,
+            _reportFactory.Object);
 
         _user = new UserDto
         {
@@ -88,6 +93,14 @@ public class ReportServiceTests
             .Returns(TestUtilities.AsyncEnumerable(_game1, _game2));
         _tournamentRepository.Setup(r => r.GetSome(It.IsAny<string>(), _token))
             .Returns(TestUtilities.AsyncEnumerable(_tournament1));
+        _reportFactory
+            .Setup(f => f.GetReports(It.IsAny<ReportRequestDto>(), _token))
+            .Returns(TestUtilities.AsyncEnumerable(_report.Object));
+        _report.Setup(r => r.GetReport(It.IsAny<IPlayerLookup>(), _token))
+            .ReturnsAsync(new ReportDto
+            {
+                Name = "Report",
+            });
     }
 
     [Test]
@@ -177,22 +190,6 @@ public class ReportServiceTests
         var reports = await _service.GetReports(request, _token);
 
         Assert.That(reports.Reports, Is.Not.Empty);
-        Assert.That(reports.Reports.Select(r => r.Name), Has.None.EqualTo("Man of the match"));
-    }
-
-    [Test]
-    public async Task GetReports_GivenSufficientPermissions_ReturnsManOfTheMatch()
-    {
-        var request = new ReportRequestDto
-        {
-            SeasonId = _season.Id,
-            DivisionId = _division.Id,
-        };
-        _user!.Access!.ManageScores = true;
-
-        var reports = await _service.GetReports(request, _token);
-
-        Assert.That(reports.Reports, Is.Not.Empty);
-        Assert.That(reports.Reports.Select(r => r.Name), Has.Some.EqualTo("Man of the match"));
+        Assert.That(reports.Reports.Select(r => r.Name), Is.EqualTo(new[] { "Report" }));
     }
 }

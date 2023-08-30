@@ -12,7 +12,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly IUserService _userService;
     private bool _addSeasonToTeamIfMissing = true;
     private Guid? _divisionId;
@@ -20,7 +20,7 @@ public class AddPlayerToTeamSeasonCommand : IUpdateCommand<Models.Cosmos.Team.Te
     private Guid? _seasonId;
 
     public AddPlayerToTeamSeasonCommand(
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ICommandFactory commandFactory,
         IAuditingHelper auditingHelper,
         IUserService userService,

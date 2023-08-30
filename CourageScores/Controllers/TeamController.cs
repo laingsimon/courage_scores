@@ -12,9 +12,9 @@ namespace CourageScores.Controllers;
 public class TeamController : Controller
 {
     private readonly ICommandFactory _commandFactory;
-    private readonly ITeamService _teamService;
+    private readonly ICachingTeamService _teamService;
 
-    public TeamController(CachingTeamService teamService, ICommandFactory commandFactory)
+    public TeamController(ICachingTeamService teamService, ICommandFactory commandFactory)
     {
         _teamService = teamService;
         _commandFactory = commandFactory;

@@ -19,12 +19,12 @@ namespace CourageScores.Tests.Services.Command;
 public class AddOrUpdateTeamCommandTests
 {
     private Mock<IGameService> _gameService = null!;
-    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICachingTeamService> _teamService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private AddOrUpdateTeamCommand _command = null!;
     private Mock<AddOrUpdateGameCommand> _addOrUpdateGameCommand = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private readonly CancellationToken _token = new();
     private readonly Guid _divisionId = Guid.NewGuid();
     private readonly Guid _seasonId = Guid.NewGuid();
@@ -69,9 +69,9 @@ public class AddOrUpdateTeamCommandTests
         };
 
         _gameService = new Mock<IGameService>();
-        _teamService = new Mock<ITeamService>();
+        _teamService = new Mock<ICachingTeamService>();
         _commandFactory = new Mock<ICommandFactory>();
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _command = new AddOrUpdateTeamCommand(_teamService.Object, _gameService.Object, _commandFactory.Object, _cacheFlags, _serializer);
         _addOrUpdateGameCommand = new Mock<AddOrUpdateGameCommand>(_seasonService.Object, _commandFactory.Object, _teamService.Object, _cacheFlags);
         _addSeasonToTeamCommand = new Mock<AddSeasonToTeamCommand>(new Mock<IAuditingHelper>().Object, _seasonService.Object, _cacheFlags);

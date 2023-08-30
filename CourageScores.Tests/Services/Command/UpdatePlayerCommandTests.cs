@@ -23,7 +23,7 @@ public class UpdatePlayerCommandTests
 {
     private const string UserTeamId = "0AEBA4F0-3AB3-49A7-97AC-7318887E1F51";
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ITeamService> _teamService = null!;
@@ -42,7 +42,7 @@ public class UpdatePlayerCommandTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _teamService = new Mock<ITeamService>();

@@ -22,7 +22,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
     private readonly IAdapter<Models.Cosmos.Game.Game, GameDto> _gameAdapter;
     private readonly ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> _matchOptionsAdapter;
     private readonly ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> _scoreAsYouGoAdapter;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
     private readonly IUserService _userService;
     private RecordScoresDto? _scores;
@@ -32,7 +32,7 @@ public class UpdateScoresCommand : IUpdateCommand<Models.Cosmos.Game.Game, GameD
         ISimpleAdapter<GameMatchOption?, GameMatchOptionDto?> matchOptionsAdapter,
         ISimpleAdapter<ScoreAsYouGo, ScoreAsYouGoDto> scoreAsYouGoAdapter,
         IAuditingHelper auditingHelper,
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ICommandFactory commandFactory,
         ITeamService teamService,
         ScopedCacheManagementFlags cacheFlags)

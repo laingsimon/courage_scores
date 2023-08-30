@@ -18,14 +18,14 @@ public class AddOrUpdateTournamentGameCommand : AddOrUpdateCommand<TournamentGam
     private readonly ICommandFactory _commandFactory;
     private readonly INotableTournamentPlayerAdapter _notableTournamentPlayerAdapter;
     private readonly IGenericDataService<RecordedScoreAsYouGo, RecordedScoreAsYouGoDto> _saygService;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly ITournamentPlayerAdapter _tournamentPlayerAdapter;
     private readonly IAdapter<TournamentRound, TournamentRoundDto> _tournamentRoundAdapter;
     private readonly IAdapter<TournamentSide, TournamentSideDto> _tournamentSideAdapter;
     private readonly IUpdateRecordedScoreAsYouGoDtoAdapter _updateRecordedScoreAsYouGoDtoAdapter;
 
     public AddOrUpdateTournamentGameCommand(
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         IAdapter<TournamentSide, TournamentSideDto> tournamentSideAdapter,
         IAdapter<TournamentRound, TournamentRoundDto> tournamentRoundAdapter,
         IAuditingHelper auditingHelper,

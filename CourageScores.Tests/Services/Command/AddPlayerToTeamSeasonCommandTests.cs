@@ -19,7 +19,7 @@ namespace CourageScores.Tests.Services.Command;
 public class AddPlayerToTeamSeasonCommandTests
 {
     private const string UserTeamId = "501A2E90-8F4E-4370-A77D-8B151BCF0F95";
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private Mock<IUserService> _userService = null!;
@@ -45,7 +45,7 @@ public class AddPlayerToTeamSeasonCommandTests
     public void SetupEachTest()
     {
         _cacheFlags = new ScopedCacheManagementFlags();
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _userService = new Mock<IUserService>();

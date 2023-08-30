@@ -13,12 +13,12 @@ public class UpdateRecordedScoreAsYouGoDtoAdapterTests
 {
     private readonly CancellationToken _token = new();
     private UpdateRecordedScoreAsYouGoDtoAdapter _adapter = null!;
-    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICachingTeamService> _teamService = null!;
 
     [SetUp]
     public void SetupEachTest()
     {
-        _teamService = new Mock<ITeamService>();
+        _teamService = new Mock<ICachingTeamService>();
         _adapter = new UpdateRecordedScoreAsYouGoDtoAdapter(_teamService.Object);
     }
 

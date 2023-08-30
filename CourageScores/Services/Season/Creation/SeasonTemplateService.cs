@@ -15,21 +15,21 @@ namespace CourageScores.Services.Season.Creation;
 public class SeasonTemplateService : ISeasonTemplateService
 {
     private readonly ICompatibilityCheckFactory _compatibilityCheckFactory;
-    private readonly IDivisionService _divisionService;
+    private readonly ICachingDivisionService _divisionService;
     private readonly ISeasonProposalStrategy _proposalStrategy;
-    private readonly ISeasonService _seasonService;
-    private readonly ITeamService _teamService;
+    private readonly ICachingSeasonService _seasonService;
+    private readonly ICachingTeamService _teamService;
     private readonly IGenericDataService<Template, TemplateDto> _underlyingService;
     private readonly IUserService _userService;
 
     public SeasonTemplateService(
         IGenericDataService<Template, TemplateDto> underlyingService,
         IUserService userService,
-        ISeasonService seasonService,
-        IDivisionService divisionService,
+        ICachingSeasonService seasonService,
+        ICachingDivisionService divisionService,
         ICompatibilityCheckFactory compatibilityCheckFactory,
         ISeasonProposalStrategy proposalStrategy,
-        ITeamService teamService)
+        ICachingTeamService teamService)
     {
         _underlyingService = underlyingService;
         _userService = userService;

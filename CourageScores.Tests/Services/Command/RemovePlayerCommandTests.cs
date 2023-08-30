@@ -15,7 +15,7 @@ namespace CourageScores.Tests.Services.Command;
 public class RemovePlayerCommandTests
 {
     private const string UserTeamId = "25BF0C9C-C4C8-4975-BC0F-DAB07030C453";
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<IUserService> _userService = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
     private readonly CancellationToken _token = new();
@@ -32,7 +32,7 @@ public class RemovePlayerCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _userService = new Mock<IUserService>();
         _auditingHelper = new Mock<IAuditingHelper>();
         _user = new UserDto

@@ -13,11 +13,11 @@ public class AddOrUpdateGameCommand : AddOrUpdateCommand<Models.Cosmos.Game.Game
 {
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
 
     public AddOrUpdateGameCommand(
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ICommandFactory commandFactory,
         ITeamService teamService,
         ScopedCacheManagementFlags cacheFlags)

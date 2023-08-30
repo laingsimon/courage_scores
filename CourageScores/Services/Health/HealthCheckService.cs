@@ -10,16 +10,16 @@ namespace CourageScores.Services.Health;
 
 public class HealthCheckService : IHealthCheckService
 {
-    private readonly IDivisionService _divisionService;
+    private readonly ICachingDivisionService _divisionService;
     private readonly ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> _seasonAdapter;
     private readonly ISeasonHealthCheckFactory _seasonHealthCheckFactory;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly IUserService _userService;
 
     public HealthCheckService(
         IUserService userService,
-        ISeasonService seasonService,
-        IDivisionService divisionService,
+        ICachingSeasonService seasonService,
+        ICachingDivisionService divisionService,
         ISeasonHealthCheckFactory seasonHealthCheckFactory,
         ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto> seasonAdapter)
     {

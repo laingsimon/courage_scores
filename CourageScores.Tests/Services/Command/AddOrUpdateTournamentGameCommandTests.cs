@@ -21,7 +21,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateTournamentGameCommandTests
 {
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private IAdapter<TournamentSide, TournamentSideDto> _sideAdapter = null!;
     private IAdapter<TournamentRound, TournamentRoundDto> _roundAdapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
@@ -61,7 +61,7 @@ public class AddOrUpdateTournamentGameCommandTests
         };
         _cacheFlags = new ScopedCacheManagementFlags();
 
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _tournamentPlayerAdapter = new Mock<ITournamentPlayerAdapter>();
         _sideAdapter = new TournamentSideAdapter(_tournamentPlayerAdapter.Object);
         _matchOptionAdapter = new MockSimpleAdapter<GameMatchOption?, GameMatchOptionDto?>(_matchOptions, _matchOptionsDto);
