@@ -38,7 +38,7 @@ public class NoteController : Controller
     [HttpPost("/api/Note")]
     public async Task<ActionResultDto<FixtureDateNoteDto>> Create(EditFixtureDateNoteDto note, CancellationToken token)
     {
-        return await Upsert(Guid.NewGuid(), note, token);
+        return await Upsert(Guid.Empty, note, token);
     }
 
     [HttpDelete("/api/Note/{id}")]
