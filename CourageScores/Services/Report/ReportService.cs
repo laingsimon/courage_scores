@@ -12,16 +12,16 @@ public class ReportService : IReportService
 {
     private readonly ISystemClock _clock;
     private readonly IReportFactory _reportFactory;
-    private readonly IDivisionService _divisionService;
+    private readonly ICachingDivisionService _divisionService;
     private readonly IGenericRepository<Models.Cosmos.Game.Game> _gameRepository;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly IGenericRepository<TournamentGame> _tournamentRepository;
     private readonly IUserService _userService;
 
     public ReportService(
         IUserService userService,
-        ISeasonService seasonService,
-        IDivisionService divisionService,
+        ICachingSeasonService seasonService,
+        ICachingDivisionService divisionService,
         IGenericRepository<Models.Cosmos.Game.Game> gameRepository,
         IGenericRepository<TournamentGame> tournamentRepository,
         ISystemClock clock,

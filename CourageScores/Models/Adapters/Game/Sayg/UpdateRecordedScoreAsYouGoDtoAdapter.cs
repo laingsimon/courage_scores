@@ -12,9 +12,9 @@ public class UpdateRecordedScoreAsYouGoDtoAdapter : IUpdateRecordedScoreAsYouGoD
         NumberOfLegs = 3,
     };
 
-    private readonly ITeamService _teamService;
+    private readonly ICachingTeamService _teamService;
 
-    public UpdateRecordedScoreAsYouGoDtoAdapter(ITeamService teamService)
+    public UpdateRecordedScoreAsYouGoDtoAdapter(ICachingTeamService teamService)
     {
         _teamService = teamService;
     }

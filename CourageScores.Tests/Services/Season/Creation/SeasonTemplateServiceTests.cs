@@ -24,12 +24,12 @@ public class SeasonTemplateServiceTests
     private SeasonTemplateService _service = null!;
     private Mock<IGenericDataService<Template, TemplateDto>> _underlyingService = null!;
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<ICompatibilityCheckFactory> _checkFactory = null!;
     private Mock<ICompatibilityCheck> _check = null!;
     private Mock<ISeasonProposalStrategy> _proposalStrategy = null!;
-    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICachingTeamService> _teamService = null!;
     private UserDto? _user;
     private TemplateDto[] _templates = null!;
     private SeasonDto _season = null!;
@@ -41,12 +41,12 @@ public class SeasonTemplateServiceTests
     {
         _underlyingService = new Mock<IGenericDataService<Template, TemplateDto>>();
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _checkFactory = new Mock<ICompatibilityCheckFactory>();
         _check = new Mock<ICompatibilityCheck>();
         _proposalStrategy = new Mock<ISeasonProposalStrategy>();
-        _teamService = new Mock<ITeamService>();
+        _teamService = new Mock<ICachingTeamService>();
         _service = new SeasonTemplateService(
             _underlyingService.Object,
             _userService.Object,

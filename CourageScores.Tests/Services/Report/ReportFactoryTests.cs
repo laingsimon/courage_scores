@@ -17,8 +17,8 @@ public class ReportFactoryTests
 {
     private readonly CancellationToken _token = new CancellationToken();
     private Mock<IUserService> _userService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
     private ReportFactory _factory = null!;
     private UserDto? _user;
@@ -27,8 +27,8 @@ public class ReportFactoryTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
         _factory = new ReportFactory(
             _userService.Object,

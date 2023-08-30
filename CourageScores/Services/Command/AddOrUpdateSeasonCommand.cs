@@ -13,11 +13,11 @@ public class AddOrUpdateSeasonCommand : AddOrUpdateCommand<Models.Cosmos.Season.
     private readonly ScopedCacheManagementFlags _cacheFlags;
     private readonly ICommandFactory _commandFactory;
     private readonly IGenericRepository<Models.Cosmos.Division> _divisionRepository;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly ITeamService _teamService;
 
     public AddOrUpdateSeasonCommand(
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ITeamService teamService,
         ICommandFactory commandFactory,
         ScopedCacheManagementFlags cacheFlags,

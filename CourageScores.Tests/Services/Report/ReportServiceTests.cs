@@ -20,8 +20,8 @@ public class ReportServiceTests
 {
     private readonly CancellationToken _token = new();
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<ISystemClock> _clock = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentRepository = null!;
@@ -39,8 +39,8 @@ public class ReportServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _tournamentRepository = new Mock<IGenericRepository<TournamentGame>>();
         _clock = new Mock<ISystemClock>();

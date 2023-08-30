@@ -21,7 +21,7 @@ public class FinalsNightReportTests
     private Mock<IUserService> _userService = null!;
     private Mock<IReport> _manOfTheMatchReport = null!;
     private SeasonDto _season = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<IGenericDataService<TournamentGame, TournamentGameDto>> _tournamentService = null!;
     private DivisionDto _division1 = null!;
     private DivisionDto _division2 = null!;
@@ -66,7 +66,7 @@ public class FinalsNightReportTests
             },
         };
         _playerLookup = new PlayerLookup();
-        _divisionService = new Mock<IDivisionService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _tournamentService = new Mock<IGenericDataService<TournamentGame, TournamentGameDto>>();
         _momReport = new ReportDto
         {

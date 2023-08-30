@@ -9,7 +9,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
 {
     private readonly IAuditingHelper _auditingHelper;
     private readonly ScopedCacheManagementFlags _cacheFlags;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private Guid? _copyPlayersFromOtherSeasonId;
     private Guid? _divisionId;
     private Guid? _seasonId;
@@ -17,7 +17,7 @@ public class AddSeasonToTeamCommand : IUpdateCommand<Models.Cosmos.Team.Team, Te
 
     public AddSeasonToTeamCommand(
         IAuditingHelper auditingHelper,
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         ScopedCacheManagementFlags cacheFlags)
     {
         _auditingHelper = auditingHelper;

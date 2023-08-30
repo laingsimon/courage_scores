@@ -19,7 +19,7 @@ public class AddOrUpdateGameCommandTests
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private CancellationToken _token;
     private AddOrUpdateGameCommand _command = null!;
     private ScopedCacheManagementFlags _cacheFlags = null!;
@@ -61,7 +61,7 @@ public class AddOrUpdateGameCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
         _token = new CancellationToken();

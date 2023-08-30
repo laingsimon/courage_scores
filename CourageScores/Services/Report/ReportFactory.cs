@@ -11,14 +11,14 @@ namespace CourageScores.Services.Report;
 public class ReportFactory : IReportFactory
 {
     private readonly IUserService _userService;
-    private readonly IDivisionService _divisionService;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingDivisionService _divisionService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
 
     public ReportFactory(
         IUserService userService,
-        IDivisionService divisionService,
-        ISeasonService seasonService,
+        ICachingDivisionService divisionService,
+        ICachingSeasonService seasonService,
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService)
     {
         _userService = userService;

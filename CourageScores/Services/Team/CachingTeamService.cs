@@ -5,7 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Team;
 
-public class CachingTeamService : CachingDataService<Models.Cosmos.Team.Team, TeamDto>, ITeamService
+public class CachingTeamService : CachingDataService<Models.Cosmos.Team.Team, TeamDto>, ICachingTeamService
 {
     private readonly ITeamService _teamService;
 

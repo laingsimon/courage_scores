@@ -20,8 +20,8 @@ public class HealthCheckServiceTests
     private readonly CancellationToken _token = new();
     private HealthCheckService _service = null!;
     private Mock<IUserService> _userService = null!;
-    private Mock<ISeasonService> _seasonService = null!;
-    private Mock<IDivisionService> _divisionService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
+    private Mock<ICachingDivisionService> _divisionService = null!;
     private Mock<ISeasonHealthCheckFactory> _healthCheckFactory = null!;
     private Mock<ISeasonHealthCheck> _healthCheck = null!;
     private Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>> _seasonAdapter = null!;
@@ -34,8 +34,8 @@ public class HealthCheckServiceTests
     public void SetupEachTest()
     {
         _userService = new Mock<IUserService>();
-        _seasonService = new Mock<ISeasonService>();
-        _divisionService = new Mock<IDivisionService>();
+        _seasonService = new Mock<ICachingSeasonService>();
+        _divisionService = new Mock<ICachingDivisionService>();
         _healthCheckFactory = new Mock<ISeasonHealthCheckFactory>();
         _healthCheck = new Mock<ISeasonHealthCheck>();
         _seasonAdapter = new Mock<ISimpleOnewayAdapter<SeasonHealthDtoAdapter.SeasonAndDivisions, SeasonHealthDto>>();

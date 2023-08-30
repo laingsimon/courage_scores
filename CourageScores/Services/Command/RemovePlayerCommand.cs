@@ -8,13 +8,13 @@ namespace CourageScores.Services.Command;
 public class RemovePlayerCommand : IUpdateCommand<Models.Cosmos.Team.Team, TeamPlayer>
 {
     private readonly IAuditingHelper _auditingHelper;
-    private readonly ISeasonService _seasonService;
+    private readonly ICachingSeasonService _seasonService;
     private readonly IUserService _userService;
     private Guid? _playerId;
     private Guid? _seasonId;
 
     public RemovePlayerCommand(
-        ISeasonService seasonService,
+        ICachingSeasonService seasonService,
         IUserService userService,
         IAuditingHelper auditingHelper)
     {

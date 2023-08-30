@@ -29,7 +29,7 @@ public class UpdateScoresCommandTests
     private Mock<IUserService> _userService = null!;
     private Mock<IAdapter<CosmosGame, GameDto>> _gameAdapter = null!;
     private Mock<IAuditingHelper> _auditingHelper = null!;
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
@@ -52,7 +52,7 @@ public class UpdateScoresCommandTests
         _userService = new Mock<IUserService>();
         _gameAdapter = new Mock<IAdapter<CosmosGame, GameDto>>();
         _auditingHelper = new Mock<IAuditingHelper>();
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _commandFactory = new Mock<ICommandFactory>();
         _teamService = new Mock<ITeamService>();
         _cacheFlags = new ScopedCacheManagementFlags();

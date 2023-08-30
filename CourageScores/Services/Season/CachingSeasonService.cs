@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace CourageScores.Services.Season;
 
-public class CachingSeasonService : CachingDataService<Models.Cosmos.Season.Season, SeasonDto>, ISeasonService
+public class CachingSeasonService : CachingDataService<Models.Cosmos.Season.Season, SeasonDto>, ICachingSeasonService
 {
     private readonly ISeasonService _seasonService;
 

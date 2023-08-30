@@ -16,14 +16,14 @@ public class FinalsNightReport : CompositeReport
     private readonly IUserService _userService;
     private readonly IReport _manOfTheMatchReport;
     private readonly SeasonDto _season;
-    private readonly IDivisionService _divisionService;
+    private readonly ICachingDivisionService _divisionService;
     private readonly IGenericDataService<TournamentGame, TournamentGameDto> _tournamentService;
 
     public FinalsNightReport(
         IUserService userService,
         IReport manOfTheMatchReport,
         SeasonDto season,
-        IDivisionService divisionService,
+        ICachingDivisionService divisionService,
         IGenericDataService<TournamentGame, TournamentGameDto> tournamentService)
         :base(new[] { manOfTheMatchReport })
     {

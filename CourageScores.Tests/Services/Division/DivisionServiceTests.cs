@@ -28,7 +28,7 @@ public class DivisionServiceTests
     private readonly List<TournamentGame> _someTournaments = new();
     private DivisionService _service = null!;
     private Mock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>> _genericService = null!;
-    private Mock<ITeamService> _teamService = null!;
+    private Mock<ICachingTeamService> _teamService = null!;
     private Mock<IGenericDataService<CosmosSeason, SeasonDto>> _genericSeasonService = null!;
     private Mock<IGenericRepository<CosmosGame>> _gameRepository = null!;
     private Mock<IGenericRepository<TournamentGame>> _tournamentGameRepository = null!;
@@ -43,7 +43,7 @@ public class DivisionServiceTests
     public void SetupEachTest()
     {
         _genericService = new Mock<IGenericDataService<CourageScores.Models.Cosmos.Division, DivisionDto>>();
-        _teamService = new Mock<ITeamService>();
+        _teamService = new Mock<ICachingTeamService>();
         _genericSeasonService = new Mock<IGenericDataService<CosmosSeason, SeasonDto>>();
         _gameRepository = new Mock<IGenericRepository<CosmosGame>>();
         _tournamentGameRepository = new Mock<IGenericRepository<TournamentGame>>();

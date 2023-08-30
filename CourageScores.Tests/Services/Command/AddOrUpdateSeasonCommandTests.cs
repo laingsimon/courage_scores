@@ -16,7 +16,7 @@ namespace CourageScores.Tests.Services.Command;
 [TestFixture]
 public class AddOrUpdateSeasonCommandTests
 {
-    private Mock<ISeasonService> _seasonService = null!;
+    private Mock<ICachingSeasonService> _seasonService = null!;
     private Mock<ITeamService> _teamService = null!;
     private Mock<ICommandFactory> _commandFactory = null!;
     private Mock<AddSeasonToTeamCommand> _addSeasonToTeamCommand = null!;
@@ -30,7 +30,7 @@ public class AddOrUpdateSeasonCommandTests
     [SetUp]
     public void SetupEachTest()
     {
-        _seasonService = new Mock<ISeasonService>();
+        _seasonService = new Mock<ICachingSeasonService>();
         _teamService = new Mock<ITeamService>();
         _commandFactory = new Mock<ICommandFactory>();
         _divisionRepository = new Mock<IGenericRepository<CourageScores.Models.Cosmos.Division>>();
