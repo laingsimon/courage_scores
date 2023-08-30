@@ -28,4 +28,9 @@ public class TemplateDto : AuditedDto
     /// The last recorded health analysis of this template
     /// </summary>
     public SeasonHealthCheckResultDto? TemplateHealth { get; set; }
+
+    /// <summary>
+    /// Any description/notes for this template
+    /// </summary>
+    public string? Description { get; set; }
 }

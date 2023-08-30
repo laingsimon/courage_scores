@@ -27,9 +27,10 @@ public class AddOrUpdateSeasonTemplateCommand : AddOrUpdateCommand<Template, Edi
     {
         var dto = await _templateAdapter.Adapt(update, token);
 
-        template.Name = dto.Name;
+        template.Name = dto.Name.Trim();
         template.Divisions = dto.Divisions;
         template.SharedAddresses = dto.SharedAddresses;
+        template.Description = dto.Description;
 
         try
         {

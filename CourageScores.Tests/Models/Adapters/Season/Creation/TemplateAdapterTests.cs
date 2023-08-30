@@ -45,6 +45,7 @@ public class TemplateAdapterTests
                 DivisionTemplateDto,
             },
             TemplateHealth = new SeasonHealthCheckResultDto(),
+            Description = "Description",
         };
 
         var result = await _adapter.Adapt(dto, _token);
@@ -60,6 +61,7 @@ public class TemplateAdapterTests
             DivisionTemplate,
         }));
         Assert.That(result.TemplateHealth, Is.SameAs(dto.TemplateHealth));
+        Assert.That(result.Description, Is.EqualTo(dto.Description));
     }
 
     [Test]
@@ -74,6 +76,35 @@ public class TemplateAdapterTests
         var result = await _adapter.Adapt(dto, _token);
 
         Assert.That(result.Name, Is.EqualTo("Template name"));
+    }
+
+    [Test]
+    public async Task Adapt_GivenDto_TrimsWhitespaceFromDescription()
+    {
+        var dto = new TemplateDto
+        {
+            Name = "Name",
+            Description = "DESCRIPTION   ",
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.Description, Is.EqualTo("DESCRIPTION"));
+    }
+
+    [Test]
+    public async Task Adapt_GivenDto_HandlesNullDescription()
+    {
+        var dto = new TemplateDto
+        {
+            Name = "Name",
+            Description = null,
+            TemplateHealth = new SeasonHealthCheckResultDto(),
+        };
+
+        var result = await _adapter.Adapt(dto, _token);
+
+        Assert.That(result.Description, Is.Null);
     }
 
     [Test]
@@ -107,5 +138,20 @@ public class TemplateAdapterTests
             DivisionTemplateDto,
         }));
         Assert.That(result.TemplateHealth, Is.SameAs(model.TemplateHealth));
+    }
+
+    [Test]
+    public async Task Adapt_GivenModel_HandlesNullDescription()
+    {
+        var model = new Template
+        {
+            Name = "Name",
+            Description = null,
+            TemplateHealth = new SeasonHealthCheckResultDto(),
+        };
+
+        var result = await _adapter.Adapt(model, _token);
+
+        Assert.That(result.Description, Is.Null);
     }
 }
