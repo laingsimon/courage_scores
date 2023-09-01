@@ -7,7 +7,7 @@ import {DivisionDataContainer} from "../DivisionDataContainer";
 import {DivisionReports} from "./DivisionReports";
 import {seasonBuilder} from "../../helpers/builders";
 
-describe('DivisionTeams', () => {
+describe('DivisionReports', () => {
     let context;
     let reportedError;
     let divisionReloaded = false;
@@ -34,10 +34,14 @@ describe('DivisionTeams', () => {
             {
                 account: account,
                 onError: (err) => {
-                    reportedError = {
-                        message: err.message,
-                        stack: err.stack
-                    };
+                    if (err.message) {
+                        reportedError = {
+                            message: err.message,
+                            stack: err.stack
+                        };
+                    } else {
+                        reportedError = err;
+                    }
                 },
                 error: null,
             },
@@ -94,6 +98,21 @@ describe('DivisionTeams', () => {
             await doClick(findButton(context.container, '📊 Get reports...'));
 
             expect(reportedError).toBeNull();
+        });
+
+        it('handles api exception when fetching reports', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(account, divisionData);
+            returnReport = {
+                Exception: {
+                    Message: 'Some server side error',
+                },
+            };
+
+            await doClick(findButton(context.container, '📊 Get reports...'));
+
+            expect(reportedError).toEqual('Some server side error');
         });
 
         it('remembers selected report after subsequent fetch', async () => {

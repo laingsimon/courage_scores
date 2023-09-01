@@ -134,6 +134,25 @@ describe('EditPlayerDetails', () => {
             expect(findNewTeamDropdown().querySelector('.dropdown-item.active').textContent).toEqual('TEAM');
             expect(findNewDivisionDropdown()).toBeFalsy();
         });
+
+        it('excludes teams where not selected for current season', async () => {
+            const differentSeasonTeam = teamBuilder('OTHER SEASON')
+                .forSeason(createTemporaryId(), division)
+                .build();
+
+            await renderComponent({
+                player: playerBuilder('NAME').noId().captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: null,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, differentSeasonTeam], [division]);
+
+            const items = Array.from(findNewTeamDropdown().querySelectorAll('.dropdown-item'));
+            expect(items.map(i => i.textContent)).toEqual([ 'Select team', 'TEAM' ]);
+        });
     });
 
     describe('interactivity', () => {
@@ -372,6 +391,27 @@ describe('EditPlayerDetails', () => {
             await doClick(findButton(context.container, 'Save player'));
 
             expect(saved).toEqual(false);
+            expect(context.container.textContent).toContain('Could not save player details');
+        });
+
+        it('can close error dialog after save failure', async () => {
+            await renderComponent({
+                player: playerBuilder('NAME').captain().email('EMAIL').build(),
+                seasonId: season.id,
+                team: team,
+                gameId: null,
+                newTeamId: otherTeam.id,
+                divisionId: division.id,
+                newDivisionId: null,
+            }, [team, otherTeam], [division, otherDivision]);
+            expect(reportedError).toBeNull();
+            apiResponse = {success: false};
+            await doClick(findButton(context.container, 'Save player'));
+            expect(context.container.textContent).toContain('Could not save player details');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not save player details');
         });
 
         it('can cancel editing', async () => {

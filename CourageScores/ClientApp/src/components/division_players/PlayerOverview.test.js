@@ -152,6 +152,46 @@ describe('PlayerOverview', () => {
             expect(linkToAwayTeam).toBeFalsy();
         });
 
+        it('league fixture with no scores', async () => {
+            const fixtureId = createTemporaryId();
+            const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
+                .withFixture(f => f.playing(teamBuilder('HOME'), team).scores(null, null), fixtureId)
+                .build();
+            const playerWithLeagueFixture = Object.assign({}, player);
+            playerWithLeagueFixture.fixtures[fixtureDate.date] = fixtureId;
+            await renderComponent(
+                playerWithLeagueFixture.id,
+                divisionDataBuilder(division)
+                    .withTeam(team)
+                    .withPlayer(playerWithLeagueFixture)
+                    .withFixtureDate(fixtureDate)
+                    .season(season)
+                    .build());
+
+            expect(reportedError).toBeNull();
+            const table = context.container.querySelector('table.table');
+            expect(table).toBeTruthy();
+            const rows = Array.from(table.querySelectorAll('tbody tr'));
+            expect(rows.length).toEqual(1);
+            const cells = Array.from(rows[0].querySelectorAll('td'));
+            expect(cells.map(td => td.textContent)).toEqual([
+                renderDate(fixtureDate.date),
+                'HOME',
+                '-',
+                'vs',
+                '-',
+                'TEAM',
+            ]);
+            const linkToFixture = cells[0].querySelector('a');
+            expect(linkToFixture).toBeTruthy();
+            expect(linkToFixture.href).toEqual(`http://localhost/score/${fixtureId}`);
+            const linkToHomeTeam = cells[1].querySelector('a');
+            expect(linkToHomeTeam).toBeTruthy();
+            expect(linkToHomeTeam.href).toEqual(`http://localhost/division/${division.name}/team:HOME/${season.name}`);
+            const linkToAwayTeam = cells[5].querySelector('a');
+            expect(linkToAwayTeam).toBeFalsy();
+        });
+
         it('league knockout fixture', async () => {
             const fixtureId = createTemporaryId();
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
@@ -301,7 +341,7 @@ describe('PlayerOverview', () => {
             expect(linkToFixture.href).toEqual(`http://localhost/tournament/${tournamentId}`);
         });
 
-        it('not proposed tournament fixtures', async () => {
+        it('excludes proposed tournament fixtures', async () => {
             const fixtureDate = fixtureDateBuilder('2023-05-06T00:00:00')
                 .withTournament(t => t.withPlayer(player)
                     .type('TYPE')

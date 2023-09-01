@@ -64,13 +64,13 @@ describe('AssignTeamToSeasons', () => {
             </DivisionDataContainer>));
     }
 
-    describe('component', () => {
+    describe('renders', () => {
         const season = seasonBuilder('SEASON')
             .starting('2023-05-01T00:00:00')
             .build();
         const division = divisionBuilder('DIVISION').build();
 
-        it('renders when team not found', async () => {
+        it('when team not found', async () => {
             const team = teamBuilder('TEAM').build();
             await renderComponent(team, [], [season], season);
 
@@ -78,7 +78,7 @@ describe('AssignTeamToSeasons', () => {
             expect(context.container.textContent).toContain('Team not found: TEAM');
         });
 
-        it('renders selected seasons', async () => {
+        it('selected seasons', async () => {
             const team = teamBuilder('TEAM').forSeason(season, division).build();
             const otherSeason = seasonBuilder('PREVIOUS SEASON')
                 .starting('2023-02-01T00:00:00')
@@ -93,6 +93,13 @@ describe('AssignTeamToSeasons', () => {
             expect(seasons[0].className).not.toContain('active');
             expect(seasons[1].className).toContain('active');
         });
+    });
+
+    describe('interactivity', () => {
+        const season = seasonBuilder('SEASON')
+            .starting('2023-05-01T00:00:00')
+            .build();
+        const division = divisionBuilder('DIVISION').build();
 
         it('can change copy team from current season', async () => {
             const team = teamBuilder('TEAM').build();
@@ -145,6 +152,25 @@ describe('AssignTeamToSeasons', () => {
             expect(reportedError).toBeNull();
             expect(apiAdded).toEqual([{teamId: team.id, seasonId: otherSeason.id, copyFromSeasonId: season.id}]);
             expect(apiDeleted).toEqual([]);
+        });
+
+        it('reports any errors during save', async () => {
+            const team = teamBuilder('TEAM').forSeason(season, division).build();
+            const otherSeason = seasonBuilder('PREVIOUS SEASON')
+                .starting('2023-02-01T00:00:00')
+                .build();
+            await renderComponent(team, [team], [season, otherSeason], season);
+            let alert;
+            window.alert = (msg) => alert = msg;
+            console.error = () => {};
+            await doClick(context.container, '.list-group .list-group-item:not(.active)');
+            apiResponse = {
+                success: false,
+            };
+
+            await doClick(findButton(context.container, 'Apply changes'));
+
+            expect(alert).toEqual('There were 1 error/s when applying these changes; some changes may not have been saved');
         });
 
         it('can close', async () => {

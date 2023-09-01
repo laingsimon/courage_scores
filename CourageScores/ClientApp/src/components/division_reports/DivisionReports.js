@@ -49,7 +49,7 @@ export function DivisionReports() {
     }
 
     function renderReportNames() {
-        if (isEmpty(reportData.reports)) {
+        if (isEmpty(reportData.reports || [])) {
             return null;
         }
 
@@ -85,7 +85,7 @@ export function DivisionReports() {
             </button>
         </div>
         <div>
-            {reportData && !gettingData ? (<ReportGenerationMessages messages={reportData.messages}/>) : null}
+            {reportData && !gettingData && reportData.messages ? (<ReportGenerationMessages messages={reportData.messages}/>) : null}
             {reportData && !gettingData ? renderReportNames() : null}
             {activeReport ? (<div className="d-screen-none">
                 <strong className="fs-3 float-left">{activeReport}</strong>

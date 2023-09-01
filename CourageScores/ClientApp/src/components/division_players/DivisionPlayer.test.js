@@ -52,7 +52,8 @@ describe('DivisionPlayer', () => {
                 account,
                 reloadTeams: () => teamsReloaded = true,
                 teams: [],
-                divisions: []
+                divisions: [],
+                reportClientSideException: () => {},
             },
             (<DivisionDataContainer {...divisionData} onReloadDivision={() => divisionReloaded = true}>
                 <DivisionPlayer {...props} />
@@ -321,6 +322,44 @@ describe('DivisionPlayer', () => {
                 expect(deletedPlayer).not.toBeNull();
                 expect(divisionReloaded).toEqual(true);
                 expect(teamsReloaded).toEqual(true);
+            });
+
+            it('can handle error when deleting player', async () => {
+                await renderComponent({
+                        player,
+                        hideVenue: false
+                    },
+                    {id: division.id, season, name: division.name},
+                    account);
+                const nameCell = context.container.querySelector('td:nth-child(2)');
+                response = true;
+                apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+
+                await doClick(findButton(nameCell, '🗑️'));
+
+                expect(deletedPlayer).not.toBeNull();
+                expect(divisionReloaded).toEqual(false);
+                expect(teamsReloaded).toEqual(false);
+                expect(context.container.textContent).toContain('Could not delete player');
+                expect(context.container.textContent).toContain('SOME ERROR');
+            });
+
+            it('can close error dialog after delete failure', async () => {
+                await renderComponent({
+                        player,
+                        hideVenue: false
+                    },
+                    {id: division.id, season, name: division.name},
+                    account);
+                const nameCell = context.container.querySelector('td:nth-child(2)');
+                response = true;
+                apiResponse = { success: false, errors: [ 'SOME ERROR' ] };
+                await doClick(findButton(nameCell, '🗑️'));
+                expect(context.container.textContent).toContain('Could not delete player');
+
+                await doClick(findButton(context.container, 'Close'));
+
+                expect(context.container.textContent).not.toContain('Could not delete player');
             });
 
             it('can save player details', async () => {

@@ -312,6 +312,32 @@ describe('EditTeamDetails', () => {
             expect(context.container.textContent).toContain('Could not save team details');
         });
 
+        it('can close error dialog after save failure', async () => {
+            const division = divisionBuilder('DIVISION').build();
+            const otherDivision = divisionBuilder('OTHER DIVISION').build();
+            const team = teamBuilder('TEAM')
+                .address('ADDRESS')
+                .division(division)
+                .season(createTemporaryId())
+                .build();
+            await renderComponent({
+                team: {
+                    name: team.name,
+                    address: team.address,
+                    newDivisionId: division.id,
+                },
+                divisionId: team.divisionId,
+                seasonId: team.seasonId,
+            }, [division, otherDivision]);
+            apiResponse = {success: false};
+            await doClick(findButton(context.container, 'Add team'));
+            expect(context.container.textContent).toContain('Could not save team details');
+
+            await doClick(findButton(context.container, 'Close'));
+
+            expect(context.container.textContent).not.toContain('Could not save team details');
+        });
+
         it('can cancel', async () => {
             const division = divisionBuilder('DIVISION').build();
             const team = teamBuilder('TEAM')

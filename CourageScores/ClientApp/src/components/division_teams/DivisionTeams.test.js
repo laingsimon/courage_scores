@@ -13,7 +13,7 @@ describe('DivisionTeams', () => {
     let divisionReloaded = false;
     let account;
     const teamApi = {
-        update: async (team, lastUpdated) => {
+        update: async (team) => {
             return {
                 success: true,
                 result: team,
@@ -162,6 +162,19 @@ describe('DivisionTeams', () => {
             const dialog = context.container.querySelector('.modal-dialog');
             expect(dialog).toBeTruthy();
             expect(dialog.textContent).toContain('Create a new team...');
+        });
+
+        it('can close add team dialog', async () => {
+            const divisionId = createTemporaryId();
+            const divisionData = createDivisionData(divisionId);
+            await renderComponent(
+                {...divisionData, onReloadDivision: onReloadDivision});
+            await doClick(findButton(context.container, 'Add team'));
+            expect(context.container.querySelector('.modal-dialog')).toBeTruthy();
+
+            await doClick(findButton(context.container.querySelector('.modal-dialog'), 'Cancel'));
+
+            expect(context.container.querySelector('.modal-dialog')).toBeFalsy();
         });
 
         it('can create new team', async () => {
