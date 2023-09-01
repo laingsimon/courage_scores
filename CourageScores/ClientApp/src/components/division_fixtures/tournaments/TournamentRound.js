@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {BootstrapDropdown} from "../../common/BootstrapDropdown";
-import {valueChanged} from "../../../helpers/events";
 import {all, any, elementAt, isEmpty, toMap} from "../../../helpers/collections";
 import {TournamentRoundMatch} from "./TournamentRoundMatch";
 import {getRoundNameFromSides, hasScore, sideSelection} from "../../../helpers/tournaments";
@@ -26,7 +25,6 @@ export function TournamentRound({
         startingScore: 501,
         numberOfLegs: tournamentData.bestOf || 5,
     };
-    const [changeRoundName, setChangeRoundName] = useState(false);
 
     function setNewSide(sideId, property) {
         const newNewMatch = Object.assign({}, newMatch);
@@ -134,12 +132,7 @@ ${getRoundNameFromSides(round, sides.length, depth)}: ${newNewMatch.sideA ? newN
     }
 
     return (<div className="mt-3">
-        {changeRoundName && !readOnly
-            ? (<input type="text" name="name" onChange={valueChanged(round, onChange)}
-                      value={round.name === null ? getRoundNameFromSides(round, sides.length, depth) : round.name}
-                      onBlur={() => setChangeRoundName(false)}/>)
-            : (<strong title="Click to change"
-                       onClick={() => setChangeRoundName(true)}>{getRoundNameFromSides(round, sides.length, depth)}</strong>)}
+        <strong>{getRoundNameFromSides(round, sides.length, depth)}</strong>
         <table className={`table${readOnly || hasNextRound ? ' layout-fixed' : ''} table-sm`}>
             <tbody>
             {(round.matches || []).map((match, matchIndex) => {

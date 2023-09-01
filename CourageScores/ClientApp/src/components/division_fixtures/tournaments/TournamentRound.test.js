@@ -420,28 +420,6 @@ describe('TournamentRound', () => {
                 });
             });
 
-            it('can change round name', async () => {
-                const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
-                await renderComponent({tournamentData: {id: createTemporaryId()}}, {
-                    round: roundBuilder().withMatch(match).build(),
-                    sides: [side1, side2, side3, side4],
-                    readOnly,
-                    depth: 1,
-                });
-                expect(reportedError).toBeNull();
-
-                await doClick(context.container.querySelector('strong'));
-                await doChange(context.container, 'input[name="name"]', 'ROUND NAME', context.user);
-
-                expect(reportedError).toBeNull();
-                expect(updatedRound).toEqual({
-                    matches: [match],
-                    matchOptions: [],
-                    nextRound: null,
-                    name: 'ROUND NAME',
-                });
-            });
-
             it('can change sideA score', async () => {
                 const match = tournamentMatchBuilder().sideA(side1).sideB(side2).build();
                 await renderComponent({tournamentData: {id: createTemporaryId()}}, {
