@@ -48,6 +48,30 @@ describe('MatchComparer', () => {
             expect(result).toEqual(true);
         });
 
+        it('when null homePlayers', () => {
+            const result = matchEquals(
+                matchBuilder().scores(1, 3).build(),
+                matchBuilder().withAway('PLAYER').scores(1, 3).build());
+
+            expect(result).toEqual(false);
+        });
+
+        it('when null awayPlayers', () => {
+            const result = matchEquals(
+                matchBuilder().withHome('PLAYER').scores(1, 3).build(),
+                matchBuilder().scores(1, 3).build());
+
+            expect(result).toEqual(false);
+        });
+
+        it('when null homePlayers and null awayPlayers', () => {
+            const result = matchEquals(
+                matchBuilder().scores(1, 3).build(),
+                matchBuilder().scores(1, 3).build());
+
+            expect(result).toEqual(true);
+        });
+
         it('when homePlayers are different', () => {
             const homePlayer = playerBuilder('').build();
             const awayPlayer = playerBuilder('').build();

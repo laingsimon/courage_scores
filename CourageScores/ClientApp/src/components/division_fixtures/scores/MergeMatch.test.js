@@ -109,6 +109,30 @@ describe('MergeMatch', () => {
             expect(td.querySelector('button').disabled).toEqual(true);
         });
 
+        it('when home but no away submission match', async () => {
+            const match = {};
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .withMatch(m => m.withHome().withAway().scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY'))
+                .build();
+            await renderComponent({
+                readOnly: true,
+                matches: [match],
+                matchIndex: 0,
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {}
+            });
+
+            expect(reportedError).toBeNull();
+            const td = context.container.querySelector('td:nth-child(3)');
+            expect(td.colSpan).toEqual(2);
+            expect(td.querySelector('span').textContent).toEqual('No match');
+        });
+
         it('when nothing to merge for either home or away', async () => {
             const fixture = fixtureBuilder('2023-05-06T00:00:00')
                 .homeSubmission(s => s.author('HOME CAPTAIN').playing('HOME', 'AWAY'))
@@ -309,6 +333,43 @@ describe('MergeMatch', () => {
             const awaySubmission = context.container.querySelector('td:nth-child(3)');
 
             await doClick(findButton(awaySubmission, 'Accept'));
+
+            expect(reportedError).toBeNull();
+            expect(updatedData.matches[0]).toEqual({
+                awayPlayers: [awayPlayer],
+                homePlayers: [homePlayer],
+                awayScore: 2,
+                homeScore: 1,
+            });
+        });
+
+        it('can merge matching submissions', async () => {
+            const homePlayer = playerBuilder('HOME PLAYER').build();
+            const awayPlayer = playerBuilder('AWAY PLAYER').build();
+            const fixture = fixtureBuilder('2023-05-06T00:00:00')
+                .homeSubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('HOME CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .awaySubmission(s => s
+                    .playing('HOME', 'AWAY')
+                    .author('AWAY CAPTAIN')
+                    .withMatch(m => m.withHome(homePlayer).withAway(awayPlayer).scores(1, 2)))
+                .withMatch(m => m)
+                .build();
+            await renderComponent({
+                readOnly: false,
+                matches: [{}],
+                matchIndex: 0,
+                homeSubmission: fixture.homeSubmission,
+                awaySubmission: fixture.awaySubmission,
+                fixtureData: {
+                    matches: [{}]
+                }
+            });
+            const homeSubmission = context.container.querySelector('td:nth-child(1)');
+
+            await doClick(findButton(homeSubmission, 'Accept'));
 
             expect(reportedError).toBeNull();
             expect(updatedData.matches[0]).toEqual({
