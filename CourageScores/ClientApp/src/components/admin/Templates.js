@@ -245,13 +245,13 @@ export function Templates() {
                 {selected.templateHealth ? (<div className="alert alert-success mt-3 p-1 pt-3">
                     <ViewHealthCheck result={selected.templateHealth}/>
                 </div>) : null}
-                <div className="mt-3 text-secondary">
+                {editorFormat === 'text' ? (<div className="mt-3 text-secondary">
                     <div>Authoring tools: Copy fixture template from excel (per division)</div>
                     <textarea value={fixtureToFormat} className="d-inline-block width-100" placeholder="Copy from excel"
                               onChange={stateChanged(setFixtureToFormat)}/>
                     <textarea value={formatFixtureInput()} className="d-inline-block width-100"
                               placeholder="Copy into template" readOnly={true}></textarea>
-                </div>
+                </div>) : null}
             </div> : (<div>
                 <button className="btn btn-primary margin-right" onClick={() => setEditingTemplate(EMPTY_TEMPLATE)}>
                     Add
