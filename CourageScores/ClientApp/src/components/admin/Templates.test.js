@@ -199,21 +199,26 @@ describe('Templates', () => {
                     errors: [],
                     warnings: [],
                     messages: [],
-                }
+                },
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             expect(reportedError).toBeNull();
 
             await doClick(context.container, '.list-group .list-group-item:first-child');
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             expect(reportedError).toBeNull();
-            const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            const templateItems = Array.from(context.container.querySelectorAll('ul[name="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column active']);
             const textarea = context.container.querySelector('textarea');
             expect(textarea).toBeTruthy();
             const editableTemplate = {
                 someProperty: 'something',
+                sharedAddresses: [],
+                divisions: [],
             };
             expect(textarea.value).toEqual(JSON.stringify(editableTemplate, null, '  '));
         });
@@ -222,6 +227,8 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
@@ -241,16 +248,19 @@ describe('Templates', () => {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
 
             await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).toBeNull();
             expect(updated).toEqual({
+                divisions: [],
+                sharedAddresses: [],
                 id: template.id,
                 name: 'TEMPLATE',
                 lastUpdated: '2023-08-01',
@@ -263,16 +273,17 @@ describe('Templates', () => {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             await doChange(context.container, 'textarea', '{}', context.user);
 
             expect(reportedError).toBeNull();
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
         });
 
         it('prevents saving an invalid template', async () => {
@@ -280,11 +291,13 @@ describe('Templates', () => {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
                 updated: '2023-08-01',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(context.container, '.list-group .list-group-item:first-child');
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             await doChange(context.container, 'textarea', 'invalid json', context.user);
 
@@ -296,6 +309,8 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
@@ -311,6 +326,8 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
@@ -332,26 +349,30 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
 
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             expect(reportedError).toBeNull();
-            expect(context.container.querySelector('textarea').value).toEqual('{}');
+            expect(JSON.parse(context.container.querySelector('textarea').value)).toEqual({ sharedAddresses: [], divisions: [] });
             expect(context.container.querySelector('button.bg-danger')).toBeFalsy();
         });
 
         it('can save new template', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
 
             await doClick(findButton(context.container, 'Save'));
 
             expect(reportedError).toBeNull();
             expect(updated).toEqual({
+                divisions: [],
+                sharedAddresses: [],
                 lastUpdated: undefined,
             });
         });
@@ -360,10 +381,13 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
 
             await doChange(context.container, 'textarea', '', context.user);
 
@@ -374,7 +398,6 @@ describe('Templates', () => {
         it('handles error during save', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
             apiResponse = {success: false, errors: ['ERROR ']};
 
             await doClick(findButton(context.container, 'Save'));
@@ -388,6 +411,8 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
@@ -410,7 +435,6 @@ describe('Templates', () => {
         it('can close error dialog after save failure', async () => {
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
-            expect(findButton(context.container, 'Save').disabled).toEqual(false);
             apiResponse = {success: false, errors: ['ERROR ']};
             await doClick(findButton(context.container, 'Save'));
             expect(context.container.textContent).toContain('Could not save template');
@@ -424,10 +448,13 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
             const input = '   ';
 
             await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
@@ -440,10 +467,13 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
             const input = 'A\tB\t\tC\t\D';
 
             await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
@@ -461,10 +491,13 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
             const input = 'A\tB\t\tC\t\D\n' +
                 'E\tF\t\tG\tH\n\n';
 
@@ -488,10 +521,13 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
             const input = 'A\t-\t\tC\t\D';
 
             await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);
@@ -509,10 +545,13 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                sharedAddresses: [],
+                divisions: [],
             };
             templates = [template];
             await renderComponent();
             await doClick(findButton(context.container, 'Add'));
+            await doClick(context.container, 'input[name="editorFormat"]'); // switch to text editor
             const input = 'A\t-\t\tC\t\D';
 
             await doChange(context.container, 'textarea[placeholder="Copy from excel"]', input, context.user);

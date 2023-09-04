@@ -9,7 +9,10 @@ import {TemplateTextEditor} from "./TemplateTextEditor";
 import {TemplateVisualEditor} from "./TemplateVisualEditor";
 
 export function Templates() {
-    const EMPTY_TEMPLATE = {};
+    const EMPTY_TEMPLATE = {
+        sharedAddresses: [],
+        divisions: [],
+    };
 
     const {templateApi} = useDependencies();
     const {onError} = useApp();
@@ -21,7 +24,7 @@ export function Templates() {
     const [valid, setValid] = useState(null);
     const [saveError, setSaveError] = useState(null);
     const [fixtureToFormat, setFixtureToFormat] = useState('');
-    const [editorFormat, setEditorFormat] = useState('text');
+    const [editorFormat, setEditorFormat] = useState('visual');
 
     async function loadTemplates() {
         try {
@@ -74,7 +77,7 @@ export function Templates() {
     }
 
     function renderTemplates() {
-        return (<ul className="list-group mb-2">
+        return (<ul className="list-group mb-2" name="templates">
             {templates.map(t => (<li key={t.id}
                                      className={`list-group-item flex-column${isSelected(t) ? ' active' : ''}`}
                                      onClick={toggleSelected(t)}>
