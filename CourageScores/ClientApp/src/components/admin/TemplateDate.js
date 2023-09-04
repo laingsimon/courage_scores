@@ -39,11 +39,11 @@ export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedA
 
     function sharedAddressClassName(address) {
         if (any(divisionSharedAddresses, a => a === address)) {
-            return ' bg-secondary';
+            return ' bg-secondary text-light';
         }
 
         if (any(templateSharedAddresses, a => a === address)) {
-            return ' bg-warning';
+            return ' bg-warning text-light';
         }
 
         return '';
@@ -54,7 +54,7 @@ export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedA
         {date.fixtures.map((a, index) => (<button
             key={index}
             onClick={() => deleteFixture(index)}
-            className="btn btn-sm margin-right px-1 badge btn-info">
+            className={`btn btn-sm margin-right px-1 badge ${a.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
             <span className={`px-1 ${sharedAddressClassName(a.home)}`}>{a.home}</span>
             {a.away ? (<span> - </span>) : null}
             {a.away ? (<span className="px-1">{a.away}</span>) : null} &times;</button>))}
