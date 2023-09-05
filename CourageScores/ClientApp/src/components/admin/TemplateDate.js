@@ -51,13 +51,13 @@ export function TemplateDate({ dateNo, date, onUpdate, onDelete, divisionSharedA
 
     return (<div>
         <small className="position-absolute left-0 ps-0 pt-1 text-end width-10">{dateNo} </small>
-        {date.fixtures.map((a, index) => (<button
+        {date.fixtures.map((f, index) => (<button
             key={index}
             onClick={() => deleteFixture(index)}
-            className={`btn btn-sm margin-right px-1 badge ${a.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
-            <span className={`px-1 ${sharedAddressClassName(a.home)}`}>{a.home}</span>
-            {a.away ? (<span> - </span>) : null}
-            {a.away ? (<span className="px-1">{a.away}</span>) : null} &times;</button>))}
+            className={`btn btn-sm margin-right px-1 badge ${f.away ? 'btn-info' : 'btn-outline-info text-dark'}`}>
+            <span className={`px-1 ${sharedAddressClassName(f.home)}`}>{f.home}</span>
+            {f.away ? (<span> - </span>) : null}
+            {f.away ? (<span className="px-1">{f.away}</span>) : null} &times;</button>))}
         <span className="margin-right badge bg-info ps-1">
             <input className="width-20 border-0 outline-0"
                    name="home"
