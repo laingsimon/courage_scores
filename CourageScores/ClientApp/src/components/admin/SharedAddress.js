@@ -10,7 +10,7 @@ export function SharedAddress({ address, onUpdate, onDelete, className }) {
 
     function addAddress() {
         if (!newAddress) {
-            window.alert('Enter a moniker for the address');
+            window.alert('Enter a code for the team');
             return;
         }
 
