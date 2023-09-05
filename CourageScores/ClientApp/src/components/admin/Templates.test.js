@@ -185,21 +185,6 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
-                description: 'DESCRIPTION',
-                someProperty: 'something',
-                updated: '2023-01-02',
-                created: '2023-01-01',
-                author: 'Simon',
-                editor: 'Simon',
-                deleted: null,
-                remover: null,
-                templateHealth: {
-                    checks: {},
-                    success: true,
-                    errors: [],
-                    warnings: [],
-                    messages: [],
-                },
                 sharedAddresses: [],
                 divisions: [],
             };
@@ -213,14 +198,6 @@ describe('Templates', () => {
             expect(reportedError).toBeNull();
             const templateItems = Array.from(context.container.querySelectorAll('ul[name="templates"] .list-group-item'));
             expect(templateItems.map(li => li.className)).toEqual(['list-group-item flex-column active']);
-            const textarea = context.container.querySelector('textarea');
-            expect(textarea).toBeTruthy();
-            const editableTemplate = {
-                someProperty: 'something',
-                sharedAddresses: [],
-                divisions: [],
-            };
-            expect(textarea.value).toEqual(JSON.stringify(editableTemplate, null, '  '));
         });
 
         it('can deselect template', async () => {

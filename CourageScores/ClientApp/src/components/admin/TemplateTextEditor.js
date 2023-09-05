@@ -54,5 +54,9 @@ export function TemplateTextEditor({ template, setValid, onUpdate }) {
         }
     }
 
-    return (<textarea className="width-100 min-height-100" rows="15" value={editing} onChange={e => updateTemplate(e.target.value)}></textarea>);
+    return (<textarea className="width-100 min-height-100"
+          rows="15"
+          value={editing}
+          onChange={e => updateTemplate(e.target.value)}>
+    </textarea>);
 }
