@@ -43,7 +43,7 @@ export function BootstrapDropdown({value, onChange, options, color, className, d
             {options.map(o => (<DropdownItem key={o.value}
                                              disabled={o.disabled || false}
                                              className={getItemClassName(o)}
-                                             onClick={async () => onChange ? await onChange(o.value) : null}>{o.text}</DropdownItem>))}
+                                             onClick={async () => onChange ? await onChange(o.value) : null}>{o.text || o.value}</DropdownItem>))}
         </DropdownMenu>
     </ButtonDropdown>);
 }
