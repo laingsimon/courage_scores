@@ -117,10 +117,7 @@ export function Templates() {
 
         try {
             const template = Object.assign({}, selected);
-            if (selected) {
-                template.lastUpdated = selected.updated;
-                // template.id = selected.id;
-            }
+            template.lastUpdated = selected.updated;
             const result = await templateApi.update(template);
             if (result.success) {
                 setSelected(null);
@@ -137,6 +134,7 @@ export function Templates() {
     }
 
     async function deleteTemplate() {
+        /* istanbul ignore next */
         if (deleting) {
             /* istanbul ignore next */
             return;

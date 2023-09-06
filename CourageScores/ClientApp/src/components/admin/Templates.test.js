@@ -64,6 +64,7 @@ describe('Templates', () => {
             const template = {
                 id: createTemporaryId(),
                 name: 'TEMPLATE',
+                description: 'DESCRIPTION',
             };
             templates = [template];
 
@@ -72,6 +73,25 @@ describe('Templates', () => {
             expect(reportedError).toBeNull();
             const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
             expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('small').textContent)).toEqual(['DESCRIPTION']);
+            expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
+            expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
+            expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
+        });
+
+        it('renders templates without description', async () => {
+            const template = {
+                id: createTemporaryId(),
+                name: 'TEMPLATE',
+            };
+            templates = [template];
+
+            await renderComponent();
+
+            expect(reportedError).toBeNull();
+            const templateItems = Array.from(context.container.querySelectorAll('.list-group .list-group-item'));
+            expect(templateItems.map(li => li.querySelector('label').textContent)).toEqual(['TEMPLATE']);
+            expect(templateItems.map(li => li.querySelector('small'))).toEqual([null]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-danger')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-warning')).map(s => s.textContent))).toEqual([[]]);
             expect(templateItems.map(li => Array.from(li.querySelectorAll('span.bg-success')).map(s => s.textContent))).toEqual([[]]);
