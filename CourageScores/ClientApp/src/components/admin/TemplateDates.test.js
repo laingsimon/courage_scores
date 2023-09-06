@@ -118,6 +118,11 @@ describe('TemplateDates', () => {
                         home: 'A',
                         away: 'B',
                     }]
+                }, {
+                    fixtures: [{
+                        home: 'C',
+                        away: 'D',
+                    }]
                 }],
                 divisionSharedAddresses: [],
                 templateSharedAddresses: [],
@@ -127,6 +132,11 @@ describe('TemplateDates', () => {
 
             expect(update).toEqual([{
                 fixtures: []
+            }, {
+                fixtures: [{
+                    home: 'C',
+                    away: 'D',
+                }]
             }]);
         });
     });

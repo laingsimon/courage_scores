@@ -105,18 +105,24 @@ describe('TemplateDivisions', () => {
             await renderComponent({
                 divisions: [{
                     dates: [],
-                    sharedAddresses: [],
+                    sharedAddresses: [ [ 'A' ] ],
+                }, {
+                    dates: [],
+                    sharedAddresses: [ [ 'B' ] ],
                 }],
                 templateSharedAddresses: [],
             });
 
-            await doClick(findButton(context.container, '➕ Add a week'));
+            await doClick(findButton(context.container.querySelector('ul>li:nth-child(2)'), '➕ Add a week'));
 
             expect(update).toEqual([{
                 dates: [{
                     fixtures: [],
                 }],
-                sharedAddresses: [],
+                sharedAddresses: [ [ 'A' ] ],
+            }, {
+                dates: [],
+                sharedAddresses: [ [ 'B' ] ],
             }]);
         });
     });

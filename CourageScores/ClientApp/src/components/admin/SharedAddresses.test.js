@@ -97,13 +97,13 @@ describe('SharedAddresses', () => {
 
         it('can update shared address', async () => {
             await renderComponent({
-                addresses: [ [ 'A', 'B' ] ],
+                addresses: [ [ 'A', 'B' ], [ 'C', 'D' ] ],
                 className: 'bg-warning',
             });
 
             await doClick(findButton(context.container, 'B ×'));
 
-            expect(updatedAddresses).toEqual([ [ 'A' ] ]);
+            expect(updatedAddresses).toEqual([ [ 'A' ], [ 'C', 'D' ] ]);
         });
     });
 });
