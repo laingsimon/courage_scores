@@ -11,7 +11,7 @@ export function NotPermitted() {
 
     return (<div className="content-background p-3 text-danger">
         <h3>⛔</h3>
-        You're not permitted to use this function
+        You're not permitted to use this function<br />
         <a className="btn btn-primary" href={`${getAccountUrl('Login')}`}>Login</a>
     </div>)
 }
